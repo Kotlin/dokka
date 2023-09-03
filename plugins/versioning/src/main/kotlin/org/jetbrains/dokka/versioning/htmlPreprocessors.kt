@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.versioning
 
 import org.jetbrains.dokka.pages.RendererSpecificResourcePage
@@ -6,7 +10,9 @@ import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-class MultiModuleStylesInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
+public class MultiModuleStylesInstaller(
+    private val dokkaContext: DokkaContext
+) : PageTransformer {
     private val stylesPages = listOf(
         "styles/multimodule.css",
     )
@@ -22,7 +28,9 @@ class MultiModuleStylesInstaller(private val dokkaContext: DokkaContext) : PageT
         }
 }
 
-class NotFoundPageInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
+public class NotFoundPageInstaller(
+    private val dokkaContext: DokkaContext
+) : PageTransformer {
     private val notFoundPage = listOf(
         "not-found-version.html",
     )

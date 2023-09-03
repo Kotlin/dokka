@@ -1,14 +1,18 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.javadoc.location
 
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.jdk
 import org.jetbrains.dokka.kotlinStdlib
 import org.jetbrains.dokka.model.doc.DocumentationLink
 import org.jetbrains.dokka.model.doc.Text
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.utilities.cast
-import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class JavadocLinkingTest : BaseAbstractTest() {

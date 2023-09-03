@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package filter
 
 import org.jetbrains.dokka.DokkaConfiguration
@@ -7,12 +11,14 @@ import org.jetbrains.dokka.PackageOptionsImpl
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DModule
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import testApi.testRunner.dokkaConfiguration
+import kotlin.test.Test
+import utils.JavaCode
 import kotlin.test.assertEquals
 
+@JavaCode
 class JavaVisibilityFilterTest : BaseAbstractTest() {
 
     @Test
@@ -301,3 +307,4 @@ class JavaVisibilityFilterTest : BaseAbstractTest() {
             }
     }
 }
+

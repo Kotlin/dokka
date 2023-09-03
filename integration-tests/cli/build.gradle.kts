@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
@@ -10,7 +14,7 @@ evaluationDependsOn(":runners:cli")
 evaluationDependsOn(":plugins:base")
 
 dependencies {
-    implementation(kotlin("test-junit"))
+    implementation(kotlin("test-junit5"))
     implementation(projects.integrationTests)
 }
 
@@ -23,13 +27,19 @@ val basePluginShadow: Configuration by configurations.creating {
 
 dependencies {
     basePluginShadow(projects.plugins.base)
-    basePluginShadow(projects.kotlinAnalysis) // compileOnly in base plugin
+
+    // TODO [beresnev] analysis switcher
+    basePluginShadow(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
 }
 
 val basePluginShadowJar by tasks.register("basePluginShadowJar", ShadowJar::class) {
     configurations = listOf(basePluginShadow)
     archiveFileName.set("fat-base-plugin-$dokka_version.jar")
     archiveClassifier.set("")
+
+    // service files are merged to make sure all Dokka plugins
+    // from the dependencies are loaded, and not just a single one.
+    mergeServiceFiles()
 }
 
 tasks.integrationTest {

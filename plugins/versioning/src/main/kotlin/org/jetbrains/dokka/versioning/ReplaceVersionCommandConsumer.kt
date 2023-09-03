@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.versioning
 
 import kotlinx.html.unsafe
@@ -13,14 +17,14 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 
-class ReplaceVersionCommandConsumer(context: DokkaContext) : ImmediateHtmlCommandConsumer {
+public class ReplaceVersionCommandConsumer(context: DokkaContext) : ImmediateHtmlCommandConsumer {
 
     private val versionsNavigationCreator =
         context.plugin<VersioningPlugin>().querySingle { versionsNavigationCreator }
     private val versioningStorage =
         context.plugin<VersioningPlugin>().querySingle { versioningStorage }
 
-    override fun canProcess(command: Command) = command is ReplaceVersionsCommand
+    override fun canProcess(command: Command): Boolean = command is ReplaceVersionsCommand
 
     override fun <R> processCommand(
         command: Command,

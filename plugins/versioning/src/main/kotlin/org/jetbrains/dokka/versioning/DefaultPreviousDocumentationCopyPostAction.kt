@@ -1,19 +1,25 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.versioning
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.templates.TemplateProcessingStrategy
 import org.jetbrains.dokka.templates.TemplatingPlugin
 import java.io.File
 
-class DefaultPreviousDocumentationCopyPostAction(private val context: DokkaContext) : PostAction {
+public class DefaultPreviousDocumentationCopyPostAction(
+    private val context: DokkaContext
+) : PostAction {
     private val versioningStorage by lazy { context.plugin<VersioningPlugin>().querySingle { versioningStorage } }
     private val processingStrategies: List<TemplateProcessingStrategy> =
         context.plugin<TemplatingPlugin>().query { templateProcessingStrategy }

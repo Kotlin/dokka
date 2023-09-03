@@ -1,13 +1,17 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package basic
 
 import org.jetbrains.dokka.DokkaException
-import org.jetbrains.dokka.testApi.logger.TestLogger
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.testApi.logger.TestLogger
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.LoggingLevel
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 class FailOnWarningTest : BaseAbstractTest() {
 
@@ -22,7 +26,7 @@ class FailOnWarningTest : BaseAbstractTest() {
             }
         }
 
-        assertThrows<DokkaException> {
+        assertFailsWith<DokkaException> {
             testInline(
                 """
                 |/src/main/kotlin/Bar.kt
@@ -48,7 +52,7 @@ class FailOnWarningTest : BaseAbstractTest() {
             }
         }
 
-        assertThrows<DokkaException> {
+        assertFailsWith<DokkaException> {
             testInline(
                 """
                 |/src/main/kotlin/Bar.kt

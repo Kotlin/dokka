@@ -1,14 +1,16 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package model.annotations
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.*
-import org.junit.jupiter.api.Test
 import translators.findClasslike
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import kotlin.test.*
+import utils.JavaCode
 
+@JavaCode
 class JavaAnnotationsTest : BaseAbstractTest() {
 
     val configuration = dokkaConfiguration {

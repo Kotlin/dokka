@@ -1,9 +1,15 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.utilities
 
-import org.jetbrains.dokka.*
+import org.jetbrains.dokka.InternalDokkaApi
 
 @InternalDokkaApi
-interface SelfRepresentingSingletonSet<T : SelfRepresentingSingletonSet<T>> : Set<T> {
+@Suppress("DEPRECATION_ERROR")
+@Deprecated(message = "SelfRepresentingSingletonSet is an incorrect set implementation that breaks set invariants", level = DeprecationLevel.ERROR)
+public interface SelfRepresentingSingletonSet<T : SelfRepresentingSingletonSet<T>> : Set<T> {
     override val size: Int get() = 1
 
     override fun contains(element: T): Boolean = this == element

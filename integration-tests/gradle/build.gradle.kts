@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.jetbrains.dependsOnMavenLocalPublication
 
 plugins {
@@ -7,7 +11,10 @@ plugins {
 dependencies {
     implementation(projects.integrationTests)
 
-    implementation(kotlin("test-junit"))
+    implementation(kotlin("test-junit5"))
+    implementation(libs.junit.jupiterApi)
+    implementation(libs.junit.jupiterParams)
+
     implementation(gradleTestKit())
 
     implementation(libs.jsoup)

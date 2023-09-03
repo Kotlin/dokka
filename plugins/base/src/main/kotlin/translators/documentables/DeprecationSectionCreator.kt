@@ -1,13 +1,17 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.annotations
 import org.jetbrains.dokka.base.transformers.documentables.isDeprecated
+import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentStyle
 import org.jetbrains.dokka.pages.TextStyle
-import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
 
 /**
  * Main header for [Deprecated] section

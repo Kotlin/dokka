@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.renderers
 
 import kotlinx.coroutines.Dispatchers
@@ -15,61 +19,68 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.Renderer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-abstract class DefaultRenderer<T>(
+public abstract class DefaultRenderer<T>(
     protected val context: DokkaContext
 ) : Renderer {
 
-    protected val outputWriter = context.plugin<DokkaBase>().querySingle { outputWriter }
+    protected val outputWriter: OutputWriter = context.plugin<DokkaBase>().querySingle { outputWriter }
 
     protected lateinit var locationProvider: LocationProvider
         private set
 
     protected open val preprocessors: Iterable<PageTransformer> = emptyList()
 
-    abstract fun T.buildHeader(level: Int, node: ContentHeader, content: T.() -> Unit)
-    abstract fun T.buildLink(address: String, content: T.() -> Unit)
-    abstract fun T.buildList(
+    public abstract fun T.buildHeader(level: Int, node: ContentHeader, content: T.() -> Unit)
+    public abstract fun T.buildLink(address: String, content: T.() -> Unit)
+    public abstract fun T.buildList(
         node: ContentList,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
     )
 
-    abstract fun T.buildLineBreak()
-    open fun T.buildLineBreak(node: ContentBreakLine, pageContext: ContentPage) = buildLineBreak()
+    public abstract fun T.buildLineBreak()
+    public open fun T.buildLineBreak(node: ContentBreakLine, pageContext: ContentPage) {
+        buildLineBreak()
+    }
 
-    abstract fun T.buildResource(node: ContentEmbeddedResource, pageContext: ContentPage)
-    abstract fun T.buildTable(
+    public abstract fun T.buildResource(node: ContentEmbeddedResource, pageContext: ContentPage)
+    public abstract fun T.buildTable(
         node: ContentTable,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
     )
 
-    abstract fun T.buildText(textNode: ContentText)
-    abstract fun T.buildNavigation(page: PageNode)
+    public abstract fun T.buildText(textNode: ContentText)
+    public abstract fun T.buildNavigation(page: PageNode)
 
-    abstract fun buildPage(page: ContentPage, content: (T, ContentPage) -> Unit): String
-    abstract fun buildError(node: ContentNode)
+    public abstract fun buildPage(page: ContentPage, content: (T, ContentPage) -> Unit): String
+    public abstract fun buildError(node: ContentNode)
 
-    open fun T.buildPlatformDependent(
+    public open fun T.buildPlatformDependent(
         content: PlatformHintedContent,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
-    ) = buildContentNode(content.inner, pageContext)
+    ) {
+        buildContentNode(content.inner, pageContext)
+    }
 
-    open fun T.buildGroup(
+    public open fun T.buildGroup(
         node: ContentGroup,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
-    ) =
+    ) {
         wrapGroup(node, pageContext) { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
+    }
 
-    open fun T.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) =
+    public open fun T.buildDivergent(node: ContentDivergentGroup, pageContext: ContentPage) {
         node.children.forEach { it.build(this, pageContext) }
+    }
 
-    open fun T.wrapGroup(node: ContentGroup, pageContext: ContentPage, childrenCallback: T.() -> Unit) =
+    public open fun T.wrapGroup(node: ContentGroup, pageContext: ContentPage, childrenCallback: T.() -> Unit) {
         childrenCallback()
+    }
 
-    open fun T.buildText(
+    public open fun T.buildText(
         nodes: List<ContentNode>,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
@@ -77,15 +88,15 @@ abstract class DefaultRenderer<T>(
         nodes.forEach { it.build(this, pageContext, sourceSetRestriction) }
     }
 
-    open fun T.buildCodeBlock(code: ContentCodeBlock, pageContext: ContentPage) {
+    public open fun T.buildCodeBlock(code: ContentCodeBlock, pageContext: ContentPage) {
         code.children.forEach { it.build(this, pageContext) }
     }
 
-    open fun T.buildCodeInline(code: ContentCodeInline, pageContext: ContentPage) {
+    public open fun T.buildCodeInline(code: ContentCodeInline, pageContext: ContentPage) {
         code.children.forEach { it.build(this, pageContext) }
     }
 
-    open fun T.buildHeader(
+    public open fun T.buildHeader(
         node: ContentHeader,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
@@ -93,14 +104,23 @@ abstract class DefaultRenderer<T>(
         buildHeader(node.level, node) { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
     }
 
-    open fun ContentNode.build(
+    public open fun ContentNode.build(
         builder: T,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
-    ) =
+    ) {
         builder.buildContentNode(this, pageContext, sourceSetRestriction)
+    }
 
-    open fun T.buildContentNode(
+    public fun T.buildContentNode(
+        node: ContentNode,
+        pageContext: ContentPage,
+        sourceSetRestriction: DisplaySourceSet
+    ) {
+        buildContentNode(node, pageContext, setOf(sourceSetRestriction))
+    }
+
+    public open fun T.buildContentNode(
         node: ContentNode,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>? = null
@@ -126,7 +146,7 @@ abstract class DefaultRenderer<T>(
         }
     }
 
-    open fun T.buildDRILink(
+    public open fun T.buildDRILink(
         node: ContentDRILink,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
@@ -138,7 +158,7 @@ abstract class DefaultRenderer<T>(
         } ?: buildText(node.children, pageContext, sourceSetRestriction)
     }
 
-    open fun T.buildResolvedLink(
+    public open fun T.buildResolvedLink(
         node: ContentResolvedLink,
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
@@ -148,18 +168,18 @@ abstract class DefaultRenderer<T>(
         }
     }
 
-    open fun T.buildDivergentInstance(node: ContentDivergentInstance, pageContext: ContentPage) {
+    public open fun T.buildDivergentInstance(node: ContentDivergentInstance, pageContext: ContentPage) {
         node.before?.build(this, pageContext)
         node.divergent.build(this, pageContext)
         node.after?.build(this, pageContext)
     }
 
-    open fun buildPageContent(context: T, page: ContentPage) {
+    public open fun buildPageContent(context: T, page: ContentPage) {
         context.buildNavigation(page)
         page.content.build(context, page)
     }
 
-    open suspend fun renderPage(page: PageNode) {
+    public open suspend fun renderPage(page: PageNode) {
         val path by lazy {
             locationProvider.resolve(page, skipExtension = true)
                 ?: throw DokkaException("Cannot resolve path for ${page.name}")
@@ -234,4 +254,4 @@ abstract class DefaultRenderer<T>(
 internal typealias SerializedBeforeAndAfter = Pair<String, String>
 internal typealias InstanceWithSource = Pair<ContentDivergentInstance, DisplaySourceSet>
 
-fun ContentPage.sourceSets() = this.content.sourceSets
+public fun ContentPage.sourceSets(): Set<DisplaySourceSet> = this.content.sourceSets

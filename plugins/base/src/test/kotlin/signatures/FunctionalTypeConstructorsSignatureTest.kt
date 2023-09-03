@@ -1,15 +1,19 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package signatures
 
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.jdk
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
+import org.jetbrains.dokka.jdk
 import utils.A
 import utils.Span
 import utils.TestOutputWriterPlugin
 import utils.match
-import java.lang.IllegalStateException
+import utils.JavaCode
+import kotlin.test.Ignore
+import kotlin.test.Test
 
 class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
@@ -147,7 +151,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
             }
         }
     }
-    @Disabled // Add coroutines on classpath and get proper import
+    @Ignore // Add coroutines on classpath and get proper import
     @Test
     fun `kotlin normal suspendable function`() {
         val source = source("val nF: SuspendFunction1<Int, String> = { _ -> \"\" }")
@@ -255,6 +259,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `java with java function`() {
         val source = """
@@ -281,6 +286,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `java with kotlin function`() {
         val source = """

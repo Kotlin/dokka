@@ -1,10 +1,10 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.javadoc.renderer
 
 import com.soywiz.korte.*
-import org.jetbrains.dokka.javadoc.location.JavadocLocationProvider
-import org.jetbrains.dokka.javadoc.pages.*
-import org.jetbrains.dokka.javadoc.renderer.JavadocContentToHtmlTranslator.Companion.buildLink
-import org.jetbrains.dokka.javadoc.toNormalized
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -12,20 +12,28 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.OutputWriter
 import org.jetbrains.dokka.javadoc.JavadocPlugin
+import org.jetbrains.dokka.javadoc.location.JavadocLocationProvider
+import org.jetbrains.dokka.javadoc.pages.*
+import org.jetbrains.dokka.javadoc.renderer.JavadocContentToHtmlTranslator.Companion.buildLink
+import org.jetbrains.dokka.javadoc.toNormalized
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.PageNode
+import org.jetbrains.dokka.pages.RendererSpecificPage
+import org.jetbrains.dokka.pages.RenderingStrategy
+import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.Renderer
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
+import org.jetbrains.dokka.analysis.kotlin.internal.InheritanceNode
 import java.time.LocalDate
 
-typealias TemplateMap = Map<String, Any?>
+public typealias TemplateMap = Map<String, Any?>
 
-class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
-    Renderer {
+public class KorteJavadocRenderer(
+    public val context: DokkaContext, resourceDir: String
+) : Renderer {
     private val outputWriter: OutputWriter = context.plugin<DokkaBase>().querySingle { outputWriter }
     private lateinit var locationProvider: JavadocLocationProvider
     private val registeredPreprocessors = context.plugin<JavadocPlugin>().query { javadocPreprocessors }
@@ -38,11 +46,13 @@ class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
         JavadocContentToTemplateMapTranslator(locationProvider, context)
     }
 
-    override fun render(root: RootPageNode) = root.let { registeredPreprocessors.fold(root) { r, t -> t.invoke(r) } }.let { newRoot ->
-        locationProvider = context.plugin<JavadocPlugin>().querySingle { locationProviderFactory }.getLocationProvider(newRoot) as JavadocLocationProvider
-        runBlocking(Dispatchers.IO) {
-            renderPage(newRoot)
-            SearchScriptsCreator(locationProvider).invoke(newRoot).forEach { renderSpecificPage(it, "") }
+    override fun render(root: RootPageNode) {
+        root.let { registeredPreprocessors.fold(root) { r, t -> t.invoke(r) } }.let { newRoot ->
+            locationProvider = context.plugin<JavadocPlugin>().querySingle { locationProviderFactory }.getLocationProvider(newRoot) as JavadocLocationProvider
+            runBlocking(Dispatchers.IO) {
+                renderPage(newRoot)
+                SearchScriptsCreator(locationProvider).invoke(newRoot).forEach { renderSpecificPage(it, "") }
+            }
         }
     }
 
@@ -146,9 +156,9 @@ class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
             },
             TeFunction("renderInheritanceGraph") { args ->
                 @Suppress("UNCHECKED_CAST")
-                val rootNodes = args.first() as List<TreeViewPage.InheritanceNode>
+                val rootNodes = args.first() as List<InheritanceNode>
 
-                fun drawRec(node: TreeViewPage.InheritanceNode): String =
+                fun drawRec(node: InheritanceNode): String =
                     "<li class=\"circle\">" + node.dri.let { dri ->
                         listOfNotNull(
                             dri.packageName,
@@ -170,8 +180,9 @@ class KorteJavadocRenderer(val context: DokkaContext, resourceDir: String) :
             },
             Filter("length") { subject.dynamicLength() },
             TeFunction("hasAnyDescription") { args ->
-                args.first().safeAs<List<HashMap<String, String>>>()
-                    ?.any { it["description"]?.trim()?.isNotEmpty() ?: false }
+                @Suppress("UNCHECKED_CAST")
+                val map = args.first() as? List<HashMap<String, String>>
+                map?.any { it["description"]?.trim()?.isNotEmpty() ?: false }
             }
         ).forEach {
             when (it) {

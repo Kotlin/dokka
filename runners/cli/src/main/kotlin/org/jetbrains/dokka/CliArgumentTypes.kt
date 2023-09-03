@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka
 
 import kotlinx.cli.ArgParser
@@ -7,20 +11,23 @@ import java.io.File
 import java.nio.file.Paths
 
 
-object ArgTypeFile : ArgType<File>(true) {
+public object ArgTypeFile : ArgType<File>(true) {
     override fun convert(value: kotlin.String, name: kotlin.String): File = Paths.get(value).toRealPath().toFile()
     override val description: kotlin.String
         get() = "{ String that represents a directory / file path }"
 }
 
-object ArgTypePlatform : ArgType<Platform>(true) {
+public object ArgTypePlatform : ArgType<Platform>(true) {
     override fun convert(value: kotlin.String, name: kotlin.String): Platform = Platform.fromString(value)
     override val description: kotlin.String
         get() = "{ String that represents a Kotlin platform. Possible values: jvm/js/native/common/android }"
 }
 
-object ArgTypeVisibility : ArgType<DokkaConfiguration.Visibility>(true) {
-    override fun convert(value: kotlin.String, name: kotlin.String) = DokkaConfiguration.Visibility.fromString(value)
+public object ArgTypeVisibility : ArgType<DokkaConfiguration.Visibility>(true) {
+    override fun convert(value: kotlin.String, name: kotlin.String): DokkaConfiguration.Visibility {
+        return DokkaConfiguration.Visibility.fromString(value)
+    }
+
     override val description: kotlin.String
         get() = "{ String that represents a visibility modifier. Possible values: ${getPossibleVisibilityValues()}"
 
@@ -28,7 +35,7 @@ object ArgTypeVisibility : ArgType<DokkaConfiguration.Visibility>(true) {
         DokkaConfiguration.Visibility.values().joinToString(separator = ", ")
 }
 
-object ArgTypePlugin : ArgType<DokkaConfiguration.PluginConfiguration>(true) {
+public object ArgTypePlugin : ArgType<DokkaConfiguration.PluginConfiguration>(true) {
     override fun convert(
         value: kotlin.String,
         name: kotlin.String
@@ -48,7 +55,7 @@ object ArgTypePlugin : ArgType<DokkaConfiguration.PluginConfiguration>(true) {
                 "Quotation marks (`\"`) inside json must be escaped. }"
 }
 
-object ArgTypeSourceLinkDefinition : ArgType<DokkaConfiguration.SourceLinkDefinition>(true) {
+public object ArgTypeSourceLinkDefinition : ArgType<DokkaConfiguration.SourceLinkDefinition>(true) {
     override fun convert(value: kotlin.String, name: kotlin.String): DokkaConfiguration.SourceLinkDefinition {
         return if (value.isNotEmpty() && value.contains("="))
             SourceLinkDefinitionImpl.parseSourceLinkDefinition(value)
@@ -64,7 +71,7 @@ object ArgTypeSourceLinkDefinition : ArgType<DokkaConfiguration.SourceLinkDefini
         get() = "{ String that represent source links. Format: {srcPath}={remotePath#lineSuffix} }"
 }
 
-data class ArgTypeArgument(val moduleName: CLIEntity<kotlin.String>) :
+public data class ArgTypeArgument(val moduleName: CLIEntity<kotlin.String>) :
     ArgType<DokkaConfiguration.DokkaSourceSet>(true) {
     override fun convert(value: kotlin.String, name: kotlin.String): DokkaConfiguration.DokkaSourceSet =
         (if (moduleName.valueOrigin != ArgParser.ValueOrigin.UNSET && moduleName.valueOrigin != ArgParser.ValueOrigin.UNDEFINED) {
@@ -80,7 +87,7 @@ data class ArgTypeArgument(val moduleName: CLIEntity<kotlin.String>) :
 }
 
 // Workaround for printing nested parsers help
-data class ArgTypeHelpSourceSet(val moduleName: CLIEntity<kotlin.String>) : ArgType<Any>(false) {
+public data class ArgTypeHelpSourceSet(val moduleName: CLIEntity<kotlin.String>) : ArgType<Any>(false) {
     override fun convert(value: kotlin.String, name: kotlin.String): Any = Any().also {
         parseSourceSet(moduleName.value, arrayOf("-h"))
     }

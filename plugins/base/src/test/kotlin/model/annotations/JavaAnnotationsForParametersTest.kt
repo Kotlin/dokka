@@ -1,14 +1,20 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package model.annotations
 
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.annotations
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.utilities.cast
-import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
+import kotlin.test.Test
+import utils.JavaCode
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@JavaCode
 class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
     @Test
@@ -174,3 +180,4 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
         }
     }
 }
+

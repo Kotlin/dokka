@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package superFields
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
@@ -6,12 +10,13 @@ import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.InheritedMember
 import org.jetbrains.dokka.model.IsVar
 import org.jetbrains.dokka.model.isJvmField
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import utils.JavaCode
 
-
+@JavaCode
 class PsiSuperFieldsTest : BaseAbstractTest() {
 
     private val commonTestConfiguration = dokkaConfiguration {

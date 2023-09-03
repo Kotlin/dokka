@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package content.inheritors
 
 import matchers.content.*
@@ -5,10 +9,10 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.PluginConfigurationImpl
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.kotlin.utils.addIfNotNull
-import org.junit.jupiter.api.Test
+import utils.OnlyDescriptors
 import utils.classSignature
 import utils.findTestType
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ContentForInheritorsTest : BaseAbstractTest() {
@@ -45,7 +49,7 @@ class ContentForInheritorsTest : BaseAbstractTest() {
                 sourceRoots = listOf("src/linuxX64Main/kotlin/pageMerger/Test.kt")
             }
         }
-        pluginsConfigurations.addIfNotNull(
+        pluginsConfigurations.add(
             PluginConfigurationImpl(
                 DokkaBase::class.qualifiedName!!,
                 DokkaConfiguration.SerializationFormat.JSON,
@@ -129,6 +133,7 @@ class ContentForInheritorsTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("Order of inheritors is different in K2")
     @Test
     fun `interface with few inheritors has table in description`() {
         testInline(

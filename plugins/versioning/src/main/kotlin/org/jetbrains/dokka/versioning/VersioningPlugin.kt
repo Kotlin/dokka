@@ -1,54 +1,66 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.versioning
 
 import org.jetbrains.dokka.CoreExtensions.postActions
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
-import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
-import org.jetbrains.dokka.plugability.configuration
+import org.jetbrains.dokka.base.templating.ImmediateHtmlCommandConsumer
+import org.jetbrains.dokka.plugability.*
+import org.jetbrains.dokka.renderers.PostAction
+import org.jetbrains.dokka.templates.CommandHandler
 import org.jetbrains.dokka.templates.TemplatingPlugin
+import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-class VersioningPlugin : DokkaPlugin() {
+public class VersioningPlugin : DokkaPlugin() {
 
-    val versioningStorage by extensionPoint<VersioningStorage>()
-    val versionsNavigationCreator by extensionPoint<VersionsNavigationCreator>()
-    val versionsOrdering by extensionPoint<VersionsOrdering>()
+    public val versioningStorage: ExtensionPoint<VersioningStorage> by extensionPoint()
+    public val versionsNavigationCreator: ExtensionPoint<VersionsNavigationCreator> by extensionPoint()
+    public val versionsOrdering: ExtensionPoint<VersionsOrdering> by extensionPoint()
 
     private val dokkaBase by lazy { plugin<DokkaBase>() }
     private val templatingPlugin by lazy { plugin<TemplatingPlugin>() }
 
-    val defaultVersioningStorage by extending {
+    public val defaultVersioningStorage: Extension<VersioningStorage, *, *> by extending {
         versioningStorage providing ::DefaultVersioningStorage
     }
-    val defaultVersioningNavigationCreator by extending {
+
+    public val defaultVersioningNavigationCreator: Extension<VersionsNavigationCreator, *, *> by extending {
         versionsNavigationCreator providing ::HtmlVersionsNavigationCreator
     }
-    val replaceVersionCommandHandler by extending {
+
+    public val replaceVersionCommandHandler: Extension<CommandHandler, *, *> by extending {
         templatingPlugin.directiveBasedCommandHandlers providing ::ReplaceVersionCommandHandler override templatingPlugin.replaceVersionCommandHandler
     }
-    val resolveLinkConsumer by extending {
+
+    public val resolveLinkConsumer: Extension<ImmediateHtmlCommandConsumer, *, *> by extending {
         dokkaBase.immediateHtmlCommandConsumer providing ::ReplaceVersionCommandConsumer override dokkaBase.replaceVersionConsumer
     }
-    val cssStyleInstaller by extending {
+
+    public val cssStyleInstaller: Extension<PageTransformer, *, *> by extending {
         dokkaBase.htmlPreprocessors providing ::MultiModuleStylesInstaller order {
             after(dokkaBase.assetsInstaller)
             before(dokkaBase.customResourceInstaller)
         }
     }
-    val notFoundPageInstaller by extending {
+
+    public val notFoundPageInstaller: Extension<PageTransformer, *, *> by extending {
         dokkaBase.htmlPreprocessors providing ::NotFoundPageInstaller order {
             after(dokkaBase.assetsInstaller)
             before(dokkaBase.customResourceInstaller)
         } applyIf { !delayTemplateSubstitution }
     }
-    val versionsDefaultOrdering by extending {
+
+    public val versionsDefaultOrdering: Extension<VersionsOrdering, *, *> by extending {
         versionsOrdering providing { ctx ->
             configuration<VersioningPlugin, VersioningConfiguration>(ctx)?.versionsOrdering?.let {
                 ByConfigurationVersionOrdering(ctx)
             } ?: SemVerVersionOrdering()
         }
     }
-    val previousDocumentationCopyPostAction by extending {
+
+    public val previousDocumentationCopyPostAction: Extension<PostAction, *, *> by extending {
         postActions providing ::DefaultPreviousDocumentationCopyPostAction applyIf { !delayTemplateSubstitution }
     }
 

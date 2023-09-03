@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package transformers
 
 import matchers.content.*
@@ -5,10 +9,9 @@ import org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConve
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.kotlin.utils.addToStdlib.assertedCast
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class CommentsToContentConverterTest {
     private val converter = DocTagToContentConverter()
@@ -335,7 +338,7 @@ class CommentsToContentConverterTest {
                     +"I'm an inline-style link"
                     check {
                         assertEquals(
-                            assertedCast<ContentResolvedLink> { "Link should be resolved" }.address,
+                            (this as? ContentResolvedLink)?.address ?: error("Link should be resolved"),
                             "https://www.google.com"
                         )
                     }
@@ -455,23 +458,23 @@ class CommentsToContentConverterTest {
         executeTest(docTag) {
             composite<ContentList> {
                 check {
-                    assertTrue(style.contains(ListStyle.DescriptionList)) { "Expected DL style" }
+                    assertTrue(style.contains(ListStyle.DescriptionList), "Expected DL style")
                 }
                 group {
                     check {
-                        assertTrue(style.contains(ListStyle.DescriptionTerm)) { "Expected DT style" }
+                        assertTrue(style.contains(ListStyle.DescriptionTerm), "Expected DT style")
                     }
                     +"description list can have..."
                 }
                 group {
                     check {
-                        assertTrue(style.contains(ListStyle.DescriptionTerm)) { "Expected DT style" }
+                        assertTrue(style.contains(ListStyle.DescriptionTerm), "Expected DT style")
                     }
                     +"... two consecutive description terms"
                 }
                 group {
                     check {
-                        assertTrue(style.contains(ListStyle.DescriptionDetails)) { "Expected DD style" }
+                        assertTrue(style.contains(ListStyle.DescriptionDetails), "Expected DD style")
                     }
                     +"and usually has some sort of a description, like this one"
                 }

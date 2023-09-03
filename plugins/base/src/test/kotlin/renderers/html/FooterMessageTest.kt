@@ -1,14 +1,18 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package renderers.html
 
 import org.jetbrains.dokka.base.DokkaBaseConfiguration.Companion.defaultFooterMessage
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import org.junit.jupiter.api.Test
 import renderers.testPage
 import utils.A
 import utils.Span
 import utils.match
+import kotlin.test.Test
 
 class FooterMessageTest : HtmlRenderingOnlyTestBase() {
     @Test

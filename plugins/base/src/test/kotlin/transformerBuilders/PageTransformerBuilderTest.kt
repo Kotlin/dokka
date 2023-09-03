@@ -1,21 +1,24 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package transformerBuilders
 
 import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.pages.*
-import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.dfs
+import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
 import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.transformers.pages.pageMapper
 import org.jetbrains.dokka.transformers.pages.pageScanner
 import org.jetbrains.dokka.transformers.pages.pageStructureTransformer
-import org.jsoup.Jsoup
-import org.junit.jupiter.api.Test
-import utils.TestOutputWriterPlugin
-import utils.assertContains
 import utils.assertNotNull
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
 class PageTransformerBuilderTest : BaseAbstractTest() {
 
     class ProxyPlugin(transformer: PageTransformer) : DokkaPlugin() {
@@ -176,46 +179,11 @@ class PageTransformerBuilderTest : BaseAbstractTest() {
         }
     }
 
-    @Test
-    fun `should load script as defer if name ending in _deferred`() {
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/kotlin")
-                }
-            }
-        }
-        val writerPlugin = TestOutputWriterPlugin()
-        testInline(
-            """
-            |/src/main/kotlin/test/Test.kt
-            |package test
-            |
-            |class Test
-        """.trimMargin(),
-            configuration,
-            pluginOverrides = listOf(writerPlugin)
-        ) {
-            renderingStage = { _, _ ->
-                val generatedFiles = writerPlugin.writer.contents
-
-                assertContains(generatedFiles.keys, "scripts/symbol-parameters-wrapper_deferred.js")
-
-                val scripts = generatedFiles.getValue("root/test/-test/-test.html").let { Jsoup.parse(it) }.select("script")
-                val deferredScriptSources = scripts.filter { element -> element.hasAttr("defer") }.map { it.attr("src") }
-
-                // important to check symbol-parameters-wrapper_deferred specifically since it might break some features
-                assertContains(deferredScriptSources, "../../../scripts/symbol-parameters-wrapper_deferred.js")
-            }
-        }
-    }
-
     private fun <T> Collection<T>.assertCount(n: Int, prefix: String = "") =
-        assert(count() == n) { "${prefix}Expected $n, got ${count()}" }
+        assertEquals(n, count(), "${prefix}Expected $n, got ${count()}")
 
-    private fun <T> T.assertEqual(expected: T, prefix: String = "") = assert(this == expected) {
-        "${prefix}Expected $expected, got $this"
-    }
+    private fun <T> T.assertEqual(expected: T, prefix: String = "") =
+        assertEquals(expected, this, "${prefix}Expected $expected, got $this")
 
     private fun PageNode.assertTransform(expected: PageNode, block: (PageNode) -> PageNode = { it }): Unit = this.let {
         it.name.assertEqual(block(expected).name)

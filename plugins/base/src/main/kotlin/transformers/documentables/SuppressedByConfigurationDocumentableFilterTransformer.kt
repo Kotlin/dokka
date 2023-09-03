@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.model.*
@@ -8,7 +12,9 @@ import org.jetbrains.dokka.transformers.documentation.source
 import org.jetbrains.dokka.transformers.documentation.sourceSet
 import java.io.File
 
-class SuppressedByConfigurationDocumentableFilterTransformer(val context: DokkaContext) : PreMergeDocumentableTransformer {
+public class SuppressedByConfigurationDocumentableFilterTransformer(
+    public val context: DokkaContext
+) : PreMergeDocumentableTransformer {
     override fun invoke(modules: List<DModule>): List<DModule> {
         return modules.mapNotNull(::filterModule)
     }

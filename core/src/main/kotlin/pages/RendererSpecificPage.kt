@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.pages
 
 import org.jetbrains.dokka.links.DRI
@@ -5,14 +9,14 @@ import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.renderers.Renderer
 import kotlin.reflect.KClass
 
-fun interface DriResolver: (DRI, Set<DisplaySourceSet>) -> String?
-fun interface PageResolver: (PageNode, PageNode?) -> String?
+public fun interface DriResolver: (DRI, Set<DisplaySourceSet>) -> String?
+public fun interface PageResolver: (PageNode, PageNode?) -> String?
 
-interface RendererSpecificPage : PageNode {
-    val strategy: RenderingStrategy
+public interface RendererSpecificPage : PageNode {
+    public val strategy: RenderingStrategy
 }
 
-class RendererSpecificRootPage(
+public class RendererSpecificRootPage(
     override val name: String,
     override val children: List<PageNode>,
     override val strategy: RenderingStrategy
@@ -21,7 +25,7 @@ class RendererSpecificRootPage(
         RendererSpecificRootPage(name, children, strategy)
 }
 
-class RendererSpecificResourcePage(
+public class RendererSpecificResourcePage(
     override val name: String,
     override val children: List<PageNode>,
     override val strategy: RenderingStrategy
@@ -30,18 +34,19 @@ class RendererSpecificResourcePage(
         RendererSpecificResourcePage(name, children, strategy)
 }
 
-sealed class RenderingStrategy {
-    class Callback(val instructions: Renderer.(PageNode) -> String): RenderingStrategy()
-    data class Copy(val from: String) : RenderingStrategy()
-    data class Write(val text: String) : RenderingStrategy()
-    data class DriLocationResolvableWrite(val contentToResolve: (DriResolver) -> String) : RenderingStrategy()
-    data class PageLocationResolvableWrite(val contentToResolve: (PageResolver) -> String) : RenderingStrategy()
-    object DoNothing : RenderingStrategy()
+public sealed class RenderingStrategy {
+    public class Callback(public val instructions: Renderer.(PageNode) -> String): RenderingStrategy()
+    public data class Copy(val from: String) : RenderingStrategy()
+    public data class Write(val text: String) : RenderingStrategy()
+    public data class DriLocationResolvableWrite(val contentToResolve: (DriResolver) -> String) : RenderingStrategy()
+    public data class PageLocationResolvableWrite(val contentToResolve: (PageResolver) -> String) : RenderingStrategy()
+    public object DoNothing : RenderingStrategy()
 
-    companion object {
-        inline operator fun <reified T: Renderer> invoke(crossinline instructions: T.(PageNode) -> String) =
-            Callback { if (this is T) instructions(it) else throw WrongRendererTypeException(T::class) }
+    public companion object {
+        public inline operator fun <reified T: Renderer> invoke(crossinline instructions: T.(PageNode) -> String): RenderingStrategy {
+            return Callback { if (this is T) instructions(it) else throw WrongRendererTypeException(T::class) }
+        }
     }
 }
 
-data class WrongRendererTypeException(val expectedType: KClass<*>): Exception()
+public data class WrongRendererTypeException(val expectedType: KClass<*>): Exception()

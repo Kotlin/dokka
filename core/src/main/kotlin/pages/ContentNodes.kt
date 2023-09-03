@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.pages
 
 import org.jetbrains.dokka.links.DRI
@@ -6,25 +10,25 @@ import org.jetbrains.dokka.model.WithChildren
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 
-data class DCI(val dri: Set<DRI>, val kind: Kind) {
-    override fun toString() = "$dri[$kind]"
+public data class DCI(val dri: Set<DRI>, val kind: Kind) {
+    override fun toString(): String = "$dri[$kind]"
 }
 
-interface ContentNode : WithExtraProperties<ContentNode>, WithChildren<ContentNode> {
-    val dci: DCI
-    val sourceSets: Set<DisplaySourceSet>
-    val style: Set<Style>
+public interface ContentNode : WithExtraProperties<ContentNode>, WithChildren<ContentNode> {
+    public val dci: DCI
+    public val sourceSets: Set<DisplaySourceSet>
+    public val style: Set<Style>
 
-    fun hasAnyContent(): Boolean
+    public fun hasAnyContent(): Boolean
 
-    fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentNode
+    public fun withSourceSets(sourceSets: Set<DisplaySourceSet>): ContentNode
 
     override val children: List<ContentNode>
         get() = emptyList()
 }
 
 /** Simple text */
-data class ContentText(
+public data class ContentText(
     val text: String,
     override val dci: DCI,
     override val sourceSets: Set<DisplaySourceSet>,
@@ -36,7 +40,7 @@ data class ContentText(
     override fun hasAnyContent(): Boolean = text.isNotBlank()
 }
 
-data class ContentBreakLine(
+public data class ContentBreakLine(
     override val sourceSets: Set<DisplaySourceSet>,
     override val dci: DCI = DCI(emptySet(), ContentKind.Empty),
     override val style: Set<Style> = emptySet(),
@@ -48,7 +52,7 @@ data class ContentBreakLine(
 }
 
 /** Headers */
-data class ContentHeader(
+public data class ContentHeader(
     override val children: List<ContentNode>,
     val level: Int,
     override val dci: DCI,
@@ -56,7 +60,7 @@ data class ContentHeader(
     override val style: Set<Style>,
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentComposite {
-    constructor(level: Int, c: ContentComposite) : this(c.children, level, c.dci, c.sourceSets, c.style, c.extra)
+    public constructor(level: Int, c: ContentComposite) : this(c.children, level, c.dci, c.sourceSets, c.style, c.extra)
 
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentHeader = copy(extra = newExtras)
 
@@ -67,10 +71,10 @@ data class ContentHeader(
         copy(sourceSets = sourceSets)
 }
 
-interface ContentCode : ContentComposite
+public interface ContentCode : ContentComposite
 
 /** Code blocks */
-data class ContentCodeBlock(
+public data class ContentCodeBlock(
     override val children: List<ContentNode>,
     val language: String,
     override val dci: DCI,
@@ -88,7 +92,7 @@ data class ContentCodeBlock(
 
 }
 
-data class ContentCodeInline(
+public data class ContentCodeInline(
     override val children: List<ContentNode>,
     val language: String,
     override val dci: DCI,
@@ -107,10 +111,10 @@ data class ContentCodeInline(
 }
 
 /** Union type replacement */
-interface ContentLink : ContentComposite
+public interface ContentLink : ContentComposite
 
 /** All links to classes, packages, etc. that have te be resolved */
-data class ContentDRILink(
+public data class ContentDRILink(
     override val children: List<ContentNode>,
     val address: DRI,
     override val dci: DCI,
@@ -129,7 +133,7 @@ data class ContentDRILink(
 }
 
 /** All links that do not need to be resolved */
-data class ContentResolvedLink(
+public data class ContentResolvedLink(
     override val children: List<ContentNode>,
     val address: String,
     override val dci: DCI,
@@ -148,7 +152,7 @@ data class ContentResolvedLink(
 }
 
 /** Embedded resources like images */
-data class ContentEmbeddedResource(
+public data class ContentEmbeddedResource(
     override val children: List<ContentNode> = emptyList(),
     val address: String,
     val altText: String?,
@@ -168,18 +172,18 @@ data class ContentEmbeddedResource(
 }
 
 /** Logical grouping of [ContentNode]s  */
-interface ContentComposite : ContentNode {
+public interface ContentComposite : ContentNode {
     override val children: List<ContentNode> // overwrite to make it abstract once again
 
     override val sourceSets: Set<DisplaySourceSet> get() = children.flatMap { it.sourceSets }.toSet()
 
-    fun transformChildren(transformer: (ContentNode) -> ContentNode): ContentComposite
+    public fun transformChildren(transformer: (ContentNode) -> ContentNode): ContentComposite
 
     override fun hasAnyContent(): Boolean = children.any { it.hasAnyContent() }
 }
 
 /** Tables */
-data class ContentTable(
+public data class ContentTable(
     val header: List<ContentGroup>,
     val caption: ContentGroup? = null,
     override val children: List<ContentGroup>,
@@ -199,7 +203,7 @@ data class ContentTable(
 }
 
 /** Lists */
-data class ContentList(
+public data class ContentList(
     override val children: List<ContentNode>,
     val ordered: Boolean,
     override val dci: DCI,
@@ -217,7 +221,7 @@ data class ContentList(
 }
 
 /** Default group, eg. for blocks of Functions, Properties, etc. **/
-data class ContentGroup(
+public data class ContentGroup(
     override val children: List<ContentNode>,
     override val dci: DCI,
     override val sourceSets: Set<DisplaySourceSet>,
@@ -236,7 +240,7 @@ data class ContentGroup(
 /**
  * @property groupID is used for finding and copying [ContentDivergentInstance]s when merging [ContentPage]s
  */
-data class ContentDivergentGroup(
+public data class ContentDivergentGroup(
     override val children: List<ContentDivergentInstance>,
     override val dci: DCI,
     override val style: Set<Style>,
@@ -244,7 +248,7 @@ data class ContentDivergentGroup(
     val groupID: GroupID,
     val implicitlySourceSetHinted: Boolean = true
 ) : ContentComposite {
-    data class GroupID(val name: String)
+    public data class GroupID(val name: String)
 
     override val sourceSets: Set<DisplaySourceSet>
         get() = children.flatMap { it.sourceSets }.distinct().toSet()
@@ -259,7 +263,7 @@ data class ContentDivergentGroup(
 }
 
 /** Instance of a divergent content */
-data class ContentDivergentInstance(
+public data class ContentDivergentInstance(
     val before: ContentNode?,
     val divergent: ContentNode,
     val after: ContentNode?,
@@ -286,11 +290,11 @@ data class ContentDivergentInstance(
 
 }
 
-data class PlatformHintedContent(
+public data class PlatformHintedContent(
     val inner: ContentNode,
     override val sourceSets: Set<DisplaySourceSet>
 ) : ContentComposite {
-    override val children = listOf(inner)
+    override val children: List<ContentNode> = listOf(inner)
 
     override val dci: DCI
         get() = inner.dci
@@ -301,7 +305,7 @@ data class PlatformHintedContent(
     override val style: Set<Style>
         get() = inner.style
 
-    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>) =
+    override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode =
         throw UnsupportedOperationException("This method should not be called on this PlatformHintedContent")
 
     override fun transformChildren(transformer: (ContentNode) -> ContentNode): PlatformHintedContent =
@@ -312,14 +316,14 @@ data class PlatformHintedContent(
 
 }
 
-interface Style
-interface Kind
+public interface Style
+public interface Kind
 
 /**
  * [ContentKind] represents a grouping of content of one kind that can can be rendered
  * as part of a composite page (one tab/block within a class's page, for instance).
  */
-enum class ContentKind : Kind {
+public enum class ContentKind : Kind {
 
     /**
      * Marks all sorts of signatures. Can contain sub-kinds marked as [SymbolContentKind]
@@ -340,7 +344,7 @@ enum class ContentKind : Kind {
      */
     Deprecation;
 
-    companion object {
+    public companion object {
         private val platformTagged =
             setOf(
                 Constructors,
@@ -354,14 +358,14 @@ enum class ContentKind : Kind {
                 Extensions
             )
 
-        fun shouldBePlatformTagged(kind: Kind): Boolean = kind in platformTagged
+        public fun shouldBePlatformTagged(kind: Kind): Boolean = kind in platformTagged
     }
 }
 
 /**
  * Content kind for [ContentKind.Symbol] content, which is essentially about signatures
  */
-enum class SymbolContentKind : Kind {
+public enum class SymbolContentKind : Kind {
     /**
      * Marks constructor/function parameters, everything in-between parentheses.
      *
@@ -381,17 +385,17 @@ enum class SymbolContentKind : Kind {
     Parameter,
 }
 
-enum class TokenStyle : Style {
+public enum class TokenStyle : Style {
     Keyword, Punctuation, Function, Operator, Annotation, Number, String, Boolean, Constant
 }
 
-enum class TextStyle : Style {
+public enum class TextStyle : Style {
     Bold, Italic, Strong, Strikethrough, Paragraph,
     Block, Span, Monospace, Indented, Cover, UnderCoverText, BreakableAfter, Breakable, InlineComment, Quotation,
     FloatingRight, Var, Underlined
 }
 
-enum class ContentStyle : Style {
+public enum class ContentStyle : Style {
     RowTitle,
     /**
      * The style is used only for HTML. It is applied only for [ContentGroup].
@@ -403,7 +407,7 @@ enum class ContentStyle : Style {
     Wrapped, Indented, KDocTag, Footnote
 }
 
-enum class ListStyle : Style {
+public enum class ListStyle : Style {
     /**
      * Represents a list of groups of [DescriptionTerm] and [DescriptionDetails].
      * Common uses for this element are to implement a glossary or to display
@@ -425,8 +429,8 @@ enum class ListStyle : Style {
     DescriptionDetails
 }
 
-object CommentTable : Style
+public object CommentTable : Style
 
-object MultimoduleTable : Style
+public object MultimoduleTable : Style
 
-fun ContentNode.hasStyle(style: Style) = this.style.contains(style)
+public fun ContentNode.hasStyle(style: Style): Boolean = this.style.contains(style)

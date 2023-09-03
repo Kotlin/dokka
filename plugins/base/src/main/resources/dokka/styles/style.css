@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 @import url('./font-jb-sans-auto.css');
 @import url('https://fonts.googleapis.com/css?family=JetBrains+Mono');
 
@@ -785,7 +789,6 @@ code:not(.block) {
     padding-left: 23px;
 }
 
-
 .sideMenuPart a:hover {
     text-decoration: none;
     color: var(--default-font-color);
@@ -913,6 +916,10 @@ code:not(.block) {
     content: url("../images/nav-icons/object.svg");
 }
 
+.nav-icon.typealias-kt::before {
+    content: url("../images/nav-icons/typealias-kotlin.svg");
+}
+
 .nav-icon.val::before {
     content: url("../images/nav-icons/field-value.svg");
 }
@@ -967,6 +974,14 @@ h1.cover {
 .UnderCoverText table {
     margin: 8px 0 8px 0;
     word-break: break-word;
+}
+
+@media (max-width: 960px) {
+    .UnderCoverText table {
+        display: block;
+        word-break: normal;
+        overflow:  auto;
+    }
 }
 
 .main-content a:not([data-name]) {

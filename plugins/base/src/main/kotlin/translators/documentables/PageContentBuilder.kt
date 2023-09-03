@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
@@ -15,14 +19,14 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 
 @DslMarker
-annotation class ContentBuilderMarker
+public annotation class ContentBuilderMarker
 
-open class PageContentBuilder(
-    val commentsConverter: CommentsToContentConverter,
-    val signatureProvider: SignatureProvider,
-    val logger: DokkaLogger
+public open class PageContentBuilder(
+    public val commentsConverter: CommentsToContentConverter,
+    public val signatureProvider: SignatureProvider,
+    public val logger: DokkaLogger
 ) {
-    fun contentFor(
+    public fun contentFor(
         dri: DRI,
         sourceSets: Set<DokkaSourceSet>,
         kind: Kind = ContentKind.Main,
@@ -34,7 +38,7 @@ open class PageContentBuilder(
             .apply(block)
             .build(sourceSets, kind, styles, extra)
 
-    fun contentFor(
+    public fun contentFor(
         dri: Set<DRI>,
         sourceSets: Set<DokkaSourceSet>,
         kind: Kind = ContentKind.Main,
@@ -46,7 +50,7 @@ open class PageContentBuilder(
             .apply(block)
             .build(sourceSets, kind, styles, extra)
 
-    fun contentFor(
+    public fun contentFor(
         d: Documentable,
         kind: Kind = ContentKind.Main,
         styles: Set<Style> = emptySet(),
@@ -59,36 +63,38 @@ open class PageContentBuilder(
             .build(sourceSets, kind, styles, extra)
 
     @ContentBuilderMarker
-    open inner class DocumentableContentBuilder(
-        val mainDRI: Set<DRI>,
-        val mainSourcesetData: Set<DokkaSourceSet>,
-        val mainStyles: Set<Style>,
-        val mainExtra: PropertyContainer<ContentNode>
+    public open inner class DocumentableContentBuilder(
+        public val mainDRI: Set<DRI>,
+        public val mainSourcesetData: Set<DokkaSourceSet>,
+        public val mainStyles: Set<Style>,
+        public val mainExtra: PropertyContainer<ContentNode>
     ) {
-        protected val contents = mutableListOf<ContentNode>()
+        protected val contents: MutableList<ContentNode> = mutableListOf<ContentNode>()
 
-        fun build(
+        public fun build(
             sourceSets: Set<DokkaSourceSet>,
             kind: Kind,
             styles: Set<Style>,
             extra: PropertyContainer<ContentNode>
-        ) = ContentGroup(
-            contents.toList(),
-            DCI(mainDRI, kind),
-            sourceSets.toDisplaySourceSets(),
-            styles,
-            extra
-        )
+        ): ContentGroup {
+            return ContentGroup(
+                children = contents.toList(),
+                dci = DCI(mainDRI, kind),
+                sourceSets = sourceSets.toDisplaySourceSets(),
+                style = styles,
+                extra = extra
+            )
+        }
 
-        operator fun ContentNode.unaryPlus() {
+        public operator fun ContentNode.unaryPlus() {
             contents += this
         }
 
-        operator fun Collection<ContentNode>.unaryPlus() {
+        public operator fun Collection<ContentNode>.unaryPlus() {
             contents += this
         }
 
-        fun header(
+        public fun header(
             level: Int,
             text: String,
             kind: Kind = ContentKind.Main,
@@ -112,7 +118,7 @@ open class PageContentBuilder(
             )
         }
 
-        fun cover(
+        public fun cover(
             text: String,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             styles: Set<Style> = mainStyles + TextStyle.Cover,
@@ -122,14 +128,31 @@ open class PageContentBuilder(
             header(1, text, sourceSets = sourceSets, styles = styles, extra = extra, block = block)
         }
 
-        fun constant(text: String) = text(text, styles = mainStyles + TokenStyle.Constant)
-        fun keyword(text: String) = text(text, styles = mainStyles + TokenStyle.Keyword)
-        fun stringLiteral(text: String) = text(text, styles = mainStyles + TokenStyle.String)
-        fun booleanLiteral(value: Boolean) = text(value.toString(), styles = mainStyles + TokenStyle.Boolean)
-        fun punctuation(text: String) = text(text, styles = mainStyles + TokenStyle.Punctuation)
-        fun operator(text: String) = text(text, styles = mainStyles + TokenStyle.Operator)
+        public fun constant(text: String) {
+            text(text, styles = mainStyles + TokenStyle.Constant)
+        }
 
-        fun text(
+        public fun keyword(text: String) {
+            text(text, styles = mainStyles + TokenStyle.Keyword)
+        }
+
+        public fun stringLiteral(text: String) {
+            text(text, styles = mainStyles + TokenStyle.String)
+        }
+
+        public fun booleanLiteral(value: Boolean) {
+            text(value.toString(), styles = mainStyles + TokenStyle.Boolean)
+        }
+
+        public fun punctuation(text: String) {
+            text(text, styles = mainStyles + TokenStyle.Punctuation)
+        }
+
+        public fun operator(text: String) {
+            text(text, styles = mainStyles + TokenStyle.Operator)
+        }
+
+        public fun text(
             text: String,
             kind: Kind = ContentKind.Main,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
@@ -139,13 +162,13 @@ open class PageContentBuilder(
             contents += createText(text, kind, sourceSets, styles, extra)
         }
 
-        fun breakLine(sourceSets: Set<DokkaSourceSet> = mainSourcesetData) {
+        public fun breakLine(sourceSets: Set<DokkaSourceSet> = mainSourcesetData) {
             contents += ContentBreakLine(sourceSets.toDisplaySourceSets())
         }
 
-        fun buildSignature(d: Documentable) = signatureProvider.signature(d)
+        public fun buildSignature(d: Documentable): List<ContentNode> = signatureProvider.signature(d)
 
-        fun table(
+        public fun table(
             kind: Kind = ContentKind.Main,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             styles: Set<Style> = mainStyles,
@@ -157,7 +180,7 @@ open class PageContentBuilder(
             }.build()
         }
 
-        fun unorderedList(
+        public fun unorderedList(
             kind: Kind = ContentKind.Main,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             styles: Set<Style> = mainStyles,
@@ -167,7 +190,7 @@ open class PageContentBuilder(
             contents += ListBuilder(false, mainDRI, sourceSets, kind, styles, extra).apply(operation).build()
         }
 
-        fun orderedList(
+        public fun orderedList(
             kind: Kind = ContentKind.Main,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             styles: Set<Style> = mainStyles,
@@ -177,7 +200,7 @@ open class PageContentBuilder(
             contents += ListBuilder(true, mainDRI, sourceSets, kind, styles, extra).apply(operation).build()
         }
 
-        fun descriptionList(
+        public fun descriptionList(
             kind: Kind = ContentKind.Main,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             styles: Set<Style> = mainStyles,
@@ -193,7 +216,7 @@ open class PageContentBuilder(
             label.forEach { text(it) }
         }
 
-        fun <T : Documentable> block(
+        public fun <T : Documentable> block(
             name: String,
             level: Int,
             kind: Kind = ContentKind.Main,
@@ -231,7 +254,7 @@ open class PageContentBuilder(
             }
         }
 
-        fun <T : Pair<String, List<Documentable>>> multiBlock(
+        public fun <T : Pair<String, List<Documentable>>> multiBlock(
             name: String,
             level: Int,
             kind: Kind = ContentKind.Main,
@@ -282,7 +305,7 @@ open class PageContentBuilder(
             }
         }
 
-        fun <T> list(
+        public fun <T> list(
             elements: List<T>,
             prefix: String = "",
             suffix: String = "",
@@ -303,7 +326,7 @@ open class PageContentBuilder(
             }
         }
 
-        fun link(
+        public fun link(
             text: String,
             address: DRI,
             kind: Kind = ContentKind.Main,
@@ -314,22 +337,24 @@ open class PageContentBuilder(
             contents += linkNode(text, address, DCI(mainDRI, kind), sourceSets, styles, extra)
         }
 
-        fun linkNode(
+        public fun linkNode(
             text: String,
             address: DRI,
             dci: DCI = DCI(mainDRI, ContentKind.Main),
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
-        ) = ContentDRILink(
-            listOf(createText(text, dci.kind, sourceSets, styles, extra)),
-            address,
-            dci,
-            sourceSets.toDisplaySourceSets(),
-            extra = extra
-        )
+        ): ContentLink {
+            return ContentDRILink(
+                listOf(createText(text, dci.kind, sourceSets, styles, extra)),
+                address,
+                dci,
+                sourceSets.toDisplaySourceSets(),
+                extra = extra
+            )
+        }
 
-        fun link(
+        public fun link(
             text: String,
             address: String,
             kind: Kind = ContentKind.Main,
@@ -347,7 +372,7 @@ open class PageContentBuilder(
             )
         }
 
-        fun link(
+        public fun link(
             address: DRI,
             kind: Kind = ContentKind.Main,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
@@ -364,7 +389,7 @@ open class PageContentBuilder(
             )
         }
 
-        fun comment(
+        public fun comment(
             docTag: DocTag,
             kind: Kind = ContentKind.Comment,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
@@ -379,7 +404,7 @@ open class PageContentBuilder(
             contents += ContentGroup(content, DCI(mainDRI, kind), sourceSets.toDisplaySourceSets(), styles, extra)
         }
 
-        fun codeBlock(
+        public fun codeBlock(
             language: String = "",
             kind: Kind = ContentKind.Main,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
@@ -397,7 +422,7 @@ open class PageContentBuilder(
             )
         }
 
-        fun codeInline(
+        public fun codeInline(
             language: String = "",
             kind: Kind = ContentKind.Main,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
@@ -415,7 +440,7 @@ open class PageContentBuilder(
             )
         }
 
-        fun firstParagraphComment(
+        public fun firstParagraphComment(
             content: DocTag,
             kind: Kind = ContentKind.Comment,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
@@ -439,7 +464,7 @@ open class PageContentBuilder(
             }
         }
 
-        fun firstSentenceComment(
+        public fun firstSentenceComment(
             content: DocTag,
             kind: Kind = ContentKind.Comment,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
@@ -461,7 +486,7 @@ open class PageContentBuilder(
             )
         }
 
-        fun group(
+        public fun group(
             dri: Set<DRI> = mainDRI,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             kind: Kind = ContentKind.Main,
@@ -472,7 +497,7 @@ open class PageContentBuilder(
             contents += buildGroup(dri, sourceSets, kind, styles, extra, block)
         }
 
-        fun divergentGroup(
+        public fun divergentGroup(
             groupID: ContentDivergentGroup.GroupID,
             dri: Set<DRI> = mainDRI,
             kind: Kind = ContentKind.Main,
@@ -487,7 +512,7 @@ open class PageContentBuilder(
                     .build(groupID = groupID, implicitlySourceSetHinted = implicitlySourceSetHinted)
         }
 
-        fun buildGroup(
+        public fun buildGroup(
             dri: Set<DRI> = mainDRI,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             kind: Kind = ContentKind.Main,
@@ -496,7 +521,7 @@ open class PageContentBuilder(
             block: DocumentableContentBuilder.() -> Unit
         ): ContentGroup = contentFor(dri, sourceSets, kind, styles, extra, block)
 
-        fun sourceSetDependentHint(
+        public fun sourceSetDependentHint(
             dri: Set<DRI> = mainDRI,
             sourceSets: Set<DokkaSourceSet> = mainSourcesetData,
             kind: Kind = ContentKind.Main,
@@ -510,7 +535,7 @@ open class PageContentBuilder(
             )
         }
 
-        fun sourceSetDependentHint(
+        public fun sourceSetDependentHint(
             dri: DRI,
             sourcesetData: Set<DokkaSourceSet> = mainSourcesetData,
             kind: Kind = ContentKind.Main,
@@ -530,23 +555,26 @@ open class PageContentBuilder(
             sourceSets: Set<DokkaSourceSet>,
             styles: Set<Style>,
             extra: PropertyContainer<ContentNode>
-        ) =
-            ContentText(text, DCI(mainDRI, kind), sourceSets.toDisplaySourceSets(), styles, extra)
+        ): ContentText {
+            return ContentText(text, DCI(mainDRI, kind), sourceSets.toDisplaySourceSets(), styles, extra)
+        }
 
-        fun <T> sourceSetDependentText(
+        public fun <T> sourceSetDependentText(
             value: SourceSetDependent<T>,
             sourceSets: Set<DokkaSourceSet> = value.keys,
             styles: Set<Style> = mainStyles,
             transform: (T) -> String
-        ) = value.entries.filter { it.key in sourceSets }.mapNotNull { (p, v) ->
-            transform(v).takeIf { it.isNotBlank() }?.let { it to p }
-        }.groupBy({ it.first }) { it.second }.forEach {
-            text(it.key, sourceSets = it.value.toSet(), styles = styles)
+        ) {
+            value.entries
+                .filter { it.key in sourceSets }
+                .mapNotNull { (p, v) -> transform(v).takeIf { it.isNotBlank() }?.let { it to p } }
+                .groupBy({ it.first }) { it.second }
+                    .forEach { text(it.key, sourceSets = it.value.toSet(), styles = styles) }
         }
     }
 
     @ContentBuilderMarker
-    open inner class TableBuilder(
+    public open inner class TableBuilder(
         private val mainDRI: Set<DRI>,
         private val mainSourceSets: Set<DokkaSourceSet>,
         private val mainKind: Kind,
@@ -557,7 +585,7 @@ open class PageContentBuilder(
         private val rows: MutableList<ContentGroup> = mutableListOf()
         private var caption: ContentGroup? = null
 
-        fun header(
+        public fun header(
             dri: Set<DRI> = mainDRI,
             sourceSets: Set<DokkaSourceSet> = mainSourceSets,
             kind: Kind = mainKind,
@@ -568,7 +596,7 @@ open class PageContentBuilder(
             headerRows += contentFor(dri, sourceSets, kind, styles, extra, block)
         }
 
-        fun row(
+        public fun row(
             dri: Set<DRI> = mainDRI,
             sourceSets: Set<DokkaSourceSet> = mainSourceSets,
             kind: Kind = mainKind,
@@ -579,7 +607,7 @@ open class PageContentBuilder(
             rows += contentFor(dri, sourceSets, kind, styles, extra, block)
         }
 
-        fun caption(
+        public fun caption(
             dri: Set<DRI> = mainDRI,
             sourceSets: Set<DokkaSourceSet> = mainSourceSets,
             kind: Kind = mainKind,
@@ -590,30 +618,33 @@ open class PageContentBuilder(
             caption = contentFor(dri, sourceSets, kind, styles, extra, block)
         }
 
-        fun build(
+        public fun build(
             sourceSets: Set<DokkaSourceSet> = mainSourceSets,
             kind: Kind = mainKind,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
-        ) = ContentTable(
-            headerRows,
-            caption,
-            rows,
-            DCI(mainDRI, kind),
-            sourceSets.toDisplaySourceSets(),
-            styles, extra
-        )
+        ): ContentTable {
+            return ContentTable(
+                headerRows,
+                caption,
+                rows,
+                DCI(mainDRI, kind),
+                sourceSets.toDisplaySourceSets(),
+                styles, extra
+            )
+        }
     }
 
     @ContentBuilderMarker
-    open inner class DivergentBuilder(
+    public open inner class DivergentBuilder(
         private val mainDRI: Set<DRI>,
         private val mainKind: Kind,
         private val mainStyles: Set<Style>,
         private val mainExtra: PropertyContainer<ContentNode>
     ) {
         private val instances: MutableList<ContentDivergentInstance> = mutableListOf()
-        fun instance(
+
+        public fun instance(
             dri: Set<DRI>,
             sourceSets: Set<DokkaSourceSet>,  // Having correct sourcesetData is crucial here, that's why there's no default
             kind: Kind = mainKind,
@@ -626,24 +657,26 @@ open class PageContentBuilder(
                 .build(kind)
         }
 
-        fun build(
+        public fun build(
             groupID: ContentDivergentGroup.GroupID,
             implicitlySourceSetHinted: Boolean,
             kind: Kind = mainKind,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
-        ) = ContentDivergentGroup(
-            instances.toList(),
-            DCI(mainDRI, kind),
-            styles,
-            extra,
-            groupID,
-            implicitlySourceSetHinted
-        )
+        ): ContentDivergentGroup {
+            return ContentDivergentGroup(
+                children = instances.toList(),
+                dci = DCI(mainDRI, kind),
+                style = styles,
+                extra = extra,
+                groupID = groupID,
+                implicitlySourceSetHinted = implicitlySourceSetHinted
+            )
+        }
     }
 
     @ContentBuilderMarker
-    open inner class DivergentInstanceBuilder(
+    public open inner class DivergentInstanceBuilder(
         private val mainDRI: Set<DRI>,
         private val mainSourceSets: Set<DokkaSourceSet>,
         private val mainStyles: Set<Style>,
@@ -653,7 +686,7 @@ open class PageContentBuilder(
         private var divergent: ContentNode? = null
         private var after: ContentNode? = null
 
-        fun before(
+        public fun before(
             dri: Set<DRI> = mainDRI,
             sourceSets: Set<DokkaSourceSet> = mainSourceSets,
             kind: Kind = ContentKind.Main,
@@ -666,7 +699,7 @@ open class PageContentBuilder(
                 .also { before = it }
         }
 
-        fun divergent(
+        public fun divergent(
             dri: Set<DRI> = mainDRI,
             sourceSets: Set<DokkaSourceSet> = mainSourceSets,
             kind: Kind = ContentKind.Main,
@@ -677,7 +710,7 @@ open class PageContentBuilder(
             divergent = contentFor(dri, sourceSets, kind, styles, extra, block)
         }
 
-        fun after(
+        public fun after(
             dri: Set<DRI> = mainDRI,
             sourceSets: Set<DokkaSourceSet> = mainSourceSets,
             kind: Kind = ContentKind.Main,
@@ -690,14 +723,13 @@ open class PageContentBuilder(
                 .also { after = it }
         }
 
-
-        fun build(
+        public fun build(
             kind: Kind,
             sourceSets: Set<DokkaSourceSet> = mainSourceSets,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
-        ) =
-            ContentDivergentInstance(
+        ): ContentDivergentInstance {
+            return ContentDivergentInstance(
                 before,
                 divergent ?: throw IllegalStateException("Divergent block needs divergent part"),
                 after,
@@ -706,11 +738,12 @@ open class PageContentBuilder(
                 styles,
                 extra
             )
+        }
     }
 
     @ContentBuilderMarker
-    open inner class ListBuilder(
-        val ordered: Boolean,
+    public open inner class ListBuilder(
+        public val ordered: Boolean,
         private val mainDRI: Set<DRI>,
         private val mainSourceSets: Set<DokkaSourceSet>,
         private val mainKind: Kind,
@@ -719,7 +752,7 @@ open class PageContentBuilder(
     ) {
         private val contentNodes: MutableList<ContentNode> = mutableListOf()
 
-        fun item(
+        public fun item(
             dri: Set<DRI> = mainDRI,
             sourceSets: Set<DokkaSourceSet> = mainSourceSets,
             kind: Kind = mainKind,
@@ -730,17 +763,19 @@ open class PageContentBuilder(
             contentNodes += contentFor(dri, sourceSets, kind, styles, extra, block)
         }
 
-        fun build(
+        public fun build(
             sourceSets: Set<DokkaSourceSet> = mainSourceSets,
             kind: Kind = mainKind,
             styles: Set<Style> = mainStyles,
             extra: PropertyContainer<ContentNode> = mainExtra
-        ) = ContentList(
-            contentNodes,
-            ordered,
-            DCI(mainDRI, kind),
-            sourceSets.toDisplaySourceSets(),
-            styles, extra
-        )
+        ): ContentList {
+            return ContentList(
+                contentNodes,
+                ordered,
+                DCI(mainDRI, kind),
+                sourceSets.toDisplaySourceSets(),
+                styles, extra
+            )
+        }
     }
 }

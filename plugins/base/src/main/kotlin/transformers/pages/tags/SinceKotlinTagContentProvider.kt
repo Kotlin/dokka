@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.transformers.pages.tags
 
 import org.jetbrains.dokka.DokkaConfiguration
@@ -6,11 +10,11 @@ import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.Doc
 import org.jetbrains.dokka.model.doc.CustomTagWrapper
 import org.jetbrains.dokka.pages.TextStyle
 
-object SinceKotlinTagContentProvider : CustomTagContentProvider {
+public object SinceKotlinTagContentProvider : CustomTagContentProvider {
 
     private const val SINCE_KOTLIN_TAG_NAME = "Since Kotlin"
 
-    override fun isApplicable(customTag: CustomTagWrapper) = customTag.name == SINCE_KOTLIN_TAG_NAME
+    override fun isApplicable(customTag: CustomTagWrapper): Boolean = customTag.name == SINCE_KOTLIN_TAG_NAME
 
     override fun DocumentableContentBuilder.contentForDescription(
         sourceSet: DokkaConfiguration.DokkaSourceSet,

@@ -1,9 +1,16 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.runners.Parameterized.Parameters
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.*
+import kotlin.test.BeforeTest
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 /**
  * Tests for Dokka's configuration options of the Gradle runner.
@@ -17,13 +24,7 @@ import kotlin.test.*
  * key `name` and value `value`, which you can use to set the corresponding option's value
  * using Dokka's configuration DSL.
  */
-class ConfigurationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
-
-    companion object {
-        @get:JvmStatic
-        @get:Parameters(name = "{0}")
-        val versions = listOf(TestedVersions.LATEST)
-    }
+class ConfigurationTest : AbstractGradleIntegrationTest() {
 
     @BeforeTest
     fun prepareProjectFiles() {
@@ -40,10 +41,14 @@ class ConfigurationTest(override val versions: BuildVersions) : AbstractGradleIn
      * The test project contains some undocumented declarations, so if both `reportUndocumented`
      * and `failOnWarning` are enabled - it should fail
      */
-    @Test
+    @ParameterizedTest(name = "{0}")
+    @ArgumentsSource(LatestTestedVersionsArgumentsProvider::class)
     @Suppress("FunctionName")
-    fun `should fail with DokkaException and readable message if failOnWarning is triggered`() {
+    fun `should fail with DokkaException and readable message if failOnWarning is triggered`(
+        buildVersions: BuildVersions
+    ) {
         val result = createGradleRunner(
+            buildVersions,
             "-info",
             "-stacktrace",
             "-Preport_undocumented=true",

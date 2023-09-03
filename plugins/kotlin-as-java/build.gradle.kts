@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
@@ -7,18 +11,18 @@ plugins {
 
 dependencies {
     compileOnly(projects.core)
-    implementation(kotlin("reflect"))
-    compileOnly(projects.kotlinAnalysis)
+    compileOnly(projects.subprojects.analysisKotlinApi)
+
     implementation(projects.plugins.base)
+
+    implementation(kotlin("reflect"))
+
+    testImplementation(kotlin("test"))
+    testImplementation(libs.jsoup)
     testImplementation(projects.plugins.base)
     testImplementation(projects.plugins.base.baseTestUtils)
     testImplementation(projects.core.contentMatcherTestUtils)
-    testImplementation(libs.jsoup)
-    testImplementation(projects.kotlinAnalysis)
-
     testImplementation(projects.core.testApi)
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
 }
 
 registerDokkaArtifactPublication("kotlinAsJavaPlugin") {

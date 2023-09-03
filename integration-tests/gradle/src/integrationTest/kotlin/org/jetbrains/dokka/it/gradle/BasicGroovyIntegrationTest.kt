@@ -1,21 +1,19 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.runners.Parameterized
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
+import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import kotlin.test.BeforeTest
-import kotlin.test.Test
 
-class BasicGroovyIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
-
-    companion object {
-        @get:JvmStatic
-        @get:Parameterized.Parameters(name = "{0}")
-        val versions = TestedVersions.ALL_SUPPORTED
-    }
+class BasicGroovyIntegrationTest : AbstractGradleIntegrationTest() {
 
     @BeforeTest
     fun prepareProjectFiles() {
@@ -28,9 +26,10 @@ class BasicGroovyIntegrationTest(override val versions: BuildVersions) : Abstrac
         File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
     }
 
-    @Test
-    fun execute() {
-        val result = createGradleRunner("dokkaHtml", "dokkaJavadoc", "dokkaGfm", "dokkaJekyll", "-i", "-s")
+    @ParameterizedTest(name = "{0}")
+    @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
+    fun execute(buildVersions: BuildVersions) {
+        val result = createGradleRunner(buildVersions, "dokkaHtml", "dokkaJavadoc", "dokkaGfm", "dokkaJekyll", "-i", "-s")
             .buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)

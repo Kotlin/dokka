@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.kotlinAsJava.converters
 
 import org.jetbrains.dokka.links.Callable
@@ -46,20 +50,11 @@ internal fun DObject.companionInstancePropertyForJava(): DProperty? {
     )
 }
 
-internal fun DObject.companionAsJava(): DObject? {
-    if (hasNothingToRender()) return null
-
-    return asJava(
-        excludedProps = staticPropertiesForJava(),
-        excludedFunctions = staticFunctionsForJava()
-    )
-}
-
 /**
  * Hide companion object if there isn't members of parents.
  * Properties and functions that are moved to outer class are not counted as members.
  */
-private fun DObject.hasNothingToRender(): Boolean {
+internal fun DObject.hasNothingToRender(): Boolean {
     val nonStaticPropsCount = properties.size - staticPropertiesForJava().size
     val nonStaticFunctionsCount = functions.size - staticFunctionsForJava().size
     val classLikesCount = classlikes.size

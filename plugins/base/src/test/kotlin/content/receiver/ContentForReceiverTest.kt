@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package content.receiver
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
@@ -7,8 +11,8 @@ import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.pages.ContentHeader
 import org.jetbrains.dokka.pages.ContentText
 import org.jetbrains.dokka.pages.MemberPageNode
-import org.junit.jupiter.api.Test
 import utils.docs
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 

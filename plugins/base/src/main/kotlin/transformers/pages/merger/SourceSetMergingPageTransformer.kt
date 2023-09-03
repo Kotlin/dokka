@@ -1,13 +1,19 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.transformers.pages.merger
 
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.toDisplaySourceSets
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.ContentComposite
+import org.jetbrains.dokka.pages.ContentNode
+import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-class SourceSetMergingPageTransformer(context: DokkaContext) : PageTransformer {
+public class SourceSetMergingPageTransformer(context: DokkaContext) : PageTransformer {
 
     private val mergedSourceSets = context.configuration.sourceSets.toDisplaySourceSets()
         .associateBy { sourceSet -> sourceSet.key }

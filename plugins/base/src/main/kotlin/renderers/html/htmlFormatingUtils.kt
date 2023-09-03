@@ -1,9 +1,13 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.renderers.html
 
 import kotlinx.html.FlowContent
 import kotlinx.html.span
 
-fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String, hasLastElement: Boolean = false) {
+public fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String, hasLastElement: Boolean = false) {
     if (name.contains(" ")) {
         val withOutSpaces = name.split(" ")
         withOutSpaces.dropLast(1).forEach {
@@ -19,7 +23,7 @@ fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String, hasLastEleme
     }
 }
 
-fun FlowContent.buildBreakableDotSeparatedHtml(name: String) {
+public fun FlowContent.buildBreakableDotSeparatedHtml(name: String) {
     val phrases = name.split(".")
     phrases.forEachIndexed { i, e ->
         val elementWithOptionalDot = e.takeIf { i == phrases.lastIndex } ?: "$e."
@@ -57,6 +61,7 @@ private fun FlowContent.buildBreakableHtmlElement(element: String, last: Boolean
     }
 }
 
-fun FlowContent.buildBreakableText(name: String) =
+public fun FlowContent.buildBreakableText(name: String) {
     if (name.contains(".")) buildBreakableDotSeparatedHtml(name)
     else buildTextBreakableAfterCapitalLetters(name, hasLastElement = true)
+}

@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.conventions
 
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -45,15 +49,17 @@ val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
     maxHeapSize = "2G"
     description = "Runs integration tests."
     group = "verification"
-    useJUnit()
-
     testClassesDirs = integrationTestSourceSet.output.classesDirs
     classpath = integrationTestSourceSet.runtimeClasspath
+
+    useJUnitPlatform()
 
     setForkEvery(1)
     project.properties["dokka_integration_test_parallelism"]?.toString()?.toIntOrNull()?.let { parallelism ->
         maxParallelForks = parallelism
     }
+
+
     environment(
         "isExhaustive",
         project.properties["dokka_integration_test_is_exhaustive"]?.toString()?.toBoolean()

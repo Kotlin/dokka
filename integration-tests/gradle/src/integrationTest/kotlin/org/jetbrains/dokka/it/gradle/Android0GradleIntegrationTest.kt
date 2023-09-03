@@ -1,19 +1,23 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.*
-import org.junit.runners.Parameterized.Parameters
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.*
-import kotlin.test.Test
+import kotlin.test.BeforeTest
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
-class Android0GradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
+internal class AndroidTestedVersionsArgumentsProvider : TestedVersionsArgumentsProvider(TestedVersions.ANDROID)
+
+class Android0GradleIntegrationTest : AbstractGradleIntegrationTest() {
 
     companion object {
-        @get:JvmStatic
-        @get:Parameters(name = "{0}")
-        val versions = TestedVersions.ANDROID
-
         /**
          * Indicating whether or not the current machine executing the test is a CI
          */
@@ -24,9 +28,10 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
 
         fun assumeAndroidSdkInstalled() {
             if (isCI) return
-            Assume.assumeTrue(isAndroidSdkInstalled)
+            if (!isAndroidSdkInstalled) {
+                throw IllegalStateException("Expected Android SDK to be installed")
+            }
         }
-
     }
 
     @BeforeTest
@@ -43,9 +48,10 @@ class Android0GradleIntegrationTest(override val versions: BuildVersions) : Abst
         File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
     }
 
-    @Test
-    fun execute() {
-        val result = createGradleRunner("dokkaHtml", "-i", "-s").buildRelaxed()
+    @ParameterizedTest(name = "{0}")
+    @ArgumentsSource(AndroidTestedVersionsArgumentsProvider::class)
+    fun execute(buildVersions: BuildVersions) {
+        val result = createGradleRunner(buildVersions, "dokkaHtml", "-i", "-s").buildRelaxed()
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
 
         val htmlOutputDir = File(projectDir, "build/dokka/html")

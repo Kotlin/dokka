@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.versioning
 
 import kotlinx.html.a
@@ -10,11 +14,13 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.urlEncoded
 import java.io.File
 
-fun interface VersionsNavigationCreator {
-    operator fun invoke(output: File): String
+public fun interface VersionsNavigationCreator {
+    public operator fun invoke(output: File): String
 }
 
-class HtmlVersionsNavigationCreator(private val context: DokkaContext) : VersionsNavigationCreator {
+public class HtmlVersionsNavigationCreator(
+    private val context: DokkaContext
+) : VersionsNavigationCreator {
 
     private val versioningStorage by lazy { context.plugin<VersioningPlugin>().querySingle { versioningStorage } }
 

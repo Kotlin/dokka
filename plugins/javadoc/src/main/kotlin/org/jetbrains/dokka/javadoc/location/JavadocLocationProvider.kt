@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.javadoc.location
 
 import org.jetbrains.dokka.base.resolvers.local.DefaultLocationProvider
@@ -12,8 +16,10 @@ import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import java.util.*
 
-class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext) :
-    DefaultLocationProvider(pageRoot, dokkaContext) {
+public class JavadocLocationProvider(
+    pageRoot: RootPageNode,
+    dokkaContext: DokkaContext
+) : DefaultLocationProvider(pageRoot, dokkaContext) {
 
     private val pathIndex = IdentityHashMap<PageNode, List<String>>().apply {
         fun registerPath(page: PageNode, prefix: List<String> = emptyList()) {
@@ -99,15 +105,16 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
             })"
         } ?: dri.classNames.orEmpty()
 
-    override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean) =
-        pathIndex[node]?.relativeTo(pathIndex[context].orEmpty())?.let {
+    override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean): String {
+        return pathIndex[node]?.relativeTo(pathIndex[context].orEmpty())?.let {
             if (skipExtension) it.removeSuffix(".html") else it
         } ?: run {
             throw IllegalStateException("Path for ${node::class.java.canonicalName}:${node.name} not found")
         }
+    }
 
-    fun resolve(link: LinkJavadocListEntry, contextRoot: PageNode? = null, skipExtension: Boolean = true) =
-        pathIndex[link.dri.first()]?.let {
+    public fun resolve(link: LinkJavadocListEntry, contextRoot: PageNode? = null, skipExtension: Boolean = true): String {
+        return pathIndex[link.dri.first()]?.let {
             when (link.kind) {
                 JavadocContentKind.Class -> it
                 JavadocContentKind.OverviewSummary -> it.dropLast(1) + "index"
@@ -119,6 +126,7 @@ class JavadocLocationProvider(pageRoot: RootPageNode, dokkaContext: DokkaContext
                 else -> it
             }
         }?.relativeTo(pathIndex[contextRoot].orEmpty())?.let { if (skipExtension) "$it.html" else it }.orEmpty()
+    }
 
     override fun pathToRoot(from: PageNode): String {
         TODO("Not yet implemented")

@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains
 
 import org.gradle.api.provider.Provider
@@ -12,7 +16,7 @@ import javax.inject.Inject
  * This is an extension created by the [org.jetbrains.conventions.Base_gradle] convention plugin.
  *
  * Default values are set in the root `gradle.properties`, and can be overridden via
- * [CLI args, system properties, and environment variables](https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties)
+ * [project properties](https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties)
  */
 abstract class DokkaBuildProperties @Inject constructor(
     private val providers: ProviderFactory,

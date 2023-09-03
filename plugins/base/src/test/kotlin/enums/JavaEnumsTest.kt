@@ -1,15 +1,16 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package enums
 
 import org.jetbrains.dokka.SourceLinkDefinitionImpl
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.model.DEnum
-import org.jetbrains.dokka.model.ObviousMember
-import org.junit.jupiter.api.Test
 import signatures.renderedContent
 import utils.TestOutputWriterPlugin
 import java.net.URL
+import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 class JavaEnumsTest : BaseAbstractTest() {
 

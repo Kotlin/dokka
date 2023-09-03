@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package renderers.html
 
 import org.jetbrains.dokka.DokkaConfigurationImpl
@@ -10,11 +14,9 @@ import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProviderFactory
 import org.jetbrains.dokka.testApi.context.MockContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import org.jsoup.nodes.Node
-import org.jsoup.nodes.TextNode
 import renderers.RenderingOnlyTestBase
-import utils.TestOutputWriter
 import testApi.testRunner.defaultSourceSet
+import utils.TestOutputWriter
 import java.io.File
 
 abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {

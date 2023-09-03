@@ -1,12 +1,16 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.javadoc.signatures
 
-import org.jetbrains.dokka.javadoc.translators.documentables.JavadocPageContentBuilder
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.signatures.JvmSignatureUtils
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
+import org.jetbrains.dokka.javadoc.translators.documentables.JavadocPageContentBuilder
 import org.jetbrains.dokka.kotlinAsJava.signatures.JavaSignatureUtils
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.sureClassNames
@@ -19,12 +23,16 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaLogger
 
-class JavadocSignatureProvider(ctcc: CommentsToContentConverter, logger: DokkaLogger) : SignatureProvider,
-    JvmSignatureUtils by JavaSignatureUtils {
-    constructor(context: DokkaContext) : this(
+public class JavadocSignatureProvider(
+    ctcc: CommentsToContentConverter,
+    logger: DokkaLogger
+) : SignatureProvider, JvmSignatureUtils by JavaSignatureUtils {
+
+    public constructor(context: DokkaContext) : this(
         context.plugin<DokkaBase>().querySingle { commentsToContentConverter },
         context.logger
     )
+
     private val contentBuilder = JavadocPageContentBuilder(ctcc, this, logger)
 
     private val ignoredVisibilities = setOf(JavaVisibility.Default)

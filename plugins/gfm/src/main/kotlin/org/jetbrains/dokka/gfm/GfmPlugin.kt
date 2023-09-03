@@ -1,42 +1,46 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.gfm
 
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
+import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
 import org.jetbrains.dokka.gfm.location.MarkdownLocationProvider
 import org.jetbrains.dokka.gfm.renderer.BriefCommentPreprocessor
 import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
-import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
-import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
+import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.renderers.PostAction
+import org.jetbrains.dokka.renderers.Renderer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-class GfmPlugin : DokkaPlugin() {
+public class GfmPlugin : DokkaPlugin() {
 
-    val gfmPreprocessors by extensionPoint<PageTransformer>()
+    public val gfmPreprocessors: ExtensionPoint<PageTransformer> by extensionPoint<PageTransformer>()
 
     private val dokkaBase by lazy { plugin<DokkaBase>() }
 
-    val renderer by extending {
+    public val renderer: Extension<Renderer, *, *> by extending {
         CoreExtensions.renderer providing ::CommonmarkRenderer override dokkaBase.htmlRenderer
     }
 
-    val locationProvider by extending {
+    public val locationProvider: Extension<LocationProviderFactory, *, *> by extending {
         dokkaBase.locationProviderFactory providing MarkdownLocationProvider::Factory override dokkaBase.locationProvider
     }
 
-    val rootCreator by extending {
+    public val rootCreator: Extension<PageTransformer, *, *> by extending {
         gfmPreprocessors with RootCreator
     }
 
-    val briefCommentPreprocessor by extending {
+    public val briefCommentPreprocessor: Extension<PageTransformer, *, *> by extending {
         gfmPreprocessors with BriefCommentPreprocessor()
     }
 
-    val packageListCreator by extending {
+    public val packageListCreator: Extension<PageTransformer, *, *> by extending {
         (gfmPreprocessors
                 providing { PackageListCreator(it, RecognizedLinkFormat.DokkaGFM) }
                 order { after(rootCreator) })

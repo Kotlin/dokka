@@ -1,8 +1,12 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.javadoc.transformers.documentables
 
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class JavadocDocumentableJVMSourceSetFilterTest: BaseAbstractTest() {

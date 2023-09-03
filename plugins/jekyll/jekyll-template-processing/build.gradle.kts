@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
@@ -7,7 +11,6 @@ plugins {
 
 dependencies {
     compileOnly(projects.core)
-    implementation(kotlin("reflect"))
 
     implementation(projects.plugins.base)
     implementation(projects.plugins.jekyll)
@@ -16,11 +19,11 @@ dependencies {
     implementation(projects.plugins.gfm)
     implementation(projects.plugins.gfm.gfmTemplateProcessing)
 
+    implementation(kotlin("reflect"))
     implementation(libs.kotlinx.coroutines.core)
 
+    testImplementation(kotlin("test"))
     testImplementation(projects.core.testApi)
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
 }
 
 registerDokkaArtifactPublication("dokkaJekyllTemplateProcessing") {

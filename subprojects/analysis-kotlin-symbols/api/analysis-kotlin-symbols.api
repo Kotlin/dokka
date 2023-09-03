@@ -1,0 +1,19 @@
+public final class org/jetbrains/dokka/analysis/kotlin/symbols/plugin/SymbolsAnalysisPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public fun <init> ()V
+}
+
+public class org/jetbrains/dokka/analysis/kotlin/symbols/services/KotlinSampleProvider : org/jetbrains/dokka/analysis/kotlin/internal/SampleProvider {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun close ()V
+	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public fun getSample (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/lang/String;)Lorg/jetbrains/dokka/analysis/kotlin/internal/SampleProvider$SampleSnippet;
+	protected fun processBody (Lcom/intellij/psi/PsiElement;)Ljava/lang/String;
+	protected fun processImports (Lcom/intellij/psi/PsiElement;)Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/analysis/kotlin/symbols/services/KotlinSampleProviderFactory : org/jetbrains/dokka/analysis/kotlin/internal/SampleProviderFactory {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun build ()Lorg/jetbrains/dokka/analysis/kotlin/internal/SampleProvider;
+	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+}
+

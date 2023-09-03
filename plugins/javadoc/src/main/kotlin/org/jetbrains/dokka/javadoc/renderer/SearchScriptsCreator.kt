@@ -1,20 +1,25 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.javadoc.renderer
 
+import org.jetbrains.dokka.base.renderers.sourceSets
+import org.jetbrains.dokka.base.resolvers.local.LocationProvider
+import org.jetbrains.dokka.base.resolvers.local.resolveOrThrow
 import org.jetbrains.dokka.javadoc.pages.*
 import org.jetbrains.dokka.javadoc.renderer.SearchRecord.Companion.allTypes
-import org.jetbrains.dokka.base.renderers.sourceSets
-import org.jetbrains.dokka.base.resolvers.local.resolveOrThrow
-import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.formatToEndWithHtml
-import java.lang.StringBuilder
 
-class SearchScriptsCreator(private val locationProvider: LocationProvider) {
+public class SearchScriptsCreator(
+    private val locationProvider: LocationProvider
+) {
 
-    fun invoke(input: RootPageNode): List<RendererSpecificPage> {
+    public fun invoke(input: RootPageNode): List<RendererSpecificPage> {
         val data = when (input) {
             is JavadocModulePageNode -> processModules(listOf(input))
             else -> processModules(input.children.filterIsInstance<JavadocModulePageNode>())

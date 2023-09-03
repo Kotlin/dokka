@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.kotlinAsJava.signatures
 
 import org.jetbrains.dokka.base.DokkaBase
@@ -8,19 +12,26 @@ import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.WithExtraProperties
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.ContentKind
+import org.jetbrains.dokka.pages.ContentNode
+import org.jetbrains.dokka.pages.TextStyle
+import org.jetbrains.dokka.pages.TokenStyle
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaLogger
 import kotlin.text.Typography.nbsp
 
-class JavaSignatureProvider internal constructor(ctcc: CommentsToContentConverter, logger: DokkaLogger) : SignatureProvider,
-    JvmSignatureUtils by JavaSignatureUtils {
-    constructor(context: DokkaContext) : this(
+public class JavaSignatureProvider internal constructor(
+    ctcc: CommentsToContentConverter,
+    logger: DokkaLogger
+) : SignatureProvider, JvmSignatureUtils by JavaSignatureUtils {
+
+    public constructor(context: DokkaContext) : this(
         context.plugin<DokkaBase>().querySingle { commentsToContentConverter },
         context.logger
     )
+
     private val contentBuilder = PageContentBuilder(ctcc, this, logger)
 
     private val ignoredVisibilities = setOf(JavaVisibility.Default)

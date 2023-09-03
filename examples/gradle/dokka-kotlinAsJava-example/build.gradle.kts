@@ -1,6 +1,10 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 plugins {
-    kotlin("jvm") version "1.8.20"
-    id("org.jetbrains.dokka") version "1.8.20"
+    kotlin("jvm") version "1.9.0"
+    id("org.jetbrains.dokka") version "1.9.0"
 }
 
 repositories {
@@ -11,11 +15,11 @@ dependencies {
     testImplementation(kotlin("test-junit"))
 
     // Will apply the plugin to all Dokka tasks
-    dokkaPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.8.20")
+    dokkaPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.9.0")
 
     // Will apply the plugin only to the `:dokkaHtml` task
-    //dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.8.20")
+    //dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.9.0")
 
     // Will apply the plugin only to the `:dokkaGfm` task
-    //dokkaGfmPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.8.20")
+    //dokkaGfmPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.9.0")
 }

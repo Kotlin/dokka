@@ -1,10 +1,11 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.jetbrains.*
 
 plugins {
-    `kotlin-dsl`
-    id("org.jetbrains.conventions.maven-publish")
-    id("org.jetbrains.conventions.base-java")
-    id("com.gradle.plugin-publish")
+    id("org.jetbrains.conventions.gradle-plugin")
 }
 
 dependencies {
@@ -13,6 +14,7 @@ dependencies {
     compileOnly(libs.gradlePlugin.kotlin)
     compileOnly(libs.gradlePlugin.android)
 
+    testImplementation(kotlin("test"))
     testImplementation(libs.gradlePlugin.kotlin)
     testImplementation(libs.gradlePlugin.android)
 }

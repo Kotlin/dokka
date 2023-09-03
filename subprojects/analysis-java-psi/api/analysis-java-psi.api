@@ -1,0 +1,152 @@
+public final class org/jetbrains/dokka/analysis/java/AuthorJavadocTag : org/jetbrains/dokka/analysis/java/JavadocTag {
+	public static final field INSTANCE Lorg/jetbrains/dokka/analysis/java/AuthorJavadocTag;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/java/BreakingAbstractionKotlinLightMethodChecker {
+	public abstract fun isLightAnnotation (Lcom/intellij/psi/PsiAnnotation;)Z
+	public abstract fun isLightAnnotationAttribute (Lcom/intellij/lang/jvm/annotation/JvmAnnotationAttribute;)Z
+}
+
+public final class org/jetbrains/dokka/analysis/java/DeprecatedJavadocTag : org/jetbrains/dokka/analysis/java/JavadocTag {
+	public static final field INSTANCE Lorg/jetbrains/dokka/analysis/java/DeprecatedJavadocTag;
+}
+
+public final class org/jetbrains/dokka/analysis/java/DescriptionJavadocTag : org/jetbrains/dokka/analysis/java/JavadocTag {
+	public static final field INSTANCE Lorg/jetbrains/dokka/analysis/java/DescriptionJavadocTag;
+}
+
+public final class org/jetbrains/dokka/analysis/java/ExceptionJavadocTag : org/jetbrains/dokka/analysis/java/ThrowingExceptionJavadocTag {
+	public static final field Companion Lorg/jetbrains/dokka/analysis/java/ExceptionJavadocTag$Companion;
+	public static final field name Ljava/lang/String;
+	public fun <init> (Ljava/lang/String;)V
+}
+
+public final class org/jetbrains/dokka/analysis/java/ExceptionJavadocTag$Companion {
+}
+
+public final class org/jetbrains/dokka/analysis/java/JavaAnalysisPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public fun <init> ()V
+	public final fun getDocCommentCreators ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getDocCommentFinder ()Lorg/jetbrains/dokka/analysis/java/doccomment/DocCommentFinder;
+	public final fun getDocCommentParsers ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getInheritDocTagContentProviders ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getKotlinLightMethodChecker ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getProjectProvider ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getSourceRootsExtractor ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+}
+
+public abstract class org/jetbrains/dokka/analysis/java/JavadocTag {
+	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getName ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/analysis/java/ParamJavadocTag : org/jetbrains/dokka/analysis/java/JavadocTag {
+	public static final field Companion Lorg/jetbrains/dokka/analysis/java/ParamJavadocTag$Companion;
+	public static final field name Ljava/lang/String;
+	public fun <init> (Lcom/intellij/psi/PsiMethod;Ljava/lang/String;I)V
+	public final fun getMethod ()Lcom/intellij/psi/PsiMethod;
+	public final fun getParamIndex ()I
+	public final fun getParamName ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/analysis/java/ParamJavadocTag$Companion {
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/java/ProjectProvider {
+	public abstract fun getProject (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lcom/intellij/openapi/project/Project;
+}
+
+public final class org/jetbrains/dokka/analysis/java/ReturnJavadocTag : org/jetbrains/dokka/analysis/java/JavadocTag {
+	public static final field INSTANCE Lorg/jetbrains/dokka/analysis/java/ReturnJavadocTag;
+}
+
+public final class org/jetbrains/dokka/analysis/java/SeeJavadocTag : org/jetbrains/dokka/analysis/java/JavadocTag {
+	public static final field Companion Lorg/jetbrains/dokka/analysis/java/SeeJavadocTag$Companion;
+	public static final field name Ljava/lang/String;
+	public fun <init> (Ljava/lang/String;)V
+	public final fun getQualifiedReference ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/analysis/java/SeeJavadocTag$Companion {
+}
+
+public final class org/jetbrains/dokka/analysis/java/SinceJavadocTag : org/jetbrains/dokka/analysis/java/JavadocTag {
+	public static final field INSTANCE Lorg/jetbrains/dokka/analysis/java/SinceJavadocTag;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/java/SourceRootsExtractor {
+	public abstract fun extract (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Ljava/util/List;
+}
+
+public abstract class org/jetbrains/dokka/analysis/java/ThrowingExceptionJavadocTag : org/jetbrains/dokka/analysis/java/JavadocTag {
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getExceptionQualifiedName ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/analysis/java/ThrowsJavadocTag : org/jetbrains/dokka/analysis/java/ThrowingExceptionJavadocTag {
+	public static final field Companion Lorg/jetbrains/dokka/analysis/java/ThrowsJavadocTag$Companion;
+	public static final field name Ljava/lang/String;
+	public fun <init> (Ljava/lang/String;)V
+}
+
+public final class org/jetbrains/dokka/analysis/java/ThrowsJavadocTag$Companion {
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/java/doccomment/DocComment {
+	public abstract fun hasTag (Lorg/jetbrains/dokka/analysis/java/JavadocTag;)Z
+	public abstract fun resolveTag (Lorg/jetbrains/dokka/analysis/java/JavadocTag;)Ljava/util/List;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/java/doccomment/DocCommentCreator {
+	public abstract fun create (Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/analysis/java/doccomment/DocComment;
+}
+
+public final class org/jetbrains/dokka/analysis/java/doccomment/DocCommentFactory {
+	public fun <init> (Ljava/util/List;)V
+	public final fun fromElement (Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/analysis/java/doccomment/DocComment;
+}
+
+public final class org/jetbrains/dokka/analysis/java/doccomment/DocCommentFinder {
+	public fun <init> (Lorg/jetbrains/dokka/utilities/DokkaLogger;Lorg/jetbrains/dokka/analysis/java/doccomment/DocCommentFactory;)V
+	public final fun findClosestToElement (Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/analysis/java/doccomment/DocComment;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/java/doccomment/DocumentationContent {
+	public abstract fun getTag ()Lorg/jetbrains/dokka/analysis/java/JavadocTag;
+	public abstract fun resolveSiblings ()Ljava/util/List;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/java/parsers/DocCommentParser {
+	public abstract fun canParse (Lorg/jetbrains/dokka/analysis/java/doccomment/DocComment;)Z
+	public abstract fun parse (Lorg/jetbrains/dokka/analysis/java/doccomment/DocComment;Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+}
+
+public final class org/jetbrains/dokka/analysis/java/parsers/JavadocParser : org/jetbrains/dokka/analysis/java/parsers/JavaDocumentationParser {
+	public fun <init> (Ljava/util/List;Lorg/jetbrains/dokka/analysis/java/doccomment/DocCommentFinder;)V
+	public fun parseDocumentation (Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+}
+
+public final class org/jetbrains/dokka/analysis/java/parsers/doctag/DocTagParserContext {
+	public fun <init> ()V
+	public final fun getDocumentationNode (Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+	public final fun getDri (Ljava/lang/String;)Lorg/jetbrains/dokka/links/DRI;
+	public final fun store (Lorg/jetbrains/dokka/links/DRI;)Ljava/lang/String;
+	public final fun store (Lorg/jetbrains/dokka/model/doc/DocumentationNode;)Ljava/lang/String;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/java/parsers/doctag/InheritDocTagContentProvider {
+	public abstract fun canConvert (Lorg/jetbrains/dokka/analysis/java/doccomment/DocumentationContent;)Z
+	public abstract fun convertToHtml (Lorg/jetbrains/dokka/analysis/java/doccomment/DocumentationContent;Lorg/jetbrains/dokka/analysis/java/parsers/doctag/DocTagParserContext;)Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/analysis/java/util/PsiDocumentableSource : org/jetbrains/dokka/model/DocumentableSource {
+	public fun <init> (Lcom/intellij/psi/PsiNamedElement;)V
+	public fun computeLineNumber ()Ljava/lang/Integer;
+	public fun getPath ()Ljava/lang/String;
+	public final fun getPsi ()Lcom/intellij/psi/PsiNamedElement;
+}
+
+public final class org/jetbrains/dokka/analysis/java/util/PsiUtilKt {
+	public static final fun from (Lorg/jetbrains/dokka/links/DRI$Companion;Lcom/intellij/psi/PsiElement;)Lorg/jetbrains/dokka/links/DRI;
+}
+

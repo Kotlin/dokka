@@ -1,9 +1,13 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.transformers.pages.annotations
 
-import com.intellij.util.containers.ComparatorUtil.max
-import org.intellij.markdown.MarkdownElementTypes
+
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.annotations
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.CustomDocTag
@@ -13,9 +17,8 @@ import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 import org.jetbrains.dokka.utilities.associateWithNotNull
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
-class SinceKotlinVersion constructor(str: String) : Comparable<SinceKotlinVersion> {
+public class SinceKotlinVersion(str: String) : Comparable<SinceKotlinVersion> {
     private val parts: List<Int> = str.split(".").map { it.toInt() }
 
     /**
@@ -36,7 +39,9 @@ class SinceKotlinVersion constructor(str: String) : Comparable<SinceKotlinVersio
     override fun toString(): String = parts.joinToString(".")
 }
 
-class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransformer {
+public class SinceKotlinTransformer(
+    public val context: DokkaContext
+) : DocumentableTransformer {
 
     private val minSinceKotlinVersionOfPlatform = mapOf(
         Platform.common to SinceKotlinVersion("1.0"),
@@ -46,7 +51,7 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
         Platform.wasm to SinceKotlinVersion("1.8"),
     )
 
-    override fun invoke(original: DModule, context: DokkaContext) = original.transform() as DModule
+    override fun invoke(original: DModule, context: DokkaContext): DModule = original.transform() as DModule
 
     private fun <T : Documentable> T.transform(parent: SourceSetDependent<SinceKotlinVersion>? = null): Documentable {
         val versions = calculateVersions(parent)
@@ -124,7 +129,7 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
         val annotatedVersion =
             annotations()[sourceSet]
                 ?.findSinceKotlinAnnotation()
-                ?.params?.get("version").safeAs<StringValue>()?.value
+                ?.params?.let { it["version"] as? StringValue }?.value
                 ?.let { SinceKotlinVersion(it) }
 
         val minSinceKotlin = minSinceKotlinVersionOfPlatform[sourceSet.analysisPlatform]
@@ -139,7 +144,7 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
             val version = getVersion(sourceSet)
             val parentVersion = parent?.get(sourceSet)
             if (parentVersion != null)
-                max(version, parentVersion)
+                maxOf(version, parentVersion)
             else
                 version
         }
@@ -157,7 +162,7 @@ class SinceKotlinTransformer(val context: DokkaContext) : DocumentableTransforme
                             version.toString()
                         )
                     ),
-                    name = MarkdownElementTypes.MARKDOWN_FILE.name
+                    name = MARKDOWN_ELEMENT_FILE_NAME
                 ),
                 "Since Kotlin"
             )

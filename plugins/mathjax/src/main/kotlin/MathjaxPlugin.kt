@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package  org.jetbrains.dokka.mathjax
 
 
@@ -12,15 +16,17 @@ import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.pages.WithDocumentables
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.Extension
 import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-class MathjaxPlugin : DokkaPlugin() {
-    val transformer by extending {
+public class MathjaxPlugin : DokkaPlugin() {
+
+    public val transformer: Extension<PageTransformer, *, *> by extending {
         CoreExtensions.pageTransformer with MathjaxTransformer
     }
 
-    val mathjaxTagContentProvider by extending {
+    public val mathjaxTagContentProvider: Extension<CustomTagContentProvider, *, *> by extending {
         plugin<DokkaBase>().customTagContentProvider with MathjaxTagContentProvider order {
             before(plugin<DokkaBase>().sinceKotlinTagContentProvider)
         }
@@ -34,8 +40,9 @@ class MathjaxPlugin : DokkaPlugin() {
 private const val ANNOTATION = "usesMathJax"
 internal const val LIB_PATH = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_SVG&latest"
 
-object MathjaxTransformer : PageTransformer {
-    override fun invoke(input: RootPageNode) = input.transformContentPagesTree {
+public object MathjaxTransformer : PageTransformer {
+
+    override fun invoke(input: RootPageNode): RootPageNode = input.transformContentPagesTree {
         it.modified(
             embeddedResources = it.embeddedResources + if (it.isNeedingMathjax) listOf(LIB_PATH) else emptyList()
         )
@@ -46,9 +53,10 @@ object MathjaxTransformer : PageTransformer {
             .flatMap { it.children }
             .any { (it as? CustomTagWrapper)?.name == ANNOTATION } }
 }
-object MathjaxTagContentProvider : CustomTagContentProvider {
 
-    override fun isApplicable(customTag: CustomTagWrapper) = customTag.name == ANNOTATION
+public object MathjaxTagContentProvider : CustomTagContentProvider {
+
+    override fun isApplicable(customTag: CustomTagWrapper): Boolean = customTag.name == ANNOTATION
 
     override fun DocumentableContentBuilder.contentForDescription(
         sourceSet: DokkaConfiguration.DokkaSourceSet,

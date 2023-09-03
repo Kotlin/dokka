@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package templates
 
 import org.jetbrains.dokka.DokkaConfiguration
@@ -11,7 +15,9 @@ import java.util.concurrent.ConcurrentHashMap
 
 private typealias Entry = Map<String, List<String>>
 
-class SourcesetDependencyProcessingStrategy(val context: DokkaContext) : TemplateProcessingStrategy {
+public class SourcesetDependencyProcessingStrategy(
+    public val context: DokkaContext
+) : TemplateProcessingStrategy {
     private val fileName = "sourceset_dependencies.js"
     private val fragments = ConcurrentHashMap<String, Entry>()
 

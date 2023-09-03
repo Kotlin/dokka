@@ -1,61 +1,70 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.javadoc
 
-import org.jetbrains.dokka.javadoc.location.JavadocLocationProviderFactory
-import org.jetbrains.dokka.javadoc.renderer.KorteJavadocRenderer
-import org.jetbrains.dokka.javadoc.signatures.JavadocSignatureProvider
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
+import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.PACKAGE_LIST_NAME
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
+import org.jetbrains.dokka.base.signatures.SignatureProvider
+import org.jetbrains.dokka.javadoc.location.JavadocLocationProviderFactory
 import org.jetbrains.dokka.javadoc.pages.*
+import org.jetbrains.dokka.javadoc.renderer.KorteJavadocRenderer
+import org.jetbrains.dokka.javadoc.signatures.JavadocSignatureProvider
 import org.jetbrains.dokka.javadoc.transformers.documentables.JavadocDocumentableJVMSourceSetFilter
 import org.jetbrains.dokka.javadoc.validity.MultiplatformConfiguredChecker
 import org.jetbrains.dokka.kotlinAsJava.KotlinAsJavaPlugin
-import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
-import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
+import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.renderers.PostAction
+import org.jetbrains.dokka.renderers.Renderer
+import org.jetbrains.dokka.transformers.documentation.DocumentableToPageTranslator
+import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.dokka.validity.PreGenerationChecker
 
-class JavadocPlugin : DokkaPlugin() {
+public class JavadocPlugin : DokkaPlugin() {
 
-    val dokkaBasePlugin by lazy { plugin<DokkaBase>() }
-    val kotinAsJavaPlugin by lazy { plugin<KotlinAsJavaPlugin>() }
-    val locationProviderFactory by lazy { dokkaBasePlugin.locationProviderFactory }
-    val javadocPreprocessors by extensionPoint<PageTransformer>()
+    private val dokkaBasePlugin: DokkaBase by lazy { plugin<DokkaBase>() }
+    private val kotinAsJavaPlugin: KotlinAsJavaPlugin by lazy { plugin<KotlinAsJavaPlugin>() }
 
-    val dokkaJavadocPlugin by extending {
+    public val locationProviderFactory: ExtensionPoint<LocationProviderFactory> by lazy { dokkaBasePlugin.locationProviderFactory }
+    public val javadocPreprocessors: ExtensionPoint<PageTransformer> by extensionPoint<PageTransformer>()
+
+    public val dokkaJavadocPlugin: Extension<Renderer, *, *> by extending {
         CoreExtensions.renderer providing { ctx -> KorteJavadocRenderer(ctx, "views") } override dokkaBasePlugin.htmlRenderer
     }
 
-    val javadocMultiplatformCheck by extending {
+    public val javadocMultiplatformCheck: Extension<PreGenerationChecker, *, *> by extending {
         CoreExtensions.preGenerationCheck providing ::MultiplatformConfiguredChecker
     }
 
-    val pageTranslator by extending {
+    public val pageTranslator: Extension<DocumentableToPageTranslator, *, *> by extending {
         CoreExtensions.documentableToPageTranslator providing ::JavadocDocumentableToPageTranslator override
                 kotinAsJavaPlugin.kotlinAsJavaDocumentableToPageTranslator
     }
 
-    val documentableSourceSetFilter by extending {
+    public val documentableSourceSetFilter: Extension<PreMergeDocumentableTransformer, *, *> by extending {
         dokkaBasePlugin.preMergeDocumentableTransformer providing ::JavadocDocumentableJVMSourceSetFilter
     }
 
-    val javadocLocationProviderFactory by extending {
+    public val javadocLocationProviderFactory: Extension<LocationProviderFactory, *, *> by extending {
         dokkaBasePlugin.locationProviderFactory providing ::JavadocLocationProviderFactory override dokkaBasePlugin.locationProvider
     }
 
-    val javadocSignatureProvider by extending {
+    public val javadocSignatureProvider: Extension<SignatureProvider, *, *> by extending {
         dokkaBasePlugin.signatureProvider providing ::JavadocSignatureProvider override kotinAsJavaPlugin.javaSignatureProvider
     }
 
-    val rootCreator by extending {
+    public val rootCreator: Extension<PageTransformer, *, *> by extending {
         javadocPreprocessors with RootCreator
     }
 
-    val packageListCreator by extending {
+    public val packageListCreator: Extension<PageTransformer, *, *> by extending {
         javadocPreprocessors providing {
             PackageListCreator(
                 context = it,
@@ -65,23 +74,23 @@ class JavadocPlugin : DokkaPlugin() {
         } order { after(rootCreator) }
     }
 
-    val resourcesInstaller by extending {
+    public val resourcesInstaller: Extension<PageTransformer, *, *> by extending {
         javadocPreprocessors with ResourcesInstaller order { after(rootCreator) }
     }
 
-    val treeViewInstaller by extending {
-        javadocPreprocessors with TreeViewInstaller order { after(rootCreator) }
+    public val treeViewInstaller: Extension<PageTransformer, *, *> by extending {
+        javadocPreprocessors providing ::TreeViewInstaller order { after(rootCreator) }
     }
 
-    val allClassessPageInstaller by extending {
+    public val allClassessPageInstaller: Extension<PageTransformer, *, *> by extending {
         javadocPreprocessors with AllClassesPageInstaller order { before(rootCreator) }
     }
 
-    val indexGenerator by extending {
+    public val indexGenerator: Extension<PageTransformer, *, *> by extending {
         javadocPreprocessors with IndexGenerator order { before(rootCreator) }
     }
 
-    val deprecatedPageCreator by extending {
+    public val deprecatedPageCreator: Extension<PageTransformer, *, *> by extending {
         javadocPreprocessors with DeprecatedPageCreator order { before(rootCreator) }
     }
 

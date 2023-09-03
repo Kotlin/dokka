@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
@@ -7,8 +11,7 @@ plugins {
 
 dependencies {
     api(projects.core)
-    implementation(projects.kotlinAnalysis)
-    implementation("junit:junit:4.13.2") // TODO: remove dependency to junit
+
     implementation(kotlin("reflect"))
 }
 

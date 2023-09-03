@@ -1,7 +1,11 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.transformers.documentables
 
-import org.jetbrains.dokka.DokkaConfiguration.PackageOptions
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfiguration.PackageOptions
 import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.EnumValue
@@ -18,8 +22,9 @@ import org.jetbrains.dokka.transformers.documentation.sourceSet
  * Documentables with [kotlin.Deprecated.level] set to [DeprecationLevel.HIDDEN]
  * are suppressed regardless of global and package options.
  */
-class DeprecatedDocumentableFilterTransformer(context: DokkaContext) :
-    SuppressedByConditionDocumentableFilterTransformer(context) {
+public class DeprecatedDocumentableFilterTransformer(
+    context: DokkaContext
+) : SuppressedByConditionDocumentableFilterTransformer(context) {
 
     override fun shouldBeSuppressed(d: Documentable): Boolean {
         val annotations = (d as? WithExtraProperties<*>)?.annotations() ?: return false

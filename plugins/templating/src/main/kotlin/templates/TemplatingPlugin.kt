@@ -1,75 +1,76 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.templates
 
 import org.jetbrains.dokka.allModulesPage.templates.PackageListProcessingStrategy
 import org.jetbrains.dokka.allModulesPage.templates.PagesSearchTemplateStrategy
-import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
-import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
+import org.jetbrains.dokka.plugability.*
 import templates.ProjectNameSubstitutor
 import templates.ReplaceVersionCommandHandler
 import templates.SourcesetDependencyProcessingStrategy
 
 @Suppress("unused")
-class TemplatingPlugin : DokkaPlugin() {
+public class TemplatingPlugin : DokkaPlugin() {
 
-    val submoduleTemplateProcessor by extensionPoint<SubmoduleTemplateProcessor>()
-    val multimoduleTemplateProcessor by extensionPoint<MultiModuleTemplateProcessor>()
-    val templateProcessingStrategy by extensionPoint<TemplateProcessingStrategy>()
-    val directiveBasedCommandHandlers by extensionPoint<CommandHandler>()
+    public val submoduleTemplateProcessor: ExtensionPoint<SubmoduleTemplateProcessor> by extensionPoint()
+    public val multimoduleTemplateProcessor: ExtensionPoint<MultiModuleTemplateProcessor> by extensionPoint()
+    public val templateProcessingStrategy: ExtensionPoint<TemplateProcessingStrategy> by extensionPoint()
+    public val directiveBasedCommandHandlers: ExtensionPoint<CommandHandler> by extensionPoint()
+    public val substitutor: ExtensionPoint<Substitutor> by extensionPoint()
 
-    val substitutor by extensionPoint<Substitutor>()
-
-    val defaultSubmoduleTemplateProcessor by extending {
+    public val defaultSubmoduleTemplateProcessor: Extension<SubmoduleTemplateProcessor, *, *> by extending {
         submoduleTemplateProcessor providing ::DefaultSubmoduleTemplateProcessor
     }
 
-    val defaultMultiModuleTemplateProcessor by extending {
+    public val defaultMultiModuleTemplateProcessor: Extension<MultiModuleTemplateProcessor, *, *> by extending {
         multimoduleTemplateProcessor providing ::DefaultMultiModuleTemplateProcessor
     }
 
-    val directiveBasedHtmlTemplateProcessingStrategy by extending {
+    public val directiveBasedHtmlTemplateProcessingStrategy: Extension<TemplateProcessingStrategy, *, *> by extending {
         templateProcessingStrategy providing ::DirectiveBasedHtmlTemplateProcessingStrategy order {
             before(fallbackProcessingStrategy)
         }
     }
 
-    val sourcesetDependencyProcessingStrategy by extending {
+    public val sourcesetDependencyProcessingStrategy: Extension<TemplateProcessingStrategy, *, *> by extending {
         templateProcessingStrategy providing ::SourcesetDependencyProcessingStrategy order {
             before(fallbackProcessingStrategy)
         }
     }
 
-    val pagesSearchTemplateStrategy by extending {
+    public val pagesSearchTemplateStrategy: Extension<TemplateProcessingStrategy, *, *> by extending {
         templateProcessingStrategy providing ::PagesSearchTemplateStrategy order {
             before(fallbackProcessingStrategy)
         }
     }
 
-    val packageListProcessingStrategy by extending {
+    public val packageListProcessingStrategy: Extension<TemplateProcessingStrategy, *, *> by extending {
         templateProcessingStrategy providing ::PackageListProcessingStrategy order {
             before(fallbackProcessingStrategy)
         }
     }
 
-    val fallbackProcessingStrategy by extending {
+    public val fallbackProcessingStrategy: Extension<TemplateProcessingStrategy, *, *> by extending {
         templateProcessingStrategy with FallbackTemplateProcessingStrategy()
     }
 
-    val pathToRootSubstitutor by extending {
+    public val pathToRootSubstitutor: Extension<Substitutor, *, *> by extending {
         substitutor providing ::PathToRootSubstitutor
     }
 
-    val projectNameSubstitutor by extending {
+    public val projectNameSubstitutor: Extension<Substitutor, *, *> by extending {
         substitutor providing ::ProjectNameSubstitutor
     }
 
-    val addToNavigationCommandHandler by extending {
+    public val addToNavigationCommandHandler: Extension<CommandHandler, *, *> by extending {
         directiveBasedCommandHandlers providing ::AddToNavigationCommandHandler
     }
-    val substitutionCommandHandler by extending {
+    public val substitutionCommandHandler: Extension<CommandHandler, *, *> by extending {
         directiveBasedCommandHandlers providing ::SubstitutionCommandHandler
     }
-    val replaceVersionCommandHandler by extending {
+    public val replaceVersionCommandHandler: Extension<CommandHandler, *, *> by extending {
         directiveBasedCommandHandlers providing ::ReplaceVersionCommandHandler
     }
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.renderers
 
 import kotlinx.coroutines.Dispatchers
@@ -10,7 +14,9 @@ import java.io.IOException
 import java.net.URI
 import java.nio.file.*
 
-class FileWriter(val context: DokkaContext): OutputWriter {
+public class FileWriter(
+    public val context: DokkaContext
+): OutputWriter {
     private val createdFiles: MutableSet<String> = mutableSetOf()
     private val createdFilesMutex = Mutex()
     private val jarUriPrefix = "jar:file:"
@@ -40,12 +46,13 @@ class FileWriter(val context: DokkaContext): OutputWriter {
         return false
     }
 
-    override suspend fun writeResources(pathFrom: String, pathTo: String) =
+    override suspend fun writeResources(pathFrom: String, pathTo: String) {
         if (javaClass.getResource(pathFrom)?.toURI()?.toString()?.startsWith(jarUriPrefix) == true) {
             copyFromJar(pathFrom, pathTo)
         } else {
             copyFromDirectory(pathFrom, pathTo)
         }
+    }
 
 
     private suspend fun copyFromDirectory(pathFrom: String, pathTo: String) {

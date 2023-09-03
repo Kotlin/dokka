@@ -1,6 +1,11 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.javadoc
 
-import kotlin.contracts.*
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 // TODO replace with assertIs<T> from kotlin-test as part of #2924
 @OptIn(ExperimentalContracts::class)

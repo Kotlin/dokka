@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package renderers.gfm
 
 import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
@@ -6,10 +10,10 @@ import org.jetbrains.dokka.pages.ContentEmbeddedResource
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.DCI
 import org.jetbrains.dokka.pages.TextStyle
-import org.junit.Assert.assertEquals
-import org.junit.jupiter.api.Test
 import renderers.RawTestPage
 import renderers.testPage
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class SimpleElementsTest : GfmRenderingOnlyTestBase() {
 

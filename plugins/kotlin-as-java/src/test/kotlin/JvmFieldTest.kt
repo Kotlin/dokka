@@ -1,14 +1,14 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinAsJavaPlugin
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.AdditionalModifiers
 import org.jetbrains.dokka.model.ExtraModifiers
 import org.jetbrains.dokka.model.JavaVisibility
-import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class JvmFieldTest : BaseAbstractTest() {
     val configuration = dokkaConfiguration {

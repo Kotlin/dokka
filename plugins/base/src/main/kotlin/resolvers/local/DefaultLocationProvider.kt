@@ -1,9 +1,14 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.resolvers.local
 
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.external.Dokka010ExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProvider
+import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.external.javadoc.AndroidExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.external.javadoc.JavadocExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
@@ -15,11 +20,11 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 
-abstract class DefaultLocationProvider(
+public abstract class DefaultLocationProvider(
     protected val pageGraphRoot: RootPageNode,
     protected val dokkaContext: DokkaContext
 ) : LocationProvider {
-    protected val externalLocationProviderFactories =
+    protected val externalLocationProviderFactories: List<ExternalLocationProviderFactory> =
         dokkaContext.plugin<DokkaBase>().query { externalLocationProviderFactory }
 
     protected val externalLocationProviders: Map<ExternalDocumentation, ExternalLocationProvider?> = dokkaContext

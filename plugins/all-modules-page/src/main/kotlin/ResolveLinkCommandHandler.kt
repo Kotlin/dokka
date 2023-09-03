@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.allModulesPage
 
 import org.jetbrains.dokka.base.templating.Command
@@ -11,7 +15,7 @@ import org.jsoup.nodes.Element
 import org.jsoup.parser.Tag
 import java.io.File
 
-class ResolveLinkCommandHandler(context: DokkaContext) : CommandHandler {
+public class ResolveLinkCommandHandler(context: DokkaContext) : CommandHandler {
 
     private val externalModuleLinkResolver =
         context.plugin<AllModulesPagePlugin>().querySingle { externalModuleLinkResolver }

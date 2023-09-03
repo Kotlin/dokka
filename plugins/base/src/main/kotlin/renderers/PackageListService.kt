@@ -1,20 +1,26 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.renderers
 
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.shared.LinkFormat
 import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.DOKKA_PARAM_PREFIX
-import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.SINGLE_MODULE_NAME
 import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.MODULE_DELIMITER
+import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.SINGLE_MODULE_NAME
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
-class PackageListService(val context: DokkaContext, val rootPage: RootPageNode) {
+public class PackageListService(
+    public val context: DokkaContext,
+    public val rootPage: RootPageNode
+) {
 
-    fun createPackageList(module: ModulePage, format: LinkFormat): String {
+    public fun createPackageList(module: ModulePage, format: LinkFormat): String {
 
         val packages = mutableSetOf<String>()
         val nonStandardLocations = mutableMapOf<String, String>()
@@ -29,7 +35,7 @@ class PackageListService(val context: DokkaContext, val rootPage: RootPageNode) 
                     ?.let { packages.add(it) }
             }
 
-            val contentPage = node.safeAs<ContentPage>()
+            val contentPage = node as? ContentPage
             contentPage?.dri?.forEach { dri ->
                 val nodeLocation = locationProvider.resolve(node, context = module, skipExtension = true)
                     ?: run { context.logger.error("Cannot resolve path for ${node.name}!"); null }
@@ -43,11 +49,21 @@ class PackageListService(val context: DokkaContext, val rootPage: RootPageNode) 
         }
 
         visit(module)
-        return renderPackageList(nonStandardLocations, mapOf(SINGLE_MODULE_NAME to packages), format.formatName, format.linkExtension)
+        return renderPackageList(
+            nonStandardLocations = nonStandardLocations,
+            modules = mapOf(SINGLE_MODULE_NAME to packages),
+            format = format.formatName,
+            linkExtension = format.linkExtension
+        )
     }
 
-    companion object {
-        fun renderPackageList(nonStandardLocations: Map<String, String>, modules: Map<String, Set<String>>, format: String, linkExtension: String): String = buildString {
+    public companion object {
+        public fun renderPackageList(
+            nonStandardLocations: Map<String, String>,
+            modules: Map<String, Set<String>>,
+            format: String,
+            linkExtension: String
+        ): String = buildString {
             appendLine("$DOKKA_PARAM_PREFIX.format:${format}")
             appendLine("$DOKKA_PARAM_PREFIX.linkExtension:${linkExtension}")
             nonStandardLocations.map { (signature, location) ->

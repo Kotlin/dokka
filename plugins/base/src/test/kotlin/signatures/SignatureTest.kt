@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package signatures
 
 import org.jetbrains.dokka.DokkaSourceSetID
@@ -5,9 +9,10 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.DefinitelyNonNullable
 import org.jetbrains.dokka.model.dfs
-import org.junit.jupiter.api.Test
 import utils.*
+import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class SignatureTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
@@ -36,7 +41,8 @@ class SignatureTest : BaseAbstractTest() {
                 name = "jvm"
                 dependentSourceSets = setOf(DokkaSourceSetID("test", "common"))
                 sourceRoots = listOf("src/main/kotlin/jvm/Test.kt")
-                classpath = listOf(commonStdlibPath!!)
+                classpath = listOf(
+                    commonStdlibPath ?: throw IllegalStateException("Common stdlib is not found"),)
                 externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
             }
         }
@@ -204,8 +210,8 @@ class SignatureTest : BaseAbstractTest() {
             documentablesTransformationStage = {
                 val fn = (it.dfs { it.name == "elvisLike" } as? DFunction).assertNotNull("Function elvisLike")
 
-                assert(fn.type is DefinitelyNonNullable)
-                assert(fn.parameters[1].type is DefinitelyNonNullable)
+                assertTrue(fn.type is DefinitelyNonNullable)
+                assertTrue(fn.parameters[1].type is DefinitelyNonNullable)
             }
             renderingStage = { _, _ ->
                 val signature = writerPlugin.writer.renderedContent("root/example/elvis-like.html")
@@ -549,7 +555,42 @@ class SignatureTest : BaseAbstractTest() {
             }
         }
     }
+    @OnlyDescriptorsMPP
+    @Test
+    fun `actual typealias should have generic parameters and fully qualified name of the expansion type`() {
+        val writerPlugin = TestOutputWriterPlugin()
 
+        testInline(
+            """
+                |/src/main/kotlin/common/Test.kt
+                |package example
+                |
+                |expect class Array<T>
+                |
+                |/src/main/kotlin/jvm/Test.kt
+                |package example
+                |
+                |actual typealias Array<T> = kotlin.Array<T>
+            """.trimMargin(),
+            mppConfiguration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val signatures = writerPlugin.writer.renderedContent("test/example/-array/index.html").signature().toList()
+
+                signatures[0].match(
+                    "expect class ", A("Array"), "<", A("T"), ">",
+                    ignoreSpanWithTokenStyle = true
+                )
+                signatures[1].match(
+                    "actual typealias ", A("Array"), "<", A("T"), "> = ", A("kotlin.Array"), "<", A("T"), ">",
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @OnlyDescriptorsMPP
     @Test
     fun `type with an actual typealias`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -603,7 +644,7 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "typealias ", A("PlainTypealias"), " = ", A("Int"),
                         ignoreSpanWithTokenStyle = true
                 )
@@ -663,7 +704,7 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "typealias ", A("PlainTypealias"), " = ", A("Comparable"),
                     "<", A("Int"), ">",
                         ignoreSpanWithTokenStyle = true
@@ -690,7 +731,7 @@ class SignatureTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example.html").firstSignature().match(
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "typealias ", A("GenericTypealias"), "<", A("T"), "> = ", A("Comparable"),
                     "<", A("T"), ">",
                         ignoreSpanWithTokenStyle = true
@@ -730,6 +771,7 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("Order of constructors is different in K2")
     @Test
     fun `generic constructor params`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -944,6 +986,7 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("'var' expected but found: 'open var'")
     @Test
     fun `java property without accessors should be var`() {
         val writerPlugin = TestOutputWriterPlugin()

@@ -1,11 +1,15 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.javadoc
 
 import org.jetbrains.dokka.javadoc.pages.JavadocModulePageNode
 import org.jetbrains.dokka.javadoc.pages.RowJavadocListEntry
 import org.jetbrains.dokka.links.DRI
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
 import java.io.File
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 internal class JavadocModuleTemplateMapTest : AbstractJavadocTemplateMapTest() {
 

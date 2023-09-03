@@ -1,16 +1,19 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package transformers
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.PluginConfigurationImpl
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ContentHeader
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.ContentText
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.kotlin.utils.addIfNotNull
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -47,7 +50,7 @@ class DivisionSwitchTest : BaseAbstractTest() {
             }
         }
         suppressObviousFunctions = false
-        pluginsConfigurations.addIfNotNull(
+        pluginsConfigurations.add(
             PluginConfigurationImpl(
                 DokkaBase::class.qualifiedName!!,
                 DokkaConfiguration.SerializationFormat.JSON,

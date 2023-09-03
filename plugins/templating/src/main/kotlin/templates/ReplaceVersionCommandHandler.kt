@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package templates
 
 import org.jetbrains.dokka.base.templating.Command
@@ -8,7 +12,9 @@ import org.jsoup.nodes.Element
 import org.jsoup.nodes.TextNode
 import java.io.File
 
-class ReplaceVersionCommandHandler(private val context: DokkaContext) : CommandHandler {
+public class ReplaceVersionCommandHandler(
+    private val context: DokkaContext
+) : CommandHandler {
 
     override fun canHandle(command: Command): Boolean = command is ReplaceVersionsCommand
 

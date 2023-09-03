@@ -1,13 +1,18 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package content.functions
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.model.DClass
+import org.jetbrains.dokka.model.DPackage
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -127,6 +132,32 @@ class ContentForBriefTest : BaseAbstractTest() {
                 val primaryConstructorDocs = primary.dfs { it is ContentText && it.dci.kind == ContentKind.Comment }
 
                 assertNull(primaryConstructorDocs, "Expected no primary constructor docs to be present")
+            }
+        }
+    }
+
+    @Test
+    fun `brief should work for typealias`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            |/**
+            |* This is an example <!-- not visible --> of html
+            |*
+            |* This is definitely not a brief
+            |*/
+            |typealias A = Int
+        """.trimIndent(),
+            testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val functionBriefDocs = module.singleTypeAliasesDescription("test")
+
+                assertEquals(
+                    "This is an example <!-- not visible --> of html",
+                    functionBriefDocs.children.joinToString("") { (it as ContentText).text })
             }
         }
     }
@@ -343,5 +374,15 @@ class ContentForBriefTest : BaseAbstractTest() {
         assertEquals(1, functionsTable.children.size)
         val function = functionsTable.children.first()
         return function.dfs { it is ContentGroup && it.dci.kind == ContentKind.Comment && it.children.all { it is ContentText } } as ContentGroup
+    }
+    private fun RootPageNode.singleTypeAliasesDescription(packageName: String): ContentGroup {
+        val packagePage =
+            dfs { it.name == packageName && (it as WithDocumentables).documentables.firstOrNull() is DPackage } as ContentPage
+        val contentTable =
+            packagePage.content.dfs { it is ContentTable && it.dci.kind == ContentKind.Classlikes } as ContentTable
+
+        assertEquals(1, contentTable.children.size)
+        val row = contentTable.children.first()
+        return row.dfs { it is ContentGroup && it.dci.kind == ContentKind.Comment && it.children.all { it is ContentText } } as ContentGroup
     }
 }

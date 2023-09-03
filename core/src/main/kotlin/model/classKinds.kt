@@ -1,8 +1,12 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.model
 
-interface ClassKind
+public interface ClassKind
 
-enum class KotlinClassKindTypes : ClassKind {
+public enum class KotlinClassKindTypes : ClassKind {
     CLASS,
     INTERFACE,
     ENUM_CLASS,
@@ -11,7 +15,7 @@ enum class KotlinClassKindTypes : ClassKind {
     OBJECT;
 }
 
-enum class JavaClassKindTypes : ClassKind {
+public enum class JavaClassKindTypes : ClassKind {
     CLASS,
     INTERFACE,
     ENUM_CLASS,

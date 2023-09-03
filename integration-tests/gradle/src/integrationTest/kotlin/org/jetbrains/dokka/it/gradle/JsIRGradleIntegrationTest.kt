@@ -1,17 +1,19 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.runners.Parameterized.Parameters
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.*
+import kotlin.test.BeforeTest
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
-class JsIRGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
-
-    companion object {
-        @get:JvmStatic
-        @get:Parameters(name = "{0}")
-        val versions = TestedVersions.ALL_SUPPORTED
-    }
+class JsIRGradleIntegrationTest : AbstractGradleIntegrationTest() {
 
     private val ignoredKotlinVersions = setOf(
         // There were some breaking refactoring changes in kotlin react wrapper libs in 1.4.0 -> 1.5.0,
@@ -34,15 +36,16 @@ class JsIRGradleIntegrationTest(override val versions: BuildVersions) : Abstract
         File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
     }
 
-    @Test
-    fun execute() {
-        if (ignoredKotlinVersions.contains(versions.kotlinVersion)) {
+    @ParameterizedTest(name = "{0}")
+    @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
+    fun execute(buildVersions: BuildVersions) {
+        if (ignoredKotlinVersions.contains(buildVersions.kotlinVersion)) {
             return
         }
 
-        val reactVersion = TestedVersions.KT_REACT_WRAPPER_MAPPING[versions.kotlinVersion]
-            ?: throw IllegalStateException("Unspecified version of react for kotlin " + versions.kotlinVersion)
-        val result = createGradleRunner("-Preact_version=$reactVersion", "dokkaHtml", "-i", "-s").buildRelaxed()
+        val reactVersion = TestedVersions.KT_REACT_WRAPPER_MAPPING[buildVersions.kotlinVersion]
+            ?: throw IllegalStateException("Unspecified version of react for kotlin " + buildVersions.kotlinVersion)
+        val result = createGradleRunner(buildVersions, "-Preact_version=$reactVersion", "dokkaHtml", "-i", "-s").buildRelaxed()
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
 
         val htmlOutputDir = File(projectDir, "build/dokka/html")

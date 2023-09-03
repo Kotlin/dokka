@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.templating
 
 import com.fasterxml.jackson.core.JsonGenerator
@@ -36,9 +40,9 @@ internal class TypeReference<T> @PublishedApi internal constructor(
     }
 }
 
-fun toJsonString(value: Any): String = objectMapper.writeValueAsString(value)
+public fun toJsonString(value: Any): String = objectMapper.writeValueAsString(value)
 
-inline fun <reified T : Any> parseJson(json: String): T = parseJson(json, TypeReference())
+public inline fun <reified T : Any> parseJson(json: String): T = parseJson(json, TypeReference())
 
 @PublishedApi
 internal fun <T : Any> parseJson(json: String, typeReference: TypeReference<T>): T =

@@ -1,13 +1,17 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.base.utils.firstNotNullOfOrNull
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.ExtraProperty
 import org.jetbrains.dokka.model.properties.MergeStrategy
 import org.jetbrains.dokka.model.properties.mergeExtras
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableMerger
-import org.jetbrains.kotlin.util.firstNotNullResult
 
 internal class DefaultDocumentableMerger(val context: DokkaContext) : DocumentableMerger {
     private val dependencyInfo = context.getDependencyInfo()
@@ -21,7 +25,7 @@ internal class DefaultDocumentableMerger(val context: DokkaContext) : Documentab
                     list.flatMap { it.packages }
                 ) { pck1, pck2 -> pck1.mergeWith(pck2) },
                 documentation = list.map { it.documentation }.flatMap { it.entries }.associate { (k, v) -> k to v },
-                expectPresentInSet = list.firstNotNullResult { it.expectPresentInSet },
+                expectPresentInSet = list.firstNotNullOfOrNull { it.expectPresentInSet },
                 sourceSets = list.flatMap { it.sourceSets }.toSet()
             ).mergeExtras(left, right)
         }
@@ -270,8 +274,8 @@ internal class DefaultDocumentableMerger(val context: DokkaContext) : Documentab
     ).mergeExtras(this, other)
 }
 
-data class ClashingDriIdentifier(val value: Set<DokkaConfiguration.DokkaSourceSet>) : ExtraProperty<Documentable> {
-    companion object : ExtraProperty.Key<Documentable, ClashingDriIdentifier> {
+public data class ClashingDriIdentifier(val value: Set<DokkaConfiguration.DokkaSourceSet>) : ExtraProperty<Documentable> {
+    public companion object : ExtraProperty.Key<Documentable, ClashingDriIdentifier> {
         override fun mergeStrategyFor(
             left: ClashingDriIdentifier,
             right: ClashingDriIdentifier

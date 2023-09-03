@@ -1,14 +1,21 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package signatures
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.junit.jupiter.api.Test
 import utils.A
 import utils.Span
 import utils.TestOutputWriterPlugin
 import utils.match
+import utils.JavaCode
+import utils.OnlyDescriptors
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@JavaCode
 class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
     private val configuration = dokkaConfiguration {
@@ -24,6 +31,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("'var' expected but found: 'open var'")
     @Test
     fun `should collapse accessor functions inherited from java into the property`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -76,6 +84,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("'var' expected but found: 'open var'")
     @Test
     fun `should render as val if inherited java property has no setter`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -178,6 +187,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("'var' expected but found: 'open var'")
     @Test
     fun `should keep inherited java accessor lookalikes if underlying function is public`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -228,6 +238,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `should keep kotlin property with no accessors when java inherits kotlin a var`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -265,6 +276,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `kotlin property with compute get and set`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -326,6 +338,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("'var' expected but found: 'open var'")
     @Test
     fun `inherited property should inherit getter's visibility`() {
         val configWithProtectedVisibility = dokkaConfiguration {
@@ -399,6 +412,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("'var' expected but found: 'open var'")
     @Test
     fun `should resolve protected java property as protected`() {
         val configWithProtectedVisibility = dokkaConfiguration {

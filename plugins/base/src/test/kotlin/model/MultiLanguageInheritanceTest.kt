@@ -1,20 +1,23 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package model
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
-import org.jetbrains.dokka.model.childrenOfType
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.*
-import org.jetbrains.dokka.model.firstMemberOfType
 import org.jetbrains.dokka.model.withDescendants
-import org.jetbrains.dokka.pages.ContentText
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
-import org.junit.jupiter.api.Test
+import org.jetbrains.dokka.utilities.firstIsInstanceOrNull
 import translators.documentationOf
+import utils.JavaCode
 import utils.docs
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@JavaCode
 class MultiLanguageInheritanceTest : BaseAbstractTest() {
     val configuration = dokkaConfiguration {
         suppressObviousFunctions = false

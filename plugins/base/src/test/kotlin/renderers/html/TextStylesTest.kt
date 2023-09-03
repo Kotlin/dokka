@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package renderers.html
 
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
@@ -5,9 +9,9 @@ import org.jetbrains.dokka.pages.TextStyle
 import org.jetbrains.dokka.pages.TokenStyle
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import org.junit.jupiter.api.Test
 import renderers.testPage
 import utils.*
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TextStylesTest : HtmlRenderingOnlyTestBase() {

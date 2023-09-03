@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 @file:Suppress("PackageDirectoryMismatch")
 
 package  org.jetbrains.dokka.test.tools.matchers.content
@@ -10,15 +14,18 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 import kotlin.reflect.full.safeCast
 
-sealed class MatcherElement
+public sealed class MatcherElement
 
-class TextMatcher(val text: String) : MatcherElement()
+public class TextMatcher(
+    public val text: String
+) : MatcherElement()
 
-open class NodeMatcher<T : ContentNode>(
-    val kclass: KClass<T>,
-    val assertions: T.() -> Unit = {}
+public open class NodeMatcher<T : ContentNode>(
+    public val kclass: KClass<T>,
+    public val assertions: T.() -> Unit = {}
 ) : MatcherElement() {
-    open fun tryMatch(node: ContentNode) {
+
+    public open fun tryMatch(node: ContentNode) {
         kclass.safeCast(node)?.apply {
             try {
                 assertions()
@@ -33,11 +40,12 @@ open class NodeMatcher<T : ContentNode>(
     }
 }
 
-class CompositeMatcher<T : ContentComposite>(
+public class CompositeMatcher<T : ContentComposite>(
     kclass: KClass<T>,
     private val children: List<MatcherElement>,
     assertions: T.() -> Unit = {}
 ) : NodeMatcher<T>(kclass, assertions) {
+
     internal val normalizedChildren: List<MatcherElement> by lazy {
         children.fold(listOf()) { acc, e ->
             when {
@@ -57,7 +65,7 @@ class CompositeMatcher<T : ContentComposite>(
     }
 }
 
-object Anything : MatcherElement()
+public object Anything : MatcherElement()
 
 private sealed class MatchWalkerState {
     abstract fun next(node: ContentNode): MatchWalkerState
@@ -172,7 +180,7 @@ private fun ContentNode.debugRepresentation() = asPrintableTree { element ->
     )
 }
 
-data class MatcherError(
+public data class MatcherError(
     override val message: String,
     val anchor: MatcherElement,
     val anchorAfter: Boolean = false,

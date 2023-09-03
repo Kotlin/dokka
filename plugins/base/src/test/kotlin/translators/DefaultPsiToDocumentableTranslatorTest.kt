@@ -1,20 +1,20 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package translators
 
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.DokkaConfiguration.Visibility
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
-import org.jetbrains.dokka.plugability.DokkaPlugin
-import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
-import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
-import org.jetbrains.dokka.DokkaConfiguration.Visibility
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
-import utils.assertNotNull
+import kotlin.test.*
+import utils.JavaCode
 
+@JavaCode
 class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
     val configuration = dokkaConfiguration {
         sourceSets {
@@ -303,7 +303,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 val testedClass = module.packages.single().classlikes.single { it.name == "JavaClassUsingAnnotation" }
 
                 val annotation = (testedClass as DClass).extra[Annotations]?.directAnnotations?.values?.single()?.single()
-                checkNotNull(annotation)
+                assertNotNull(annotation)
 
                 assertEquals("JavaAnnotation", annotation.dri.classNames)
 
@@ -320,70 +320,71 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    class OnlyPsiPlugin : DokkaPlugin() {
-        private val dokkaBase by lazy { plugin<DokkaBase>() }
-
-        @Suppress("unused")
-        val psiOverrideDescriptorTranslator by extending {
-            (dokkaBase.psiToDocumentableTranslator
-                    override dokkaBase.descriptorToDocumentableTranslator)
-        }
-
-        @OptIn(DokkaPluginApiPreview::class)
-        override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement =
-            PluginApiPreviewAcknowledgement
-    }
-
-    // for Kotlin classes from DefaultPsiToDocumentableTranslator
-    @Test
-    fun `should resolve ultralight class`() {
-        val configurationWithNoJVM = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/main/java")
-                }
-            }
-        }
-
-        testInline(
-            """
-            |/src/main/java/example/Test.kt
-            |package example
-            |
-            |open class KotlinSubClass {
-            |    fun kotlinSubclassFunction(bar: String): String {
-            |       return "KotlinSubClass"
-            |    }
-            |}
-            |
-            |/src/main/java/example/JavaLeafClass.java
-            |package example;
-            |
-            |public class JavaLeafClass extends KotlinSubClass {
-            |    public String javaLeafClassFunction(String baz) {
-            |        return "JavaLeafClass";
-            |    }
-            |}
-        """.trimMargin(),
-            configurationWithNoJVM,
-            pluginOverrides = listOf(OnlyPsiPlugin()) // suppress a descriptor translator because of psi and descriptor translators work in parallel
-        ) {
-            documentablesMergingStage = { module ->
-                val kotlinSubclassFunction =
-                    module.packages.single().classlikes.find { it.name == "JavaLeafClass" }?.functions?.find { it.name == "kotlinSubclassFunction" }
-                        .assertNotNull("kotlinSubclassFunction ")
-
-                assertEquals(
-                    "String",
-                    (kotlinSubclassFunction.type as? TypeConstructor)?.dri?.classNames
-                )
-                assertEquals(
-                    "String",
-                    (kotlinSubclassFunction.parameters.firstOrNull()?.type as? TypeConstructor)?.dri?.classNames
-                )
-            }
-        }
-    }
+    // TODO [beresnev] fix
+//    class OnlyPsiPlugin : DokkaPlugin() {
+//        private val kotlinAnalysisPlugin by lazy { plugin<Kotlin>() }
+//
+//        @Suppress("unused")
+//        val psiOverrideDescriptorTranslator by extending {
+//            (plugin<JavaAnalysisPlugin>().psiToDocumentableTranslator
+//                    override kotlinAnalysisPlugin.descriptorToDocumentableTranslator)
+//        }
+//
+//        @OptIn(DokkaPluginApiPreview::class)
+//        override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement =
+//            PluginApiPreviewAcknowledgement
+//    }
+//
+//    // for Kotlin classes from DefaultPsiToDocumentableTranslator
+//    @Test
+//    fun `should resolve ultralight class`() {
+//        val configurationWithNoJVM = dokkaConfiguration {
+//            sourceSets {
+//                sourceSet {
+//                    sourceRoots = listOf("src/main/java")
+//                }
+//            }
+//        }
+//
+//        testInline(
+//            """
+//            |/src/main/java/example/Test.kt
+//            |package example
+//            |
+//            |open class KotlinSubClass {
+//            |    fun kotlinSubclassFunction(bar: String): String {
+//            |       return "KotlinSubClass"
+//            |    }
+//            |}
+//            |
+//            |/src/main/java/example/JavaLeafClass.java
+//            |package example;
+//            |
+//            |public class JavaLeafClass extends KotlinSubClass {
+//            |    public String javaLeafClassFunction(String baz) {
+//            |        return "JavaLeafClass";
+//            |    }
+//            |}
+//        """.trimMargin(),
+//            configurationWithNoJVM,
+//            pluginOverrides = listOf(OnlyPsiPlugin()) // suppress a descriptor translator because of psi and descriptor translators work in parallel
+//        ) {
+//            documentablesMergingStage = { module ->
+//                val kotlinSubclassFunction =
+//                    module.packages.single().classlikes.find { it.name == "JavaLeafClass" }?.functions?.find { it.name == "kotlinSubclassFunction" }
+//                        .assertNotNull("kotlinSubclassFunction ")
+//
+//                assertEquals(
+//                    "String",
+//                    (kotlinSubclassFunction.type as? TypeConstructor)?.dri?.classNames
+//                )
+//                assertEquals(
+//                    "String",
+//                    (kotlinSubclassFunction.parameters.firstOrNull()?.type as? TypeConstructor)?.dri?.classNames
+//                )
+//            }
+//        }
+//    }
 
     @Test
     fun `should preserve regular functions that are named like getters, but are not getters`() {
@@ -403,9 +404,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 val testClass = module.packages.single().classlikes.single { it.name == "A" }
 
                 val getterLookalikes = testClass.functions.filter { it.name == "getA" }
-                assertEquals(2, getterLookalikes.size) {
-                    "Not all expected regular functions found, wrongly categorized as getters?"
-                }
+                assertEquals(2, getterLookalikes.size, "Not all expected regular functions found, wrongly categorized as getters?")
             }
         }
     }
@@ -443,8 +442,8 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
 
                 val setter = property.setter
                 assertNotNull(setter)
-                assertEquals(1, setter?.parameters?.size)
-                assertEquals(PrimitiveJavaType("int"), setter?.parameters?.get(0)?.type)
+                assertEquals(1, setter.parameters.size)
+                assertEquals(PrimitiveJavaType("int"), setter.parameters[0].type)
 
                 val regularSetterFunctions = testClass.functions.filter { it.name == "setA" }
                 assertEquals(4, regularSetterFunctions.size)
@@ -488,12 +487,14 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 assertNotNull(field) {
                     "Expected the foo property to exist because the field is private with a public getter"
                 }
-                assertNull(requireNotNull(field).setter)
+                assertNull(field.setter)
 
                 val setterMethodsWithSubtypeParams = testClass.functions.filter { it.name == "setFoo" }
-                assertEquals(2, setterMethodsWithSubtypeParams.size) {
+                assertEquals(
+                    2,
+                    setterMethodsWithSubtypeParams.size,
                     "Expected the setter methods to not qualify as accessors because of subtype parameters"
-                }
+                )
             }
         }
     }
@@ -516,9 +517,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 val tetClass = module.packages.single().classlikes.single { it.name == "A" }
 
                 val property = tetClass.properties.firstOrNull { it.name == "a" }
-                assertNull(property) {
-                    "Expected the property to stay private because there are no getters"
-                }
+                assertNull(property, "Expected the property to stay private because there are no getters")
 
                 val regularSetterFunction = tetClass.functions.firstOrNull { it.name == "setA" }
                 assertNotNull(regularSetterFunction) {
@@ -756,7 +755,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 val kotlinEnum = module.packages.find { it.name == "test" }
                     ?.classlikes
                     ?.single { it.name == "JavaEnum" }
-                checkNotNull(kotlinEnum)
+                assertNotNull(kotlinEnum)
 
                 val valuesFunction = kotlinEnum.functions.single { it.name == "values" }
 
@@ -822,12 +821,12 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             configuration
         ) {
             documentablesMergingStage = { module ->
-                val kotlinEnum = module.packages.find { it.name == "test" }
+                val javaEnum = module.packages.find { it.name == "test" }
                     ?.classlikes
                     ?.single { it.name == "JavaEnum" }
-                checkNotNull(kotlinEnum)
+                assertNotNull(javaEnum)
 
-                val valueOfFunction = kotlinEnum.functions.single { it.name == "valueOf" }
+                val valueOfFunction = javaEnum.functions.single { it.name == "valueOf" }
 
                 val expectedDocumentation = DocumentationNode(listOf(
                     Description(

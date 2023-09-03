@@ -1,15 +1,17 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.analysis.DescriptorDocumentableSource
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
-import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
-import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.FAKE_OVERRIDE
-import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.SYNTHESIZED
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
+import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 
 internal class ReportUndocumentedTransformer : DocumentableTransformer {
 
@@ -19,14 +21,14 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
 
     private fun invoke(documentable: Documentable, context: DokkaContext) {
         documentable.sourceSets.forEach { sourceSet ->
-            if (shouldBeReportedIfNotDocumented(documentable, sourceSet)) {
+            if (shouldBeReportedIfNotDocumented(documentable, sourceSet, context)) {
                 reportIfUndocumented(context, documentable, sourceSet)
             }
         }
     }
 
     private fun shouldBeReportedIfNotDocumented(
-        documentable: Documentable, sourceSet: DokkaSourceSet
+        documentable: Documentable, sourceSet: DokkaSourceSet, context: DokkaContext
     ): Boolean {
         val packageOptionsOrNull = packageOptionsOrNull(sourceSet, documentable)
 
@@ -42,11 +44,8 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
             return false
         }
 
-        if (isFakeOverride(documentable, sourceSet)) {
-            return false
-        }
-
-        if (isSynthesized(documentable, sourceSet)) {
+        val syntheticDetector = context.plugin<InternalKotlinAnalysisPlugin>().querySingle { syntheticDocumentableDetector }
+        if (syntheticDetector.isSynthetic(documentable, sourceSet)) {
             return false
         }
 
@@ -118,28 +117,8 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
         return documentable.isConstructor
     }
 
-    private fun isFakeOverride(documentable: Documentable, sourceSet: DokkaSourceSet): Boolean {
-        return callableMemberDescriptorOrNull(documentable, sourceSet)?.kind == FAKE_OVERRIDE
-    }
-
-    private fun isSynthesized(documentable: Documentable, sourceSet: DokkaSourceSet): Boolean {
-        return callableMemberDescriptorOrNull(documentable, sourceSet)?.kind == SYNTHESIZED
-    }
-
-    private fun callableMemberDescriptorOrNull(
-        documentable: Documentable, sourceSet: DokkaSourceSet
-    ): CallableMemberDescriptor? {
-        if (documentable is WithSources) {
-            return documentable.sources[sourceSet]
-                .safeAs<DescriptorDocumentableSource>()?.descriptor
-                .safeAs<CallableMemberDescriptor>()
-        }
-
-        return null
-    }
-
     private fun isPrivateOrInternalApi(documentable: Documentable, sourceSet: DokkaSourceSet): Boolean {
-        return when (documentable.safeAs<WithVisibility>()?.visibility?.get(sourceSet)) {
+        return when ((documentable as? WithVisibility)?.visibility?.get(sourceSet)) {
             KotlinVisibility.Public -> false
             KotlinVisibility.Private -> true
             KotlinVisibility.Protected -> true

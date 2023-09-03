@@ -1,12 +1,17 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package model
 
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
-import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 import utils.assertNotNull
 import utils.comments
+import utils.OnlyDescriptors
 import utils.name
+import kotlin.test.Test
 
 class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "function") {
 
@@ -213,6 +218,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         }
     }
 
+    @OnlyDescriptors("Bug in descriptors, DRI of entry should have [EnumEntryDRIExtra]")
     @Test
     fun functionWithAnnotatedParam() {
         inlineModelTest(
@@ -274,6 +280,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
         }
     }
 
+    @OnlyDescriptors("Bug in descriptors, DRI of entry should have [EnumEntryDRIExtra]")
     @Test
     fun annotatedFunctionWithAnnotationParameters() {
         inlineModelTest(

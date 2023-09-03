@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.allModulesPage.templates
 
 import kotlinx.html.a
@@ -9,36 +13,16 @@ import org.jetbrains.dokka.base.renderers.html.templateCommand
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
 import org.jetbrains.dokka.base.templating.ResolveLinkCommand
 import org.jetbrains.dokka.links.DRI
-import org.junit.Rule
-import org.junit.jupiter.api.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.io.TempDir
 import utils.assertHtmlEqualsIgnoringWhitespace
 import java.io.File
+import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class ResolveLinkCommandResolutionTest : MultiModuleAbstractTest() {
-    @get:Rule
-    val folder: TemporaryFolder = TemporaryFolder()
-
-    private fun configuration() = dokkaConfiguration {
-        modules = listOf(
-            DokkaModuleDescriptionImpl(
-                name = "module1",
-                relativePathToOutputDirectory = folder.root.resolve("module1"),
-                includes = emptySet(),
-                sourceOutputDirectory = folder.root.resolve("module1"),
-            ),
-            DokkaModuleDescriptionImpl(
-                name = "module2",
-                relativePathToOutputDirectory = folder.root.resolve("module2"),
-                includes = emptySet(),
-                sourceOutputDirectory = folder.root.resolve("module2"),
-            )
-        )
-        this.outputDir = folder.root
-    }
 
     @Test
-    fun `should resolve link to another module`() {
+    fun `should resolve link to another module`(@TempDir outputDirectory: File) {
         val testedDri = DRI(
             packageName = "package2",
             classNames = "Sample",
@@ -56,8 +40,8 @@ class ResolveLinkCommandResolutionTest : MultiModuleAbstractTest() {
             }
         }
 
-        val contentFile = setup(link)
-        val configuration = configuration()
+        val contentFile = setup(outputDirectory, link)
+        val configuration = createConfiguration(outputDirectory)
 
         testFromData(configuration, useOutputLocationFromConfig = true) {
             finishProcessingSubmodules = {
@@ -67,7 +51,7 @@ class ResolveLinkCommandResolutionTest : MultiModuleAbstractTest() {
     }
 
     @Test
-    fun `should produce content when link is not resolvable`() {
+    fun `should produce content when link is not resolvable`(@TempDir outputDirectory: File) {
         val testedDri = DRI(
             packageName = "not-resolvable-package",
             classNames = "Sample",
@@ -85,8 +69,8 @@ class ResolveLinkCommandResolutionTest : MultiModuleAbstractTest() {
             }
         }
 
-        val contentFile = setup(link)
-        val configuration = configuration()
+        val contentFile = setup(outputDirectory, link)
+        val configuration = createConfiguration(outputDirectory)
 
         testFromData(configuration, useOutputLocationFromConfig = true) {
             finishProcessingSubmodules = {
@@ -95,14 +79,31 @@ class ResolveLinkCommandResolutionTest : MultiModuleAbstractTest() {
         }
     }
 
-    fun setup(content: String): File {
-        folder.create()
-        val innerModule1 = folder.newFolder("module1")
-        val innerModule2 = folder.newFolder("module2")
+    private fun setup(outputDirectory: File, content: String): File {
+        val innerModule1 = outputDirectory.resolve("module1").also { assertTrue(it.mkdirs()) }
+        val innerModule2 = outputDirectory.resolve("module2").also { assertTrue(it.mkdirs()) }
         val packageList = innerModule2.resolve("package-list")
         packageList.writeText(mockedPackageListForPackages(RecognizedLinkFormat.DokkaHtml, "package2"))
         val contentFile = innerModule1.resolve("index.html")
         contentFile.writeText(content)
         return contentFile
+    }
+
+    private fun createConfiguration(outputDirectory: File) = dokkaConfiguration {
+        modules = listOf(
+            DokkaModuleDescriptionImpl(
+                name = "module1",
+                relativePathToOutputDirectory = outputDirectory.resolve("module1"),
+                includes = emptySet(),
+                sourceOutputDirectory = outputDirectory.resolve("module1"),
+            ),
+            DokkaModuleDescriptionImpl(
+                name = "module2",
+                relativePathToOutputDirectory = outputDirectory.resolve("module2"),
+                includes = emptySet(),
+                sourceOutputDirectory = outputDirectory.resolve("module2"),
+            )
+        )
+        this.outputDir = outputDirectory
     }
 }

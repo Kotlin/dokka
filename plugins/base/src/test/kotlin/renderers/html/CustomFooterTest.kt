@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package renderers.html
 
 import org.jetbrains.dokka.DokkaConfiguration
@@ -9,12 +13,12 @@ import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.base.templating.toJsonString
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import org.junit.jupiter.api.Test
 import renderers.testPage
 import utils.A
 import utils.Div
 import utils.Span
 import utils.match
+import kotlin.test.Test
 
 class CustomFooterTest : HtmlRenderingOnlyTestBase() {
     @Test

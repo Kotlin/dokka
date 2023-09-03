@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
@@ -7,19 +11,22 @@ plugins {
 
 dependencies {
     compileOnly(projects.core)
+    compileOnly(projects.plugins.base)
 
+    api(projects.subprojects.analysisKotlinApi)
+
+    // TODO [beresnev] analysis switcher
+    //runtimeOnly(project(path = ":subprojects:analysis-kotlin-symbols", configuration = "shadow"))
+    runtimeOnly(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
 
     implementation(kotlin("reflect"))
+    implementation(libs.jsoup)
 
-    compileOnly(projects.plugins.base)
+    implementation(kotlin("test"))
     implementation(projects.core.testApi)
 
-    implementation(libs.jsoup)
-    implementation(kotlin("test-junit"))
-
+    testImplementation(kotlin("test"))
     testImplementation(projects.core.testApi)
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
 }
 
 registerDokkaArtifactPublication("dokkaBaseTestUtils") {

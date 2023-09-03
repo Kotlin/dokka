@@ -1,10 +1,15 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package transformers
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DEnum
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import utils.OnlyDescriptors
 
 class InheritedEntriesDocumentableFilterTransformerTest : BaseAbstractTest() {
     val suppressingInheritedConfiguration = dokkaConfiguration {
@@ -133,6 +138,7 @@ class InheritedEntriesDocumentableFilterTransformerTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("Entry does not have `name` and `ordinal`") // TODO
     @Test
     fun `should work with enum entries when not suppressing`(){
         testInline(
@@ -154,3 +160,4 @@ class InheritedEntriesDocumentableFilterTransformerTest : BaseAbstractTest() {
         }
     }
 }
+

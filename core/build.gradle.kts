@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.jetbrains.dokkaVersion
 import org.jetbrains.registerDokkaArtifactPublication
 
@@ -7,11 +11,8 @@ plugins {
 }
 
 dependencies {
-    api(libs.jetbrains.markdown)
     implementation(kotlin("reflect"))
-
-    implementation(libs.jsoup)
-
+    implementation(libs.kotlinx.coroutines.core)
     implementation(libs.jackson.kotlin)
     implementation(libs.jackson.xml)
     constraints {
@@ -20,10 +21,8 @@ dependencies {
         }
     }
 
-    implementation(libs.kotlinx.coroutines.core)
-
+    testImplementation(kotlin("test"))
     testImplementation(projects.core.testApi)
-    testImplementation(kotlin("test-junit"))
 }
 
 tasks {

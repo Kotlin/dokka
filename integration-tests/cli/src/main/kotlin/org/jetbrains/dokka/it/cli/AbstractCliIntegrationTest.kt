@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it.cli
 
 import org.jetbrains.dokka.it.AbstractIntegrationTest
@@ -5,18 +9,18 @@ import java.io.File
 import kotlin.test.BeforeTest
 import kotlin.test.assertTrue
 
-abstract class AbstractCliIntegrationTest : AbstractIntegrationTest() {
+public abstract class AbstractCliIntegrationTest : AbstractIntegrationTest() {
 
     protected val cliJarFile: File by lazy {
-        File(temporaryTestFolder.root, "dokka.jar")
+        File(tempFolder, "dokka.jar")
     }
 
     protected val basePluginJarFile: File by lazy {
-        File(temporaryTestFolder.root, "base-plugin.jar")
+        File(tempFolder, "base-plugin.jar")
     }
 
     @BeforeTest
-    fun copyJarFiles() {
+    public fun copyJarFiles() {
         val cliJarPathEnvironmentKey = "CLI_JAR_PATH"
         val cliJarFile = File(System.getenv(cliJarPathEnvironmentKey))
         assertTrue(

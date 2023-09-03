@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.utilities.DokkaLogger
@@ -9,9 +13,11 @@ import java.util.function.BiConsumer
  * Accessed with reflection
  */
 @Suppress("unused")
-class DokkaBootstrapImpl : DokkaBootstrap {
+public class DokkaBootstrapImpl : DokkaBootstrap {
 
-    class DokkaProxyLogger(val consumer: BiConsumer<String, String>) : DokkaLogger {
+    public class DokkaProxyLogger(
+        public val consumer: BiConsumer<String, String>
+    ) : DokkaLogger {
         private val warningsCounter = AtomicInteger()
         private val errorsCounter = AtomicInteger()
 
@@ -46,14 +52,18 @@ class DokkaBootstrapImpl : DokkaBootstrap {
 
     private lateinit var generator: DokkaGenerator
 
-    fun configure(logger: DokkaLogger, configuration: DokkaConfigurationImpl) {
+    public fun configure(logger: DokkaLogger, configuration: DokkaConfigurationImpl) {
         generator = DokkaGenerator(configuration, logger)
     }
 
-    override fun configure(serializedConfigurationJSON: String, logger: BiConsumer<String, String>) = configure(
-        DokkaProxyLogger(logger),
-        DokkaConfigurationImpl(serializedConfigurationJSON)
-    )
+    override fun configure(serializedConfigurationJSON: String, logger: BiConsumer<String, String>) {
+        configure(
+            DokkaProxyLogger(logger),
+            DokkaConfigurationImpl(serializedConfigurationJSON)
+        )
+    }
 
-    override fun generate() = generator.generate()
+    override fun generate() {
+        generator.generate()
+    }
 }

@@ -1,31 +1,34 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.runners.Parameterized.Parameters
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.*
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
-class BasicCachingIntegrationTest(override val versions: BuildVersions) : AbstractGradleCachingIntegrationTest(versions) {
+class BasicCachingIntegrationTest : AbstractGradleCachingIntegrationTest() {
 
-    companion object {
-        @get:JvmStatic
-        @get:Parameters(name = "{0}")
-        val versions = TestedVersions.ALL_SUPPORTED
+
+    @ParameterizedTest(name = "{0}")
+    @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
+    fun execute(buildVersions: BuildVersions) {
+        setupProject(buildVersions, projectDir)
+
+        runAndAssertOutcomeAndContents(buildVersions, TaskOutcome.SUCCESS)
+        runAndAssertOutcomeAndContents(buildVersions, TaskOutcome.FROM_CACHE)
     }
 
-    @BeforeTest
-    fun setupProjectFiles(){
-        setupProject(projectDir)
-    }
+    @ParameterizedTest(name = "{0}")
+    @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
+    fun localDirectoryPointingToRoot(buildVersions: BuildVersions) {
+        setupProject(buildVersions, projectDir)
 
-    @Test
-    fun execute() {
-        runAndAssertOutcomeAndContents(TaskOutcome.SUCCESS)
-        runAndAssertOutcomeAndContents(TaskOutcome.FROM_CACHE)
-    }
-
-    @Test
-    fun localDirectoryPointingToRoot() {
         fun String.findAndReplace(oldValue: String, newValue: String): String {
             assertTrue(oldValue in this, "Expected to replace '$oldValue'")
             return replace(oldValue, newValue)
@@ -37,26 +40,27 @@ class BasicCachingIntegrationTest(override val versions: BuildVersions) : Abstra
             .findAndReplace("integration-tests/gradle/projects/it-basic/src/main", "integration-tests/gradle/projects/it-basic")
             .also { projectKts.writeText(it) }
 
-        runAndAssertOutcomeAndContents(TaskOutcome.SUCCESS)
+        runAndAssertOutcomeAndContents(buildVersions, TaskOutcome.SUCCESS)
         projectDir.resolve("unrelated.txt").writeText("modified")
         // despite projectDir is used as an input in localDirectory, changing its contents shouldn't invalidate the cache
-        runAndAssertOutcomeAndContents(TaskOutcome.FROM_CACHE)
+        runAndAssertOutcomeAndContents(buildVersions, TaskOutcome.FROM_CACHE)
 
         projectKts.readText()
             .findAndReplace("localDirectory.set(projectDir)", "localDirectory.set(file(\"src\"))")
             .also { projectKts.writeText(it) }
         // changing localDirectory path invalidates cached task results
-        runAndAssertOutcome(TaskOutcome.SUCCESS)
+        runAndAssertOutcome(buildVersions, TaskOutcome.SUCCESS)
     }
 
 
-    private fun runAndAssertOutcomeAndContents(expectedOutcome: TaskOutcome) {
-        runAndAssertOutcome(expectedOutcome)
+    private fun runAndAssertOutcomeAndContents(buildVersions: BuildVersions, expectedOutcome: TaskOutcome) {
+        runAndAssertOutcome(buildVersions, expectedOutcome)
         File(projectDir, "build/dokka/html").assertHtmlOutputDir()
     }
 
-    private fun runAndAssertOutcome(expectedOutcome: TaskOutcome) {
+    private fun runAndAssertOutcome(buildVersions: BuildVersions, expectedOutcome: TaskOutcome) {
         val result = createGradleRunner(
+            buildVersions,
             "clean",
             "dokkaHtml",
             "-i",

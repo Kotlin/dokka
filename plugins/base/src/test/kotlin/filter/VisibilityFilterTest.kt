@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package filter
 
 import org.jetbrains.dokka.DokkaConfiguration.Visibility
@@ -7,11 +11,7 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DModule
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class VisibilityFilterTest : BaseAbstractTest() {
 
@@ -364,7 +364,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
             configuration
         ) {
             preMergeDocumentablesTransformationStage = {
-                Assertions.assertNull(
+                assertNull(
                     it.first().packages.first().properties.first().setter
                 )
             }
@@ -429,7 +429,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
             configuration
         ) {
             preMergeDocumentablesTransformationStage = {
-                Assertions.assertTrue(
+                assertTrue(
                     it.first().packages.first().functions.size == 1
                 )
             }
@@ -461,7 +461,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
             configuration
         ) {
             preMergeDocumentablesTransformationStage = {
-                Assertions.assertTrue(
+                assertTrue(
                     it.first().packages.first().functions.isEmpty()
                 )
             }
@@ -493,7 +493,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
             configuration
         ) {
             preMergeDocumentablesTransformationStage = {
-                Assertions.assertTrue(
+                assertTrue(
                     it.first().packages.first().functions.size == 1
                 )
             }
@@ -525,7 +525,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
             configuration
         ) {
             preMergeDocumentablesTransformationStage = {
-                Assertions.assertNull(
+                assertNull(
                     it.first().packages.first().properties.first().setter
                 )
             }
@@ -567,7 +567,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
             configuration
         ) {
             preMergeDocumentablesTransformationStage = {
-                Assertions.assertTrue(
+                assertTrue(
                     it.first().packages.first().functions.size == 1
                 )
             }
@@ -609,7 +609,7 @@ class VisibilityFilterTest : BaseAbstractTest() {
             configuration
         ) {
             preMergeDocumentablesTransformationStage = {
-                Assertions.assertTrue(
+                assertTrue(
                     it.first().packages.first().functions.isEmpty()
                 )
             }

@@ -1,15 +1,22 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package locationProvider
 
 import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.external.javadoc.JavadocExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
-import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.links.*
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.DRIExtraContainer
+import org.jetbrains.dokka.links.EnumEntryDRIExtra
+import org.jetbrains.dokka.links.PointingToDeclaration
+import org.jetbrains.dokka.plugability.DokkaContext
 import java.net.URL
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class JavadocExternalLocationProviderTest : BaseAbstractTest() {
     private val testDataDir =

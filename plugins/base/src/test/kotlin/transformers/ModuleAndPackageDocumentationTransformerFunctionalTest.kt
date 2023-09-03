@@ -1,15 +1,21 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package transformers
 
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import transformers.AbstractContextModuleAndPackageDocumentationReaderTest.Companion.texts
+import utils.OnlyDescriptorsMPP
 import java.nio.file.Path
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ModuleAndPackageDocumentationTransformerFunctionalTest : BaseAbstractTest() {
 
+    @OnlyDescriptorsMPP
     @Test
     fun `multiplatform project`(@TempDir tempDir: Path) {
         val include = tempDir.resolve("include.md").toFile()

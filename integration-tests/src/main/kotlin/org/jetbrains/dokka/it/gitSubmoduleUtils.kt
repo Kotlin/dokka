@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it
 
 import org.eclipse.jgit.api.Git
@@ -5,13 +9,14 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import java.io.File
 import java.nio.file.Path
 
-fun AbstractIntegrationTest.copyAndApplyGitDiff(diffFile: File) =
+public fun AbstractIntegrationTest.copyAndApplyGitDiff(diffFile: File) {
     copyGitDiffFileToParent(diffFile).let(::applyGitDiffFromFile)
+}
 
-fun AbstractIntegrationTest.copyGitDiffFileToParent(originalDiffFile: File) =
+public fun AbstractIntegrationTest.copyGitDiffFileToParent(originalDiffFile: File): File =
     originalDiffFile.copyTo(File(projectDir.parent, originalDiffFile.name))
 
-fun AbstractIntegrationTest.applyGitDiffFromFile(diffFile: File) {
+public fun AbstractIntegrationTest.applyGitDiffFromFile(diffFile: File) {
     val projectGitFile = projectDir.resolve(".git")
     val git = if (projectGitFile.exists()) {
         if (projectGitFile.isFile) {
@@ -34,7 +39,7 @@ fun AbstractIntegrationTest.applyGitDiffFromFile(diffFile: File) {
 private fun removeGitFile(repository: Path) =
     repository.toFile()
         .listFiles().orEmpty()
-        .filter { it.name.lowercase() == ".git" }
+        .filter { it.name.toLowerCase() == ".git" }
         .forEach { it.delete() }
 
 

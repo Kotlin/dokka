@@ -1,14 +1,18 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.testApi.testRunner
 
-import com.intellij.openapi.application.PathManager
-import org.jetbrains.dokka.*
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.ExternalDocumentationLinkImpl
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.testApi.logger.TestLogger
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.junit.rules.TemporaryFolder
 import testApi.testRunner.TestDokkaConfigurationBuilder
 import java.io.File
 import java.net.URL
@@ -19,16 +23,20 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 // TODO: take dokka configuration from file
-abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : DokkaTestGenerator<M>>(
+public abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : DokkaTestGenerator<M>>(
     protected val testBuilder: () -> T,
     protected val dokkaTestGenerator: (DokkaConfiguration, DokkaLogger, M, List<DokkaPlugin>) -> D,
     protected val logger: TestLogger,
 ) {
-    protected fun getTestDataDir(name: String) =
-        File("src/test/resources/$name").takeIf { it.exists() }?.toPath()
+    protected fun getTestDataDir(name: String): Path {
+        return File("src/test/resources/$name").takeIf { it.exists() }?.toPath()
             ?: throw InvalidPathException(name, "Cannot be found")
+    }
 
     /**
+     * @param cleanupOutput if set to true, any temporary files will be cleaned up after execution. If set to false,
+     *                      it will be left to the user or the OS to delete it. Has no effect if [useOutputLocationFromConfig]
+     *                      is also set to true.
      * @param useOutputLocationFromConfig if set to true, output location specified in [DokkaConfigurationImpl.outputDir]
      *                                    will be used. If set to false, a temporary folder will be used instead.
      */
@@ -37,26 +45,28 @@ abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : DokkaTestGe
         cleanupOutput: Boolean = true,
         useOutputLocationFromConfig: Boolean = false,
         pluginOverrides: List<DokkaPlugin> = emptyList(),
-        block: T.() -> Unit
+        block: T.() -> Unit,
     ) {
-        val testMethods = testBuilder().apply(block).build()
-        val configurationToUse =
-            if (useOutputLocationFromConfig) {
-                configuration
-            } else {
-                val tempDir = getTempDir(cleanupOutput)
+        if (useOutputLocationFromConfig) {
+            runTests(
+                configuration = configuration,
+                pluginOverrides = pluginOverrides,
+                testLogger = logger,
+                block = block
+            )
+        } else {
+            withTempDirectory(cleanUpAfterUse = cleanupOutput) { tempDir ->
                 if (!cleanupOutput) {
-                    logger.info("Output generated under: ${tempDir.root.absolutePath}")
+                    logger.info("Output will be generated under: ${tempDir.absolutePath}")
                 }
-                configuration.copy(outputDir = tempDir.root)
+                runTests(
+                    configuration = configuration.copy(outputDir = tempDir),
+                    pluginOverrides = pluginOverrides,
+                    testLogger = logger,
+                    block = block
+                )
             }
-
-        dokkaTestGenerator(
-            configurationToUse,
-            logger,
-            testMethods,
-            pluginOverrides
-        ).generate()
+        }
     }
 
     protected fun testInline(
@@ -65,43 +75,63 @@ abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : DokkaTestGe
         cleanupOutput: Boolean = true,
         pluginOverrides: List<DokkaPlugin> = emptyList(),
         loggerForTest: DokkaLogger = logger,
+        block: T.() -> Unit,
+    ) {
+        withTempDirectory(cleanUpAfterUse = cleanupOutput) { tempDir ->
+            if (!cleanupOutput) {
+                loggerForTest.info("Output will be generated under: ${tempDir.absolutePath}")
+            }
+
+            val fileMap = query.toFileMap()
+            fileMap.materializeFiles(tempDir.toPath().toAbsolutePath())
+
+            val newConfiguration = configuration.copy(
+                outputDir = tempDir,
+                sourceSets = configuration.sourceSets.map { sourceSet ->
+                    sourceSet.copy(
+                        sourceRoots = sourceSet.sourceRoots.map { file -> tempDir.resolve(file) }.toSet(),
+                        suppressedFiles = sourceSet.suppressedFiles.map { file -> tempDir.resolve(file) }.toSet(),
+                        sourceLinks = sourceSet.sourceLinks.map {
+                            link -> link.copy(localDirectory = tempDir.resolve(link.localDirectory).absolutePath)
+                        }.toSet(),
+                        includes = sourceSet.includes.map { file -> tempDir.resolve(file) }.toSet()
+                    )
+                }
+            )
+            runTests(
+                configuration = newConfiguration,
+                pluginOverrides = pluginOverrides,
+                testLogger = loggerForTest,
+                block = block
+            )
+        }
+    }
+
+    private fun withTempDirectory(cleanUpAfterUse: Boolean, block: (tempDirectory: File) -> Unit) {
+        val tempDir = this.createTempDir()
+        try {
+            block(tempDir)
+        } finally {
+            if (cleanUpAfterUse) {
+                tempDir.delete()
+            }
+        }
+    }
+
+    private fun runTests(
+        configuration: DokkaConfiguration,
+        pluginOverrides: List<DokkaPlugin>,
+        testLogger: DokkaLogger = logger,
         block: T.() -> Unit
     ) {
         val testMethods = testBuilder().apply(block).build()
-        val testDirPath = getTempDir(cleanupOutput).root.toPath().toAbsolutePath()
-        val fileMap = query.toFileMap()
-        fileMap.materializeFiles(testDirPath.toAbsolutePath())
-        if (!cleanupOutput)
-            loggerForTest.info("Output generated under: ${testDirPath.toAbsolutePath()}")
-        val newConfiguration = configuration.copy(
-            outputDir = testDirPath.toFile(),
-            sourceSets = configuration.sourceSets.map { sourceSet ->
-                sourceSet.copy(
-                    sourceRoots = sourceSet.sourceRoots.map { file ->
-                        testDirPath.toFile().resolve(file)
-                    }.toSet(),
-                    suppressedFiles = sourceSet.suppressedFiles.map { file ->
-                        testDirPath.toFile().resolve(file)
-                    }.toSet(),
-                    sourceLinks = sourceSet.sourceLinks.map { link ->
-                        link.copy(
-                            localDirectory = testDirPath.toFile().resolve(link.localDirectory).absolutePath
-                        )
-                    }.toSet(),
-                    includes = sourceSet.includes.map { file ->
-                        testDirPath.toFile().resolve(file)
-                    }.toSet()
-                )
-            }
-        )
         dokkaTestGenerator(
-            newConfiguration,
-            loggerForTest,
+            configuration,
+            testLogger,
             testMethods,
             pluginOverrides
         ).generate()
     }
-
 
     private fun String.toFileMap(): Map<String, String> {
         return this.trimIndent().trimMargin()
@@ -133,38 +163,32 @@ abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : DokkaTestGe
 
     private fun Map<String, String>.materializeFiles(
         root: Path = Paths.get("."),
-        charset: Charset = Charset.forName("utf-8")
+        charset: Charset = Charset.forName("utf-8"),
     ) = this.map { (path, content) ->
         val file = root.resolve(path)
         Files.createDirectories(file.parent)
         Files.write(file, content.toByteArray(charset))
     }
 
-    private fun getTempDir(cleanupOutput: Boolean) =
-        if (cleanupOutput) {
-            TemporaryFolder().apply { create() }
-        } else {
-            TemporaryFolderWithoutCleanup().apply { create() }
-        }
-
-    /**
-     * Creates a temporary folder, but doesn't delete files
-     * right after it's been used, delegating it to the OS
-     */
-    private class TemporaryFolderWithoutCleanup : TemporaryFolder() {
-        override fun after() { }
-    }
+    @Suppress("DEPRECATION") // TODO migrate to kotlin.io.path.createTempDirectory with languageVersion >= 1.5
+    private fun createTempDir(): File = kotlin.io.createTempDir()
 
     protected fun dokkaConfiguration(block: TestDokkaConfigurationBuilder.() -> Unit): DokkaConfigurationImpl =
         testApi.testRunner.dokkaConfiguration(block)
 
 
     protected val jvmStdlibPath: String? by lazy {
-        PathManager.getResourceRoot(Strictfp::class.java, "/kotlin/jvm/Strictfp.class")
+        ClassLoader.getSystemResource("kotlin/jvm/Strictfp.class")
+            ?.file
+            ?.replace("file:", "")
+            ?.replaceAfter(".jar", "")
     }
 
     protected val jsStdlibPath: String? by lazy {
-        PathManager.getResourceRoot(Any::class.java, "/kotlin/jquery")
+        ClassLoader.getSystemResource("kotlin/jquery")
+            ?.file
+            ?.replace("file:", "")
+            ?.replaceAfter(".jar", "")
     }
 
     protected val commonStdlibPath: String? by lazy {
@@ -175,38 +199,38 @@ abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : DokkaTestGe
             ?.replaceAfter(".jar", "")
     }
 
-    protected val stdlibExternalDocumentationLink = ExternalDocumentationLinkImpl(
+    protected val stdlibExternalDocumentationLink: ExternalDocumentationLinkImpl = ExternalDocumentationLinkImpl(
         URL("https://kotlinlang.org/api/latest/jvm/stdlib/"),
         URL("https://kotlinlang.org/api/latest/jvm/stdlib/package-list")
     )
 
-    companion object {
+    public companion object {
         private val filePathRegex = Regex("""[\n^](\/[\w|\-]+)+(\.\w+)?\s*\n""")
     }
 }
 
-interface TestMethods
+public interface TestMethods
 
-open class CoreTestMethods(
-    open val pluginsSetupStage: (DokkaContext) -> Unit,
-    open val verificationStage: (() -> Unit) -> Unit,
-    open val documentablesCreationStage: (List<DModule>) -> Unit,
-    open val documentablesMergingStage: (DModule) -> Unit,
-    open val documentablesTransformationStage: (DModule) -> Unit,
-    open val pagesGenerationStage: (RootPageNode) -> Unit,
-    open val pagesTransformationStage: (RootPageNode) -> Unit,
-    open val renderingStage: (RootPageNode, DokkaContext) -> Unit
+public open class CoreTestMethods(
+    public open val pluginsSetupStage: (DokkaContext) -> Unit,
+    public open val verificationStage: (() -> Unit) -> Unit,
+    public open val documentablesCreationStage: (List<DModule>) -> Unit,
+    public open val documentablesMergingStage: (DModule) -> Unit,
+    public open val documentablesTransformationStage: (DModule) -> Unit,
+    public open val pagesGenerationStage: (RootPageNode) -> Unit,
+    public open val pagesTransformationStage: (RootPageNode) -> Unit,
+    public open val renderingStage: (RootPageNode, DokkaContext) -> Unit,
 ) : TestMethods
 
-abstract class TestBuilder<M : TestMethods> {
-    abstract fun build(): M
+public abstract class TestBuilder<M : TestMethods> {
+    public abstract fun build(): M
 }
 
-abstract class DokkaTestGenerator<T : TestMethods>(
+public abstract class DokkaTestGenerator<T : TestMethods>(
     protected val configuration: DokkaConfiguration,
     protected val logger: DokkaLogger,
     protected val testMethods: T,
-    protected val additionalPlugins: List<DokkaPlugin> = emptyList()
+    protected val additionalPlugins: List<DokkaPlugin> = emptyList(),
 ) {
-    abstract fun generate()
+    public abstract fun generate()
 }

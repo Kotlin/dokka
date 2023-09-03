@@ -1,19 +1,24 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package translators
 
-import com.intellij.openapi.application.PathManager
-import kotlinx.coroutines.Job
-import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.analysis.kotlin.internal.ExternalDocumentablesProvider
+import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.base.translators.descriptors.ExternalDocumentablesProvider
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DInterface
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.cast
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import utils.OnlyDescriptors
+import utils.UsingJDK
 
 class ExternalDocumentablesTest : BaseAbstractTest() {
+    @UsingJDK
     @Test
     fun `external documentable from java stdlib`() {
         val configuration = dokkaConfiguration {
@@ -36,7 +41,7 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
         ) {
             lateinit var provider: ExternalDocumentablesProvider
             pluginsSetupStage = {
-                provider = it.plugin<DokkaBase>().querySingle { externalDocumentablesProvider }
+                provider = it.plugin<InternalKotlinAnalysisPlugin>().querySingle { externalDocumentablesProvider }
             }
             documentablesTransformationStage = { mod ->
                 val entry = mod.packages.single().classlikes.single().cast<DClass>().supertypes.entries.single()
@@ -56,10 +61,17 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
         }
     }
 
+
+    // typealias CompletionHandler = (cause: Throwable?) -> Unit
+    // FunctionalTypeConstructor(dri=kotlinx.coroutines/CompletionHandler///PointingToDeclaration/, projections=[], isExtensionFunction=false, isSuspendable=false, presentableName=null, extra=PropertyContainer(map={}))
+    @OnlyDescriptors(reason = "FunctionType has not parameters") // TODO
     @Test
     fun `external documentable from dependency`() {
         val coroutinesPath =
-            PathManager.getResourceRoot(Job::class.java, "/kotlinx/coroutines/Job.class")
+            ClassLoader.getSystemResource("kotlinx/coroutines/Job.class")
+                ?.file
+                ?.replace("file:", "")
+                ?.replaceAfter(".jar", "")
 
         val configuration = dokkaConfiguration {
             sourceSets {
@@ -82,7 +94,7 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
         ) {
             lateinit var provider: ExternalDocumentablesProvider
             pluginsSetupStage = {
-                provider = it.plugin<DokkaBase>().querySingle { externalDocumentablesProvider }
+                provider = it.plugin<InternalKotlinAnalysisPlugin>().querySingle { externalDocumentablesProvider }
             }
             documentablesTransformationStage = { mod ->
                 val entry = mod.packages.single().classlikes.single().cast<DClass>().supertypes.entries.single()
@@ -124,7 +136,7 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
         ) {
             lateinit var provider: ExternalDocumentablesProvider
             pluginsSetupStage = {
-                provider = it.plugin<DokkaBase>().querySingle { externalDocumentablesProvider }
+                provider = it.plugin<InternalKotlinAnalysisPlugin>().querySingle { externalDocumentablesProvider }
             }
             documentablesTransformationStage = { mod ->
                 val entry = mod.packages.single().classlikes.single().cast<DClass>().supertypes.entries.single()

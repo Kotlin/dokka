@@ -1,17 +1,16 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.runners.Parameterized.Parameters
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
 import kotlin.test.*
 
-class BasicGradleIntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
-
-    companion object {
-        @get:JvmStatic
-        @get:Parameters(name = "{0}")
-        val versions = TestedVersions.ALL_SUPPORTED
-    }
+class BasicGradleIntegrationTest : AbstractGradleIntegrationTest() {
 
     @BeforeTest
     fun prepareProjectFiles() {
@@ -32,14 +31,16 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
         }
     }
 
-    @Test
-    fun execute() {
-        runAndAssertOutcome(TaskOutcome.SUCCESS)
-        runAndAssertOutcome(TaskOutcome.UP_TO_DATE)
+    @ParameterizedTest(name = "{0}")
+    @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
+    fun execute(buildVersions: BuildVersions) {
+        runAndAssertOutcome(buildVersions, TaskOutcome.SUCCESS)
+        runAndAssertOutcome(buildVersions, TaskOutcome.UP_TO_DATE)
     }
 
-    private fun runAndAssertOutcome(expectedOutcome: TaskOutcome) {
+    private fun runAndAssertOutcome(buildVersions: BuildVersions, expectedOutcome: TaskOutcome) {
         val result = createGradleRunner(
+            buildVersions,
             "dokkaHtml",
             "dokkaJavadoc",
             "dokkaGfm",
@@ -133,12 +134,13 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
             "Anchors should not have hashes inside"
         )
 
-        assertEquals(
-            """#logo{background-image:url('https://upload.wikimedia.org/wikipedia/commons/9/9d/Ubuntu_logo.svg');}""",
-            stylesDir.resolve("logo-styles.css").readText().replace("\\s".toRegex(), ""),
+        assertTrue(
+            stylesDir.resolve("logo-styles.css").readText().contains(
+                "--dokka-logo-image-url: url('https://upload.wikimedia.org/wikipedia/commons/9/9d/Ubuntu_logo.svg');",
+            )
         )
         assertTrue(stylesDir.resolve("custom-style-to-add.css").isFile)
-        assertEquals("""/* custom stylesheet */""", stylesDir.resolve("custom-style-to-add.css").readText())
+        assertTrue(stylesDir.resolve("custom-style-to-add.css").readText().contains("/* custom stylesheet */"))
         allHtmlFiles().forEach { file ->
             if (file.name != "navigation.html") assertTrue(
                 "custom-style-to-add.css" in file.readText(),
@@ -156,7 +158,7 @@ class BasicGradleIntegrationTest(override val versions: BuildVersions) : Abstrac
         val indexFile = File(this, "index.html")
         assertTrue(indexFile.isFile, "Missing index.html")
         assertTrue(
-            """<title>Basic Project 1.8.20-SNAPSHOT API </title>""" in indexFile.readText(),
+            """<title>Basic Project 1.9.0-SNAPSHOT API </title>""" in indexFile.readText(),
             "Header with version number not present in index.html"
         )
 

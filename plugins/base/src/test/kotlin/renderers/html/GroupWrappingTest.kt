@@ -1,12 +1,16 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package renderers.html
 
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.pages.TextStyle
-import org.junit.jupiter.api.Test
-import renderers.*
+import renderers.testPage
 import utils.Div
 import utils.P
 import utils.match
+import kotlin.test.Test
 
 class GroupWrappingTest : HtmlRenderingOnlyTestBase() {
 

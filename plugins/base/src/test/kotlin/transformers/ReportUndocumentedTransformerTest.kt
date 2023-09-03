@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package transformers
 
 import org.jetbrains.dokka.DokkaConfiguration
@@ -5,9 +9,9 @@ import org.jetbrains.dokka.DokkaDefaults
 import org.jetbrains.dokka.PackageOptionsImpl
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
+import kotlin.test.Ignore
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 
 class ReportUndocumentedTransformerTest : BaseAbstractTest() {
@@ -181,7 +185,7 @@ class ReportUndocumentedTransformerTest : BaseAbstractTest() {
         }
     }
 
-    @Disabled
+    @Ignore
     @Test
     fun `undocumented secondary constructor gets reported`() {
         val configuration = dokkaConfiguration {

@@ -1,10 +1,14 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package markdown
 
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DPackage
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.pages.ModulePageNode
-import org.junit.jupiter.api.Assertions.*
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import kotlin.test.assertEquals
 
 abstract class KDocTest : BaseAbstractTest() {
 

@@ -1,11 +1,15 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.pages
 
 import kotlin.reflect.KClass
 
-inline fun <reified T : ContentNode, R : ContentNode> R.mapTransform(noinline operation: (T) -> T): R =
+public inline fun <reified T : ContentNode, R : ContentNode> R.mapTransform(noinline operation: (T) -> T): R =
     mapTransform(T::class, operation)
 
-inline fun <reified T : ContentNode, R : ContentNode> R.recursiveMapTransform(noinline operation: (T) -> T): R =
+public inline fun <reified T : ContentNode, R : ContentNode> R.recursiveMapTransform(noinline operation: (T) -> T): R =
         recursiveMapTransform(T::class, operation)
 
 @PublishedApi

@@ -1,16 +1,21 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.signatures
 
-import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinTransformer
-import org.jetbrains.dokka.pages.ContentKind
+import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.DriOfAny
 import org.jetbrains.dokka.links.DriOfUnit
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.AnnotationTarget
 import org.jetbrains.dokka.model.properties.WithExtraProperties
+import org.jetbrains.dokka.pages.ContentKind
 
-object KotlinSignatureUtils : JvmSignatureUtils {
+public object KotlinSignatureUtils : JvmSignatureUtils {
 
     private const val classExtension = "::class"
     private val strategy = OnlyOnce
@@ -30,21 +35,24 @@ object KotlinSignatureUtils : JvmSignatureUtils {
     )
 
 
-    override fun PageContentBuilder.DocumentableContentBuilder.annotationsBlock(d: AnnotationTarget) =
+    override fun PageContentBuilder.DocumentableContentBuilder.annotationsBlock(d: AnnotationTarget) {
         annotationsBlockWithIgnored(d, ignoredAnnotations, strategy, listBrackets, classExtension)
+    }
 
-    override fun PageContentBuilder.DocumentableContentBuilder.annotationsInline(d: AnnotationTarget) =
+    override fun PageContentBuilder.DocumentableContentBuilder.annotationsInline(d: AnnotationTarget) {
         annotationsInlineWithIgnored(d, ignoredAnnotations, strategy, listBrackets, classExtension)
+    }
 
-    override fun <T : Documentable> WithExtraProperties<T>.modifiers() =
-        extra[AdditionalModifiers]?.content?.entries?.associate {
+    override fun <T : Documentable> WithExtraProperties<T>.modifiers(): SourceSetDependent<Set<ExtraModifiers>> {
+        return extra[AdditionalModifiers]?.content?.entries?.associate {
             it.key to it.value.filterIsInstance<ExtraModifiers.KotlinOnlyModifiers>().toSet()
         } ?: emptyMap()
+    }
 
 
-    val PrimitiveJavaType.dri: DRI get() = DRI("kotlin", name.capitalize())
+    public val PrimitiveJavaType.dri: DRI get() = DRI("kotlin", name.capitalize())
 
-    val Bound.driOrNull: DRI?
+    public val Bound.driOrNull: DRI?
         get() {
             return when (this) {
                 is TypeParameter -> dri
@@ -60,7 +68,7 @@ object KotlinSignatureUtils : JvmSignatureUtils {
             }
         }
 
-    val Projection.drisOfAllNestedBounds: List<DRI> get() = when (this) {
+    public val Projection.drisOfAllNestedBounds: List<DRI> get() = when (this) {
         is TypeParameter -> listOf(dri)
         is TypeConstructor -> listOf(dri) + projections.flatMap { it.drisOfAllNestedBounds }
         is Nullable -> inner.drisOfAllNestedBounds

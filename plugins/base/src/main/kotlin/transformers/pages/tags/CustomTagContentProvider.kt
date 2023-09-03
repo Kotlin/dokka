@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.transformers.pages.tags
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
@@ -19,21 +23,21 @@ import org.jetbrains.dokka.model.doc.DocTag
  * Using this provider, we can map custom tags  (such as `@usesMathJax`) and generate content for it that
  * will be displayed on the pages.
  */
-interface CustomTagContentProvider {
+public interface CustomTagContentProvider {
 
     /**
      * Whether this content provider supports given [CustomTagWrapper].
      *
      * Tags can be filtered out either by name or by nested [DocTag] type
      */
-    fun isApplicable(customTag: CustomTagWrapper): Boolean
+    public fun isApplicable(customTag: CustomTagWrapper): Boolean
 
     /**
      * Full blown content description, most likely to be on a separate page
      * dedicated to just one element (i.e one class/function), so any
      * amount of detail should be fine.
      */
-    fun DocumentableContentBuilder.contentForDescription(
+    public fun DocumentableContentBuilder.contentForDescription(
         sourceSet: DokkaSourceSet,
         customTag: CustomTagWrapper
     ) {}
@@ -52,7 +56,7 @@ interface CustomTagContentProvider {
      * sense to include `@usesMathjax` here, as this information seems
      * to be more specific and detailed than is needed for a brief.
      */
-    fun DocumentableContentBuilder.contentForBrief(
+    public fun DocumentableContentBuilder.contentForBrief(
         sourceSet: DokkaSourceSet,
         customTag: CustomTagWrapper
     ) {}

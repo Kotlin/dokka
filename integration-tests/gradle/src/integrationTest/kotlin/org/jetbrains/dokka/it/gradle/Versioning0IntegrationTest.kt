@@ -1,17 +1,17 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
 import org.jsoup.Jsoup
-import org.junit.runners.Parameterized
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
 import kotlin.test.*
 
-class Versioning0IntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
-    companion object {
-        @get:JvmStatic
-        @get:Parameterized.Parameters(name = "{0}")
-        val versions = TestedVersions.ALL_SUPPORTED
-    }
+class Versioning0IntegrationTest : AbstractGradleIntegrationTest() {
 
     @BeforeTest
     fun prepareProjectFiles() {
@@ -30,9 +30,11 @@ class Versioning0IntegrationTest(override val versions: BuildVersions) : Abstrac
      *
      * Output is produced in a standard build directory under `build/dokka/htmlMultiModule`
      */
-    @Test
-    fun execute() {
+    @ParameterizedTest(name = "{0}")
+    @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
+    fun execute(buildVersions: BuildVersions) {
         val result = createGradleRunner(
+            buildVersions,
             ":dokkaHtmlMultiModuleBaseVersion",
             "-i", "-s"
         ).buildRelaxed()
@@ -42,6 +44,7 @@ class Versioning0IntegrationTest(override val versions: BuildVersions) : Abstrac
         assertTrue(outputDir.isDirectory, "Missing dokka output directory")
 
         val result2 = createGradleRunner(
+            buildVersions,
             "clean",
             ":dokkaHtmlMultiModuleNextVersion",
             "-i", "-s"
@@ -52,6 +55,7 @@ class Versioning0IntegrationTest(override val versions: BuildVersions) : Abstrac
         assertTrue(outputDir2.isDirectory, "Missing dokka output directory")
 
         val result3 = createGradleRunner(
+            buildVersions,
             "clean",
             ":dokkaHtmlMultiModule",
             "-i", "-s"

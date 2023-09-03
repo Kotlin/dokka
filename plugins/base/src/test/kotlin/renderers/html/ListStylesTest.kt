@@ -1,13 +1,17 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package renderers.html
 
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
 import org.jetbrains.dokka.pages.ListStyle
-import org.junit.jupiter.api.Test
 import renderers.testPage
 import utils.Dd
 import utils.Dl
 import utils.Dt
 import utils.match
+import kotlin.test.Test
 
 
 class ListStylesTest : HtmlRenderingOnlyTestBase() {

@@ -1,11 +1,12 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 allprojects {
     repositories {
-        maven("https://cache-redirector.jetbrains.com/jcenter.bintray.com")
         mavenLocal()
         mavenCentral()
         google()
-        maven("https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-eap")
-        maven("https://cache-redirector.jetbrains.com/dl.bintray.com/kotlin/kotlin-dev")
         maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
             content {
                 includeGroup("org.jetbrains.kotlinx")

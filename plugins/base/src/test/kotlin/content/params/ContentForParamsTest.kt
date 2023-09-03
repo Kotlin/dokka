@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package content.params
 
 import matchers.content.*
@@ -9,9 +13,9 @@ import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
-import org.junit.jupiter.api.Test
+import org.jetbrains.dokka.utilities.firstIsInstanceOrNull
 import utils.*
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ContentForParamsTest : BaseAbstractTest() {
@@ -242,6 +246,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `deprecated with multiple links inside`() {
         testInline(
@@ -346,6 +351,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `deprecated with an multiple inline links`() {
         testInline(
@@ -410,6 +416,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `multiline throws with comment`() {
         testInline(
@@ -473,6 +480,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("Fixed in 1.9.20 (IMPORT STAR)")
     @Test
     fun `multiline kotlin throws with comment`() {
         testInline(
@@ -590,6 +598,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `multiline throws where exception is not in the same line as description`() {
         testInline(
@@ -673,6 +682,7 @@ class ContentForParamsTest : BaseAbstractTest() {
     }
 
 
+    @JavaCode
     @Test
     fun `documentation splitted in 2 using enters`() {
         testInline(
@@ -718,6 +728,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `multiline return tag with param`() {
         testInline(
@@ -783,6 +794,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @UsingJDK
     @Test
     fun `return tag in kotlin`() {
         testInline(
@@ -830,6 +842,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun `list with links and description`() {
         testInline(
@@ -1476,6 +1489,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @JavaCode
     @Test
     fun javaDocCommentWithDocumentedParameters() {
         testInline(
@@ -1505,10 +1519,10 @@ class ContentForParamsTest : BaseAbstractTest() {
                     it.documentation[jvm]
                 }
 
-                assert(forJvm.size == 2)
+                assertEquals(2, forJvm.size)
                 val (first, second) = forJvm.map { it.paramsDescription() }
-                assert(first == "comment to first param")
-                assert(second == "comment to second param")
+                assertEquals("comment to first param", first)
+                assertEquals("comment to second param", second)
             }
         }
     }

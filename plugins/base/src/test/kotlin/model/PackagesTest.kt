@@ -1,8 +1,12 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package model
 
 import org.jetbrains.dokka.model.DPackage
-import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
+import kotlin.test.Test
 
 class PackagesTest : AbstractModelTest("/src/main/kotlin/packages/Test.kt", "packages") {
 

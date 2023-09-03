@@ -1,16 +1,20 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import org.jetbrains.dokka.utilities.*
 import java.nio.file.Paths
 
-fun main(args: Array<String>) {
+public fun main(args: Array<String>) {
     val globalArguments = GlobalArguments(args)
     val configuration = initializeConfiguration(globalArguments)
     DokkaGenerator(configuration, globalArguments.logger).generate()
 }
 
-fun initializeConfiguration(globalArguments: GlobalArguments): DokkaConfiguration {
+public fun initializeConfiguration(globalArguments: GlobalArguments): DokkaConfiguration {
     return if (globalArguments.json != null) {
         val jsonContent = Paths.get(checkNotNull(globalArguments.json)).toFile().readText()
         val globals = GlobalDokkaConfiguration(jsonContent)

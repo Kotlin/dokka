@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.templates
 
 import kotlinx.html.a
@@ -9,19 +13,15 @@ import org.jetbrains.dokka.DokkaModuleDescriptionImpl
 import org.jetbrains.dokka.base.renderers.html.templateCommand
 import org.jetbrains.dokka.base.renderers.html.templateCommandAsHtmlComment
 import org.jetbrains.dokka.base.templating.PathToRootSubstitutionCommand
-import org.junit.Rule
-import org.junit.jupiter.api.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.io.TempDir
 import utils.assertHtmlEqualsIgnoringWhitespace
 import java.io.File
+import kotlin.test.Test
 
 class SubstitutionCommandResolutionTest : TemplatingAbstractTest() {
 
-    @get:Rule
-    val folder: TemporaryFolder = TemporaryFolder()
-
     @Test
-    fun `should handle PathToRootCommand`() {
+    fun `should handle PathToRootCommand`(@TempDir outputDirectory: File) {
         val template = createHTML()
             .templateCommand(PathToRootSubstitutionCommand(pattern = "###", default = "default")) {
                 a {
@@ -38,11 +38,11 @@ class SubstitutionCommandResolutionTest : TemplatingAbstractTest() {
                 id = "logo"
             }
         }
-        checkSubstitutedResult(template, expected)
+        checkSubstitutedResult(outputDirectory, template, expected)
     }
 
     @Test
-    fun `should handle PathToRootCommand as HTML comment`() {
+    fun `should handle PathToRootCommand as HTML comment`(@TempDir outputDirectory: File) {
         val template = createHTML().span {
             templateCommandAsHtmlComment(PathToRootSubstitutionCommand(pattern = "###", default = "default")) {
                 this@span.a {
@@ -76,30 +76,22 @@ class SubstitutionCommandResolutionTest : TemplatingAbstractTest() {
                 }
             }
         }
-        checkSubstitutedResult(template, expected)
+        checkSubstitutedResult(outputDirectory, template, expected)
     }
 
-    private fun createDirectoriesAndWriteContent(content: String): File {
-        folder.create()
-        val module1 = folder.newFolder("module1")
-        val module1Content = module1.resolve("index.html")
-        module1Content.writeText(content)
-        return module1Content
-    }
-
-    private fun checkSubstitutedResult(template: String, expected:String) {
-        val testedFile = createDirectoriesAndWriteContent(template)
+    private fun checkSubstitutedResult(outputDirectory: File, template: String, expected:String) {
+        val testedFile = createDirectoriesAndWriteContent(outputDirectory, template)
 
         val configuration = dokkaConfiguration {
             modules = listOf(
                 DokkaModuleDescriptionImpl(
                     name = "module1",
-                    relativePathToOutputDirectory = folder.root.resolve("module1"),
+                    relativePathToOutputDirectory = outputDirectory.resolve("module1"),
                     includes = emptySet(),
-                    sourceOutputDirectory = folder.root.resolve("module1"),
+                    sourceOutputDirectory = outputDirectory.resolve("module1"),
                 )
             )
-            this.outputDir = folder.root
+            this.outputDir = outputDirectory
         }
 
         testFromData(configuration, useOutputLocationFromConfig = true){
@@ -107,5 +99,12 @@ class SubstitutionCommandResolutionTest : TemplatingAbstractTest() {
                 assertHtmlEqualsIgnoringWhitespace(expected, testedFile.readText())
             }
         }
+    }
+
+    private fun createDirectoriesAndWriteContent(outputDirectory: File, content: String): File {
+        val module1 = outputDirectory.resolve("module1").also { it.mkdirs() }
+        val module1Content = module1.resolve("index.html")
+        module1Content.writeText(content)
+        return module1Content
     }
 }

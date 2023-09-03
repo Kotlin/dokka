@@ -1,34 +1,42 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.kotlinAsJava
 
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.kotlinAsJava.signatures.JavaSignatureProvider
 import org.jetbrains.dokka.kotlinAsJava.transformers.JvmNameDocumentableTransformer
 import org.jetbrains.dokka.kotlinAsJava.transformers.KotlinAsJavaDocumentableTransformer
 import org.jetbrains.dokka.kotlinAsJava.translators.KotlinAsJavaDocumentableToPageTranslator
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.Extension
 import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.renderers.PostAction
+import org.jetbrains.dokka.transformers.documentation.DocumentableToPageTranslator
+import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 
-class KotlinAsJavaPlugin : DokkaPlugin() {
-    val kotlinAsJavaDocumentableTransformer by extending {
+public class KotlinAsJavaPlugin : DokkaPlugin() {
+    public val kotlinAsJavaDocumentableTransformer: Extension<DocumentableTransformer, *, *> by extending {
         CoreExtensions.documentableTransformer with KotlinAsJavaDocumentableTransformer()
     }
 
-    val jvmNameTransformer by extending {
+    public val jvmNameTransformer: Extension<DocumentableTransformer, *, *> by extending {
         CoreExtensions.documentableTransformer with JvmNameDocumentableTransformer() order {
             after(kotlinAsJavaDocumentableTransformer)
         }
     }
 
-    val javaSignatureProvider by extending {
+    public val javaSignatureProvider: Extension<SignatureProvider, *, *> by extending {
         with(plugin<DokkaBase>()) {
             signatureProvider providing ::JavaSignatureProvider override kotlinSignatureProvider
         }
     }
 
-    val kotlinAsJavaDocumentableToPageTranslator by extending {
+    public val kotlinAsJavaDocumentableToPageTranslator: Extension<DocumentableToPageTranslator, *, *> by extending {
         CoreExtensions.documentableToPageTranslator providing ::KotlinAsJavaDocumentableToPageTranslator override
                 plugin<DokkaBase>().documentableToPageTranslator
     }

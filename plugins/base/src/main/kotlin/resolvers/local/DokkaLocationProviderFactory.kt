@@ -1,14 +1,22 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.resolvers.local
 
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import java.util.concurrent.ConcurrentHashMap
 
-class DokkaLocationProviderFactory(private val context: DokkaContext) : LocationProviderFactory {
+public class DokkaLocationProviderFactory(
+    private val context: DokkaContext
+) : LocationProviderFactory {
     private val cache = ConcurrentHashMap<CacheWrapper, LocationProvider>()
 
-    override fun getLocationProvider(pageNode: RootPageNode) = cache.computeIfAbsent(CacheWrapper(pageNode)) {
-        DokkaLocationProvider(pageNode, context)
+    override fun getLocationProvider(pageNode: RootPageNode): LocationProvider {
+        return cache.computeIfAbsent(CacheWrapper(pageNode)) {
+            DokkaLocationProvider(pageNode, context)
+        }
     }
 
     private class CacheWrapper(val pageNode: RootPageNode) {

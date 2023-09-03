@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.allModulesPage.templates
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
@@ -10,13 +14,15 @@ import org.jetbrains.dokka.templates.TemplateProcessingStrategy
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 
-abstract class BaseJsonNavigationTemplateProcessingStrategy(val context: DokkaContext) : TemplateProcessingStrategy {
-    abstract val navigationFileNameWithoutExtension: String
-    abstract val path: String
+public abstract class BaseJsonNavigationTemplateProcessingStrategy(
+    public val context: DokkaContext
+) : TemplateProcessingStrategy {
+    public abstract val navigationFileNameWithoutExtension: String
+    public abstract val path: String
 
     private val fragments = ConcurrentHashMap<String, List<SearchRecord>>()
 
-    open fun canProcess(file: File): Boolean =
+    public open fun canProcess(file: File): Boolean =
         file.extension == "json" && file.nameWithoutExtension == navigationFileNameWithoutExtension
 
     override fun process(input: File, output: File, moduleContext: DokkaModuleDescription?): Boolean {
@@ -53,8 +59,9 @@ abstract class BaseJsonNavigationTemplateProcessingStrategy(val context: DokkaCo
 
 }
 
-class PagesSearchTemplateStrategy(val dokkaContext: DokkaContext) :
-    BaseJsonNavigationTemplateProcessingStrategy(dokkaContext) {
+public class PagesSearchTemplateStrategy(
+    public val dokkaContext: DokkaContext
+) : BaseJsonNavigationTemplateProcessingStrategy(dokkaContext) {
     override val navigationFileNameWithoutExtension: String = "pages"
     override val path: String = "scripts"
 }

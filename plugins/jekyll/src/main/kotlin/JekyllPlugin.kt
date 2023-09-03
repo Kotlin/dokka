@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.jekyll
 
 import org.jetbrains.dokka.CoreExtensions
@@ -5,6 +9,7 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProviderFactory
+import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
 import org.jetbrains.dokka.gfm.GfmPlugin
 import org.jetbrains.dokka.gfm.renderer.BriefCommentPreprocessor
@@ -12,37 +17,38 @@ import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.renderers.PostAction
+import org.jetbrains.dokka.renderers.Renderer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-class JekyllPlugin : DokkaPlugin() {
+public class JekyllPlugin : DokkaPlugin() {
 
-    val jekyllPreprocessors by extensionPoint<PageTransformer>()
+    public val jekyllPreprocessors: ExtensionPoint<PageTransformer> by extensionPoint<PageTransformer>()
 
     private val dokkaBase by lazy { plugin<DokkaBase>() }
 
     private val gfmPlugin by lazy { plugin<GfmPlugin>() }
 
-    val renderer by extending {
+    public val renderer: Extension<Renderer, *, *> by extending {
         (CoreExtensions.renderer
                 providing { JekyllRenderer(it) }
                 override plugin<GfmPlugin>().renderer)
     }
 
-    val rootCreator by extending {
+    public val rootCreator: Extension<PageTransformer, *, *> by extending {
         jekyllPreprocessors with RootCreator
     }
 
-    val briefCommentPreprocessor by extending {
+    public val briefCommentPreprocessor: Extension<PageTransformer, *, *> by extending {
         jekyllPreprocessors with BriefCommentPreprocessor()
     }
 
-    val packageListCreator by extending {
+    public val packageListCreator: Extension<PageTransformer, *, *> by extending {
         jekyllPreprocessors providing {
             PackageListCreator(it, RecognizedLinkFormat.DokkaJekyll)
         } order { after(rootCreator) }
     }
 
-    val locationProvider by extending {
+    public val locationProvider: Extension<LocationProviderFactory, *, *> by extending {
         dokkaBase.locationProviderFactory providing ::DokkaLocationProviderFactory override listOf(gfmPlugin.locationProvider)
     }
 
@@ -62,11 +68,11 @@ class JekyllPlugin : DokkaPlugin() {
         PluginApiPreviewAcknowledgement
 }
 
-class JekyllRenderer(
+public class JekyllRenderer(
     context: DokkaContext
 ) : CommonmarkRenderer(context) {
 
-    override val preprocessors = context.plugin<JekyllPlugin>().query { jekyllPreprocessors }
+    override val preprocessors: List<PageTransformer> = context.plugin<JekyllPlugin>().query { jekyllPreprocessors }
 
     override fun buildPage(page: ContentPage, content: (StringBuilder, ContentPage) -> Unit): String {
         val builder = StringBuilder()

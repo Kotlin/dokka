@@ -1,21 +1,27 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package transformers
 
-import org.jetbrains.dokka.base.transformers.documentables.ModuleAndPackageDocumentationReader
+import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.LoggingLevel
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import testApi.testRunner.TestDokkaConfigurationBuilder
 import testApi.testRunner.dPackage
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ContextModuleAndPackageDocumentationReaderTest3 : AbstractContextModuleAndPackageDocumentationReaderTest() {
 
     private val include by lazy { temporaryDirectory.resolve("include.md").toFile() }
 
-    @BeforeEach
+    @BeforeTest
     fun materializeInclude() {
         include.writeText(
             """
@@ -42,12 +48,12 @@ class ContextModuleAndPackageDocumentationReaderTest3 : AbstractContextModuleAnd
         )
     }
 
-    private val reader by lazy { ModuleAndPackageDocumentationReader(context) }
+    private val reader by lazy { context.plugin<InternalKotlinAnalysisPlugin>().querySingle { moduleAndPackageDocumentationReader } }
 
 
     @Test
     fun `root package is matched by empty string and the root keyword`() {
-        val documentation = reader[dPackage(DRI(""), sourceSets = setOf(sourceSet))]
+        val documentation = reader.read(dPackage(DRI(""), sourceSets = setOf(sourceSet)))
         assertEquals(
             listOf("This is the root package", "This is also the root package"), documentation.texts
         )

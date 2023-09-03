@@ -1,11 +1,16 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package content.functions
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
-import org.junit.jupiter.api.Test
+import utils.assertContains
 import utils.assertNotNull
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ContentForConstructors : BaseAbstractTest() {
@@ -41,7 +46,7 @@ class ContentForConstructors : BaseAbstractTest() {
                 val constructorName =
                     primary.dfs { (it as? ContentText)?.text == "Example" }.assertNotNull("constructorName")
 
-                assert(ContentStyle.RowTitle in constructorName.style)
+                assertContains(constructorName.style, ContentStyle.RowTitle)
             }
         }
     }

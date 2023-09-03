@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka
 
 
@@ -16,6 +20,9 @@ package org.jetbrains.dokka
     level = RequiresOptIn.Level.ERROR,
     message = "This is an internal Dokka API not intended for public use"
 )
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD)
+@Target(
+    AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD,
+    AnnotationTarget.PROPERTY, AnnotationTarget.TYPEALIAS
+)
 @Retention(AnnotationRetention.BINARY)
 public annotation class InternalDokkaApi()

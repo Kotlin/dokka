@@ -1,23 +1,24 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.resolvers.local
 
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
-import org.jetbrains.dokka.model.DisplaySourceSet
-import org.jetbrains.dokka.model.sourceSetIDs
-import org.jetbrains.dokka.model.toDisplaySourceSet
-import org.jetbrains.dokka.model.withDescendants
+import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import java.util.*
 
-open class DokkaLocationProvider(
+public open class DokkaLocationProvider(
     pageGraphRoot: RootPageNode,
     dokkaContext: DokkaContext,
-    val extension: String = ".html"
+    public val extension: String = ".html"
 ) : DokkaBaseLocationProvider(pageGraphRoot, dokkaContext) {
-    protected open val PAGE_WITH_CHILDREN_SUFFIX = "index"
+    protected open val PAGE_WITH_CHILDREN_SUFFIX: String = "index"
 
     protected open val pathsIndex: Map<PageNode, List<String>> = IdentityHashMap<PageNode, List<String>>().apply {
         fun registerPath(page: PageNode, prefix: List<String>) {
@@ -74,7 +75,7 @@ open class DokkaLocationProvider(
                     }
             }.toMap()
 
-    override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean) =
+    override fun resolve(node: PageNode, context: PageNode?, skipExtension: Boolean): String =
         pathTo(node, context) + if (!skipExtension) extension else ""
 
     override fun resolve(dri: DRI, sourceSets: Set<DisplaySourceSet>, context: PageNode?): String? =
@@ -91,12 +92,12 @@ open class DokkaLocationProvider(
         val (dri, originalSourceSet) = driWithSourceSets
         val allSourceSets: List<Set<DisplaySourceSet>> =
             listOf(originalSourceSet) + originalSourceSet.let { oss ->
-                dokkaContext.configuration.sourceSets.filter { it.sourceSetID in oss.sourceSetIDs }
+                val ossIds = oss.computeSourceSetIds()
+                dokkaContext.configuration.sourceSets.filter { it.sourceSetID in ossIds }
                     .flatMap { it.dependentSourceSets }
                     .mapNotNull { ssid ->
                         dokkaContext.configuration.sourceSets.find { it.sourceSetID == ssid }?.toDisplaySourceSet()
                     }.map {
-                        // be careful `data DisplaySourceSet: Set<DisplaySourceSet>` but `setOf(someDisplaySourceSet) != someDisplaySourceSet`
                         setOf(it)
                     }
             }
@@ -157,13 +158,13 @@ open class DokkaLocationProvider(
 
     protected data class PageWithKind(val page: ContentPage, val kind: Kind)
 
-    companion object {
-        val reservedFilenames = setOf("index", "con", "aux", "lst", "prn", "nul", "eof", "inp", "out")
+    public companion object {
+        public val reservedFilenames: Set<String> = setOf("index", "con", "aux", "lst", "prn", "nul", "eof", "inp", "out")
 
         //Taken from: https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
         internal val reservedCharacters = setOf('|', '>', '<', '*', ':', '"', '?', '%')
 
-        fun identifierToFilename(name: String): String {
+        public fun identifierToFilename(name: String): String {
             if (name.isEmpty()) return "--root--"
             return sanitizeFileName(name, reservedFilenames, reservedCharacters)
         }

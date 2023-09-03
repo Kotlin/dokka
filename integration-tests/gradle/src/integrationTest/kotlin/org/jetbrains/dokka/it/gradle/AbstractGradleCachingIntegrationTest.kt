@@ -1,11 +1,16 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.util.GradleVersion
 import java.io.File
-import kotlin.test.*
+import kotlin.test.assertTrue
 
-abstract class AbstractGradleCachingIntegrationTest(override val versions: BuildVersions): AbstractGradleIntegrationTest() {
-    fun setupProject(project: File) {
+abstract class AbstractGradleCachingIntegrationTest : AbstractGradleIntegrationTest() {
+
+    fun setupProject(buildVersions: BuildVersions, project: File) {
         val templateProjectDir = File("projects", "it-basic")
         project.mkdirs()
         templateProjectDir.listFiles().orEmpty()
@@ -22,7 +27,7 @@ abstract class AbstractGradleCachingIntegrationTest(override val versions: Build
         }
 
         // clean local cache for each test
-        if (versions.gradleVersion >= GradleVersion.version("7.0")) {
+        if (buildVersions.gradleVersion >= GradleVersion.version("7.0")) {
             //Gradle 7.0 removed the old syntax
             project.toPath().resolve("settings.gradle.kts").toFile().appendText(
                 """
@@ -122,12 +127,13 @@ abstract class AbstractGradleCachingIntegrationTest(override val versions: Build
             "Anchors should not have hashes inside"
         )
 
-        assertEquals(
-            """#logo{background-image:url('https://upload.wikimedia.org/wikipedia/commons/9/9d/Ubuntu_logo.svg');}""",
-            stylesDir.resolve("logo-styles.css").readText().replace("\\s".toRegex(), ""),
+        assertTrue(
+            stylesDir.resolve("logo-styles.css").readText().contains(
+                "--dokka-logo-image-url: url('https://upload.wikimedia.org/wikipedia/commons/9/9d/Ubuntu_logo.svg');",
+            )
         )
         assertTrue(stylesDir.resolve("custom-style-to-add.css").isFile)
-        assertEquals("""/* custom stylesheet */""", stylesDir.resolve("custom-style-to-add.css").readText())
+        assertTrue(stylesDir.resolve("custom-style-to-add.css").readText().contains("/* custom stylesheet */"))
         allHtmlFiles().forEach { file ->
             if(file.name != "navigation.html") assertTrue("custom-style-to-add.css" in file.readText(), "custom styles not added to html file ${file.name}")
         }

@@ -1,10 +1,11 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it
 
 import org.jsoup.Jsoup
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.net.URL
 import kotlin.test.assertEquals
@@ -12,20 +13,19 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@RunWith(JUnit4::class)
-abstract class AbstractIntegrationTest {
+public abstract class AbstractIntegrationTest {
 
-    @get:Rule
-    val temporaryTestFolder = TemporaryFolder()
+    @field:TempDir
+    public lateinit var tempFolder: File
 
-    val projectDir get() = File(temporaryTestFolder.root, "project")
+    public val projectDir: File get() = File(tempFolder, "project")
 
-    fun File.allDescendentsWithExtension(extension: String): Sequence<File> =
+    public fun File.allDescendentsWithExtension(extension: String): Sequence<File> =
         this.walkTopDown().filter { it.isFile && it.extension == extension }
 
-    fun File.allHtmlFiles(): Sequence<File> = allDescendentsWithExtension("html")
+    public fun File.allHtmlFiles(): Sequence<File> = allDescendentsWithExtension("html")
 
-    fun File.allGfmFiles(): Sequence<File> = allDescendentsWithExtension("md")
+    public fun File.allGfmFiles(): Sequence<File> = allDescendentsWithExtension("md")
 
     protected fun assertContainsNoErrorClass(file: File) {
         val fileText = file.readText()

@@ -1,11 +1,15 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package signatures
 
 import matchers.content.assertNode
 import matchers.content.hasExactText
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.firstMemberOfType
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.testApi.logger.TestLogger
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.LoggingLevel
 import org.junit.jupiter.params.ParameterizedTest

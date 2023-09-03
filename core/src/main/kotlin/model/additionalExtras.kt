@@ -1,11 +1,18 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.model
 
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.properties.ExtraProperty
 import org.jetbrains.dokka.model.properties.MergeStrategy
 
-class AdditionalModifiers(val content: SourceSetDependent<Set<ExtraModifiers>>) : ExtraProperty<Documentable> {
-    companion object : ExtraProperty.Key<Documentable, AdditionalModifiers> {
+public class AdditionalModifiers(
+    public val content: SourceSetDependent<Set<ExtraModifiers>>
+) : ExtraProperty<Documentable> {
+
+    public companion object : ExtraProperty.Key<Documentable, AdditionalModifiers> {
         override fun mergeStrategyFor(
             left: AdditionalModifiers,
             right: AdditionalModifiers
@@ -15,23 +22,23 @@ class AdditionalModifiers(val content: SourceSetDependent<Set<ExtraModifiers>>) 
     override fun equals(other: Any?): Boolean =
         if (other is AdditionalModifiers) other.content == content else false
 
-    override fun hashCode() = content.hashCode()
+    override fun hashCode(): Int = content.hashCode()
     override val key: ExtraProperty.Key<Documentable, *> = AdditionalModifiers
 }
 
-fun SourceSetDependent<Set<ExtraModifiers>>.toAdditionalModifiers() = AdditionalModifiers(this)
+public fun SourceSetDependent<Set<ExtraModifiers>>.toAdditionalModifiers(): AdditionalModifiers = AdditionalModifiers(this)
 
-data class Annotations(
+public data class Annotations(
     private val myContent: SourceSetDependent<List<Annotation>>
 ) : ExtraProperty<AnnotationTarget> {
-    companion object : ExtraProperty.Key<AnnotationTarget, Annotations> {
+    public companion object : ExtraProperty.Key<AnnotationTarget, Annotations> {
         override fun mergeStrategyFor(left: Annotations, right: Annotations): MergeStrategy<AnnotationTarget> =
             MergeStrategy.Replace(Annotations(left.myContent + right.myContent))
     }
 
     override val key: ExtraProperty.Key<AnnotationTarget, *> = Annotations
 
-    data class Annotation(
+    public data class Annotation(
         val dri: DRI,
         val params: Map<String, AnnotationParameterValue>,
         val mustBeDocumented: Boolean = false,
@@ -60,57 +67,75 @@ data class Annotations(
             else Pair(key, withoutFileLevel)
         }.toMap()
 
-    enum class AnnotationScope {
+    public enum class AnnotationScope {
         DIRECT, FILE, GETTER, SETTER
     }
 }
 
-fun SourceSetDependent<List<Annotations.Annotation>>.toAnnotations() = Annotations(this)
+public fun SourceSetDependent<List<Annotations.Annotation>>.toAnnotations(): Annotations = Annotations(this)
 
-sealed class AnnotationParameterValue
-data class AnnotationValue(val annotation: Annotations.Annotation) : AnnotationParameterValue()
-data class ArrayValue(val value: List<AnnotationParameterValue>) : AnnotationParameterValue()
-data class EnumValue(val enumName: String, val enumDri: DRI) : AnnotationParameterValue()
-data class ClassValue(val className: String, val classDRI: DRI) : AnnotationParameterValue()
-abstract class LiteralValue : AnnotationParameterValue() {
-    abstract fun text() : String
+public sealed class AnnotationParameterValue
+
+public data class AnnotationValue(val annotation: Annotations.Annotation) : AnnotationParameterValue()
+
+public data class ArrayValue(val value: List<AnnotationParameterValue>) : AnnotationParameterValue()
+
+public data class EnumValue(val enumName: String, val enumDri: DRI) : AnnotationParameterValue()
+
+public data class ClassValue(val className: String, val classDRI: DRI) : AnnotationParameterValue()
+
+public abstract class LiteralValue : AnnotationParameterValue() {
+    public abstract fun text() : String
 }
-data class IntValue(val value: Int) : LiteralValue() {
+public data class IntValue(val value: Int) : LiteralValue() {
     override fun text(): String = value.toString()
 }
 
-data class LongValue(val value: Long) : LiteralValue() {
+public data class LongValue(val value: Long) : LiteralValue() {
     override fun text(): String = value.toString()
 }
-data class FloatValue(val value: Float) : LiteralValue() {
+
+public data class FloatValue(val value: Float) : LiteralValue() {
     override fun text(): String = value.toString()
 }
-data class DoubleValue(val value: Double) : LiteralValue() {
+
+public data class DoubleValue(val value: Double) : LiteralValue() {
     override fun text(): String = value.toString()
 }
-object NullValue : LiteralValue() {
+
+public object NullValue : LiteralValue() {
     override fun text(): String = "null"
 }
-data class BooleanValue(val value: Boolean) : LiteralValue() {
+
+public data class BooleanValue(val value: Boolean) : LiteralValue() {
     override fun text(): String = value.toString()
 }
-data class StringValue(val value: String) : LiteralValue() {
+
+public data class StringValue(val value: String) : LiteralValue() {
     override fun text(): String = value
     override fun toString(): String = value
 }
 
-
-object PrimaryConstructorExtra : ExtraProperty<DFunction>, ExtraProperty.Key<DFunction, PrimaryConstructorExtra> {
+public object PrimaryConstructorExtra : ExtraProperty<DFunction>, ExtraProperty.Key<DFunction, PrimaryConstructorExtra> {
     override val key: ExtraProperty.Key<DFunction, *> = this
 }
 
-data class ActualTypealias(val underlyingType: SourceSetDependent<Bound>) : ExtraProperty<DClasslike> {
-    companion object : ExtraProperty.Key<DClasslike, ActualTypealias> {
+public data class ActualTypealias(
+    val typeAlias: DTypeAlias
+) : ExtraProperty<DClasslike> {
+
+    @Suppress("unused")
+    @Deprecated(message = "It can be removed soon. Use [typeAlias.underlyingType]", ReplaceWith("this.typeAlias.underlyingType"))
+    val underlyingType: SourceSetDependent<Bound>
+        get() = typeAlias.underlyingType
+
+    public companion object : ExtraProperty.Key<DClasslike, ActualTypealias> {
         override fun mergeStrategyFor(
             left: ActualTypealias,
             right: ActualTypealias
-        ) =
-            MergeStrategy.Replace(ActualTypealias(left.underlyingType + right.underlyingType))
+        ): MergeStrategy<DClasslike> = MergeStrategy.Fail {
+            throw IllegalStateException("Adding [ActualTypealias] should be after merging all documentables")
+        }
     }
 
     override val key: ExtraProperty.Key<DClasslike, ActualTypealias> = ActualTypealias

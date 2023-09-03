@@ -1,7 +1,12 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.maven
 
 import org.apache.maven.plugins.annotations.Parameter
 import org.jetbrains.dokka.ExternalDocumentationLink
+import org.jetbrains.dokka.ExternalDocumentationLinkImpl
 import java.net.URL
 
 /**
@@ -26,7 +31,7 @@ import java.net.URL
  * </externalDocumentationLinks>
  * ```
  */
-class ExternalDocumentationLinkBuilder {
+public class ExternalDocumentationLinkBuilder {
 
     /**
      * Root URL of documentation to link with. **Must** contain a trailing slash.
@@ -44,7 +49,7 @@ class ExternalDocumentationLinkBuilder {
      * ```
      */
     @Parameter(name = "url", required = true)
-    var url: URL? = null
+    public var url: URL? = null
 
     /**
      * Specifies the exact location of a `package-list` instead of relying on Dokka
@@ -57,7 +62,7 @@ class ExternalDocumentationLinkBuilder {
      * ```
      */
     @Parameter(name = "packageListUrl", required = true)
-    var packageListUrl: URL? = null
+    public var packageListUrl: URL? = null
 
-    fun build() = ExternalDocumentationLink(url, packageListUrl)
+    public fun build(): ExternalDocumentationLinkImpl = ExternalDocumentationLink(url, packageListUrl)
 }

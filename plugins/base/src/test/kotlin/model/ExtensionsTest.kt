@@ -1,10 +1,18 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package model
 
 import org.jetbrains.dokka.base.transformers.documentables.CallableExtensions
-import org.jetbrains.dokka.model.*
-import org.junit.jupiter.api.Test
-import utils.AbstractModelTest
+import org.jetbrains.dokka.model.DClass
+import org.jetbrains.dokka.model.DFunction
+import org.jetbrains.dokka.model.DInterface
+import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.properties.WithExtraProperties
+import utils.AbstractModelTest
+import kotlin.test.Test
+import utils.UsingJDK
 
 class ExtensionsTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "classes") {
     private fun <T : WithExtraProperties<R>, R : Documentable> T.checkExtension(name: String = "extension") =
@@ -63,6 +71,7 @@ class ExtensionsTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "cl
         }
     }
 
+    @UsingJDK
     @Test
     fun `should be extension for external classes`() {
         inlineModelTest(

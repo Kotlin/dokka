@@ -1,16 +1,22 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package translators
 
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.childrenOfType
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.firstChildOfType
 import org.jetbrains.dokka.model.firstMemberOfType
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.*
 import utils.text
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import utils.JavaCode
 
+@JavaCode
 class JavadocParserTest : BaseAbstractTest() {
 
     private fun performJavadocTest(testOperation: (DModule) -> Unit) {

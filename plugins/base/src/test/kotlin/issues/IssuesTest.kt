@@ -1,10 +1,14 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package issues
 
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DFunction
-import org.junit.jupiter.api.Test
 import utils.AbstractModelTest
 import utils.name
+import kotlin.test.Test
 
 class IssuesTest : AbstractModelTest("/src/main/kotlin/issues/Test.kt", "issues") {
 

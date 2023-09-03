@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package renderers.gfm
 
 import org.jetbrains.dokka.DokkaSourceSetID
@@ -5,10 +9,11 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.ContentDivergentGroup
-import org.junit.jupiter.api.Test
 import renderers.testPage
 import testApi.testRunner.defaultSourceSet
 import java.io.File
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class DivergentTest : GfmRenderingOnlyTestBase() {
     private val js = defaultSourceSet.copy(
@@ -47,7 +52,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
                         |a""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -67,7 +72,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
                         |a""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -104,7 +109,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
                         |c""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -138,7 +143,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
                         |c""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -191,7 +196,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
                         |e""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -260,7 +265,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
                         |e+""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -295,7 +300,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
                         |b""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -330,7 +335,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
                         |ab+""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -373,7 +378,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
                         |ab+""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -421,7 +426,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
                         |ab+""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -495,6 +500,6 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
                         |e+""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 }

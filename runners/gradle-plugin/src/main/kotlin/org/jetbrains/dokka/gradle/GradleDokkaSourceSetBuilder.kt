@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.gradle
 
 import groovy.lang.Closure
@@ -393,7 +397,7 @@ open class GradleDokkaSourceSetBuilder(
      *
      * @see [GradleSourceLinkBuilder] for details.
      */
-    @Suppress("DEPRECATION") // TODO [beresnev] ConfigureUtil will be removed in Gradle 8
+    @Suppress("DEPRECATION")
     fun sourceLink(c: Closure<in GradleSourceLinkBuilder>) {
         val configured = org.gradle.util.ConfigureUtil.configure(c, GradleSourceLinkBuilder(project))
         sourceLinks.add(configured)
@@ -415,7 +419,7 @@ open class GradleDokkaSourceSetBuilder(
      *
      * @see [GradlePackageOptionsBuilder] for details.
      */
-    @Suppress("DEPRECATION") // TODO [beresnev] ConfigureUtil will be removed in Gradle 8
+    @Suppress("DEPRECATION")
     fun perPackageOption(c: Closure<in GradlePackageOptionsBuilder>) {
         val configured = org.gradle.util.ConfigureUtil.configure(c, GradlePackageOptionsBuilder(project))
         perPackageOptions.add(configured)
@@ -437,7 +441,7 @@ open class GradleDokkaSourceSetBuilder(
      *
      * @see [GradleExternalDocumentationLinkBuilder] for details.
      */
-    @Suppress("DEPRECATION") // TODO [beresnev] ConfigureUtil will be removed in Gradle 8
+    @Suppress("DEPRECATION")
     fun externalDocumentationLink(c: Closure<in GradleExternalDocumentationLinkBuilder>) {
         val link = org.gradle.util.ConfigureUtil.configure(c, GradleExternalDocumentationLinkBuilder(project))
         externalDocumentationLinks.add(link)

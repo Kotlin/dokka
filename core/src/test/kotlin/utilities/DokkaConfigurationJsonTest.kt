@@ -1,6 +1,13 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package utilities
 
-import org.jetbrains.dokka.*
+import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.DokkaSourceSetID
+import org.jetbrains.dokka.DokkaSourceSetImpl
+import org.jetbrains.dokka.toCompactJsonString
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals

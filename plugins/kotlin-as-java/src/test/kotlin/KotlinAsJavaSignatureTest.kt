@@ -1,13 +1,17 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinAsJavaPlugin
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.jdk
-import org.junit.jupiter.api.Test
 import signatures.firstSignature
 import signatures.renderedContent
 import signatures.signature
 import utils.*
+import kotlin.test.Test
 
 class KotlinAsJavaSignatureTest : BaseAbstractTest() {
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.javadoc.pages
 
 import org.jetbrains.dokka.links.DRI
@@ -5,11 +9,11 @@ import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 
-enum class JavadocContentKind : Kind {
+public enum class JavadocContentKind : Kind {
     AllClasses, OverviewSummary, PackageSummary, Class, OverviewTree, PackageTree, IndexPage
 }
 
-abstract class JavadocContentNode(
+public abstract class JavadocContentNode(
     dri: Set<DRI>,
     kind: Kind,
     override val sourceSets: Set<DisplaySourceSet>
@@ -20,17 +24,17 @@ abstract class JavadocContentNode(
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentNode = this
 }
 
-interface JavadocList {
-    val tabTitle: String
-    val colTitle: String
-    val children: List<JavadocListEntry>
+public interface JavadocList {
+    public val tabTitle: String
+    public val colTitle: String
+    public val children: List<JavadocListEntry>
 }
 
-interface JavadocListEntry {
-    val stringTag: String
+public interface JavadocListEntry {
+    public val stringTag: String
 }
 
-data class EmptyNode(
+public data class EmptyNode(
     val dri: DRI,
     val kind: Kind,
     override val sourceSets: Set<DisplaySourceSet>,
@@ -47,15 +51,15 @@ data class EmptyNode(
     override fun hasAnyContent(): Boolean = false
 }
 
-data class JavadocContentGroup(
+public data class JavadocContentGroup(
     val dri: Set<DRI>,
     val kind: Kind,
     override val sourceSets: Set<DisplaySourceSet>,
     override val children: List<JavadocContentNode>
 ) : JavadocContentNode(dri, kind, sourceSets) {
 
-    companion object {
-        operator fun invoke(
+    public companion object {
+        public operator fun invoke(
             dri: Set<DRI>,
             kind: Kind,
             sourceSets: Set<DisplaySourceSet>,
@@ -72,11 +76,13 @@ data class JavadocContentGroup(
         copy(sourceSets = sourceSets)
 }
 
-class JavaContentGroupBuilder(val sourceSets: Set<DisplaySourceSet>) {
-    val list = mutableListOf<JavadocContentNode>()
+public class JavaContentGroupBuilder(
+    public val sourceSets: Set<DisplaySourceSet>
+) {
+    public val list: MutableList<JavadocContentNode> = mutableListOf<JavadocContentNode>()
 }
 
-data class TitleNode(
+public data class TitleNode(
     val title: String,
     val subtitle: List<ContentNode>,
     val version: String?,
@@ -93,7 +99,7 @@ data class TitleNode(
         copy(sourceSets = sourceSets)
 }
 
-fun JavaContentGroupBuilder.title(
+public fun JavaContentGroupBuilder.title(
     title: String,
     subtitle: List<ContentNode>,
     version: String? = null,
@@ -104,7 +110,7 @@ fun JavaContentGroupBuilder.title(
     list.add(TitleNode(title, subtitle, version, parent, dri, kind, sourceSets))
 }
 
-data class RootListNode(
+public data class RootListNode(
     val entries: List<LeafListNode>,
     val dri: Set<DRI>,
     val kind: Kind,
@@ -117,7 +123,7 @@ data class RootListNode(
         copy(sourceSets = sourceSets)
 }
 
-data class LeafListNode(
+public data class LeafListNode(
     val tabTitle: String,
     val colTitle: String,
     val entries: List<JavadocListEntry>,
@@ -131,7 +137,7 @@ data class LeafListNode(
 }
 
 
-fun JavaContentGroupBuilder.rootList(
+public fun JavaContentGroupBuilder.rootList(
     dri: Set<DRI>,
     kind: Kind,
     rootList: List<JavadocList>
@@ -142,7 +148,7 @@ fun JavaContentGroupBuilder.rootList(
     list.add(RootListNode(children, dri, kind, sourceSets))
 }
 
-fun JavaContentGroupBuilder.leafList(
+public fun JavaContentGroupBuilder.leafList(
     dri: Set<DRI>,
     kind: Kind,
     leafList: JavadocList
@@ -150,36 +156,41 @@ fun JavaContentGroupBuilder.leafList(
     list.add(LeafListNode(leafList.tabTitle, leafList.colTitle, leafList.children, dri, kind, sourceSets))
 }
 
-fun JavadocList(tabTitle: String, colTitle: String, children: List<JavadocListEntry>) = object : JavadocList {
-    override val tabTitle = tabTitle
-    override val colTitle = colTitle
-    override val children = children
+public fun JavadocList(tabTitle: String, colTitle: String, children: List<JavadocListEntry>): JavadocList {
+    return object : JavadocList {
+        override val tabTitle = tabTitle
+        override val colTitle = colTitle
+        override val children = children
+    }
 }
 
-class LinkJavadocListEntry(
-    val name: String,
-    val dri: Set<DRI>,
-    val kind: Kind = ContentKind.Symbol,
-    val sourceSets: Set<DisplaySourceSet>
-) :
-    JavadocListEntry {
+public class LinkJavadocListEntry(
+    public val name: String,
+    public val dri: Set<DRI>,
+    public val kind: Kind = ContentKind.Symbol,
+    public val sourceSets: Set<DisplaySourceSet>
+) : JavadocListEntry {
     override val stringTag: String
-        get() = if (builtString == null)
-            throw IllegalStateException("stringTag for LinkJavadocListEntry accessed before build() call")
-        else builtString!!
+        get() {
+            return if (builtString == null) {
+                throw IllegalStateException("stringTag for LinkJavadocListEntry accessed before build() call")
+            } else {
+                builtString!!
+            }
+        }
 
     private var builtString: String? = null
 
-    fun build(body: (String, Set<DRI>, Kind, List<DisplaySourceSet>) -> String) {
+    public fun build(body: (String, Set<DRI>, Kind, List<DisplaySourceSet>) -> String) {
         builtString = body(name, dri, kind, sourceSets.toList())
     }
 }
 
-data class RowJavadocListEntry(val link: LinkJavadocListEntry, val doc: List<ContentNode>) : JavadocListEntry {
+public data class RowJavadocListEntry(val link: LinkJavadocListEntry, val doc: List<ContentNode>) : JavadocListEntry {
     override val stringTag: String = ""
 }
 
-data class JavadocSignatureContentNode(
+public data class JavadocSignatureContentNode(
     val dri: DRI,
     val kind: Kind = ContentKind.Symbol,
     val annotations: ContentNode?,

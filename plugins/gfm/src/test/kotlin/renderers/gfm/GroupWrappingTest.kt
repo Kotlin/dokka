@@ -1,9 +1,14 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package renderers.gfm
 
 import org.jetbrains.dokka.gfm.renderer.CommonmarkRenderer
 import org.jetbrains.dokka.pages.TextStyle
-import org.junit.jupiter.api.Test
-import renderers.*
+import renderers.testPage
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class GroupWrappingTest : GfmRenderingOnlyTestBase() {
 
@@ -21,7 +26,7 @@ class GroupWrappingTest : GfmRenderingOnlyTestBase() {
                         |abc""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -40,7 +45,7 @@ class GroupWrappingTest : GfmRenderingOnlyTestBase() {
                         |c""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -59,7 +64,7 @@ class GroupWrappingTest : GfmRenderingOnlyTestBase() {
                         |c""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 
     @Test
@@ -85,6 +90,6 @@ class GroupWrappingTest : GfmRenderingOnlyTestBase() {
                         |d""".trimMargin()
 
         CommonmarkRenderer(context).render(page)
-        assert(renderedContent == expect)
+        assertEquals(expect, renderedContent)
     }
 }

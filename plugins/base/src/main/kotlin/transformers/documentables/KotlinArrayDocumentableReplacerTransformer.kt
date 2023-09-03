@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.Platform
@@ -5,8 +9,9 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.plugability.DokkaContext
 
-class KotlinArrayDocumentableReplacerTransformer(context: DokkaContext):
-    DocumentableReplacerTransformer(context) {
+public class KotlinArrayDocumentableReplacerTransformer(
+    context: DokkaContext
+): DocumentableReplacerTransformer(context) {
 
     private fun Documentable.isJVM() =
         sourceSets.any{ it.analysisPlatform == Platform.jvm }

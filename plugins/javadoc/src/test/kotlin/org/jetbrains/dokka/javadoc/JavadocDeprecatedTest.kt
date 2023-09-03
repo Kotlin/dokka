@@ -1,9 +1,12 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.javadoc
 
 import org.jetbrains.dokka.javadoc.pages.DeprecatedPage
 import org.jetbrains.dokka.javadoc.renderer.TemplateMap
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
@@ -12,7 +15,7 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
     fun `generates correct number of sections`() {
         testDeprecatedPageTemplateMaps { templateMap ->
             @Suppress("UNCHECKED_CAST")
-            Assertions.assertEquals(6, (templateMap["sections"] as List<TemplateMap>).size)
+            assertEquals(6, (templateMap["sections"] as List<TemplateMap>).size)
         }
     }
 
@@ -20,7 +23,7 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
     fun `finds correct number of element for removal`() {
         testDeprecatedPageTemplateMaps { templateMap ->
             val map = templateMap.section("For Removal")
-            Assertions.assertEquals(1, map.elements().size)
+            assertEquals(1, map.elements().size)
         }
     }
 
@@ -28,7 +31,7 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
     fun `finds correct number of deprecated constructors`() {
         testDeprecatedPageTemplateMaps { templateMap ->
             val map = templateMap.section("Constructors")
-            Assertions.assertEquals(1, map.elements().size)
+            assertEquals(1, map.elements().size)
         }
     }
 
@@ -36,7 +39,7 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
     fun `finds correct number of deprecated classes`() {
         testDeprecatedPageTemplateMaps { templateMap ->
             val map = templateMap.section("Classes")
-            Assertions.assertEquals(1, map.elements().size)
+            assertEquals(1, map.elements().size)
         }
     }
 
@@ -44,7 +47,7 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
     fun `finds correct number of deprecated enums`() {
         testDeprecatedPageTemplateMaps { templateMap ->
             val map = templateMap.section("Enums")
-            Assertions.assertEquals(1, map.elements().size)
+            assertEquals(1, map.elements().size)
         }
     }
 
@@ -52,7 +55,7 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
     fun `finds correct number of deprecated exceptions`() {
         testDeprecatedPageTemplateMaps { templateMap ->
             val map = templateMap.section("Exceptions")
-            Assertions.assertEquals(2, map.elements().size)
+            assertEquals(2, map.elements().size)
         }
     }
 
@@ -64,7 +67,7 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
                 AnnotationTarget.ANNOTATION_CLASS::class.java.methods.any { it.name == "describeConstable" }
 
             val map = templateMap.section("Methods")
-            Assertions.assertEquals(if (hasAdditionalFunction()) 5 else 4, map.elements().size)
+            assertEquals(if (hasAdditionalFunction()) 5 else 4, map.elements().size)
         }
     }
 
@@ -88,9 +91,9 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
         testDeprecatedPageTemplateMaps { templateMap ->
             val map = templateMap.section("Enums")
             map.elements().first().let { element ->
-                Assertions.assertEquals("package1.ClassCEnum", element["name"])
-                Assertions.assertEquals("package1/ClassCEnum.html", element["address"])
-                Assertions.assertEquals("Documentation for ClassCEnum", element["description"])
+                assertEquals("package1.ClassCEnum", element["name"])
+                assertEquals("package1/ClassCEnum.html", element["address"])
+                assertEquals("Documentation for ClassCEnum", element["description"])
             }
         }
     }

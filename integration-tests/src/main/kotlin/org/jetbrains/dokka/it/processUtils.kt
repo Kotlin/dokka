@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it
 
 import kotlinx.coroutines.CompletableDeferred
@@ -5,12 +9,12 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlin.concurrent.thread
 
-class ProcessResult(
-    val exitCode: Int,
-    val output: String
+public class ProcessResult(
+    public val exitCode: Int,
+    public val output: String
 )
 
-fun Process.awaitProcessResult() = runBlocking {
+public fun Process.awaitProcessResult(): ProcessResult = runBlocking {
     val exitCode = async { awaitExitCode() }
     val output = async { awaitOutput() }
     ProcessResult(

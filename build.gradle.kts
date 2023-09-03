@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.jetbrains.ValidatePublications
 import org.jetbrains.publicationChannels
 
@@ -7,7 +11,6 @@ plugins {
     id("org.jetbrains.conventions.dokka")
 
     alias(libs.plugins.kotlinx.binaryCompatibilityValidator)
-    alias(libs.plugins.gradlePublish)
     alias(libs.plugins.nexusPublish)
 }
 
@@ -40,10 +43,6 @@ apiValidation {
     ignoredProjects += setOf(
         // NAME                    PATH
         "frontend",            // :plugins:base:frontend
-
-        "kotlin-analysis",     // :kotlin-analysis
-        "compiler-dependency", // :kotlin-analysis:compiler-dependency
-        "intellij-dependency", // :kotlin-analysis:intellij-dependency
 
         "integration-tests",   // :integration-tests
         "gradle",              // :integration-tests:gradle

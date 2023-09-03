@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.allModulesPage.templates
 
 import matchers.content.*
@@ -6,37 +10,37 @@ import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentResolvedLink
 import org.jetbrains.dokka.pages.MultimoduleRootPageNode
-import org.junit.Rule
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.io.TempDir
+import java.io.File
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class MultiModuleDocumentationTest : MultiModuleAbstractTest() {
-    @get:Rule
-    val folder: TemporaryFolder = TemporaryFolder()
+
+    @field:TempDir
+    lateinit var tempDir: File
 
     val documentationContent = """
         # Sample project
         Sample documentation with [external link](https://www.google.pl)
     """.trimIndent()
 
-    @BeforeEach
+    @BeforeTest
     fun setup() {
-        folder.create()
-        folder.root.resolve("README.md").writeText(documentationContent)
+        tempDir.resolve("README.md").writeText(documentationContent)
     }
 
-    @AfterEach
+    @AfterTest
     fun teardown(){
-        folder.root.resolve("README.md").delete()
+        tempDir.resolve("README.md").delete()
     }
 
     @Test
     fun `documentation should be included in all modules page`() {
         val configuration = dokkaConfiguration {
-            includes = listOf(folder.root.resolve("README.md"))
+            includes = listOf(tempDir.resolve("README.md"))
         }
 
         testFromData(configuration) {

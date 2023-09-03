@@ -1,19 +1,22 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.runners.Parameterized
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.*
+import kotlin.test.BeforeTest
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * This tests mainly checks if linking to relocated methods with no package works
  */
-class MultiModule1IntegrationTest(override val versions: BuildVersions) : AbstractGradleIntegrationTest() {
-    companion object {
-        @get:JvmStatic
-        @get:Parameterized.Parameters(name = "{0}")
-        val versions = TestedVersions.ALL_SUPPORTED
-    }
+class MultiModule1IntegrationTest : AbstractGradleIntegrationTest() {
 
     @BeforeTest
     fun prepareProjectFiles() {
@@ -25,9 +28,11 @@ class MultiModule1IntegrationTest(override val versions: BuildVersions) : Abstra
         File(templateProjectDir, "second").copyRecursively(File(projectDir, "second"))
     }
 
-    @Test
-    fun execute() {
+    @ParameterizedTest(name = "{0}")
+    @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
+    fun execute(buildVersions: BuildVersions) {
         val result = createGradleRunner(
+            buildVersions,
             ":second:dokkaHtml",
             "-i", "-s"
         ).buildRelaxed()

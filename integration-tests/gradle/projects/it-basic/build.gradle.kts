@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.dokka.gradle.kotlinSourceSet
 import org.jetbrains.dokka.base.DokkaBase
@@ -16,7 +20,7 @@ buildscript {
     }
 }
 
-version = "1.8.20-SNAPSHOT"
+version = "1.9.0-SNAPSHOT"
 
 apply(from = "../template.root.gradle.kts")
 

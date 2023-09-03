@@ -1,18 +1,24 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package markdown
 
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.WithGenerics
 import org.jetbrains.dokka.model.dfs
+import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.MemberPageNode
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.links.*
-import org.jetbrains.dokka.model.doc.*
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import utils.UsingJDK
 
 class LinkTest : BaseAbstractTest() {
+    @UsingJDK
     @Test
     fun linkToClassLoader() {
         val configuration = dokkaConfiguration {

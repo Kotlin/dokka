@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.maven
 
 import org.apache.maven.plugins.annotations.Parameter
@@ -27,7 +31,7 @@ import org.jetbrains.dokka.DokkaDefaults
  * </configuration>
  * ```
  */
-class PackageOptions : DokkaConfiguration.PackageOptions {
+public class PackageOptions : DokkaConfiguration.PackageOptions {
 
     /**
      * Regular expression that is used to match the package.

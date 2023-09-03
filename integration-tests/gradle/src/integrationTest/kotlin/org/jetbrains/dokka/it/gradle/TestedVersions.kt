@@ -1,8 +1,20 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it.gradle
+
+import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.ArgumentsProvider
+import java.util.stream.Stream
+
+internal class LatestTestedVersionsArgumentsProvider : TestedVersionsArgumentsProvider(listOf(TestedVersions.LATEST))
+internal open class AllSupportedTestedVersionsArgumentsProvider : TestedVersionsArgumentsProvider(TestedVersions.ALL_SUPPORTED)
 
 internal object TestedVersions {
 
-    val LATEST = BuildVersions("7.4.2", "1.8.20")
+    val LATEST = BuildVersions("7.6.2", "1.9.0")
 
     /**
      * All supported Gradle/Kotlin versions, including [LATEST]
@@ -12,10 +24,10 @@ internal object TestedVersions {
     val ALL_SUPPORTED =
         BuildVersions.permutations(
             gradleVersions = listOf("6.9"),
-            kotlinVersions = listOf("1.7.20", "1.6.21", "1.5.31", "1.4.32"),
+            kotlinVersions = listOf("1.8.20", "1.7.20", "1.6.21", "1.5.31"),
         ) + BuildVersions.permutations(
             gradleVersions = listOf(*ifExhaustive("7.0", "6.1.1")),
-            kotlinVersions = listOf(*ifExhaustive("1.7.0", "1.6.0", "1.5.0", "1.4.0"))
+            kotlinVersions = listOf(*ifExhaustive( "1.8.0", "1.7.0", "1.6.0", "1.5.0"))
         ) + LATEST
 
     /**
@@ -46,6 +58,13 @@ internal object TestedVersions {
         "1.7.20" to "18.2.0-pre.391",
         "1.8.0" to "18.2.0-pre.467",
         "1.8.10" to "18.2.0-pre.490",
-        "1.8.20" to "18.2.0-pre.546"
+        "1.8.20" to "18.2.0-pre.546",
+        "1.9.0" to "18.2.0-pre.597",
     )
+}
+
+abstract class TestedVersionsArgumentsProvider(private val buildVersions: List<BuildVersions>) : ArgumentsProvider {
+    override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
+        return buildVersions.stream().map { Arguments.of(it) }
+    }
 }

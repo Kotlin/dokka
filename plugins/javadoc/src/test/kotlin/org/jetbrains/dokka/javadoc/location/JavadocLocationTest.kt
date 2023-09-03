@@ -1,19 +1,25 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.javadoc.location
 
-import org.jetbrains.dokka.*
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.javadoc.JavadocPlugin
 import org.jetbrains.dokka.javadoc.pages.JavadocClasslikePageNode
+import org.jetbrains.dokka.javadoc.pages.JavadocFunctionNode
 import org.jetbrains.dokka.javadoc.pages.JavadocPackagePageNode
 import org.jetbrains.dokka.javadoc.renderer.JavadocContentToHtmlTranslator
-import org.jetbrains.dokka.javadoc.JavadocPlugin
+import org.jetbrains.dokka.jdk
+import org.jetbrains.dokka.kotlinStdlib
 import org.jetbrains.dokka.model.firstChildOfType
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.javadoc.pages.JavadocFunctionNode
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.assertEquals
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class JavadocLocationTest : BaseAbstractTest() {
 

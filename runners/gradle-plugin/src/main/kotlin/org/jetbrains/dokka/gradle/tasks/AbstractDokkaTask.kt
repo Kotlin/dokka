@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 @file:Suppress("PackageDirectoryMismatch")
 
 package org.jetbrains.dokka.gradle
@@ -23,6 +27,7 @@ import org.jetbrains.dokka.plugability.DokkaPlugin
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.BiConsumer
 import kotlin.reflect.full.createInstance
+import kotlin.reflect.full.memberFunctions
 
 @DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
 abstract class AbstractDokkaTask : DefaultTask() {
@@ -232,6 +237,11 @@ abstract class AbstractDokkaTask : DefaultTask() {
 
     init {
         group = JavaBasePlugin.DOCUMENTATION_GROUP
+        // notCompatibleWithConfigurationCache was introduced in Gradle 7.4
+        val containsNotCompatibleWithConfigurationCache = this::class.memberFunctions.any { it.name == "notCompatibleWithConfigurationCache" && it.parameters.firstOrNull()?.name == "reason" }
+        if (containsNotCompatibleWithConfigurationCache) {
+            super.notCompatibleWithConfigurationCache("Dokka tasks are not yet compatible with the Gradle configuration cache. See https://github.com/Kotlin/dokka/issues/1217")
+        }
     }
 
     internal fun buildPluginsConfiguration(): List<PluginConfigurationImpl> {

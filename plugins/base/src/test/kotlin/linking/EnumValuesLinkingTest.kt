@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package linking
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
@@ -7,16 +11,17 @@ import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.DocumentationLink
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.ContentPage
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import org.jsoup.Jsoup
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
-import java.nio.file.Paths
 import utils.TestOutputWriterPlugin
-import kotlin.AssertionError
+import java.nio.file.Paths
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import utils.OnlyDescriptors
 
 class EnumValuesLinkingTest : BaseAbstractTest() {
 
+    @OnlyDescriptors // TODO
     @Test
     fun `check if enum values are correctly linked`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -80,13 +85,13 @@ class EnumValuesLinkingTest : BaseAbstractTest() {
                 }
 
                 assertEquals(
-                    javaLinker.documentation.values.single().children[0].children[1].children[1].safeAs<DocumentationLink>()?.dri,
-                    kotlinLinker.documentation.values.single().children[0].children[0].children[5].safeAs<DocumentationLink>()?.dri
+                    javaLinker.documentation.values.single().children[0].children[1].children[1].let { it as? DocumentationLink }?.dri,
+                    kotlinLinker.documentation.values.single().children[0].children[0].children[5].let { it as? DocumentationLink }?.dri
                 )
 
                 assertEquals(
-                    javaLinker.documentation.values.single().children[0].children[2].children[1].safeAs<DocumentationLink>()?.dri,
-                    kotlinLinker.documentation.values.single().children[0].children[0].children[9].safeAs<DocumentationLink>()?.dri
+                    javaLinker.documentation.values.single().children[0].children[2].children[1].let { it as? DocumentationLink }?.dri,
+                    kotlinLinker.documentation.values.single().children[0].children[0].children[9].let { it as? DocumentationLink }?.dri
                 )
             }
 

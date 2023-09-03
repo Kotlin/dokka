@@ -1,24 +1,27 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.javadoc.translators.documentables
 
-import org.jetbrains.dokka.javadoc.pages.JavadocSignatureContentNode
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder
+import org.jetbrains.dokka.javadoc.pages.JavadocSignatureContentNode
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.utilities.DokkaLogger
-import java.lang.IllegalStateException
 
-class JavadocPageContentBuilder(
+public class JavadocPageContentBuilder(
     commentsConverter: CommentsToContentConverter,
     signatureProvider: SignatureProvider,
     logger: DokkaLogger
 ) : PageContentBuilder(commentsConverter, signatureProvider, logger) {
 
-    fun PageContentBuilder.DocumentableContentBuilder.javadocGroup(
+    public fun PageContentBuilder.DocumentableContentBuilder.javadocGroup(
         dri: DRI = mainDRI.first(),
         sourceSets: Set<DokkaConfiguration.DokkaSourceSet> = mainSourcesetData,
         extra: PropertyContainer<ContentNode> = mainExtra,
@@ -31,31 +34,31 @@ class JavadocPageContentBuilder(
         ).apply(block).build()
     }
 
-    open inner class JavadocContentBuilder(
+    public open inner class JavadocContentBuilder(
         private val mainDri: DRI,
         private val mainExtra: PropertyContainer<ContentNode>,
         private val mainSourceSet: Set<DokkaConfiguration.DokkaSourceSet>,
     ) {
-        var annotations: ContentNode? = null
-        var modifiers: ContentNode? = null
-        var signatureWithoutModifiers: ContentNode? = null
-        var supertypes: ContentNode? = null
+        public var annotations: ContentNode? = null
+        public var modifiers: ContentNode? = null
+        public var signatureWithoutModifiers: ContentNode? = null
+        public var supertypes: ContentNode? = null
 
-        fun annotations(block: PageContentBuilder.DocumentableContentBuilder.() -> Unit) {
+        public fun annotations(block: PageContentBuilder.DocumentableContentBuilder.() -> Unit) {
             val built = buildContentForBlock(block)
             if(built.hasAnyContent()) annotations = built
         }
 
-        fun modifiers(block: PageContentBuilder.DocumentableContentBuilder.() -> Unit) {
+        public fun modifiers(block: PageContentBuilder.DocumentableContentBuilder.() -> Unit) {
             val built = buildContentForBlock(block)
             if(built.hasAnyContent()) modifiers = built
         }
 
-        fun signatureWithoutModifiers(block: PageContentBuilder.DocumentableContentBuilder.() -> Unit) {
+        public fun signatureWithoutModifiers(block: PageContentBuilder.DocumentableContentBuilder.() -> Unit) {
             signatureWithoutModifiers = buildContentForBlock(block)
         }
 
-        fun supertypes(block: PageContentBuilder.DocumentableContentBuilder.() -> Unit) {
+        public fun supertypes(block: PageContentBuilder.DocumentableContentBuilder.() -> Unit) {
             val built = buildContentForBlock(block)
             if(built.hasAnyContent()) supertypes = built
         }
@@ -69,7 +72,7 @@ class JavadocPageContentBuilder(
                 block = block
             )
 
-        fun build(): JavadocSignatureContentNode = JavadocSignatureContentNode(
+        public fun build(): JavadocSignatureContentNode = JavadocSignatureContentNode(
             dri = mainDri,
             annotations = annotations,
             modifiers = modifiers,

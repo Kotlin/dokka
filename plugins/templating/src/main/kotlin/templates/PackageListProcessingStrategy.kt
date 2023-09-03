@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.allModulesPage.templates
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
@@ -8,7 +12,9 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.templates.TemplateProcessingStrategy
 import java.io.File
 
-class PackageListProcessingStrategy(val context: DokkaContext) : TemplateProcessingStrategy {
+public class PackageListProcessingStrategy(
+    public val context: DokkaContext
+) : TemplateProcessingStrategy {
     private val fragments = mutableSetOf<PackageList>()
 
     private fun canProcess(file: File, moduleContext: DokkaModuleDescription?): Boolean =

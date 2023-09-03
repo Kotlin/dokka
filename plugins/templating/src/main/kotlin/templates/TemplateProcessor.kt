@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.templates
 
 import kotlinx.coroutines.Dispatchers
@@ -15,22 +19,22 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jsoup.nodes.Node
 import java.io.File
 
-interface TemplateProcessor
+public interface TemplateProcessor
 
-interface SubmoduleTemplateProcessor : TemplateProcessor {
-    fun process(modules: List<DokkaModuleDescription>): TemplatingResult
+public interface SubmoduleTemplateProcessor : TemplateProcessor {
+    public fun process(modules: List<DokkaModuleDescription>): TemplatingResult
 }
 
-interface MultiModuleTemplateProcessor : TemplateProcessor {
-    fun process(generatedPagesTree: RootPageNode)
+public interface MultiModuleTemplateProcessor : TemplateProcessor {
+    public fun process(generatedPagesTree: RootPageNode)
 }
 
-interface TemplateProcessingStrategy {
-    fun process(input: File, output: File, moduleContext: DokkaModuleDescription?): Boolean
-    fun finish(output: File) {}
+public interface TemplateProcessingStrategy {
+    public fun process(input: File, output: File, moduleContext: DokkaModuleDescription?): Boolean
+    public fun finish(output: File) {}
 }
 
-class DefaultSubmoduleTemplateProcessor(
+public class DefaultSubmoduleTemplateProcessor(
     private val context: DokkaContext,
 ) : SubmoduleTemplateProcessor {
 
@@ -40,14 +44,15 @@ class DefaultSubmoduleTemplateProcessor(
     private val configuredModulesPaths =
             context.configuration.modules.associate { it.sourceOutputDirectory.absolutePath to it.name }
 
-    override fun process(modules: List<DokkaModuleDescription>) =
-        runBlocking(Dispatchers.Default) {
+    override fun process(modules: List<DokkaModuleDescription>): TemplatingResult {
+        return runBlocking(Dispatchers.Default) {
             coroutineScope {
                 modules.fold(TemplatingResult()) { acc, module ->
                     acc + module.sourceOutputDirectory.visit(context.configuration.outputDir.resolve(module.relativePathToOutputDirectory), module)
                 }
             }
         }
+    }
 
     private suspend fun File.visit(target: File, module: DokkaModuleDescription, acc: TemplatingResult = TemplatingResult()): TemplatingResult =
         coroutineScope {
@@ -70,8 +75,8 @@ class DefaultSubmoduleTemplateProcessor(
         }
 }
 
-class DefaultMultiModuleTemplateProcessor(
-    val context: DokkaContext,
+public class DefaultMultiModuleTemplateProcessor(
+    public val context: DokkaContext,
 ) : MultiModuleTemplateProcessor {
     private val strategies: List<TemplateProcessingStrategy> =
         context.plugin<TemplatingPlugin>().query { templateProcessingStrategy }
@@ -85,13 +90,15 @@ class DefaultMultiModuleTemplateProcessor(
     }
 }
 
-data class TemplatingContext<out T : Command>(
+public data class TemplatingContext<out T : Command>(
     val input: File,
     val output: File,
     val body: List<Node>,
     val command: T,
 )
 
-data class TemplatingResult(val modules: List<String> = emptyList()) {
-    operator fun plus(rhs: TemplatingResult): TemplatingResult = TemplatingResult((modules + rhs.modules).distinct())
+public data class TemplatingResult(val modules: List<String> = emptyList()) {
+    public operator fun plus(rhs: TemplatingResult): TemplatingResult {
+        return TemplatingResult((modules + rhs.modules).distinct())
+    }
 }

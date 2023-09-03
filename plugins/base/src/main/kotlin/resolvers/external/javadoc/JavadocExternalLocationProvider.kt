@@ -1,15 +1,22 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.resolvers.external.javadoc
 
 import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
-import org.jetbrains.dokka.links.*
+import org.jetbrains.dokka.links.Callable
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.DRIExtraContainer
+import org.jetbrains.dokka.links.EnumEntryDRIExtra
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.htmlEscape
 
-open class JavadocExternalLocationProvider(
+public open class JavadocExternalLocationProvider(
         externalDocumentation: ExternalDocumentation,
-        val brackets: String,
-        val separator: String,
+        public val brackets: String,
+        public val separator: String,
         dokkaContext: DokkaContext
 ) : DefaultExternalLocationProvider(externalDocumentation, ".html", dokkaContext) {
 
@@ -46,9 +53,10 @@ open class JavadocExternalLocationProvider(
         return ("$docWithModule$classLink#" + anchorPart(callableChecked)).htmlEscape()
     }
 
-    protected open fun anchorPart(callable: Callable) = callable.name +
-            "${brackets.first()}" +
-            callable.params.joinToString(separator) +
-            "${brackets.last()}"
-
+    protected open fun anchorPart(callable: Callable): String {
+        return callable.name +
+                "${brackets.first()}" +
+                callable.params.joinToString(separator) +
+                "${brackets.last()}"
+    }
 }

@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.gradle
 
 import org.gradle.kotlin.dsl.withType
@@ -7,8 +11,7 @@ import org.jetbrains.dokka.PluginConfigurationImpl
 import org.jetbrains.dokka.gradle.utils.create_
 import org.jetbrains.dokka.gradle.utils.externalDocumentationLink_
 import org.jetbrains.dokka.gradle.utils.withDependencies_
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
@@ -16,14 +19,10 @@ import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@Suppress("UnstableApiUsage")
 class DokkaConfigurationSerializableTest {
 
-    @get:Rule
-    val temporaryFolder = TemporaryFolder()
-
     @Test
-    fun `DokkaTask configuration write to file then parse`() {
+    fun `DokkaTask configuration write to file then parse`(@TempDir tempDirectory: File) {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
         val dokkaTask = project.tasks.withType<DokkaTask>().first()
@@ -66,7 +65,7 @@ class DokkaConfigurationSerializableTest {
         }
 
         val sourceConfiguration = dokkaTask.buildDokkaConfiguration()
-        val configurationFile = temporaryFolder.root.resolve("config.bin")
+        val configurationFile = tempDirectory.resolve("config.bin")
         ObjectOutputStream(configurationFile.outputStream()).use { stream ->
             stream.writeObject(sourceConfiguration)
         }

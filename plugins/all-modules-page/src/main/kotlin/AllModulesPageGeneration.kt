@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.allModulesPage
 
 import org.jetbrains.dokka.CoreExtensions
@@ -12,7 +16,7 @@ import org.jetbrains.dokka.templates.TemplatingPlugin
 import org.jetbrains.dokka.templates.TemplatingResult
 import org.jetbrains.dokka.transformers.pages.CreationContext
 
-class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
+public class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
 
     private val allModulesPagePlugin by lazy { context.plugin<AllModulesPagePlugin>() }
     private val templatingPlugin by lazy { context.plugin<TemplatingPlugin>() }
@@ -40,34 +44,37 @@ class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
         runPostActions()
     }
 
-    override val generationName = "index page for project"
+    override val generationName: String = "index page for project"
 
-    fun createAllModulesPage(allModulesContext: DefaultAllModulesContext) =
+    public fun createAllModulesPage(allModulesContext: DefaultAllModulesContext): RootPageNode =
         allModulesPagePlugin.querySingle { allModulesPageCreator }.invoke(allModulesContext)
 
-    fun transformAllModulesPage(pages: RootPageNode) =
+    public fun transformAllModulesPage(pages: RootPageNode): RootPageNode =
         allModulesPagePlugin.query { allModulesPageTransformer }.fold(pages) { acc, t -> t(acc) }
 
-    fun render(transformedPages: RootPageNode) {
+    public fun render(transformedPages: RootPageNode) {
         context.single(CoreExtensions.renderer).render(transformedPages)
     }
 
-    fun runPostActions() {
+    public fun runPostActions() {
         context[CoreExtensions.postActions].forEach { it() }
     }
 
-    fun processSubmodules() =
-        templatingPlugin.querySingle { submoduleTemplateProcessor }
+    public fun processSubmodules(): DefaultAllModulesContext {
+        return templatingPlugin.querySingle { submoduleTemplateProcessor }
             .process(context.configuration.modules)
             .let { DefaultAllModulesContext(it) }
+    }
 
-    fun processMultiModule(root: RootPageNode) =
+    public fun processMultiModule(root: RootPageNode) {
         templatingPlugin.querySingle { multimoduleTemplateProcessor }.process(root)
+    }
 
-    fun finishProcessingSubmodules() =
+    public fun finishProcessingSubmodules() {
         templatingPlugin.query { templateProcessingStrategy }.forEach { it.finish(context.configuration.outputDir) }
+    }
 
-    data class DefaultAllModulesContext(val nonEmptyModules: List<String>) : CreationContext {
-        constructor(templating: TemplatingResult) : this(templating.modules)
+    public data class DefaultAllModulesContext(val nonEmptyModules: List<String>) : CreationContext {
+        public constructor(templating: TemplatingResult) : this(templating.modules)
     }
 }

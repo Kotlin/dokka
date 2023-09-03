@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
@@ -12,23 +16,17 @@ registerDokkaArtifactPublication("templating-plugin") {
 dependencies {
     compileOnly(projects.core)
 
+    api(libs.jsoup)
 
-    implementation(kotlin("reflect"))
     implementation(projects.plugins.base)
 
+    implementation(kotlin("reflect"))
     implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.jackson.kotlin)
-    constraints {
-        implementation(libs.jackson.databind) {
-            because("CVE-2022-42003")
-        }
-    }
-    implementation(libs.kotlinx.html)
 
-    implementation(libs.jsoup)
+    testImplementation(kotlin("test"))
+    testImplementation(libs.junit.jupiterParams)
+
     testImplementation(projects.plugins.base.baseTestUtils)
-
     testImplementation(projects.core.testApi)
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.kotlinx.html)
 }

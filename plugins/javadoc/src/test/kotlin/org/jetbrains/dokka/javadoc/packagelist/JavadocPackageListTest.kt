@@ -1,9 +1,13 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.javadoc.packagelist
 
 import org.jetbrains.dokka.javadoc.AbstractJavadocTemplateMapTest
-import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
-import org.junit.jupiter.api.Assertions.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 internal class JavadocPackageListTest : AbstractJavadocTemplateMapTest() {
     @Test

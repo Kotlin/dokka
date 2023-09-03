@@ -1,28 +1,29 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.renderers
 
 import org.jetbrains.dokka.base.resolvers.shared.LinkFormat
-import org.jetbrains.dokka.pages.ModulePage
-import org.jetbrains.dokka.pages.RendererSpecificPage
-import org.jetbrains.dokka.pages.RendererSpecificResourcePage
-import org.jetbrains.dokka.pages.RendererSpecificRootPage
-import org.jetbrains.dokka.pages.RenderingStrategy
-import org.jetbrains.dokka.pages.RootPageNode
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-object RootCreator : PageTransformer {
-    override fun invoke(input: RootPageNode) =
+public object RootCreator : PageTransformer {
+    override fun invoke(input: RootPageNode): RootPageNode =
         RendererSpecificRootPage("", listOf(input), RenderingStrategy.DoNothing)
 }
 
-class PackageListCreator(
-    val context: DokkaContext,
-    val format: LinkFormat,
-    val outputFilesNames: List<String> = listOf("package-list")
+public class PackageListCreator(
+    public val context: DokkaContext,
+    public val format: LinkFormat,
+    public val outputFilesNames: List<String> = listOf("package-list")
 ) : PageTransformer {
-    override fun invoke(input: RootPageNode) = input.transformPageNodeTree { pageNode ->
+    override fun invoke(input: RootPageNode): RootPageNode {
+        return input.transformPageNodeTree { pageNode ->
             pageNode.takeIf { it is ModulePage }?.let { it.modified(children = it.children + packageList(input, it as ModulePage)) } ?: pageNode
         }
+    }
 
     private fun packageList(rootPageNode: RootPageNode, module: ModulePage): List<RendererSpecificPage> {
         val content = PackageListService(context, rootPageNode).createPackageList(

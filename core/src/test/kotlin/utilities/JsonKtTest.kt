@@ -1,9 +1,14 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package utilities
 
+import org.jetbrains.dokka.utilities.parseJson
 import org.jetbrains.dokka.utilities.serializeAsCompactJson
 import org.jetbrains.dokka.utilities.serializeAsPrettyJson
-import kotlin.test.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class JsonTest {
 
@@ -42,6 +47,20 @@ class JsonTest {
         assertEquals(expected, actual)
     }
 
+    @Test
+    fun `should keep order of Set after serialize and deserialize`() {
+        val testObject = SimpleTestSetDataClass(
+            someStringSet = setOf("Foo", "Bar", "ABC")
+        )
+        val expected = testObject.someStringSet.toList() // ["Foo", "Bar", "ABC"]
+
+        val jsonString = serializeAsCompactJson(testObject)
+        val parsedClass: SimpleTestSetDataClass = parseJson(jsonString)
+        val actual = parsedClass.someStringSet.toList()
+
+        assertEquals(expected, actual)
+    }
+
     /**
      * If the expected output was generated on Linux, but the tests are run under Windows,
      * the test might fail when comparing the strings due to different separators.
@@ -54,4 +73,8 @@ data class SimpleTestDataClass(
     val someInt: Int,
     val someIntWithDefaultValue: Int = 42,
     val someDouble: Double
+)
+
+data class SimpleTestSetDataClass(
+    val someStringSet: Set<String>
 )

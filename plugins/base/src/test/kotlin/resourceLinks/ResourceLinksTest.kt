@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package resourceLinks
 
 import org.jetbrains.dokka.DokkaConfiguration
@@ -13,13 +17,16 @@ import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
 import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jsoup.Jsoup
-import org.junit.jupiter.api.Test
+import org.jsoup.nodes.TextNode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import utils.TestOutputWriterPlugin
+import utils.assertContains
 import java.io.File
+import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class ResourceLinksTest : BaseAbstractTest() {
     class TestResourcesAppenderPlugin(val resources: List<String>) : DokkaPlugin() {
@@ -76,10 +83,10 @@ class ResourceLinksTest : BaseAbstractTest() {
                     .select("link, script")
                     .let {
                         absoluteResources.forEach { r ->
-                            assert(it.`is`("[href=$r], [src=$r]"))
+                            assertTrue(it.`is`("[href=$r], [src=$r]"))
                         }
                         relativeResources.forEach { r ->
-                            assert(it.`is`("[href=../$r] , [src=../$r]"))
+                            assertTrue(it.`is`("[href=../$r] , [src=../$r]"))
                         }
                     }
             }
@@ -136,7 +143,7 @@ class ResourceLinksTest : BaseAbstractTest() {
                             .select("link, script")
                             .let {
                                 listOf("styles/customStyle.css").forEach { r ->
-                                    assert(it.`is`("[href=$TEMPLATE_REPLACEMENT$r]"))
+                                    assertTrue(it.`is`("[href=$TEMPLATE_REPLACEMENT$r]"))
                                 }
                             }
                     } else {
@@ -146,7 +153,7 @@ class ResourceLinksTest : BaseAbstractTest() {
                             .select("link, script")
                             .let {
                                 listOf("styles/customStyle.css").forEach { r ->
-                                    assert(it.`is`("[href=../$r], [src=../$r]"))
+                                    assertTrue(it.`is`("[href=../$r], [src=../$r]"))
                                 }
                             }
                     }
@@ -195,13 +202,99 @@ class ResourceLinksTest : BaseAbstractTest() {
                         .select("link, script")
                         .let {
                             absoluteResources.forEach { r ->
-                                assert(it.`is`("[href=$r], [src=$r]"))
+                                assertTrue(it.`is`("[href=$r], [src=$r]"))
                             }
                             relativeResources.forEach { r ->
-                                assert(it.`is`("[href=../$r] , [src=../$r]"))
+                                assertTrue(it.`is`("[href=../$r] , [src=../$r]"))
                             }
                         }
                 }
+            }
+        }
+    }
+
+    @Test // see #3040; plain text added to <head> can be rendered by engines inside <body> as well
+    fun `should not add unknown resources as text to the head or body section`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/main/kotlin")
+                }
+            }
+
+            pluginsConfigurations = mutableListOf(
+                PluginConfigurationImpl(
+                    DokkaBase::class.java.canonicalName,
+                    DokkaConfiguration.SerializationFormat.JSON,
+                    toJsonString(
+                        DokkaBaseConfiguration(
+                            customAssets = listOf(File("test/unknown-file.ext"))
+                        )
+                    )
+                )
+            )
+        }
+
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/main/kotlin/test/Test.kt
+            |package test
+            |
+            |class Test
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val testClassPage = writerPlugin.writer.contents
+                    .getValue("root/test/-test/-test.html")
+                    .let { Jsoup.parse(it) }
+
+                val headChildNodes = testClassPage.head().childNodes()
+                assertTrue("<head> section should not contain non-blank text nodes") {
+                    headChildNodes.all { it !is TextNode || it.isBlank }
+                }
+
+                val bodyChildNodes = testClassPage.body().childNodes()
+                assertTrue("<body> section should not contain non-blank text nodes. Something leaked from head?") {
+                    bodyChildNodes.all { it !is TextNode || it.isBlank }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `should load script as defer if name ending in _deferred`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/main/kotlin")
+                }
+            }
+        }
+
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/main/kotlin/test/Test.kt
+            |package test
+            |
+            |class Test
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val generatedFiles = writerPlugin.writer.contents
+
+                assertContains(generatedFiles.keys, "scripts/symbol-parameters-wrapper_deferred.js")
+
+                val scripts = generatedFiles.getValue("root/test/-test/-test.html").let { Jsoup.parse(it) }.select("script")
+                val deferredScriptSources = scripts.filter { element -> element.hasAttr("defer") }.map { it.attr("src") }
+
+                // important to check symbol-parameters-wrapper_deferred specifically since it might break some features
+                assertContains(deferredScriptSources, "../../../scripts/symbol-parameters-wrapper_deferred.js")
             }
         }
     }

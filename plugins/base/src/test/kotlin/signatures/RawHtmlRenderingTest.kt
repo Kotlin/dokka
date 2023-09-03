@@ -1,8 +1,12 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package signatures
 
 import org.jsoup.Jsoup
-import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -17,7 +21,7 @@ class RawHtmlRenderingTest: AbstractRenderingTest() {
         ) {
             renderingStage = { _, _ ->
                 val content = writerPlugin.renderedSourceDependentContent("example/example/-html-test/test.html")
-                assert(content.count() == 1)
+                assertEquals(1, content.count())
                 assertEquals(content.select("[data-togglable=example/jvm]").single().rawBrief,"This is an example <!-- not visible --> of html")
 
                 val indexContent = writerPlugin.writer.contents.getValue("example/example/-html-test/index.html")
@@ -54,7 +58,7 @@ class RawHtmlRenderingTest: AbstractRenderingTest() {
         ) {
             renderingStage = { _, _ ->
                 val content = writerPlugin.renderedSourceDependentContent("example/example/-html-test/test-p.html")
-                assert(content.count() == 1)
+                assertEquals(1, content.count())
                 assertEquals(content.select("[data-togglable=example/jvm]").single().rawBrief, "This is an <b> documentation </b>")
 
                 val indexContent = writerPlugin.writer.contents.getValue("example/example/-html-test/index.html")

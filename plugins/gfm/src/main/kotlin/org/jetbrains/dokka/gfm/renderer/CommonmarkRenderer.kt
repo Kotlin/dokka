@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.gfm.renderer
 
 import org.jetbrains.dokka.DokkaException
@@ -11,13 +15,14 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
+import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.utilities.htmlEscape
 
-open class CommonmarkRenderer(
+public open class CommonmarkRenderer(
     context: DokkaContext
 ) : DefaultRenderer<StringBuilder>(context) {
 
-    override val preprocessors = context.plugin<GfmPlugin>().query { gfmPreprocessors }
+    override val preprocessors: List<PageTransformer> = context.plugin<GfmPlugin>().query { gfmPreprocessors }
 
     private val isPartial = context.configuration.delayTemplateSubstitution
 

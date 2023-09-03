@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.javadoc.pages
 
 import org.jetbrains.dokka.base.renderers.sourceSets
@@ -8,9 +12,14 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.BooleanValue
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageTransformer
+import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 
-object ResourcesInstaller : PageTransformer {
+public object ResourcesInstaller : PageTransformer {
+
     override fun invoke(input: RootPageNode): RootPageNode = input.modified(
         children = input.children +
                 RendererSpecificResourcePage(
@@ -21,7 +30,10 @@ object ResourcesInstaller : PageTransformer {
     )
 }
 
-object TreeViewInstaller : PageTransformer {
+public class TreeViewInstaller(
+    private val context: DokkaContext
+) : PageTransformer {
+
     override fun invoke(input: RootPageNode): RootPageNode = install(input, input) as RootPageNode
 
     private fun install(node: PageNode, root: RootPageNode): PageNode = when (node) {
@@ -37,7 +49,8 @@ object TreeViewInstaller : PageTransformer {
             classes = null,
             dri = node.dri,
             documentables = node.documentables,
-            root = root
+            root = root,
+            inheritanceBuilder = context.plugin<InternalKotlinAnalysisPlugin>().querySingle { inheritanceBuilder }
         )
 
         val nodeChildren = node.children.map { childNode ->
@@ -56,14 +69,16 @@ object TreeViewInstaller : PageTransformer {
             classes = node.children.filterIsInstance<JavadocClasslikePageNode>(),
             dri = node.dri,
             documentables = node.documentables,
-            root = root
+            root = root,
+            inheritanceBuilder = context.plugin<InternalKotlinAnalysisPlugin>().querySingle { inheritanceBuilder }
         )
 
         return node.modified(children = node.children + packageTree) as JavadocPackagePageNode
     }
 }
 
-object AllClassesPageInstaller : PageTransformer {
+public object AllClassesPageInstaller : PageTransformer {
+
     override fun invoke(input: RootPageNode): RootPageNode {
         val classes = (input as JavadocModulePageNode).children.filterIsInstance<JavadocPackagePageNode>().flatMap {
             it.children.filterIsInstance<JavadocClasslikePageNode>()
@@ -73,7 +88,8 @@ object AllClassesPageInstaller : PageTransformer {
     }
 }
 
-object IndexGenerator : PageTransformer {
+public object IndexGenerator : PageTransformer {
+
     override fun invoke(input: RootPageNode): RootPageNode {
         val elements = HashMap<Char, MutableSet<NavigableJavadocNode>>()
         (input as JavadocModulePageNode).children.filterIsInstance<JavadocPackagePageNode>().forEach {
@@ -115,7 +131,8 @@ object IndexGenerator : PageTransformer {
     }
 }
 
-object DeprecatedPageCreator : PageTransformer {
+public object DeprecatedPageCreator : PageTransformer {
+
     override fun invoke(input: RootPageNode): RootPageNode {
         val elements = HashMap<DeprecatedPageSection, MutableSet<DeprecatedNode>>().apply {
 

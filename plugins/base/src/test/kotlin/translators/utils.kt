@@ -1,9 +1,12 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package translators
 
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Description
 import org.jetbrains.dokka.model.doc.Text
-import java.util.NoSuchElementException
 
 fun DModule.documentationOf(className: String, functionName: String? = null): String =
     descriptionOf(className, functionName)

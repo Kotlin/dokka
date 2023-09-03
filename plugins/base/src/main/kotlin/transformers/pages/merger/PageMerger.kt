@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.transformers.pages.merger
 
 import org.jetbrains.dokka.base.DokkaBase
@@ -8,7 +12,7 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-class PageMerger(context: DokkaContext) : PageTransformer {
+public class PageMerger(context: DokkaContext) : PageTransformer {
 
     private val strategies: Iterable<PageMergerStrategy> = context.plugin<DokkaBase>().query { pageMergerStrategy }
 

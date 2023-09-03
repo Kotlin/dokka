@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration
@@ -16,7 +20,6 @@ import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentStyle
 import org.jetbrains.dokka.pages.TextStyle
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
@@ -250,10 +253,15 @@ internal fun PageContentBuilder.DocumentableContentBuilder.inheritorsSectionCont
         multiplatformInheritorsSectionContent(documentable, inheritors, logger)
 }
 
-private fun WithScope.inheritors() = safeAs<WithExtraProperties<Documentable>>()
-    ?.let { it.extra[InheritorsInfo] }
-    ?.let { inheritors -> inheritors.value.filter { it.value.isNotEmpty() } }
-    .orEmpty()
+private fun WithScope.inheritors(): SourceSetDependent<List<DRI>> {
+    @Suppress("UNCHECKED_CAST")
+    val withExtra = this as? WithExtraProperties<Documentable>
+
+    return withExtra
+        ?.let { it.extra[InheritorsInfo] }
+        ?.let { inheritors -> inheritors.value.filter { it.value.isNotEmpty() } }
+        .orEmpty()
+}
 
 /**
  * Detect that documentable is located only in the shared code without expect-actuals

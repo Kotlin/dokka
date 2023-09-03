@@ -1,11 +1,16 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package mathjaxTest
 
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.mathjax.LIB_PATH
 import org.jetbrains.dokka.mathjax.MathjaxPlugin
-import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jsoup.Jsoup
-import org.junit.jupiter.api.Test
 import utils.TestOutputWriterPlugin
+import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class MathjaxPluginTest : BaseAbstractTest() {
     @Test
@@ -38,7 +43,7 @@ class MathjaxPluginTest : BaseAbstractTest() {
                 .head()
                 .select("link, script")
                 .let {
-                    assert(!it.`is`("[href=$LIB_PATH], [src=$LIB_PATH]"))
+                    assertTrue(!it.`is`("[href=$LIB_PATH], [src=$LIB_PATH]"))
                 }
             }
         }
@@ -75,10 +80,10 @@ class MathjaxPluginTest : BaseAbstractTest() {
                 val parsed = Jsoup.parse(writerPlugin.writer.contents.getValue("root/example/test.html"))
 
                 // Ensure the MathJax CDN is loaded
-                assert(parsed.select("link, script").`is`("[href=$LIB_PATH], [src=$LIB_PATH]"))
+                assertTrue(parsed.select("link, script").`is`("[href=$LIB_PATH], [src=$LIB_PATH]"))
 
                 // Ensure the contents are displayed
-                assert(parsed.select("p").any {
+                assertTrue(parsed.select("p").any {
                     it.text().contains(math)
                 })
             }

@@ -1,13 +1,17 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.util.GradleVersion
 
-data class BuildVersions(
+public data class BuildVersions(
     val gradleVersion: GradleVersion,
     val kotlinVersion: String,
     val androidGradlePluginVersion: String? = null,
 ) {
-    constructor(
+    public constructor(
         gradleVersion: String,
         kotlinVersion: String,
         androidGradlePluginVersion: String? = null
@@ -26,8 +30,8 @@ data class BuildVersions(
         }
     }
 
-    companion object {
-        fun permutations(
+    public companion object {
+        public fun permutations(
             gradleVersions: List<String>,
             kotlinVersions: List<String>,
             androidGradlePluginVersions: List<String?> = listOf(null)

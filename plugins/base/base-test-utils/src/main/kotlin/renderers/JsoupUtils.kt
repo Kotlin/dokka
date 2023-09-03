@@ -1,10 +1,14 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package utils
 
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 
-fun Element.match(vararg matchers: Any, ignoreSpanWithTokenStyle:Boolean = false): Unit =
+public fun Element.match(vararg matchers: Any, ignoreSpanWithTokenStyle:Boolean = false): Unit =
     childNodes()
         .let { list ->
             if(ignoreSpanWithTokenStyle) {
@@ -21,25 +25,28 @@ fun Element.match(vararg matchers: Any, ignoreSpanWithTokenStyle:Boolean = false
         .zip(matchers)
         .forEach { (n, m) -> m.accepts(n, ignoreSpan = ignoreSpanWithTokenStyle) }
 
-open class Tag(val name: String, vararg val matchers: Any, val expectedClasses: List<String> = emptyList())
-class Div(vararg matchers: Any) : Tag("div", *matchers)
-class P(vararg matchers: Any) : Tag("p", *matchers)
-class Span(vararg matchers: Any) : Tag("span", *matchers)
-class A(vararg matchers: Any) : Tag("a", *matchers)
-class B(vararg matchers: Any) : Tag("b", *matchers)
-class I(vararg matchers: Any) : Tag("i", *matchers)
-class STRIKE(vararg matchers: Any) : Tag("strike", *matchers)
+public open class Tag(
+    public val name: String,
+    public vararg val matchers: Any,
+    public val expectedClasses: List<String> = emptyList()
+)
+public class Div(vararg matchers: Any) : Tag("div", *matchers)
+public class P(vararg matchers: Any) : Tag("p", *matchers)
+public class Span(vararg matchers: Any) : Tag("span", *matchers)
+public class A(vararg matchers: Any) : Tag("a", *matchers)
+public class B(vararg matchers: Any) : Tag("b", *matchers)
+public class I(vararg matchers: Any) : Tag("i", *matchers)
+public class STRIKE(vararg matchers: Any) : Tag("strike", *matchers)
+public class BlockQuote(vararg matchers: Any) : Tag("blockquote", *matchers)
+public class Dl(vararg matchers: Any) : Tag("dl", *matchers)
+public class Dt(vararg matchers: Any) : Tag("dt", *matchers)
+public class Dd(vararg matchers: Any) : Tag("dd", *matchers)
+public class Var(vararg matchers: Any) : Tag("var", *matchers)
+public class U(vararg matchers: Any) : Tag("u", *matchers)
+public object Wbr : Tag("wbr")
+public object Br : Tag("br")
 
-class BlockQuote(vararg matchers: Any) : Tag("blockquote", *matchers)
-class Dl(vararg matchers: Any) : Tag("dl", *matchers)
-class Dt(vararg matchers: Any) : Tag("dt", *matchers)
-class Dd(vararg matchers: Any) : Tag("dd", *matchers)
-class Var(vararg matchers: Any) : Tag("var", *matchers)
-class U(vararg matchers: Any) : Tag("u", *matchers)
-object Wbr : Tag("wbr")
-object Br : Tag("br")
-
-fun Tag.withClasses(vararg classes: String) = Tag(name, *matchers, expectedClasses = classes.toList())
+public fun Tag.withClasses(vararg classes: String): Tag = Tag(name, *matchers, expectedClasses = classes.toList())
 
 private fun Any.accepts(n: Node, ignoreSpan:Boolean = true) {
     when (this) {

@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package renderers
 
 import org.jetbrains.dokka.DokkaConfiguration
@@ -11,7 +15,7 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.LoggingLevel
 
-fun testPage(callback: PageContentBuilder.DocumentableContentBuilder.() -> Unit): RawTestPage {
+public fun testPage(callback: PageContentBuilder.DocumentableContentBuilder.() -> Unit): RawTestPage {
     val content = PageContentBuilder(
         EmptyCommentConverter,
         KotlinSignatureProvider(EmptyCommentConverter, DokkaConsoleLogger(LoggingLevel.DEBUG)),
@@ -25,7 +29,7 @@ fun testPage(callback: PageContentBuilder.DocumentableContentBuilder.() -> Unit)
     return RawTestPage(content)
 }
 
-class RawTestPage(
+public class RawTestPage(
     override val content: ContentNode,
     override val name: String = "testPage",
     override val dri: Set<DRI> = setOf(DRI.topLevel),

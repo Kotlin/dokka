@@ -1,16 +1,19 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package content.signatures
 
 import matchers.content.*
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.doc.Text
-import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.junit.jupiter.api.Test
+import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.pages.PackagePageNode
 import utils.ParamAttributes
 import utils.bareSignature
 import utils.propertySignature
 import utils.typealiasSignature
+import kotlin.test.Test
 
 class ContentForSignaturesTest : BaseAbstractTest() {
 

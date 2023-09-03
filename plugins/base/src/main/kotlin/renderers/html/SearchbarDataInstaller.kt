@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.renderers.html
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -12,25 +16,29 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-data class SearchRecord(
+public data class SearchRecord(
     val name: String,
     val description: String? = null,
     val location: String,
     val searchKeys: List<String> = listOf(name)
 ) {
-    companion object
+    public companion object
 }
 
-open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
-    data class DRIWithSourceSets(val dri: DRI, val sourceSet: Set<DisplaySourceSet>)
-    data class SignatureWithId(val driWithSourceSets: DRIWithSourceSets, val displayableSignature: String) {
-        constructor(dri: DRI, page: ContentPage) : this( DRIWithSourceSets(dri, page.sourceSets()),
+public open class SearchbarDataInstaller(
+    public val context: DokkaContext
+) : PageTransformer {
+
+    public data class DRIWithSourceSets(val dri: DRI, val sourceSet: Set<DisplaySourceSet>)
+
+    public data class SignatureWithId(val driWithSourceSets: DRIWithSourceSets, val displayableSignature: String) {
+        public constructor(dri: DRI, page: ContentPage) : this( DRIWithSourceSets(dri, page.sourceSets()),
             getSymbolSignature(page, dri)?.let { flattenToText(it) } ?: page.name)
 
         val id: String
             get() = with(driWithSourceSets.dri) {
                 listOfNotNull(
-                    packageName,
+                    packageName?.takeIf { it.isNotBlank() },
                     classNames,
                     callable?.name
                 ).joinToString(".")
@@ -39,7 +47,10 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
 
     private val mapper = jacksonObjectMapper()
 
-    open fun generatePagesList(pages: List<SignatureWithId>, locationResolver: DriResolver): List<SearchRecord> =
+    public open fun generatePagesList(
+        pages: List<SignatureWithId>,
+        locationResolver: DriResolver
+    ): List<SearchRecord> =
         pages.map { pageWithId ->
             createSearchRecord(
                 name = pageWithId.displayableSignature,
@@ -53,7 +64,7 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
             )
         }.sortedWith(compareBy({ it.name }, { it.description }))
 
-    open fun createSearchRecord(
+    public open fun createSearchRecord(
         name: String,
         description: String?,
         location: String,
@@ -61,7 +72,7 @@ open class SearchbarDataInstaller(val context: DokkaContext) : PageTransformer {
     ): SearchRecord =
         SearchRecord(name, description, location, searchKeys)
 
-    open fun processPage(page: PageNode): List<SignatureWithId> =
+    public open fun processPage(page: PageNode): List<SignatureWithId> =
         when (page) {
             is ContentPage -> page.takeIf { page !is ModulePageNode && page !is PackagePageNode }?.dri
                 ?.map { dri -> SignatureWithId(dri, page) }.orEmpty()

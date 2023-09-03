@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Project
@@ -25,7 +29,7 @@ internal fun Project.maybeCreateDokkaPluginConfiguration(dokkaTaskName: String, 
         extendsFrom(maybeCreateDokkaDefaultPluginConfiguration())
         attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
         isCanBeConsumed = false
-        dependencies.add(project.dokkaArtifacts.dokkaAnalysis) // compileOnly in base plugin
+        dependencies.add(project.dokkaArtifacts.analysisKotlinDescriptors)
         dependencies.add(project.dokkaArtifacts.dokkaBase)
         dependencies.addAll(additionalDependencies)
     }

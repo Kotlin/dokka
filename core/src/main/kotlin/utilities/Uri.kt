@@ -1,11 +1,15 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.utilities
 
-import org.jetbrains.dokka.*
+import org.jetbrains.dokka.InternalDokkaApi
 import java.net.URI
 
 @InternalDokkaApi
 @Deprecated("Deprecated for removal") // Unused in Dokka
-fun URI.relativeTo(uri: URI): URI {
+public fun URI.relativeTo(uri: URI): URI {
     // Normalize paths to remove . and .. segments
     val base = uri.normalize()
     val child = this.normalize()

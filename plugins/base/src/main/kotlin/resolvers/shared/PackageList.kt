@@ -1,10 +1,14 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.resolvers.shared
 
 import java.net.URL
 
-typealias Module = String
+public typealias Module = String
 
-data class PackageList(
+public data class PackageList(
     val linkFormat: RecognizedLinkFormat,
     val modules: Map<Module, Set<String>>,
     val locations: Map<String, String>,
@@ -13,17 +17,19 @@ data class PackageList(
     val packages: Set<String>
         get() = modules.values.flatten().toSet()
 
-    fun moduleFor(packageName: String) = modules.asSequence()
+    public fun moduleFor(packageName: String): Module? {
+        return modules.asSequence()
             .filter { it.value.contains(packageName) }
             .firstOrNull()?.key
+    }
 
-    companion object {
-        const val PACKAGE_LIST_NAME = "package-list"
-        const val MODULE_DELIMITER = "module:"
-        const val DOKKA_PARAM_PREFIX = "\$dokka"
-        const val SINGLE_MODULE_NAME = ""
+    public companion object {
+        public const val PACKAGE_LIST_NAME: String = "package-list"
+        public const val MODULE_DELIMITER: String = "module:"
+        public const val DOKKA_PARAM_PREFIX: String = "\$dokka"
+        public const val SINGLE_MODULE_NAME: String = ""
 
-        fun load(url: URL, jdkVersion: Int, offlineMode: Boolean = false): PackageList? {
+        public fun load(url: URL, jdkVersion: Int, offlineMode: Boolean = false): PackageList? {
             if (offlineMode && url.protocol.toLowerCase() != "file")
                 return null
 

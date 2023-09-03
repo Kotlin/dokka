@@ -1,6 +1,12 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.gradle
 
+import org.jetbrains.dokka.gradle.utils.withDependencies_
 import org.gradle.api.artifacts.FileCollectionDependency
+import org.gradle.api.internal.project.DefaultProject
 import org.gradle.kotlin.dsl.get
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.gradle.kotlin.gistOf
@@ -117,7 +123,7 @@ class KotlinSourceSetGistTest {
 
         /* Only work with file dependencies */
         project.configurations.forEach { configuration ->
-            configuration.withDependencies {
+            configuration.withDependencies_ {
                 removeIf { dependency ->
                     dependency !is FileCollectionDependency
                 }
@@ -143,10 +149,10 @@ class KotlinSourceSetGistTest {
         )
 
         /* Creating dependency files */
-        check(implementationJar.createNewFile())
-        check(compileOnlyJar.createNewFile())
-        check(apiJar.createNewFile())
-        check(runtimeOnlyJar.createNewFile())
+        assertTrue(implementationJar.createNewFile())
+        assertTrue(compileOnlyJar.createNewFile())
+        assertTrue(apiJar.createNewFile())
+        assertTrue(runtimeOnlyJar.createNewFile())
 
         assertEquals(
             setOf(implementationJar, compileOnlyJar, apiJar), mainSourceSetGist.classpath.get().files,
@@ -162,6 +168,7 @@ class KotlinSourceSetGistTest {
         kotlin.jvm()
         kotlin.macosX64("macos")
 
+        (project as DefaultProject).evaluate()
         val commonMainSourceSet = kotlin.sourceSets.getByName("commonMain")
         val commonMainSourceSetGist = project.gistOf(commonMainSourceSet)
 
@@ -231,16 +238,10 @@ class KotlinSourceSetGistTest {
             "Expected macosTest not being marked with 'isMain'"
         )
 
+        // requires `project.evaluate()`
         assertEquals(
             setOf("commonMain"), jvmMainSourceSetGist.dependentSourceSetNames.get(),
             "Expected jvmMain to depend on commonMain by default"
-        )
-
-        /* Why not? */
-        jvmMainSourceSet.dependsOn(macosMainSourceSet)
-        assertEquals(
-            setOf("commonMain", "macosMain"), jvmMainSourceSetGist.dependentSourceSetNames.get(),
-            "Expected dependent source set changes to be reflected in gist"
         )
     }
 

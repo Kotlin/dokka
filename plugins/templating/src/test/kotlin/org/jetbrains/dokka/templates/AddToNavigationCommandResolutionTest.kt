@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.templates
 
 import kotlinx.html.a
@@ -9,39 +13,42 @@ import org.jetbrains.dokka.DokkaModuleDescriptionImpl
 import org.jetbrains.dokka.base.renderers.html.templateCommand
 import org.jetbrains.dokka.base.templating.AddToNavigationCommand
 import org.jetbrains.dokka.plugability.DokkaContext
-import org.junit.Rule
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import org.junit.rules.TemporaryFolder
 import utils.assertHtmlEqualsIgnoringWhitespace
+import java.io.File
+import kotlin.test.Test
 
 class AddToNavigationCommandResolutionTest : TemplatingAbstractTest() {
-    @get:Rule
-    val folder: TemporaryFolder = TemporaryFolder()
 
     @Test
-    fun `should substitute AddToNavigationCommand in root directory`() =
-        addToNavigationTest {
-            val output = folder.root.resolve("navigation.html").readText()
+    fun `should substitute AddToNavigationCommand in root directory`(@TempDir outputDirectory: File) {
+        addToNavigationTest(outputDirectory) {
+            val output = outputDirectory.resolve("navigation.html").readText()
             val expected = expectedOutput(
                 ModuleWithPrefix("module1"),
                 ModuleWithPrefix("module2")
             )
             assertHtmlEqualsIgnoringWhitespace(expected, output)
         }
+    }
 
     @ParameterizedTest
     @ValueSource(strings = ["module1", "module2"])
-    fun `should substitute AddToNavigationCommand in modules directory`(moduleName: String) =
-        addToNavigationTest {
-            val output = folder.root.resolve(moduleName).resolve("navigation.html").readText()
+    fun `should substitute AddToNavigationCommand in modules directory`(
+        moduleName: String,
+        @TempDir outputDirectory: File
+    ) {
+        addToNavigationTest(outputDirectory) {
+            val output = outputDirectory.resolve(moduleName).resolve("navigation.html").readText()
             val expected = expectedOutput(
                 ModuleWithPrefix("module1", ".."),
                 ModuleWithPrefix("module2", "..")
             )
             assertHtmlEqualsIgnoringWhitespace(expected, output)
         }
+    }
 
     private fun expectedOutput(vararg modulesWithPrefix: ModuleWithPrefix) = createHTML(prettyPrint = true)
         .div("sideMenu") {
@@ -98,10 +105,9 @@ class AddToNavigationCommandResolutionTest : TemplatingAbstractTest() {
             }
         }
 
-    private fun addToNavigationTest(test: (DokkaContext) -> Unit) {
-        folder.create()
-        val module1 = folder.newFolder("module1")
-        val module2 = folder.newFolder("module2")
+    private fun addToNavigationTest(outputDirectory: File, test: (DokkaContext) -> Unit) {
+        val module1 = outputDirectory.resolve("module1").also { it.mkdirs() }
+        val module2 = outputDirectory.resolve("module2").also { it.mkdirs() }
 
         val configuration = dokkaConfiguration {
             modules = listOf(
@@ -118,7 +124,7 @@ class AddToNavigationCommandResolutionTest : TemplatingAbstractTest() {
                     sourceOutputDirectory = module2,
                 ),
             )
-            this.outputDir = folder.root
+            this.outputDir = outputDirectory
         }
 
         val module1Navigation = module1.resolve("navigation.html")

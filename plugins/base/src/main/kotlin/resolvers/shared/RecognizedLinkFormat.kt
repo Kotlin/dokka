@@ -1,6 +1,13 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.resolvers.shared
 
-enum class RecognizedLinkFormat(override val formatName: String, override val linkExtension: String) : LinkFormat {
+public enum class RecognizedLinkFormat(
+    override val formatName: String,
+    override val linkExtension: String
+) : LinkFormat {
     DokkaHtml("html-v1", "html"),
     DokkaJavadoc("javadoc-v1", "html"),
     DokkaGFM("gfm-v1", "md"),
@@ -12,8 +19,11 @@ enum class RecognizedLinkFormat(override val formatName: String, override val li
     KotlinWebsite("kotlin-website", "html"),
     KotlinWebsiteHtml("kotlin-website-html", "html");
 
-    companion object {
-        fun fromString(formatName: String) =
-            values().firstOrNull { it.formatName == formatName }
+    public companion object {
+        private val values = values()
+
+        public fun fromString(formatName: String): RecognizedLinkFormat? {
+            return values.firstOrNull { it.formatName == formatName }
+        }
     }
 }

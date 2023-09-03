@@ -1,15 +1,18 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package pageMerger
 
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.*
 import org.junit.jupiter.api.RepeatedTest
-import java.lang.IllegalArgumentException
+import kotlin.test.Ignore
+import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class PageNodeMergerTest : BaseAbstractTest() {
 
@@ -43,16 +46,16 @@ class PageNodeMergerTest : BaseAbstractTest() {
                 val testT = allChildren.filter { it.name == "testT" }
                 val test = allChildren.filter { it.name == "test" }
 
-                assertTrue(testT.size == 1) { "There can be only one testT page" }
-                assertTrue(testT.first().dri.size == 2) { "testT page should have 2 DRI, but has ${testT.first().dri.size}" }
+                assertTrue(testT.size == 1, "There can be only one testT page")
+                assertTrue(testT.first().dri.size == 2, "testT page should have 2 DRI, but has ${testT.first().dri.size}")
 
-                assertTrue(test.size == 1) { "There can be only one test page" }
-                assertTrue(test.first().dri.size == 2) { "test page should have 2 DRI, but has ${test.first().dri.size}" }
+                assertTrue(test.size == 1, "There can be only one test page")
+                assertTrue(test.first().dri.size == 2, "test page should have 2 DRI, but has ${test.first().dri.size}")
             }
         }
     }
 
-    @Disabled("TODO: reenable when we have infrastructure for turning off extensions")
+    @Ignore("TODO: reenable when we have infrastructure for turning off extensions")
     @Test
     fun defaultStrategyTest() {
         val strList: MutableList<String> = mutableListOf()
@@ -77,13 +80,13 @@ class PageNodeMergerTest : BaseAbstractTest() {
                 val testT = allChildren.filter { it.name == "testT" }
                 val test = allChildren.filter { it.name == "test" }
 
-                assertTrue(testT.size == 1) { "There can be only one testT page" }
-                assertTrue(testT.first().dri.size == 1) { "testT page should have single DRI, but has ${testT.first().dri.size}" }
+                assertTrue(testT.size == 1, "There can be only one testT page")
+                assertTrue(testT.first().dri.size == 1, "testT page should have single DRI, but has ${testT.first().dri.size}")
 
-                assertTrue(test.size == 1) { "There can be only one test page" }
-                assertTrue(test.first().dri.size == 1) { "test page should have single DRI, but has ${test.first().dri.size}" }
+                assertTrue(test.size == 1, "There can be only one test page")
+                assertTrue(test.first().dri.size == 1, "test page should have single DRI, but has ${test.first().dri.size}")
 
-                assertTrue(strList.count() == 2) { "Expected 2 warnings, got ${strList.count()}" }
+                assertTrue(strList.count() == 2, "Expected 2 warnings, got ${strList.count()}")
             }
         }
     }
@@ -143,13 +146,19 @@ class PageNodeMergerTest : BaseAbstractTest() {
                 val jvmClass = allChildren.filter { it.name == "[jvm]DoNotMerge" }
                 val jsClass = allChildren.filter { it.name == "[js]DoNotMerge" }
                 val noClass = allChildren.filter { it.name == "DoNotMerge" }
-                assertTrue(jvmClass.size == 1) { "There can be only one DoNotMerge(jvm) page" }
-                assertTrue(jvmClass.first().documentables.firstOrNull()?.sourceSets?.single()?.analysisPlatform?.key == "jvm") { "[jvm]DoNotMerge should have only jvm sources" }
+                assertTrue(jvmClass.size == 1, "There can be only one DoNotMerge(jvm) page")
+                assertTrue(
+                    jvmClass.first().documentables.firstOrNull()?.sourceSets?.single()?.analysisPlatform?.key == "jvm",
+                    "[jvm]DoNotMerge should have only jvm sources"
+                )
 
-                assertTrue(jsClass.size == 1) { "There can be only one DoNotMerge(js) page" }
-                assertTrue(jsClass.first().documentables.firstOrNull()?.sourceSets?.single()?.analysisPlatform?.key == "js") { "[js]DoNotMerge should have only js sources" }
+                assertTrue(jsClass.size == 1, "There can be only one DoNotMerge(js) page")
+                assertTrue(
+                    jsClass.first().documentables.firstOrNull()?.sourceSets?.single()?.analysisPlatform?.key == "js",
+                    "[js]DoNotMerge should have only js sources"
+                )
 
-                assertTrue(noClass.isEmpty()) { "There can't be any DoNotMerge page" }
+                assertTrue(noClass.isEmpty(), "There can't be any DoNotMerge page")
             }
         }
     }

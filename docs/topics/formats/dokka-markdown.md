@@ -59,9 +59,9 @@ For more information, see the Mavin plugin documentation for [Other output forma
 </tab>
 <tab title="CLI" group-key="cli">
 
-Since GFM format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to download the
-[JAR file](https://mvnrepository.com/artifact/org.jetbrains.dokka/gfm-plugin/%dokkaVersion%) and pass it to
-`pluginsClasspath`.
+Since GFM format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to 
+[download the JAR file]((https://repo1.maven.org/maven2/org/jetbrains/dokka/gfm-plugin/%dokkaVersion%/gfm-plugin-%dokkaVersion%.jar))
+and pass it to `pluginsClasspath`.
 
 Via [command line options](dokka-cli.md#run-with-command-line-options):
 
@@ -137,9 +137,9 @@ For more information, see the Maven plugin's documentation for [Other output for
 </tab>
 <tab title="CLI" group-key="cli">
 
-Since Jekyll format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to download the
-[JAR file](https://mvnrepository.com/artifact/org.jetbrains.dokka/jekyll-plugin/%dokkaVersion%). This format is also
-based on [GFM](#gfm) format, so you need to provide it as a dependency as well. Both JARs need to be passed to 
+Since Jekyll format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to 
+[download the JAR file](https://repo1.maven.org/maven2/org/jetbrains/dokka/jekyll-plugin/%dokkaVersion%/jekyll-plugin-%dokkaVersion%.jar).
+This format is also based on [GFM](#gfm) format, so you need to provide it as a dependency as well. Both JARs need to be passed to 
 `pluginsClasspath`:
 
 Via [command line options](dokka-cli.md#run-with-command-line-options):

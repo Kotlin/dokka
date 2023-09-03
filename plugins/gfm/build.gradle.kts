@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
@@ -7,20 +11,21 @@ plugins {
 
 dependencies {
     compileOnly(projects.core)
-    implementation(kotlin("reflect"))
-    implementation(projects.plugins.base)
-    testImplementation(projects.plugins.base)
-    testImplementation(projects.plugins.base.baseTestUtils)
-    implementation(libs.jackson.kotlin)
-    testImplementation(projects.core.testApi)
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
 
+    implementation(projects.plugins.base)
+
+    implementation(kotlin("reflect"))
+    implementation(libs.jackson.kotlin)
     constraints {
         implementation(libs.jackson.databind) {
             because("CVE-2022-42003")
         }
     }
+
+    testImplementation(kotlin("test"))
+    testImplementation(projects.plugins.base)
+    testImplementation(projects.plugins.base.baseTestUtils)
+    testImplementation(projects.core.testApi)
 }
 
 registerDokkaArtifactPublication("gfmPlugin") {

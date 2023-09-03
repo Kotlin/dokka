@@ -1,0 +1,85 @@
+public final class org/jetbrains/dokka/analysis/kotlin/KotlinAnalysisPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public fun <init> ()V
+}
+
+public final class org/jetbrains/dokka/analysis/kotlin/internal/DocumentableLanguage : java/lang/Enum {
+	public static final field JAVA Lorg/jetbrains/dokka/analysis/kotlin/internal/DocumentableLanguage;
+	public static final field KOTLIN Lorg/jetbrains/dokka/analysis/kotlin/internal/DocumentableLanguage;
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/analysis/kotlin/internal/DocumentableLanguage;
+	public static fun values ()[Lorg/jetbrains/dokka/analysis/kotlin/internal/DocumentableLanguage;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/DocumentableSourceLanguageParser {
+	public abstract fun getLanguage (Lorg/jetbrains/dokka/model/Documentable;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/analysis/kotlin/internal/DocumentableLanguage;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/ExternalDocumentablesProvider {
+	public abstract fun findClasslike (Lorg/jetbrains/dokka/links/DRI;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/DClasslike;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/FullClassHierarchyBuilder {
+	public abstract fun build (Lorg/jetbrains/dokka/model/DModule;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/InheritanceBuilder {
+	public abstract fun build (Ljava/util/Map;)Ljava/util/List;
+}
+
+public final class org/jetbrains/dokka/analysis/kotlin/internal/InheritanceNode {
+	public fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;Ljava/util/List;Z)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;Ljava/util/List;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lorg/jetbrains/dokka/links/DRI;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/util/List;
+	public final fun component4 ()Z
+	public final fun copy (Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;Ljava/util/List;Z)Lorg/jetbrains/dokka/analysis/kotlin/internal/InheritanceNode;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/analysis/kotlin/internal/InheritanceNode;Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;Ljava/util/List;ZILjava/lang/Object;)Lorg/jetbrains/dokka/analysis/kotlin/internal/InheritanceNode;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getChildren ()Ljava/util/List;
+	public final fun getDri ()Lorg/jetbrains/dokka/links/DRI;
+	public final fun getInterfaces ()Ljava/util/List;
+	public fun hashCode ()I
+	public final fun isInterface ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/analysis/kotlin/internal/InternalKotlinAnalysisPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public fun <init> ()V
+	public final fun getDocumentableSourceLanguageParser ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getExternalDocumentablesProvider ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getFullClassHierarchyBuilder ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getInheritanceBuilder ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getKotlinToJavaService ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getModuleAndPackageDocumentationReader ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getSampleProviderFactory ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getSyntheticDocumentableDetector ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/KotlinToJavaService {
+	public abstract fun findAsJava (Lorg/jetbrains/dokka/links/DRI;)Lorg/jetbrains/dokka/links/DRI;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/ModuleAndPackageDocumentationReader {
+	public abstract fun read (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaModuleDescription;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+	public abstract fun read (Lorg/jetbrains/dokka/model/DModule;)Ljava/util/Map;
+	public abstract fun read (Lorg/jetbrains/dokka/model/DPackage;)Ljava/util/Map;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/SampleProvider : java/lang/AutoCloseable {
+	public abstract fun getSample (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/lang/String;)Lorg/jetbrains/dokka/analysis/kotlin/internal/SampleProvider$SampleSnippet;
+}
+
+public final class org/jetbrains/dokka/analysis/kotlin/internal/SampleProvider$SampleSnippet {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun getBody ()Ljava/lang/String;
+	public final fun getImports ()Ljava/lang/String;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/SampleProviderFactory {
+	public abstract fun build ()Lorg/jetbrains/dokka/analysis/kotlin/internal/SampleProvider;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/SyntheticDocumentableDetector {
+	public abstract fun isSynthetic (Lorg/jetbrains/dokka/model/Documentable;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Z
+}
+

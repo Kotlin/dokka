@@ -1,15 +1,20 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.transformers.pages.comments
 
-import org.intellij.markdown.MarkdownElementTypes
+
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.plus
 import org.jetbrains.dokka.model.toDisplaySourceSets
 import org.jetbrains.dokka.pages.*
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
+import org.jetbrains.dokka.utilities.firstIsInstanceOrNull
 
-open class DocTagToContentConverter : CommentsToContentConverter {
+public open class DocTagToContentConverter : CommentsToContentConverter {
     override fun buildContent(
         docTag: DocTag,
         dci: DCI,
@@ -261,5 +266,5 @@ open class DocTagToContentConverter : CommentsToContentConverter {
         }
     }
 
-    private fun CustomDocTag.isNonemptyFile() = name == MarkdownElementTypes.MARKDOWN_FILE.name && children.size > 1
+    private fun CustomDocTag.isNonemptyFile() = name == MARKDOWN_ELEMENT_FILE_NAME && children.size > 1
 }

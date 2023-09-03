@@ -1,10 +1,14 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import java.net.URL
 
 
-fun ExternalDocumentationLink.Companion.jdk(jdkVersion: Int): ExternalDocumentationLinkImpl =
+public fun ExternalDocumentationLink.Companion.jdk(jdkVersion: Int): ExternalDocumentationLinkImpl =
     ExternalDocumentationLink(
         url =
         if (jdkVersion < 11) "https://docs.oracle.com/javase/${jdkVersion}/docs/api/"
@@ -15,15 +19,15 @@ fun ExternalDocumentationLink.Companion.jdk(jdkVersion: Int): ExternalDocumentat
     )
 
 
-fun ExternalDocumentationLink.Companion.kotlinStdlib(): ExternalDocumentationLinkImpl =
+public fun ExternalDocumentationLink.Companion.kotlinStdlib(): ExternalDocumentationLinkImpl =
     ExternalDocumentationLink("https://kotlinlang.org/api/latest/jvm/stdlib/")
 
 
-fun ExternalDocumentationLink.Companion.androidSdk(): ExternalDocumentationLinkImpl =
+public fun ExternalDocumentationLink.Companion.androidSdk(): ExternalDocumentationLinkImpl =
     ExternalDocumentationLink("https://developer.android.com/reference/kotlin/")
 
 
-fun ExternalDocumentationLink.Companion.androidX(): ExternalDocumentationLinkImpl = ExternalDocumentationLink(
+public fun ExternalDocumentationLink.Companion.androidX(): ExternalDocumentationLinkImpl = ExternalDocumentationLink(
     url = URL("https://developer.android.com/reference/kotlin/"),
     packageListUrl = URL("https://developer.android.com/reference/kotlin/androidx/package-list")
 )

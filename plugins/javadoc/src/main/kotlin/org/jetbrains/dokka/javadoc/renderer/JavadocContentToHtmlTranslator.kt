@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.javadoc.renderer
 
 import org.jetbrains.dokka.base.resolvers.local.LocationProvider
@@ -27,7 +31,7 @@ internal class JavadocContentToHtmlTranslator(
             else -> ""
         }
 
-    fun htmlForText(node: ContentText): String {
+    private fun htmlForText(node: ContentText): String {
         val escapedText = node.text.htmlEscape()
         return when {
             node.style.contains(ContentStyle.InDocumentationAnchor) -> """<em><a id="$escapedText" class="searchTagResult">${escapedText}</a></em>"""

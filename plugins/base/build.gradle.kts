@@ -1,21 +1,28 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.jetbrains.registerDokkaArtifactPublication
 
 plugins {
     id("org.jetbrains.conventions.kotlin-jvm")
     id("org.jetbrains.conventions.maven-publish")
     id("org.jetbrains.conventions.dokka-html-frontend-files")
+    id("org.jetbrains.conventions.base-unit-test")
 }
 
 dependencies {
     compileOnly(projects.core)
+    compileOnly(projects.subprojects.analysisKotlinApi)
 
+    implementation(projects.subprojects.analysisMarkdownJb)
+
+    // Other
     implementation(kotlin("reflect"))
-
     implementation(libs.kotlinx.coroutines.core)
-
-    compileOnly(projects.kotlinAnalysis)
     implementation(libs.jsoup)
-
+    implementation(libs.freemarker)
+    implementation(libs.kotlinx.html)
     implementation(libs.jackson.kotlin)
     constraints {
         implementation(libs.jackson.databind) {
@@ -23,17 +30,17 @@ dependencies {
         }
     }
 
-    implementation(libs.freemarker)
+    // Test only
+    testImplementation(kotlin("test"))
+    testImplementation(libs.junit.jupiterParams)
 
-    testImplementation(projects.plugins.base.baseTestUtils)
+    symbolsTestConfiguration(project(path = ":subprojects:analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestConfiguration(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
+    testImplementation(projects.plugins.base.baseTestUtils) {
+        exclude(module = "analysis-kotlin-descriptors")
+    }
     testImplementation(projects.core.contentMatcherTestUtils)
-
-    implementation(libs.kotlinx.html)
-
-    testImplementation(projects.kotlinAnalysis)
     testImplementation(projects.core.testApi)
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
 
     dokkaHtmlFrontendFiles(projects.plugins.base.frontend) {
         because("fetch frontend files from subproject :plugins:base:frontend")

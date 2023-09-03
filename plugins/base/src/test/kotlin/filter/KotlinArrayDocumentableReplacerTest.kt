@@ -1,11 +1,19 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package filter
 
-import com.jetbrains.rd.util.firstOrNull
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.*
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
+import org.jetbrains.dokka.model.DClass
+import org.jetbrains.dokka.model.FunctionalTypeConstructor
+import org.jetbrains.dokka.model.GenericTypeConstructor
+import org.jetbrains.dokka.model.Invariance
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import utils.OnlyDescriptors
 
 class KotlinArrayDocumentableReplacerTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
@@ -39,9 +47,9 @@ class KotlinArrayDocumentableReplacerTest : BaseAbstractTest() {
                 val typeArrayNames = listOf("IntArray", "BooleanArray", "FloatArray", "DoubleArray", "LongArray", "ShortArray",
                     "CharArray", "ByteArray")
 
-                Assertions.assertEquals(typeArrayNames.size, params?.size)
+                assertEquals(typeArrayNames.size, params?.size)
                 params?.forEachIndexed{ i, param ->
-                    Assertions.assertEquals(GenericTypeConstructor(DRI("kotlin", typeArrayNames[i]), emptyList()),
+                    assertEquals(GenericTypeConstructor(DRI("kotlin", typeArrayNames[i]), emptyList()),
                         param.type)
                 }
             }
@@ -63,13 +71,13 @@ class KotlinArrayDocumentableReplacerTest : BaseAbstractTest() {
         ) {
             preMergeDocumentablesTransformationStage = {
                 val params = it.firstOrNull()?.packages?.firstOrNull()?.functions?.firstOrNull()?.parameters
-                Assertions.assertEquals(
+                assertEquals(
                     Invariance(GenericTypeConstructor(DRI("kotlin", "IntArray"), emptyList())),
                     (params?.firstOrNull()?.type as? GenericTypeConstructor)?.projections?.firstOrNull())
-                Assertions.assertEquals(
+                assertEquals(
                     Invariance(GenericTypeConstructor(DRI("kotlin", "IntArray"), emptyList())),
                     (params?.get(1)?.type as? FunctionalTypeConstructor)?.projections?.get(0))
-                Assertions.assertEquals(
+                assertEquals(
                     Invariance(GenericTypeConstructor(DRI("kotlin", "IntArray"), emptyList())),
                     (params?.get(1)?.type as? FunctionalTypeConstructor)?.projections?.get(1))
             }
@@ -98,11 +106,11 @@ class KotlinArrayDocumentableReplacerTest : BaseAbstractTest() {
                 val myTestClass = it.firstOrNull()?.packages?.firstOrNull()?.classlikes?.firstOrNull()
                 val property = myTestClass?.properties?.firstOrNull()
 
-                Assertions.assertEquals(GenericTypeConstructor(DRI("kotlin", "BooleanArray"), emptyList()),
+                assertEquals(GenericTypeConstructor(DRI("kotlin", "BooleanArray"), emptyList()),
                     property?.type)
-                Assertions.assertEquals(GenericTypeConstructor(DRI("kotlin", "BooleanArray"), emptyList()),
+                assertEquals(GenericTypeConstructor(DRI("kotlin", "BooleanArray"), emptyList()),
                     property?.getter?.type)
-                Assertions.assertEquals(GenericTypeConstructor(DRI("kotlin", "BooleanArray"), emptyList()),
+                assertEquals(GenericTypeConstructor(DRI("kotlin", "BooleanArray"), emptyList()),
                     property?.setter?.parameters?.firstOrNull()?.type)
             }
         }
@@ -123,11 +131,13 @@ class KotlinArrayDocumentableReplacerTest : BaseAbstractTest() {
             preMergeDocumentablesTransformationStage = {
                 val arrTypealias = it.firstOrNull()?.packages?.firstOrNull()?.typealiases?.firstOrNull()
 
-                Assertions.assertEquals(GenericTypeConstructor(DRI("kotlin", "IntArray"), emptyList()),
-                    arrTypealias?.underlyingType?.firstOrNull()?.value)
+                assertEquals(GenericTypeConstructor(DRI("kotlin", "IntArray"), emptyList()),
+                    arrTypealias?.underlyingType?.values?.firstOrNull())
             }
         }
     }
+
+    // Unreal case: Upper bound of a type parameter cannot be an array
     @Test
     fun `generic fun and class`() {
         testInline(
@@ -136,7 +146,7 @@ class KotlinArrayDocumentableReplacerTest : BaseAbstractTest() {
             |package example
             |
             |fun<T : Array<Int>> testFunction() { }
-            |class<T : Array<Int>> myTestClass{ }
+            |class myTestClass<T : Array<Int>>{ }
             |
             |
         """.trimMargin(),
@@ -146,13 +156,15 @@ class KotlinArrayDocumentableReplacerTest : BaseAbstractTest() {
                 val testFun = it.firstOrNull()?.packages?.firstOrNull()?.functions?.firstOrNull()
                 val myTestClass = it.firstOrNull()?.packages?.firstOrNull()?.classlikes?.firstOrNull() as? DClass
 
-                Assertions.assertEquals(GenericTypeConstructor(DRI("kotlin","IntArray"), emptyList()),
+                assertEquals(GenericTypeConstructor(DRI("kotlin","IntArray"), emptyList()),
                     testFun?.generics?.firstOrNull()?.bounds?.firstOrNull())
-                Assertions.assertEquals(GenericTypeConstructor(DRI("kotlin","IntArray"), emptyList()),
+                assertEquals(GenericTypeConstructor(DRI("kotlin","IntArray"), emptyList()),
                     myTestClass?.generics?.firstOrNull()?.bounds?.firstOrNull())
             }
         }
     }
+
+    @OnlyDescriptors("Fix module.contentScope in new Standalone API") // TODO fix module.contentScope [getKtModuleForKtElement]
     @Test
     fun `no jvm source set`() {
         val configurationWithNoJVM = dokkaConfiguration {
@@ -185,12 +197,12 @@ class KotlinArrayDocumentableReplacerTest : BaseAbstractTest() {
         ) {
             preMergeDocumentablesTransformationStage = {
                 val paramsJS = it[1].packages.firstOrNull()?.functions?.firstOrNull()?.parameters
-                Assertions.assertNotEquals(
+                assertNotEquals(
                     GenericTypeConstructor(DRI("kotlin", "IntArray"), emptyList()),
                     paramsJS?.firstOrNull()?.type)
 
                 val paramsJVM = it.firstOrNull()?.packages?.firstOrNull()?.functions?.firstOrNull()?.parameters
-                Assertions.assertEquals(
+                assertEquals(
                     GenericTypeConstructor(DRI("kotlin", "IntArray"), emptyList()),
                     paramsJVM?.firstOrNull()?.type)
             }

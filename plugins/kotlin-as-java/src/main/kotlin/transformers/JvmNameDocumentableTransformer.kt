@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.kotlinAsJava.transformers
 
 import org.jetbrains.dokka.model.*
@@ -5,7 +9,7 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
 
-class JvmNameDocumentableTransformer : DocumentableTransformer {
+public class JvmNameDocumentableTransformer : DocumentableTransformer {
     private val jvmNameProvider = JvmNameProvider()
 
     override fun invoke(original: DModule, context: DokkaContext): DModule {

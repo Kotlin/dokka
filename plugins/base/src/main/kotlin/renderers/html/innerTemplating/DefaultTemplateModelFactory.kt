@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.base.renderers.html.innerTemplating
 
 import freemarker.core.Environment
@@ -26,7 +30,9 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import java.net.URI
 
-class DefaultTemplateModelFactory(val context: DokkaContext) : TemplateModelFactory {
+public class DefaultTemplateModelFactory(
+    public val context: DokkaContext
+) : TemplateModelFactory {
     private val configuration = configuration<DokkaBase, DokkaBaseConfiguration>(context)
     private val isPartial = context.configuration.delayTemplateSubstitution
 
@@ -34,7 +40,7 @@ class DefaultTemplateModelFactory(val context: DokkaContext) : TemplateModelFact
         if (context.configuration.delayTemplateSubstitution || this is ImmediateResolutionTagConsumer) this
         else ImmediateResolutionTagConsumer(this, context)
 
-    data class SourceSetModel(val name: String, val platform: String, val filter: String)
+    public data class SourceSetModel(val name: String, val platform: String, val filter: String)
 
     override fun buildModel(
         page: PageNode,
@@ -91,28 +97,33 @@ class DefaultTemplateModelFactory(val context: DokkaContext) : TemplateModelFact
         get() = URI(this).isAbsolute
 
     private fun Appendable.resourcesForPage(pathToRoot: String, resources: List<String>): Unit =
-        resources.forEach {
-            append(with(createHTML()) {
+        resources.forEach { resource ->
+
+            val resourceHtml = with(createHTML()) {
                 when {
-                    it.URIExtension == "css" ->
+
+                    resource.URIExtension == "css" ->
                         link(
                             rel = LinkRel.stylesheet,
-                            href = if (it.isAbsolute) it else "$pathToRoot$it"
+                            href = if (resource.isAbsolute) resource else "$pathToRoot$resource"
                         )
-                    it.URIExtension == "js" ->
+                    resource.URIExtension == "js" ->
                         script(
                             type = ScriptType.textJavaScript,
-                            src = if (it.isAbsolute) it else "$pathToRoot$it"
+                            src = if (resource.isAbsolute) resource else "$pathToRoot$resource"
                         ) {
-                            if (it == "scripts/main.js" || it.endsWith("_deferred.js"))
+                            if (resource == "scripts/main.js" || resource.endsWith("_deferred.js"))
                                 defer = true
                             else
                                 async = true
                         }
-                    it.isImage() -> link(href = if (it.isAbsolute) it else "$pathToRoot$it")
+                    resource.isImage() -> link(href = if (resource.isAbsolute) resource else "$pathToRoot$resource")
                     else -> null
                 }
-            } ?: it)
+            }
+            if (resourceHtml != null) {
+                append(resourceHtml)
+            }
         }
 }
 

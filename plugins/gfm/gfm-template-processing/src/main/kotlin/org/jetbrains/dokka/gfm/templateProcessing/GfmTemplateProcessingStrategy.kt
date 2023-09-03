@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.gfm.templateProcessing
 
 import org.jetbrains.dokka.DokkaConfiguration
@@ -16,7 +20,9 @@ import org.jetbrains.dokka.templates.TemplateProcessingStrategy
 import java.io.BufferedWriter
 import java.io.File
 
-class GfmTemplateProcessingStrategy(val context: DokkaContext) : TemplateProcessingStrategy {
+public class GfmTemplateProcessingStrategy(
+    public val context: DokkaContext
+) : TemplateProcessingStrategy {
 
     private val externalModuleLinkResolver =
         context.plugin<AllModulesPagePlugin>().querySingle { externalModuleLinkResolver }

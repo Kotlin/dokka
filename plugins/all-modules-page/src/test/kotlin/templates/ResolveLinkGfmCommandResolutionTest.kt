@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.dokka.allModulesPage.templates
 
 import org.jetbrains.dokka.DokkaModuleDescriptionImpl
@@ -8,67 +12,65 @@ import org.jetbrains.dokka.gfm.GfmPlugin
 import org.jetbrains.dokka.gfm.ResolveLinkGfmCommand
 import org.jetbrains.dokka.gfm.templateProcessing.GfmTemplateProcessingPlugin
 import org.jetbrains.dokka.links.DRI
-import org.junit.Rule
-import org.junit.jupiter.api.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class ResolveLinkGfmCommandResolutionTest : MultiModuleAbstractTest() {
-    @get:Rule
-    val folder: TemporaryFolder = TemporaryFolder()
-
-    private fun configuration() = dokkaConfiguration {
-        modules = listOf(
-            DokkaModuleDescriptionImpl(
-                name = "module1",
-                relativePathToOutputDirectory = folder.root.resolve("module1"),
-                includes = emptySet(),
-                sourceOutputDirectory = folder.root.resolve("module1"),
-            ),
-            DokkaModuleDescriptionImpl(
-                name = "module2",
-                relativePathToOutputDirectory = folder.root.resolve("module2"),
-                includes = emptySet(),
-                sourceOutputDirectory = folder.root.resolve("module2"),
-            )
-        )
-        outputDir = folder.root
-    }
 
     @Test
-    fun `should resolve link to another module`(){
-        val testedDri = DRI(
-            packageName = "package2",
-            classNames = "Sample",
-        )
+    fun `should resolve link to another module`(@TempDir outputDirectory: File) {
+        val configuration = dokkaConfiguration {
+            modules = listOf(
+                DokkaModuleDescriptionImpl(
+                    name = "module1",
+                    relativePathToOutputDirectory = outputDirectory.resolve("module1"),
+                    includes = emptySet(),
+                    sourceOutputDirectory = outputDirectory.resolve("module1"),
+                ),
+                DokkaModuleDescriptionImpl(
+                    name = "module2",
+                    relativePathToOutputDirectory = outputDirectory.resolve("module2"),
+                    includes = emptySet(),
+                    sourceOutputDirectory = outputDirectory.resolve("module2"),
+                )
+            )
+            outputDir = outputDirectory
+        }
 
-        val link = StringBuilder().apply {
-            templateCommand(ResolveLinkGfmCommand(testedDri)){
+        val innerModule1 = outputDirectory.resolve("module1").also { assertTrue(it.mkdirs()) }
+        val innerModule2 = outputDirectory.resolve("module2").also { assertTrue(it.mkdirs()) }
+
+        val indexMd = innerModule1.resolve("index.md")
+        val packageList = innerModule2.resolve("package-list")
+
+        val indexMdContent = StringBuilder().apply {
+            templateCommand(
+                ResolveLinkGfmCommand(
+                    dri = DRI(
+                        packageName = "package2",
+                        classNames = "Sample",
+                    )
+                )
+            ) {
                 append("Sample text inside")
             }
         }.toString()
 
-        val expected = "[Sample text inside](../module2/package2/-sample/index.md)"
+        indexMd.writeText(indexMdContent)
+        packageList.writeText(mockedPackageListForPackages(RecognizedLinkFormat.DokkaGFM, "package2"))
 
-        val content = setup(link)
-        val configuration = configuration()
-
-        testFromData(configuration, pluginOverrides = listOf(GfmTemplateProcessingPlugin(), GfmPlugin()), useOutputLocationFromConfig = true) {
+        testFromData(
+            configuration,
+            pluginOverrides = listOf(GfmTemplateProcessingPlugin(), GfmPlugin()),
+            useOutputLocationFromConfig = true
+        ) {
             finishProcessingSubmodules = {
-                assertEquals(expected, content.readText().trim())
+                val expectedIndexMd = "[Sample text inside](../module2/package2/-sample/index.md)"
+                assertEquals(expectedIndexMd, indexMd.readText().trim())
             }
         }
-    }
-
-    private fun setup(content: String): File {
-        folder.create()
-        val innerModule1 = folder.newFolder( "module1")
-        val innerModule2 = folder.newFolder( "module2")
-        val packageList = innerModule2.resolve("package-list")
-        packageList.writeText(mockedPackageListForPackages(RecognizedLinkFormat.DokkaGFM, "package2"))
-        val contentFile = innerModule1.resolve("index.md")
-        contentFile.writeText(content)
-        return contentFile
     }
 }
