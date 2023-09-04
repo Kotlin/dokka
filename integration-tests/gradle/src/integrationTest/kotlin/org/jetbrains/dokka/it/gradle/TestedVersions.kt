@@ -14,7 +14,7 @@ internal open class AllSupportedTestedVersionsArgumentsProvider : TestedVersions
 
 internal object TestedVersions {
 
-    val LATEST = BuildVersions("7.6.2", "1.9.0")
+    val LATEST = BuildVersions("7.6.2", "1.9.10")
 
     /**
      * All supported Gradle/Kotlin versions, including [LATEST]
@@ -23,8 +23,8 @@ internal object TestedVersions {
      */
     val ALL_SUPPORTED =
         BuildVersions.permutations(
-            gradleVersions = listOf("6.9"),
-            kotlinVersions = listOf("1.8.20", "1.7.20", "1.6.21", "1.5.31"),
+            gradleVersions = listOf("7.6.2"),
+            kotlinVersions = listOf("1.9.0", "1.8.20", "1.7.20", "1.6.21", "1.5.31"),
         ) + BuildVersions.permutations(
             gradleVersions = listOf(*ifExhaustive("7.0", "6.1.1")),
             kotlinVersions = listOf(*ifExhaustive( "1.8.0", "1.7.0", "1.6.0", "1.5.0"))
@@ -60,6 +60,7 @@ internal object TestedVersions {
         "1.8.10" to "18.2.0-pre.490",
         "1.8.20" to "18.2.0-pre.546",
         "1.9.0" to "18.2.0-pre.597",
+        "1.9.10" to "18.2.0-pre.597",
     )
 }
 
