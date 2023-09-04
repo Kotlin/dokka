@@ -16,16 +16,18 @@
 
     function wrapSymbolParameters(entry) {
         const symbol = entry.target;
-        const futureWidth = entry.borderBoxSize && entry.borderBoxSize[0] && entry.borderBoxSize[0].inlineSize;
+        const symbolBlockWidth = entry.borderBoxSize && entry.borderBoxSize[0] && entry.borderBoxSize[0].inlineSize;
 
         // Even though the script is marked as `defer` and we wait for `DOMContentLoaded` event,
-        // or if this block is a part of hidden tab, it can happen that `futureWidth` is 0,
+        // or if this block is a part of hidden tab, it can happen that `symbolBlockWidth` is 0,
         // indicating that something hasn't been loaded.
         // In this case, observer will be triggered onсe again when it will be ready.
-        if (futureWidth > 0) {
+        if (symbolBlockWidth > 0) {
             const node = symbol.querySelector(".parameters");
 
-            if (node) { // need to re-calculate if params need to be wrapped after resize
+            if (node) {
+                // if window resize happened and observer was triggered, reset previously wrapped
+                // parameters as they might not need wrapping anymore, and check again
                 node.classList.remove("wrapped");
                 node.querySelectorAll(".parameter .nbsp-indent")
                     .forEach(indent => indent.remove());
@@ -36,7 +38,7 @@
                     .reduce((a, b) => a + b, 0);
 
                 // if signature text takes up more than a single line, wrap params for readability
-                if (innerTextWidth > (futureWidth - leftPaddingPx)) {
+                if (innerTextWidth > (symbolBlockWidth - leftPaddingPx)) {
                     node.classList.add("wrapped");
                     node.querySelectorAll(".parameter").forEach(param => {
                         // has to be a physical indent so that it can be copied. styles like
