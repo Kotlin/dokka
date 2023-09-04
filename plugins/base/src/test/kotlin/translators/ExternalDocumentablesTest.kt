@@ -14,7 +14,6 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.cast
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import utils.OnlyDescriptors
 import utils.UsingJDK
 
 class ExternalDocumentablesTest : BaseAbstractTest() {
@@ -61,10 +60,6 @@ class ExternalDocumentablesTest : BaseAbstractTest() {
         }
     }
 
-
-    // typealias CompletionHandler = (cause: Throwable?) -> Unit
-    // FunctionalTypeConstructor(dri=kotlinx.coroutines/CompletionHandler///PointingToDeclaration/, projections=[], isExtensionFunction=false, isSuspendable=false, presentableName=null, extra=PropertyContainer(map={}))
-    @OnlyDescriptors(reason = "FunctionType has not parameters") // TODO
     @Test
     fun `external documentable from dependency`() {
         val coroutinesPath =
