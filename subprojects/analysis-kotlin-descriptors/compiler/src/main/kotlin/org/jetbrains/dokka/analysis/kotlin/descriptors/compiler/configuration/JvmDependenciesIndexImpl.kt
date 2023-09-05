@@ -14,23 +14,35 @@
  * limitations under the License.
  */
 
-package org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration
+/**
+ * DO NOT MOVE IT
+ * This is a hack for https://github.com/Kotlin/dokka/issues/1599
+ *
+ * Copy-pasted from 1.9.20-Beta-1
+ * Can be removed for Kotlin compiler 1.9.20 and later
+ *
+ * It makes this class threadsafe for Dokka
+ */
+@file:Suppress("PackageDirectoryMismatch")
+package org.jetbrains.kotlin.cli.jvm.index
 
 import com.intellij.ide.highlighter.JavaClassFileType
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import gnu.trove.THashMap
-import it.unimi.dsi.fastutil.ints.IntArrayList
-import org.jetbrains.kotlin.cli.jvm.index.JavaRoot
-import org.jetbrains.kotlin.cli.jvm.index.JvmDependenciesIndex
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
+import java.util.*
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 // speeds up finding files/classes in classpath/java source roots
-// NOT THREADSAFE, needs to be adapted/removed if we want compiler to be multithreaded
+// TODO: KT-58327 needs to be adapted/removed if we want compiler to be multithreaded
 // the main idea of this class is for each package to store roots which contains it to avoid excessive file system traversal
-internal class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependenciesIndex {
+class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependenciesIndex {
+    private val lock = ReentrantLock()
+
     //these fields are computed based on _roots passed to constructor which are filled in later
     private val roots: List<JavaRoot> by lazy { _roots.toList() }
 
@@ -46,7 +58,8 @@ internal class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependencie
         // indices of roots that are known to contain this package
         // if this list contains [1, 3, 5] then roots with indices 1, 3 and 5 are known to contain this package, 2 and 4 are known not to (no information about roots 6 or higher)
         // if this list contains maxIndex that means that all roots containing this package are known
-        val rootIndices = IntArrayList(2)
+        @Suppress("DEPRECATION") // TODO: fix deprecation
+        val rootIndices = com.intellij.util.containers.IntArrayList(2)
     }
 
     // root "Cache" object corresponds to DefaultPackage which exists in every root. Roots with non-default fqname are also listed here but
@@ -55,7 +68,7 @@ internal class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependencie
         Cache().apply {
             roots.indices.forEach(rootIndices::add)
             rootIndices.add(maxIndex)
-            rootIndices.trimToSize(0)
+            rootIndices.trimToSize()
         }
     }
 
@@ -74,8 +87,10 @@ internal class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependencie
         acceptedRootTypes: Set<JavaRoot.RootType>,
         continueSearch: (VirtualFile, JavaRoot.RootType) -> Boolean
     ) {
-        search(TraverseRequest(packageFqName, acceptedRootTypes)) { dir, rootType ->
-            if (continueSearch(dir, rootType)) null else Unit
+        lock.withLock {
+            search(TraverseRequest(packageFqName, acceptedRootTypes)) { dir, rootType ->
+                if (continueSearch(dir, rootType)) null else Unit
+            }
         }
     }
 
@@ -85,26 +100,29 @@ internal class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependencie
         acceptedRootTypes: Set<JavaRoot.RootType>,
         findClassGivenDirectory: (VirtualFile, JavaRoot.RootType) -> T?
     ): T? {
-        // make a decision based on information saved from last class search
-        if (lastClassSearch?.first?.classId != classId) {
-            return search(FindClassRequest(classId, acceptedRootTypes), findClassGivenDirectory)
-        }
-
-        val (cachedRequest, cachedResult) = lastClassSearch!!
-        return when (cachedResult) {
-            is SearchResult.NotFound -> {
-                val limitedRootTypes = acceptedRootTypes - cachedRequest.acceptedRootTypes
-                if (limitedRootTypes.isEmpty()) {
-                    null
-                } else {
-                    search(FindClassRequest(classId, limitedRootTypes), findClassGivenDirectory)
-                }
+        lock.withLock {
+            // TODO: KT-58327 probably should be changed to thread local to fix fast-path
+            // make a decision based on information saved from last class search
+            if (lastClassSearch?.first?.classId != classId) {
+                return search(FindClassRequest(classId, acceptedRootTypes), findClassGivenDirectory)
             }
-            is SearchResult.Found -> {
-                if (cachedRequest.acceptedRootTypes == acceptedRootTypes) {
-                    findClassGivenDirectory(cachedResult.packageDirectory, cachedResult.root.type)
-                } else {
-                    search(FindClassRequest(classId, acceptedRootTypes), findClassGivenDirectory)
+
+            val (cachedRequest, cachedResult) = lastClassSearch!!
+            return when (cachedResult) {
+                is SearchResult.NotFound -> {
+                    val limitedRootTypes = acceptedRootTypes - cachedRequest.acceptedRootTypes
+                    if (limitedRootTypes.isEmpty()) {
+                        null
+                    } else {
+                        search(FindClassRequest(classId, limitedRootTypes), findClassGivenDirectory)
+                    }
+                }
+                is SearchResult.Found -> {
+                    if (cachedRequest.acceptedRootTypes == acceptedRootTypes) {
+                        findClassGivenDirectory(cachedResult.packageDirectory, cachedResult.root.type)
+                    } else {
+                        search(FindClassRequest(classId, acceptedRootTypes), findClassGivenDirectory)
+                    }
                 }
             }
         }
@@ -112,7 +130,7 @@ internal class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependencie
 
     private fun <T : Any> search(request: SearchRequest, handler: (VirtualFile, JavaRoot.RootType) -> T?): T? {
         // a list of package sub names, ["org", "jb", "kotlin"]
-        val packagesPath = request.packageFqName.pathSegments().map { it.identifier }
+        val packagesPath = request.packageFqName.pathSegments().map { it.identifierOrNullIfSpecial ?: return null }
         // a list of caches corresponding to packages, [default, "org", "org.jb", "org.jb.kotlin"]
         val caches = cachesPath(packagesPath)
 
@@ -122,12 +140,11 @@ internal class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependencie
         // NOTE: indices manipulation instead of using caches.reversed() is here for performance reasons
         for (cacheIndex in caches.lastIndex downTo 0) {
             val cacheRootIndices = caches[cacheIndex].rootIndices
-            for (i in 0 until cacheRootIndices.size) {
-                val rootIndex = cacheRootIndices.getInt(i)
+            for (i in 0 until cacheRootIndices.size()) {
+                val rootIndex = cacheRootIndices[i]
                 if (rootIndex <= processedRootsUpTo) continue // roots with those indices have been processed by now
 
-                val directoryInRoot =
-                    travelPath(rootIndex, request.packageFqName, packagesPath, cacheIndex, caches) ?: continue
+                val directoryInRoot = travelPath(rootIndex, request.packageFqName, packagesPath, cacheIndex, caches) ?: continue
                 val root = roots[rootIndex]
                 if (root.type in request.acceptedRootTypes) {
                     val result = handler(directoryInRoot, root.type)
@@ -139,12 +156,7 @@ internal class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependencie
                     }
                 }
             }
-            processedRootsUpTo =
-                if (cacheRootIndices.isEmpty()) {
-                    processedRootsUpTo
-                } else {
-                    cacheRootIndices.getInt(cacheRootIndices.size - 1)
-                }
+            processedRootsUpTo = if (cacheRootIndices.isEmpty) processedRootsUpTo else cacheRootIndices[cacheRootIndices.size() - 1]
         }
 
         if (request is FindClassRequest) {
@@ -166,15 +178,13 @@ internal class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependencie
             for (i in (fillCachesAfter + 1) until cachesPath.size) {
                 // we all know roots that contain this package by now
                 cachesPath[i].rootIndices.add(maxIndex)
-                cachesPath[i].rootIndices.trimToSize(0)
+                cachesPath[i].rootIndices.trimToSize()
             }
             return null
         }
 
-        return synchronized(packageCache) {
-            packageCache[rootIndex].getOrPut(packageFqName.asString()) {
-                doTravelPath(rootIndex, packagesPath, fillCachesAfter, cachesPath)
-            }
+        return packageCache[rootIndex].getOrPut(packageFqName.asString()) {
+            doTravelPath(rootIndex, packagesPath, fillCachesAfter, cachesPath)
         }
     }
 
@@ -236,12 +246,7 @@ internal class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependencie
         return caches
     }
 
-    private fun <E> MutableList<E>.trimToSize(newSize: Int) {
-        subList(newSize, size).clear()
-    }
-
-    private data class FindClassRequest(val classId: ClassId, override val acceptedRootTypes: Set<JavaRoot.RootType>) :
-        SearchRequest {
+    private data class FindClassRequest(val classId: ClassId, override val acceptedRootTypes: Set<JavaRoot.RootType>) : SearchRequest {
         override val packageFqName: FqName
             get() = classId.packageFqName
     }

@@ -14,7 +14,17 @@
  * limitations under the License.
  */
 
-package org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration
+/**
+ * DO NOT MOVE IT
+ * This is a hack for https://github.com/Kotlin/dokka/issues/1599
+ *
+ * Copy-pasted from Kotlin compiler
+ *
+ * It makes this class threadsafe (`topLevelClassesCache` and `binaryCache`) for Dokka
+ *
+ */
+@file:Suppress("PackageDirectoryMismatch")
+package org.jetbrains.kotlin.cli.jvm.compiler
 
 import com.intellij.core.CoreJavaFileManager
 import com.intellij.openapi.diagnostic.Logger
@@ -25,7 +35,6 @@ import com.intellij.psi.impl.file.PsiPackageImpl
 import com.intellij.psi.search.GlobalSearchScope
 import gnu.trove.THashMap
 import gnu.trove.THashSet
-import org.jetbrains.kotlin.cli.jvm.compiler.JvmPackagePartProvider
 import org.jetbrains.kotlin.cli.jvm.index.JavaRoot
 import org.jetbrains.kotlin.cli.jvm.index.JvmDependenciesIndex
 import org.jetbrains.kotlin.cli.jvm.index.SingleJavaFileRootsIndex
@@ -44,7 +53,7 @@ import org.jetbrains.kotlin.util.PerformanceCounter
 // TODO: do not inherit from CoreJavaFileManager to avoid accidental usage of its methods which do not use caches/indices
 // Currently, the only relevant usage of this class as CoreJavaFileManager is at CoreJavaDirectoryService.getPackage,
 // which is indirectly invoked from PsiPackage.getSubPackages
-internal class KotlinCliJavaFileManagerImpl(private val myPsiManager: PsiManager) : CoreJavaFileManager(myPsiManager), KotlinCliJavaFileManager {
+class KotlinCliJavaFileManagerImpl(private val myPsiManager: PsiManager) : CoreJavaFileManager(myPsiManager), KotlinCliJavaFileManager {
     private val perfCounter = PerformanceCounter.create("Find Java class")
     private lateinit var index: JvmDependenciesIndex
     private lateinit var singleJavaFileRootsIndex: SingleJavaFileRootsIndex
