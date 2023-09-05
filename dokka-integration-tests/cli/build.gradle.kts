@@ -15,7 +15,7 @@ evaluationDependsOn(":plugins:base")
 
 dependencies {
     implementation(kotlin("test-junit5"))
-    implementation(projects.integrationTests)
+    implementation(projects.integrationTestUtilities)
 }
 
 /* Create a fat base plugin jar for cli tests */
