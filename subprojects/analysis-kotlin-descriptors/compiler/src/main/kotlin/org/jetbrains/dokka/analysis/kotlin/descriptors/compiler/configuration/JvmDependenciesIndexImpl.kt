@@ -1,17 +1,5 @@
 /*
- * Copyright 2010-2016 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 /**
@@ -40,7 +28,7 @@ import kotlin.concurrent.withLock
 // speeds up finding files/classes in classpath/java source roots
 // TODO: KT-58327 needs to be adapted/removed if we want compiler to be multithreaded
 // the main idea of this class is for each package to store roots which contains it to avoid excessive file system traversal
-class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependenciesIndex {
+public class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependenciesIndex {
     private val lock = ReentrantLock()
 
     //these fields are computed based on _roots passed to constructor which are filled in later
@@ -76,7 +64,7 @@ class JvmDependenciesIndexImpl(_roots: List<JavaRoot>) : JvmDependenciesIndex {
     // helps improve several scenarios, LazyJavaResolverContext.findClassInJava being the most important
     private var lastClassSearch: Pair<FindClassRequest, SearchResult>? = null
 
-    override val indexedRoots by lazy { roots.asSequence() }
+    override val indexedRoots: Sequence<JavaRoot> by lazy { roots.asSequence() }
 
     private val packageCache: Array<out MutableMap<String, VirtualFile?>> by lazy {
         Array(roots.size) { THashMap<String, VirtualFile?>() }
