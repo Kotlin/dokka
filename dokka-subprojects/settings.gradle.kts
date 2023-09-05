@@ -4,14 +4,14 @@
 
 @file:Suppress("UnstableApiUsage")
 
-rootProject.name = "dokka"
+rootProject.name = "dokka-subprojects"
 
 pluginManagement {
-    includeBuild("build-logic")
+    includeBuild("../build-logic")
 
     repositories {
-        gradlePluginPortal()
         mavenCentral()
+        gradlePluginPortal()
     }
 }
 
@@ -52,73 +52,39 @@ dependencyResolutionManagement {
             filter { includeGroup("com.yarnpkg") }
         }
     }
-}
 
-plugins {
-    `gradle-enterprise`
-}
-
-includeBuild("dokka-integration-tests")
-includeBuild("dokka-subprojects")
-includeBuild("dokka-runners/gradle-plugin")
-includeBuild("dokka-runners/gradle-plugin-classic")
-includeBuild("dokka-runners/maven-plugin")
-includeBuild("dokka-runners/cli")
-
-include(
-//    ":core",
-//    ":core:test-api",
-//    ":core:content-matcher-test-utils",
-//
-//    ":subprojects",
-//
-//    ":subprojects:analysis-java-psi",
-//    ":subprojects:analysis-kotlin-api",
-//    ":subprojects:analysis-kotlin-descriptors",
-//    ":subprojects:analysis-kotlin-descriptors:compiler",
-//    ":subprojects:analysis-kotlin-descriptors:ide",
-//    ":subprojects:analysis-kotlin-symbols",
-//    ":subprojects:analysis-markdown-jb",
-//
-////    ":runners:gradle-plugin",
-////    ":runners:cli",
-////    ":runners:maven-plugin",
-//
-//    ":plugins:base",
-//    ":plugins:base:frontend",
-//    ":plugins:base:base-test-utils",
-//    ":plugins:all-modules-page",
-//    ":plugins:templating",
-//    ":plugins:versioning",
-//    ":plugins:android-documentation",
-//
-//    ":plugins:mathjax",
-//    ":plugins:gfm",
-//    ":plugins:gfm:gfm-template-processing",
-//    ":plugins:jekyll",
-//    ":plugins:jekyll:jekyll-template-processing",
-//    ":plugins:kotlin-as-java",
-//    ":plugins:javadoc",
-//
-////    ":integration-tests",
-////    ":integration-tests:gradle",
-////    ":integration-tests:cli",
-////    ":integration-tests:maven",
-//
-//    ":docs-developer",
-)
-
-val isCiBuild = System.getenv("GITHUB_ACTIONS") != null || System.getenv("TEAMCITY_VERSION") != null
-
-
-
-gradleEnterprise {
-    buildScan {
-        termsOfServiceUrl = "https://gradle.com/terms-of-service"
-        termsOfServiceAgree = "yes"
-        publishAlwaysIf(isCiBuild)
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
     }
 }
 
-
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+include(
+    ":analysis-java-psi",
+    ":analysis-kotlin-api",
+    ":analysis-kotlin-descriptors",
+    ":analysis-kotlin-descriptors-compiler",
+    ":analysis-kotlin-descriptors-ide",
+    ":analysis-kotlin-symbols",
+    ":analysis-markdown-jb",
+    ":core",
+    ":core-content-matcher-test-utils",
+    ":core-test-api",
+    ":plugin-all-modules-page",
+    ":plugin-android-documentation",
+    ":plugin-base",
+    ":plugin-base-frontend",
+    ":plugin-base-test-utils",
+    ":plugin-gfm",
+    ":plugin-gfm-template-processing",
+    ":plugin-javadoc",
+    ":plugin-jekyll",
+    ":plugin-jekyll-template-processing",
+    ":plugin-kotlin-as-java",
+    ":plugin-mathjax",
+    ":plugin-templating",
+    ":plugin-versioning",
+)
