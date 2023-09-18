@@ -16,7 +16,6 @@ import utils.assertNotNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import utils.OnlyDescriptors
 
 class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
 
@@ -274,7 +273,6 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
 
     fun PageNode.childrenRec(): List<PageNode> = listOf(this) + children.flatMap { it.childrenRec() }
 
-    @OnlyDescriptors("Enum entry [SMTH] does not have functions") // TODO
     @Test
     fun `should merge enum entries`() {
         testInline(
@@ -299,12 +297,16 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
             configuration(true),
             cleanupOutput = true
         ) {
+            documentablesCreationStage = {
+                print(it)
+            }
             pagesTransformationStage = { root ->
                 val classPage = root.dfs { it.name == "SMTH" } as? ClasslikePageNode
                 assertNotNull(classPage, "Tested class not found!")
 
                 val functions = classPage.findSectionWithName("Functions").assertNotNull("Functions")
-                val method1 = functions.children.singleOrNull().assertNotNull("method1")
+                val method1 = functions.children.single { it.sourceSets.size == 2 && it.dci.dri.singleOrNull()?.callable?.name == "method1" }
+                    .assertNotNull("method1")
 
                 assertEquals(
                     2,
