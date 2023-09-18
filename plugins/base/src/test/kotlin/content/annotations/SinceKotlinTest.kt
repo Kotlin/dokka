@@ -27,6 +27,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")
+                classpath = listOfNotNull(jvmStdlibPath)
                 analysisPlatform = "jvm"
             }
         }
@@ -185,6 +186,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/")
+                    classpath = listOfNotNull(jvmStdlibPath)
                     analysisPlatform = "jvm"
                 }
                 sourceSet {
@@ -193,10 +195,12 @@ class SinceKotlinTest : AbstractRenderingTest() {
                 }
                 sourceSet {
                     sourceRoots = listOf("src/")
+                    classpath = listOfNotNull(commonStdlibPath)
                     analysisPlatform = "common"
                 }
                 sourceSet {
                     sourceRoots = listOf("src/")
+                    classpath = listOfNotNull(jsStdlibPath)
                     analysisPlatform = "js"
                 }
                 sourceSet {
