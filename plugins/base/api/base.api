@@ -1103,24 +1103,6 @@ public final class org/jetbrains/dokka/base/transformers/documentables/CallableE
 	public fun mergeStrategyFor (Lorg/jetbrains/dokka/base/transformers/documentables/CallableExtensions;Lorg/jetbrains/dokka/base/transformers/documentables/CallableExtensions;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
-public final class org/jetbrains/dokka/base/transformers/documentables/ClashingDriIdentifier : org/jetbrains/dokka/model/properties/ExtraProperty {
-	public static final field Companion Lorg/jetbrains/dokka/base/transformers/documentables/ClashingDriIdentifier$Companion;
-	public fun <init> (Ljava/util/Set;)V
-	public final fun component1 ()Ljava/util/Set;
-	public final fun copy (Ljava/util/Set;)Lorg/jetbrains/dokka/base/transformers/documentables/ClashingDriIdentifier;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/transformers/documentables/ClashingDriIdentifier;Ljava/util/Set;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/transformers/documentables/ClashingDriIdentifier;
-	public fun equals (Ljava/lang/Object;)Z
-	public fun getKey ()Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;
-	public final fun getValue ()Ljava/util/Set;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final class org/jetbrains/dokka/base/transformers/documentables/ClashingDriIdentifier$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
-	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
-	public fun mergeStrategyFor (Lorg/jetbrains/dokka/base/transformers/documentables/ClashingDriIdentifier;Lorg/jetbrains/dokka/base/transformers/documentables/ClashingDriIdentifier;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
-}
-
 public final class org/jetbrains/dokka/base/transformers/documentables/DeprecatedDocumentableFilterTransformer : org/jetbrains/dokka/base/transformers/documentables/SuppressedByConditionDocumentableFilterTransformer {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public fun shouldBeSuppressed (Lorg/jetbrains/dokka/model/Documentable;)Z
