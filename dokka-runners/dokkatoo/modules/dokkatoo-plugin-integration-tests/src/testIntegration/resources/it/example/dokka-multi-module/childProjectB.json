@@ -1,0 +1,83 @@
+{
+  "moduleName": "childProjectB",
+  "moduleVersion": "unspecified",
+  "outputDir": ".../dokka-multimodule-example/parentProject/childProjectB/build/dokka/htmlPartial",
+  "cacheRoot": null,
+  "offlineMode": false,
+  "sourceSets": [
+    {
+      "displayName": "jvm",
+      "sourceSetID": {
+        "scopeId": ":parentProject:childProjectB:dokkaHtmlPartial",
+        "sourceSetName": "main"
+      },
+      "classpath": [
+        ".../kotlin-stdlib-1.7.20.jar",
+        ".../kotlin-stdlib-common-1.7.20.jar",
+        ".../annotations-13.0.jar"
+      ],
+      "sourceRoots": [
+        ".../dokka-multimodule-example/parentProject/childProjectB/src/main/kotlin"
+      ],
+      "dependentSourceSets": [],
+      "samples": [],
+      "includes": [
+        ".../dokka-multimodule-example/parentProject/childProjectB/Module.md"
+      ],
+      "includeNonPublic": false,
+      "reportUndocumented": false,
+      "skipEmptyPackages": true,
+      "skipDeprecated": false,
+      "jdkVersion": 8,
+      "sourceLinks": [],
+      "perPackageOptions": [],
+      "externalDocumentationLinks": [
+        {
+          "url": "https://kotlinlang.org/api/latest/jvm/stdlib/",
+          "packageListUrl": "https://kotlinlang.org/api/latest/jvm/stdlib/package-list"
+        },
+        {
+          "url": "https://docs.oracle.com/javase/8/docs/api/",
+          "packageListUrl": "https://docs.oracle.com/javase/8/docs/api/package-list"
+        }
+      ],
+      "languageVersion": null,
+      "apiVersion": null,
+      "noStdlibLink": false,
+      "noJdkLink": false,
+      "suppressedFiles": [],
+      "analysisPlatform": "jvm",
+      "documentedVisibilities": [
+        "PUBLIC"
+      ]
+    }
+  ],
+  "pluginsClasspath": [
+    ".../dokka-analysis-for-integration-tests-SNAPSHOT.jar",
+    ".../dokka-base-for-integration-tests-SNAPSHOT.jar",
+    ".../kotlin-analysis-intellij-for-integration-tests-SNAPSHOT.jar",
+    ".../kotlin-analysis-compiler-for-integration-tests-SNAPSHOT.jar",
+    ".../kotlinx-html-jvm-0.7.5.jar",
+    ".../kotlinx-coroutines-core-jvm-1.6.3.jar",
+    ".../kotlin-stdlib-jdk8-1.7.20.jar",
+    ".../jackson-databind-2.12.7.jar",
+    ".../jackson-annotations-2.12.7.jar",
+    ".../jackson-core-2.12.7.jar",
+    ".../jackson-module-kotlin-2.12.7.jar",
+    ".../kotlin-reflect-1.7.20.jar",
+    ".../kotlin-stdlib-jdk7-1.7.20.jar",
+    ".../kotlin-stdlib-1.7.20.jar",
+    ".../jsoup-1.14.3.jar",
+    ".../freemarker-2.3.31.jar",
+    ".../kotlin-stdlib-common-1.7.20.jar",
+    ".../annotations-13.0.jar"
+  ],
+  "pluginsConfiguration": [],
+  "modules": [],
+  "failOnWarning": false,
+  "delayTemplateSubstitution": true,
+  "suppressObviousFunctions": true,
+  "includes": [],
+  "suppressInheritedMembers": false,
+  "finalizeCoroutines": true
+}

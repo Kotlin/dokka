@@ -1,0 +1,16 @@
+pluginManagement {
+  repositories {
+    gradlePluginPortal()
+    mavenCentral()
+    maven { url = providers.gradleProperty("testMavenRepo") }
+  }
+}
+
+rootProject.name = "it-basic-groovy"
+
+dependencyResolutionManagement {
+  repositories {
+    mavenCentral()
+    maven { url = providers.gradleProperty("testMavenRepo") }
+  }
+}
