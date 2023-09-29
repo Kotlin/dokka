@@ -222,19 +222,19 @@ class GradleDokkaSourceSetBuilderTest {
             GradleSourceLinkBuilder(project).apply {
                 this.remoteLineSuffix.set("ls1")
                 this.localDirectory.set(project.file("p1"))
-                this.remoteUrl.set(URL("https://u1"))
+                this.remoteUrl.set("https://u1")
             })
 
         sourceSet.sourceLink {
             remoteLineSuffix.set("ls2")
             localDirectory.set(project.file("p2"))
-            remoteUrl.set(URL("https://u2"))
+            remoteUrl.set("https://u2")
         }
 
         sourceSet.sourceLink(project.closureOf<GradleSourceLinkBuilder> {
             this.remoteLineSuffix.set("ls3")
             this.localDirectory.set(project.file("p3"))
-            this.remoteUrl.set(URL("https://u3"))
+            this.remoteUrl.set("https://u3")
         })
 
         assertEquals(
@@ -306,21 +306,21 @@ class GradleDokkaSourceSetBuilderTest {
 
         sourceSet.externalDocumentationLinks.add(
             GradleExternalDocumentationLinkBuilder(project).apply {
-                this.url.set(URL("https://u1"))
-                this.packageListUrl.set(URL("https://pl1"))
+                this.url.set("https://u1")
+                this.packageListUrl.set("https://pl1")
             }
         )
 
         sourceSet.externalDocumentationLink {
-            url.set(URL("https://u2"))
+            url.set("https://u2")
         }
 
         sourceSet.externalDocumentationLink(project.closureOf<GradleExternalDocumentationLinkBuilder> {
-            url.set(URL("https://u3"))
+            url.set("https://u3")
         })
 
         sourceSet.externalDocumentationLink(url = "https://u4", packageListUrl = "https://pl4")
-        sourceSet.externalDocumentationLink(url = URL("https://u5"))
+        sourceSet.externalDocumentationLink(url = "https://u5")
 
         assertEquals(
             setOf(

@@ -72,6 +72,10 @@ public data class SourceLinkDefinitionImpl(
     override val remoteLineSuffix: String?,
 ) : DokkaConfiguration.SourceLinkDefinition {
 
+    public constructor(
+        localDirectory: String, remoteUrl: String, remoteLineSuffix: String?
+    ) : this(localDirectory, URL(remoteUrl), remoteLineSuffix)
+
     public companion object {
         public fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinitionImpl {
             val (path, urlAndLine) = srcLink.split('=')

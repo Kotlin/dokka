@@ -462,13 +462,6 @@ open class GradleDokkaSourceSetBuilder(
      * Convenient override to **append** external documentation links to [externalDocumentationLinks].
      */
     fun externalDocumentationLink(url: String, packageListUrl: String? = null) {
-        externalDocumentationLink(URL(url), packageListUrl = packageListUrl?.let(::URL))
-    }
-
-    /**
-     * Convenient override to **append** external documentation links to [externalDocumentationLinks].
-     */
-    fun externalDocumentationLink(url: URL, packageListUrl: URL? = null) {
         externalDocumentationLinks.add(
             GradleExternalDocumentationLinkBuilder(project).apply {
                 this.url.convention(url)
@@ -477,6 +470,17 @@ open class GradleDokkaSourceSetBuilder(
                 }
             }
         )
+    }
+
+    /**
+     * Convenient override to **append** external documentation links to [externalDocumentationLinks].
+     */
+    @Deprecated(
+        "Pass your references as a String instead",
+        ReplaceWith("externalDocumentationLink(url.toString(), packageListUrl = packageListUrl?.toString())")
+    )
+    fun externalDocumentationLink(url: URL, packageListUrl: URL? = null) {
+        externalDocumentationLink(url.toString(), packageListUrl = packageListUrl?.toString())
     }
 
     override fun build(): DokkaSourceSetImpl = toDokkaSourceSetImpl()

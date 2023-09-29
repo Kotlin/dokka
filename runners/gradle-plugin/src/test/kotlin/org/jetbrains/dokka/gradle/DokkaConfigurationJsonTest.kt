@@ -50,8 +50,8 @@ class DokkaConfigurationJsonTest {
                 reportUndocumented.set(true)
 
                 externalDocumentationLink_ {
-                    packageListUrl.set(URL("http://some.url"))
-                    url.set(URL("http://some.other.url"))
+                    packageListUrl.set("http://some.url")
+                    url.set("http://some.other.url")
                 }
                 perPackageOption {
                     includeNonPublic.set(true)

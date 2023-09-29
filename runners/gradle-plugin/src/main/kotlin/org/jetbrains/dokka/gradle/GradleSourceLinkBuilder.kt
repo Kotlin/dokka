@@ -70,7 +70,7 @@ class GradleSourceLinkBuilder(
      * ```
      */
     @Input
-    val remoteUrl: Property<URL> = project.objects.property()
+    val remoteUrl: Property<String> = project.objects.property()
 
     /**
      * Suffix used to append source code line number to the URL. This will help readers navigate

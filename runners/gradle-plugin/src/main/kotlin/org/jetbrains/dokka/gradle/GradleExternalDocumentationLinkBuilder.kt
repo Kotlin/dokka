@@ -13,6 +13,7 @@ import org.gradle.kotlin.dsl.property
 import org.jetbrains.dokka.DokkaConfigurationBuilder
 import org.jetbrains.dokka.ExternalDocumentationLink
 import org.jetbrains.dokka.ExternalDocumentationLinkImpl
+import java.net.URI
 import java.net.URL
 
 /**
@@ -57,7 +58,7 @@ class GradleExternalDocumentationLinkBuilder(
      * ```
      */
     @Input
-    val url: Property<URL> = project.objects.property()
+    val url: Property<String> = project.objects.property()
 
     /**
      * Specifies the exact location of a `package-list` instead of relying on Dokka
@@ -71,7 +72,7 @@ class GradleExternalDocumentationLinkBuilder(
      */
     @Optional
     @Input
-    val packageListUrl: Property<URL> = project.objects.property()
+    val packageListUrl: Property<String> = project.objects.property()
 
     override fun build(): ExternalDocumentationLinkImpl = ExternalDocumentationLink(
         url = checkNotNull(url.get()) { "url not specified " },
