@@ -23,6 +23,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")
+                classpath = listOfNotNull(jvmStdlibPath)
                 analysisPlatform = "jvm"
             }
         }
@@ -531,7 +532,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                                             link {
                                                 check {
                                                     assertEquals(
-                                                        "java.lang/RuntimeException///PointingToDeclaration/",
+                                                        "kotlin/RuntimeException///PointingToDeclaration/",
                                                         (this as ContentDRILink).address.toString()
                                                     )
                                                 }
