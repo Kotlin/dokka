@@ -297,9 +297,6 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
             configuration(true),
             cleanupOutput = true
         ) {
-            documentablesCreationStage = {
-                print(it)
-            }
             pagesTransformationStage = { root ->
                 val classPage = root.dfs { it.name == "SMTH" } as? ClasslikePageNode
                 assertNotNull(classPage, "Tested class not found!")
