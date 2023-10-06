@@ -38,6 +38,10 @@ private fun KotlinCompilation.compileClasspathOf(project: Project): FileCollecti
 }
 
 private fun KotlinCompilation.newCompileClasspathOf(project: Project): FileCollection {
+    if (this.target.isAndroidTarget()) { // Workaround for https://youtrack.jetbrains.com/issue/KT-33893
+        return this.classpathOf(project)
+    }
+
     val result = project.objects.fileCollection()
     result.from({ compileDependencyFiles })
 
