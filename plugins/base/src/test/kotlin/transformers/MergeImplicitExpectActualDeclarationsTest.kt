@@ -13,6 +13,7 @@ import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.firstChildOfType
 import org.jetbrains.dokka.pages.*
 import utils.assertNotNull
+import utils.findSectionWithName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -49,15 +50,6 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
                 """{ "mergeImplicitExpectActualDeclarations": $switchOn }""",
             )
         )
-    }
-
-    private fun ClasslikePageNode.findSectionWithName(name: String) : ContentNode? {
-        var sectionHeader: ContentHeader? = null
-        return content.dfs { node ->
-            node.children.filterIsInstance<ContentHeader>().any { header ->
-                header.children.firstOrNull { it is ContentText && it.text == name }?.also { sectionHeader = header } != null
-            }
-        }?.children?.dropWhile { child -> child != sectionHeader  }?.drop(1)?.firstOrNull()
     }
 
     private fun ContentNode.findTabWithType(type: TabbedContentType): ContentNode? = dfs { node ->
