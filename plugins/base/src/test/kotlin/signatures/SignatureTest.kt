@@ -555,7 +555,6 @@ class SignatureTest : BaseAbstractTest() {
             }
         }
     }
-    @OnlyDescriptorsMPP
     @Test
     fun `actual typealias should have generic parameters and fully qualified name of the expansion type`() {
         val writerPlugin = TestOutputWriterPlugin()

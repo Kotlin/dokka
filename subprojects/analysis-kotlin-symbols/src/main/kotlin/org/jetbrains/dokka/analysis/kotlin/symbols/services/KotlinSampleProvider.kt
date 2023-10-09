@@ -15,6 +15,7 @@ import org.jetbrains.dokka.analysis.kotlin.internal.SampleProviderFactory
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.SamplesKotlinAnalysis
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.SymbolsAnalysisPlugin
 import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.project.structure.KtSourceModule
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtBlockExpression
@@ -37,10 +38,10 @@ public class KotlinSampleProviderFactory(
 public open class KotlinSampleProvider(
     public val context: DokkaContext
 ): SampleProvider {
-    private val kotlinAnalysis = SamplesKotlinAnalysis(
-        sourceSets = context.configuration.sourceSets,
-        context = context,
-        projectKotlinAnalysis = context.plugin<SymbolsAnalysisPlugin>().querySingle { kotlinAnalysis }
+    private val kotlinAnalysisOfRegularSources = context.plugin<SymbolsAnalysisPlugin>().querySingle { kotlinAnalysis }
+
+    private val kotlinAnalysisOfSamples = SamplesKotlinAnalysis(
+        sourceSets = context.configuration.sourceSets, context = context
     )
 
     protected open fun processBody(psiElement: PsiElement): String {
@@ -72,8 +73,13 @@ public open class KotlinSampleProvider(
      * @return [SampleProvider.SampleSnippet] or null if it has not found by [fqLink]
      */
     override fun getSample(sourceSet: DokkaConfiguration.DokkaSourceSet, fqLink: String): SampleProvider.SampleSnippet? {
-        val analysisContext = kotlinAnalysis[sourceSet]
-        val psiElement = analyze(analysisContext.mainModule) {
+        return getSampleFromModule(kotlinAnalysisOfRegularSources.getModule(sourceSet), fqLink) ?: getSampleFromModule(
+            kotlinAnalysisOfRegularSources.getModule(sourceSet),
+            fqLink
+        )
+    }
+    private fun getSampleFromModule(module: KtSourceModule, fqLink: String): SampleProvider.SampleSnippet? {
+        val psiElement = analyze(module) {
             val lastDotIndex = fqLink.lastIndexOf('.')
 
             val functionName = if (lastDotIndex == -1) fqLink else fqLink.substring(lastDotIndex + 1, fqLink.length)
@@ -87,7 +93,8 @@ public open class KotlinSampleProvider(
 
         return SampleProvider.SampleSnippet(imports, body)
     }
+
     override fun close() {
-        kotlinAnalysis.close()
+        kotlinAnalysisOfSamples.close()
     }
 }
