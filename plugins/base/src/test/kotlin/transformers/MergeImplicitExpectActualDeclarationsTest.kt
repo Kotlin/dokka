@@ -13,10 +13,10 @@ import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.firstChildOfType
 import org.jetbrains.dokka.pages.*
 import utils.assertNotNull
+import utils.findSectionWithName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import utils.OnlyDescriptors
 
 class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
 
@@ -50,15 +50,6 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
                 """{ "mergeImplicitExpectActualDeclarations": $switchOn }""",
             )
         )
-    }
-
-    private fun ClasslikePageNode.findSectionWithName(name: String) : ContentNode? {
-        var sectionHeader: ContentHeader? = null
-        return content.dfs { node ->
-            node.children.filterIsInstance<ContentHeader>().any { header ->
-                header.children.firstOrNull { it is ContentText && it.text == name }?.also { sectionHeader = header } != null
-            }
-        }?.children?.dropWhile { child -> child != sectionHeader  }?.drop(1)?.firstOrNull()
     }
 
     private fun ContentNode.findTabWithType(type: TabbedContentType): ContentNode? = dfs { node ->
@@ -274,7 +265,6 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
 
     fun PageNode.childrenRec(): List<PageNode> = listOf(this) + children.flatMap { it.childrenRec() }
 
-    @OnlyDescriptors("Enum entry [SMTH] does not have functions") // TODO
     @Test
     fun `should merge enum entries`() {
         testInline(
@@ -304,7 +294,8 @@ class MergeImplicitExpectActualDeclarationsTest : BaseAbstractTest() {
                 assertNotNull(classPage, "Tested class not found!")
 
                 val functions = classPage.findSectionWithName("Functions").assertNotNull("Functions")
-                val method1 = functions.children.singleOrNull().assertNotNull("method1")
+                val method1 = functions.children.single { it.sourceSets.size == 2 && it.dci.dri.singleOrNull()?.callable?.name == "method1" }
+                    .assertNotNull("method1")
 
                 assertEquals(
                     2,
