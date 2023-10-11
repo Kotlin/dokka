@@ -17,9 +17,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import utils.JavaCode
 
-@JavaCode
 class JavaDeprecatedTest : BaseAbstractTest() {
 
     private val testConfiguration = dokkaConfiguration {
