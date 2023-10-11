@@ -54,7 +54,6 @@ dependencies {
     listOf(
         libs.kotlin.high.level.api.api,
         libs.kotlin.analysis.api.standalone,
-        libs.kotlin.high.level.api.impl // for Standalone prototype
     ).forEach {
         implementation(it) {
             isTransitive = false // see KTIJ-19820
@@ -67,7 +66,7 @@ dependencies {
         libs.kotlin.low.level.api.fir,
         libs.kotlin.analysis.project.structure,
         libs.kotlin.analysis.api.providers,
-        libs.kotlin.symbol.light.classes
+        libs.kotlin.symbol.light.classes,
     ).forEach {
         runtimeOnly(it) {
             isTransitive = false // see KTIJ-19820
