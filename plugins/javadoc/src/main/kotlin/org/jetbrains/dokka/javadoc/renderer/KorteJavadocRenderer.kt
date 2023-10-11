@@ -4,7 +4,7 @@
 
 package org.jetbrains.dokka.javadoc.renderer
 
-import com.soywiz.korte.*
+import korlibs.template.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
