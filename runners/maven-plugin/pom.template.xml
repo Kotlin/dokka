@@ -12,6 +12,7 @@
     <packaging>maven-plugin</packaging>
     <properties>
         <maven.version>${mavenVersion}</maven.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <build>
         <plugins>
@@ -21,10 +22,35 @@
                 <version>${mavenPluginToolsVersion}</version>
                 <configuration>
                     <helpPackageName>org.jetbrains.dokka.maven</helpPackageName>
+                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>default-descriptor</id>
+                        <goals>
+                            <goal>descriptor</goal>
+                        </goals>
+                        <phase>process-classes</phase>
+                    </execution>
+                    <execution>
+                        <id>help-descriptor</id>
+                        <goals>
+                            <goal>helpmojo</goal>
+                        </goals>
+                        <phase>process-classes</phase>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
         <directory>./</directory>
         <outputDirectory>./classes/java/main</outputDirectory>
     </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.maven.plugin-tools</groupId>
+            <artifactId>maven-plugin-annotations</artifactId>
+            <version>${mavenPluginToolsVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

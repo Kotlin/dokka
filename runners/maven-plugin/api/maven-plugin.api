@@ -94,6 +94,11 @@ public final class org/jetbrains/dokka/maven/ExternalDocumentationLinkBuilder {
 	public final fun setUrl (Ljava/net/URL;)V
 }
 
+public class org/jetbrains/dokka/maven/HelpMojo : org/apache/maven/plugin/AbstractMojo {
+	public fun <init> ()V
+	public fun execute ()V
+}
+
 public final class org/jetbrains/dokka/maven/MavenDokkaLogger : org/jetbrains/dokka/utilities/DokkaLogger {
 	public fun <init> (Lorg/apache/maven/plugin/logging/Log;)V
 	public fun debug (Ljava/lang/String;)V
