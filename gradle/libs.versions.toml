@@ -22,8 +22,8 @@ intellij-platform = "213.7172.25"
 ## HTML
 jsoup = "1.15.3"
 freemarker = "2.3.31"
-korlibs-template = "4.0.10"
-kotlinx-html = "0.7.5"
+soywiz-korte = "4.0.10"
+kotlinx-html = "0.9.1"
 
 ## Markdown
 jetbrains-markdown = "0.3.1"
