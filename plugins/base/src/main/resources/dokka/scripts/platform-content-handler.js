@@ -18,8 +18,6 @@ const samplesLightThemeName = 'idea'
 window.addEventListener('load', () => {
     document.querySelectorAll("div[data-platform-hinted]")
         .forEach(elem => elem.addEventListener('click', (event) => togglePlatformDependent(event, elem)))
-    document.querySelectorAll("div[tabs-section]")
-        .forEach(elem => elem.addEventListener('click', (event) => toggleSectionsEventHandler(event)))
     const filterSection = document.getElementById('filter-section')
     if (filterSection) {
         filterSection.addEventListener('click', (event) => filterButtonHandler(event))
@@ -177,19 +175,26 @@ function handleAnchor() {
 }
 
 function initTabs() {
-    document.querySelectorAll("div[tabs-section]")
-        .forEach(element => {
-            showCorrespondingTabBody(element)
-            element.addEventListener('click', (event) => toggleSectionsEventHandler(event))
-        })
-    let cached = localStorage.getItem("active-tab")
-    if (cached) {
-        let parsed = JSON.parse(cached)
-        let tab = document.querySelector('div[tabs-section] > button[data-togglable="' + parsed + '"]')
-        if (tab) {
-            toggleSections(tab)
-        }
-    }
+    document.querySelectorAll("div[tabs-section]").forEach(element => {
+        showCorrespondingTabBody(element)
+        element.addEventListener('click', (event) => toggleSectionsEventHandler(event))
+    });
+
+    initTabsForType("classlike");
+    initTabsForType("package");
+}
+
+function initTabsForType(type) {
+    const cached = localStorage.getItem("active-tab-" + type);
+    if (!cached) return;
+
+    const parsed = JSON.parse(cached);
+    const tab = document.querySelector(
+        'div[tabs-section] > button[data-togglable="' + parsed + '"][data-type="' + type + '"]'
+    );
+    if (!tab) return;
+
+    toggleSections(tab);
 }
 
 function showCorrespondingTabBody(element) {
@@ -294,9 +299,14 @@ function toggleSections(target) {
 }
 
 function toggleSectionsEventHandler(evt) {
-    if (!evt.target.getAttribute("data-togglable")) return
-    localStorage.setItem('active-tab', JSON.stringify(evt.target.getAttribute("data-togglable")))
-    toggleSections(evt.target)
+    const togglable = evt.target.getAttribute("data-togglable");
+    if (!togglable) return;
+
+    const type = evt.target.getAttribute("data-type");
+    if (!type) return;
+
+    localStorage.setItem('active-tab-' + type, JSON.stringify(togglable));
+    toggleSections(evt.target);
 }
 
 function togglePlatformDependent(e, container) {
