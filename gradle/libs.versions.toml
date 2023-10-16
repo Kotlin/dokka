@@ -22,7 +22,7 @@ intellij-platform = "213.7172.25"
 ## HTML
 jsoup = "1.15.3"
 freemarker = "2.3.31"
-soywiz-korte = "4.0.10"
+korlibs-template = "4.0.10"
 kotlinx-html = "0.9.1"
 
 ## Markdown
