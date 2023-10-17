@@ -16,6 +16,7 @@ internal class JavadocAccessorNamingTest : AbstractJavadocTemplateMapTest() {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/main/kotlin")
+                classpath = listOfNotNull(jvmStdlibPath)
             }
         }
     }
@@ -54,13 +55,20 @@ internal class JavadocAccessorNamingTest : AbstractJavadocTemplateMapTest() {
                     .select("code")
                     .map { it.text() }
                     .toSet()
-
-                assertEquals(setOf(
-                    "getIssuesFetched()",
-                    "setIssuesFetched(Integer issuesFetched)",
-                    "isFoo()",
-                    "setFoo(String isFoo)",
-                ), props)
+                // In K2 name of accessors parameter  is `value`
+                assert(
+                    setOf(
+                        "getIssuesFetched()",
+                        "setIssuesFetched(Integer issuesFetched)",
+                        "isFoo()",
+                        "setFoo(String isFoo)",
+                    ) == props || setOf(
+                        "getIssuesFetched()",
+                        "setIssuesFetched(Integer value)",
+                        "isFoo()",
+                        "setFoo(String value)",
+                    ) == props
+                )
 
                 val descriptionLinks = html
                     .select("div.description")

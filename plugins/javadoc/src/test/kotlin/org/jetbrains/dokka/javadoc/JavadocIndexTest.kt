@@ -7,6 +7,7 @@ package org.jetbrains.dokka.javadoc
 import org.jetbrains.dokka.javadoc.pages.IndexPage
 import org.jetbrains.dokka.javadoc.renderer.TemplateMap
 import org.jetbrains.dokka.links.DRI
+import org.junit.jupiter.api.Tag
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -69,6 +70,7 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
         }
     }
 
+    @Tag("onlyDescriptors") // K2: does not have getters: getName, getOrdinal
     @Test
     fun `handles correct number of elements`() {
         //We are checking whether we will have an additional function for enum classes
@@ -76,7 +78,22 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
             AnnotationTarget.ANNOTATION_CLASS::class.java.methods.any { it.name == "describeConstable" }
 
         testIndexPages(commonTestQuery) { indexPages ->
-            assertEquals(if (hasAdditionalFunction()) 33 else 32, indexPages.sumBy { it.elements.size })
+            // K2: does not have getters: getName, getOrdinal
+            assertEquals("A-index: a, A\n" +
+                    "B-index: b\n" +
+                    "C-index: c, ClassA, ClassB, ClassC, ClassC.InnerClass, ClassCEnum, compareTo\n" +
+                    "D-index: d, D\n" +
+                    "E-index: e, E, equals, equals\n" +
+                    "F-index: f\n" +
+                    "G-index: g, getDeclaringClass, getEntries, getName, getOrdinal\n" +
+                    "H-index: h, hashCode, hashCode\n" +
+                    "J-index: j\n" +
+                    "K-index: k\n" +
+                    "P-index: package0, package1\n" +
+                    "T-index: toString, toString\n" +
+                    "V-index: valueOf, values",
+                indexPages.joinToString("\n") { it.title + ": " + it.elements.joinToString { it.getId() } })
+            assertEquals(if (hasAdditionalFunction()) 34 else 33, indexPages.sumBy { it.elements.size })
         }
     }
 
