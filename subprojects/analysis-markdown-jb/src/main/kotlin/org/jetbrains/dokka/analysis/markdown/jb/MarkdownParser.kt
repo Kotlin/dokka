@@ -77,6 +77,28 @@ public open class MarkdownParser(
             ).flatMap { it.children }
         )
 
+    /**
+     * Handler for [MarkdownTokenTypes.ATX_CONTENT], which is the content of the header
+     * elements like [MarkdownElementTypes.ATX_1], [MarkdownElementTypes.ATX_2] and so on.
+     *
+     * For example, a header line like `# Header text` is expected to be parsed into:
+     * - One [MarkdownTokenTypes.ATX_HEADER] with startOffset = 0, endOffset = 1 (only the `#` symbol)
+     * - Composite [MarkdownTokenTypes.ATX_CONTENT] with four children: WHITE_SPACE, TEXT, WHITE_SPACE, TEXT.
+     */
+    private fun headerContentHandler(node: ASTNode): List<DocTag> {
+        // ATX_CONTENT contains everything after the `#` symbol, so if there's a space
+        // in-between the `#` symbol and the text (like `# header`), it will be present here too.
+        // However, we don't need the first space between the `#` symbol and the text,
+        // so we just skip it (otherwise the header text will be parsed as `<whitespace>header` instead of `header`).
+        val textStartsWithWhitespace = node.children.firstOrNull()?.type == MarkdownTokenTypes.WHITE_SPACE
+        val children = if (textStartsWithWhitespace) node.children.subList(1, node.children.size) else node.children
+
+        return DocTagsFromIElementFactory.getInstance(
+            MarkdownElementTypes.PARAGRAPH, // PARAGRAPH instead of TEXT to preserve compatibility with prev. versions
+            children = children.evaluateChildren()
+        )
+    }
+
     private fun horizontalRulesHandler() =
         DocTagsFromIElementFactory.getInstance(MarkdownTokenTypes.HORIZONTAL_RULE)
 
@@ -365,6 +387,7 @@ public open class MarkdownParser(
             MarkdownElementTypes.ATX_5,
             MarkdownElementTypes.ATX_6,
             -> headersHandler(node)
+            MarkdownTokenTypes.ATX_CONTENT -> headerContentHandler(node)
             MarkdownTokenTypes.HORIZONTAL_RULE -> horizontalRulesHandler()
             MarkdownElementTypes.STRONG -> strongHandler(node)
             MarkdownElementTypes.EMPH -> emphasisHandler(node)
