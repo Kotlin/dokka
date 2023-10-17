@@ -175,22 +175,26 @@ function handleAnchor() {
 }
 
 function initTabs() {
-    document.querySelectorAll("div[tabs-section]").forEach(element => {
-        showCorrespondingTabBody(element)
-        element.addEventListener('click', (event) => toggleSectionsEventHandler(event))
+    // we could have only a single type of data - classlike or package
+    const mainContent = document.querySelector('.main-content');
+    const type = mainContent ? mainContent.getAttribute("data-page-type") : null;
+    const localStorageKey = "active-tab-" + type;
+    document.querySelectorAll('div[tabs-section]').forEach(element => {
+        showCorrespondingTabBody(element);
+        element.addEventListener('click', ({target}) => {
+            const togglable = target ? target.getAttribute("data-togglable") : null;
+            if (!togglable) return;
+
+            localStorage.setItem(localStorageKey, JSON.stringify(togglable));
+            toggleSections(target);
+        });
     });
 
-    initTabsForType("classlike");
-    initTabsForType("package");
-}
-
-function initTabsForType(type) {
-    const cached = localStorage.getItem("active-tab-" + type);
+    const cached = localStorage.getItem(localStorageKey);
     if (!cached) return;
 
-    const parsed = JSON.parse(cached);
     const tab = document.querySelector(
-        'div[tabs-section] > button[data-togglable="' + parsed + '"][data-type="' + type + '"]'
+        'div[tabs-section] > button[data-togglable="' + JSON.parse(cached) + '"]'
     );
     if (!tab) return;
 
@@ -296,17 +300,6 @@ function toggleSections(target) {
     }
     activateTabs("tabs-section")
     activateTabsBody("tabs-section-body")
-}
-
-function toggleSectionsEventHandler(evt) {
-    const togglable = evt.target.getAttribute("data-togglable");
-    if (!togglable) return;
-
-    const type = evt.target.getAttribute("data-type");
-    if (!type) return;
-
-    localStorage.setItem('active-tab-' + type, JSON.stringify(togglable));
-    toggleSections(evt.target);
 }
 
 function togglePlatformDependent(e, container) {

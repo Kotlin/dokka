@@ -163,7 +163,6 @@ public open class HtmlRenderer(
                     contentTabs.forEachIndexed { index, contentTab ->
                         button(classes = "section-tab") {
                             if (index == 0) attributes["data-active"] = ""
-                            attributes["data-type"] = pageContext.getDocumentableType() ?: ""
                             attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] =
                                 contentTab.tabbedContentTypes.joinToString(",") { it.toHtmlAttribute() }
                             text(contentTab.text)
