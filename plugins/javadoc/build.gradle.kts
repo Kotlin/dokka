@@ -17,7 +17,7 @@ dependencies {
     implementation(projects.plugins.kotlinAsJava)
 
     implementation(kotlin("reflect"))
-    implementation(libs.soywiz.korte)
+    implementation(libs.korlibs.template)
     implementation(libs.kotlinx.html)
     implementation(libs.kotlinx.coroutines.core)
 
