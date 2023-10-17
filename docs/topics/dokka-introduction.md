@@ -15,7 +15,7 @@ Here are some libraries that use Dokka for their API reference documentation:
 * [Bitmovin](https://cdn.bitmovin.com/player/android/3/docs/index.html)
 * [Hexagon](https://hexagonkt.com/api/index.html)
 * [Ktor](https://api.ktor.io/)
-* [OkHttp](https://square.github.io/okhttp/4.x/okhttp/okhttp3/) (Markdown)
+* [OkHttp](https://square.github.io/okhttp/5.x/okhttp/okhttp3/)
 
 You can run Dokka using [Gradle](dokka-gradle.md), [Maven](dokka-maven.md) or from the [command line](dokka-cli.md). It is also
 [highly pluggable](dokka-plugins.md).
