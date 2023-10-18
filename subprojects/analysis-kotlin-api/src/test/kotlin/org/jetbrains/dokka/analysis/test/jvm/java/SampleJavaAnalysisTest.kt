@@ -19,6 +19,10 @@ class SampleJavaAnalysisTest {
         val testProject = javaTestProject {
             dokkaConfiguration {
                 moduleName = "java-module-name-for-unit-test"
+
+                javaSourceSet {
+                    // source-set specific configuration
+                }
             }
             javaFile(pathFromSrc = "org/jetbrains/dokka/test/java/Bar.java") {
                 +"""

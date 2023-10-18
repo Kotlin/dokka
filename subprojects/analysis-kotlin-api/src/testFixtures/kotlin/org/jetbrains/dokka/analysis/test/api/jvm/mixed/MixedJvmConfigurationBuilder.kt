@@ -4,10 +4,15 @@
 
 package org.jetbrains.dokka.analysis.test.api.jvm.mixed
 
+import org.jetbrains.dokka.DokkaSourceSetID
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.test.api.configuration.BaseTestDokkaConfigurationBuilder
+import org.jetbrains.dokka.analysis.test.api.configuration.BaseTestDokkaSourceSetBuilder
 import org.jetbrains.dokka.analysis.test.api.configuration.TestDokkaConfiguration
-import org.jetbrains.dokka.analysis.test.api.jvm.java.JavaTestSourceSetBuilder
-import org.jetbrains.dokka.analysis.test.api.jvm.kotlin.KotlinJvmTestSourceSetBuilder
+import org.jetbrains.dokka.analysis.test.api.configuration.TestDokkaSourceSet
+import org.jetbrains.dokka.analysis.test.api.jvm.java.JavaTestProject
+import org.jetbrains.dokka.analysis.test.api.jvm.kotlin.KotlinJvmTestProject
+import org.jetbrains.dokka.analysis.test.api.jvm.kotlin.getKotlinJvmStdlibJarPath
 import org.jetbrains.dokka.analysis.test.api.util.AnalysisTestDslMarker
 
 /**
@@ -16,41 +21,49 @@ import org.jetbrains.dokka.analysis.test.api.util.AnalysisTestDslMarker
 class MixedJvmTestConfigurationBuilder : BaseTestDokkaConfigurationBuilder() {
     override var moduleName: String = "mixedJvmTestProject"
 
-    private val kotlinSourceSetBuilder = KotlinJvmTestSourceSetBuilder()
-    private val javaSourceSetBuilder = JavaTestSourceSetBuilder()
+    private val mixedJvmSourceSetBuilder = MixedJvmTestSourceSetBuilder()
 
     @AnalysisTestDslMarker
-    fun kotlinSourceSet(fillSourceSet: KotlinJvmTestSourceSetBuilder.() -> Unit) {
-        fillSourceSet(kotlinSourceSetBuilder)
-    }
-
-    @AnalysisTestDslMarker
-    fun javaSourceSet(fillSourceSet: JavaTestSourceSetBuilder.() -> Unit) {
-        fillSourceSet(javaSourceSetBuilder)
+    fun jvmSourceSet(fillSourceDir: MixedJvmTestSourceSetBuilder.() -> Unit) {
+        fillSourceDir(mixedJvmSourceSetBuilder)
     }
 
     override fun verify() {
         super.verify()
-        kotlinSourceSetBuilder.verify()
-        javaSourceSetBuilder.verify()
+        mixedJvmSourceSetBuilder.verify()
     }
 
     override fun build(): TestDokkaConfiguration {
         return TestDokkaConfiguration(
             moduleName = moduleName,
             includes = includes,
-            sourceSets = setOf(
-                kotlinSourceSetBuilder.build(),
-                javaSourceSetBuilder.build()
-            )
+            sourceSets = setOf(mixedJvmSourceSetBuilder.build())
         )
     }
 
     override fun toString(): String {
         return "MixedJvmTestConfigurationBuilder(" +
                 "moduleName='$moduleName', " +
-                "kotlinSourceSetBuilder=$kotlinSourceSetBuilder, " +
-                "javaSourceSetBuilder=$javaSourceSetBuilder" +
+                "jvmSourceSetBuilder=$mixedJvmSourceSetBuilder" +
                 ")"
+    }
+}
+
+class MixedJvmTestSourceSetBuilder : BaseTestDokkaSourceSetBuilder() {
+    override fun build(): TestDokkaSourceSet {
+        return TestDokkaSourceSet(
+            analysisPlatform = Platform.jvm,
+            sourceSetID = DokkaSourceSetID(scopeId = "project", sourceSetName = "jvm"),
+            dependentSourceSets = setOf(),
+            sourceRoots = additionalSourceRoots + setOf(
+                KotlinJvmTestProject.DEFAULT_SOURCE_ROOT,
+                JavaTestProject.DEFAULT_SOURCE_ROOT
+            ),
+            classpath = additionalClasspath + setOf(getKotlinJvmStdlibJarPath()),
+            includes = includes,
+            samples = samples,
+            languageVersion = languageVersion,
+            apiVersion = apiVersion
+        )
     }
 }

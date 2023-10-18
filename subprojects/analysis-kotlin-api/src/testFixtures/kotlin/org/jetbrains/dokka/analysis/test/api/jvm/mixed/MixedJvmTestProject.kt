@@ -24,8 +24,8 @@ class MixedJvmTestProject : TestProject, MdFileCreator {
 
     private val projectConfigurationBuilder = MixedJvmTestConfigurationBuilder()
 
-    private val kotlinSourceSet = MixedJvmTestData(pathToSources = KotlinJvmTestProject.DEFAULT_SOURCE_ROOT)
-    private val javaSourceSet = MixedJvmTestData(pathToSources = JavaTestProject.DEFAULT_SOURCE_ROOT)
+    private val kotlinSourceDirectory = MixedJvmTestData(pathToSources = KotlinJvmTestProject.DEFAULT_SOURCE_ROOT)
+    private val javaSourceDirectory = MixedJvmTestData(pathToSources = JavaTestProject.DEFAULT_SOURCE_ROOT)
     private val markdownTestData = MarkdownTestData()
 
     @AnalysisTestDslMarker
@@ -34,13 +34,13 @@ class MixedJvmTestProject : TestProject, MdFileCreator {
     }
 
     @AnalysisTestDslMarker
-    fun kotlinSourceSet(fillTestData: MixedJvmTestData.() -> Unit) {
-        fillTestData(kotlinSourceSet)
+    fun kotlinSourceDirectory(fillTestData: MixedJvmTestData.() -> Unit) {
+        fillTestData(kotlinSourceDirectory)
     }
 
     @AnalysisTestDslMarker
-    fun javaSourceSet(fillTestData: MixedJvmTestData.() -> Unit) {
-        fillTestData(javaSourceSet)
+    fun javaSourceDirectory(fillTestData: MixedJvmTestData.() -> Unit) {
+        fillTestData(javaSourceDirectory)
     }
 
     @AnalysisTestDslMarker
@@ -60,8 +60,8 @@ class MixedJvmTestProject : TestProject, MdFileCreator {
         return object : TestData {
             override fun getFiles(): List<TestDataFile> {
                 return flatListOf(
-                    this@MixedJvmTestProject.kotlinSourceSet.getFiles(),
-                    this@MixedJvmTestProject.javaSourceSet.getFiles(),
+                    this@MixedJvmTestProject.kotlinSourceDirectory.getFiles(),
+                    this@MixedJvmTestProject.javaSourceDirectory.getFiles(),
                     this@MixedJvmTestProject.markdownTestData.getFiles()
                 )
             }
@@ -71,8 +71,8 @@ class MixedJvmTestProject : TestProject, MdFileCreator {
     override fun toString(): String {
         return "MixedJvmTestProject(" +
                 "projectConfigurationBuilder=$projectConfigurationBuilder, " +
-                "kotlinSourceSet=$kotlinSourceSet, " +
-                "javaSourceSet=$javaSourceSet, " +
+                "kotlinSourceDirectory=$kotlinSourceDirectory, " +
+                "javaSourceDirectory=$javaSourceDirectory, " +
                 "markdownTestData=$markdownTestData" +
                 ")"
     }

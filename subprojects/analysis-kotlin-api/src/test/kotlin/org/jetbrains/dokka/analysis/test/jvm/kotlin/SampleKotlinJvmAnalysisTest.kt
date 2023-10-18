@@ -19,6 +19,10 @@ class SampleKotlinJvmAnalysisTest {
         val testProject = kotlinJvmTestProject {
             dokkaConfiguration {
                 moduleName = "kotlin-jvm-module-name-for-unit-test"
+
+                kotlinSourceSet {
+                    // source-set specific configuration
+                }
             }
             ktFile(pathFromSrc = "org/jetbrains/dokka/test/kotlin/MyFile.kt") {
                 +"public class Foo {}"

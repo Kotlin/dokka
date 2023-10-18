@@ -19,9 +19,13 @@ class SampleMixedJvmAnalysisTest {
         val testProject = mixedJvmTestProject {
             dokkaConfiguration {
                 moduleName = "mixed-project-module-name-for-unit-test"
+
+                jvmSourceSet {
+                    // source-set specific configuration
+                }
             }
 
-            kotlinSourceSet {
+            kotlinSourceDirectory {
                 ktFile(pathFromSrc = "test/MyFile.kt") {
                     +"fun foo(): String = \"Foo\""
                 }
@@ -36,9 +40,9 @@ class SampleMixedJvmAnalysisTest {
                 }
             }
 
-            javaSourceSet {
+            javaSourceDirectory {
                 ktFile(pathFromSrc = "test/MyFile.kt") {
-                    +"fun bar(): String = \"Foo\""
+                    +"fun bar(): String = \"Bar\""
                 }
                 javaFile(pathFromSrc = "test/MyJavaFileInJava.java") {
                     +"""
@@ -69,9 +73,9 @@ class SampleMixedJvmAnalysisTest {
         assertEquals("MyJavaFileInJava", secondClasslike.name)
 
         val firstFunction = pckg.functions[0]
-        assertEquals("foo", firstFunction.name)
+        assertEquals("bar", firstFunction.name)
 
         val secondFunction = pckg.functions[1]
-        assertEquals("bar", secondFunction.name)
+        assertEquals("foo", secondFunction.name)
     }
 }

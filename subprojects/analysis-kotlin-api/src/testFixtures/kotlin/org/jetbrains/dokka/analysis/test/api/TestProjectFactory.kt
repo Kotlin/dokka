@@ -52,9 +52,9 @@ fun javaTestProject(init: (@AnalysisTestDslMarker JavaTestProject).() -> Unit): 
  *
  * This can be used to test interoperability between JVM languages.
  *
- * By default, it has two source sets:
- * * Kotlin source set, residing in `/src/main/kotlin` - both Kotlin and Java sources are allowed
- * * Java source set, residing in `/src/main/java` - both Kotlin and Java sources are allowed
+ * By default, this project consists of a single "jvm" source set, which has two source root directories:
+ * * `/src/main/kotlin`
+ * * `/src/main/java`
  *
  * See [parse] and [useServices] functions to learn how to run Dokka with this project as input.
  *
