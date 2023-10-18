@@ -73,10 +73,10 @@ public open class KotlinSampleProvider(
      * @return [SampleProvider.SampleSnippet] or null if it has not found by [fqLink]
      */
     override fun getSample(sourceSet: DokkaConfiguration.DokkaSourceSet, fqLink: String): SampleProvider.SampleSnippet? {
-        return getSampleFromModule(kotlinAnalysisOfRegularSources.getModule(sourceSet), fqLink) ?: getSampleFromModule(
-            kotlinAnalysisOfRegularSources.getModule(sourceSet),
-            fqLink
-        )
+        return kotlinAnalysisOfSamples.getModuleOrNull(sourceSet)?.let { getSampleFromModule(it, fqLink) }
+            ?: getSampleFromModule(
+                kotlinAnalysisOfRegularSources.getModule(sourceSet), fqLink
+            )
     }
     private fun getSampleFromModule(module: KtSourceModule, fqLink: String): SampleProvider.SampleSnippet? {
         val psiElement = analyze(module) {

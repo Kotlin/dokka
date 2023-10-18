@@ -40,6 +40,9 @@ internal class KotlinAnalysis(
     fun getModule(sourceSet: DokkaConfiguration.DokkaSourceSet) =
         sourceModules[sourceSet] ?: error("Missing a source module for sourceSet ${sourceSet.displayName} with id ${sourceSet.sourceSetID}")
 
+    fun getModuleOrNull(sourceSet: DokkaConfiguration.DokkaSourceSet) =
+        sourceModules[sourceSet]
+
     val modulesWithFiles
         get() = analysisSession.modulesWithFiles
 
