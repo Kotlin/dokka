@@ -71,6 +71,8 @@ public class DefaultTemplateModelFactory(
         }
         mapper["template_cmd"] = TemplateDirective(context.configuration, pathToRoot)
 
+        calculateSourceUrlFromSourceLinks()?.let { mapper["sourceUrl"] = it }
+
         if (page is ContentPage) {
             val sourceSets = page.content.withDescendants()
                 .flatMap { it.sourceSets }
@@ -91,6 +93,30 @@ public class DefaultTemplateModelFactory(
             ?: DokkaBaseConfiguration.defaultFooterMessage)
     )
 
+    private fun calculateSourceUrlFromSourceLinks(): String? {
+        val githubLinkRegex = Regex("http(s)?://github\\.com/([\\w,\\-_]+)/([\\w,\\-_]+)/.*")
+
+        fun parseGithubInfo(link: String): Pair<String, String>? {
+            val (
+                _, // entire match
+                _, // optional 's' in http
+                owner,
+                repo
+            ) = githubLinkRegex.find(link)?.groupValues ?: return null
+            return owner to repo
+        }
+
+        val (owner, repo) = context.configuration.sourceSets
+            .asSequence()
+            .flatMap { it.sourceLinks }
+            .map { it.remoteUrl.toString() }
+            .map(::parseGithubInfo)
+            .distinct()
+            .singleOrNull() ?: return null
+
+        return "https://github.com/$owner/$repo/"
+    }
+
     private val DisplaySourceSet.comparableKey
         get() = sourceSetIDs.merged.let { it.scopeId + it.sourceSetName }
     private val String.isAbsolute: Boolean
@@ -107,6 +133,7 @@ public class DefaultTemplateModelFactory(
                             rel = LinkRel.stylesheet,
                             href = if (resource.isAbsolute) resource else "$pathToRoot$resource"
                         )
+
                     resource.URIExtension == "js" ->
                         script(
                             type = ScriptType.textJavaScript,
@@ -117,6 +144,7 @@ public class DefaultTemplateModelFactory(
                             else
                                 async = true
                         }
+
                     resource.isImage() -> link(href = if (resource.isAbsolute) resource else "$pathToRoot$resource")
                     else -> null
                 }
@@ -144,7 +172,10 @@ private class PrintDirective(val generateData: () -> String) : TemplateDirective
     }
 }
 
-private class TemplateDirective(val configuration: DokkaConfiguration, val pathToRoot: String) : TemplateDirectiveModel {
+private class TemplateDirective(
+    val configuration: DokkaConfiguration,
+    val pathToRoot: String
+) : TemplateDirectiveModel {
     override fun execute(
         env: Environment,
         params: MutableMap<Any?, Any?>?,
@@ -170,6 +201,7 @@ private class TemplateDirective(val configuration: DokkaConfiguration, val pathT
                     Context(env, body)
                 )
             }
+
             "projectName" -> {
                 body ?: throw TemplateModelException(
                     "No directive body $commandName command."
@@ -183,6 +215,7 @@ private class TemplateDirective(val configuration: DokkaConfiguration, val pathT
                     Context(env, body)
                 )
             }
+
             else -> throw TemplateModelException(
                 "The parameter $PARAM_NAME $commandName is unknown"
             )

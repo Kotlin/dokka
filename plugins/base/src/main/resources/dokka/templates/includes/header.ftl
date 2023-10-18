@@ -21,6 +21,9 @@
         <@source_set_selector.display/>
     </div>
     <div class="navigation-controls">
+        <#if sourceUrl?has_content>
+            <div class="navigation-controls--btn navigation-controls--source" id="source-link" role="button"><a href="${sourceUrl}"></a></div>
+        </#if>
         <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
         <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
     </div>
