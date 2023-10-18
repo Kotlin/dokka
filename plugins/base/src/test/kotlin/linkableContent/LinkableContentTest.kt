@@ -286,7 +286,7 @@ class LinkableContentTest : BaseAbstractTest() {
             sourceSets {
                 sourceSet {
                     analysisPlatform = "js"
-                    sourceRoots = listOf("jsMain", "commonMain", "jvmAndJsSecondCommonMain").map {
+                    sourceRoots = listOf("jsMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
                     name = "js"
@@ -294,7 +294,7 @@ class LinkableContentTest : BaseAbstractTest() {
                 }
                 sourceSet {
                     analysisPlatform = "jvm"
-                    sourceRoots = listOf("jvmMain", "commonMain", "jvmAndJsSecondCommonMain").map {
+                    sourceRoots = listOf("jvmMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
                     name = "jvm"

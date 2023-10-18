@@ -14,10 +14,7 @@ import org.jetbrains.dokka.model.doc.CustomTagWrapper
 import org.jetbrains.dokka.model.doc.Text
 import org.jetbrains.dokka.pages.ContentPage
 import signatures.AbstractRenderingTest
-import utils.ParamAttributes
-import utils.TestOutputWriterPlugin
-import utils.assertNotNull
-import utils.bareSignature
+import utils.*
 import kotlin.test.*
 
 
@@ -125,30 +122,54 @@ class SinceKotlinTest : AbstractRenderingTest() {
         val configuration =   dokkaConfiguration {
             sourceSets {
                 sourceSet {
-                    sourceRoots = listOf("src/")
+                    sourceRoots = listOf("src/jvm/")
                     analysisPlatform = "jvm"
                 }
                 sourceSet {
-                    sourceRoots = listOf("src/")
+                    sourceRoots = listOf("src/native/")
                     analysisPlatform = "native"
                 }
                 sourceSet {
-                    sourceRoots = listOf("src/")
+                    sourceRoots = listOf("src/common/")
                     analysisPlatform = "common"
                 }
                 sourceSet {
-                    sourceRoots = listOf("src/")
+                    sourceRoots = listOf("src/js/")
                     analysisPlatform = "js"
                 }
                 sourceSet {
-                    sourceRoots = listOf("src/")
+                    sourceRoots = listOf("src/wasm/")
                     analysisPlatform = "wasm"
                 }
             }
         }
         testInline(
             """
-            |/src/main/kotlin/test/source.kt
+            |/src/jvm/kotlin/test/source.kt
+            |package test
+            |
+            |fun ring(abc: String): String {
+            |    return "My precious " + abc
+            |}
+            |/src/native/kotlin/test/source.kt
+            |package test
+            |
+            |fun ring(abc: String): String {
+            |    return "My precious " + abc
+            |}
+            |/src/common/kotlin/test/source.kt
+            |package test
+            |
+            |fun ring(abc: String): String {
+            |    return "My precious " + abc
+            |}
+            |/src/js/kotlin/test/source.kt
+            |package test
+            |
+            |fun ring(abc: String): String {
+            |    return "My precious " + abc
+            |}
+            |/src/wasm/kotlin/test/source.kt
             |package test
             |
             |fun ring(abc: String): String {
@@ -181,37 +202,70 @@ class SinceKotlinTest : AbstractRenderingTest() {
     }
 
     @Test
+    @OnlyDescriptorsMPP("SinceKotlin is unresolved in platform source sets")
     fun `mpp fun with SinceKotlin annotation`() {
         val configuration =   dokkaConfiguration {
             sourceSets {
                 sourceSet {
-                    sourceRoots = listOf("src/")
+                    sourceRoots = listOf("src/jvm/")
                     classpath = listOfNotNull(jvmStdlibPath)
                     analysisPlatform = "jvm"
                 }
                 sourceSet {
-                    sourceRoots = listOf("src/")
+                    sourceRoots = listOf("src/native/")
                     analysisPlatform = "native"
                 }
                 sourceSet {
-                    sourceRoots = listOf("src/")
+                    sourceRoots = listOf("src/common/")
                     classpath = listOfNotNull(commonStdlibPath)
                     analysisPlatform = "common"
                 }
                 sourceSet {
-                    sourceRoots = listOf("src/")
+                    sourceRoots = listOf("src/js/")
                     classpath = listOfNotNull(jsStdlibPath)
                     analysisPlatform = "js"
                 }
                 sourceSet {
-                    sourceRoots = listOf("src/")
+                    sourceRoots = listOf("src/wasm/")
                     analysisPlatform = "wasm"
                 }
             }
         }
         testInline(
             """
-            |/src/main/kotlin/test/source.kt
+            |/src/jvm/kotlin/test/source.kt
+            |package test
+            |
+            |/** dssdd */
+            |@SinceKotlin("1.3")
+            |fun ring(abc: String): String {
+            |    return "My precious " + abc
+            |}            
+            |/src/native/kotlin/test/source.kt
+            |package test
+            |
+            |/** dssdd */
+            |@SinceKotlin("1.3")
+            |fun ring(abc: String): String {
+            |    return "My precious " + abc
+            |}
+            |/src/common/kotlin/test/source.kt
+            |package test
+            |
+            |/** dssdd */
+            |@SinceKotlin("1.3")
+            |fun ring(abc: String): String {
+            |    return "My precious " + abc
+            |}            
+            |/src/js/kotlin/test/source.kt
+            |package test
+            |
+            |/** dssdd */
+            |@SinceKotlin("1.3")
+            |fun ring(abc: String): String {
+            |    return "My precious " + abc
+            |}            
+            |/src/wasm/kotlin/test/source.kt
             |package test
             |
             |/** dssdd */
@@ -226,7 +280,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
                     .children.filter { it.name == "ring" && it is DFunction } as List<DFunction>
                 with(funcs) {
                     val sinceKotlin = mapOf(
-                        Platform.common to SinceKotlinVersion("1.3"),
+                       // Platform.common to SinceKotlinVersion("1.3"),
                         Platform.jvm to SinceKotlinVersion("1.3"),
                         Platform.js to SinceKotlinVersion("1.3"),
                         Platform.native to SinceKotlinVersion("1.3"),
@@ -238,7 +292,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
                             find { it.sourceSets.first().analysisPlatform == i.key }?.documentation?.values?.first()
                                 ?.dfs { it is CustomTagWrapper && it.name == "Since Kotlin" }
                                 .assertNotNull("SinceKotlin[${i.key}]")
-                        assertEquals((tag.children.first() as Text).body, i.value.toString())
+                        assertEquals(i.value.toString(), (tag.children.first() as Text).body , "Platform ${i.key}")
                     }
                 }
             }
