@@ -9,11 +9,18 @@ import org.jetbrains.dokka.analysis.test.api.parse
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class MixedJvmAnalysisTest {
+class SampleMixedJvmAnalysisTest {
 
+    /**
+     * Used as a sample for [mixedJvmTestProject]
+     */
     @Test
-    fun mixedJvmTestProject() {
+    fun sample() {
         val testProject = mixedJvmTestProject {
+            dokkaConfiguration {
+                moduleName = "mixed-project-module-name-for-unit-test"
+            }
+
             kotlinSourceSet {
                 ktFile(pathFromSrc = "test/MyFile.kt") {
                     +"fun foo(): String = \"Foo\""
@@ -46,6 +53,7 @@ class MixedJvmAnalysisTest {
         }
 
         val module = testProject.parse()
+        assertEquals("mixed-project-module-name-for-unit-test", module.name)
         assertEquals(1, module.packages.size)
 
         val pckg = module.packages[0]

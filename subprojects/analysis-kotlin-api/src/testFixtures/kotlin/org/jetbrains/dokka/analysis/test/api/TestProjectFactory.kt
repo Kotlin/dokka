@@ -20,7 +20,7 @@ import org.jetbrains.dokka.analysis.test.api.util.AnalysisTestDslMarker
  *
  * See [parse] and [useServices] functions to learn how to run Dokka with this project as input.
  *
- * @sample org.jetbrains.dokka.analysis.test.jvm.kotlin.KotlinJvmAnalysisTest.kotlinJvmTestProject
+ * @sample org.jetbrains.dokka.analysis.test.jvm.kotlin.SampleKotlinJvmAnalysisTest.sample
  */
 fun kotlinJvmTestProject(init: (@AnalysisTestDslMarker KotlinJvmTestProject).() -> Unit): TestProject {
     val testData = KotlinJvmTestProject()
@@ -38,7 +38,7 @@ fun kotlinJvmTestProject(init: (@AnalysisTestDslMarker KotlinJvmTestProject).() 
  *
  * See [parse] and [useServices] functions to learn how to run Dokka with this project as input.
  *
- * @sample org.jetbrains.dokka.analysis.test.jvm.java.JavaAnalysisTest.javaTestProject
+ * @sample org.jetbrains.dokka.analysis.test.jvm.java.SampleJavaAnalysisTest.sample
  */
 fun javaTestProject(init: (@AnalysisTestDslMarker JavaTestProject).() -> Unit): TestProject {
     val testData = JavaTestProject()
@@ -58,7 +58,7 @@ fun javaTestProject(init: (@AnalysisTestDslMarker JavaTestProject).() -> Unit): 
  *
  * See [parse] and [useServices] functions to learn how to run Dokka with this project as input.
  *
- * @sample org.jetbrains.dokka.analysis.test.jvm.mixed.MixedJvmAnalysisTest.mixedJvmTestProject
+ * @sample org.jetbrains.dokka.analysis.test.jvm.mixed.SampleMixedJvmAnalysisTest.sample
  */
 fun mixedJvmTestProject(init: (@AnalysisTestDslMarker MixedJvmTestProject).() -> Unit): TestProject {
     val testProject = MixedJvmTestProject()

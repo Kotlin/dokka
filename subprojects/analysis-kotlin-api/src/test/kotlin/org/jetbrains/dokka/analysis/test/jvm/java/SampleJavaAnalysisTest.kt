@@ -9,10 +9,13 @@ import org.jetbrains.dokka.analysis.test.api.parse
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class JavaAnalysisTest {
+class SampleJavaAnalysisTest {
 
+    /**
+     * Used as a sample for [javaTestProject]
+     */
     @Test
-    fun javaTestProject() {
+    fun sample() {
         val testProject = javaTestProject {
             dokkaConfiguration {
                 moduleName = "java-module-name-for-unit-test"

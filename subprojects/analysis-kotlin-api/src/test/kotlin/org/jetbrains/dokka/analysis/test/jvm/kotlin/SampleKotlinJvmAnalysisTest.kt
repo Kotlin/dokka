@@ -9,17 +9,24 @@ import org.jetbrains.dokka.analysis.test.api.parse
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class KotlinJvmAnalysisTest {
+class SampleKotlinJvmAnalysisTest {
 
+    /**
+     * Used as a sample for [kotlinJvmTestProject]
+     */
     @Test
-    fun kotlinJvmTestProject() {
+    fun sample() {
         val testProject = kotlinJvmTestProject {
+            dokkaConfiguration {
+                moduleName = "kotlin-jvm-module-name-for-unit-test"
+            }
             ktFile(pathFromSrc = "org/jetbrains/dokka/test/kotlin/MyFile.kt") {
                 +"public class Foo {}"
             }
         }
 
         val module = testProject.parse()
+        assertEquals("kotlin-jvm-module-name-for-unit-test", module.name)
         assertEquals(1, module.packages.size)
 
         val pckg = module.packages[0]
