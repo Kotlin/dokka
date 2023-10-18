@@ -15,7 +15,7 @@ class HighlightingTest : BaseAbstractTest() {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")
-                classpath = listOf(commonStdlibPath!!)
+                classpath = listOf(commonStdlibPath!!, jvmStdlibPath!!)
                 externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
             }
         }

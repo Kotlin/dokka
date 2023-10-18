@@ -549,7 +549,6 @@ public final class org/jetbrains/dokka/base/renderers/html/command/consumers/Imm
 	public fun onTagContentEntity (Lkotlinx/html/Entities;)V
 	public fun onTagContentUnsafe (Lkotlin/jvm/functions/Function1;)V
 	public fun onTagEnd (Lkotlinx/html/Tag;)V
-	public fun onTagError (Lkotlinx/html/Tag;Ljava/lang/Throwable;)V
 	public fun onTagEvent (Lkotlinx/html/Tag;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
 	public fun onTagStart (Lkotlinx/html/Tag;)V
 	public final fun processCommand (Lorg/jetbrains/dokka/base/templating/Command;Lkotlin/jvm/functions/Function1;)V

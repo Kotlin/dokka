@@ -10,10 +10,7 @@ import org.jetbrains.dokka.PluginConfigurationImpl
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DisplaySourceSet
-import utils.ParamAttributes
-import utils.bareSignature
-import utils.findTestType
-import utils.OnlyDescriptors
+import utils.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -22,6 +19,7 @@ class ContentForExceptions : BaseAbstractTest() {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")
+                classpath = listOfNotNull(jvmStdlibPath)
                 analysisPlatform = "jvm"
             }
         }
@@ -35,6 +33,7 @@ class ContentForExceptions : BaseAbstractTest() {
                 displayName = "common"
                 analysisPlatform = "common"
                 sourceRoots = listOf("src/commonMain/kotlin/pageMerger/Test.kt")
+                classpath = listOfNotNull(commonStdlibPath)
             }
             sourceSet {
                 name = "jvm"
@@ -42,6 +41,7 @@ class ContentForExceptions : BaseAbstractTest() {
                 analysisPlatform = "jvm"
                 dependentSourceSets = setOf(common.value.sourceSetID)
                 sourceRoots = listOf("src/jvmMain/kotlin/pageMerger/Test.kt")
+                classpath = listOfNotNull(jvmStdlibPath)
             }
             sourceSet {
                 name = "linuxX64"
@@ -339,6 +339,7 @@ class ContentForExceptions : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptorsMPP("Return type for native `function` should be null rather than kotlin/Unit")
     @Test
     fun `throws in merged functions`() {
         testInline(

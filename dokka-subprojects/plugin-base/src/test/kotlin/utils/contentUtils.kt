@@ -5,10 +5,9 @@
 package utils
 
 import matchers.content.*
-import org.jetbrains.dokka.pages.BasicTabbedContentType
-import org.jetbrains.dokka.pages.ContentGroup
-import org.jetbrains.dokka.pages.ContentPage
-import org.jetbrains.dokka.pages.RootPageNode
+import org.jetbrains.dokka.model.dfs
+import org.jetbrains.dokka.pages.*
+import kotlin.test.assertEquals
 
 //TODO: Try to unify those functions after update to 1.4
 fun ContentMatcherBuilder<*>.functionSignature(
@@ -326,6 +325,24 @@ fun ContentMatcherBuilder<*>.unwrapAnnotation(elem: Map.Entry<String, Set<String
             +")"
         }
     }
+}
+inline fun<reified T> PageNode.contentPage(name: String, block: T.() -> Unit) {
+    (dfs { it.name == name } as? T).assertNotNull("The page `$name` is not found").block()
+}
+
+fun ClasslikePageNode.assertHasFunctions(vararg expectedFunctionName: String) {
+    val functions = this.findSectionWithName("Functions").assertNotNull("Functions")
+    val functionsName = functions.children.map { (it.dfs { it is ContentText } as ContentText).text }
+    assertEquals(expectedFunctionName.toList(), functionsName)
+}
+
+fun ClasslikePageNode.findSectionWithName(name: String) : ContentNode? {
+    var sectionHeader: ContentHeader? = null
+    return content.dfs { node ->
+        node.children.filterIsInstance<ContentHeader>().any { header ->
+            header.children.firstOrNull { it is ContentText && it.text == name }?.also { sectionHeader = header } != null
+        }
+    }?.children?.dropWhile { child -> child != sectionHeader  }?.drop(1)?.firstOrNull()
 }
 
 data class ParamAttributes(
