@@ -90,6 +90,8 @@ public open class MarkdownParser(
         // in-between the `#` symbol and the text (like `# header`), it will be present here too.
         // However, we don't need the first space between the `#` symbol and the text,
         // so we just skip it (otherwise the header text will be parsed as `<whitespace>header` instead of `header`).
+        // If there's more space between `#` and text, like `#     header`, it will still be a single WHITE_SPACE
+        // element, but it will be wider, so the solution below should still hold.
         val textStartsWithWhitespace = node.children.firstOrNull()?.type == MarkdownTokenTypes.WHITE_SPACE
         val children = if (textStartsWithWhitespace) node.children.subList(1, node.children.size) else node.children
 

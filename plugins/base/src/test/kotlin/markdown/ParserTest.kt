@@ -1573,7 +1573,23 @@ class ParserTest : KDocTest() {
             P(listOf(Text(" sdsdsds sdd"))),
             P(listOf(Text(" eweww  ")))
         )
-        print(expectedDocumentationNode)
+        assertEquals(actualDocumentationNode, expectedDocumentationNode)
+    }
+
+    @Test // exists due to #3231
+    fun `should ignore the first whitespace in header in-between the hash symbol and header text`() {
+        val markdown = """
+        | #   first header
+        | ##     second header
+        | ###                third header
+        | 
+        """.trimMargin()
+        val actualDocumentationNode = parseMarkdownToDocNode(markdown).children
+        val expectedDocumentationNode = listOf(
+            H1(listOf(Text("first header"))),
+            H2(listOf(Text("second header"))),
+            H3(listOf(Text("third header"))),
+        )
         assertEquals(actualDocumentationNode, expectedDocumentationNode)
     }
 }
