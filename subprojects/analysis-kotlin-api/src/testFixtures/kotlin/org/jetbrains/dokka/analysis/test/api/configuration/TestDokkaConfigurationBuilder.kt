@@ -102,7 +102,9 @@ abstract class BaseTestDokkaSourceSetBuilder {
             verifyFilePathStartsWithSlash("additionalSourceRoots", it)
         }
         additionalClasspath.forEach {
-            verifyFileExtension("additionalClasspath", it, ".jar") // should it include .klib?
+            // this check can be extended to accept .klib, .class or other files
+            // as the need for it arises, as long as Dokka supports it
+            verifyFileExtension("additionalClasspath", it, ".jar")
         }
         includes.forEach {
             verifyFilePathStartsWithSlash("includes", it)

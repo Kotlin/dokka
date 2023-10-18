@@ -99,7 +99,7 @@ object TestProjectAnalyzer {
     private fun TestProject.initialize(outputDirectory: File): Pair<DokkaConfiguration, DokkaContext> {
         analysisLogger.progress("Initializing and verifying project $this")
         this.verify()
-        require(outputDirectory.exists() && outputDirectory.isDirectory) {
+        require(outputDirectory.isDirectory) {
             "outputDirectory has to exist and be a directory: $outputDirectory"
         }
         this.initializeTestFiles(relativeToDir = outputDirectory)
@@ -128,9 +128,9 @@ object TestProjectAnalyzer {
                 throw IllegalStateException("Unable to create dirs \"${testDataFile.parentFile}\"", e)
             }
 
-            analysisLogger.debug("Creating \"${testDataFile.absoluteFile}\"")
+            analysisLogger.debug("Creating \"${testDataFile.absolutePath}\"")
             check(testDataFile.createNewFile()) {
-                "Unable to create a test file: ${testDataFile.absoluteFile}"
+                "Unable to create a test file: ${testDataFile.absolutePath}"
             }
             testDataFile.writeText(it.getContents(), Charsets.UTF_8)
         }
