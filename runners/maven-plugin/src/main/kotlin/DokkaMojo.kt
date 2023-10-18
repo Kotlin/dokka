@@ -389,7 +389,7 @@ public abstract class AbstractDokkaMojo(
             skipEmptyPackages = skipEmptyPackages,
             skipDeprecated = skipDeprecated,
             jdkVersion = jdkVersion,
-            sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(it.path, URL(it.url), it.lineSuffix) }.toSet(),
+            sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(File(it.path).canonicalPath, URL(it.url), it.lineSuffix) }.toSet(),
             perPackageOptions = perPackageOptions.map {
                 @Suppress("DEPRECATION") // for includeNonPublic, preserve backwards compatibility
                 PackageOptionsImpl(
