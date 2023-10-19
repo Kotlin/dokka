@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package buildsrc.conventions
 
 import buildsrc.settings.DokkaSourceDownloaderSettings
@@ -8,61 +12,61 @@ import org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE
 import org.gradle.kotlin.dsl.support.serviceOf
 
 plugins {
-  id("buildsrc.conventions.base")
+    id("buildsrc.conventions.base")
 }
 
 val dsdExt: DokkaSourceDownloaderSettings = extensions.create<DokkaSourceDownloaderSettings>(
-  DokkaSourceDownloaderSettings.EXTENSION_NAME
+    DokkaSourceDownloaderSettings.EXTENSION_NAME
 )
 
 val kotlinDokkaSource by configurations.creating<Configuration> {
-  asConsumer()
-  attributes {
-    attribute(USAGE_ATTRIBUTE, objects.named("externals-dokka-src"))
-  }
+    asConsumer()
+    attributes {
+        attribute(USAGE_ATTRIBUTE, objects.named("externals-dokka-src"))
+    }
 }
 
 val kotlinDokkaSourceElements by configurations.registering {
-  asProvider()
-  attributes {
-    attribute(USAGE_ATTRIBUTE, objects.named("externals-dokka-src"))
-  }
+    asProvider()
+    attributes {
+        attribute(USAGE_ATTRIBUTE, objects.named("externals-dokka-src"))
+    }
 }
 
 dependencies {
-  kotlinDokkaSource(dsdExt.dokkaVersion.map { "kotlin:dokka:$it@zip" })
+    kotlinDokkaSource(dsdExt.dokkaVersion.map { "kotlin:dokka:$it@zip" })
 }
 
 val prepareDokkaSource by tasks.registering(Sync::class) {
-  group = "dokka setup"
-  description = "Download & unpack Kotlin Dokka source code"
+    group = "dokka setup"
+    description = "Download & unpack Kotlin Dokka source code"
 
-  inputs.property("dokkaVersion", dsdExt.dokkaVersion).optional(false)
+    inputs.property("dokkaVersion", dsdExt.dokkaVersion).optional(false)
 
-  val archives = serviceOf<ArchiveOperations>()
+    val archives = serviceOf<ArchiveOperations>()
 
-  from(
-    kotlinDokkaSource.incoming
-      .artifacts
-      .resolvedArtifacts
-      .map { artifacts ->
-        artifacts.map { archives.zipTree(it.file) }
-      }
-  ) {
-    // drop the first dir (dokka-$version)
-    eachFile {
-      relativePath = relativePath.dropDirectories(1)
+    from(
+        kotlinDokkaSource.incoming
+            .artifacts
+            .resolvedArtifacts
+            .map { artifacts ->
+                artifacts.map { archives.zipTree(it.file) }
+            }
+    ) {
+        // drop the first dir (dokka-$version)
+        eachFile {
+            relativePath = relativePath.dropDirectories(1)
+        }
     }
-  }
 
-  into(temporaryDir)
+    into(temporaryDir)
 
-  exclude(
-    "*.github",
-    "*.gradle",
-    "**/gradlew",
-    "**/gradlew.bat",
-    "**/gradle/wrapper/gradle-wrapper.jar",
-    "**/gradle/wrapper/gradle-wrapper.properties",
-  )
+    exclude(
+        "*.github",
+        "*.gradle",
+        "**/gradlew",
+        "**/gradlew.bat",
+        "**/gradle/wrapper/gradle-wrapper.jar",
+        "**/gradle/wrapper/gradle-wrapper.properties",
+    )
 }

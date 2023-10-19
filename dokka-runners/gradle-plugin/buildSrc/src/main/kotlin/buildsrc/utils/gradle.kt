@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package buildsrc.utils
 
 import java.io.File
@@ -20,11 +24,11 @@ import org.gradle.kotlin.dsl.*
  * ```
  */
 fun Configuration.asProvider(
-  visible: Boolean = true
+    visible: Boolean = true
 ) {
-  isVisible = visible
-  isCanBeResolved = false
-  isCanBeConsumed = true
+    isVisible = visible
+    isCanBeResolved = false
+    isCanBeConsumed = true
 }
 
 /**
@@ -36,32 +40,32 @@ fun Configuration.asProvider(
  * ```
  * */
 fun Configuration.asConsumer(
-  visible: Boolean = false
+    visible: Boolean = false
 ) {
-  isVisible = visible
-  isCanBeResolved = true
-  isCanBeConsumed = false
+    isVisible = visible
+    isCanBeResolved = true
+    isCanBeConsumed = false
 }
 
 
 /** Drop the first [count] directories from the path */
 fun RelativePath.dropDirectories(count: Int): RelativePath =
-  RelativePath(true, *segments.drop(count).toTypedArray())
+    RelativePath(true, *segments.drop(count).toTypedArray())
 
 
 /** Drop the first directory from the path */
 fun RelativePath.dropDirectory(): RelativePath =
-  dropDirectories(1)
+    dropDirectories(1)
 
 
 /** Drop the first directory from the path */
 fun RelativePath.dropDirectoriesWhile(
-  segmentPrediate: (segment: String) -> Boolean
+    segmentPrediate: (segment: String) -> Boolean
 ): RelativePath =
-  RelativePath(
-    true,
-    *segments.dropWhile(segmentPrediate).toTypedArray(),
-  )
+    RelativePath(
+        true,
+        *segments.dropWhile(segmentPrediate).toTypedArray(),
+    )
 
 
 /**
@@ -70,9 +74,9 @@ fun RelativePath.dropDirectoriesWhile(
  * https://docs.gradle.org/current/userguide/java_testing.html#publishing_test_fixtures
  */
 fun Project.skipTestFixturesPublications() {
-  val javaComponent = components["java"] as AdhocComponentWithVariants
-  javaComponent.withVariantsFromConfiguration(configurations["testFixturesApiElements"]) { skip() }
-  javaComponent.withVariantsFromConfiguration(configurations["testFixturesRuntimeElements"]) { skip() }
+    val javaComponent = components["java"] as AdhocComponentWithVariants
+    javaComponent.withVariantsFromConfiguration(configurations["testFixturesApiElements"]) { skip() }
+    javaComponent.withVariantsFromConfiguration(configurations["testFixturesRuntimeElements"]) { skip() }
 }
 
 
@@ -90,11 +94,11 @@ fun Project.skipTestFixturesPublications() {
  * create accessors).
  */
 internal inline fun <reified T : Any> ExtensionContainer.adding(
-  name: String,
-  value: T,
+    name: String,
+    value: T,
 ): T {
-  add<T>(name, value)
-  return value
+    add<T>(name, value)
+    return value
 }
 
 /**
@@ -106,13 +110,13 @@ internal inline fun <reified T : Any> ExtensionContainer.adding(
  * @see org.gradle.kotlin.dsl.domainObjectContainer
  */
 internal inline fun <reified T : Any> ObjectFactory.domainObjectContainer(
-  factory: NamedDomainObjectFactory<T>? = null
+    factory: NamedDomainObjectFactory<T>? = null
 ): NamedDomainObjectContainer<T> =
-  if (factory == null) {
-    domainObjectContainer(T::class)
-  } else {
-    domainObjectContainer(T::class, factory)
-  }
+    if (factory == null) {
+        domainObjectContainer(T::class)
+    } else {
+        domainObjectContainer(T::class, factory)
+    }
 
 /** workaround for the overly verbose replacement for the deprecated [Project.getBuildDir] property */
 val Project.buildDir_: File get() = layout.buildDirectory.get().asFile

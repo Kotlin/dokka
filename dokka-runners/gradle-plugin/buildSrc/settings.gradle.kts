@@ -5,27 +5,27 @@
 rootProject.name = "buildSrc"
 
 pluginManagement {
-  repositories {
-    mavenCentral()
-    gradlePluginPortal()
-    google()
-  }
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        google()
+    }
 }
 
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
 
-  repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
 
-  repositories {
-    mavenCentral()
-    gradlePluginPortal()
-    google()
-  }
-
-  versionCatalogs {
-    create("libs") {
-      from(files("../gradle/libs.versions.toml"))
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        google()
     }
-  }
+
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
+    }
 }

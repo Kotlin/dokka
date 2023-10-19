@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package buildsrc.utils
 
 
@@ -10,7 +14,7 @@ internal fun String.lowercaseFirstChar(): String = mapFirstChar(Character::toLow
 
 
 private inline fun String.mapFirstChar(
-  transform: (Char) -> Char
+    transform: (Char) -> Char
 ): String = if (isNotEmpty()) transform(this[0]) + substring(1) else this
 
 
@@ -18,9 +22,9 @@ private inline fun String.mapFirstChar(
  * Exclude all non-alphanumeric characters and converts the result into a camelCase string.
  */
 internal fun String.toAlphaNumericCamelCase(): String =
-  map { if (it.isLetterOrDigit()) it else ' ' }
-    .joinToString("")
-    .split(" ")
-    .filter { it.isNotBlank() }
-    .joinToString("") { it.uppercaseFirstChar() }
-    .lowercaseFirstChar()
+    map { if (it.isLetterOrDigit()) it else ' ' }
+        .joinToString("")
+        .split(" ")
+        .filter { it.isNotBlank() }
+        .joinToString("") { it.uppercaseFirstChar() }
+        .lowercaseFirstChar()

@@ -1,27 +1,31 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package buildsrc.conventions
 
 import buildsrc.utils.asConsumer
 import buildsrc.utils.asProvider
 
 plugins {
-  id("buildsrc.conventions.base")
+    id("buildsrc.conventions.base")
 }
 
 
 val exampleProjectsAttribute: Attribute<String> =
-  Attribute.of("example-projects", String::class.java)
+    Attribute.of("example-projects", String::class.java)
 
 dependencies.attributesSchema {
-  attribute(exampleProjectsAttribute)
+    attribute(exampleProjectsAttribute)
 }
 
 
 val exampleProjects by configurations.registering {
-  asConsumer()
-  attributes { attribute(exampleProjectsAttribute, "dokka") }
+    asConsumer()
+    attributes { attribute(exampleProjectsAttribute, "dokka") }
 }
 
 val exampleProjectsElements by configurations.registering {
-  asProvider()
-  attributes { attribute(exampleProjectsAttribute, "dokka") }
+    asProvider()
+    attributes { attribute(exampleProjectsAttribute, "dokka") }
 }

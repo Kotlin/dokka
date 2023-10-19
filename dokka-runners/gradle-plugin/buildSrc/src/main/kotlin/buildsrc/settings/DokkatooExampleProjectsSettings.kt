@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package buildsrc.settings
 
 import buildsrc.utils.adding
@@ -20,43 +24,43 @@ import org.gradle.api.tasks.OutputFile
  * Settings for the [buildsrc.conventions.Dokkatoo_example_projects_gradle] convention plugin
  */
 abstract class DokkatooExampleProjectsSettings @Inject constructor(
-  objects: ObjectFactory,
+    objects: ObjectFactory,
 ) : ExtensionAware {
 
-  val exampleProjects: NamedDomainObjectContainer<DokkatooExampleProjectSpec> =
-    // create an extension so Gradle will generate DSL accessors
-    extensions.adding("exampleProjects", objects.domainObjectContainer())
+    val exampleProjects: NamedDomainObjectContainer<DokkatooExampleProjectSpec> =
+        // create an extension so Gradle will generate DSL accessors
+        extensions.adding("exampleProjects", objects.domainObjectContainer())
 
-  abstract class DokkatooExampleProjectSpec(
-    private val name: String
-  ): Named {
+    abstract class DokkatooExampleProjectSpec(
+        private val name: String
+    ) : Named {
 
-    /** The `gradle.properties` file of the example project */
-    @get:OutputFile
-    val gradlePropertiesFile: Provider<RegularFile>
-      get() = exampleProjectDir.file("gradle.properties")
+        /** The `gradle.properties` file of the example project */
+        @get:OutputFile
+        val gradlePropertiesFile: Provider<RegularFile>
+            get() = exampleProjectDir.file("gradle.properties")
 
-    /** The directory that contains the example project */
-    @get:Internal
-    abstract val exampleProjectDir: DirectoryProperty
+        /** The directory that contains the example project */
+        @get:Internal
+        abstract val exampleProjectDir: DirectoryProperty
 
-    /**
-     * Content to add to the `gradle.properties` file.
-     *
-     * Elements may span multiple lines.
-     *
-     * Elements will be sorted before appending to the file (to improve caching & reproducibility).
-     */
-    @get:Input
-    @get:Optional
-    abstract val gradlePropertiesContent: ListProperty<String>
+        /**
+         * Content to add to the `gradle.properties` file.
+         *
+         * Elements may span multiple lines.
+         *
+         * Elements will be sorted before appending to the file (to improve caching & reproducibility).
+         */
+        @get:Input
+        @get:Optional
+        abstract val gradlePropertiesContent: ListProperty<String>
 
-    @Input
-    override fun getName(): String = name
-  }
+        @Input
+        override fun getName(): String = name
+    }
 
-  companion object {
-    const val TASK_GROUP = "dokkatoo examples"
-    const val EXTENSION_NAME = "dokkatooExampleProjects"
-  }
+    companion object {
+        const val TASK_GROUP = "dokkatoo examples"
+        const val EXTENSION_NAME = "dokkatooExampleProjects"
+    }
 }

@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package buildsrc.conventions
 
 import java.time.Duration
@@ -8,67 +12,67 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
  */
 
 plugins {
-  base
+    base
 }
 
 if (project != rootProject) {
-  project.version = rootProject.version
-  project.group = rootProject.group
+    project.version = rootProject.version
+    project.group = rootProject.group
 }
 
 tasks.withType<AbstractArchiveTask>().configureEach {
-  // https://docs.gradle.org/current/userguide/working_with_files.html#sec:reproducible_archives
-  isPreserveFileTimestamps = false
-  isReproducibleFileOrder = true
+    // https://docs.gradle.org/current/userguide/working_with_files.html#sec:reproducible_archives
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
 }
 
 tasks.withType<AbstractTestTask>().configureEach {
-  timeout.set(Duration.ofMinutes(60))
+    timeout.set(Duration.ofMinutes(60))
 
-  testLogging {
-    showCauses = true
-    showExceptions = true
-    showStackTraces = true
-    showStandardStreams = true
-    events(
-      TestLogEvent.PASSED,
-      TestLogEvent.FAILED,
-      TestLogEvent.SKIPPED,
-      TestLogEvent.STARTED,
-      TestLogEvent.STANDARD_ERROR,
-      TestLogEvent.STANDARD_OUT,
-    )
-  }
+    testLogging {
+        showCauses = true
+        showExceptions = true
+        showStackTraces = true
+        showStandardStreams = true
+        events(
+            TestLogEvent.PASSED,
+            TestLogEvent.FAILED,
+            TestLogEvent.SKIPPED,
+            TestLogEvent.STARTED,
+            TestLogEvent.STANDARD_ERROR,
+            TestLogEvent.STANDARD_OUT,
+        )
+    }
 }
 
 tasks.withType<AbstractCopyTask>().configureEach {
-  includeEmptyDirs = false
+    includeEmptyDirs = false
 }
 
 val updateTestReportCss by tasks.registering {
-  description = "Hack so the Gradle test reports have dark mode"
-  // the CSS is based on https://github.com/gradle/gradle/pull/12177
+    description = "Hack so the Gradle test reports have dark mode"
+    // the CSS is based on https://github.com/gradle/gradle/pull/12177
 
-  mustRunAfter(tasks.withType<Test>())
-  mustRunAfter(tasks.withType<TestReport>())
+    mustRunAfter(tasks.withType<Test>())
+    mustRunAfter(tasks.withType<TestReport>())
 
-  val cssFiles = layout.buildDirectory.asFileTree.matching {
-    include("reports/**/css/base-style.css")
-    include("reports/**/css/style.css")
-  }
+    val cssFiles = layout.buildDirectory.asFileTree.matching {
+        include("reports/**/css/base-style.css")
+        include("reports/**/css/style.css")
+    }
 
-  outputs.files(cssFiles.files)
+    outputs.files(cssFiles.files)
 
-  doLast {
-    cssFiles.forEach { cssFile ->
-      val fileContent = cssFile.readText()
+    doLast {
+        cssFiles.forEach { cssFile ->
+            val fileContent = cssFile.readText()
 
-      if ("/* Dark mode */" in fileContent) {
-        return@forEach
-      } else {
-        when (cssFile.name) {
-          "base-style.css" -> cssFile.writeText(
-            fileContent + """
+            if ("/* Dark mode */" in fileContent) {
+                return@forEach
+            } else {
+                when (cssFile.name) {
+                    "base-style.css" -> cssFile.writeText(
+                        fileContent + """
               
             /* Dark mode */
             @media (prefers-color-scheme: dark) {
@@ -101,10 +105,10 @@ val updateTestReportCss by tasks.registering {
                 }
             }
           """.trimIndent()
-          )
+                    )
 
-          "style.css"      -> cssFile.writeText(
-            fileContent + """
+                    "style.css" -> cssFile.writeText(
+                        fileContent + """
             
             /* Dark mode */
             @media (prefers-color-scheme: dark) {
@@ -133,23 +137,23 @@ val updateTestReportCss by tasks.registering {
                 }
             }
           """.trimIndent()
-          )
+                    )
+                }
+            }
         }
-      }
     }
-  }
 }
 
 tasks.withType<Test>().configureEach {
-  finalizedBy(updateTestReportCss)
+    finalizedBy(updateTestReportCss)
 }
 
 tasks.withType<TestReport>().configureEach {
-  finalizedBy(updateTestReportCss)
+    finalizedBy(updateTestReportCss)
 }
 
 tasks.matching { it.name == "validatePlugins" }.configureEach {
-  // prevent warning
-  // Task ':validatePlugins' uses this output of task ':updateTestReportCss' without declaring an explicit or implicit dependency.
-  mustRunAfter(updateTestReportCss)
+    // prevent warning
+    // Task ':validatePlugins' uses this output of task ':updateTestReportCss' without declaring an explicit or implicit dependency.
+    mustRunAfter(updateTestReportCss)
 }

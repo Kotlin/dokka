@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package buildsrc.settings
 
 import buildsrc.utils.adding
@@ -22,75 +26,75 @@ import org.gradle.kotlin.dsl.*
 private typealias TemplateProjectsContainer = NamedDomainObjectContainer<DokkaTemplateProjectSettings.DokkaTemplateProjectSpec>
 
 abstract class DokkaTemplateProjectSettings @Inject constructor(
-  private val objects: ObjectFactory,
-  private val copySpecs: () -> CopySpec
+    private val objects: ObjectFactory,
+    private val copySpecs: () -> CopySpec
 ) : ExtensionAware {
 
-  /** Directory that will contain the projects downloaded from the Dokka source code. */
-  abstract val dokkaSourceDir: DirectoryProperty
+    /** Directory that will contain the projects downloaded from the Dokka source code. */
+    abstract val dokkaSourceDir: DirectoryProperty
 
-  abstract val destinationBaseDir: DirectoryProperty
+    abstract val destinationBaseDir: DirectoryProperty
 
-  internal val templateProjects: TemplateProjectsContainer =
-    // create an extension so Gradle will generate DSL accessors
-    extensions.adding("templateProjects", objects.domainObjectContainer { name ->
-      objects.newInstance<DokkaTemplateProjectSpec>(name, copySpecs())
-    })
+    internal val templateProjects: TemplateProjectsContainer =
+        // create an extension so Gradle will generate DSL accessors
+        extensions.adding("templateProjects", objects.domainObjectContainer { name ->
+            objects.newInstance<DokkaTemplateProjectSpec>(name, copySpecs())
+        })
 
-  /**
-   * Copy a directory from the Dokka source project into a local directory.
-   *
-   * @param[source] Source dir, relative to [templateProjectsDir]
-   * @param[destination] Destination dir, relative to [destinationBaseDir]
-   */
-  fun register(
-    source: String,
-    destination: String,
-    configure: DokkaTemplateProjectSpec.() -> Unit = {},
-  ) {
-    val name = source.toAlphaNumericCamelCase()
-    templateProjects.register(name) {
-      this.sourcePath.set(source)
-      this.destinationPath.set(destination)
-      configure()
-    }
-  }
-
-  fun configureEach(configure: DokkaTemplateProjectSpec.() -> Unit) {
-    templateProjects.configureEach(configure)
-  }
-
-  /**
-   * Details for how to copy a Dokka template project from the Dokka project to a local directory.
-   */
-  abstract class DokkaTemplateProjectSpec @Inject constructor(
-    private val named: String,
-    @get:Internal
-    internal val copySpec: CopySpec,
-  ) : Named {
-
-    @get:Input
-    abstract val sourcePath: Property<String>
-
-    @get:Input
-    @get:Optional
-    abstract val destinationPath: Property<String>
-
-    @get:Input
-    abstract val additionalPaths: SetProperty<String>
-
-    @get:InputFiles
-    abstract val additionalFiles: ConfigurableFileCollection
-
-    fun configureCopy(configure: CopySpec.() -> Unit) {
-      copySpec.configure()
+    /**
+     * Copy a directory from the Dokka source project into a local directory.
+     *
+     * @param[source] Source dir, relative to [templateProjectsDir]
+     * @param[destination] Destination dir, relative to [destinationBaseDir]
+     */
+    fun register(
+        source: String,
+        destination: String,
+        configure: DokkaTemplateProjectSpec.() -> Unit = {},
+    ) {
+        val name = source.toAlphaNumericCamelCase()
+        templateProjects.register(name) {
+            this.sourcePath.set(source)
+            this.destinationPath.set(destination)
+            configure()
+        }
     }
 
-    @Input
-    override fun getName(): String = named
-  }
+    fun configureEach(configure: DokkaTemplateProjectSpec.() -> Unit) {
+        templateProjects.configureEach(configure)
+    }
 
-  companion object {
-    const val EXTENSION_NAME = "dokkaTemplateProjects"
-  }
+    /**
+     * Details for how to copy a Dokka template project from the Dokka project to a local directory.
+     */
+    abstract class DokkaTemplateProjectSpec @Inject constructor(
+        private val named: String,
+        @get:Internal
+        internal val copySpec: CopySpec,
+    ) : Named {
+
+        @get:Input
+        abstract val sourcePath: Property<String>
+
+        @get:Input
+        @get:Optional
+        abstract val destinationPath: Property<String>
+
+        @get:Input
+        abstract val additionalPaths: SetProperty<String>
+
+        @get:InputFiles
+        abstract val additionalFiles: ConfigurableFileCollection
+
+        fun configureCopy(configure: CopySpec.() -> Unit) {
+            copySpec.configure()
+        }
+
+        @Input
+        override fun getName(): String = named
+    }
+
+    companion object {
+        const val EXTENSION_NAME = "dokkaTemplateProjects"
+    }
 }
