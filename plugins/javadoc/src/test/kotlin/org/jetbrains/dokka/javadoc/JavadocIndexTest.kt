@@ -70,7 +70,6 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
         }
     }
 
-    @Tag("onlyDescriptors") // K2: does not have getters: getName, getOrdinal
     @Test
     fun `handles correct number of elements`() {
         //We are checking whether we will have an additional function for enum classes
@@ -78,7 +77,6 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
             AnnotationTarget.ANNOTATION_CLASS::class.java.methods.any { it.name == "describeConstable" }
 
         testIndexPages(commonTestQuery) { indexPages ->
-            // K2: does not have getters: getName, getOrdinal
             assertEquals("A-index: a, A\n" +
                     "B-index: b\n" +
                     "C-index: c, ClassA, ClassB, ClassC, ClassC.InnerClass, ClassCEnum, compareTo\n" +
