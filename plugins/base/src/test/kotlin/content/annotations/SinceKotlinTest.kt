@@ -128,18 +128,22 @@ class SinceKotlinTest : AbstractRenderingTest() {
                 sourceSet {
                     sourceRoots = listOf("src/native/")
                     analysisPlatform = "native"
+                    name = "native"
                 }
                 sourceSet {
                     sourceRoots = listOf("src/common/")
                     analysisPlatform = "common"
+                    name = "common"
                 }
                 sourceSet {
                     sourceRoots = listOf("src/js/")
                     analysisPlatform = "js"
+                    name = "js"
                 }
                 sourceSet {
                     sourceRoots = listOf("src/wasm/")
                     analysisPlatform = "wasm"
+                    name = "wasm"
                 }
             }
         }
@@ -213,20 +217,24 @@ class SinceKotlinTest : AbstractRenderingTest() {
                 sourceSet {
                     sourceRoots = listOf("src/native/")
                     analysisPlatform = "native"
+                    name = "native"
                 }
                 sourceSet {
                     sourceRoots = listOf("src/common/")
                     classpath = listOfNotNull(commonStdlibPath)
                     analysisPlatform = "common"
+                    name = "common"
                 }
                 sourceSet {
                     sourceRoots = listOf("src/js/")
                     classpath = listOfNotNull(jsStdlibPath)
                     analysisPlatform = "js"
+                    name = "js"
                 }
                 sourceSet {
                     sourceRoots = listOf("src/wasm/")
                     analysisPlatform = "wasm"
+                    name = "wasm"
                 }
             }
         }
@@ -279,7 +287,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
                     .children.filter { it.name == "ring" && it is DFunction } as List<DFunction>
                 with(funcs) {
                     val sinceKotlin = mapOf(
-                       // Platform.common to SinceKotlinVersion("1.3"),
+                        Platform.common to SinceKotlinVersion("1.3"),
                         Platform.jvm to SinceKotlinVersion("1.3"),
                         Platform.js to SinceKotlinVersion("1.3"),
                         Platform.native to SinceKotlinVersion("1.3"),
