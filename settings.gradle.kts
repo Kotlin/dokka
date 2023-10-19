@@ -61,12 +61,11 @@ plugins {
 // TODO [structure-refactoring] enable all
 //includeBuild("dokka-integration-tests")
 includeBuild("dokka-subprojects")
+// gradle-plugin should sync, but might not be buildable yet
 //includeBuild("dokka-runners/gradle-plugin")
 includeBuild("dokka-runners/gradle-plugin-classic")
 includeBuild("dokka-runners/maven-plugin")
 includeBuild("dokka-runners/cli")
-
-includeBuild("dokka-runners/dokkatoo")
 
 val isCiBuild = System.getenv("GITHUB_ACTIONS") != null || System.getenv("TEAMCITY_VERSION") != null
 

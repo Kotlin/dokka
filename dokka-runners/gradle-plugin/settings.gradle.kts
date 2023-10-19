@@ -7,24 +7,20 @@
 rootProject.name = "gradle-plugin"
 
 pluginManagement {
-    includeBuild("../../build-logic")
-
     repositories {
         mavenCentral()
         gradlePluginPortal()
+        google()
     }
 }
 
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
-    }
-
-    versionCatalogs {
-        create("libs") {
-            from(files("../../gradle/libs.versions.toml"))
-        }
+        gradlePluginPortal()
+        google()
     }
 }
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
