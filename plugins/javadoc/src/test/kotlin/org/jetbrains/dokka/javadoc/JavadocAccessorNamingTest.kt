@@ -8,6 +8,7 @@ import org.jsoup.Jsoup
 import utils.TestOutputWriterPlugin
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal class JavadocAccessorNamingTest : AbstractJavadocTemplateMapTest() {
 
@@ -56,7 +57,7 @@ internal class JavadocAccessorNamingTest : AbstractJavadocTemplateMapTest() {
                     .map { it.text() }
                     .toSet()
                 // In K2 name of accessors parameter  is `value`
-                assert(
+                assertTrue(
                     setOf(
                         "getIssuesFetched()",
                         "setIssuesFetched(Integer issuesFetched)",
