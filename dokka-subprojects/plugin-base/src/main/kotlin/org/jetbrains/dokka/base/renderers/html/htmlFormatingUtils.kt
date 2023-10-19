@@ -23,14 +23,17 @@ public fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String, hasLa
     }
 }
 
-public fun FlowContent.buildBreakableDotSeparatedHtml(name: String) {
-    val phrases = name.split(".")
+/**
+ * Makes [name] breakable after each occurrence of [breakableChar].
+ */
+public fun FlowContent.buildBreakableCharSeparatedHtml(name: String, breakableChar: Char) {
+    val phrases = name.split(breakableChar)
     phrases.forEachIndexed { i, e ->
-        val elementWithOptionalDot = e.takeIf { i == phrases.lastIndex } ?: "$e."
+        val elementWithOptionalChar = e.takeIf { i == phrases.lastIndex } ?: "$e$breakableChar"
         if (e.length > 10) {
-            buildTextBreakableAfterCapitalLetters(elementWithOptionalDot, hasLastElement = i == phrases.lastIndex)
+            buildTextBreakableAfterCapitalLetters(elementWithOptionalChar, hasLastElement = i == phrases.lastIndex)
         } else {
-            buildBreakableHtmlElement(elementWithOptionalDot, i == phrases.lastIndex)
+            buildBreakableHtmlElement(elementWithOptionalChar, i == phrases.lastIndex)
         }
     }
 }
@@ -62,6 +65,7 @@ private fun FlowContent.buildBreakableHtmlElement(element: String, last: Boolean
 }
 
 public fun FlowContent.buildBreakableText(name: String) {
-    if (name.contains(".")) buildBreakableDotSeparatedHtml(name)
+    if (name.contains(".")) buildBreakableCharSeparatedHtml(name, '.')
+    else if (name.contains("_")) buildBreakableCharSeparatedHtml(name, '_')
     else buildTextBreakableAfterCapitalLetters(name, hasLastElement = true)
 }
