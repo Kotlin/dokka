@@ -8,11 +8,6 @@ plugins {
     id("buildsrc.conventions.base")
     id("buildsrc.conventions.java-base")
     id("org.gradle.kotlin.kotlin-dsl")
-    id("com.gradle.plugin-publish")
-}
-
-tasks.validatePlugins {
-    enableStricterValidation.set(true)
 }
 
 val createJavadocJarReadme by tasks.registering(Sync::class) {

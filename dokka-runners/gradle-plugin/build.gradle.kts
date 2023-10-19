@@ -11,9 +11,6 @@ plugins {
     buildsrc.conventions.`kotlin-gradle-plugin`
     kotlin("plugin.serialization")
 
-    dev.adamko.kotlin.`binary-compatibility-validator`
-
-    dev.adamko.`dokkatoo-html`
     buildsrc.conventions.`maven-publishing`
 
     `java-test-fixtures`
@@ -56,6 +53,7 @@ dependencies {
     // don't define test dependencies here, instead define them in the testing.suites {} configuration below
 }
 
+// TODO [structure-refactoring] change / extract?
 gradlePlugin {
     isAutomatedPublishing = true
 
@@ -193,10 +191,6 @@ val aggregateTestReports by tasks.registering(TestReport::class) {
     }
 }
 
-binaryCompatibilityValidator {
-    ignoredMarkers.add("org.jetbrains.dokka.dokkatoo.internal.DokkatooInternalApi")
-}
-
 val dokkatooVersion = provider { project.version.toString() }
 
 val dokkatooConstantsProperties = objects.mapProperty<String, String>().apply {
@@ -241,18 +235,4 @@ val generateDokkatooConstants by tasks.registering(Sync::class) {
 
 kotlin.sourceSets.main {
     kotlin.srcDir(generateDokkatooConstants.map { it.destinationDir })
-}
-
-dokkatoo {
-    dokkatooSourceSets.configureEach {
-        externalDocumentationLinks.register("gradle") {
-            // https://docs.gradle.org/current/javadoc/index.html
-            url("https://docs.gradle.org/${gradle.gradleVersion}/javadoc/")
-        }
-        sourceLink {
-            localDirectory.set(file("src/main/kotlin"))
-            val relativeProjectPath = projectDir.relativeToOrNull(rootDir)?.invariantSeparatorsPath ?: ""
-            remoteUrl("https://github.com/adamko-dev/dokkatoo/tree/main/$relativeProjectPath/src/main/kotlin")
-        }
-    }
 }
