@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(projects.core)
+    compileOnly(projects.dokkaCore)
     compileOnly(projects.analysisKotlinApi)
 
     implementation(projects.analysisKotlinDescriptorsCompiler)

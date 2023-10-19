@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(projects.core)
+    compileOnly(projects.dokkaCore)
 
     api(libs.intellij.java.psi.api)
 

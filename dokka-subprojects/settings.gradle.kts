@@ -88,3 +88,12 @@ include(
     ":plugin-templating",
     ":plugin-versioning",
 )
+
+// TODO [structure-refactoring]
+//  this is required for included build support
+//  the name of the artifact published now is `dokka-core`, but module named `core`
+//  dependency substitution in this case doesn't work for some reason
+//  may be we fall here in one of the unsupported cases:
+//  https://docs.gradle.org/current/userguide/composite_builds.html#included_build_substitution_limitations
+//  may be we need to find some other solution for this
+project(":core").name = "dokka-core"

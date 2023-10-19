@@ -11,7 +11,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(projects.core)
+    compileOnly(projects.dokkaCore)
 
     implementation(projects.pluginBase)
 

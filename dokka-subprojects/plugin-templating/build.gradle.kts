@@ -14,7 +14,7 @@ registerDokkaArtifactPublication("templating-plugin") {
 }
 
 dependencies {
-    compileOnly(projects.core)
+    compileOnly(projects.dokkaCore)
 
     api(libs.jsoup)
 

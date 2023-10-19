@@ -9,8 +9,7 @@ plugins {
 }
 
 dependencies {
-    // TODO [structure-refactoring] the name of the artifact should be `dokka-core`. Add substitution
-    api("org.jetbrains.dokka:core")
+    api("org.jetbrains.dokka:dokka-core")
 
     compileOnly(libs.gradlePlugin.kotlin)
     compileOnly(libs.gradlePlugin.kotlin.klibCommonizerApi)

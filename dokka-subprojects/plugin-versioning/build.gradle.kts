@@ -14,7 +14,7 @@ registerDokkaArtifactPublication("versioning-plugin") {
 }
 
 dependencies {
-    compileOnly(projects.core)
+    compileOnly(projects.dokkaCore)
 
     implementation(projects.pluginBase)
     implementation(projects.pluginTemplating)
