@@ -4,19 +4,15 @@
 
 @file:Suppress("UnstableApiUsage") // jvm test suites & test report aggregation are incubating
 
-import buildsrc.utils.buildDir_
 import buildsrc.utils.skipTestFixturesPublications
 
 plugins {
     buildsrc.conventions.`kotlin-gradle-plugin`
     kotlin("plugin.serialization")
 
-    buildsrc.conventions.`maven-publishing`
-
     `java-test-fixtures`
     `jvm-test-suite`
     `test-report-aggregation`
-    buildsrc.conventions.`maven-publish-test`
 }
 
 description = "Generates documentation for Kotlin projects (using Dokka)"
@@ -114,82 +110,7 @@ kotlin {
     }
 }
 
-testing.suites {
-    withType<JvmTestSuite>().configureEach {
-        useJUnitJupiter()
-
-        dependencies {
-            implementation(project.dependencies.gradleTestKit())
-
-            implementation(project.dependencies.testFixtures(project()))
-
-            implementation(project.dependencies.platform(libs.kotlinx.serialization.bom))
-            implementation(libs.kotlinx.serialization.json)
-        }
-
-        targets.configureEach {
-            testTask.configure {
-                val projectTestTempDirPath = "$buildDir_/test-temp-dir"
-                inputs.property("projectTestTempDir", projectTestTempDirPath)
-                systemProperty("projectTestTempDir", projectTestTempDirPath)
-
-                when (testType.get()) {
-                    TestSuiteType.FUNCTIONAL_TEST,
-                    TestSuiteType.INTEGRATION_TEST -> {
-                        dependsOn(tasks.matching { it.name == "publishAllPublicationsToTestRepository" })
-
-                        systemProperties(
-                            "testMavenRepoDir" to file(mavenPublishTest.testMavenRepo).canonicalPath,
-                        )
-
-                        // depend on the test-publication task, but not the test-maven repo
-                        // (otherwise this task will never be up-to-date)
-                        dependsOn(tasks.publishToTestMavenRepo)
-                    }
-                }
-            }
-        }
-    }
-
-
-    /** Unit tests suite */
-    val test by getting(JvmTestSuite::class) {
-        description = "Standard unit tests"
-    }
-
-
-    /** Functional tests suite */
-    val testFunctional by registering(JvmTestSuite::class) {
-        description = "Tests that use Gradle TestKit to test functionality"
-        testType.set(TestSuiteType.FUNCTIONAL_TEST)
-
-        targets.all {
-            testTask.configure {
-                shouldRunAfter(test)
-            }
-        }
-    }
-
-    tasks.check { dependsOn(test, testFunctional) }
-}
-
 skipTestFixturesPublications()
-
-val aggregateTestReports by tasks.registering(TestReport::class) {
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
-    destinationDirectory.set(layout.buildDirectory.dir("reports/tests/aggregated"))
-
-    dependsOn(tasks.withType<AbstractTestTask>())
-
-    // hardcoded dirs is a bit of a hack, but a fileTree just didn't work
-    testResults.from("$buildDir_/test-results/test/binary")
-    testResults.from("$buildDir_/test-results/testFunctional/binary")
-    testResults.from("$buildDir_/test-results/testIntegration/binary")
-
-    doLast {
-        logger.lifecycle("Aggregated test report: file://${destinationDirectory.asFile.get()}/index.html")
-    }
-}
 
 val dokkatooVersion = provider { project.version.toString() }
 
