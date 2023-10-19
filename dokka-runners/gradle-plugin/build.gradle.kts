@@ -25,24 +25,24 @@ dependencies {
     // ideally there should be a 'dokka-core-api' dependency (that is very thin and doesn't drag in loads of unnecessary code)
     // that would be used as an implementation dependency, while dokka-core would be used as a compileOnly dependency
     // https://github.com/Kotlin/dokka/issues/2933
-    implementation(libs.kotlin.dokkaCore)
+    implementation(libs.dokka.core)
 
     compileOnly(libs.gradlePlugin.kotlin)
     compileOnly(libs.gradlePlugin.kotlin.klibCommonizerApi)
-    compileOnly(libs.gradlePlugin.android)
-    compileOnly(libs.gradlePlugin.androidApi)
+    compileOnly(libs.gradlePlugin.android.dokkatoo)
+    compileOnly(libs.gradlePlugin.androidApi.dokkatoo)
 
-    implementation(platform(libs.kotlinxSerialization.bom))
-    implementation(libs.kotlinxSerialization.json)
+    implementation(platform(libs.kotlinx.serialization.bom))
+    implementation(libs.kotlinx.serialization.json)
 
     testFixturesImplementation(gradleApi())
     testFixturesImplementation(gradleTestKit())
 
-    testFixturesCompileOnly(libs.kotlin.dokkaCore)
-    testFixturesImplementation(platform(libs.kotlinxSerialization.bom))
-    testFixturesImplementation(libs.kotlinxSerialization.json)
+    testFixturesCompileOnly(libs.dokka.core)
+    testFixturesImplementation(platform(libs.kotlinx.serialization.bom))
+    testFixturesImplementation(libs.kotlinx.serialization.json)
 
-    testFixturesCompileOnly(libs.kotlin.dokkaCore)
+    testFixturesCompileOnly(libs.dokka.core)
 
     testFixturesApi(platform(libs.kotest.bom))
     testFixturesApi(libs.kotest.junit5Runner)
@@ -123,8 +123,8 @@ testing.suites {
 
             implementation(project.dependencies.testFixtures(project()))
 
-            implementation(project.dependencies.platform(libs.kotlinxSerialization.bom))
-            implementation(libs.kotlinxSerialization.json)
+            implementation(project.dependencies.platform(libs.kotlinx.serialization.bom))
+            implementation(libs.kotlinx.serialization.json)
         }
 
         targets.configureEach {
@@ -195,7 +195,7 @@ val dokkatooVersion = provider { project.version.toString() }
 
 val dokkatooConstantsProperties = objects.mapProperty<String, String>().apply {
     put("DOKKATOO_VERSION", dokkatooVersion)
-    put("DOKKA_VERSION", libs.versions.kotlin.dokka)
+    put("DOKKA_VERSION", libs.versions.gradlePlugin.dokka)
 }
 
 val buildConfigFileContents: Provider<TextResource> =
