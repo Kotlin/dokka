@@ -11,6 +11,11 @@ val dokka_version: String by project
 group = "org.jetbrains.dokka"
 version = dokka_version
 
+addDependencyToSubprojectTasks("assemble")
+addDependencyToSubprojectTasks("build")
+addDependencyToSubprojectTasks("clean")
+addDependencyToSubprojectTasks("check")
+
 registerParentTask("test", groupName = "verification")
 
 registerParentTask("publishAllPublicationsToMavenCentralRepository", groupName = "publication")
@@ -19,11 +24,6 @@ registerParentTask("publishAllPublicationsToSnapshotRepository", groupName = "pu
 registerParentTask("publishAllPublicationsToSpaceDevRepository", groupName = "publication")
 registerParentTask("publishAllPublicationsToSpaceTestRepository", groupName = "publication")
 registerParentTask("publishToMavenLocal", groupName = "publication")
-
-addDependencyToSubprojectTasks("assemble")
-addDependencyToSubprojectTasks("build")
-addDependencyToSubprojectTasks("clean")
-addDependencyToSubprojectTasks("check")
 
 fun addDependencyToSubprojectTasks(existingTaskName: String) {
     tasks.named(existingTaskName) {
