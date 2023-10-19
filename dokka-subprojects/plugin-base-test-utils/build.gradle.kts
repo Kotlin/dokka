@@ -10,7 +10,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(projects.core)
+    compileOnly(projects.dokkaCore)
     compileOnly(projects.pluginBase)
 
     api(projects.analysisKotlinApi)

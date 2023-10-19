@@ -15,8 +15,7 @@ plugins {
 }
 
 dependencies {
-    // TODO [structure-refactoring] the name of the artifact should be `dokka-core`. Add substitution
-    implementation("org.jetbrains.dokka:core")
+    implementation("org.jetbrains.dokka:dokka-core")
     implementation(libs.kotlinx.cli)
 
     testImplementation(kotlin("test"))

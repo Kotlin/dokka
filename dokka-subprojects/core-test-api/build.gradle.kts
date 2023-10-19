@@ -10,7 +10,7 @@ plugins {
 }
 
 dependencies {
-    api(projects.core)
+    api(projects.dokkaCore)
 
     implementation(kotlin("reflect"))
 }
