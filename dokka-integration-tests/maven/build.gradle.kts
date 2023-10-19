@@ -2,8 +2,6 @@
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import org.jetbrains.dependsOnMavenLocalPublication
-
 plugins {
     id("org.jetbrains.conventions.dokka-integration-test")
     id("org.jetbrains.conventions.maven-cli-setup")
@@ -16,8 +14,6 @@ dependencies {
 }
 
 tasks.integrationTest {
-    dependsOnMavenLocalPublication()
-
     dependsOn(tasks.installMavenBinary)
     val mvn = mavenCliSetup.mvn
     inputs.file(mvn)
