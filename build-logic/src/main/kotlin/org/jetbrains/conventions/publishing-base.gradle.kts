@@ -56,7 +56,7 @@ publishing {
     publications.withType<MavenPublication>().configureEach {
         pom {
             name.convention("Dokka ${project.name}")
-            description.convention("Dokka is an API documentation engine for Kotlin and Java, performing the same function as Javadoc for Java")
+            description.convention("Dokka is an API documentation engine for Kotlin")
             url.convention("https://github.com/Kotlin/dokka")
 
             licenses {
@@ -78,7 +78,7 @@ publishing {
 
             scm {
                 connection.convention("scm:git:git://github.com/Kotlin/dokka.git")
-                url.convention("https://github.com/Kotlin/dokka/tree/master")
+                url.convention("https://github.com/Kotlin/dokka")
             }
         }
     }

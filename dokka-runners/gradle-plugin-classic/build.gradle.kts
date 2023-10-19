@@ -50,7 +50,7 @@ gradlePlugin {
         create("dokkaGradlePlugin") {
             id = "org.jetbrains.dokka"
             displayName = "Dokka plugin"
-            description = "Dokka, the Kotlin documentation tool"
+            description = "Dokka is an API documentation engine for Kotlin"
             implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
             version = dokkaVersion
             isAutomatedPublishing = true
@@ -59,9 +59,9 @@ gradlePlugin {
 }
 
 pluginBundle {
-    website = "https://www.kotlinlang.org/"
+    website = "https://kotl.in/dokka"
     vcsUrl = "https://github.com/kotlin/dokka.git"
-    tags = listOf("dokka", "kotlin", "kdoc", "android", "documentation")
+    tags = listOf("dokka", "kotlin", "kdoc", "android", "documentation", "api")
 
     mavenCoordinates {
         groupId = "org.jetbrains.dokka"
@@ -71,12 +71,6 @@ pluginBundle {
 
 publishing {
     publications {
-        register<MavenPublication>("dokkaGradlePluginForIntegrationTests") {
-            artifactId = "dokka-gradle-plugin"
-            from(components["java"])
-            version = "for-integration-tests-SNAPSHOT"
-        }
-
         register<MavenPublication>("pluginMaven") {
             artifactId = "dokka-gradle-plugin"
         }
