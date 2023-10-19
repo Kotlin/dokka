@@ -1,0 +1,397 @@
+public abstract class dev/adamko/dokkatoo/DokkatooBasePlugin : org/gradle/api/Plugin {
+	public static final field Companion Ldev/adamko/dokkatoo/DokkatooBasePlugin$Companion;
+	public static final field EXTENSION_NAME Ljava/lang/String;
+	public static final field TASK_GROUP Ljava/lang/String;
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+}
+
+public final class dev/adamko/dokkatoo/DokkatooBasePlugin$Companion {
+	public final fun getDependencyContainerNames ()Ldev/adamko/dokkatoo/DokkatooBasePlugin$DependencyContainerNames;
+	public final fun getTaskNames ()Ldev/adamko/dokkatoo/DokkatooBasePlugin$TaskNames;
+}
+
+public final class dev/adamko/dokkatoo/DokkatooBasePlugin$inlined$sam$i$org_gradle_api_Action$0 : org/gradle/api/Action {
+	public fun <init> (Lkotlin/jvm/functions/Function1;)V
+	public final synthetic fun execute (Ljava/lang/Object;)V
+}
+
+public abstract class dev/adamko/dokkatoo/DokkatooExtension : java/io/Serializable, org/gradle/api/plugins/ExtensionAware {
+	public abstract fun getDokkatooCacheDirectory ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getDokkatooConfigurationsDirectory ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getDokkatooModuleDirectory ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getDokkatooPublicationDirectory ()Lorg/gradle/api/file/DirectoryProperty;
+	public final fun getDokkatooPublications ()Lorg/gradle/api/NamedDomainObjectContainer;
+	public final fun getDokkatooSourceSets ()Lorg/gradle/api/NamedDomainObjectContainer;
+	public abstract fun getModuleName ()Lorg/gradle/api/provider/Property;
+	public abstract fun getModulePath ()Lorg/gradle/api/provider/Property;
+	public abstract fun getModuleVersion ()Lorg/gradle/api/provider/Property;
+	public final fun getPluginsConfiguration ()Lorg/gradle/api/ExtensiblePolymorphicDomainObjectContainer;
+	public abstract fun getSourceSetScopeDefault ()Lorg/gradle/api/provider/Property;
+	public final fun getVersions ()Ldev/adamko/dokkatoo/DokkatooExtension$Versions;
+}
+
+public abstract interface class dev/adamko/dokkatoo/DokkatooExtension$Versions : org/gradle/api/plugins/ExtensionAware {
+	public static final field Companion Ldev/adamko/dokkatoo/DokkatooExtension$Versions$Companion;
+	public abstract fun getFreemarker ()Lorg/gradle/api/provider/Property;
+	public abstract fun getJetbrainsDokka ()Lorg/gradle/api/provider/Property;
+	public abstract fun getJetbrainsMarkdown ()Lorg/gradle/api/provider/Property;
+	public abstract fun getKotlinxCoroutines ()Lorg/gradle/api/provider/Property;
+	public abstract fun getKotlinxHtml ()Lorg/gradle/api/provider/Property;
+}
+
+public final class dev/adamko/dokkatoo/DokkatooExtension$Versions$Companion {
+}
+
+public abstract class dev/adamko/dokkatoo/DokkatooPlugin : org/gradle/api/Plugin {
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+}
+
+public abstract class dev/adamko/dokkatoo/dokka/DokkaPublication : java/io/Serializable, org/gradle/api/Named, org/gradle/api/plugins/ExtensionAware {
+	public abstract fun getCacheRoot ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getDelayTemplateSubstitution ()Lorg/gradle/api/provider/Property;
+	public abstract fun getEnabled ()Lorg/gradle/api/provider/Property;
+	public abstract fun getFailOnWarning ()Lorg/gradle/api/provider/Property;
+	public abstract fun getFinalizeCoroutines ()Lorg/gradle/api/provider/Property;
+	public final fun getFormatName ()Ljava/lang/String;
+	public abstract fun getIncludes ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public abstract fun getModuleName ()Lorg/gradle/api/provider/Property;
+	public abstract fun getModuleVersion ()Lorg/gradle/api/provider/Property;
+	public fun getName ()Ljava/lang/String;
+	public abstract fun getOfflineMode ()Lorg/gradle/api/provider/Property;
+	public abstract fun getOutputDir ()Lorg/gradle/api/file/DirectoryProperty;
+	public final fun getPluginsConfiguration ()Lorg/gradle/api/ExtensiblePolymorphicDomainObjectContainer;
+	public abstract fun getSuppressInheritedMembers ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSuppressObviousFunctions ()Lorg/gradle/api/provider/Property;
+}
+
+public abstract class dev/adamko/dokkatoo/dokka/parameters/DokkaExternalDocumentationLinkSpec : java/io/Serializable, org/gradle/api/Named {
+	public abstract fun getEnabled ()Lorg/gradle/api/provider/Property;
+	public fun getName ()Ljava/lang/String;
+	public abstract fun getPackageListUrl ()Lorg/gradle/api/provider/Property;
+	public abstract fun getUrl ()Lorg/gradle/api/provider/Property;
+	public final fun packageListUrl (Ljava/lang/String;)V
+	public final fun packageListUrl (Lorg/gradle/api/provider/Provider;)V
+	public final fun url (Ljava/lang/String;)V
+	public final fun url (Lorg/gradle/api/provider/Provider;)V
+}
+
+public abstract class dev/adamko/dokkatoo/dokka/parameters/DokkaGeneratorParametersSpec : org/gradle/api/plugins/ExtensionAware {
+	public abstract fun getDokkaModuleFiles ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public final fun getDokkaSourceSets ()Lorg/gradle/api/NamedDomainObjectContainer;
+	public abstract fun getFailOnWarning ()Lorg/gradle/api/provider/Property;
+	public abstract fun getFinalizeCoroutines ()Lorg/gradle/api/provider/Property;
+	public abstract fun getIncludes ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public abstract fun getModuleName ()Lorg/gradle/api/provider/Property;
+	public abstract fun getModuleVersion ()Lorg/gradle/api/provider/Property;
+	public abstract fun getOfflineMode ()Lorg/gradle/api/provider/Property;
+	public abstract fun getPluginsClasspath ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public final fun getPluginsConfiguration ()Lorg/gradle/api/ExtensiblePolymorphicDomainObjectContainer;
+	public abstract fun getSuppressInheritedMembers ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSuppressObviousFunctions ()Lorg/gradle/api/provider/Property;
+}
+
+public final class dev/adamko/dokkatoo/dokka/parameters/DokkaModuleDescriptionKxs$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Ldev/adamko/dokkatoo/dokka/parameters/DokkaModuleDescriptionKxs$$serializer;
+	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ldev/adamko/dokkatoo/dokka/parameters/DokkaModuleDescriptionKxs;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ldev/adamko/dokkatoo/dokka/parameters/DokkaModuleDescriptionKxs;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class dev/adamko/dokkatoo/dokka/parameters/DokkaModuleDescriptionKxs$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract class dev/adamko/dokkatoo/dokka/parameters/DokkaPackageOptionsSpec : dev/adamko/dokkatoo/dokka/parameters/HasConfigurableVisibilityModifiers, java/io/Serializable {
+	public abstract fun getDocumentedVisibilities ()Lorg/gradle/api/provider/SetProperty;
+	public abstract fun getMatchingRegex ()Lorg/gradle/api/provider/Property;
+	public abstract fun getReportUndocumented ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSkipDeprecated ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSuppress ()Lorg/gradle/api/provider/Property;
+}
+
+public abstract class dev/adamko/dokkatoo/dokka/parameters/DokkaSourceLinkSpec : java/io/Serializable {
+	public abstract fun getLocalDirectory ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getRemoteLineSuffix ()Lorg/gradle/api/provider/Property;
+	public abstract fun getRemoteUrl ()Lorg/gradle/api/provider/Property;
+	public final fun remoteUrl (Ljava/lang/String;)V
+	public final fun remoteUrl (Lorg/gradle/api/provider/Provider;)V
+}
+
+public abstract class dev/adamko/dokkatoo/dokka/parameters/DokkaSourceSetIdSpec : java/io/Serializable, org/gradle/api/Named {
+	public static final field Companion Ldev/adamko/dokkatoo/dokka/parameters/DokkaSourceSetIdSpec$Companion;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getName ()Ljava/lang/String;
+	public final fun getScopeId ()Ljava/lang/String;
+	public final fun getSourceSetName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/adamko/dokkatoo/dokka/parameters/DokkaSourceSetIdSpec$Companion {
+}
+
+public abstract class dev/adamko/dokkatoo/dokka/parameters/DokkaSourceSetSpec : dev/adamko/dokkatoo/dokka/parameters/HasConfigurableVisibilityModifiers, java/io/Serializable, org/gradle/api/Named, org/gradle/api/plugins/ExtensionAware {
+	public abstract fun getAnalysisPlatform ()Lorg/gradle/api/provider/Property;
+	public abstract fun getApiVersion ()Lorg/gradle/api/provider/Property;
+	public abstract fun getClasspath ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public final fun getDependentSourceSets ()Lorg/gradle/api/NamedDomainObjectContainer;
+	public abstract fun getDisplayName ()Lorg/gradle/api/provider/Property;
+	public abstract fun getDocumentedVisibilities ()Lorg/gradle/api/provider/SetProperty;
+	public abstract fun getEnableAndroidDocumentationLink ()Lorg/gradle/api/provider/Property;
+	public abstract fun getEnableJdkDocumentationLink ()Lorg/gradle/api/provider/Property;
+	public abstract fun getEnableKotlinStdLibDocumentationLink ()Lorg/gradle/api/provider/Property;
+	public final fun getExternalDocumentationLinks ()Lorg/gradle/api/NamedDomainObjectContainer;
+	public abstract fun getIncludes ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public abstract fun getJdkVersion ()Lorg/gradle/api/provider/Property;
+	public abstract fun getLanguageVersion ()Lorg/gradle/api/provider/Property;
+	public fun getName ()Ljava/lang/String;
+	public abstract fun getPerPackageOptions ()Lorg/gradle/api/DomainObjectSet;
+	public abstract fun getReportUndocumented ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSamples ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public abstract fun getSkipDeprecated ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSkipEmptyPackages ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSourceLinks ()Lorg/gradle/api/DomainObjectSet;
+	public abstract fun getSourceRoots ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public final fun getSourceSetId ()Lorg/gradle/api/provider/Provider;
+	public abstract fun getSourceSetScope ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSuppress ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSuppressGeneratedFiles ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSuppressedFiles ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public final fun perPackageOption (Lorg/gradle/api/Action;)V
+	public final fun sourceLink (Lorg/gradle/api/Action;)V
+}
+
+public final class dev/adamko/dokkatoo/dokka/parameters/KotlinPlatform : java/lang/Enum {
+	public static final field AndroidJVM Ldev/adamko/dokkatoo/dokka/parameters/KotlinPlatform;
+	public static final field Common Ldev/adamko/dokkatoo/dokka/parameters/KotlinPlatform;
+	public static final field Companion Ldev/adamko/dokkatoo/dokka/parameters/KotlinPlatform$Companion;
+	public static final field JS Ldev/adamko/dokkatoo/dokka/parameters/KotlinPlatform;
+	public static final field JVM Ldev/adamko/dokkatoo/dokka/parameters/KotlinPlatform;
+	public static final field Native Ldev/adamko/dokkatoo/dokka/parameters/KotlinPlatform;
+	public static final field WASM Ldev/adamko/dokkatoo/dokka/parameters/KotlinPlatform;
+	public static fun valueOf (Ljava/lang/String;)Ldev/adamko/dokkatoo/dokka/parameters/KotlinPlatform;
+	public static fun values ()[Ldev/adamko/dokkatoo/dokka/parameters/KotlinPlatform;
+}
+
+public final class dev/adamko/dokkatoo/dokka/parameters/KotlinPlatform$Companion {
+	public final fun fromString (Ljava/lang/String;)Ldev/adamko/dokkatoo/dokka/parameters/KotlinPlatform;
+	public final fun getDEFAULT ()Ldev/adamko/dokkatoo/dokka/parameters/KotlinPlatform;
+}
+
+public final class dev/adamko/dokkatoo/dokka/parameters/VisibilityModifier : java/lang/Enum {
+	public static final field Companion Ldev/adamko/dokkatoo/dokka/parameters/VisibilityModifier$Companion;
+	public static final field INTERNAL Ldev/adamko/dokkatoo/dokka/parameters/VisibilityModifier;
+	public static final field PACKAGE Ldev/adamko/dokkatoo/dokka/parameters/VisibilityModifier;
+	public static final field PRIVATE Ldev/adamko/dokkatoo/dokka/parameters/VisibilityModifier;
+	public static final field PROTECTED Ldev/adamko/dokkatoo/dokka/parameters/VisibilityModifier;
+	public static final field PUBLIC Ldev/adamko/dokkatoo/dokka/parameters/VisibilityModifier;
+	public static fun valueOf (Ljava/lang/String;)Ldev/adamko/dokkatoo/dokka/parameters/VisibilityModifier;
+	public static fun values ()[Ldev/adamko/dokkatoo/dokka/parameters/VisibilityModifier;
+}
+
+public final class dev/adamko/dokkatoo/dokka/parameters/VisibilityModifier$Companion {
+}
+
+public abstract class dev/adamko/dokkatoo/dokka/plugins/DokkaHtmlPluginParameters : dev/adamko/dokkatoo/dokka/plugins/DokkaPluginParametersBaseSpec {
+	public static final field Companion Ldev/adamko/dokkatoo/dokka/plugins/DokkaHtmlPluginParameters$Companion;
+	public static final field DOKKA_HTML_PARAMETERS_NAME Ljava/lang/String;
+	public static final field DOKKA_HTML_PLUGIN_FQN Ljava/lang/String;
+	public abstract fun getCustomAssets ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public abstract fun getCustomStyleSheets ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public abstract fun getFooterMessage ()Lorg/gradle/api/provider/Property;
+	public abstract fun getMergeImplicitExpectActualDeclarations ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSeparateInheritedMembers ()Lorg/gradle/api/provider/Property;
+	public abstract fun getTemplatesDir ()Lorg/gradle/api/file/DirectoryProperty;
+	public fun jsonEncode ()Ljava/lang/String;
+}
+
+public final class dev/adamko/dokkatoo/dokka/plugins/DokkaHtmlPluginParameters$Companion {
+}
+
+public abstract class dev/adamko/dokkatoo/dokka/plugins/DokkaPluginParametersBaseSpec : java/io/Serializable, org/gradle/api/Named {
+	public fun getName ()Ljava/lang/String;
+	public fun getPluginFqn ()Ljava/lang/String;
+	public abstract fun jsonEncode ()Ljava/lang/String;
+}
+
+public abstract class dev/adamko/dokkatoo/dokka/plugins/DokkaPluginParametersBuilder : dev/adamko/dokkatoo/dokka/plugins/DokkaPluginParametersBaseSpec {
+	public static final field Companion Ldev/adamko/dokkatoo/dokka/plugins/DokkaPluginParametersBuilder$Companion;
+	public fun getPluginFqn ()Ljava/lang/String;
+	public fun jsonEncode ()Ljava/lang/String;
+}
+
+public final class dev/adamko/dokkatoo/dokka/plugins/DokkaPluginParametersBuilder$Companion {
+}
+
+public final class dev/adamko/dokkatoo/dokka/plugins/DokkaPluginParametersBuilderKt {
+	public static final fun PluginConfigBooleanValue (Lorg/gradle/api/provider/Provider;)Lorg/gradle/api/provider/Provider;
+	public static final fun PluginConfigNumberValue (Lorg/gradle/api/provider/Provider;)Lorg/gradle/api/provider/Provider;
+	public static final fun PluginConfigStringValue (Lorg/gradle/api/provider/Provider;)Lorg/gradle/api/provider/Provider;
+	public static final fun PluginConfigValue (Ljava/lang/Number;)Ldev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$NumberValue;
+	public static final fun PluginConfigValue (Ljava/lang/String;)Ldev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$StringValue;
+	public static final fun PluginConfigValue (Z)Ldev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$BooleanValue;
+	public static final fun add (Ldev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$Values;Ljava/lang/Number;)V
+	public static final fun add (Ldev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$Values;Ljava/lang/String;)V
+	public static final fun add (Ldev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$Values;Z)V
+	public static final fun addBoolean (Ldev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$Values;Lorg/gradle/api/provider/Provider;)V
+	public static final fun addNumber (Ldev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$Values;Lorg/gradle/api/provider/Provider;)V
+	public static final fun addString (Ldev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$Values;Lorg/gradle/api/provider/Provider;)V
+	public static final fun booleanProperty (Ldev/adamko/dokkatoo/dokka/plugins/DokkaPluginParametersBuilder;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)V
+	public static final fun files (Ldev/adamko/dokkatoo/dokka/plugins/DokkaPluginParametersBuilder;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public static final fun numberProperty (Ldev/adamko/dokkatoo/dokka/plugins/DokkaPluginParametersBuilder;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)V
+	public static final fun pluginParameters (Lorg/gradle/api/ExtensiblePolymorphicDomainObjectContainer;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public static final fun properties (Ldev/adamko/dokkatoo/dokka/plugins/DokkaPluginParametersBuilder;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public static final fun property (Ldev/adamko/dokkatoo/dokka/plugins/DokkaPluginParametersBuilder;Ljava/lang/String;Ljava/lang/Number;)V
+	public static final fun property (Ldev/adamko/dokkatoo/dokka/plugins/DokkaPluginParametersBuilder;Ljava/lang/String;Ljava/lang/String;)V
+	public static final fun property (Ldev/adamko/dokkatoo/dokka/plugins/DokkaPluginParametersBuilder;Ljava/lang/String;Z)V
+	public static final fun stringProperty (Ldev/adamko/dokkatoo/dokka/plugins/DokkaPluginParametersBuilder;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)V
+}
+
+public abstract class dev/adamko/dokkatoo/dokka/plugins/DokkaVersioningPluginParameters : dev/adamko/dokkatoo/dokka/plugins/DokkaPluginParametersBaseSpec {
+	public static final field Companion Ldev/adamko/dokkatoo/dokka/plugins/DokkaVersioningPluginParameters$Companion;
+	public static final field DOKKA_VERSIONING_PLUGIN_FQN Ljava/lang/String;
+	public static final field DOKKA_VERSIONING_PLUGIN_PARAMETERS_NAME Ljava/lang/String;
+	public abstract fun getOlderVersions ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public abstract fun getOlderVersionsDir ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getRenderVersionsNavigationOnAllPages ()Lorg/gradle/api/provider/Property;
+	public abstract fun getVersion ()Lorg/gradle/api/provider/Property;
+	public abstract fun getVersionsOrdering ()Lorg/gradle/api/provider/ListProperty;
+	public fun jsonEncode ()Ljava/lang/String;
+}
+
+public final class dev/adamko/dokkatoo/dokka/plugins/DokkaVersioningPluginParameters$Companion {
+}
+
+public abstract interface class dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue {
+}
+
+public final class dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$BooleanValue : dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$Primitive {
+	public fun <init> (Z)V
+	public final fun getBoolean ()Z
+}
+
+public final class dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$DirectoryValue : dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue {
+	public fun <init> (Lorg/gradle/api/file/DirectoryProperty;)V
+	public final fun getDirectory ()Lorg/gradle/api/file/DirectoryProperty;
+}
+
+public final class dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$FileValue : dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue {
+	public fun <init> (Lorg/gradle/api/file/RegularFileProperty;)V
+	public final fun getFile ()Lorg/gradle/api/file/RegularFileProperty;
+}
+
+public final class dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$FilesValue : dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue {
+	public fun <init> (Lorg/gradle/api/file/ConfigurableFileCollection;)V
+	public final fun getFiles ()Lorg/gradle/api/file/ConfigurableFileCollection;
+}
+
+public final class dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$NumberValue : dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$Primitive {
+	public fun <init> (Ljava/lang/Number;)V
+	public final fun getNumber ()Ljava/lang/Number;
+}
+
+public abstract interface class dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$Primitive : dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue {
+}
+
+public final class dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$Properties : dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue {
+	public fun <init> (Lorg/gradle/api/provider/MapProperty;)V
+	public final fun getValues ()Lorg/gradle/api/provider/MapProperty;
+}
+
+public final class dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$StringValue : dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$Primitive {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun getString ()Ljava/lang/String;
+}
+
+public final class dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue$Values : dev/adamko/dokkatoo/dokka/plugins/PluginConfigValue {
+	public fun <init> (Lorg/gradle/api/provider/ListProperty;)V
+	public final fun getValues ()Lorg/gradle/api/provider/ListProperty;
+}
+
+public abstract class dev/adamko/dokkatoo/formats/DokkatooFormatPlugin : org/gradle/api/Plugin {
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+	public fun configure (Ldev/adamko/dokkatoo/formats/DokkatooFormatPlugin$DokkatooFormatPluginContext;)V
+	public final fun getFormatName ()Ljava/lang/String;
+}
+
+public final class dev/adamko/dokkatoo/formats/DokkatooFormatTasks$inlined$sam$i$org_gradle_api_Action$0 : org/gradle/api/Action {
+	public fun <init> (Lkotlin/jvm/functions/Function1;)V
+	public final synthetic fun execute (Ljava/lang/Object;)V
+}
+
+public abstract class dev/adamko/dokkatoo/formats/DokkatooGfmPlugin : dev/adamko/dokkatoo/formats/DokkatooFormatPlugin {
+	public fun configure (Ldev/adamko/dokkatoo/formats/DokkatooFormatPlugin$DokkatooFormatPluginContext;)V
+}
+
+public abstract class dev/adamko/dokkatoo/formats/DokkatooHtmlPlugin : dev/adamko/dokkatoo/formats/DokkatooFormatPlugin {
+	public fun configure (Ldev/adamko/dokkatoo/formats/DokkatooFormatPlugin$DokkatooFormatPluginContext;)V
+}
+
+public final class dev/adamko/dokkatoo/formats/DokkatooHtmlPlugin$inlined$sam$i$org_gradle_api_Action$0 : org/gradle/api/Action {
+	public fun <init> (Lkotlin/jvm/functions/Function1;)V
+	public final synthetic fun execute (Ljava/lang/Object;)V
+}
+
+public abstract class dev/adamko/dokkatoo/formats/DokkatooJavadocPlugin : dev/adamko/dokkatoo/formats/DokkatooFormatPlugin {
+	public fun configure (Ldev/adamko/dokkatoo/formats/DokkatooFormatPlugin$DokkatooFormatPluginContext;)V
+}
+
+public abstract class dev/adamko/dokkatoo/formats/DokkatooJekyllPlugin : dev/adamko/dokkatoo/formats/DokkatooFormatPlugin {
+	public fun configure (Ldev/adamko/dokkatoo/formats/DokkatooFormatPlugin$DokkatooFormatPluginContext;)V
+}
+
+public abstract interface annotation class dev/adamko/dokkatoo/internal/DokkatooInternalApi : java/lang/annotation/Annotation {
+}
+
+public abstract class dev/adamko/dokkatoo/tasks/DokkatooGenerateTask : dev/adamko/dokkatoo/tasks/DokkatooTask {
+	public abstract fun getCacheDirectory ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getGenerationType ()Lorg/gradle/api/provider/Property;
+	public final fun getGenerator ()Ldev/adamko/dokkatoo/dokka/parameters/DokkaGeneratorParametersSpec;
+	public abstract fun getOutputDirectory ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getPublicationEnabled ()Lorg/gradle/api/provider/Property;
+	public abstract fun getRuntimeClasspath ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public abstract fun getWorkerDebugEnabled ()Lorg/gradle/api/provider/Property;
+	public abstract fun getWorkerJvmArgs ()Lorg/gradle/api/provider/ListProperty;
+	public abstract fun getWorkerLogFile ()Lorg/gradle/api/file/RegularFileProperty;
+	public abstract fun getWorkerMaxHeapSize ()Lorg/gradle/api/provider/Property;
+	public abstract fun getWorkerMinHeapSize ()Lorg/gradle/api/provider/Property;
+}
+
+public final class dev/adamko/dokkatoo/tasks/DokkatooGenerateTask$GenerationType : java/lang/Enum {
+	public static final field MODULE Ldev/adamko/dokkatoo/tasks/DokkatooGenerateTask$GenerationType;
+	public static final field PUBLICATION Ldev/adamko/dokkatoo/tasks/DokkatooGenerateTask$GenerationType;
+	public static fun valueOf (Ljava/lang/String;)Ldev/adamko/dokkatoo/tasks/DokkatooGenerateTask$GenerationType;
+	public static fun values ()[Ldev/adamko/dokkatoo/tasks/DokkatooGenerateTask$GenerationType;
+}
+
+public abstract class dev/adamko/dokkatoo/tasks/DokkatooPrepareModuleDescriptorTask : dev/adamko/dokkatoo/tasks/DokkatooTask {
+	public abstract fun getDokkaModuleDescriptorJson ()Lorg/gradle/api/file/RegularFileProperty;
+	public abstract fun getIncludes ()Lorg/gradle/api/file/ConfigurableFileCollection;
+	public abstract fun getModuleDirectory ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getModuleName ()Lorg/gradle/api/provider/Property;
+	public abstract fun getModulePath ()Lorg/gradle/api/provider/Property;
+}
+
+public abstract class dev/adamko/dokkatoo/tasks/DokkatooTask : org/gradle/api/DefaultTask {
+	public abstract fun getObjects ()Lorg/gradle/api/model/ObjectFactory;
+}
+
+public abstract class dev/adamko/dokkatoo/tasks/LogHtmlPublicationLinkTask : dev/adamko/dokkatoo/tasks/DokkatooTask {
+	public static final field Companion Ldev/adamko/dokkatoo/tasks/LogHtmlPublicationLinkTask$Companion;
+	public static final field ENABLE_TASK_PROPERTY_NAME Ljava/lang/String;
+	public final fun exec ()V
+	public abstract fun getIndexHtmlPath ()Lorg/gradle/api/provider/Property;
+	public abstract fun getServerUri ()Lorg/gradle/api/provider/Property;
+}
+
+public final class dev/adamko/dokkatoo/tasks/LogHtmlPublicationLinkTask$Companion {
+}
+

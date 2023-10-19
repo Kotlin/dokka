@@ -1,0 +1,15 @@
+# These projects are run using Gradle TestKit, which does not require Gradle or IDE files.
+# However, it is convenient to open up the project in an IDEs, which will automatically
+# download Gradle files - but since they're not nessessary, don't commit them.
+.idea
+**/gradle/wrapper/**
+gradlew.bat
+gradlew
+
+# gradle.properties will be auto-updated by Gradle tasks
+gradle.properties
+
+ANDROID_SDK/*
+**/local.properties
+# Don't ignore licenses - they're required by Android to auto-download the SDK
+!ANDROID_SDK/licenses/

@@ -1,0 +1,55 @@
+{
+  "moduleName": "parentProject",
+  "moduleVersion": null,
+  "outputDir": ".../dokka-multimodule-example/parentProject/build/dokka/htmlMultiModule",
+  "cacheRoot": null,
+  "offlineMode": false,
+  "sourceSets": [],
+  "pluginsClasspath": [
+    ".../dokka-analysis-for-integration-tests-SNAPSHOT.jar",
+    ".../all-modules-page-plugin-for-integration-tests-SNAPSHOT.jar",
+    ".../templating-plugin-for-integration-tests-SNAPSHOT.jar",
+    ".../dokka-base-for-integration-tests-SNAPSHOT.jar",
+    ".../kotlin-analysis-intellij-for-integration-tests-SNAPSHOT.jar",
+    ".../kotlin-analysis-compiler-for-integration-tests-SNAPSHOT.jar",
+    "../kotlinx-html-jvm-0.7.5.jar",
+    "../kotlinx-coroutines-core-jvm-1.6.3.jar",
+    "../kotlin-stdlib-jdk8-1.7.20.jar",
+    "../jackson-databind-2.12.7.jar",
+    "../jackson-annotations-2.12.7.jar",
+    "../jackson-core-2.12.7.jar",
+    "../jackson-module-kotlin-2.12.7.jar",
+    "../kotlin-reflect-1.7.20.jar",
+    "../kotlin-stdlib-jdk7-1.7.20.jar",
+    "../kotlin-stdlib-1.7.20.jar",
+    "../jsoup-1.14.3.jar",
+    "../freemarker-2.3.31.jar",
+    "../kotlin-stdlib-common-1.7.20.jar",
+    "../annotations-13.0.jar"
+  ],
+  "pluginsConfiguration": [],
+  "modules": [
+    {
+      "name": "childProjectA",
+      "relativePathToOutputDirectory": "childProjectA",
+      "includes": [
+        ".../dokka-multimodule-example/parentProject/childProjectA/Module.md"
+      ],
+      "sourceOutputDirectory": ".../dokka-multimodule-example/parentProject/childProjectA/build/dokka/htmlPartial"
+    },
+    {
+      "name": "childProjectB",
+      "relativePathToOutputDirectory": "childProjectB",
+      "includes": [
+        ".../dokka-multimodule-example/parentProject/childProjectB/Module.md"
+      ],
+      "sourceOutputDirectory": ".../dokka-multimodule-example/parentProject/childProjectB/build/dokka/htmlPartial"
+    }
+  ],
+  "failOnWarning": false,
+  "delayTemplateSubstitution": false,
+  "suppressObviousFunctions": true,
+  "includes": [],
+  "suppressInheritedMembers": false,
+  "finalizeCoroutines": true
+}

@@ -1,0 +1,48 @@
+[versions]
+
+kotlin = "1.9.0" # should match Gradle's embedded Kotlin version https://docs.gradle.org/current/userguide/compatibility.html#kotlin
+kotlin-dokka = "1.9.0"
+kotlinx-serialization = "1.6.0"
+
+kotest = "5.6.2"
+
+gradlePlugin-android = "8.0.2"
+gradlePlugin-dokkatoo = "1.6.0"
+gradlePlugin-gradlePublishPlugin = "1.2.1"
+gradlePlugin-bcvMu = "0.0.4"
+
+
+[libraries]
+
+## Dokka
+kotlin-dokkaCore = { module = "org.jetbrains.dokka:dokka-core", version.ref = "kotlin-dokka" }
+kotlin-dokkaPlugin-allModulesPage = { module = "org.jetbrains.dokka:all-modules-page-plugin", version.ref = "kotlin-dokka" }
+kotlin-dokkaPlugin-templating = { module = "org.jetbrains.dokka:templating-plugin", version.ref = "kotlin-dokka" }
+
+## Kotlinx Serialization
+kotlinxSerialization-bom = { module = "org.jetbrains.kotlinx:kotlinx-serialization-bom", version.ref = "kotlinx-serialization" }
+kotlinxSerialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json" }
+#kotlinxSerialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+
+
+### Test libraries ###
+
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+
+kotest-bom = { module = "io.kotest:kotest-bom", version.ref = "kotest" }
+kotest-datatest = { module = "io.kotest:kotest-framework-datatest" }
+kotest-junit5Runner = { module = "io.kotest:kotest-runner-junit5" }
+kotest-assertionsCore = { module = "io.kotest:kotest-assertions-core" }
+kotest-assertionsJson = { module = "io.kotest:kotest-assertions-json" }
+
+### Gradle plugins  ###
+
+gradlePlugin-android = { module = "com.android.tools.build:gradle", version.ref = "gradlePlugin-android" }
+gradlePlugin-androidApi = { module = "com.android.tools.build:gradle-api", version.ref = "gradlePlugin-android" }
+gradlePlugin-dokkatoo = { module = "dev.adamko.dokkatoo:dokkatoo-plugin", version.ref = "gradlePlugin-dokkatoo" }
+gradlePlugin-bcvMu = { module = "dev.adamko.kotlin.binary_compatibility_validator:bcv-gradle-plugin", version.ref = "gradlePlugin-bcvMu" }
+gradlePlugin-gradlePublishPlugin = { module = "com.gradle.publish:plugin-publish-plugin", version.ref = "gradlePlugin-gradlePublishPlugin" }
+gradlePlugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+gradlePlugin-kotlin-klibCommonizerApi = { module = "org.jetbrains.kotlin:kotlin-klib-commonizer-api", version.ref = "kotlin" }
+
+[plugins]
