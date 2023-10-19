@@ -2,14 +2,14 @@
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import org.jetbrains.DokkaPublicationBuilder
-import org.jetbrains.registerDokkaArtifactPublication
+import org.jetbrains.overridePublicationArtifactId
 
 plugins {
     id("org.jetbrains.conventions.kotlin-jvm")
-    id("org.jetbrains.conventions.maven-publish")
-    id("com.github.johnrengelman.shadow")
+    id("org.jetbrains.conventions.publishing-shadow")
 }
+
+overridePublicationArtifactId("analysis-kotlin-symbols")
 
 dependencies {
     compileOnly(projects.dokkaCore)
@@ -81,6 +81,7 @@ dependencies {
     compileOnly(libs.kotlinx.coroutines.core)
 }
 
+// TODO [structure-refactoring] move to `publishing-shadow`
 tasks {
     shadowJar {
         val dokka_version: String by project
@@ -94,9 +95,4 @@ tasks {
         // from the dependencies are loaded, and not just a single one.
         mergeServiceFiles()
     }
-}
-
-registerDokkaArtifactPublication("analysisKotlinSymbols") {
-    artifactId = "analysis-kotlin-symbols"
-    component = DokkaPublicationBuilder.Component.Shadow
 }

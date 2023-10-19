@@ -2,14 +2,16 @@
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import org.jetbrains.registerDokkaArtifactPublication
+import org.jetbrains.overridePublicationArtifactId
 
 plugins {
     id("org.jetbrains.conventions.kotlin-jvm")
-    id("org.jetbrains.conventions.maven-publish")
+    id("org.jetbrains.conventions.publishing-default")
     id("org.jetbrains.conventions.dokka-html-frontend-files")
     id("org.jetbrains.conventions.base-unit-test")
 }
+
+overridePublicationArtifactId("dokka-base")
 
 dependencies {
     compileOnly(projects.dokkaCore)
@@ -75,8 +77,4 @@ sourceSets.main {
 
 tasks.test {
     maxHeapSize = "4G"
-}
-
-registerDokkaArtifactPublication("dokkaBase") {
-    artifactId = "dokka-base"
 }

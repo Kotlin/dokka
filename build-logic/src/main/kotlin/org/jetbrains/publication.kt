@@ -4,14 +4,11 @@
 
 package org.jetbrains
 
-import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.withType
 
 class DokkaPublicationBuilder {
     enum class Component {
@@ -22,24 +19,12 @@ class DokkaPublicationBuilder {
     var component: Component = Component.Java
 }
 
+internal const val MAVEN_PUBLICATION_NAME = "jvm"
 
-fun Project.registerDokkaArtifactPublication(
-    publicationName: String,
-    configure: DokkaPublicationBuilder.() -> Unit
-) {
-    configure<PublishingExtension> {
-        publications {
-            register<MavenPublication>(publicationName) {
-                val builder = DokkaPublicationBuilder().apply(configure)
-                artifactId = builder.artifactId
-                when (builder.component) {
-                    DokkaPublicationBuilder.Component.Java -> from(components["java"])
-                    DokkaPublicationBuilder.Component.Shadow -> run {
-                        extensions.getByType<ShadowExtension>().component(this)
-                        artifact(tasks["sourcesJar"])
-                    }
-                }
-            }
+fun Project.overridePublicationArtifactId(artifactId: String) {
+    extensions.configure<PublishingExtension> {
+        publications.withType<MavenPublication>().named(MAVEN_PUBLICATION_NAME) {
+            this.artifactId = artifactId
         }
     }
 }

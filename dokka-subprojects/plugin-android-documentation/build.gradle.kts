@@ -2,13 +2,15 @@
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import org.jetbrains.registerDokkaArtifactPublication
+import org.jetbrains.overridePublicationArtifactId
 
 plugins {
     id("org.jetbrains.conventions.kotlin-jvm")
-    id("org.jetbrains.conventions.maven-publish")
+    id("org.jetbrains.conventions.publishing-default")
     id("org.jetbrains.conventions.base-unit-test")
 }
+
+overridePublicationArtifactId("android-documentation-plugin")
 
 dependencies {
     compileOnly(projects.dokkaCore)
@@ -26,8 +28,4 @@ dependencies {
     testImplementation(projects.pluginBaseTestUtils) {
         exclude(module = "analysis-kotlin-descriptors")
     }
-}
-
-registerDokkaArtifactPublication("androidDocumentationPlugin") {
-    artifactId = "android-documentation-plugin"
 }

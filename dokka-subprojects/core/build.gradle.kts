@@ -3,12 +3,15 @@
  */
 
 import org.jetbrains.dokkaVersion
-import org.jetbrains.registerDokkaArtifactPublication
+import org.jetbrains.overridePublicationArtifactId
 
 plugins {
     id("org.jetbrains.conventions.kotlin-jvm")
-    id("org.jetbrains.conventions.maven-publish")
+    id("org.jetbrains.conventions.publishing-default")
 }
+
+// TODO [structure-refactoring]  may be it's not needed, as we have same project name
+overridePublicationArtifactId("dokka-core")
 
 dependencies {
     implementation(kotlin("reflect"))
@@ -36,8 +39,4 @@ tasks {
             }
         }
     }
-}
-
-registerDokkaArtifactPublication("dokkaCore") {
-    artifactId = "dokka-core"
 }

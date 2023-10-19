@@ -2,14 +2,14 @@
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import org.jetbrains.DokkaPublicationBuilder
-import org.jetbrains.registerDokkaArtifactPublication
+import org.jetbrains.overridePublicationArtifactId
 
 plugins {
     id("org.jetbrains.conventions.kotlin-jvm")
-    id("org.jetbrains.conventions.maven-publish")
-    id("com.github.johnrengelman.shadow")
+    id("org.jetbrains.conventions.publishing-shadow")
 }
+
+overridePublicationArtifactId("analysis-kotlin-descriptors")
 
 dependencies {
     // to override some interfaces (JvmAnnotationEnumFieldValue, JvmAnnotationConstantValue) from compiler since thet are empty there
@@ -22,6 +22,7 @@ dependencies {
     implementation(projects.analysisKotlinDescriptorsIde)
 }
 
+// TODO [structure-refactoring] move to `publishing-shadow`
 tasks {
     // There are several reasons for shadowing all dependencies in one place:
     // 1. Some of the artifacts Dokka depends on, like com.jetbrains.intellij.java:java-psi, are not
@@ -44,9 +45,4 @@ tasks {
         // from the dependencies are loaded, and not just a single one.
         mergeServiceFiles()
     }
-}
-
-registerDokkaArtifactPublication("analysisKotlinDescriptors") {
-    artifactId = "analysis-kotlin-descriptors"
-    component = DokkaPublicationBuilder.Component.Shadow
 }
