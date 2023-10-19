@@ -9,17 +9,14 @@ plugins {
     signing
 }
 
-// TODO: recheck ENV variables - may be replace them with dokka specific renaming to DOKKA_*
-
 publishing {
     repositories {
         maven {
             name = "mavenCentral"
             url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
             credentials {
-                // TODO: recheck credentials
-                username = System.getenv("SONATYPE_USER")
-                password = System.getenv("SONATYPE_PASSWORD")
+                username = System.getenv("DOKKA_SONATYPE_USER")
+                password = System.getenv("DOKKA_SONATYPE_PASSWORD")
             }
         }
         maven {
@@ -27,25 +24,24 @@ publishing {
             name = "snapshot"
             url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
             credentials {
-                username = System.getenv("SONATYPE_USER")
-                password = System.getenv("SONATYPE_PASSWORD")
+                username = System.getenv("DOKKA_SONATYPE_USER")
+                password = System.getenv("DOKKA_SONATYPE_PASSWORD")
             }
         }
         maven {
             name = "spaceDev"
             url = uri("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
             credentials {
-                username = System.getenv("SPACE_PACKAGES_USER")
-                password = System.getenv("SPACE_PACKAGES_SECRET")
+                username = System.getenv("DOKKA_SPACE_PACKAGES_USER")
+                password = System.getenv("DOKKA_SPACE_PACKAGES_SECRET")
             }
         }
         maven {
             name = "spaceTest"
             url = uri("https://maven.pkg.jetbrains.space/kotlin/p/dokka/test")
             credentials {
-                // TODO: should it be different credentials from dev?
-                username = System.getenv("SPACE_PACKAGES_USER")
-                password = System.getenv("SPACE_PACKAGES_SECRET")
+                username = System.getenv("DOKKA_SPACE_PACKAGES_USER")
+                password = System.getenv("DOKKA_SPACE_PACKAGES_SECRET")
             }
         }
         // Publish to a project-local Maven directory, for verification. To test, run:
@@ -90,9 +86,9 @@ publishing {
 
 signing {
     useInMemoryPgpKeys(
-        System.getenv("SIGN_KEY_ID")?.takeIf(String::isNotBlank),
-        System.getenv("SIGN_KEY")?.takeIf(String::isNotBlank),
-        System.getenv("SIGN_KEY_PASSPHRASE")?.takeIf(String::isNotBlank),
+        System.getenv("DOKKA_SIGN_KEY_ID")?.takeIf(String::isNotBlank),
+        System.getenv("DOKKA_SIGN_KEY")?.takeIf(String::isNotBlank),
+        System.getenv("DOKKA_SIGN_KEY_PASSPHRASE")?.takeIf(String::isNotBlank),
     )
     sign(publishing.publications)
     setRequired(provider { !project.version.toString().endsWith("-SNAPSHOT") })
