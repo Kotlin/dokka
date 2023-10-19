@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+  version="1.1"
+  viewBox="0 0 128 64"
+  width="1280"
+  height="640"
+  xmlns="http://www.w3.org/2000/svg"
+  style="background-color: black;"
+>
+  <defs>
+    <style>
+      /*
+      Specifically only embed the font required for 'Dokkatoo'
+      // NOTE replace &amp; with plain ampersand in URL, because XML can't handle it even though it's in a comment
+      https://fonts.googleapis.com/icon?family=JetBrains+Mono&amp;text=Dokkatoo https://github.com/adamko-dev/dokkatoo Generate Kotlin documentation
+      https://amio.github.io/embedded-google-fonts/
+      */
+      @font-face {
+        font-family: 'JetBrains Mono';
+        font-style: normal;
+        font-weight: 400;
+        src: url(data:font/woff2;base64,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) format('woff2');
+      }
+    </style>
+
+    <linearGradient
+      id="upper-beak-gradient"
+      gradientUnits="userSpaceOnUse"
+      x1="0"
+      y1="31"
+      x2="16"
+      y2="31">
+      <stop offset="0" stop-color="#2d2d2d"/>
+      <stop offset="1" stop-color="#3d3d3d"/>
+    </linearGradient>
+    <linearGradient
+      id="lower-beak-gradient"
+      gradientUnits="userSpaceOnUse"
+      x1="0"
+      y1="31"
+      x2="16"
+      y2="31">
+      <stop offset="1" stop-color="#1d1d1d"/>
+      <stop offset="0" stop-color="#2d2d2d"/>
+    </linearGradient>
+    <linearGradient
+      id="blue-purple-gradient"
+      gradientUnits="userSpaceOnUse"
+      x1="0"
+      y1="31"
+      x2="31"
+      y2="0">
+      <stop offset="0.3" stop-color="#0095D5"/>
+      <stop offset="0.5" stop-color="#3C83DC"/>
+      <stop offset="0.6" stop-color="#6D74E1"/>
+      <stop offset="0.7" stop-color="#806EE3"/>
+    </linearGradient>
+    <linearGradient
+      id="purple-orange-gradient"
+      gradientUnits="userSpaceOnUse"
+      x1="0"
+      y1="31"
+      x2="31"
+      y2="0">
+      <stop offset="0.5" stop-color="#C757BC"/>
+      <stop offset="0.65" stop-color="#D0609A"/>
+      <stop offset="0.9" stop-color="#F88909"/>
+    </linearGradient>
+  </defs>
+
+  <rect id="black-background" width="100%" height="100%"/>
+
+  <g transform="translate(2,16)" id="bird">
+    <path id="blue-feathers" fill="url(#blue-purple-gradient)"
+      d="
+        M5,19 v-10 l7,-7 h10
+        M20,16 l8,-8 v10 l-3,3
+        "/>
+    <path id="orange-feather" fill="url(#purple-orange-gradient)"
+      d="M11,13 l11,-11 h6 v6 l-8,8 l-3,-3"/>
+    <path id="white-head" fill="#fff"
+      d="M5,19 l6,-6 h6 l8,8 v3 l2,6 h-18 l2,-4"/>
+    <g id="beak" stroke-width="0.2" stroke="#666" >
+      <path id="lower-beak" fill="url(#lower-beak-gradient)"
+        d="M5,26 l4,3 l4,-3 Z"/>
+      <path id="upper-beak" fill="url(#upper-beak-gradient)"
+        d="M4,26 l5,-4 l4,4 Z"/>
+    </g>
+    <g id="eye">
+      <circle id="eye-base" fill="#000" cx="15" cy="21" r="1.5"/>
+      <path id="eye-twinkle" fill="none"
+        stroke="#f5f5f5"
+        stroke-linecap="round"
+        stroke-width=".2"
+        d="M15.1,20.1 q0.9,-0.1 1,0.9"/>
+    </g>
+  </g>
+
+  <text x="33" y="32" font-family="JetBrains Mono" font-size="18" fill="#fff">Dokkatoo</text>
+  <text x="34.2" y="39" font-family="JetBrains Mono" font-size="5" fill="#ddd">
+    Generate Kotlin documentation
+  </text>
+  <text x="34.3" y="45" font-family="JetBrains Mono" font-size="3" fill="#999">
+    https://github.com/adamko-dev/dokkatoo
+  </text>
+</svg>
