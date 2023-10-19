@@ -202,7 +202,6 @@ class SinceKotlinTest : AbstractRenderingTest() {
     }
 
     @Test
-    @OnlyDescriptorsMPP("SinceKotlin is unresolved in platform source sets")
     fun `mpp fun with SinceKotlin annotation`() {
         val configuration =   dokkaConfiguration {
             sourceSets {

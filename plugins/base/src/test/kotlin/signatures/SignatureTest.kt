@@ -589,7 +589,6 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptorsMPP
     @Test
     fun `type with an actual typealias`() {
         val writerPlugin = TestOutputWriterPlugin()
