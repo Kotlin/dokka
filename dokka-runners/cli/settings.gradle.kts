@@ -18,6 +18,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
+        google()
     }
 
     versionCatalogs {
@@ -28,3 +29,5 @@ dependencyResolutionManagement {
 }
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+includeBuild("../../dokka-subprojects")

@@ -11,7 +11,8 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.core)
+    // TODO [structure-refactoring] the name of the artifact should be `dokka-core`. Add substitution
+    implementation("org.jetbrains.dokka:core")
 
     implementation(libs.apacheMaven.core)
     implementation(libs.apacheMaven.pluginApi)

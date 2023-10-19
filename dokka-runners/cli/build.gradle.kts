@@ -8,11 +8,15 @@ import org.jetbrains.registerDokkaArtifactPublication
 plugins {
     id("org.jetbrains.conventions.kotlin-jvm")
     id("org.jetbrains.conventions.maven-publish")
-    id("com.github.johnrengelman.shadow")
+
+    // TODO [structure-refactoring] this plugin should not contain the version, it's declared in build-logic
+    // for some reason, it doesn't want to be resolved without the version, even though it works in other subprojects
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 dependencies {
-    implementation(projects.core)
+    // TODO [structure-refactoring] the name of the artifact should be `dokka-core`. Add substitution
+    implementation("org.jetbrains.dokka:core")
     implementation(libs.kotlinx.cli)
 
     testImplementation(kotlin("test"))

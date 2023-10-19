@@ -9,8 +9,7 @@ plugins {
 }
 
 dependencies {
-    // TODO dependency should be `org.jetbrains.dokka:dokka-core`, because that's the published artifact ID, but the
-    //      core subproject name doesn't match this
+    // TODO [structure-refactoring] the name of the artifact should be `dokka-core`. Add substitution
     api("org.jetbrains.dokka:core")
 
     compileOnly(libs.gradlePlugin.kotlin)

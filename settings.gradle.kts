@@ -58,59 +58,15 @@ plugins {
     `gradle-enterprise`
 }
 
-includeBuild("dokka-integration-tests")
+// TODO [structure-refactoring] enable all
+//includeBuild("dokka-integration-tests")
 includeBuild("dokka-subprojects")
-includeBuild("dokka-runners/gradle-plugin")
+//includeBuild("dokka-runners/gradle-plugin")
 includeBuild("dokka-runners/gradle-plugin-classic")
 includeBuild("dokka-runners/maven-plugin")
 includeBuild("dokka-runners/cli")
 
-include(
-//    ":core",
-//    ":core:test-api",
-//    ":core:content-matcher-test-utils",
-//
-//    ":subprojects",
-//
-//    ":subprojects:analysis-java-psi",
-//    ":subprojects:analysis-kotlin-api",
-//    ":subprojects:analysis-kotlin-descriptors",
-//    ":subprojects:analysis-kotlin-descriptors:compiler",
-//    ":subprojects:analysis-kotlin-descriptors:ide",
-//    ":subprojects:analysis-kotlin-symbols",
-//    ":subprojects:analysis-markdown-jb",
-//
-////    ":runners:gradle-plugin",
-////    ":runners:cli",
-////    ":runners:maven-plugin",
-//
-//    ":plugins:base",
-//    ":plugins:base:frontend",
-//    ":plugins:base:base-test-utils",
-//    ":plugins:all-modules-page",
-//    ":plugins:templating",
-//    ":plugins:versioning",
-//    ":plugins:android-documentation",
-//
-//    ":plugins:mathjax",
-//    ":plugins:gfm",
-//    ":plugins:gfm:gfm-template-processing",
-//    ":plugins:jekyll",
-//    ":plugins:jekyll:jekyll-template-processing",
-//    ":plugins:kotlin-as-java",
-//    ":plugins:javadoc",
-//
-////    ":integration-tests",
-////    ":integration-tests:gradle",
-////    ":integration-tests:cli",
-////    ":integration-tests:maven",
-//
-//    ":docs-developer",
-)
-
 val isCiBuild = System.getenv("GITHUB_ACTIONS") != null || System.getenv("TEAMCITY_VERSION") != null
-
-
 
 gradleEnterprise {
     buildScan {
@@ -119,6 +75,4 @@ gradleEnterprise {
         publishAlwaysIf(isCiBuild)
     }
 }
-
-
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
