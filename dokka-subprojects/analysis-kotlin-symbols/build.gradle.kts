@@ -80,17 +80,3 @@ dependencies {
     // TODO [beresnev] get rid of it
     compileOnly(libs.kotlinx.coroutines.core)
 }
-
-// TODO [structure-refactoring] move to `publishing-shadow`
-//tasks {
-//    shadowJar {
-//        // cannot be named exactly like the artifact (i.e analysis-kotlin-symbols-VER.jar),
-//        // otherwise leads to obscure test failures when run via CLI, but not via IJ
-//        archiveFileName.set("analysis-kotlin-symbols-all-${project.version}.jar")
-//        archiveClassifier.set("")
-//
-//        // service files are merged to make sure all Dokka plugins
-//        // from the dependencies are loaded, and not just a single one.
-//        mergeServiceFiles()
-//    }
-//}

@@ -9,7 +9,6 @@ plugins {
     id("org.jetbrains.conventions.publishing-default")
 }
 
-// TODO [structure-refactoring]  may be it's not needed, as we have same project name
 overridePublicationArtifactId("dokka-core")
 
 dependencies {
