@@ -18,7 +18,7 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             if (requested.id.id == "org.jetbrains.dokka") {
-                useModule("org.jetbrains.dokka:dokka-gradle-plugin:for-integration-tests-SNAPSHOT")
+                useModule("org.jetbrains.dokka:dokka-gradle-plugin:${System.getenv("DOKKA_VERSION")}")
             }
 
             if (requested.id.id == "com.android.library") {
@@ -31,7 +31,16 @@ pluginManagement {
         }
     }
     repositories {
-        mavenLocal()
+        maven(System.getenv("DOKKA_LOCAL_REPOSITORY_GRADLE_PLUGIN")) {
+            content {
+                includeGroup("org.jetbrains.dokka")
+            }
+        }
+        maven(System.getenv("DOKKA_LOCAL_REPOSITORY_SUBPROJECTS")) {
+            content {
+                includeGroup("org.jetbrains.dokka")
+            }
+        }
         mavenCentral()
         gradlePluginPortal()
         google()

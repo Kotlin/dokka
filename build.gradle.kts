@@ -4,8 +4,7 @@
 
 @Suppress("DSL_SCOPE_VIOLATION") // fixed in Gradle 8.1 https://github.com/gradle/gradle/pull/23639
 plugins {
-    id("org.jetbrains.conventions.base")
-    id("org.jetbrains.conventions.dokka")
+    base
 }
 
 addDependencyOnSameTaskOfIncludedBuilds("assemble")

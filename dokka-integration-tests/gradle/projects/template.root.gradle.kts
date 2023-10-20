@@ -4,7 +4,11 @@
 
 allprojects {
     repositories {
-        mavenLocal()
+        maven(System.getenv("DOKKA_LOCAL_REPOSITORY_SUBPROJECTS")) {
+            content {
+                includeGroup("org.jetbrains.dokka")
+            }
+        }
         mavenCentral()
         google()
         maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {

@@ -19,9 +19,26 @@ dependencies {
     implementation(libs.jsoup)
 }
 
+val dokkaSubprojects = gradle.includedBuild("dokka-subprojects")
+val gradlePluginClassic = gradle.includedBuild("gradle-plugin-classic")
+
 tasks.integrationTest {
-    val dokka_version: String by project
-    environment("DOKKA_VERSION", dokka_version)
+    dependsOn(
+        dokkaSubprojects.task(":publishAllPublicationsToProjectLocalRepository"),
+        gradlePluginClassic.task(":publishAllPublicationsToProjectLocalRepository"),
+    )
+    environment(
+        "DOKKA_VERSION",
+        project.version
+    )
+    environment(
+        "DOKKA_LOCAL_REPOSITORY_SUBPROJECTS",
+        dokkaSubprojects.projectDir.resolve("build/maven-project-local")
+    )
+    environment(
+        "DOKKA_LOCAL_REPOSITORY_GRADLE_PLUGIN",
+        gradlePluginClassic.projectDir.resolve("build/maven-project-local")
+    )
     inputs.dir(file("projects"))
 
     javaLauncher.set(javaToolchains.launcherFor {

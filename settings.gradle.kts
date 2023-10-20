@@ -59,7 +59,7 @@ plugins {
 }
 
 // TODO [structure-refactoring] enable all
-//includeBuild("dokka-integration-tests")
+includeBuild("dokka-integration-tests")
 includeBuild("dokka-subprojects")
 // gradle-plugin should sync, but might not be buildable yet
 //includeBuild("dokka-runners/gradle-plugin")
