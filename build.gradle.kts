@@ -8,11 +8,6 @@ plugins {
     id("org.jetbrains.conventions.dokka")
 }
 
-val dokka_version: String by project
-
-group = "org.jetbrains.dokka"
-version = dokka_version
-
 addDependencyOnSameTaskOfIncludedBuilds("assemble")
 addDependencyOnSameTaskOfIncludedBuilds("build")
 addDependencyOnSameTaskOfIncludedBuilds("clean")
@@ -27,10 +22,12 @@ registerParentTaskOfIncludedBuilds("publishAllPublicationsToSpaceDevRepository",
 registerParentTaskOfIncludedBuilds("publishAllPublicationsToSpaceTestRepository", groupName = "publication")
 registerParentTaskOfIncludedBuilds("publishToMavenLocal", groupName = "publication")
 
+// TODO [structure-refactoring] - only for gradle plugins
+//registerParentTaskOfIncludedBuilds("publishPlugins", groupName = "publication")
 
 fun addDependencyOnSameTaskOfIncludedBuilds(existingTaskName: String) {
     tasks.named(existingTaskName) {
-        dependsOn(gradle.includedBuilds.filter { it.name != "build-logic" }.map { it.task(":$existingTaskName") })
+        dependsOn(includedBuildTasks(existingTaskName))
     }
 }
 
@@ -38,6 +35,9 @@ fun registerParentTaskOfIncludedBuilds(taskName: String, groupName: String) {
     tasks.register(taskName) {
         group = groupName
         description = "Runs $taskName tasks of all included builds"
-        dependsOn(gradle.includedBuilds.filter { it.name != "build-logic" }.map { it.task(":$taskName") })
+        dependsOn(includedBuildTasks(taskName))
     }
 }
+
+fun includedBuildTasks(taskName: String): List<TaskReference> =
+    gradle.includedBuilds.filter { it.name != "build-logic" }.map { it.task(":$taskName") }

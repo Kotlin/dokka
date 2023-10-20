@@ -27,8 +27,7 @@ val generatePom by tasks.registering(Sync::class) {
     description = "Generate pom.xml for Maven Plugin Plugin"
     group = mavenPluginTaskGroup
 
-    val dokka_version: String by project
-    inputs.property("dokka_version", dokka_version)
+    inputs.property("dokka_version", project.version)
 
     val pomTemplateFile = layout.projectDirectory.file("pom.template.xml")
 
@@ -40,7 +39,7 @@ val generatePom by tasks.registering(Sync::class) {
 
         expand(
             "mavenVersion" to mavenVersion,
-            "dokka_version" to dokka_version,
+            "dokka_version" to project.version,
             "mavenPluginToolsVersion" to mavenPluginToolsVersion,
         )
     }

@@ -19,11 +19,14 @@ class DokkaPublicationBuilder {
     var component: Component = Component.Java
 }
 
-internal const val MAVEN_PUBLICATION_NAME = "jvm"
+internal const val MAVEN_JVM_PUBLICATION_NAME = "jvm"
 
-fun Project.overridePublicationArtifactId(artifactId: String) {
+fun Project.overridePublicationArtifactId(
+    artifactId: String,
+    publicationName: String = MAVEN_JVM_PUBLICATION_NAME
+) {
     extensions.configure<PublishingExtension> {
-        publications.withType<MavenPublication>().named(MAVEN_PUBLICATION_NAME) {
+        publications.withType<MavenPublication>().named(publicationName) {
             this.artifactId = artifactId
         }
     }

@@ -6,11 +6,6 @@ plugins {
     id("org.jetbrains.conventions.base")
 }
 
-val dokka_version: String by project
-
-group = "org.jetbrains.dokka"
-version = dokka_version
-
 addDependencyToSubprojectTasks("assemble")
 addDependencyToSubprojectTasks("build")
 addDependencyToSubprojectTasks("clean")
@@ -27,11 +22,7 @@ registerParentTask("publishToMavenLocal", groupName = "publication")
 
 fun addDependencyToSubprojectTasks(existingTaskName: String) {
     tasks.named(existingTaskName) {
-        val subprojectTasks = subprojects
-            .filter { it.getTasksByName(existingTaskName, false).isNotEmpty() }
-            .map { ":${it.name}:$existingTaskName" }
-
-        dependsOn(subprojectTasks)
+        dependsOn(subprojectTasks(existingTaskName))
     }
 }
 
@@ -39,11 +30,11 @@ fun registerParentTask(taskName: String, groupName: String) {
     tasks.register(taskName) {
         group = groupName
         description = "Runs $taskName tasks of all subprojects"
-
-        val subprojectTasks = subprojects
-            .filter { it.getTasksByName(taskName, false).isNotEmpty() }
-            .map { ":${it.name}:$taskName" }
-
-        dependsOn(subprojectTasks)
+        dependsOn(subprojectTasks(taskName))
     }
 }
+
+fun subprojectTasks(taskName: String): List<String> =
+    subprojects
+        .filter { it.getTasksByName(taskName, false).isNotEmpty() }
+        .map { ":${it.name}:$taskName" }

@@ -16,12 +16,7 @@ plugins {
     base
 }
 
-val dokkaBuildProperties: DokkaBuildProperties = extensions.create(DokkaBuildProperties.EXTENSION_NAME)
-
-if (project != rootProject) {
-    project.group = rootProject.group
-    project.version = rootProject.version
-}
+extensions.create<DokkaBuildProperties>(DokkaBuildProperties.EXTENSION_NAME)
 
 tasks.withType<AbstractArchiveTask>().configureEach {
     // https://docs.gradle.org/current/userguide/working_with_files.html#sec:reproducible_archives

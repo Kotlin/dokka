@@ -6,5 +6,10 @@ package org.jetbrains.conventions
 
 plugins {
     id("org.jetbrains.conventions.publishing-base")
-    // TODO: gradle-publish-plugin
+    id("com.gradle.plugin-publish")
+}
+
+gradlePlugin {
+    website.set("https://kotl.in/dokka")
+    vcsUrl.set("https://github.com/kotlin/dokka.git")
 }

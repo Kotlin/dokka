@@ -18,14 +18,8 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-tasks {
-    // TODO [structure-refactoring] move to `publishing-shadow` (except Main-Class)
-    shadowJar {
-        val dokka_version: String by project
-        archiveFileName.set("dokka-cli-$dokka_version.jar")
-        archiveClassifier.set("")
-        manifest {
-            attributes("Main-Class" to "org.jetbrains.dokka.MainKt")
-        }
+tasks.shadowJar {
+    manifest {
+        attributes("Main-Class" to "org.jetbrains.dokka.MainKt")
     }
 }

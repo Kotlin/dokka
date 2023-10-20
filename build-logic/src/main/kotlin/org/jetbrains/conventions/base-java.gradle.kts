@@ -20,7 +20,6 @@ java {
     toolchain {
         languageVersion.set(dokkaBuild.mainJavaVersion)
     }
-    withSourcesJar()
 }
 
 tasks.withType<Test>().configureEach {
@@ -39,4 +38,8 @@ tasks.withType<Test>().configureEach {
 
 dependencies {
     testImplementation(platform(libs.junit.bom))
+}
+
+tasks.processResources {
+    duplicatesStrategy = DuplicatesStrategy.FAIL
 }

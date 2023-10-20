@@ -4,7 +4,6 @@
 
 package org.jetbrains.conventions
 
-import org.jetbrains.configureDokkaVersion
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -12,8 +11,6 @@ plugins {
     id("org.jetbrains.conventions.base-java")
     kotlin("jvm")
 }
-
-configureDokkaVersion()
 
 kotlin {
     explicitApi = ExplicitApiMode.Strict

@@ -4,22 +4,18 @@
 
 package org.jetbrains.conventions
 
-import org.gradle.jvm.tasks.Jar
-import org.jetbrains.MAVEN_PUBLICATION_NAME
+import org.jetbrains.MAVEN_JVM_PUBLICATION_NAME
 
 plugins {
+    id("org.jetbrains.conventions.base-java")
     id("org.jetbrains.conventions.publishing-base")
 }
 
-val javadocJar by tasks.registering(Jar::class) {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
-    archiveClassifier.set("javadoc")
-    // TODO: decide if we really need dokka html in javadoc jar
-//    description = "Assembles a Javadoc JAR using Dokka HTML"
-//    from(tasks.dokkaHtml)
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
-publishing.publications.register<MavenPublication>(MAVEN_PUBLICATION_NAME) {
-    artifact(javadocJar)
+publishing.publications.register<MavenPublication>(MAVEN_JVM_PUBLICATION_NAME) {
     from(components["java"])
 }
