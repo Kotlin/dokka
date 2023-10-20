@@ -83,4 +83,22 @@ class FormattingUtilsTest {
 
         assertEquals(expectedHtml.trim(), html.trim())
     }
+
+    @Test
+    fun `should build breakable text for underscore separated notation`(){
+        val testedText = "THIS_IS_UNDERSCORE_SEPARATED"
+        val expectedHtml = """
+            <html>
+              <body><span>THIS_</span><wbr></wbr><span>IS_</span><wbr></wbr><span>UNDERSCORE_</span><wbr></wbr><span>SEPARATED</span></body>
+            </html>
+        """.trimIndent()
+
+        val html = createHTML(prettyPrint = true).html {
+            body {
+                buildBreakableText(testedText)
+            }
+        }
+
+        assertEquals(expectedHtml.trim(), html.trim())
+    }
 }
