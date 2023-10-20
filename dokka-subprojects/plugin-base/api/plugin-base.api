@@ -305,7 +305,7 @@ public abstract interface class org/jetbrains/dokka/base/renderers/html/HtmlCode
 }
 
 public final class org/jetbrains/dokka/base/renderers/html/HtmlFormatingUtilsKt {
-	public static final fun buildBreakableDotSeparatedHtml (Lkotlinx/html/FlowContent;Ljava/lang/String;)V
+	public static final fun buildBreakableCharSeparatedHtml (Lkotlinx/html/FlowContent;Ljava/lang/String;C)V
 	public static final fun buildBreakableText (Lkotlinx/html/FlowContent;Ljava/lang/String;)V
 	public static final fun buildTextBreakableAfterCapitalLetters (Lkotlinx/html/FlowContent;Ljava/lang/String;Z)V
 	public static synthetic fun buildTextBreakableAfterCapitalLetters$default (Lkotlinx/html/FlowContent;Ljava/lang/String;ZILjava/lang/Object;)V
