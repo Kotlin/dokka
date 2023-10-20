@@ -19,8 +19,8 @@ java {
 
 publishing.publications.register<MavenPublication>(MAVEN_JVM_PUBLICATION_NAME) {
     shadow.component(this)
-    artifact(tasks["sourcesJar"])
-    artifact(tasks["javadocJar"])
+    artifact(tasks.named("sourcesJar"))
+    artifact(tasks.named("javadocJar"))
 }
 
 // There are several reasons for shadowing all dependencies in one place:

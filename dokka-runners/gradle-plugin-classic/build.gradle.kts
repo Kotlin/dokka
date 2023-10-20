@@ -2,15 +2,14 @@
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+import org.jetbrains.MAVEN_GRADLE_PLUGIN_PUBLICATION_NAME
 import org.jetbrains.overridePublicationArtifactId
 
 plugins {
     id("org.jetbrains.conventions.gradle-plugin")
 }
 
-// configuration in plugin happens in afterEvaluate block
-// https://docs.gradle.org/current/userguide/java_gradle_plugin.html#maven_publish_plugin
-afterEvaluate { overridePublicationArtifactId("dokka-gradle-plugin", "pluginMaven") }
+overridePublicationArtifactId("dokka-gradle-plugin", MAVEN_GRADLE_PLUGIN_PUBLICATION_NAME)
 
 dependencies {
     // this version is required for Gradle plugin publishing
@@ -28,7 +27,7 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        create("dokkaGradlePlugin") {
+        create("dokka") {
             id = "org.jetbrains.dokka"
             implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
 

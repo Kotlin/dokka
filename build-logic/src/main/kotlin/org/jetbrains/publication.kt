@@ -10,16 +10,8 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
 
-class DokkaPublicationBuilder {
-    enum class Component {
-        Java, Shadow
-    }
-
-    var artifactId: String? = null
-    var component: Component = Component.Java
-}
-
 internal const val MAVEN_JVM_PUBLICATION_NAME = "jvm"
+const val MAVEN_GRADLE_PLUGIN_PUBLICATION_NAME = "pluginMaven"
 
 fun Project.overridePublicationArtifactId(
     artifactId: String,
