@@ -45,6 +45,7 @@ class AndroidAutoConfigurationTest {
         }
     }
 
+    @Ignore // TODO: find where `maven` plugin is used, which was removed in Gradle 8
     @Test
     fun `test source sets are suppressed`() {
         val dokkaTasks = project.tasks.withType<DokkaTask>().toList()
@@ -65,6 +66,7 @@ class AndroidAutoConfigurationTest {
         }
     }
 
+    @Ignore // TODO: find where `maven` plugin is used, which was removed in Gradle 8
     @Test
     fun `source sets have non-empty classpath`() {
         val dokkaTasks = project.tasks.withType<DokkaTask>().toList()
@@ -72,15 +74,15 @@ class AndroidAutoConfigurationTest {
         project.evaluate()
 
         dokkaTasks.flatMap { it.dokkaSourceSets }
-            .filterNot { it.name == "androidTestRelease"  && it.suppress.get() } // androidTestRelease has empty classpath, but it makes no sense for suppressed source set
+            .filterNot { it.name == "androidTestRelease" && it.suppress.get() } // androidTestRelease has empty classpath, but it makes no sense for suppressed source set
             .forEach { sourceSet ->
-            /*
+                /*
 
-            There is no better way of checking for empty classpath at the moment (without resolving dependencies).
-            We assume, that an empty classpath can be resolved
-            We assume, that a non-empty classpath will not be able to resolve (no repositories defined)
-             */
-            assertFailsWith<ResolveException>("SourceSet: " + sourceSet.name) { sourceSet.classpath.files }
-        }
+                There is no better way of checking for empty classpath at the moment (without resolving dependencies).
+                We assume, that an empty classpath can be resolved
+                We assume, that a non-empty classpath will not be able to resolve (no repositories defined)
+                 */
+                assertFailsWith<ResolveException>("SourceSet: " + sourceSet.name) { sourceSet.classpath.files }
+            }
     }
 }
