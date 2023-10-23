@@ -7,7 +7,9 @@ package org.jetbrains.dokka.gradle
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.kotlin.dsl.property
 import org.jetbrains.dokka.DokkaConfigurationBuilder
 import org.jetbrains.dokka.SourceLinkDefinitionImpl
@@ -69,8 +71,12 @@ class GradleSourceLinkBuilder(
      * java.net.URL("https://github.com/username/projectname/tree/master/src"))
      * ```
      */
-    @Input
+    @Internal
     val remoteUrl: Property<URL> = project.objects.property()
+
+    @Input // TODO: URL is deprecated in grapdle inputs
+    internal fun getRemoteUrlString() = remoteUrl.map(URL::toString)
+
 
     /**
      * Suffix used to append source code line number to the URL. This will help readers navigate

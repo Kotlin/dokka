@@ -8,7 +8,6 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
 import org.gradle.kotlin.dsl.property
 import org.jetbrains.dokka.DokkaConfigurationBuilder
 import org.jetbrains.dokka.ExternalDocumentationLink
@@ -56,8 +55,11 @@ class GradleExternalDocumentationLinkBuilder(
      * java.net.URL("https://kotlinlang.org/api/kotlinx.serialization/")
      * ```
      */
-    @Input
+    @Internal
     val url: Property<URL> = project.objects.property()
+
+    @Input // TODO: URL is deprecated in gradle inputs
+    internal fun getUrlString() = url.map(URL::toString)
 
     /**
      * Specifies the exact location of a `package-list` instead of relying on Dokka
@@ -69,9 +71,11 @@ class GradleExternalDocumentationLinkBuilder(
      * rootProject.projectDir.resolve("serialization.package.list").toURL()
      * ```
      */
-    @Optional
-    @Input
+    @Internal
     val packageListUrl: Property<URL> = project.objects.property()
+
+    @Input // TODO: URL is deprecated in gradle inputs
+    internal fun getPackageListUrlString() = packageListUrl.map(URL::toString)
 
     override fun build(): ExternalDocumentationLinkImpl = ExternalDocumentationLink(
         url = checkNotNull(url.get()) { "url not specified " },

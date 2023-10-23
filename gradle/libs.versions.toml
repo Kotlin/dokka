@@ -47,7 +47,7 @@ kotlinx-cli = "0.3.6"
 node = "16.13.0"
 
 ## Publishing
-gradlePlugin-shadow = "7.1.2"
+gradlePlugin-shadow = "8.1.1"
 gradlePlugin-gradlePluginPublish = "1.2.1"
 gradlePlugin-gradleNode = "3.5.1"
 
@@ -77,7 +77,7 @@ gradlePlugin-android = { module = "com.android.tools.build:gradle", version.ref 
 gradlePlugin-android-dokkatoo = { module = "com.android.tools.build:gradle", version.ref = "gradlePlugin-android-dokkatoo" }
 gradlePlugin-androidApi-dokkatoo = { module = "com.android.tools.build:gradle-api", version.ref = "gradlePlugin-android-dokkatoo" }
 gradlePlugin-dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "gradlePlugin-dokka" }
-gradlePlugin-shadow = { module = "gradle.plugin.com.github.johnrengelman:shadow", version.ref = "gradlePlugin-shadow" }
+gradlePlugin-shadow = { module = "com.github.johnrengelman:shadow", version.ref = "gradlePlugin-shadow" }
 gradlePlugin-gradlePublish= { module = "com.gradle.publish:plugin-publish-plugin", version.ref = "gradlePlugin-gradlePluginPublish" }
 
 #### Kotlin analysis ####
