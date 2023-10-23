@@ -13,7 +13,8 @@ plugins {
 overridePublicationArtifactId("dokka-maven-plugin")
 
 dependencies {
-    implementation("org.jetbrains.dokka:dokka-core")
+    // this version is required, so that it will be available in the POM of plugin
+    implementation("org.jetbrains.dokka:dokka-core:$version")
 
     implementation(libs.apacheMaven.core)
     implementation(libs.apacheMaven.pluginApi)
