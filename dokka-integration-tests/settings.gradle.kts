@@ -35,7 +35,7 @@ includeBuild("../dokka-runners/maven-plugin")
 includeBuild("../dokka-subprojects")
 
 include(
-//    ":cli",
+    ":cli",
     ":gradle",
     ":maven",
     ":integration-test-utilities",
