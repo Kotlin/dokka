@@ -6,7 +6,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id("org.jetbrains.conventions.dokka-integration-test")
-    alias(libs.plugins.shadow)
+    id("com.github.johnrengelman.shadow")
 }
 
 dependencies {

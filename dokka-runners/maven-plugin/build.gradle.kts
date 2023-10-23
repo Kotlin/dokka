@@ -8,6 +8,7 @@ plugins {
     id("org.jetbrains.conventions.kotlin-jvm")
     id("org.jetbrains.conventions.publishing-default")
     id("org.jetbrains.conventions.maven-cli-setup")
+    alias(libs.plugins.kotlinx.binaryCompatibilityValidator)
 }
 
 overridePublicationArtifactId("dokka-maven-plugin")

@@ -4,6 +4,7 @@
 
 plugins {
     id("org.jetbrains.conventions.base")
+    alias(libs.plugins.kotlinx.binaryCompatibilityValidator)
 }
 
 addDependencyToSubprojectTasks("assemble")
@@ -12,6 +13,8 @@ addDependencyToSubprojectTasks("clean")
 addDependencyToSubprojectTasks("check")
 
 registerParentTask("test", groupName = "verification")
+registerParentTask("apiCheck", groupName = "verification")
+registerParentTask("apiDump", groupName = "other")
 
 registerParentTask("publishAllPublicationsToMavenCentralRepository", groupName = "publication")
 registerParentTask("publishAllPublicationsToProjectLocalRepository", groupName = "publication")

@@ -7,6 +7,7 @@ import org.jetbrains.overridePublicationArtifactId
 
 plugins {
     id("org.jetbrains.conventions.gradle-plugin")
+    alias(libs.plugins.kotlinx.binaryCompatibilityValidator)
 }
 
 overridePublicationArtifactId("dokka-gradle-plugin", MAVEN_GRADLE_PLUGIN_PUBLICATION_NAME)

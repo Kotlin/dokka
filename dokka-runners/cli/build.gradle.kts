@@ -7,6 +7,7 @@ import org.jetbrains.overridePublicationArtifactId
 plugins {
     id("org.jetbrains.conventions.kotlin-jvm")
     id("org.jetbrains.conventions.publishing-shadow")
+    alias(libs.plugins.kotlinx.binaryCompatibilityValidator)
 }
 
 overridePublicationArtifactId("dokka-cli")

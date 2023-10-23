@@ -3,7 +3,7 @@
  */
 
 plugins {
-    base
+    id("org.jetbrains.conventions.base")
 }
 
 addDependencyToSubprojectTasks("assemble")
