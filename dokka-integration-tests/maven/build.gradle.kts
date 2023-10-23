@@ -13,13 +13,19 @@ dependencies {
     implementation(kotlin("test-junit5"))
 }
 
+val dokkaSubprojects = gradle.includedBuild("dokka-subprojects")
+val mavenPlugin = gradle.includedBuild("maven-plugin")
+
 tasks.integrationTest {
+    dependsOn(
+        dokkaSubprojects.task(":publishToMavenLocal"),
+        mavenPlugin.task(":publishToMavenLocal"),
+    )
     dependsOn(tasks.installMavenBinary)
     val mvn = mavenCliSetup.mvn
     inputs.file(mvn)
 
-    val dokka_version: String by project
-    environment("DOKKA_VERSION", dokka_version)
+    environment("DOKKA_VERSION", project.version)
     doFirst("workaround for https://github.com/gradle/gradle/issues/24267") {
         environment("MVN_BINARY_PATH", mvn.get().asFile.invariantSeparatorsPath)
     }

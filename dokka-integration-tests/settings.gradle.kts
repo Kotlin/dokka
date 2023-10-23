@@ -31,11 +31,12 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 includeBuild("../dokka-runners/gradle-plugin-classic")
 includeBuild("../dokka-runners/cli")
+includeBuild("../dokka-runners/maven-plugin")
 includeBuild("../dokka-subprojects")
 
 include(
 //    ":cli",
     ":gradle",
-//    ":maven",
+    ":maven",
     ":integration-test-utilities",
 )
