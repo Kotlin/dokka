@@ -24,21 +24,10 @@ val gradlePluginClassic = gradle.includedBuild("gradle-plugin-classic")
 
 tasks.integrationTest {
     dependsOn(
-        dokkaSubprojects.task(":publishAllPublicationsToProjectLocalRepository"),
-        gradlePluginClassic.task(":publishAllPublicationsToProjectLocalRepository"),
+        dokkaSubprojects.task(":publishToMavenLocal"),
+        gradlePluginClassic.task(":publishToMavenLocal"),
     )
-    environment(
-        "DOKKA_VERSION",
-        project.version
-    )
-    environment(
-        "DOKKA_LOCAL_REPOSITORY_SUBPROJECTS",
-        dokkaSubprojects.projectDir.resolve("build/maven-project-local")
-    )
-    environment(
-        "DOKKA_LOCAL_REPOSITORY_GRADLE_PLUGIN",
-        gradlePluginClassic.projectDir.resolve("build/maven-project-local")
-    )
+    environment("DOKKA_VERSION", project.version)
     inputs.dir(file("projects"))
 
     javaLauncher.set(javaToolchains.launcherFor {

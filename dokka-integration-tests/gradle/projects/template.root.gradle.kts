@@ -4,7 +4,7 @@
 
 allprojects {
     repositories {
-        maven(System.getenv("DOKKA_LOCAL_REPOSITORY_SUBPROJECTS")) {
+        mavenLocal {
             content {
                 includeGroup("org.jetbrains.dokka")
             }
