@@ -11,6 +11,7 @@ addDependencyToSubprojectTasks("build")
 addDependencyToSubprojectTasks("clean")
 addDependencyToSubprojectTasks("check")
 
+registerParentTask("test", groupName = "verification")
 registerParentTask("integrationTest", groupName = "verification")
 
 fun addDependencyToSubprojectTasks(existingTaskName: String) {
