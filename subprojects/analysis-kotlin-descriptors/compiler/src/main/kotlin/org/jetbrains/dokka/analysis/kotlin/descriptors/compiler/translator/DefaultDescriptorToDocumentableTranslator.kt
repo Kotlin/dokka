@@ -124,7 +124,7 @@ internal class DefaultDescriptorToDocumentableTranslator(
     /**
      * Implementation note: it runs in a separated single thread due to existing support of coroutines (see #2936)
      */
-    @OptIn(DelicateCoroutinesApi::class)
+    @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
     override fun translateClassDescriptor(descriptor: ClassDescriptor, sourceSet: DokkaSourceSet): DClasslike {
         val driInfo = DRI.from(descriptor.parents.first()).withEmptyInfo()
 
