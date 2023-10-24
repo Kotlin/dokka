@@ -109,7 +109,7 @@ public class SymbolsAnalysisPlugin : DokkaPlugin() {
          plugin<InternalKotlinAnalysisPlugin>().kotlinToJavaService providing { SymbolKotlinToJavaMapper() }
      }
 
-    internal val descriptorInheritanceBuilder by extending {
+    internal val symbolInheritanceBuilder by extending {
          plugin<InternalKotlinAnalysisPlugin>().inheritanceBuilder providing ::SymbolInheritanceBuilder
      }
 
