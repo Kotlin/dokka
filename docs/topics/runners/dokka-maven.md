@@ -407,7 +407,7 @@ function in `kotlinx.coroutines`.
     <configuration>
         <sourceLinks>
             <link>
-                <path>${project.basedir}/src</path>
+                <path>src</path>
                 <url>https://github.com/kotlin/dokka/tree/master/src</url>
                 <lineSuffix>#L</lineSuffix>
             </link>
@@ -421,6 +421,9 @@ function in `kotlinx.coroutines`.
         <p>
             The path to the local source directory. The path must be relative to the root of the
             current module.
+        </p>
+        <p>
+            Note: Only Unix based paths are allowed, Windows-style paths will throw an error.
         </p>
     </def>
     <def title="url">
@@ -583,7 +586,7 @@ Below you can see all the possible configuration options applied at the same tim
         <suppressInheritedMembers>false</suppressInheritedMembers>
         <offlineMode>false</offlineMode>
         <sourceDirectories>
-            <dir>${project.basedir}/src</dir>
+            <dir>src</dir>
         </sourceDirectories>
         <documentedVisibilities>
             <visibility>PUBLIC</visibility>

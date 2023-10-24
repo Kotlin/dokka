@@ -25,6 +25,7 @@ class TabbedContentTest : BaseAbstractTest() {
 
     private fun Element.getTabbedRow(type: String) = select(".table-row[data-togglable=$type]")
     private fun Element.getTabbedTable(type: String) = select("div[data-togglable=$type] .table")
+    private fun Element.getMainContentDataType() = selectFirst(".main-content")?.attr("data-page-type")
 
     @Test
     fun `should have correct tabbed content type`() {
@@ -64,6 +65,7 @@ class TabbedContentTest : BaseAbstractTest() {
                 assertEquals(1, classContent.getTabbedTable("TYPE").size)
                 assertEquals(3, classContent.getTabbedRow("EXTENSION_FUNCTION").size)
                 assertEquals(2, classContent.getTabbedRow("EXTENSION_PROPERTY").size)
+                assertEquals("classlike", classContent.getMainContentDataType())
 
                 val packagePage = writerPlugin.writer.renderedContent("root/example/index.html")
                 assertEquals(1, packagePage.getTabbedTable("TYPE").size)
@@ -71,6 +73,7 @@ class TabbedContentTest : BaseAbstractTest() {
                 assertEquals(1, packagePage.getTabbedTable("FUNCTION").size)
                 assertEquals(3, packagePage.getTabbedRow("EXTENSION_FUNCTION").size)
                 assertEquals(2, packagePage.getTabbedRow("EXTENSION_PROPERTY").size)
+                assertEquals("package", packagePage.getMainContentDataType())
             }
         }
     }
