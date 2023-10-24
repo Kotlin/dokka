@@ -4,7 +4,6 @@
 
 package renderers.html
 
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
@@ -49,15 +48,13 @@ abstract class HtmlRenderingOnlyTestBase : RenderingOnlyTestBase<Element>() {
         finalizeCoroutines = false
     )
 
-    override val context by lazy { context(configuration) }
-
-    fun context(testConfiguration: DokkaConfiguration): MockContext = MockContext(
+    override val context = MockContext(
         DokkaBase().outputWriter to { files },
         DokkaBase().locationProviderFactory to ::DokkaLocationProviderFactory,
         DokkaBase().htmlPreprocessors to { RootCreator },
         DokkaBase().externalLocationProviderFactory to ::JavadocExternalLocationProviderFactory,
         DokkaBase().externalLocationProviderFactory to ::DefaultExternalLocationProviderFactory,
-        testConfiguration = testConfiguration
+        testConfiguration = configuration
     )
 
     override val renderedContent: Element by lazy {
