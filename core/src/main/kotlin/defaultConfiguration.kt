@@ -6,6 +6,7 @@ package org.jetbrains.dokka
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import java.io.File
+import java.net.URI
 import java.net.URL
 
 public data class DokkaConfigurationImpl(
@@ -74,14 +75,14 @@ public data class SourceLinkDefinitionImpl(
 
     public constructor(
         localDirectory: String, remoteUrl: String, remoteLineSuffix: String?
-    ) : this(localDirectory, URL(remoteUrl), remoteLineSuffix)
+    ) : this(localDirectory, URI(remoteUrl).toURL(), remoteLineSuffix)
 
     public companion object {
         public fun parseSourceLinkDefinition(srcLink: String): SourceLinkDefinitionImpl {
             val (path, urlAndLine) = srcLink.split('=')
             return SourceLinkDefinitionImpl(
                 localDirectory = File(path).canonicalPath,
-                remoteUrl = URL(urlAndLine.substringBefore("#")),
+                remoteUrl = URI(urlAndLine.substringBefore("#")).toURL(),
                 remoteLineSuffix = urlAndLine.substringAfter("#", "").let { if (it.isEmpty()) null else "#$it" })
         }
     }
