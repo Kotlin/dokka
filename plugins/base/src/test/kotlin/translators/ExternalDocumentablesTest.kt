@@ -14,10 +14,8 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.cast
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import utils.UsingJDK
 
 class ExternalDocumentablesTest : BaseAbstractTest() {
-    @UsingJDK
     @Test
     fun `external documentable from java stdlib`() {
         val configuration = dokkaConfiguration {

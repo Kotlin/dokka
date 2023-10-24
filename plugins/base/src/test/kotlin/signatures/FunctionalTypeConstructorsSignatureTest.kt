@@ -11,7 +11,6 @@ import utils.A
 import utils.Span
 import utils.TestOutputWriterPlugin
 import utils.match
-import utils.JavaCode
 import kotlin.test.Ignore
 import kotlin.test.Test
 
@@ -259,7 +258,6 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @JavaCode
     @Test
     fun `java with java function`() {
         val source = """
@@ -286,7 +284,6 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @JavaCode
     @Test
     fun `java with kotlin function`() {
         val source = """
