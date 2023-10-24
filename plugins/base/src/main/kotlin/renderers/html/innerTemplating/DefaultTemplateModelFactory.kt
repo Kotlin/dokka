@@ -71,8 +71,6 @@ public class DefaultTemplateModelFactory(
         }
         mapper["template_cmd"] = TemplateDirective(context.configuration, pathToRoot)
 
-        calculateSourceUrlFromSourceLinks()?.let { mapper["sourceUrl"] = it }
-
         if (page is ContentPage) {
             val sourceSets = page.content.withDescendants()
                 .flatMap { it.sourceSets }
@@ -88,18 +86,21 @@ public class DefaultTemplateModelFactory(
         return mapper
     }
 
-    override fun buildSharedModel(): TemplateMap = mapOf<String, Any>(
-        "footerMessage" to (configuration?.footerMessage?.takeIf { it.isNotEmpty() }
-            ?: DokkaBaseConfiguration.defaultFooterMessage)
-    )
+    override fun buildSharedModel(): TemplateMap {
+        val mapper = mutableMapOf<String, Any>()
+
+        mapper["footerMessage"] =
+            (configuration?.footerMessage?.takeIf(String::isNotBlank) ?: DokkaBaseConfiguration.defaultFooterMessage)
+
+        calculateSourceUrlFromSourceLinks()?.let { mapper["sourceUrl"] = it }
+
+        return mapper
+    }
 
     private fun calculateSourceUrlFromSourceLinks(): String? {
-        val githubLinkRegex = Regex("http(s)?://github\\.com/([\\w,\\-_]+)/([\\w,\\-_]+)/.*")
-
         fun parseGithubInfo(link: String): Pair<String, String>? {
             val (
                 _, // entire match
-                _, // optional 's' in http
                 owner,
                 repo
             ) = githubLinkRegex.find(link)?.groupValues ?: return null
@@ -153,6 +154,10 @@ public class DefaultTemplateModelFactory(
                 append(resourceHtml)
             }
         }
+
+    private companion object {
+        val githubLinkRegex = Regex("https?://github\\.com/([\\w,\\-_]+)/([\\w,\\-_]+)/.*")
+    }
 }
 
 private class PrintDirective(val generateData: () -> String) : TemplateDirectiveModel {
