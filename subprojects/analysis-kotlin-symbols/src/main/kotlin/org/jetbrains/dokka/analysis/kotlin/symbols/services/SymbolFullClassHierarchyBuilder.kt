@@ -109,7 +109,7 @@ internal class SymbolFullClassHierarchyBuilder(context: DokkaContext) : FullClas
         val typeTranslator = TypeTranslator(sourceSet, AnnotationTranslator())
         val hierarchy = mutableMapOf<DRI, SuperclassesWithKind>()
 
-        analyze(kotlinAnalysis[sourceSet].mainModule) {
+        analyze(kotlinAnalysis.getModule(sourceSet)) {
             documentable.filterIsInstance<DClasslike>().forEach {
                 val source = it.sources[sourceSet]
                 if (source is KtPsiDocumentableSource) {
