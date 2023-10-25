@@ -7,10 +7,8 @@ package signatures
 import utils.TestOutputWriterPlugin
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import utils.OnlyDescriptors
-import utils.OnlyDescriptorsMPP
 
-@OnlyDescriptorsMPP
+
 class DivergentSignatureTest : AbstractRenderingTest() {
 
     @Test
