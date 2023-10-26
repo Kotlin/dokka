@@ -7,7 +7,6 @@ package org.jetbrains.dokka.javadoc
 import org.jetbrains.dokka.javadoc.pages.IndexPage
 import org.jetbrains.dokka.javadoc.renderer.TemplateMap
 import org.jetbrains.dokka.links.DRI
-import org.junit.jupiter.api.Tag
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -73,6 +72,7 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
     @Test
     fun `handles correct number of elements`() {
         //We are checking whether we will have an additional function for enum classes
+        // e.g. since Java 12 it has `describeConstable`
         fun hasAdditionalFunction() =
             AnnotationTarget.ANNOTATION_CLASS::class.java.methods.any { it.name == "describeConstable" }
 
@@ -80,7 +80,7 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
             assertEquals("A-index: a, A\n" +
                     "B-index: b\n" +
                     "C-index: c, ClassA, ClassB, ClassC, ClassC.InnerClass, ClassCEnum, compareTo\n" +
-                    "D-index: d, D\n" +
+                    (if (hasAdditionalFunction()) "D-index: d, D, describeConstable\n" else "D-index: d, D\n") +
                     "E-index: e, E, equals, equals\n" +
                     "F-index: f\n" +
                     "G-index: g, getDeclaringClass, getEntries, getName, getOrdinal\n" +
