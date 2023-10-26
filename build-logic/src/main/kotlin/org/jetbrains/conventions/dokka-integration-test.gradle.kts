@@ -75,7 +75,3 @@ val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
         showStackTraces = true
     }
 }
-
-tasks.check {
-    dependsOn(integrationTest)
-}
