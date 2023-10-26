@@ -5,6 +5,8 @@
 package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
+import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableSourceLanguageParser
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.signatures.SignatureProvider
@@ -22,8 +24,6 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableSourceLanguageParser
-import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
 import kotlin.reflect.KClass
 
 internal typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
@@ -47,8 +47,26 @@ public open class DefaultPageCreator(
     protected val separateInheritedMembers: Boolean =
         configuration?.separateInheritedMembers ?: DokkaBaseConfiguration.separateInheritedMembersDefault
 
-    public open fun pageForModule(m: DModule): ModulePageNode =
-        ModulePageNode(m.name.ifEmpty { "<root>" }, contentForModule(m), listOf(m), m.packages.map(::pageForPackage))
+    public open fun pageForModule(m: DModule): ModulePageNode {
+        val hasTypes = m.packages.any {
+            it.classlikes.isNotEmpty() || it.typealiases.isNotEmpty()
+        }
+        val packagePages = m.packages.map(::pageForPackage)
+        return ModulePageNode(
+            name = m.name.ifEmpty { "<root>" },
+            content = contentForModule(m),
+            documentables = listOf(m),
+            children = when {
+                hasTypes -> packagePages + AllTypesPageNode(
+                    name = "All Types",
+                    content = contentForAllTypes(m),
+                    children = emptyList()
+                )
+
+                else -> packagePages
+            }
+        )
+    }
 
     /**
      * We want to generate separated pages for no-actual typealias.
@@ -56,8 +74,9 @@ public open class DefaultPageCreator(
      *
      * @see ActualTypealias
      */
-    private fun List<Documentable>.filterOutActualTypeAlias(): List<Documentable> {
-        fun List<Documentable>.hasExpectClass(dri: DRI) = find { it is DClasslike && it.dri == dri && it.expectPresentInSet != null } != null
+    private fun <T : Documentable> List<T>.filterOutActualTypeAlias(): List<T> {
+        fun List<Documentable>.hasExpectClass(dri: DRI) =
+            find { it is DClasslike && it.dri == dri && it.expectPresentInSet != null } != null
         return this.filterNot { it is DTypeAlias && this.hasExpectClass(it.dri) }
     }
 
@@ -258,17 +277,65 @@ public open class DefaultPageCreator(
                 headers = listOf(
                     headers("Name")
                 )
-            ) {
-                val documentations = it.sourceSets.map { platform ->
-                    it.descriptions[platform]?.also { it.root }
-                }
-                val haveSameContent =
-                    documentations.all { it?.root == documentations.firstOrNull()?.root && it?.root != null }
+            ) { pkg ->
+                val comment = pkg.sourceSets.mapNotNull { sourceSet ->
+                    pkg.descriptions[sourceSet]?.let { sourceSet to it }
+                }.distinctBy { it.second }.singleOrNull()
 
-                link(it.name, it.dri)
-                if (it.sourceSets.size == 1 || (documentations.isNotEmpty() && haveSameContent)) {
-                    documentations.first()?.let { firstParagraphComment(kind = ContentKind.Comment, content = it.root) }
+                link(pkg.name, pkg.dri)
+                comment?.let { (sourceSet, description) ->
+                    createBriefComment(pkg, sourceSet, description)
                 }
+            }
+
+            val hasTypes = m.packages.any {
+                it.classlikes.isNotEmpty() || it.typealiases.isNotEmpty()
+            }
+            if (hasTypes) {
+                header(2, "Index", kind = ContentKind.Cover)
+                link("All Types", AllTypesPageNode.DRI)
+            }
+        }
+    }
+
+    protected open fun contentForAllTypes(m: DModule): ContentGroup = contentBuilder.contentFor(m) {
+        group(kind = ContentKind.Cover) {
+            cover(m.name)
+        }
+
+        fun DTypelike.qualifiedName(): String {
+            val className = dri.classNames?.takeIf(String::isNotBlank) ?: name
+            val packageName = dri.packageName?.takeIf(String::isNotBlank) ?: return className
+            return "$packageName.${className}"
+        }
+
+        block(
+            name = "All Types",
+            level = 2,
+            kind = ContentKind.AllTypes,
+            elements = m.packages.flatMap { it.classlikes + it.typealiases }.filterOutActualTypeAlias(),
+            sourceSets = m.sourceSets.toSet(),
+            needsAnchors = true,
+            headers = listOf(
+                headers("Name")
+            )
+        ) { typelike ->
+            val comment = typelike.sourceSets.mapNotNull { sourceSet ->
+                typelike.descriptions[sourceSet]?.let { sourceSet to it }
+            }.distinctBy { it.second }.singleOrNull()
+
+            val customTags = typelike.customTags.values.mapNotNull { sourceSetTag ->
+                typelike.sourceSets.mapNotNull { sourceSet ->
+                    sourceSetTag[sourceSet]?.let { sourceSet to it }
+                }.distinct().singleOrNull()
+            }
+
+            link(typelike.qualifiedName(), typelike.dri)
+            comment?.let { (sourceSet, description) ->
+                createBriefComment(typelike, sourceSet, description)
+            }
+            customTags.forEach { (sourceSet, tag) ->
+                createBriefCustomTags(sourceSet, tag)
             }
         }
     }
@@ -409,6 +476,7 @@ public open class DefaultPageCreator(
                 +contentForScopes(scopes, documentables.sourceSets, extensions)
             }
         }
+
     protected open fun contentForConstructors(
         constructorsToDocumented: List<DFunction>,
         dri: Set<DRI>,
@@ -478,11 +546,10 @@ public open class DefaultPageCreator(
     }
 
 
-
     protected open fun contentForDescription(
         d: Documentable
     ): List<ContentNode> {
-        val sourceSets = d.sourceSets.toSet()
+        val sourceSets = d.sourceSets
         val tags = d.groupedTags
 
         return contentBuilder.contentFor(d) {
@@ -529,7 +596,7 @@ public open class DefaultPageCreator(
         tag: TagWrapper
     ) {
         val language = documentableAnalyzer.getLanguage(documentable, sourceSet)
-        when(language) {
+        when (language) {
             DocumentableLanguage.JAVA -> firstSentenceComment(tag.root)
             DocumentableLanguage.KOTLIN -> firstParagraphComment(tag.root)
             else -> firstParagraphComment(tag.root)
@@ -585,7 +652,8 @@ public open class DefaultPageCreator(
         )
 
     }
-    private data class NameAndIsExtension(val name:String?, val isExtension: Boolean)
+
+    private data class NameAndIsExtension(val name: String?, val isExtension: Boolean)
 
     private fun groupAndSortDivergentCollection(collection: Collection<Documentable>): List<Map.Entry<NameAndIsExtension, List<Documentable>>> {
         val groupKeyComparator: Comparator<Map.Entry<NameAndIsExtension, List<Documentable>>> =
@@ -594,7 +662,7 @@ public open class DefaultPageCreator(
             ) { it.key.name }
                 .thenBy { it.key.isExtension }
 
-       return collection
+        return collection
             .groupBy {
                 NameAndIsExtension(
                     it.name,
@@ -614,7 +682,7 @@ public open class DefaultPageCreator(
     ) {
         if (collection.any()) {
             val onlyExtensions = collection.all { it.isExtension() }
-            val groupExtra = when(kind) {
+            val groupExtra = when (kind) {
                 ContentKind.Functions -> extra + TabbedContentTypeExtra(if (onlyExtensions) BasicTabbedContentType.EXTENSION_FUNCTION else BasicTabbedContentType.FUNCTION)
                 ContentKind.Properties -> extra + TabbedContentTypeExtra(if (onlyExtensions) BasicTabbedContentType.EXTENSION_PROPERTY else BasicTabbedContentType.PROPERTY)
                 ContentKind.Classlikes -> extra + TabbedContentTypeExtra(BasicTabbedContentType.TYPE)
@@ -630,12 +698,12 @@ public open class DefaultPageCreator(
                         group { text("Name") }
                         group { text("Summary") }
                     }
-                        groupAndSortDivergentCollection(collection)
+                    groupAndSortDivergentCollection(collection)
                         .forEach { (elementNameAndIsExtension, elements) -> // This groupBy should probably use LocationProvider
                             val elementName = elementNameAndIsExtension.name
                             val isExtension = elementNameAndIsExtension.isExtension
                             val rowExtra =
-                                if (isExtension) extra + TabbedContentTypeExtra(if(isFunctions) BasicTabbedContentType.EXTENSION_FUNCTION else BasicTabbedContentType.EXTENSION_PROPERTY) else extra
+                                if (isExtension) extra + TabbedContentTypeExtra(if (isFunctions) BasicTabbedContentType.EXTENSION_FUNCTION else BasicTabbedContentType.EXTENSION_PROPERTY) else extra
                             val rowKind = if (isExtension) ContentKind.Extensions else kind
                             val sortedElements = sortDivergentElementsDeterministically(elements)
                             row(
@@ -715,12 +783,19 @@ public open class DefaultPageCreator(
         documentable.sourceSets.forEach { sourceSet ->
             customTags.forEach { (_, sourceSetTag) ->
                 sourceSetTag[sourceSet]?.let { tag ->
-                    customTagContentProviders.filter { it.isApplicable(tag) }.forEach { provider ->
-                        with(provider) {
-                            contentForBrief(sourceSet, tag)
-                        }
-                    }
+                    createBriefCustomTags(sourceSet, tag)
                 }
+            }
+        }
+    }
+
+    private fun DocumentableContentBuilder.createBriefCustomTags(
+        sourceSet: DokkaSourceSet,
+        customTag: CustomTagWrapper
+    ) {
+        customTagContentProviders.filter { it.isApplicable(customTag) }.forEach { provider ->
+            with(provider) {
+                contentForBrief(sourceSet, customTag)
             }
         }
     }

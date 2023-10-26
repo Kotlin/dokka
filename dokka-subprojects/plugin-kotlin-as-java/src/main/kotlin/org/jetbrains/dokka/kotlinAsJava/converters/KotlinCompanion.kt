@@ -28,9 +28,9 @@ internal fun DObject.companionInstancePropertyForJava(): DProperty? {
     if (hasNothingToRender()) return null // do not show if companion not rendered
 
     return DProperty(
-        name = name ?: DEFAULT_COMPANION_NAME,
+        name = name,
         modifier = sourceSets.associateWith { JavaModifier.Final },
-        dri = dri.copy(callable = Callable(name ?: DEFAULT_COMPANION_NAME, null, emptyList())),
+        dri = dri.copy(callable = Callable(name, null, emptyList())),
         documentation = emptyMap(),
         sources = emptyMap(),
         visibility = sourceSets.associateWith {
