@@ -7,6 +7,7 @@ import org.jetbrains.registerDokkaArtifactPublication
 plugins {
     id("org.jetbrains.conventions.kotlin-jvm")
     id("org.jetbrains.conventions.maven-publish")
+    id("org.jetbrains.conventions.base-unit-test")
 }
 
 dependencies {
@@ -20,7 +21,11 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(libs.jsoup)
     testImplementation(projects.plugins.base)
-    testImplementation(projects.plugins.base.baseTestUtils)
+    symbolsTestConfiguration(project(path = ":subprojects:analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestConfiguration(project(path = ":subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
+    testImplementation(projects.plugins.base.baseTestUtils) {
+        exclude(module = "analysis-kotlin-descriptors")
+    }
     testImplementation(projects.core.contentMatcherTestUtils)
     testImplementation(projects.core.testApi)
 }
