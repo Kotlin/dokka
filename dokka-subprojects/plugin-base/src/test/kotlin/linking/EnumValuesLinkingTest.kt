@@ -11,13 +11,14 @@ import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.DocumentationLink
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.pages.PackagePageNode
 import org.jsoup.Jsoup
+import utils.OnlyDescriptors
 import utils.TestOutputWriterPlugin
 import java.nio.file.Paths
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import utils.OnlyDescriptors
 
 class EnumValuesLinkingTest : BaseAbstractTest() {
 
@@ -50,6 +51,7 @@ class EnumValuesLinkingTest : BaseAbstractTest() {
                             assertEquals(null, this.callable)
                             assertNotNull(DRIExtraContainer(extra)[EnumEntryDRIExtra])
                         }
+
                         else -> throw AssertionError("Link node is not DocumentationLink type")
                     }
 
@@ -59,6 +61,7 @@ class EnumValuesLinkingTest : BaseAbstractTest() {
                             assertEquals(null, this.callable)
                             assertNotNull(DRIExtraContainer(extra)[EnumEntryDRIExtra])
                         }
+
                         else -> throw AssertionError("Link node is not DocumentationLink type")
                     }
                 }
@@ -71,6 +74,7 @@ class EnumValuesLinkingTest : BaseAbstractTest() {
                             assertEquals(null, this.callable)
                             assertNotNull(DRIExtraContainer(extra)[EnumEntryDRIExtra])
                         }
+
                         else -> throw AssertionError("Link node is not DocumentationLink type")
                     }
 
@@ -80,6 +84,7 @@ class EnumValuesLinkingTest : BaseAbstractTest() {
                             assertEquals(null, this.callable)
                             assertNotNull(DRIExtraContainer(extra)[EnumEntryDRIExtra])
                         }
+
                         else -> throw AssertionError("Link node is not DocumentationLink type")
                     }
                 }
@@ -96,7 +101,7 @@ class EnumValuesLinkingTest : BaseAbstractTest() {
             }
 
             renderingStage = { rootPageNode, _ ->
-                val classlikes = rootPageNode.children.single().children
+                val classlikes = rootPageNode.children.single { it is PackagePageNode }.children
                 assertEquals(4, classlikes.size)
 
                 val javaLinker = classlikes.single { it.name == "JavaLinker" }

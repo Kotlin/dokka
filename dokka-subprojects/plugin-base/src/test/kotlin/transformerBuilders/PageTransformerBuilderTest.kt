@@ -60,7 +60,7 @@ class PageTransformerBuilderTest : BaseAbstractTest() {
                 orig = it
             }
             pagesTransformationStage = { root ->
-                list.assertCount(4, "Page list: ")
+                list.assertCount(5, "Page list: ")
                 orig?.let { root.assertTransform(it) }
             }
         }

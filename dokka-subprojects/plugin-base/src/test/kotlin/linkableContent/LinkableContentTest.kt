@@ -134,7 +134,7 @@ class LinkableContentTest : BaseAbstractTest() {
             renderingStage = { rootPageNode, dokkaContext ->
                 val newRoot = SourceLinksTransformer(dokkaContext).invoke(rootPageNode)
                 val moduleChildren = newRoot.children
-                assertEquals(1, moduleChildren.size)
+                assertEquals(2, moduleChildren.size)
                 val packageChildren = moduleChildren.first().children
                 assertEquals(2, packageChildren.size)
                 packageChildren.forEach {
@@ -197,7 +197,7 @@ class LinkableContentTest : BaseAbstractTest() {
 //                val newRoot = DefaultSamplesTransformer(dokkaContext).invoke(rootPageNode)
                 val newRoot = rootPageNode
                 val moduleChildren = newRoot.children
-                assertEquals(1, moduleChildren.size)
+                assertEquals(2, moduleChildren.size)
                 val packageChildren = moduleChildren.first().children
                 assertEquals(2, packageChildren.size)
                 packageChildren.forEach { pageNode ->

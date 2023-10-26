@@ -45,7 +45,7 @@ class NavigationTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
-                assertEquals(6, content.size)
+                assertEquals(7, content.size)
 
                 // Navigation menu should be the following:
                 // - root
@@ -114,7 +114,7 @@ class NavigationTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
-                assertEquals(3, content.size)
+                assertEquals(4, content.size)
 
                 // Navigation menu should be the following:
                 // - root
@@ -225,7 +225,7 @@ class NavigationTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
-                assertEquals(9, content.size)
+                assertEquals(10, content.size)
 
                 // Navigation menu should be the following, sorted by name:
                 // - root
@@ -325,7 +325,7 @@ class NavigationTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
-                assertEquals(7, content.size)
+                assertEquals(8, content.size)
 
                 // Navigation menu should be the following
                 // - root

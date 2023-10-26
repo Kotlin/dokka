@@ -51,7 +51,8 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             cleanupOutput = true
         ) {
             pagesGenerationStage = { root ->
-                val content = (root.children.single().children.first { it.name == "TestKt" } as ContentPage).content
+                val content =
+                    (root.children.single { it is PackagePageNode }.children.first { it.name == "TestKt" } as ContentPage).content
 
                 val functionRows = content.findTableWithKind(kind = ContentKind.Functions).children
                 functionRows.assertCount(6)
@@ -95,12 +96,12 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                 val contentList = root.children
                     .flatMap { it.children<ContentPage>() }
 
-                contentList.find {it.name == "Test"}.apply {
+                contentList.find { it.name == "Test" }.apply {
                     assertNotNull(this)
                     content.findTableWithKind(ContentKind.Functions).children.assertCount(2)
                     content.findTableWithKind(ContentKind.Properties).children.assertCount(1)
                 }
-                contentList.find {it.name == "TestKt"}.apply {
+                contentList.find { it.name == "TestKt" }.apply {
                     assertNotNull(this)
                     content.findTableWithKind(ContentKind.Functions).children.assertCount(2)
                     content.findTableWithKind(ContentKind.Properties).children.assertCount(1)
@@ -164,7 +165,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `public kotlin properties should have a getter with same visibilities`(){
+    fun `public kotlin properties should have a getter with same visibilities`() {
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
@@ -185,7 +186,8 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             cleanupOutput = true
         ) {
             pagesTransformationStage = { rootPageNode ->
-                val propertyGetter = rootPageNode.dfs { it is MemberPageNode && it.name == "getPublicProperty" } as? MemberPageNode
+                val propertyGetter =
+                    rootPageNode.dfs { it is MemberPageNode && it.name == "getPublicProperty" } as? MemberPageNode
                 assertNotNull(propertyGetter)
                 propertyGetter.content.assertNode {
                     group {
@@ -217,7 +219,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `java properties should keep its modifiers`(){
+    fun `java properties should keep its modifiers`() {
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
@@ -242,7 +244,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                 assertNotNull(testClass)
                 (testClass.content as ContentGroup).children.last().children.last().assertNode {
                     group {
-                        header(2){
+                        header(2) {
                             +"Properties"
                         }
                         table {
@@ -273,7 +275,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `koltin interfaces and classes should be split to extends and implements`(){
+    fun `koltin interfaces and classes should be split to extends and implements`() {
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
@@ -357,11 +359,12 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             cleanupOutput = true
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature().match(
-                    "public final ", A("Integer"), A("someFun"), "(", Parameters(
-                        Parameter(A("Integer"), "xd")
-                    ), ")", ignoreSpanWithTokenStyle = true
-                )
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature()
+                    .match(
+                        "public final ", A("Integer"), A("someFun"), "(", Parameters(
+                            Parameter(A("Integer"), "xd")
+                        ), ")", ignoreSpanWithTokenStyle = true
+                    )
             }
         }
     }
@@ -397,11 +400,12 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             cleanupOutput = true
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature().match(
-                    "public final ", A("Integer"), A("someFun"), "(", Parameters(
-                        Parameter(A("Map"), "<", A("String"), ", ", A("Integer"), "> xd"),
-                    ), ")", ignoreSpanWithTokenStyle = true
-                )
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature()
+                    .match(
+                        "public final ", A("Integer"), A("someFun"), "(", Parameters(
+                            Parameter(A("Map"), "<", A("String"), ", ", A("Integer"), "> xd"),
+                        ), ")", ignoreSpanWithTokenStyle = true
+                    )
             }
         }
     }
@@ -463,11 +467,12 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             cleanupOutput = true
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test-kt/sample.html").firstSignature().match(
-                    "public final static ", A("String"), A("sample"), "(", Parameters(
-                        Parameter(A("Integer"), "a"),
-                    ), ")", ignoreSpanWithTokenStyle = true
-                )
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test-kt/sample.html").firstSignature()
+                    .match(
+                        "public final static ", A("String"), A("sample"), "(", Parameters(
+                            Parameter(A("Integer"), "a"),
+                        ), ")", ignoreSpanWithTokenStyle = true
+                    )
             }
         }
     }
@@ -503,7 +508,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                     .map { it.content }.single().mainContents
 
                 val text = content.single { it is ContentHeader }.children
-                        .single() as ContentText
+                    .single() as ContentText
 
                 assertEquals("Constructors", text.text)
             }
@@ -566,7 +571,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `Java function should keep its access modifier`(){
+    fun `Java function should keep its access modifier`() {
         val className = "Test"
         val accessModifier = "public"
         val methodName = "method"
@@ -614,5 +619,5 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
 
 private val ContentNode.mainContents: List<ContentNode>
     get() = (this as ContentGroup).children
-    .filterIsInstance<ContentGroup>()
-    .single { it.dci.kind == ContentKind.Main }.children[0].let { it.children[0] }.children
+        .filterIsInstance<ContentGroup>()
+        .single { it.dci.kind == ContentKind.Main }.children[0].let { it.children[0] }.children
