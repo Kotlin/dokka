@@ -27,7 +27,9 @@ tasks.integrationTest {
         dokkaSubprojects.task(":publishToMavenLocal"),
         gradlePluginClassic.task(":publishToMavenLocal"),
     )
+
     environment("DOKKA_VERSION", project.version)
+
     inputs.dir(file("projects"))
 
     javaLauncher.set(javaToolchains.launcherFor {

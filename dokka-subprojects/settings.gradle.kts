@@ -60,8 +60,6 @@ dependencyResolutionManagement {
     }
 }
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
 include(
     ":analysis-java-psi",
     ":analysis-kotlin-api",
@@ -89,11 +87,11 @@ include(
     ":plugin-versioning",
 )
 
-// TODO [structure-refactoring]
-//  this is required for included build support
-//  the name of the artifact published now is `dokka-core`, but module named `core`
-//  dependency substitution in this case doesn't work for some reason
-//  may be we fall here in one of the unsupported cases:
-//  https://docs.gradle.org/current/userguide/composite_builds.html#included_build_substitution_limitations
-//  may be we need to find some other solution for this
+// This hack is required for included build support.
+// The name of the published artifact is `dokka-core`, but the module is named `core`.
+// For some reason, dependency substitution doesn't work in this case. Maybe we fall under one of the unsupported
+// cases: https://docs.gradle.org/current/userguide/composite_builds.html#included_build_substitution_limitations.
+// Should no longer be a problem once Dokka's artifacts are relocated, see #3245.
 project(":core").name = "dokka-core"
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

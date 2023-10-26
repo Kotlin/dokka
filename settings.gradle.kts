@@ -64,6 +64,8 @@ includeBuild("dokka-runners/gradle-plugin-classic")
 includeBuild("dokka-runners/maven-plugin")
 includeBuild("dokka-runners/cli")
 
+include(":docs-developer")
+
 val isCiBuild = System.getenv("GITHUB_ACTIONS") != null || System.getenv("TEAMCITY_VERSION") != null
 
 gradleEnterprise {

@@ -13,7 +13,7 @@ plugins {
 overridePublicationArtifactId("dokka-gradle-plugin", PublicationName.GRADLE_PLUGIN)
 
 dependencies {
-    // this version is required for Gradle plugin publishing
+    // the version is required for Gradle plugin publishing
     api("org.jetbrains.dokka:dokka-core:$version")
 
     compileOnly(libs.gradlePlugin.kotlin)
@@ -26,6 +26,7 @@ dependencies {
     testImplementation(libs.gradlePlugin.android)
 }
 
+@Suppress("UnstableApiUsage")
 gradlePlugin {
     plugins {
         create("dokka") {

@@ -27,8 +27,6 @@ dependencyResolutionManagement {
     }
 }
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
 includeBuild("../dokka-runners/gradle-plugin-classic")
 includeBuild("../dokka-runners/cli")
 includeBuild("../dokka-runners/maven-plugin")
@@ -40,3 +38,5 @@ include(
     ":maven",
     ":utilities",
 )
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
