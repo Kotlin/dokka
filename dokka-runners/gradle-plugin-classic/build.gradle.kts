@@ -2,11 +2,11 @@
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import org.jetbrains.MAVEN_GRADLE_PLUGIN_PUBLICATION_NAME
-import org.jetbrains.overridePublicationArtifactId
+import dokkabuild.MAVEN_GRADLE_PLUGIN_PUBLICATION_NAME
+import dokkabuild.overridePublicationArtifactId
 
 plugins {
-    id("org.jetbrains.conventions.gradle-plugin")
+    id("dokkabuild.gradle-plugin")
     alias(libs.plugins.kotlinx.binaryCompatibilityValidator)
 }
 

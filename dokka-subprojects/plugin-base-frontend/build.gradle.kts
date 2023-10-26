@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.util.parseSpaceSeparatedArgs
 
 @Suppress("DSL_SCOPE_VIOLATION") // fixed in Gradle 8.1 https://github.com/gradle/gradle/pull/23639
 plugins {
-    id("org.jetbrains.conventions.dokka-html-frontend-files")
+    id("dokkabuild.setup-html-frontend-files")
     alias(libs.plugins.gradleNode)
 }
 

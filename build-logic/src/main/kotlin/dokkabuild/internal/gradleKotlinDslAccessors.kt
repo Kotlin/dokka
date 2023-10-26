@@ -8,7 +8,7 @@ package org.gradle.kotlin.dsl // for convenience use a default package for gradl
 
 import org.gradle.api.Project
 import org.gradle.accessors.dm.LibrariesForLibs
-import org.jetbrains.DokkaBuildProperties
+import dokkabuild.DokkaBuildProperties
 
 /*
  * Utility functions for accessing Gradle extensions that are created by convention plugins.

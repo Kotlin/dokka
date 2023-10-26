@@ -5,7 +5,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    id("org.jetbrains.conventions.dokka-integration-test")
+    id("dokkabuild.test-integration")
     id("com.github.johnrengelman.shadow")
 }
 

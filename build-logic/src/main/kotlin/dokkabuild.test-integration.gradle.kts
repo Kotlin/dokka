@@ -2,13 +2,11 @@
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.conventions
-
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
-    id("org.jetbrains.conventions.kotlin-jvm")
+    id("dokkabuild.kotlin-jvm")
 }
 
 val integrationTestSourceSet: SourceSet = sourceSets.create("integrationTest") {

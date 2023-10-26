@@ -2,12 +2,10 @@
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.conventions
-
-import org.jetbrains.MAVEN_GRADLE_PLUGIN_PUBLICATION_NAME
+import dokkabuild.MAVEN_GRADLE_PLUGIN_PUBLICATION_NAME
 
 plugins {
-    id("org.jetbrains.conventions.publishing-base")
+    id("dokkabuild.publish-base")
     id("com.gradle.plugin-publish")
 }
 

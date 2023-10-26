@@ -2,13 +2,13 @@
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import org.jetbrains.overridePublicationArtifactId
+import dokkabuild.overridePublicationArtifactId
 
 plugins {
-    id("org.jetbrains.conventions.kotlin-jvm")
-    id("org.jetbrains.conventions.publishing-default")
-    id("org.jetbrains.conventions.dokka-html-frontend-files")
-    id("org.jetbrains.conventions.base-unit-test")
+    id("dokkabuild.kotlin-jvm")
+    id("dokkabuild.publish-jvm")
+    id("dokkabuild.setup-html-frontend-files")
+    id("dokkabuild.test-unit")
 }
 
 overridePublicationArtifactId("dokka-base")

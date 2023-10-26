@@ -58,11 +58,8 @@ plugins {
     `gradle-enterprise`
 }
 
-// TODO [structure-refactoring] enable all
 includeBuild("dokka-integration-tests")
 includeBuild("dokka-subprojects")
-// gradle-plugin should sync, but might not be buildable yet
-//includeBuild("dokka-runners/gradle-plugin")
 includeBuild("dokka-runners/gradle-plugin-classic")
 includeBuild("dokka-runners/maven-plugin")
 includeBuild("dokka-runners/cli")
@@ -76,4 +73,5 @@ gradleEnterprise {
         publishAlwaysIf(isCiBuild)
     }
 }
+
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

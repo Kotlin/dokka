@@ -4,7 +4,7 @@
 
 
 plugins {
-    id("org.jetbrains.conventions.dokka-integration-test")
+    id("dokkabuild.test-integration")
 }
 
 dependencies {

@@ -3,7 +3,7 @@
  */
 
 plugins {
-    id("org.jetbrains.conventions.base")
+    id("dokkabuild.base")
 }
 
 addDependencyOnSameTaskOfIncludedBuilds("assemble")

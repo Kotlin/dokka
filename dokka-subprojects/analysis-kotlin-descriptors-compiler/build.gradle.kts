@@ -3,7 +3,7 @@
  */
 
 plugins {
-    id("org.jetbrains.conventions.kotlin-jvm")
+    id("dokkabuild.kotlin-jvm")
 }
 
 dependencies {

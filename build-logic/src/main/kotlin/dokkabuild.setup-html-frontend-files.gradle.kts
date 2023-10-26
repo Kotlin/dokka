@@ -2,8 +2,6 @@
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.conventions
-
 import org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE
 
 /**
@@ -11,7 +9,7 @@ import org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE
  */
 
 plugins {
-    id("org.jetbrains.conventions.base")
+    id("dokkabuild.base")
 }
 
 /** Apply a distinct attribute to the incoming/outgoing configuration */

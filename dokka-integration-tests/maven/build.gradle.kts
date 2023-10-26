@@ -3,8 +3,8 @@
  */
 
 plugins {
-    id("org.jetbrains.conventions.dokka-integration-test")
-    id("org.jetbrains.conventions.maven-cli-setup")
+    id("dokkabuild.test-integration")
+    id("dokkabuild.setup-maven-cli")
 }
 
 dependencies {

@@ -2,15 +2,13 @@
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.conventions
-
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.gradle.kotlin.kotlin-dsl")
-    id("org.jetbrains.conventions.base-java")
+    id("dokkabuild.java")
     kotlin("jvm")
-    id("org.jetbrains.conventions.publishing-gradle")
+    id("dokkabuild.publish-gradle-plugin")
 }
 
 // org.gradle.kotlin.kotlin-dsl sets languageVersion and apiVersion to 1.8 by default starting from Gradle 8
