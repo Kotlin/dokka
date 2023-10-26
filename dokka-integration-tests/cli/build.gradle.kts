@@ -11,7 +11,7 @@ plugins {
 
 dependencies {
     implementation(kotlin("test-junit5"))
-    implementation(projects.integrationTestUtilities)
+    implementation(projects.utilities)
 }
 
 /* Create a fat base plugin jar for cli tests */

@@ -38,5 +38,5 @@ include(
     ":cli",
     ":gradle",
     ":maven",
-    ":integration-test-utilities",
+    ":utilities",
 )

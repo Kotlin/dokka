@@ -8,7 +8,7 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.integrationTestUtilities)
+    implementation(projects.utilities)
 
     implementation(kotlin("test-junit5"))
 }
