@@ -45,7 +45,7 @@ val mavenCliSetupExtension =
         mavenInstallDir.convention(layout.buildDirectory.dir("apache-maven"))
 
         val isWindowsProvider =
-            providers.systemProperty("os.name").map { "win" in it.toLowerCase() }
+            providers.systemProperty("os.name").map { "win" in it.lowercase() }
 
         mvn.convention(
             providers.zip(mavenInstallDir, isWindowsProvider) { mavenInstallDir, isWindows ->
