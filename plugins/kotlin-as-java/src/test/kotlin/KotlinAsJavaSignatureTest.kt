@@ -23,6 +23,7 @@ class KotlinAsJavaSignatureTest : BaseAbstractTest() {
                     DokkaConfiguration.ExternalDocumentationLink.jdk(8),
                     stdlibExternalDocumentationLink
                 )
+                classpath = listOfNotNull(jvmStdlibPath)
             }
         }
     }

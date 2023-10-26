@@ -17,6 +17,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")
+                classpath = listOfNotNull(jvmStdlibPath)
                 analysisPlatform = "jvm"
             }
         }
@@ -217,6 +218,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("issue #3179")
     @Test
     fun `undocumented seealso with reference to property for class`() {
         testInline(
@@ -310,6 +312,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("issue #3179")
     @Test
     fun `documented seealso with reference to property for class`() {
         testInline(
@@ -756,7 +759,6 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptorsMPP
     @Test
     fun `multiplatform class with seealso in few platforms`() {
         testInline(

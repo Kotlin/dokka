@@ -23,6 +23,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/")
+                classpath = listOfNotNull(jvmStdlibPath)
                 analysisPlatform = "jvm"
             }
         }
@@ -246,7 +247,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
-    @JavaCode
+
     @Test
     fun `deprecated with multiple links inside`() {
         testInline(
@@ -351,7 +352,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
-    @JavaCode
+
     @Test
     fun `deprecated with an multiple inline links`() {
         testInline(
@@ -416,7 +417,6 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
-    @JavaCode
     @Test
     fun `multiline throws with comment`() {
         testInline(
@@ -531,7 +531,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                                             link {
                                                 check {
                                                     assertEquals(
-                                                        "java.lang/RuntimeException///PointingToDeclaration/",
+                                                        "kotlin/RuntimeException///PointingToDeclaration/",
                                                         (this as ContentDRILink).address.toString()
                                                     )
                                                 }
@@ -598,7 +598,6 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
-    @JavaCode
     @Test
     fun `multiline throws where exception is not in the same line as description`() {
         testInline(
@@ -682,7 +681,7 @@ class ContentForParamsTest : BaseAbstractTest() {
     }
 
 
-    @JavaCode
+
     @Test
     fun `documentation splitted in 2 using enters`() {
         testInline(
@@ -728,7 +727,6 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
-    @JavaCode
     @Test
     fun `multiline return tag with param`() {
         testInline(
@@ -794,7 +792,6 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
-    @UsingJDK
     @Test
     fun `return tag in kotlin`() {
         testInline(
@@ -804,7 +801,7 @@ class ContentForParamsTest : BaseAbstractTest() {
             | /**
             | * a normal comment
             | *
-            | * @return empty string when [Hash Map](java.util.HashMap.containsKey) doesn't contain value.
+            | * @return empty string when [Hash Map][java.util.HashMap.containsKey] doesn't contain value.
             | *
             | */
             |fun sample(): String {
@@ -842,7 +839,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
-    @JavaCode
+
     @Test
     fun `list with links and description`() {
         testInline(
@@ -1489,7 +1486,6 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
-    @JavaCode
     @Test
     fun javaDocCommentWithDocumentedParameters() {
         testInline(

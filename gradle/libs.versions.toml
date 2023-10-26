@@ -3,15 +3,15 @@
 gradlePlugin-kotlin = "1.9.10"
 # See: https://kotlinlang.org/docs/gradle-configure-project.html#apply-the-plugin
 gradlePlugin-android = "4.2.2"
-gradlePlugin-dokka = "1.9.0"
+gradlePlugin-dokka = "1.9.10"
 
-kotlinx-coroutines = "1.6.3"
-kotlinx-collections-immutable = "0.3.4"
-kotlinx-bcv = "0.12.1"
+kotlinx-coroutines = "1.7.3"
+kotlinx-collections-immutable = "0.3.6"
+kotlinx-bcv = "0.13.2"
 
 ## Analysis
 kotlin-compiler = "1.9.10"
-kotlin-compiler-k2 = "1.9.0-release-358"
+kotlin-compiler-k2 = "2.0.0-dev-5387"
 
 # MUST match the version of the intellij platform used in the kotlin compiler,
 # otherwise this will lead to different versions of psi API and implementations
@@ -20,10 +20,10 @@ kotlin-compiler-k2 = "1.9.0-release-358"
 intellij-platform = "213.7172.25"
 
 ## HTML
-jsoup = "1.15.3"
-freemarker = "2.3.31"
-soywiz-korte = "2.7.0"
-kotlinx-html = "0.7.5"
+jsoup = "1.16.1"
+freemarker = "2.3.32"
+korlibs-template = "4.0.10"
+kotlinx-html = "0.9.1"
 
 ## Markdown
 jetbrains-markdown = "0.3.1"
@@ -39,7 +39,7 @@ apacheMaven-archiver = "2.5"
 apacheMaven-pluginTools = "3.5.2"
 
 ## CLI
-kotlinx-cli = "0.3.4"
+kotlinx-cli = "0.3.6"
 
 ## NPM | Frontend
 node = "16.13.0"
@@ -51,8 +51,8 @@ gradlePlugin-gradlePluginPublish = "0.20.0"
 gradlePlugin-gradleNode = "3.5.1"
 
 ## Test
-junit = "5.9.2"
-eclipse-jgit = "5.12.0.202106070339-r"
+junit = "5.9.3"
+eclipse-jgit = "5.13.2.202306221912-r" # jgit 6.X requires Java 11 to run
 
 [libraries]
 
@@ -62,6 +62,7 @@ kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collec
 #### Gradle plugins ####
 # The Maven coordinates of Gradle plugins that are either used in convention plugins, or in Dokka subprojects
 gradlePlugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "gradlePlugin-kotlin" }
+gradlePlugin-kotlin-klibCommonizerApi = { module = "org.jetbrains.kotlin:kotlin-klib-commonizer-api", version.ref = "gradlePlugin-kotlin" }
 gradlePlugin-android = { module = "com.android.tools.build:gradle", version.ref = "gradlePlugin-android" }
 gradlePlugin-dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "gradlePlugin-dokka" }
 gradlePlugin-shadow = { module = "gradle.plugin.com.github.johnrengelman:shadow", version.ref = "gradlePlugin-shadow" }
@@ -93,7 +94,10 @@ intellij-platform-util-rt = { module = "com.jetbrains.intellij.platform:util-rt"
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 freemarker = { module = "org.freemarker:freemarker", version.ref = "freemarker" }
 kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version.ref = "kotlinx-html" }
-soywiz-korte = { module = "com.soywiz.korlibs.korte:korte-jvm", version.ref = "soywiz-korte" }
+
+# for korlibs-template: the package was renamed and the library's source was moved, but the artifact name is still old,
+# so there's a mismatch. might change in the future, follow https://github.com/korlibs/korge/issues/1836 for updates
+korlibs-template = { module = "com.soywiz.korlibs.korte:korte-jvm", version.ref = "korlibs-template" }
 
 #### Markdown ####
 jetbrains-markdown = { module = "org.jetbrains:markdown", version.ref = "jetbrains-markdown" }

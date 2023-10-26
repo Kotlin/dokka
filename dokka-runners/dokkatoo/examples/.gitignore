@@ -1,0 +1,10 @@
+.idea
+**/gradle/wrapper/**
+gradlew.bat
+gradlew
+gradle.properties
+
+versioning-multimodule-example/dokka/previousDocVersions
+
+# these are test projects, so don't commit the lock file
+**/kotlin-js-store/yarn.lock

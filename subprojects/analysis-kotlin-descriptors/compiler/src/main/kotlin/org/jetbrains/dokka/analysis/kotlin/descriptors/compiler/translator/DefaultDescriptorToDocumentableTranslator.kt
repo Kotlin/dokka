@@ -7,10 +7,7 @@ package org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.translator
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiLiteralUtil.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
 import org.jetbrains.dokka.analysis.java.parsers.JavadocParser
@@ -124,6 +121,10 @@ internal class DefaultDescriptorToDocumentableTranslator(
         }
     }
 
+    /**
+     * Implementation note: it runs in a separated single thread due to existing support of coroutines (see #2936)
+     */
+    @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
     override fun translateClassDescriptor(descriptor: ClassDescriptor, sourceSet: DokkaSourceSet): DClasslike {
         val driInfo = DRI.from(descriptor.parents.first()).withEmptyInfo()
 
@@ -132,9 +133,11 @@ internal class DefaultDescriptorToDocumentableTranslator(
             docCommentFinder = context.plugin<JavaAnalysisPlugin>().docCommentFinder
         )
 
-        return runBlocking(Dispatchers.Default) {
-            DokkaDescriptorVisitor(sourceSet, kdocFinder, kotlinAnalysis[sourceSet], context.logger, javadocParser)
-                .visitClassDescriptor(descriptor, driInfo)
+        return newSingleThreadContext("Generating documentable model of classlike").use { coroutineContext -> // see https://github.com/Kotlin/dokka/issues/3151
+            runBlocking(coroutineContext) {
+                DokkaDescriptorVisitor(sourceSet, kdocFinder, kotlinAnalysis[sourceSet], context.logger, javadocParser)
+                    .visitClassDescriptor(descriptor, driInfo)
+            }
         }
     }
 }

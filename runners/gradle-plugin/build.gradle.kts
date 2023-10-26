@@ -12,10 +12,12 @@ dependencies {
     api(projects.core)
 
     compileOnly(libs.gradlePlugin.kotlin)
+    compileOnly(libs.gradlePlugin.kotlin.klibCommonizerApi)
     compileOnly(libs.gradlePlugin.android)
 
     testImplementation(kotlin("test"))
     testImplementation(libs.gradlePlugin.kotlin)
+    testImplementation(libs.gradlePlugin.kotlin.klibCommonizerApi)
     testImplementation(libs.gradlePlugin.android)
 }
 

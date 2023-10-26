@@ -11,7 +11,6 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
 import org.jetbrains.dokka.analysis.java.parsers.JavadocParser
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getGeneratedKDocDocumentationFrom
-import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.AnalysisContext
 import org.jetbrains.dokka.analysis.kotlin.symbols.services.KtPsiDocumentableSource
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getJavaDocDocumentationFrom
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getKDocDocumentationFrom
@@ -59,7 +58,7 @@ internal class DefaultSymbolToDocumentableTranslator(context: DokkaContext) : As
         sourceSet: DokkaConfiguration.DokkaSourceSet,
         context: DokkaContext
     ): DModule {
-        val analysisContext = kotlinAnalysis[sourceSet]
+        val analysisContext = kotlinAnalysis
         @Suppress("unused")
         return DokkaSymbolVisitor(
             sourceSet = sourceSet,
@@ -84,7 +83,7 @@ internal fun <T : Bound> T.wrapWithVariance(variance: org.jetbrains.kotlin.types
 internal class DokkaSymbolVisitor(
     private val sourceSet: DokkaConfiguration.DokkaSourceSet,
     private val moduleName: String,
-    private val analysisContext: AnalysisContext,
+    private val analysisContext: KotlinAnalysis,
     private val logger: DokkaLogger,
     private val javadocParser: JavadocParser? = null
 ) {
@@ -118,12 +117,10 @@ internal class DokkaSymbolVisitor(
     }
 
     fun visitModule(): DModule {
-        val ktFiles: List<KtFile> = getPsiFilesFromPaths(
-            analysisContext.project,
-            getSourceFilePaths(sourceSet.sourceRoots.map { it.canonicalPath })
-        )
+        val sourceModule = analysisContext.getModule(sourceSet)
+        val ktFiles = analysisContext.modulesWithFiles[sourceModule]?.filterIsInstance<KtFile>() ?: throw IllegalStateException("No source files for a source module ${sourceModule.moduleName} of source set ${sourceSet.sourceSetID}")
         val processedPackages: MutableSet<FqName> = mutableSetOf()
-        return analyze(analysisContext.mainModule) {
+        return analyze(sourceModule) {
             val packageSymbols: List<DPackage> = ktFiles
                 .mapNotNull {
                     if (processedPackages.contains(it.packageFqName))
@@ -215,7 +212,15 @@ internal class DokkaSymbolVisitor(
         val isActual = namedClassOrObjectSymbol.isActual
         val documentation = getDocumentation(namedClassOrObjectSymbol)?.toSourceSetDependent() ?: emptyMap()
 
-        val (constructors, functions, properties, classlikes) = getDokkaScopeFrom(namedClassOrObjectSymbol, dri)
+        val (constructors, functions, properties, classlikesWithoutCompanion) = getDokkaScopeFrom(namedClassOrObjectSymbol, dri)
+
+        val companionObject = namedClassOrObjectSymbol.companionObject?.let {
+            visitNamedClassOrObjectSymbol(
+                it,
+                dri
+            )
+        } as? DObject
+        val classlikes = if (companionObject == null) classlikesWithoutCompanion else classlikesWithoutCompanion + companionObject
 
         val generics = namedClassOrObjectSymbol.typeParameters.mapIndexed { index, symbol ->
             visitVariantTypeParameter(
@@ -232,7 +237,6 @@ internal class DokkaSymbolVisitor(
             namedClassOrObjectSymbol.superTypes.filterNot { it.isAny }
                 .map { with(typeTranslator) { toTypeConstructorWithKindFrom(it) } }
                 .toSourceSetDependent()
-
         return@withExceptionCatcher when (namedClassOrObjectSymbol.classKind) {
             KtClassKind.OBJECT, KtClassKind.COMPANION_OBJECT ->
                 DObject(
@@ -271,12 +275,7 @@ internal class DokkaSymbolVisitor(
                 generics = generics,
                 documentation = documentation,
                 modifier = namedClassOrObjectSymbol.getDokkaModality().toSourceSetDependent(),
-                companion = namedClassOrObjectSymbol.companionObject?.let {
-                    visitNamedClassOrObjectSymbol(
-                        it,
-                        dri
-                    )
-                } as? DObject,
+                companion = companionObject,
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
                 extra = PropertyContainer.withAll(
@@ -299,12 +298,7 @@ internal class DokkaSymbolVisitor(
                 supertypes = supertypes,
                 generics = generics,
                 documentation = documentation,
-                companion = namedClassOrObjectSymbol.companionObject?.let {
-                    visitNamedClassOrObjectSymbol(
-                        it,
-                        dri
-                    )
-                } as? DObject,
+                companion = companionObject,
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
                 extra = PropertyContainer.withAll(
@@ -325,12 +319,7 @@ internal class DokkaSymbolVisitor(
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
-                companion = namedClassOrObjectSymbol.companionObject?.let {
-                    visitNamedClassOrObjectSymbol(
-                        it,
-                        dri
-                    )
-                } as? DObject,
+                companion = companionObject,
                 visibility = namedClassOrObjectSymbol.getDokkaVisibility().toSourceSetDependent(),
                 generics = generics,
                 constructors = constructors,
@@ -343,7 +332,30 @@ internal class DokkaSymbolVisitor(
 
             KtClassKind.ANONYMOUS_OBJECT -> throw NotImplementedError("ANONYMOUS_OBJECT does not support")
             KtClassKind.ENUM_CLASS -> {
-                val entries = namedClassOrObjectSymbol.getEnumEntries().map { visitEnumEntrySymbol(it) }
+                /**
+                 * See https://github.com/Kotlin/dokka/issues/3129
+                 *
+                 *  e.g. the `A` enum entry in the `enum E` is
+                 * ```
+                 * static val A: E = object : E() {
+                 *    val x: Int = 5
+                 * }
+                 * ```
+                 * it needs to exclude all static members like `values` and `valueOf` from the enum class's scope
+                 */
+                val enumEntryScope = lazy {
+                    getDokkaScopeFrom(namedClassOrObjectSymbol, dri, includeStaticScope = false).let {
+                        it.copy(
+                            functions = it.functions.map { it.withNewExtras( it.extra + InheritedMember(dri.copy(callable = null).toSourceSetDependent())) },
+                            properties = it.properties.map { it.withNewExtras( it.extra + InheritedMember(dri.copy(callable = null).toSourceSetDependent())) }
+                        )
+                    }
+                }
+
+                val entries =
+                    namedClassOrObjectSymbol.getEnumEntries().map {
+                        visitEnumEntrySymbol(it, enumEntryScope.value)
+                    }
 
                 DEnum(
                     dri = dri,
@@ -381,14 +393,19 @@ internal class DokkaSymbolVisitor(
         val constructors: List<DFunction>,
         val functions: List<DFunction>,
         val properties: List<DProperty>,
-        val classlikes: List<DClasslike>
+        val classlikesWithoutCompanion: List<DClasslike>
     )
+
+    /**
+     * @param includeStaticScope flag to add static members, e.g. `valueOf`, `values` and `entries` members for Enum
+     */
     private fun KtAnalysisSession.getDokkaScopeFrom(
         namedClassOrObjectSymbol: KtNamedClassOrObjectSymbol,
-        dri: DRI
+        dri: DRI,
+        includeStaticScope: Boolean = true
     ): DokkaScope {
         // e.g. getStaticMemberScope contains `valueOf`, `values` and `entries` members for Enum
-        val scope = listOf(namedClassOrObjectSymbol.getMemberScope(), namedClassOrObjectSymbol.getStaticMemberScope()).asCompositeScope()
+        val scope = if(includeStaticScope) listOf(namedClassOrObjectSymbol.getMemberScope(), namedClassOrObjectSymbol.getStaticMemberScope()).asCompositeScope() else namedClassOrObjectSymbol.getMemberScope()
         val constructors = scope.getConstructors().map { visitConstructorSymbol(it) }.toList()
 
         val callables = scope.getCallableSymbols().toList()
@@ -420,13 +437,10 @@ internal class DokkaSymbolVisitor(
                 javaFields.map { visitJavaFieldSymbol(it, dri) }
 
 
-        // hack, by default, compiler adds an empty companion object for enum
-        // TODO check if it is empty
-        fun List<KtNamedClassOrObjectSymbol>.filterOutEnumCompanion() =
-            if (namedClassOrObjectSymbol.classKind == KtClassKind.ENUM_CLASS)
+        fun List<KtNamedClassOrObjectSymbol>.filterOutCompanion() =
                 filterNot {
-                    it.name.asString() == "Companion" && it.classKind == KtClassKind.COMPANION_OBJECT
-                } else this
+                    it.classKind == KtClassKind.COMPANION_OBJECT
+                }
 
         fun List<KtNamedClassOrObjectSymbol>.filterOutAndMarkAlreadyVisited() = filterNot { symbol ->
             visitedNamedClassOrObjectSymbol.contains(symbol.classIdIfNonLocal)
@@ -440,7 +454,7 @@ internal class DokkaSymbolVisitor(
         }
 
         val classlikes = classifiers.filterIsInstance<KtNamedClassOrObjectSymbol>()
-            .filterOutEnumCompanion() // hack to filter out companion for enum
+            .filterOutCompanion() // also, this is a hack to filter out companion for enum
             .filterOutAndMarkAlreadyVisited()
             .map { visitNamedClassOrObjectSymbol(it, dri) }
 
@@ -448,33 +462,23 @@ internal class DokkaSymbolVisitor(
             constructors = constructors,
             functions = functions,
             properties = properties,
-            classlikes = classlikes
+            classlikesWithoutCompanion = classlikes
         )
     }
 
     private fun KtAnalysisSession.visitEnumEntrySymbol(
-        enumEntrySymbol: KtEnumEntrySymbol
+        enumEntrySymbol: KtEnumEntrySymbol, scope: DokkaScope
     ): DEnumEntry = withExceptionCatcher(enumEntrySymbol) {
         val dri = getDRIFromEnumEntry(enumEntrySymbol)
         val isExpect = false
-
-        val scope = enumEntrySymbol.getMemberScope()
-        val callables = scope.getCallableSymbols().toList()
-        val classifiers = scope.getClassifierSymbols().toList()
-
-        val functions = callables.filterIsInstance<KtFunctionSymbol>().map { visitFunctionSymbol(it, dri) }
-        val properties = callables.filterIsInstance<KtPropertySymbol>().map { visitPropertySymbol(it, dri) }
-        val classlikes =
-            classifiers.filterIsInstance<KtNamedClassOrObjectSymbol>()
-                .map { visitNamedClassOrObjectSymbol(it, dri) }
 
         return DEnumEntry(
             dri = dri,
             name = enumEntrySymbol.name.asString(),
             documentation = getDocumentation(enumEntrySymbol)?.toSourceSetDependent() ?: emptyMap(),
-            functions = functions,
-            properties = properties,
-            classlikes = classlikes,
+            functions = scope.functions,
+            properties = scope.properties,
+            classlikes = emptyList(), // always empty, see https://github.com/Kotlin/dokka/issues/3129
             sourceSets = setOf(sourceSet),
             expectPresentInSet = sourceSet.takeIf { isExpect },
             extra = PropertyContainer.withAll(

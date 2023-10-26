@@ -54,7 +54,6 @@ dependencies {
     listOf(
         libs.kotlin.high.level.api.api,
         libs.kotlin.analysis.api.standalone,
-        libs.kotlin.high.level.api.impl // for Standalone prototype
     ).forEach {
         implementation(it) {
             isTransitive = false // see KTIJ-19820
@@ -67,12 +66,15 @@ dependencies {
         libs.kotlin.low.level.api.fir,
         libs.kotlin.analysis.project.structure,
         libs.kotlin.analysis.api.providers,
-        libs.kotlin.symbol.light.classes
+        libs.kotlin.symbol.light.classes,
     ).forEach {
         runtimeOnly(it) {
             isTransitive = false // see KTIJ-19820
         }
     }
+    // copy-pasted from Analysis API https://github.com/JetBrains/kotlin/blob/a10042f9099e20a656dec3ecf1665eea340a3633/analysis/low-level-api-fir/build.gradle.kts#L37
+    runtimeOnly("com.github.ben-manes.caffeine:caffeine:2.9.3")
+
     runtimeOnly(libs.kotlinx.collections.immutable)
     implementation(libs.kotlin.compiler.k2) {
         isTransitive = false
@@ -80,6 +82,7 @@ dependencies {
 
     // TODO [beresnev] get rid of it
     compileOnly(libs.kotlinx.coroutines.core)
+
 }
 
 tasks {
