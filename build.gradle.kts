@@ -22,8 +22,9 @@ registerParentTaskOfIncludedBuilds("publishAllPublicationsToSpaceDevRepository",
 registerParentTaskOfIncludedBuilds("publishAllPublicationsToSpaceTestRepository", groupName = "publication")
 registerParentTaskOfIncludedBuilds("publishToMavenLocal", groupName = "publication")
 
-// TODO [structure-refactoring] - only for gradle plugins
-//registerParentTaskOfIncludedBuilds("publishPlugins", groupName = "publication")
+registerParentTaskOfIncludedBuilds("publishPlugins", groupName = "publication") {
+    it.name in listOf("gradle-plugin-classic")
+}
 
 fun addDependencyOnSameTaskOfIncludedBuilds(existingTaskName: String, filter: (IncludedBuild) -> Boolean = { true }) {
     tasks.named(existingTaskName) {
