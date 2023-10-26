@@ -28,6 +28,7 @@ internal abstract class AbstractJavadocTemplateMapTest : BaseAbstractTest() {
                     DokkaConfiguration.ExternalDocumentationLink.jdk(8),
                     DokkaConfiguration.ExternalDocumentationLink.kotlinStdlib()
                 )
+                classpath = listOfNotNull(jvmStdlibPath)
             }
         }
     }

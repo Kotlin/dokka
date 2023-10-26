@@ -8,11 +8,13 @@ import org.jetbrains.dokka.javadoc.pages.AllClassesPage
 import org.jetbrains.dokka.javadoc.pages.LinkJavadocListEntry
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.ContentKind
+import org.junit.jupiter.api.Tag
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal class JavadocAllClassesTemplateMapTest : AbstractJavadocTemplateMapTest() {
     @Test
+    @Tag("onlyDescriptors") // https://github.com/Kotlin/dokka/issues/3250
     fun `two classes from different packages`() {
         dualTestTemplateMapInline(
             """

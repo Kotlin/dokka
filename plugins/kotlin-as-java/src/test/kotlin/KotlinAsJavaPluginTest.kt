@@ -377,6 +377,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                         DokkaConfiguration.ExternalDocumentationLink.jdk(8),
                         stdlibExternalDocumentationLink
                     )
+                    classpath = listOfNotNull(jvmStdlibPath)
                 }
             }
         }

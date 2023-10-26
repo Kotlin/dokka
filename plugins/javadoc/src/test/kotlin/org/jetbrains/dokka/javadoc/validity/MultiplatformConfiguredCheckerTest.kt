@@ -18,7 +18,7 @@ class MultiplatformConfiguredCheckerTest : BaseAbstractTest() {
         format = "javadoc"
         sourceSets {
             sourceSet {
-                sourceRoots = listOf("src")
+                sourceRoots = listOf("src/jvm")
                 analysisPlatform = "jvm"
                 externalDocumentationLinks = listOf(
                     ExternalDocumentationLink("https://docs.oracle.com/javase/8/docs/api/"),
@@ -26,7 +26,7 @@ class MultiplatformConfiguredCheckerTest : BaseAbstractTest() {
                 )
             }
             sourceSet {
-                sourceRoots = listOf("src")
+                sourceRoots = listOf("src/js")
                 analysisPlatform = "js"
                 externalDocumentationLinks = listOf(
                     ExternalDocumentationLink("https://docs.oracle.com/javase/8/docs/api/"),
@@ -54,7 +54,9 @@ class MultiplatformConfiguredCheckerTest : BaseAbstractTest() {
     fun `mpp config should fail for javadoc`() {
         testInline(
             """
-            |/src/main/kotlin/example/Test.kt
+            |/src/jvm/kotlin/example/Test.kt
+            |class Test 
+            |/src/js/kotlin/example/Test.kt
             |class Test 
             """.trimMargin(), mppConfig
         ) {

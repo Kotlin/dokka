@@ -247,6 +247,7 @@ class JavadocLocationTest : BaseAbstractTest() {
                         DokkaConfiguration.ExternalDocumentationLink.kotlinStdlib()
                     )
                     analysisPlatform = "jvm"
+                    classpath = listOfNotNull(jvmStdlibPath)
                 }
             }
         }
