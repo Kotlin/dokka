@@ -3,10 +3,7 @@
  */
 
 /**
- * Base configuration for Java projects.
- *
- * This convention plugin contains shared Java config for both the [KotlinJvmPlugin] convention plugin and
- * the Gradle Plugin subproject (which cannot have the `kotlin("jvm")` plugin applied).
+ * Base configuration for Java/JVM projects.
  */
 
 plugins {

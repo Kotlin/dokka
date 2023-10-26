@@ -57,7 +57,6 @@ val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
         maxParallelForks = parallelism
     }
 
-
     environment(
         "isExhaustive",
         project.properties["dokka_integration_test_is_exhaustive"]?.toString()?.toBoolean()

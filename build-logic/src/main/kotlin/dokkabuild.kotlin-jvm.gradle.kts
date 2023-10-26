@@ -13,6 +13,10 @@ kotlin {
         allWarningsAsErrors.set(true)
         languageVersion.set(dokkaBuild.kotlinLanguageLevel)
         apiVersion.set(dokkaBuild.kotlinLanguageLevel)
+        optIn.addAll(
+            "kotlin.RequiresOptIn",
+            "org.jetbrains.dokka.InternalDokkaApi"
+        )
 
         freeCompilerArgs.addAll(
             // need 1.4 support, otherwise there might be problems
@@ -21,11 +25,5 @@ kotlin {
             "-Xjsr305=strict",
             "-Xskip-metadata-version-check",
         )
-        if (rootProject.name != "dokka-integration-tests") {
-            optIn.addAll(
-                "kotlin.RequiresOptIn",
-                "org.jetbrains.dokka.InternalDokkaApi"
-            )
-        }
     }
 }

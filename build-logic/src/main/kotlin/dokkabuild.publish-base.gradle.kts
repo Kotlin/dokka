@@ -18,15 +18,6 @@ publishing {
             }
         }
         maven {
-            // TODO: recheck if we need it at all
-            name = "snapshot"
-            url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-            credentials {
-                username = System.getenv("DOKKA_SONATYPE_USER")
-                password = System.getenv("DOKKA_SONATYPE_PASSWORD")
-            }
-        }
-        maven {
             name = "spaceDev"
             url = uri("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
             credentials {

@@ -3,7 +3,7 @@
  */
 
 /**
- * Utility to run ynit tests for K1 and K2 (analysis API).
+ * Utility to run unit tests for K1 and K2 (analysis API).
  */
 
 plugins {

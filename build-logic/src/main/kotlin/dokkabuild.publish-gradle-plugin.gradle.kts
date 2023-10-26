@@ -2,13 +2,18 @@
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import dokkabuild.MAVEN_GRADLE_PLUGIN_PUBLICATION_NAME
+import dokkabuild.PublicationName
+
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 
 plugins {
     id("dokkabuild.publish-base")
     id("com.gradle.plugin-publish")
 }
 
+@Suppress("UnstableApiUsage")
 gradlePlugin {
     website.set("https://kotl.in/dokka")
     vcsUrl.set("https://github.com/kotlin/dokka.git")
@@ -17,7 +22,7 @@ gradlePlugin {
 // com.gradle.plugin-publish configures publication in afterEvaluate block
 // so to be able to configure it directly in build scripts (f.e. to change artifactId) we need to register it earlier
 // more info: https://docs.gradle.org/current/userguide/java_gradle_plugin.html#maven_publish_plugin
-publishing.publications.register<MavenPublication>(MAVEN_GRADLE_PLUGIN_PUBLICATION_NAME)
+publishing.publications.register<MavenPublication>(PublicationName.GRADLE_PLUGIN)
 
 // com.gradle.plugin-publish configures javadoc only for the main plugin artifact,
 // so we need to link it manually to other publications
@@ -28,7 +33,7 @@ publishing.publications.register<MavenPublication>(MAVEN_GRADLE_PLUGIN_PUBLICATI
 //       because `javadocJar` task is created in `afterEvaluate` block in `com.gradle.plugin-publish` plugin
 afterEvaluate {
     publishing.publications.withType<MavenPublication>()
-        .matching { it.name != MAVEN_GRADLE_PLUGIN_PUBLICATION_NAME }
+        .matching { it.name != PublicationName.GRADLE_PLUGIN }
         .configureEach {
             artifact(tasks.named("javadocJar"))
         }

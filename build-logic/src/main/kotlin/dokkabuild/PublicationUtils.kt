@@ -10,12 +10,14 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
 
-internal const val MAVEN_JVM_PUBLICATION_NAME = "jvm"
-const val MAVEN_GRADLE_PLUGIN_PUBLICATION_NAME = "pluginMaven"
+object PublicationName {
+    const val JVM = "jvm"
+    const val GRADLE_PLUGIN = "pluginMaven"
+}
 
 fun Project.overridePublicationArtifactId(
     artifactId: String,
-    publicationName: String = MAVEN_JVM_PUBLICATION_NAME
+    publicationName: String = PublicationName.JVM
 ) {
     extensions.configure<PublishingExtension> {
         publications.withType<MavenPublication>().named(publicationName) {

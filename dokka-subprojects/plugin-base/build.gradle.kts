@@ -8,7 +8,7 @@ plugins {
     id("dokkabuild.kotlin-jvm")
     id("dokkabuild.publish-jvm")
     id("dokkabuild.setup-html-frontend-files")
-    id("dokkabuild.test-unit")
+    id("dokkabuild.test-k2")
 }
 
 overridePublicationArtifactId("dokka-base")

@@ -80,3 +80,9 @@ dependencies {
     // TODO [beresnev] get rid of it
     compileOnly(libs.kotlinx.coroutines.core)
 }
+
+tasks.shadowJar {
+    // service files are merged to make sure all Dokka plugins
+    // from the dependencies are loaded, and not just a single one.
+    mergeServiceFiles()
+}

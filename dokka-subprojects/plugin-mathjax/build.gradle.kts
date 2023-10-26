@@ -7,7 +7,7 @@ import dokkabuild.overridePublicationArtifactId
 plugins {
     id("dokkabuild.kotlin-jvm")
     id("dokkabuild.publish-jvm")
-    id("dokkabuild.test-unit")
+    id("dokkabuild.test-k2")
 }
 
 overridePublicationArtifactId("mathjax-plugin")
