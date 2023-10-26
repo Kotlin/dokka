@@ -88,17 +88,31 @@ public open class MarkdownParser(
     private fun headerContentHandler(node: ASTNode): List<DocTag> {
         // ATX_CONTENT contains everything after the `#` symbol, so if there's a space
         // in-between the `#` symbol and the text (like `# header`), it will be present here too.
-        // However, we don't need the first space between the `#` symbol and the text,
+        // However, we don't need the leading space between the `#` symbol and the text, nor do we need trailing spaces,
         // so we just skip it (otherwise the header text will be parsed as `<whitespace>header` instead of `header`).
         // If there's more space between `#` and text, like `#     header`, it will still be a single WHITE_SPACE
-        // element, but it will be wider, so the solution below should still hold.
-        val textStartsWithWhitespace = node.children.firstOrNull()?.type == MarkdownTokenTypes.WHITE_SPACE
-        val children = if (textStartsWithWhitespace) node.children.subList(1, node.children.size) else node.children
+        // element, but it will be wider, so the solution below should still hold. The same applies to trailing spaces.
+        val trimmedChildren = node.children.trimWhitespaceToken()
 
+        val children = trimmedChildren.evaluateChildren()
         return DocTagsFromIElementFactory.getInstance(
             MarkdownElementTypes.PARAGRAPH, // PARAGRAPH instead of TEXT to preserve compatibility with prev. versions
-            children = children.evaluateChildren()
+            children = children
         )
+    }
+
+    /**
+     * @return a sublist of [this] list that does not contain
+     *         leading and trailing [MarkdownTokenTypes.WHITE_SPACE] elements
+     */
+    private fun List<ASTNode>.trimWhitespaceToken(): List<ASTNode> {
+        val firstNonWhitespaceIndex = this.indexOfFirst { it.type != MarkdownTokenTypes.WHITE_SPACE }
+        if (firstNonWhitespaceIndex == -1) {
+            return this
+        }
+        val lastNonWhitespaceIndex = this.indexOfLast { it.type != MarkdownTokenTypes.WHITE_SPACE }
+
+        return this.subList(firstNonWhitespaceIndex, lastNonWhitespaceIndex + 1)
     }
 
     private fun horizontalRulesHandler() =

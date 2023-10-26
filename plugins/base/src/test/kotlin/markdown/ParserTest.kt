@@ -1577,18 +1577,55 @@ class ParserTest : KDocTest() {
     }
 
     @Test // exists due to #3231
-    fun `should ignore the first whitespace in header in-between the hash symbol and header text`() {
+    fun `should ignore the leading whitespace in header in-between the hash symbol and header text`() {
         val markdown = """
         | #   first header
         | ##     second header
         | ###                third header
-        | 
         """.trimMargin()
         val actualDocumentationNode = parseMarkdownToDocNode(markdown).children
         val expectedDocumentationNode = listOf(
             H1(listOf(Text("first header"))),
             H2(listOf(Text("second header"))),
             H3(listOf(Text("third header"))),
+        )
+        assertEquals(actualDocumentationNode, expectedDocumentationNode)
+    }
+
+    @Test // exists due to #3231
+    fun `should ignore trailing whitespace in header`() {
+        val markdown = """
+        | # first header     
+        | ## second header        
+        | ### third header                                          
+        """.trimMargin()
+        val actualDocumentationNode = parseMarkdownToDocNode(markdown).children
+        val expectedDocumentationNode = listOf(
+            H1(listOf(Text("first header"))),
+            H2(listOf(Text("second header"))),
+            H3(listOf(Text("third header"))),
+        )
+        assertEquals(actualDocumentationNode, expectedDocumentationNode)
+    }
+
+    @Test // exists due to #3231
+    fun `should ignore leading and trailing whitespace in header, but not whitespace in the middle`() {
+        val markdown = """
+        | #          first header     
+        | ##     second ~~header~~   in a **long** sentence ending     with whitespaces   
+        | ###                third      header        
+        """.trimMargin()
+        val actualDocumentationNode = parseMarkdownToDocNode(markdown).children
+        val expectedDocumentationNode = listOf(
+            H1(listOf(Text("first header"))),
+            H2(listOf(
+                Text("second "),
+                Strikethrough(listOf(Text("header"))),
+                Text("   in a "),
+                B(listOf(Text("long"))),
+                Text(" sentence ending     with whitespaces")
+            )),
+            H3(listOf(Text("third      header"))),
         )
         assertEquals(actualDocumentationNode, expectedDocumentationNode)
     }
