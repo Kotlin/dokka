@@ -34,6 +34,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
     fun setSystemProperty() {
         System.setProperty(SinceKotlinTransformer.SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP, "true")
     }
+
     @AfterTest
     fun clearSystemProperty() {
         System.clearProperty(SinceKotlinTransformer.SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP)
@@ -70,13 +71,21 @@ class SinceKotlinTest : AbstractRenderingTest() {
             |typealias Str = String
             |@SinceKotlin("1.5")
             |val str = "str"
+            |@SinceKotlin("1.5")
+            |class A
         """.trimIndent(),
             testConfiguration,
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
+                println(writerPlugin.writer.contents.keys)
+                // 5 = 2 functions, 1 typealias, 1 property, 1 class
                 val content = writerPlugin.renderedContent("root/test/index.html")
-                assertEquals(4, content.getElementsContainingOwnText("Since Kotlin").count())
+                assertEquals(5, content.getElementsContainingOwnText("Since Kotlin").count())
+
+                // 2 = 1 typealias, 1 class
+                val allTypesContent = writerPlugin.renderedContent("root/-all -types.html")
+                assertEquals(2, allTypesContent.getElementsContainingOwnText("Since Kotlin").count())
             }
         }
     }
@@ -105,7 +114,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
                         Platform.jvm to SinceKotlinVersion("1.5"),
                     )
 
-                    for(i in sinceKotlin) {
+                    for (i in sinceKotlin) {
                         val tag =
                             find { it.sourceSets.first().analysisPlatform == i.key }?.documentation?.values?.first()
                                 ?.dfs { it is CustomTagWrapper && it.name == "Since Kotlin" }
@@ -119,7 +128,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
 
     @Test
     fun `mpp fun without SinceKotlin annotation`() {
-        val configuration =   dokkaConfiguration {
+        val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/jvm/")
@@ -193,7 +202,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
                         Platform.wasm to SinceKotlinVersion("1.8"),
                     )
 
-                    for(i in sinceKotlin) {
+                    for (i in sinceKotlin) {
                         val tag =
                             find { it.sourceSets.first().analysisPlatform == i.key }?.documentation?.values?.first()
                                 ?.dfs { it is CustomTagWrapper && it.name == "Since Kotlin" }
@@ -207,7 +216,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
 
     @Test
     fun `mpp fun with SinceKotlin annotation`() {
-        val configuration =   dokkaConfiguration {
+        val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/jvm/")
@@ -294,7 +303,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
                         Platform.wasm to SinceKotlinVersion("1.8"),
                     )
 
-                    for(i in sinceKotlin) {
+                    for (i in sinceKotlin) {
                         val tag =
                             find { it.sourceSets.first().analysisPlatform == i.key }?.documentation?.values?.first()
                                 ?.dfs { it is CustomTagWrapper && it.name == "Since Kotlin" }

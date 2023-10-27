@@ -54,6 +54,7 @@ class NavigationTest : BaseAbstractTest() {
                 //       - Sequence interface
                 //       - Sequence()
                 //       - sequence()
+                //    - All Types (should be always in the end)
 
                 content[0].assertNavigationLink(
                     id = "root-nav-submenu",
@@ -93,6 +94,12 @@ class NavigationTest : BaseAbstractTest() {
                     text = "sequence()",
                     address = "root/com.example/sequence.html",
                     icon = NavigationNodeIcon.FUNCTION
+                )
+
+                content[6].assertNavigationLink(
+                    id = "root-nav-submenu-1",
+                    text = "All Types",
+                    address = "root/-all -types.html",
                 )
             }
         }
