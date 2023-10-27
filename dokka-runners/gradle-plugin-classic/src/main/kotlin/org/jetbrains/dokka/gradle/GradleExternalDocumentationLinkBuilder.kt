@@ -8,6 +8,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.kotlin.dsl.property
 import org.jetbrains.dokka.DokkaConfigurationBuilder
 import org.jetbrains.dokka.ExternalDocumentationLink
@@ -58,7 +59,7 @@ class GradleExternalDocumentationLinkBuilder(
     @Internal
     val url: Property<URL> = project.objects.property()
 
-    @Input // TODO: URL is deprecated in gradle inputs
+    @Input // URL is deprecated in gradle inputs
     internal fun getUrlString() = url.map(URL::toString)
 
     /**
@@ -74,7 +75,8 @@ class GradleExternalDocumentationLinkBuilder(
     @Internal
     val packageListUrl: Property<URL> = project.objects.property()
 
-    @Input // TODO: URL is deprecated in gradle inputs
+    @Input // URL is deprecated in gradle inputs
+    @Optional
     internal fun getPackageListUrlString() = packageListUrl.map(URL::toString)
 
     override fun build(): ExternalDocumentationLinkImpl = ExternalDocumentationLink(
