@@ -9,7 +9,7 @@ import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.signatures.SignatureProvider
 import org.jetbrains.dokka.base.transformers.documentables.CallableExtensions
-import org.jetbrains.dokka.base.transformers.documentables.ClashingDriIdentifier
+import org.jetbrains.dokka.transformers.documentation.ClashingDriIdentifier
 import org.jetbrains.dokka.base.transformers.pages.comments.CommentsToContentConverter
 import org.jetbrains.dokka.base.transformers.pages.tags.CustomTagContentProvider
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
