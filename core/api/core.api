@@ -4513,6 +4513,32 @@ public abstract interface class org/jetbrains/dokka/renderers/Renderer {
 	public abstract fun render (Lorg/jetbrains/dokka/pages/RootPageNode;)V
 }
 
+public final class org/jetbrains/dokka/transformers/documentation/ClashingDriIdentifier : org/jetbrains/dokka/model/properties/ExtraProperty {
+	public static final field Companion Lorg/jetbrains/dokka/transformers/documentation/ClashingDriIdentifier$Companion;
+	public fun <init> (Ljava/util/Set;)V
+	public final fun component1 ()Ljava/util/Set;
+	public final fun copy (Ljava/util/Set;)Lorg/jetbrains/dokka/transformers/documentation/ClashingDriIdentifier;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/transformers/documentation/ClashingDriIdentifier;Ljava/util/Set;ILjava/lang/Object;)Lorg/jetbrains/dokka/transformers/documentation/ClashingDriIdentifier;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getKey ()Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;
+	public final fun getValue ()Ljava/util/Set;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/transformers/documentation/ClashingDriIdentifier$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
+	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+	public fun mergeStrategyFor (Lorg/jetbrains/dokka/transformers/documentation/ClashingDriIdentifier;Lorg/jetbrains/dokka/transformers/documentation/ClashingDriIdentifier;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+}
+
+public final class org/jetbrains/dokka/transformers/documentation/DefaultDocumentableMerger : org/jetbrains/dokka/transformers/documentation/DocumentableMerger {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun invoke (Ljava/util/Collection;)Lorg/jetbrains/dokka/model/DModule;
+	public final fun mergeWith (Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/model/DFunction;)Lorg/jetbrains/dokka/model/DFunction;
+	public final fun mergeWith (Lorg/jetbrains/dokka/model/DPackage;Lorg/jetbrains/dokka/model/DPackage;)Lorg/jetbrains/dokka/model/DPackage;
+	public final fun mergeWith (Lorg/jetbrains/dokka/model/DProperty;Lorg/jetbrains/dokka/model/DProperty;)Lorg/jetbrains/dokka/model/DProperty;
+}
+
 public abstract interface class org/jetbrains/dokka/transformers/documentation/DocumentableMerger {
 	public abstract fun invoke (Ljava/util/Collection;)Lorg/jetbrains/dokka/model/DModule;
 }
