@@ -975,7 +975,7 @@ public final class org/jetbrains/dokka/model/DClass : org/jetbrains/dokka/model/
 	public fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/DClass;
 }
 
-public abstract class org/jetbrains/dokka/model/DClasslike : org/jetbrains/dokka/model/Documentable, org/jetbrains/dokka/model/WithIsExpectActual, org/jetbrains/dokka/model/WithScope, org/jetbrains/dokka/model/WithSources, org/jetbrains/dokka/model/WithVisibility {
+public abstract class org/jetbrains/dokka/model/DClasslike : org/jetbrains/dokka/model/DTypelike, org/jetbrains/dokka/model/WithIsExpectActual, org/jetbrains/dokka/model/WithScope {
 }
 
 public final class org/jetbrains/dokka/model/DEnum : org/jetbrains/dokka/model/DClasslike, org/jetbrains/dokka/model/WithCompanion, org/jetbrains/dokka/model/WithConstructors, org/jetbrains/dokka/model/WithSupertypes, org/jetbrains/dokka/model/properties/WithExtraProperties {
@@ -1308,7 +1308,7 @@ public final class org/jetbrains/dokka/model/DProperty : org/jetbrains/dokka/mod
 	public fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/DProperty;
 }
 
-public final class org/jetbrains/dokka/model/DTypeAlias : org/jetbrains/dokka/model/Documentable, org/jetbrains/dokka/model/WithGenerics, org/jetbrains/dokka/model/WithSources, org/jetbrains/dokka/model/WithType, org/jetbrains/dokka/model/WithVisibility, org/jetbrains/dokka/model/properties/WithExtraProperties {
+public final class org/jetbrains/dokka/model/DTypeAlias : org/jetbrains/dokka/model/DTypelike, org/jetbrains/dokka/model/WithGenerics, org/jetbrains/dokka/model/WithType, org/jetbrains/dokka/model/properties/WithExtraProperties {
 	public fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;Lorg/jetbrains/dokka/model/Bound;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Set;Ljava/util/List;Ljava/util/Map;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
 	public synthetic fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;Lorg/jetbrains/dokka/model/Bound;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Set;Ljava/util/List;Ljava/util/Map;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lorg/jetbrains/dokka/links/DRI;
@@ -1370,6 +1370,10 @@ public final class org/jetbrains/dokka/model/DTypeParameter : org/jetbrains/dokk
 	public fun toString ()Ljava/lang/String;
 	public synthetic fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Ljava/lang/Object;
 	public fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/DTypeParameter;
+}
+
+public abstract class org/jetbrains/dokka/model/DTypelike : org/jetbrains/dokka/model/Documentable, org/jetbrains/dokka/model/WithSources, org/jetbrains/dokka/model/WithVisibility {
+	public abstract fun getName ()Ljava/lang/String;
 }
 
 public final class org/jetbrains/dokka/model/DefaultValue : org/jetbrains/dokka/model/properties/ExtraProperty {
@@ -3475,6 +3479,26 @@ public abstract interface class org/jetbrains/dokka/model/properties/WithExtraPr
 	public abstract fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Ljava/lang/Object;
 }
 
+public final class org/jetbrains/dokka/pages/AllTypesPageNode : org/jetbrains/dokka/pages/ContentPage {
+	public static final field Companion Lorg/jetbrains/dokka/pages/AllTypesPageNode$Companion;
+	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getChildren ()Ljava/util/List;
+	public fun getContent ()Lorg/jetbrains/dokka/pages/ContentNode;
+	public fun getDocumentable ()Lorg/jetbrains/dokka/model/Documentable;
+	public fun getDri ()Ljava/util/Set;
+	public fun getEmbeddedResources ()Ljava/util/List;
+	public fun getName ()Ljava/lang/String;
+	public fun modified (Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/pages/AllTypesPageNode;
+	public synthetic fun modified (Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/pages/PageNode;
+	public fun modified (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/pages/AllTypesPageNode;
+	public synthetic fun modified (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentPage;
+}
+
+public final class org/jetbrains/dokka/pages/AllTypesPageNode$Companion {
+	public final fun getDRI ()Lorg/jetbrains/dokka/links/DRI;
+}
+
 public final class org/jetbrains/dokka/pages/BasicTabbedContentType : java/lang/Enum, org/jetbrains/dokka/pages/TabbedContentType {
 	public static final field CONSTRUCTOR Lorg/jetbrains/dokka/pages/BasicTabbedContentType;
 	public static final field ENTRY Lorg/jetbrains/dokka/pages/BasicTabbedContentType;
@@ -3807,6 +3831,7 @@ public final class org/jetbrains/dokka/pages/ContentHeader : org/jetbrains/dokka
 }
 
 public final class org/jetbrains/dokka/pages/ContentKind : java/lang/Enum, org/jetbrains/dokka/pages/Kind {
+	public static final field AllTypes Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Annotations Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field BriefComment Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Classlikes Lorg/jetbrains/dokka/pages/ContentKind;
