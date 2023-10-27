@@ -4,15 +4,18 @@
 
 package renderers.html
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfigurationImpl
-import org.jetbrains.dokka.SourceLinkDefinitionImpl
+import org.jetbrains.dokka.PluginConfigurationImpl
+import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.DokkaBaseConfiguration
+import org.jetbrains.dokka.base.templating.toJsonString
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jsoup.Jsoup
 import utils.TestOutputWriter
 import utils.TestOutputWriterPlugin
-import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -33,80 +36,44 @@ class HeaderTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should include link to github if sourceLinks are pointed to github`() {
-        val sourceLink = SourceLinkDefinitionImpl(
-            localDirectory = "",
-            remoteUrl = URL("https://github.com/Kotlin/dokka/tree/main"),
-            remoteLineSuffix = null
-        )
+    fun `should include homepage link if homepageLink is provided`() {
         testRendering(
-            configuration.copy(
-                sourceSets = configuration.sourceSets.map {
-                    it.copy(sourceLinks = setOf(sourceLink))
-                }
-            )
+            DokkaBaseConfiguration(homepageLink = "https://github.com/Kotlin/dokka/")
         ) { _, _, writer ->
             val renderedContent = navigationElement(writer)
 
             val sourceLinkElement =
-                assertNotNull(renderedContent.getElementById("source-link"), "Source link element not found")
+                assertNotNull(renderedContent.getElementById("homepage-link"), "Source link element not found")
             val aElement = assertNotNull(sourceLinkElement.selectFirst("a"))
             assertEquals("https://github.com/Kotlin/dokka/", aElement.attr("href"))
         }
     }
 
     @Test
-    fun `should not include link to github if sourceLinks are different`() {
-        val sourceLink = SourceLinkDefinitionImpl(
-            localDirectory = "",
-            remoteUrl = URL("https://github.com/Kotlin/dokka/tree/main"),
-            remoteLineSuffix = null
-        )
-        testRendering(
-            configuration.copy(
-                sourceSets = listOf(
-                    configuration.sourceSets[0].copy(sourceLinks = setOf(sourceLink)),
-                    configuration.sourceSets[1].copy(sourceLinks = setOf(sourceLink.copy(remoteUrl = URL("https://github.com/Kotlin/dokkatoo/tree/main"))))
-                )
-            )
-        ) { _, _, writer ->
+    fun `should not include homepage link by default`() {
+        testRendering(null) { _, _, writer ->
             val renderedContent = navigationElement(writer)
-            assertNull(renderedContent.getElementById("source-link"), "Source link element found")
+            assertNull(renderedContent.getElementById("homepage-link"), "Source link element found")
         }
     }
-
-    @Test
-    fun `should not include link to github if sourceLinks are pointed to gitlab`() {
-        val sourceLink = SourceLinkDefinitionImpl(
-            localDirectory = "",
-            remoteUrl = URL("https://gitlab.com/Kotlin/dokka/tree/main"),
-            remoteLineSuffix = null
-        )
-        testRendering(
-            configuration.copy(
-                sourceSets = configuration.sourceSets.map {
-                    it.copy(sourceLinks = setOf(sourceLink))
-                }
-            )
-        ) { _, _, writer ->
-            val renderedContent = navigationElement(writer)
-            assertNull(renderedContent.getElementById("source-link"), "Source link element found")
-        }
-    }
-
-    @Test
-    fun `should not include link to github if there are no sourceLinks`() {
-        testRendering(configuration) { _, _, writer ->
-            val renderedContent = navigationElement(writer)
-            assertNull(renderedContent.getElementById("source-link"), "Source link element found")
-        }
-    }
-
 
     private fun testRendering(
-        configuration: DokkaConfigurationImpl = this.configuration,
+        baseConfiguration: DokkaBaseConfiguration?,
         block: (RootPageNode, DokkaContext, writer: TestOutputWriter) -> Unit
     ) {
+        fun configuration(): DokkaConfigurationImpl {
+            baseConfiguration ?: return configuration
+            return configuration.copy(
+                pluginsConfiguration = listOf(
+                    PluginConfigurationImpl(
+                        DokkaBase::class.java.canonicalName,
+                        DokkaConfiguration.SerializationFormat.JSON,
+                        toJsonString(baseConfiguration)
+                    )
+                )
+            )
+        }
+
         val writerPlugin = TestOutputWriterPlugin()
         testInline(
             """
@@ -115,7 +82,7 @@ class HeaderTest : BaseAbstractTest() {
             |/src/js/Test.kt
             |fun test() {}
             """,
-            configuration,
+            configuration(),
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { node, context ->

@@ -394,8 +394,8 @@ td:first-child {
 }
 /* /--- Navigation THEME --- */
 
-/* --- Navigation SOURCE --- */
-.navigation-controls--source {
+/* --- Navigation HOMEPAGE --- */
+.navigation-controls--homepage {
     height: 40px;
     width: 40px;
     display: block;
@@ -403,26 +403,26 @@ td:first-child {
     cursor: pointer;
 }
 
-.navigation-controls--source a::before {
+.navigation-controls--homepage a::before {
     height: 100%;
     width: 20px;
     margin-left: 10px;
     display: block;
     content: "";
-    background: url("../images/github-link.svg");
+    background: url("../images/homepage.svg");
     background-size: 100% 100%;
 }
 
-.navigation-controls--source:hover {
+.navigation-controls--homepage:hover {
     background: var(--white-10);
 }
 
 @media (max-width: 759px) {
-    .navigation-controls--source {
+    .navigation-controls--homepage {
         display: none;
     }
 }
-/* /--- Navigation SOURCE --- */
+/* /--- Navigation HOMEPAGE --- */
 
 .navigation .platform-selector:not([data-active]) {
     color: #fff;

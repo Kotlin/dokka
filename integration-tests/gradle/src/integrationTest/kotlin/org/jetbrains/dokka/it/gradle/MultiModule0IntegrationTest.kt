@@ -73,6 +73,21 @@ class MultiModule0IntegrationTest : AbstractGradleIntegrationTest() {
             "Expected moduleC being mentioned in -modules.html"
         )
 
+        val indexHtmls = outputDir.walkTopDown().filter {
+            it.isFile && it.name == "index.html"
+        }.toList()
+
+        assertEquals(10, indexHtmls.size)
+
+        indexHtmls.forEach {
+            assertTrue(
+                it.readText().contains(
+                    """https://github.com/Kotlin/dokka/tree/master/integration-tests/gradle/projects/it-multimodule-0/"""
+                ),
+                "File ${it.absolutePath} doesn't contain link to homepage"
+            )
+        }
+
         val gfmOutputDir = File(projectDir, "moduleA/build/dokka/gfmMultiModule")
         assertTrue(gfmOutputDir.isDirectory, "Missing dokka GFM output directory")
 

@@ -12,6 +12,7 @@ public data class DokkaBaseConfiguration(
     var customStyleSheets: List<File> = defaultCustomStyleSheets,
     var customAssets: List<File> = defaultCustomAssets,
     var separateInheritedMembers: Boolean = separateInheritedMembersDefault,
+    var homepageLink: String? = null,
     var footerMessage: String = defaultFooterMessage,
     var mergeImplicitExpectActualDeclarations: Boolean = mergeImplicitExpectActualDeclarationsDefault,
     var templatesDir: File? = defaultTemplatesDir

@@ -92,30 +92,9 @@ public class DefaultTemplateModelFactory(
         mapper["footerMessage"] =
             (configuration?.footerMessage?.takeIf(String::isNotBlank) ?: DokkaBaseConfiguration.defaultFooterMessage)
 
-        calculateSourceUrlFromSourceLinks()?.let { mapper["sourceUrl"] = it }
+        configuration?.homepageLink?.takeIf(String::isNotBlank)?.let { mapper["homepageLink"] = it }
 
         return mapper
-    }
-
-    private fun calculateSourceUrlFromSourceLinks(): String? {
-        fun parseGithubInfo(link: String): Pair<String, String>? {
-            val (
-                _, // entire match
-                owner,
-                repo
-            ) = githubLinkRegex.find(link)?.groupValues ?: return null
-            return owner to repo
-        }
-
-        val (owner, repo) = context.configuration.sourceSets
-            .asSequence()
-            .flatMap { it.sourceLinks }
-            .map { it.remoteUrl.toString() }
-            .map(::parseGithubInfo)
-            .distinct()
-            .singleOrNull() ?: return null
-
-        return "https://github.com/$owner/$repo/"
     }
 
     private val DisplaySourceSet.comparableKey
@@ -155,9 +134,6 @@ public class DefaultTemplateModelFactory(
             }
         }
 
-    private companion object {
-        val githubLinkRegex = Regex("https?://github\\.com/([\\w,\\-_]+)/([\\w,\\-_]+)/.*")
-    }
 }
 
 private class PrintDirective(val generateData: () -> String) : TemplateDirectiveModel {
