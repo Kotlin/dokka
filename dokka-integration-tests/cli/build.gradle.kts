@@ -11,6 +11,7 @@ plugins {
 
 dependencies {
     implementation(kotlin("test-junit5"))
+    implementation(libs.junit.jupiterApi)
     implementation(projects.utilities)
 }
 

@@ -7,16 +7,23 @@ plugins {
     kotlin("jvm")
 }
 
+val rootProjectsWithoutDependencyOnDokkaCore = listOf("dokka-integration-tests")
+
 kotlin {
     explicitApi()
     compilerOptions {
         allWarningsAsErrors.set(true)
         languageVersion.set(dokkaBuild.kotlinLanguageLevel)
         apiVersion.set(dokkaBuild.kotlinLanguageLevel)
-        optIn.addAll(
-            "kotlin.RequiresOptIn",
-            "org.jetbrains.dokka.InternalDokkaApi"
-        )
+
+        // These projects know nothing about the `@InternalDokkaApi` annotation, so the Kotlin compiler
+        // will complain about an unresolved opt-in requirement marker and fail the build if it's not excluded.
+        if (rootProject.name !in rootProjectsWithoutDependencyOnDokkaCore) {
+            optIn.addAll(
+                "kotlin.RequiresOptIn",
+                "org.jetbrains.dokka.InternalDokkaApi"
+            )
+        }
 
         freeCompilerArgs.addAll(
             // need 1.4 support, otherwise there might be problems

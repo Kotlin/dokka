@@ -26,6 +26,12 @@ registerParentTaskOfIncludedBuilds("publishPlugins", groupName = "publication") 
     it.name in listOf("gradle-plugin-classic")
 }
 
+tasks.register("integrationTest") {
+    group = "verification"
+    description = "Runs integration tests of this project. Might take a while and require additional setup."
+    dependsOn(gradle.includedBuilds.single { it.name == "dokka-integration-tests" }.task(":integrationTest"))
+}
+
 fun addDependencyOnSameTaskOfIncludedBuilds(existingTaskName: String, filter: (IncludedBuild) -> Boolean = { true }) {
     tasks.named(existingTaskName) {
         dependsOn(includedBuildTasks(existingTaskName, filter))

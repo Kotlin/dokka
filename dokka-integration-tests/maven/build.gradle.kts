@@ -11,6 +11,7 @@ dependencies {
     implementation(projects.utilities)
 
     implementation(kotlin("test-junit5"))
+    implementation(libs.junit.jupiterApi)
 }
 
 val dokkaSubprojects = gradle.includedBuild("dokka-subprojects")
