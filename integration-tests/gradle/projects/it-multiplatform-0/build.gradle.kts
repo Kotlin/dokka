@@ -16,7 +16,7 @@ kotlin {
     jvm()
     linuxX64("linux")
     macosX64("macos")
-    js(BOTH)
+    js(IR) // Starting with Kotlin 1.9.0, using compiler types LEGACY or BOTH leads to an error.
     //TODO Add wasm when kx.coroutines will be supported and published into the main repo
     sourceSets {
         val commonMain by sourceSets.getting
