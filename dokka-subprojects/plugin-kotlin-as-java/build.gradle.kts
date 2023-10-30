@@ -7,6 +7,7 @@ import dokkabuild.overridePublicationArtifactId
 plugins {
     id("dokkabuild.kotlin-jvm")
     id("dokkabuild.publish-jvm")
+    id("dokkabuild.test-k2")
 }
 
 overridePublicationArtifactId("kotlin-as-java-plugin")
@@ -22,7 +23,11 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(libs.jsoup)
     testImplementation(projects.pluginBase)
-    testImplementation(projects.pluginBaseTestUtils)
+    symbolsTestConfiguration(project(path = ":analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestConfiguration(project(path = ":analysis-kotlin-descriptors", configuration = "shadow"))
+    testImplementation(projects.pluginBaseTestUtils) {
+        exclude(module = "analysis-kotlin-descriptors")
+    }
     testImplementation(projects.coreContentMatcherTestUtils)
     testImplementation(projects.coreTestApi)
 }

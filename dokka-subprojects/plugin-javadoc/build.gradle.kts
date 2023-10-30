@@ -7,6 +7,7 @@ import dokkabuild.overridePublicationArtifactId
 plugins {
     id("dokkabuild.kotlin-jvm")
     id("dokkabuild.publish-jvm")
+    id("dokkabuild.test-k2")
 }
 
 overridePublicationArtifactId("javadoc-plugin")
@@ -24,7 +25,11 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.pluginBaseTestUtils)
+    symbolsTestConfiguration(project(path = ":analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestConfiguration(project(path = ":analysis-kotlin-descriptors", configuration = "shadow"))
+    testImplementation(projects.pluginBaseTestUtils) {
+        exclude(module = "analysis-kotlin-descriptors")
+    }
     testImplementation(projects.coreTestApi)
     testImplementation(libs.jsoup)
 }
