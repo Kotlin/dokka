@@ -105,17 +105,17 @@ public final class org/jetbrains/dokka/base/DokkaBaseConfiguration : org/jetbrai
 	public static final field mergeImplicitExpectActualDeclarationsDefault Z
 	public static final field separateInheritedMembersDefault Z
 	public fun <init> ()V
-	public fun <init> (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;Ljava/lang/String;ZLjava/io/File;)V
-	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;Ljava/lang/String;ZLjava/io/File;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZLjava/io/File;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZLjava/io/File;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
 	public final fun component2 ()Ljava/util/List;
 	public final fun component3 ()Z
 	public final fun component4 ()Ljava/lang/String;
-	public final fun component5 ()Ljava/lang/String;
-	public final fun component6 ()Z
-	public final fun component7 ()Ljava/io/File;
-	public final fun copy (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;Ljava/lang/String;ZLjava/io/File;)Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;Ljava/util/List;Ljava/util/List;ZLjava/lang/String;Ljava/lang/String;ZLjava/io/File;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;
+	public final fun component5 ()Z
+	public final fun component6 ()Ljava/io/File;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun copy (Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZLjava/io/File;Ljava/lang/String;)Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;Ljava/util/List;Ljava/util/List;ZLjava/lang/String;ZLjava/io/File;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCustomAssets ()Ljava/util/List;
 	public final fun getCustomStyleSheets ()Ljava/util/List;
