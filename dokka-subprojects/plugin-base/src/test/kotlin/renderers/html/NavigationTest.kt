@@ -99,7 +99,7 @@ class NavigationTest : BaseAbstractTest() {
                 content[6].assertNavigationLink(
                     id = "root-nav-submenu-1",
                     text = "All Types",
-                    address = "root/-all -types.html",
+                    address = "root/all-types.html",
                 )
             }
         }

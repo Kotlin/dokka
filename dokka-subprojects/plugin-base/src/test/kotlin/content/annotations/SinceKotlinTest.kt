@@ -84,7 +84,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
                 assertEquals(5, content.getElementsContainingOwnText("Since Kotlin").count())
 
                 // 2 = 1 typealias, 1 class
-                val allTypesContent = writerPlugin.renderedContent("root/-all -types.html")
+                val allTypesContent = writerPlugin.renderedContent("root/all-types.html")
                 assertEquals(2, allTypesContent.getElementsContainingOwnText("Since Kotlin").count())
             }
         }
