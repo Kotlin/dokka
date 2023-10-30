@@ -20,7 +20,7 @@ repositories {
 kotlin {
     wasm()
     sourceSets {
-        val wasmJsMain by getting {
+        val wasmMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4-wasm1")
                 implementation("org.jetbrains.kotlinx:atomicfu-wasm:0.18.5-wasm1")
