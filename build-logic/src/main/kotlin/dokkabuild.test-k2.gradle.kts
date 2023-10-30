@@ -20,7 +20,7 @@ val symbolsTestConfiguration: Configuration by configurations.creating {
 
 val symbolsTest = tasks.register<Test>("symbolsTest") {
     useJUnitPlatform {
-        excludeTags("onlyDescriptors", "onlyDescriptorsMPP", "javaCode", "usingJDK")
+        excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
     }
     classpath += symbolsTestConfiguration
 }

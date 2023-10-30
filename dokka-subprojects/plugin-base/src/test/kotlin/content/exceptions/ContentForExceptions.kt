@@ -339,7 +339,6 @@ class ContentForExceptions : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptorsMPP("Return type for native `function` should be null rather than kotlin/Unit")
     @Test
     fun `throws in merged functions`() {
         testInline(

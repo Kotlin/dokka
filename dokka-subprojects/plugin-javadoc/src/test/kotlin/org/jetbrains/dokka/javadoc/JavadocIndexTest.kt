@@ -72,11 +72,26 @@ internal class JavadocIndexTest : AbstractJavadocTemplateMapTest() {
     @Test
     fun `handles correct number of elements`() {
         //We are checking whether we will have an additional function for enum classes
+        // e.g. since Java 12 it has `describeConstable`
         fun hasAdditionalFunction() =
             AnnotationTarget.ANNOTATION_CLASS::class.java.methods.any { it.name == "describeConstable" }
 
         testIndexPages(commonTestQuery) { indexPages ->
-            assertEquals(if (hasAdditionalFunction()) 33 else 32, indexPages.sumBy { it.elements.size })
+            assertEquals("A-index: a, A\n" +
+                    "B-index: b\n" +
+                    "C-index: c, ClassA, ClassB, ClassC, ClassC.InnerClass, ClassCEnum, compareTo\n" +
+                    (if (hasAdditionalFunction()) "D-index: d, D, describeConstable\n" else "D-index: d, D\n") +
+                    "E-index: e, E, equals, equals\n" +
+                    "F-index: f\n" +
+                    "G-index: g, getDeclaringClass, getEntries, getName, getOrdinal\n" +
+                    "H-index: h, hashCode, hashCode\n" +
+                    "J-index: j\n" +
+                    "K-index: k\n" +
+                    "P-index: package0, package1\n" +
+                    "T-index: toString, toString\n" +
+                    "V-index: valueOf, values",
+                indexPages.joinToString("\n") { it.title + ": " + it.elements.joinToString { it.getId() } })
+            assertEquals(if (hasAdditionalFunction()) 34 else 33, indexPages.sumBy { it.elements.size })
         }
     }
 

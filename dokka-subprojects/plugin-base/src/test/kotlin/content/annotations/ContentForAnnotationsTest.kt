@@ -17,7 +17,6 @@ import utils.ParamAttributes
 import utils.assertNotNull
 import utils.bareSignature
 import utils.propertySignature
-import utils.JavaCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -323,7 +322,6 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
         }
     }
 
-    @JavaCode
     @Test
     fun `annotated bounds in Java`() {
         testInline(

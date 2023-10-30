@@ -586,7 +586,7 @@ Below you can see all the possible configuration options applied at the same tim
         <suppressInheritedMembers>false</suppressInheritedMembers>
         <offlineMode>false</offlineMode>
         <sourceDirectories>
-            <dir>${project.basedir}/src</dir>
+            <dir>src</dir>
         </sourceDirectories>
         <documentedVisibilities>
             <visibility>PUBLIC</visibility>
