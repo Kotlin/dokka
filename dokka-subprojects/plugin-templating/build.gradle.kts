@@ -12,11 +12,11 @@ plugins {
 overridePublicationArtifactId("templating-plugin")
 
 dependencies {
-    compileOnly(projects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.dokkaCore)
 
     api(libs.jsoup)
 
-    implementation(projects.pluginBase)
+    implementation(projects.dokkaSubprojects.pluginBase)
 
     implementation(kotlin("reflect"))
     implementation(libs.kotlinx.coroutines.core)
@@ -24,7 +24,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(libs.junit.jupiterParams)
 
-    testImplementation(projects.pluginBaseTestUtils)
-    testImplementation(projects.coreTestApi)
+    testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)
+    testImplementation(projects.dokkaSubprojects.coreTestApi)
     testImplementation(libs.kotlinx.html)
 }

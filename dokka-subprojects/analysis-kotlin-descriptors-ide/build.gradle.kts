@@ -7,10 +7,10 @@ plugins {
 }
 
 dependencies {
-    compileOnly(projects.dokkaCore)
-    compileOnly(projects.analysisKotlinApi)
+    compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.analysisKotlinApi)
 
-    implementation(projects.analysisKotlinDescriptorsCompiler)
+    implementation(projects.dokkaSubprojects.analysisKotlinDescriptorsCompiler)
 
     // TODO [beresnev] get rid of it
     compileOnly(libs.kotlinx.coroutines.core)

@@ -13,12 +13,12 @@ plugins {
 overridePublicationArtifactId("analysis-kotlin-api")
 
 dependencies {
-    compileOnly(projects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.dokkaCore)
 
-    testFixturesApi(projects.dokkaCore)
+    testFixturesApi(projects.dokkaSubprojects.dokkaCore)
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.analysisKotlinDescriptors)
+    testImplementation(projects.dokkaSubprojects.analysisKotlinDescriptors)
 }
 
 disableTestFixturesPublishing()

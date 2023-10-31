@@ -12,21 +12,21 @@ plugins {
 overridePublicationArtifactId("all-modules-page-plugin")
 
 dependencies {
-    compileOnly(projects.dokkaCore)
-    compileOnly(projects.analysisKotlinApi)
+    compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.analysisKotlinApi)
 
-    implementation(projects.pluginBase)
-    implementation(projects.pluginTemplating)
+    implementation(projects.dokkaSubprojects.pluginBase)
+    implementation(projects.dokkaSubprojects.pluginTemplating)
 
-    implementation(projects.analysisMarkdownJb)
+    implementation(projects.dokkaSubprojects.analysisMarkdownJb)
 
     implementation(libs.kotlinx.html)
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.pluginBase)
-    testImplementation(projects.pluginBaseTestUtils)
-    testImplementation(projects.pluginGfm)
-    testImplementation(projects.pluginGfmTemplateProcessing)
-    testImplementation(projects.coreContentMatcherTestUtils)
-    testImplementation(projects.coreTestApi)
+    testImplementation(projects.dokkaSubprojects.pluginBase)
+    testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)
+    testImplementation(projects.dokkaSubprojects.pluginGfm)
+    testImplementation(projects.dokkaSubprojects.pluginGfmTemplateProcessing)
+    testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
+    testImplementation(projects.dokkaSubprojects.coreTestApi)
 }

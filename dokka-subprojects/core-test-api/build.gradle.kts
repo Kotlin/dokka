@@ -12,7 +12,7 @@ plugins {
 overridePublicationArtifactId("dokka-test-api")
 
 dependencies {
-    api(projects.dokkaCore)
+    api(projects.dokkaSubprojects.dokkaCore)
 
     implementation(kotlin("reflect"))
 }

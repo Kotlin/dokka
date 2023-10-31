@@ -12,21 +12,21 @@ plugins {
 overridePublicationArtifactId("dokka-base-test-utils")
 
 dependencies {
-    compileOnly(projects.dokkaCore)
-    compileOnly(projects.pluginBase)
+    compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.pluginBase)
 
-    api(projects.analysisKotlinApi)
+    api(projects.dokkaSubprojects.analysisKotlinApi)
 
     // TODO [beresnev] analysis switcher
     //runtimeOnly(project(path = ":subprojects:analysis-kotlin-symbols", configuration = "shadow"))
-    runtimeOnly(project(path = ":analysis-kotlin-descriptors", configuration = "shadow"))
+    runtimeOnly(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
 
     implementation(kotlin("reflect"))
     implementation(libs.jsoup)
 
     implementation(kotlin("test"))
-    implementation(projects.coreTestApi)
+    implementation(projects.dokkaSubprojects.coreTestApi)
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.coreTestApi)
+    testImplementation(projects.dokkaSubprojects.coreTestApi)
 }

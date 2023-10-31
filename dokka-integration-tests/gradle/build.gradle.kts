@@ -19,7 +19,7 @@ dependencies {
     implementation(libs.jsoup)
 }
 
-val dokkaSubprojects = gradle.includedBuild("dokka-subprojects")
+val dokkaSubprojects = gradle.includedBuild("dokka")
 val gradlePluginClassic = gradle.includedBuild("gradle-plugin-classic")
 
 tasks.integrationTest {

@@ -14,7 +14,7 @@ dependencies {
     implementation(libs.junit.jupiterApi)
 }
 
-val dokkaSubprojects = gradle.includedBuild("dokka-subprojects")
+val dokkaSubprojects = gradle.includedBuild("dokka")
 val mavenPlugin = gradle.includedBuild("maven-plugin")
 
 tasks.integrationTest {

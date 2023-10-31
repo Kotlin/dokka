@@ -12,7 +12,7 @@ plugins {
 overridePublicationArtifactId("analysis-markdown")
 
 dependencies {
-    compileOnly(projects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.dokkaCore)
 
     implementation(libs.jsoup)
     implementation(libs.jetbrains.markdown)

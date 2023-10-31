@@ -6,24 +6,27 @@ plugins {
     id("dokkabuild.base")
 }
 
+val publishedIncludedBuilds = listOf("cli", "gradle-plugin-classic", "maven-plugin")
+
 addDependencyOnSameTaskOfIncludedBuilds("assemble")
 addDependencyOnSameTaskOfIncludedBuilds("build")
 addDependencyOnSameTaskOfIncludedBuilds("clean")
 addDependencyOnSameTaskOfIncludedBuilds("check")
 
 registerParentTaskOfIncludedBuilds("test", groupName = "verification")
-registerParentTaskOfIncludedBuilds("apiCheck", groupName = "verification") { it.name != "dokka-integration-tests" }
-registerParentTaskOfIncludedBuilds("apiDump", groupName = "other") { it.name != "dokka-integration-tests" }
 
-registerParentTaskOfIncludedBuilds("publishAllPublicationsToMavenCentralRepository", groupName = "publication")
-registerParentTaskOfIncludedBuilds("publishAllPublicationsToProjectLocalRepository", groupName = "publication")
-registerParentTaskOfIncludedBuilds("publishAllPublicationsToSnapshotRepository", groupName = "publication")
-registerParentTaskOfIncludedBuilds("publishAllPublicationsToSpaceDevRepository", groupName = "publication")
-registerParentTaskOfIncludedBuilds("publishAllPublicationsToSpaceTestRepository", groupName = "publication")
-registerParentTaskOfIncludedBuilds("publishToMavenLocal", groupName = "publication")
+registerParentTaskOfPublishedIncludedBuilds("apiCheck", groupName = "verification")
+registerParentTaskOfPublishedIncludedBuilds("apiDump", groupName = "other")
+
+registerParentTaskOfPublishedIncludedBuilds("publishAllPublicationsToMavenCentralRepository", groupName = "publication")
+registerParentTaskOfPublishedIncludedBuilds("publishAllPublicationsToProjectLocalRepository", groupName = "publication")
+registerParentTaskOfPublishedIncludedBuilds("publishAllPublicationsToSnapshotRepository", groupName = "publication")
+registerParentTaskOfPublishedIncludedBuilds("publishAllPublicationsToSpaceDevRepository", groupName = "publication")
+registerParentTaskOfPublishedIncludedBuilds("publishAllPublicationsToSpaceTestRepository", groupName = "publication")
+registerParentTaskOfPublishedIncludedBuilds("publishToMavenLocal", groupName = "publication")
 
 registerParentTaskOfIncludedBuilds("publishPlugins", groupName = "publication") {
-    it.name in listOf("gradle-plugin-classic")
+    it.name == "gradle-plugin-classic"
 }
 
 tasks.register("integrationTest") {
@@ -38,6 +41,13 @@ fun addDependencyOnSameTaskOfIncludedBuilds(existingTaskName: String, filter: (I
     }
 }
 
+fun registerParentTaskOfPublishedIncludedBuilds(
+    taskName: String,
+    groupName: String
+) = registerParentTaskOfIncludedBuilds(taskName, groupName) {
+    it.name in publishedIncludedBuilds
+}
+
 fun registerParentTaskOfIncludedBuilds(
     taskName: String,
     groupName: String,
@@ -45,7 +55,7 @@ fun registerParentTaskOfIncludedBuilds(
 ) {
     tasks.register(taskName) {
         group = groupName
-        description = "Runs $taskName tasks of all included builds"
+        description = "Runs $taskName tasks of included builds"
         dependsOn(includedBuildTasks(taskName, filter))
     }
 }

@@ -14,10 +14,10 @@ plugins {
 overridePublicationArtifactId("dokka-base")
 
 dependencies {
-    compileOnly(projects.dokkaCore)
-    compileOnly(projects.analysisKotlinApi)
+    compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.analysisKotlinApi)
 
-    implementation(projects.analysisMarkdownJb)
+    implementation(projects.dokkaSubprojects.analysisMarkdownJb)
 
     // Other
     implementation(kotlin("reflect"))
@@ -36,15 +36,15 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(libs.junit.jupiterParams)
 
-    symbolsTestConfiguration(project(path = ":analysis-kotlin-symbols", configuration = "shadow"))
-    descriptorsTestConfiguration(project(path = ":analysis-kotlin-descriptors", configuration = "shadow"))
-    testImplementation(projects.pluginBaseTestUtils) {
+    symbolsTestConfiguration(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestConfiguration(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
+    testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils) {
         exclude(module = "analysis-kotlin-descriptors")
     }
-    testImplementation(projects.coreContentMatcherTestUtils)
-    testImplementation(projects.coreTestApi)
+    testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
+    testImplementation(projects.dokkaSubprojects.coreTestApi)
 
-    dokkaHtmlFrontendFiles(projects.pluginBaseFrontend) {
+    dokkaHtmlFrontendFiles(projects.dokkaSubprojects.pluginBaseFrontend) {
         because("fetch frontend files from subproject :plugin-base-frontend")
     }
 }
