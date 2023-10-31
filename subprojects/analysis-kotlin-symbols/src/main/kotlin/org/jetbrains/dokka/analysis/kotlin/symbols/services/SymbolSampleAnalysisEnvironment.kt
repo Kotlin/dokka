@@ -8,19 +8,18 @@ import com.intellij.psi.PsiElement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.plugin
-import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.analysis.kotlin.sample.SampleAnalysisEnvironment
 import org.jetbrains.dokka.analysis.kotlin.sample.SampleAnalysisEnvironmentCreator
 import org.jetbrains.dokka.analysis.kotlin.sample.SampleSnippet
+import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.resolveKDocTextLinkSymbol
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.KotlinAnalysis
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.SamplesKotlinAnalysis
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.SymbolsAnalysisPlugin
+import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.analysis.api.analyze
-import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtFile
@@ -79,13 +78,7 @@ private class SymbolSampleAnalysisEnvironment(
     private fun findPsiElement(sourceSet: DokkaSourceSet, fqLink: String): PsiElement? {
         val analysisContext = kotlinAnalysis[sourceSet]
         return analyze(analysisContext.mainModule) {
-            // TODO the logic below is incorrect as it assumes the samples can only link to top-level functions.
-            // TODO should be corrected to be able to work with functions inside classes. See Descriptor's impl.
-            val isRootPackage = !fqLink.contains('.')
-            val supposedFunctionName = if (isRootPackage) fqLink else fqLink.substringAfterLast(".")
-            val supposedPackageName = if (isRootPackage) "" else fqLink.substringBeforeLast(".")
-
-            getTopLevelCallableSymbols(FqName(supposedPackageName), Name.identifier(supposedFunctionName)).firstOrNull()?.psi
+            resolveKDocTextLinkSymbol(fqLink)?.psi
         }
     }
 
