@@ -1,6 +1,7 @@
 name: Clean up S3
 
-on: delete
+
+
 
 env:
   bucket-name: 'dokka-snapshots'
