@@ -20,6 +20,7 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.codegen.optimization.common.analyze
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtFile
@@ -29,27 +30,27 @@ internal class SymbolSampleAnalysisEnvironmentCreator(
     private val context: DokkaContext,
 ) : SampleAnalysisEnvironmentCreator {
 
-    private val symbolAnalysisPlugin = context.plugin<SymbolsAnalysisPlugin>()
+    private val projectKotlinAnalysis = context.plugin<SymbolsAnalysisPlugin>().querySingle { kotlinAnalysis }
 
     override fun <T> use(block: SampleAnalysisEnvironment.() -> T): T {
         return runBlocking(Dispatchers.Default) {
             SamplesKotlinAnalysis(
-                sourceSets = context.configuration.sourceSets,
-                context = context,
-                projectKotlinAnalysis = symbolAnalysisPlugin.querySingle { kotlinAnalysis }
-            ).use { kotlinAnalysis ->
-                val sampleAnalysis = SymbolSampleAnalysisEnvironment(
-                    kotlinAnalysis = kotlinAnalysis,
+                sourceSets = context.configuration.sourceSets, context = context
+            ).use { samplesKotlinAnalysis ->
+                val sampleAnalysisEnvironment = SymbolSampleAnalysisEnvironment(
+                    samplesKotlinAnalysis = samplesKotlinAnalysis,
+                    projectKotlinAnalysis = projectKotlinAnalysis,
                     dokkaLogger = context.logger
                 )
-                block(sampleAnalysis)
+                block(sampleAnalysisEnvironment)
             }
         }
     }
 }
 
 private class SymbolSampleAnalysisEnvironment(
-    private val kotlinAnalysis: KotlinAnalysis,
+    private val samplesKotlinAnalysis: KotlinAnalysis,
+    private val projectKotlinAnalysis: KotlinAnalysis,
     private val dokkaLogger: DokkaLogger,
 ) : SampleAnalysisEnvironment {
 
@@ -76,8 +77,10 @@ private class SymbolSampleAnalysisEnvironment(
     }
 
     private fun findPsiElement(sourceSet: DokkaSourceSet, fqLink: String): PsiElement? {
-        val analysisContext = kotlinAnalysis[sourceSet]
-        return analyze(analysisContext.mainModule) {
+        val ktSourceModule = samplesKotlinAnalysis.getModuleOrNull(sourceSet)
+            ?: projectKotlinAnalysis.getModule(sourceSet)
+
+        return analyze(ktSourceModule) {
             resolveKDocTextLinkSymbol(fqLink)?.psi
         }
     }

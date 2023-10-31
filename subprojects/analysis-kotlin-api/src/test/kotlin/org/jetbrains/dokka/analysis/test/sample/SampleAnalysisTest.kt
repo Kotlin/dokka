@@ -286,52 +286,6 @@ class SampleAnalysisTest {
     }
 
     @Test
-    fun `should return null for existing sample when resolving with the wrong source set`() {
-        val testProject = mixedJvmTestProject {
-            dokkaConfiguration {
-                kotlinSourceSet {
-                    // settings samples dir only for the kotlin source set
-                    samples = setOf("/samples/fooSample.kt")
-                }
-            }
-
-            javaSourceSet {
-                // creating a file in java source set to make sure it gets created
-                javaFile("org/jetbrains/dokka/test/Foo.java") {
-                    +"""
-                        public class Foo {}
-                    """
-                }
-            }
-
-            sampleFile("/samples/fooSample.kt", fqPackageName = "org.jetbrains.dokka.sample") {
-                +"""
-                    fun foo() {
-                        println("foo")
-                    }
-                """
-            }
-        }
-
-        testProject.useServices { context ->
-            sampleAnalysisEnvironmentCreator.use {
-                val sampleFromJavaSourceSet = resolveSample(
-                    sourceSet = context.defaultJavaSourceSet(),
-                    fullyQualifiedLink = "org.jetbrains.dokka.sample.foo"
-                )
-                assertNull(sampleFromJavaSourceSet)
-
-                val sampleFromKotlinSourceSet = resolveSample(
-                    sourceSet = context.defaultKotlinSourceSet(),
-                    fullyQualifiedLink = "org.jetbrains.dokka.sample.foo"
-                )
-                assertNotNull(sampleFromKotlinSourceSet)
-                assertEquals("println(\"foo\")", sampleFromKotlinSourceSet.body)
-            }
-        }
-    }
-
-    @Test
     fun `should return null if sample is resolved just by class name`() {
         val testProject = kotlinJvmTestProject {
             dokkaConfiguration {
@@ -372,7 +326,7 @@ class SampleAnalysisTest {
     @Test
     fun `should return null if trying to resolve a non-kotlin sample link`() {
         val testProject = mixedJvmTestProject {
-            kotlinSourceSet {
+            kotlinSourceDirectory {
                 javaFile("org/jetbrains/test/sample/JavaClass.java") {
                     +"""
                         public class JavaClass {
@@ -393,7 +347,7 @@ class SampleAnalysisTest {
         val collectingLogger = CollectingDokkaConsoleLogger()
         testProject.useServices(collectingLogger) { context ->
             sampleAnalysisEnvironmentCreator.use {
-                val kotlinSourceSet = context.defaultKotlinSourceSet()
+                val kotlinSourceSet = context.singleSourceSet()
 
                 val byClassName = resolveSample(kotlinSourceSet, "org.jetbrains.test.sample.JavaClass")
                 assertNull(byClassName)
@@ -551,4 +505,8 @@ class SampleAnalysisTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    @Ignore // TODO [beresnev] should be implemented when there's api for KMP projects
+    fun `should return null for existing sample when resolving with the wrong source set`() {}
 }
