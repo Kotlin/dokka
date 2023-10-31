@@ -20,7 +20,7 @@ dependencies {
 }
 
 val dokkaSubprojects = gradle.includedBuild("dokka")
-val gradlePluginClassic = gradle.includedBuild("gradle-plugin-classic")
+val gradlePluginClassic = gradle.includedBuild("runner-gradle-classic")
 
 tasks.integrationTest {
     dependsOn(

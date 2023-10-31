@@ -27,9 +27,9 @@ dependencyResolutionManagement {
     }
 }
 
-includeBuild("../dokka-runners/gradle-plugin-classic")
-includeBuild("../dokka-runners/cli")
-includeBuild("../dokka-runners/maven-plugin")
+includeBuild("../dokka-runners/runner-gradle-classic")
+includeBuild("../dokka-runners/runner-cli")
+includeBuild("../dokka-runners/runner-maven")
 includeBuild("../.") // include the very root aggregating build so that we can depend on its tasks
 
 include(

@@ -6,7 +6,7 @@ plugins {
     id("dokkabuild.base")
 }
 
-val publishedIncludedBuilds = listOf("cli", "gradle-plugin-classic", "maven-plugin")
+val publishedIncludedBuilds = listOf("runner-cli", "runner-gradle-classic", "runner-maven")
 
 addDependencyOnSameTaskOfIncludedBuilds("assemble")
 addDependencyOnSameTaskOfIncludedBuilds("build")
@@ -26,7 +26,7 @@ registerParentTaskOfPublishedIncludedBuilds("publishAllPublicationsToSpaceTestRe
 registerParentTaskOfPublishedIncludedBuilds("publishToMavenLocal", groupName = "publication")
 
 registerParentTaskOfIncludedBuilds("publishPlugins", groupName = "publication") {
-    it.name == "gradle-plugin-classic"
+    it.name == "runner-gradle-classic"
 }
 
 tasks.register("integrationTest") {

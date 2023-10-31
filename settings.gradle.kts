@@ -59,9 +59,9 @@ plugins {
 }
 
 includeBuild("dokka-integration-tests")
-includeBuild("dokka-runners/gradle-plugin-classic")
-includeBuild("dokka-runners/maven-plugin")
-includeBuild("dokka-runners/cli")
+includeBuild("dokka-runners/runner-gradle-classic")
+includeBuild("dokka-runners/runner-maven")
+includeBuild("dokka-runners/runner-cli")
 
 include(
     ":docs-developer",

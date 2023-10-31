@@ -4,7 +4,7 @@
 
 @file:Suppress("UnstableApiUsage")
 
-rootProject.name = "gradle-plugin-classic"
+rootProject.name = "runner-maven"
 
 pluginManagement {
     includeBuild("../../build-logic")
@@ -18,7 +18,6 @@ pluginManagement {
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
-        google()
     }
 
     versionCatalogs {

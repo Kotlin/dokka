@@ -4,7 +4,7 @@
 
 @file:Suppress("UnstableApiUsage")
 
-rootProject.name = "cli"
+rootProject.name = "runner-gradle-classic"
 
 pluginManagement {
     includeBuild("../../build-logic")
