@@ -32,7 +32,7 @@ val cliConfiguration: Configuration by configurations.creating {
 }
 
 dependencies {
-    cliConfiguration("org.jetbrains.dokka:cli")
+    cliConfiguration("org.jetbrains.dokka:runner-cli")
 
     basePluginShadow("org.jetbrains.dokka:plugin-base")
 
