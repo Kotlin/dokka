@@ -6,7 +6,7 @@ package org.jetbrains.dokka.analysis.kotlin.sample
 
 /**
  * Represents a sample code snippet of a Kotlin function. The snippet includes both file
- * import statements and the sample function body.
+ * import directives (all, even unused) and the sample function body.
  *
  * @property imports list of import statement values, without the `import` prefix.
  *                   Contains no blank lines. Example of a single value: `com.example.pckg.MyClass.function`.
