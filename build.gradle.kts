@@ -7,6 +7,7 @@ plugins {
 }
 
 val publishedIncludedBuilds = listOf("runner-cli", "runner-gradle-classic", "runner-maven")
+val gradlePluginIncludedBuilds = listOf("runner-gradle-classic")
 
 addDependencyOnSameTaskOfIncludedBuilds("assemble")
 addDependencyOnSameTaskOfIncludedBuilds("build")
@@ -25,9 +26,8 @@ registerParentTaskOfPublishedIncludedBuilds("publishAllPublicationsToSpaceDevRep
 registerParentTaskOfPublishedIncludedBuilds("publishAllPublicationsToSpaceTestRepository", groupName = "publication")
 registerParentTaskOfPublishedIncludedBuilds("publishToMavenLocal", groupName = "publication")
 
-registerParentTaskOfIncludedBuilds("publishPlugins", groupName = "publication") {
-    it.name == "runner-gradle-classic"
-}
+registerParentTaskOfGradlePluginIncludedBuilds("publishPlugins", groupName = "publication")
+registerParentTaskOfGradlePluginIncludedBuilds("validatePlugins", groupName = "plugin development")
 
 tasks.register("integrationTest") {
     group = "verification"
@@ -46,6 +46,13 @@ fun registerParentTaskOfPublishedIncludedBuilds(
     groupName: String
 ) = registerParentTaskOfIncludedBuilds(taskName, groupName) {
     it.name in publishedIncludedBuilds
+}
+
+fun registerParentTaskOfGradlePluginIncludedBuilds(
+    taskName: String,
+    groupName: String
+) = registerParentTaskOfIncludedBuilds(taskName, groupName) {
+    it.name in gradlePluginIncludedBuilds
 }
 
 fun registerParentTaskOfIncludedBuilds(
