@@ -35,7 +35,8 @@ internal class SymbolSampleAnalysisEnvironmentCreator(
     override fun <T> use(block: SampleAnalysisEnvironment.() -> T): T {
         return runBlocking(Dispatchers.Default) {
             SamplesKotlinAnalysis(
-                sourceSets = context.configuration.sourceSets, context = context
+                sourceSets = context.configuration.sourceSets,
+                context = context
             ).use { samplesKotlinAnalysis ->
                 val sampleAnalysisEnvironment = SymbolSampleAnalysisEnvironment(
                     samplesKotlinAnalysis = samplesKotlinAnalysis,
