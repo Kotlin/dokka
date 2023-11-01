@@ -9,6 +9,7 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jsoup.nodes.Element
 import utils.TestOutputWriterPlugin
 import utils.navigationHtml
+import utils.withAllTypesPage
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -93,6 +94,50 @@ class NavigationTest : BaseAbstractTest() {
                     text = "sequence()",
                     address = "root/com.example/sequence.html",
                     icon = NavigationNodeIcon.FUNCTION
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `all types page should be in the end`() = withAllTypesPage{
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/main/kotlin/com/example/Sequences.kt
+            |package com.example
+            |interface Sequence<T>
+            """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
+                assertEquals(4, content.size)
+
+                content[0].assertNavigationLink(
+                    id = "root-nav-submenu",
+                    text = "root",
+                    address = "index.html",
+                )
+
+                content[1].assertNavigationLink(
+                    id = "root-nav-submenu-0",
+                    text = "com.example",
+                    address = "root/com.example/index.html",
+                )
+
+                content[2].assertNavigationLink(
+                    id = "root-nav-submenu-0-0",
+                    text = "Sequence",
+                    address = "root/com.example/-sequence/index.html",
+                    icon = NavigationNodeIcon.INTERFACE_KT
+                )
+
+                content[3].assertNavigationLink(
+                    id = "root-nav-submenu-1",
+                    text = "All Types",
+                    address = "root/all-types.html",
                 )
             }
         }
