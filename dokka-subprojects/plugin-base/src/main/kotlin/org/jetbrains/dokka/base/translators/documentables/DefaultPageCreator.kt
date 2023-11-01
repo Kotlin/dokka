@@ -5,6 +5,7 @@
 package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.signatures.SignatureProvider
@@ -320,14 +321,27 @@ public open class DefaultPageCreator(
                 headers("Name")
             )
         ) { typelike ->
+            // the idea is to have at least some description, so we do:
+            //  1. if all data per source sets are the same - take it
+            //  2. if not, try to take common data
+            //  3. if not, try to take JVM data (as this is most likely to be the best variant)
+            //  4. if not, just take any data
+            fun <T> List<Pair<DokkaSourceSet, T>>.selectBestVariant(): Pair<DokkaSourceSet, T>? {
+                val uniqueElements = distinctBy { it.second }
+                return uniqueElements.singleOrNull()
+                    ?: uniqueElements.firstOrNull { it.first.analysisPlatform == Platform.common }
+                    ?: uniqueElements.firstOrNull { it.first.analysisPlatform == Platform.jvm }
+                    ?: uniqueElements.firstOrNull()
+            }
+
             val comment = typelike.sourceSets.mapNotNull { sourceSet ->
                 typelike.descriptions[sourceSet]?.let { sourceSet to it }
-            }.distinctBy { it.second }.singleOrNull()
+            }.selectBestVariant()
 
             val customTags = typelike.customTags.values.mapNotNull { sourceSetTag ->
                 typelike.sourceSets.mapNotNull { sourceSet ->
                     sourceSetTag[sourceSet]?.let { sourceSet to it }
-                }.distinct().singleOrNull()
+                }.selectBestVariant()
             }
 
             link(typelike.qualifiedName(), typelike.dri)
