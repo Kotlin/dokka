@@ -64,7 +64,7 @@ public open class HtmlRenderer(
      * @see ContentStyle.TabbedContent
      */
     private fun createTabs(pageContext: ContentPage): List<ContentTab> {
-        return when (pageContext) {
+        return when(pageContext) {
             is ClasslikePage -> createTabsForClasslikes(pageContext)
             is PackagePage -> createTabsForPackage(pageContext)
             else -> throw IllegalArgumentException("Page ${pageContext.name} cannot have tabs")
@@ -78,8 +78,7 @@ public open class HtmlRenderer(
         val scopes = documentables.filterIsInstance<WithScope>()
         val constructorsToDocumented = csWithConstructor.flatMap { it.constructors }
 
-        val containsRenderableConstructors =
-            constructorsToDocumented.isNotEmpty() && documentables.shouldDocumentConstructors()
+        val containsRenderableConstructors = constructorsToDocumented.isNotEmpty() && documentables.shouldDocumentConstructors()
         val containsRenderableMembers =
             containsRenderableConstructors || scopes.any { it.classlikes.isNotEmpty() || it.functions.isNotEmpty() || it.properties.isNotEmpty() }
 
@@ -90,7 +89,7 @@ public open class HtmlRenderer(
         }
             .distinctBy { it.sourceSets to it.dri } // [Documentable] has expensive equals/hashCode at the moment, see #2620
         return listOfNotNull(
-            if (!containsRenderableMembers) null else
+            if(!containsRenderableMembers) null else
                 ContentTab(
                     "Members",
                     listOf(
@@ -111,7 +110,7 @@ public open class HtmlRenderer(
                     BasicTabbedContentType.EXTENSION_FUNCTION
                 )
             ),
-            if (csEnum.isEmpty()) null else ContentTab(
+            if(csEnum.isEmpty()) null else ContentTab(
                 "Entries",
                 listOf(
                     BasicTabbedContentType.ENTRY
@@ -175,56 +174,46 @@ public open class HtmlRenderer(
                     childrenCallback()
                 }
             }
-
             node.hasStyle(ContentStyle.WithExtraAttributes) -> div {
                 node.extra.extraHtmlAttributes().forEach { attributes[it.extraKey] = it.extraValue }
                 childrenCallback()
             }
-
             node.dci.kind in setOf(ContentKind.Symbol) -> div("symbol $additionalClasses") {
                 childrenCallback()
             }
-
             node.hasStyle(ContentStyle.KDocTag) -> span("kdoc-tag") { childrenCallback() }
             node.hasStyle(ContentStyle.Footnote) -> div("footnote") { childrenCallback() }
             node.hasStyle(TextStyle.BreakableAfter) -> {
                 span { childrenCallback() }
                 wbr { }
             }
-
             node.hasStyle(TextStyle.Breakable) -> {
                 span("breakable-word") { childrenCallback() }
             }
-
             node.hasStyle(TextStyle.Span) -> span { childrenCallback() }
             node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") {
                 childrenCallback()
             }
-
             node.dci.kind == SymbolContentKind.Parameters -> {
                 span("parameters $additionalClasses") {
                     childrenCallback()
                 }
             }
-
             node.dci.kind == SymbolContentKind.Parameter -> {
                 span("parameter $additionalClasses") {
                     childrenCallback()
                 }
             }
-
             node.hasStyle(TextStyle.InlineComment) -> div("inline-comment") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") { //TODO this can be removed
                 childrenCallback()
             }
-
             node.dci.kind == ContentKind.Deprecation -> div("deprecation-content") { childrenCallback() }
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Block) -> div(additionalClasses) {
                 childrenCallback()
             }
-
             node.hasStyle(TextStyle.Quotation) -> blockQuote(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.FloatingRight) -> span("clearfix") { span("floating-right") { childrenCallback() } }
             node.hasStyle(TextStyle.Strikethrough) -> strike { childrenCallback() }
@@ -233,24 +222,18 @@ public open class HtmlRenderer(
                 node.anchorLabel!!,
                 node.buildSourceSetFilterValues()
             ) { childrenCallback() }
-
             node.extra[InsertTemplateExtra] != null -> node.extra[InsertTemplateExtra]?.let { templateCommand(it.command) }
                 ?: Unit
-
             node.hasStyle(ListStyle.DescriptionTerm) -> DT(emptyMap(), consumer).visit {
                 this@wrapGroup.childrenCallback()
             }
-
             node.hasStyle(ListStyle.DescriptionDetails) -> DD(emptyMap(), consumer).visit {
                 this@wrapGroup.childrenCallback()
             }
-
             node.extra.extraTabbedContentType() != null -> div() {
-                node.extra.extraTabbedContentType()
-                    ?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toHtmlAttribute() }
+                node.extra.extraTabbedContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toHtmlAttribute() }
                 this@wrapGroup.childrenCallback()
             }
-
             else -> childrenCallback()
         }
     }
@@ -377,11 +360,10 @@ public open class HtmlRenderer(
                 val isPageWithOverloadedMembers = pageContext is MemberPage && pageContext.documentables().size > 1
 
                 val contentOfSourceSet = mutableListOf<ContentNode>()
-                distinct.onEachIndexed { index, (_, distinctInstances) ->
+                distinct.onEachIndexed{ index, (_, distinctInstances) ->
                     distinctInstances.firstOrNull()?.before?.let { contentOfSourceSet.add(it) }
                     contentOfSourceSet.addAll(distinctInstances.map { it.divergent })
-                    (distinctInstances.firstOrNull()?.after
-                        ?: if (index != distinct.size - 1) ContentBreakLine(setOf(it.key)) else null)
+                    (distinctInstances.firstOrNull()?.after ?: if (index != distinct.size - 1) ContentBreakLine(setOf(it.key)) else null)
                         ?.let { contentOfSourceSet.add(it) }
 
                     // content kind main is important for declarations list to avoid double line breaks
@@ -389,12 +371,7 @@ public open class HtmlRenderer(
                         if (isPageWithOverloadedMembers) {
                             // add some spacing and distinction between function/property overloads.
                             // not ideal, but there's no other place to modify overloads page atm
-                            contentOfSourceSet.add(
-                                ContentBreakLine(
-                                    setOf(it.key),
-                                    style = setOf(HorizontalBreakLineStyle)
-                                )
-                            )
+                            contentOfSourceSet.add(ContentBreakLine(setOf(it.key), style = setOf(HorizontalBreakLineStyle)))
                         } else {
                             contentOfSourceSet.add(ContentBreakLine(setOf(it.key)))
                         }
@@ -440,11 +417,9 @@ public open class HtmlRenderer(
             node.ordered -> {
                 ol { buildListItems(node.children, pageContext, sourceSetRestriction) }
             }
-
             node.hasStyle(ListStyle.DescriptionList) -> {
                 dl { node.children.forEach { it.build(this, pageContext, sourceSetRestriction) } }
             }
-
             else -> {
                 ul { buildListItems(node.children, pageContext, sourceSetRestriction) }
             }
@@ -557,8 +532,7 @@ public open class HtmlRenderer(
     ) {
         buildAnchor(contextNode)
         div(classes = "table-row") {
-            contextNode.extra.extraTabbedContentType()
-                ?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toHtmlAttribute() }
+            contextNode.extra.extraTabbedContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toHtmlAttribute() }
             addSourceSetFilteringAttributes(contextNode)
             div("main-subrow keyValue " + contextNode.style.joinToString(separator = " ")) {
                 buildRowHeaderLink(toRender, pageContext, sourceSetRestriction, contextNode.anchor)
@@ -808,7 +782,6 @@ public open class HtmlRenderer(
     override fun FlowContent.buildLineBreak() {
         br()
     }
-
     override fun FlowContent.buildLineBreak(node: ContentBreakLine, pageContext: ContentPage) {
         if (node.style.contains(HorizontalBreakLineStyle)) {
             hr()
@@ -909,22 +882,18 @@ public open class HtmlRenderer(
             textNode.extra[HtmlContent] != null -> {
                 consumer.onTagContentUnsafe { raw(textNode.text) }
             }
-
             unappliedStyles.contains(TextStyle.Indented) -> {
                 consumer.onTagContentEntity(Entities.nbsp)
                 buildText(textNode, unappliedStyles - TextStyle.Indented)
             }
-
             unappliedStyles.isNotEmpty() -> {
                 val styleToApply = unappliedStyles.first()
                 applyStyle(styleToApply) {
                     buildText(textNode, unappliedStyles - styleToApply)
                 }
             }
-
             textNode.hasStyle(ContentStyle.RowTitle) || textNode.hasStyle(TextStyle.Cover) ->
                 buildBreakableText(textNode.text)
-
             else -> text(textNode.text)
         }
     }
@@ -942,7 +911,7 @@ public open class HtmlRenderer(
         }
     }
 
-    private fun TokenStyle.prismJsClass(): String = when (this) {
+    private fun TokenStyle.prismJsClass(): String = when(this) {
         // Prism.js parser adds Builtin token instead of Annotation
         // for some reason, so we also add it for consistency and correct coloring
         TokenStyle.Annotation -> "annotation builtin"
@@ -960,7 +929,7 @@ public open class HtmlRenderer(
         }
 
     private fun PageNode.getDocumentableType(): String? =
-        when (this) {
+        when(this) {
             is PackagePage -> "package"
             is ClasslikePage -> "classlike"
             is MemberPage -> "member"
@@ -1037,9 +1006,9 @@ public open class HtmlRenderer(
 }
 
 private fun TabbedContentType.toHtmlAttribute(): String =
-    when (this) {
+    when(this) {
         is BasicTabbedContentType ->
-            when (this) {
+            when(this) {
                 BasicTabbedContentType.ENTRY -> "ENTRY"
                 BasicTabbedContentType.TYPE -> "TYPE"
                 BasicTabbedContentType.CONSTRUCTOR -> "CONSTRUCTOR"
@@ -1048,8 +1017,7 @@ private fun TabbedContentType.toHtmlAttribute(): String =
                 BasicTabbedContentType.EXTENSION_PROPERTY -> "EXTENSION_PROPERTY"
                 BasicTabbedContentType.EXTENSION_FUNCTION -> "EXTENSION_FUNCTION"
             }
-
-        else -> throw IllegalStateException("Unknown TabbedContentType $this")
+    else -> throw IllegalStateException("Unknown TabbedContentType $this")
     }
 
 /**
@@ -1070,4 +1038,4 @@ private fun PropertyContainer<ContentNode>.extraHtmlAttributes() = allOfType<Sim
 private fun PropertyContainer<ContentNode>.extraTabbedContentType() = this[TabbedContentTypeExtra]
 
 private val DisplaySourceSet.comparableKey
-    get() = sourceSetIDs.merged.let { it.scopeId + it.sourceSetName }
+        get() = sourceSetIDs.merged.let { it.scopeId + it.sourceSetName }

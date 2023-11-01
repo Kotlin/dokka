@@ -5,8 +5,6 @@
 package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
-import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableSourceLanguageParser
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.signatures.SignatureProvider
@@ -24,6 +22,8 @@ import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableSourceLanguageParser
+import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
 import kotlin.reflect.KClass
 
 internal typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
@@ -476,7 +476,6 @@ public open class DefaultPageCreator(
                 +contentForScopes(scopes, documentables.sourceSets, extensions)
             }
         }
-
     protected open fun contentForConstructors(
         constructorsToDocumented: List<DFunction>,
         dri: Set<DRI>,
@@ -546,6 +545,7 @@ public open class DefaultPageCreator(
     }
 
 
+
     protected open fun contentForDescription(
         d: Documentable
     ): List<ContentNode> {
@@ -596,7 +596,7 @@ public open class DefaultPageCreator(
         tag: TagWrapper
     ) {
         val language = documentableAnalyzer.getLanguage(documentable, sourceSet)
-        when (language) {
+        when(language) {
             DocumentableLanguage.JAVA -> firstSentenceComment(tag.root)
             DocumentableLanguage.KOTLIN -> firstParagraphComment(tag.root)
             else -> firstParagraphComment(tag.root)
@@ -652,8 +652,7 @@ public open class DefaultPageCreator(
         )
 
     }
-
-    private data class NameAndIsExtension(val name: String?, val isExtension: Boolean)
+    private data class NameAndIsExtension(val name:String?, val isExtension: Boolean)
 
     private fun groupAndSortDivergentCollection(collection: Collection<Documentable>): List<Map.Entry<NameAndIsExtension, List<Documentable>>> {
         val groupKeyComparator: Comparator<Map.Entry<NameAndIsExtension, List<Documentable>>> =
@@ -662,7 +661,7 @@ public open class DefaultPageCreator(
             ) { it.key.name }
                 .thenBy { it.key.isExtension }
 
-        return collection
+       return collection
             .groupBy {
                 NameAndIsExtension(
                     it.name,
@@ -682,7 +681,7 @@ public open class DefaultPageCreator(
     ) {
         if (collection.any()) {
             val onlyExtensions = collection.all { it.isExtension() }
-            val groupExtra = when (kind) {
+            val groupExtra = when(kind) {
                 ContentKind.Functions -> extra + TabbedContentTypeExtra(if (onlyExtensions) BasicTabbedContentType.EXTENSION_FUNCTION else BasicTabbedContentType.FUNCTION)
                 ContentKind.Properties -> extra + TabbedContentTypeExtra(if (onlyExtensions) BasicTabbedContentType.EXTENSION_PROPERTY else BasicTabbedContentType.PROPERTY)
                 ContentKind.Classlikes -> extra + TabbedContentTypeExtra(BasicTabbedContentType.TYPE)
@@ -698,12 +697,12 @@ public open class DefaultPageCreator(
                         group { text("Name") }
                         group { text("Summary") }
                     }
-                    groupAndSortDivergentCollection(collection)
+                        groupAndSortDivergentCollection(collection)
                         .forEach { (elementNameAndIsExtension, elements) -> // This groupBy should probably use LocationProvider
                             val elementName = elementNameAndIsExtension.name
                             val isExtension = elementNameAndIsExtension.isExtension
                             val rowExtra =
-                                if (isExtension) extra + TabbedContentTypeExtra(if (isFunctions) BasicTabbedContentType.EXTENSION_FUNCTION else BasicTabbedContentType.EXTENSION_PROPERTY) else extra
+                                if (isExtension) extra + TabbedContentTypeExtra(if(isFunctions) BasicTabbedContentType.EXTENSION_FUNCTION else BasicTabbedContentType.EXTENSION_PROPERTY) else extra
                             val rowKind = if (isExtension) ContentKind.Extensions else kind
                             val sortedElements = sortDivergentElementsDeterministically(elements)
                             row(

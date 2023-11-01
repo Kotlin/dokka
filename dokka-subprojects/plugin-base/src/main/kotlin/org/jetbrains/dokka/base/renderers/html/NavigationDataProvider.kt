@@ -4,8 +4,6 @@
 
 package org.jetbrains.dokka.base.renderers.html
 
-import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
-import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.annotations
 import org.jetbrains.dokka.base.transformers.documentables.isDeprecated
@@ -16,12 +14,13 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
+import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 
 public abstract class NavigationDataProvider(
     dokkaContext: DokkaContext
 ) {
-    private val documentableSourceLanguageParser =
-        dokkaContext.plugin<InternalKotlinAnalysisPlugin>().querySingle { documentableSourceLanguageParser }
+    private val documentableSourceLanguageParser = dokkaContext.plugin<InternalKotlinAnalysisPlugin>().querySingle { documentableSourceLanguageParser }
 
     public open fun navigableChildren(input: RootPageNode): NavigationNode = input.withDescendants()
         .first { it is ModulePage || it is MultimoduleRootPage }.let { visit(it as ContentPage) }
@@ -59,24 +58,19 @@ public abstract class NavigationDataProvider(
                     documentable.isAbstract() -> {
                         if (isJava) NavigationNodeIcon.ABSTRACT_CLASS else NavigationNodeIcon.ABSTRACT_CLASS_KT
                     }
-
                     else -> if (isJava) NavigationNodeIcon.CLASS else NavigationNodeIcon.CLASS_KT
                 }
-
                 is DFunction -> NavigationNodeIcon.FUNCTION
                 is DProperty -> {
                     val isVar = documentable.extra[IsVar] != null
                     if (isVar) NavigationNodeIcon.VAR else NavigationNodeIcon.VAL
                 }
-
                 is DInterface -> if (isJava) NavigationNodeIcon.INTERFACE else NavigationNodeIcon.INTERFACE_KT
                 is DEnum,
                 is DEnumEntry -> if (isJava) NavigationNodeIcon.ENUM_CLASS else NavigationNodeIcon.ENUM_CLASS_KT
-
                 is DAnnotation -> {
                     if (isJava) NavigationNodeIcon.ANNOTATION_CLASS else NavigationNodeIcon.ANNOTATION_CLASS_KT
                 }
-
                 is DObject -> NavigationNodeIcon.OBJECT
                 else -> null
             }

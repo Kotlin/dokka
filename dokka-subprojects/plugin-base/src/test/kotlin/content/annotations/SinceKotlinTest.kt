@@ -34,7 +34,6 @@ class SinceKotlinTest : AbstractRenderingTest() {
     fun setSystemProperty() {
         System.setProperty(SinceKotlinTransformer.SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP, "true")
     }
-
     @AfterTest
     fun clearSystemProperty() {
         System.clearProperty(SinceKotlinTransformer.SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP)
@@ -114,7 +113,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
                         Platform.jvm to SinceKotlinVersion("1.5"),
                     )
 
-                    for (i in sinceKotlin) {
+                    for(i in sinceKotlin) {
                         val tag =
                             find { it.sourceSets.first().analysisPlatform == i.key }?.documentation?.values?.first()
                                 ?.dfs { it is CustomTagWrapper && it.name == "Since Kotlin" }
@@ -128,7 +127,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
 
     @Test
     fun `mpp fun without SinceKotlin annotation`() {
-        val configuration = dokkaConfiguration {
+        val configuration =   dokkaConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/jvm/")
@@ -202,7 +201,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
                         Platform.wasm to SinceKotlinVersion("1.8"),
                     )
 
-                    for (i in sinceKotlin) {
+                    for(i in sinceKotlin) {
                         val tag =
                             find { it.sourceSets.first().analysisPlatform == i.key }?.documentation?.values?.first()
                                 ?.dfs { it is CustomTagWrapper && it.name == "Since Kotlin" }
@@ -216,7 +215,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
 
     @Test
     fun `mpp fun with SinceKotlin annotation`() {
-        val configuration = dokkaConfiguration {
+        val configuration =   dokkaConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/jvm/")
@@ -303,12 +302,12 @@ class SinceKotlinTest : AbstractRenderingTest() {
                         Platform.wasm to SinceKotlinVersion("1.8"),
                     )
 
-                    for (i in sinceKotlin) {
+                    for(i in sinceKotlin) {
                         val tag =
                             find { it.sourceSets.first().analysisPlatform == i.key }?.documentation?.values?.first()
                                 ?.dfs { it is CustomTagWrapper && it.name == "Since Kotlin" }
                                 .assertNotNull("SinceKotlin[${i.key}]")
-                        assertEquals(i.value.toString(), (tag.children.first() as Text).body, "Platform ${i.key}")
+                        assertEquals(i.value.toString(), (tag.children.first() as Text).body , "Platform ${i.key}")
                     }
                 }
             }
