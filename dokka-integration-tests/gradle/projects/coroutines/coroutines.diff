@@ -32,7 +32,7 @@ index e7d405e12..236310823 100644
  }
  
 diff --git a/buildSrc/build.gradle.kts b/buildSrc/build.gradle.kts
-index ae54ad0f6..4655940a9 100644
+index ae54ad0f6..786cff366 100644
 --- a/buildSrc/build.gradle.kts
 +++ b/buildSrc/build.gradle.kts
 @@ -25,6 +25,7 @@ repositories {
@@ -43,6 +43,21 @@ index ae54ad0f6..4655940a9 100644
  }
  
  val gradleProperties = Properties().apply {
+@@ -49,12 +50,12 @@ dependencies {
+      * our version of Gradle bundles Kotlin 1.4.x and can read metadata only up to 1.5.x,
+      * thus we're excluding stdlib compiled with 1.6.0 from dependencies.
+      */
+-    implementation("org.jetbrains.dokka:dokka-gradle-plugin:${version("dokka")}") {
++    implementation("org.jetbrains.dokka:dokka-gradle-plugin:${System.getenv("DOKKA_VERSION")}") {
+         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
+         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk7")
+         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
+     }
+-    implementation("org.jetbrains.dokka:dokka-core:${version("dokka")}") {
++    implementation("org.jetbrains.dokka:dokka-core:${System.getenv("DOKKA_VERSION")}") {
+         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
+         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk7")
+         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
 diff --git a/buildSrc/settings.gradle.kts b/buildSrc/settings.gradle.kts
 index c2e859f65..43dc4f749 100644
 --- a/buildSrc/settings.gradle.kts
@@ -55,7 +70,7 @@ index c2e859f65..43dc4f749 100644
      }
  }
 diff --git a/gradle.properties b/gradle.properties
-index 3d9431be0..d77aa3b07 100644
+index 3d9431be0..9af01ef86 100644
 --- a/gradle.properties
 +++ b/gradle.properties
 @@ -14,7 +14,7 @@ atomicfu_version=0.21.0
