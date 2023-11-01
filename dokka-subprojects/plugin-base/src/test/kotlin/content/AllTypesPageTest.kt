@@ -26,7 +26,7 @@ class AllTypesPageTest : BaseAbstractTest() {
         children.singleOrNull { it is AllTypesPageNode } as? AllTypesPageNode
 
     @Test
-    fun `all types page generated when there are types`()  = withAllTypesPage {
+    fun `all types page generated when there are types`() = withAllTypesPage {
         testInline(
             """
             |/src/Test.kt
@@ -75,7 +75,33 @@ class AllTypesPageTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `all types page isn't generated when there are NO types`()  = withAllTypesPage {
+    fun `all types isn't generated when not enabled by property`() {
+        testInline(
+            """
+            |/src/Test.kt
+            |package sample
+            |/**
+            | * Hello World!
+            | * 
+            | * Some other comment which should not be on All Types page
+            | */
+            |public class Test
+            |
+            |/**
+            | * Hello type
+            | */
+            |public typealias Alias = Int
+            """.trimIndent(),
+            configuration
+        ) {
+            pagesTransformationStage = { rootPage ->
+                assertNull(rootPage.allTypesPageNode())
+            }
+        }
+    }
+
+    @Test
+    fun `all types page isn't generated when there are NO types`() = withAllTypesPage {
         testInline(
             """
             |/src/Test.kt
@@ -94,7 +120,7 @@ class AllTypesPageTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `all types sorting depends only on simple name`()  = withAllTypesPage {
+    fun `all types sorting depends only on simple name`() = withAllTypesPage {
         testInline(
             """
             |/src/A.kt
