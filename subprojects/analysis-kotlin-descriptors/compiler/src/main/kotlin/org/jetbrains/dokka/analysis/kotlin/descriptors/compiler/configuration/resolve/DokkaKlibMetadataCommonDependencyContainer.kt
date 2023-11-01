@@ -16,7 +16,6 @@ import org.jetbrains.kotlin.library.metadata.DeserializedKlibModuleOrigin
 import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.library.metadata.KlibMetadataFactories
 import org.jetbrains.kotlin.library.KotlinLibrary
-import org.jetbrains.kotlin.library.metadata.NativeTypeTransformer
 import org.jetbrains.kotlin.library.metadata.NullFlexibleTypeDeserializer
 import org.jetbrains.kotlin.library.metadata.parseModuleHeader
 import org.jetbrains.kotlin.name.Name
@@ -107,8 +106,7 @@ internal class DokkaKlibMetadataCommonDependencyContainer(
         KlibMetadataModuleDescriptorFactoryImpl(
             MetadataFactories.DefaultDescriptorFactory,
             MetadataFactories.DefaultPackageFragmentsFactory,
-            MetadataFactories.flexibleTypeDeserializer,
-            MetadataFactories.platformDependentTypeTransformer
+            MetadataFactories.flexibleTypeDeserializer
         )
     }
 
@@ -138,6 +136,5 @@ internal class DokkaKlibMetadataCommonDependencyContainer(
 private val MetadataFactories =
     KlibMetadataFactories(
         { DefaultBuiltIns.Instance },
-        NullFlexibleTypeDeserializer,
-        NativeTypeTransformer()
+        NullFlexibleTypeDeserializer
     )

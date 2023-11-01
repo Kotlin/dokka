@@ -27,7 +27,19 @@ class Multiplatform0GradleIntegrationTest : AbstractGradleIntegrationTest() {
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
-        val result = createGradleRunner(buildVersions, "dokkaHtml", "-i", "-s").buildRelaxed()
+        // `enableGranularSourceSetsMetadata` and  `enableDependencyPropagation` flags are enabled by default since 1.6.20.
+        // remove when this test is executed with Kotlin >= 1.6.20
+        val result = if (buildVersions.kotlinVersion < "1.6.20")
+            createGradleRunner(
+                buildVersions,
+                "dokkaHtml",
+                "-i",
+                "-s",
+                "-Pkotlin.mpp.enableGranularSourceSetsMetadata=true",
+                "-Pkotlin.native.enableDependencyPropagation=false"
+            ).buildRelaxed()
+        else
+            createGradleRunner(buildVersions, "dokkaHtml", "-i", "-s").buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
 
