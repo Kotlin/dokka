@@ -44,7 +44,6 @@ internal class DokkaJsResolverForModuleFactory(
             metadataFactories.DefaultDescriptorFactory,
             metadataFactories.DefaultPackageFragmentsFactory,
             metadataFactories.flexibleTypeDeserializer,
-            metadataFactories.platformDependentTypeTransformer
         )
     }
 
