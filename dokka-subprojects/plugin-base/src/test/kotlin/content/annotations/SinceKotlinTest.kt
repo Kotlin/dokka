@@ -51,7 +51,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
     }
 
     @Test
-    fun `rendered SinceKotlin custom tag for typealias, extensions, functions, properties`() {
+    fun `rendered SinceKotlin custom tag for typealias, extensions, functions, properties`() = withAllTypesPage {
         val writerPlugin = TestOutputWriterPlugin()
 
         testInline(
@@ -308,7 +308,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
                             find { it.sourceSets.first().analysisPlatform == i.key }?.documentation?.values?.first()
                                 ?.dfs { it is CustomTagWrapper && it.name == "Since Kotlin" }
                                 .assertNotNull("SinceKotlin[${i.key}]")
-                        assertEquals(i.value.toString(), (tag.children.first() as Text).body , "Platform ${i.key}")
+                        assertEquals(i.value.toString(), (tag.children.first() as Text).body, "Platform ${i.key}")
                     }
                 }
             }

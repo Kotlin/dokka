@@ -45,7 +45,7 @@ class NavigationTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
-                assertEquals(7, content.size)
+                assertEquals(6, content.size)
 
                 // Navigation menu should be the following:
                 // - root
@@ -54,7 +54,6 @@ class NavigationTest : BaseAbstractTest() {
                 //       - Sequence interface
                 //       - Sequence()
                 //       - sequence()
-                //    - All Types (should be always in the end)
 
                 content[0].assertNavigationLink(
                     id = "root-nav-submenu",
@@ -95,12 +94,6 @@ class NavigationTest : BaseAbstractTest() {
                     address = "root/com.example/sequence.html",
                     icon = NavigationNodeIcon.FUNCTION
                 )
-
-                content[6].assertNavigationLink(
-                    id = "root-nav-submenu-1",
-                    text = "All Types",
-                    address = "root/all-types.html",
-                )
             }
         }
     }
@@ -121,7 +114,7 @@ class NavigationTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
-                assertEquals(4, content.size)
+                assertEquals(3, content.size)
 
                 // Navigation menu should be the following:
                 // - root
@@ -232,7 +225,7 @@ class NavigationTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
-                assertEquals(10, content.size)
+                assertEquals(9, content.size)
 
                 // Navigation menu should be the following, sorted by name:
                 // - root
@@ -332,7 +325,7 @@ class NavigationTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
-                assertEquals(8, content.size)
+                assertEquals(7, content.size)
 
                 // Navigation menu should be the following
                 // - root

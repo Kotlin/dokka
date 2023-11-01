@@ -6,9 +6,11 @@ package content
 
 import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.base.translators.documentables.DefaultPageCreator
 import org.jetbrains.dokka.pages.AllTypesPageNode
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.ModulePageNode
+import utils.withAllTypesPage
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -22,7 +24,7 @@ class ModulePageTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `show packages content`() {
+    fun `show packages content`() = withAllTypesPage {
         testInline(
             """
             |/src/A.kt
@@ -62,7 +64,7 @@ class ModulePageTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `show link to all types page when there are types`() {
+    fun `show link to all types page when there are types`() = withAllTypesPage {
         testInline(
             """
             |/src/Test.kt

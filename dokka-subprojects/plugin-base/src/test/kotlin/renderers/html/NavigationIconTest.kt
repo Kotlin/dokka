@@ -278,7 +278,7 @@ class NavigationIconTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
 
-                assertEquals(4, content.size)
+                assertEquals(3, content.size)
                 assertEquals("root-nav-submenu", content[0].id())
                 assertEquals("root-nav-submenu-0", content[1].id())
                 assertEquals("root-nav-submenu-0-0", content[2].id())

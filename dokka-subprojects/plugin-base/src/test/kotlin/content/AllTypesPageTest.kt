@@ -8,6 +8,7 @@ import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.pages.AllTypesPageNode
 import org.jetbrains.dokka.pages.RootPageNode
+import utils.withAllTypesPage
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -25,7 +26,7 @@ class AllTypesPageTest : BaseAbstractTest() {
         children.singleOrNull { it is AllTypesPageNode } as? AllTypesPageNode
 
     @Test
-    fun `all types page generated when there are types`() {
+    fun `all types page generated when there are types`()  = withAllTypesPage {
         testInline(
             """
             |/src/Test.kt
@@ -74,7 +75,7 @@ class AllTypesPageTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `all types page isn't generated when there are NO types`() {
+    fun `all types page isn't generated when there are NO types`()  = withAllTypesPage {
         testInline(
             """
             |/src/Test.kt
@@ -93,7 +94,7 @@ class AllTypesPageTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `all types sorting depends only on simple name`() {
+    fun `all types sorting depends only on simple name`()  = withAllTypesPage {
         testInline(
             """
             |/src/A.kt

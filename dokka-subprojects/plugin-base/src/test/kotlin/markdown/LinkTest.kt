@@ -12,7 +12,6 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.MemberPageNode
-import org.jetbrains.dokka.pages.PackagePageNode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -77,7 +76,7 @@ class LinkTest : BaseAbstractTest() {
             configuration
         ) {
             renderingStage = { rootPageNode, _ ->
-                val root = rootPageNode.children.single { it is PackagePageNode }.children.single() as ClasslikePageNode
+                val root = rootPageNode.children.single().children.single() as ClasslikePageNode
                 val innerClass = root.children.first { it is ClasslikePageNode }
                 val foo = innerClass.children.first { it.name == "foo" } as MemberPageNode
                 val destinationDri = (root.documentables.firstOrNull() as WithGenerics).generics.first().dri.toString()

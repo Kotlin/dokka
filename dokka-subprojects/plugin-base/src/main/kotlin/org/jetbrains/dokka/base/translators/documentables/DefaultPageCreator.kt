@@ -57,7 +57,7 @@ public open class DefaultPageCreator(
             content = contentForModule(m),
             documentables = listOf(m),
             children = when {
-                hasTypes -> packagePages + AllTypesPageNode(
+                hasTypes && shouldDisplayAllTypesPage() -> packagePages + AllTypesPageNode(
                     name = "All Types",
                     content = contentForAllTypes(m),
                     children = emptyList()
@@ -291,7 +291,7 @@ public open class DefaultPageCreator(
             val hasTypes = m.packages.any {
                 it.classlikes.isNotEmpty() || it.typealiases.isNotEmpty()
             }
-            if (hasTypes) {
+            if (hasTypes && shouldDisplayAllTypesPage()) {
                 header(2, "Index", kind = ContentKind.Cover)
                 link("All Types", AllTypesPageNode.DRI)
             }
@@ -801,6 +801,13 @@ public open class DefaultPageCreator(
     }
 
     protected open fun TagWrapper.toHeaderString(): String = this.javaClass.toGenericString().split('.').last()
+
+
+    internal companion object {
+        internal const val SHOULD_DISPLAY_ALL_TYPES_PAGE_SYS_PROP = "dokka.shouldDisplayAllTypesPage"
+        private fun shouldDisplayAllTypesPage() =
+            System.getProperty(SHOULD_DISPLAY_ALL_TYPES_PAGE_SYS_PROP) in listOf("true", "1")
+    }
 }
 
 internal val List<Documentable>.sourceSets: Set<DokkaSourceSet>
