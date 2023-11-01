@@ -179,6 +179,7 @@ public class SinceKotlinTransformer(
         }
 
     internal companion object {
+        // revisit in scope of https://github.com/Kotlin/dokka/issues/2776
         internal const val SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP = "dokka.shouldDisplaySinceKotlin"
         internal fun shouldDisplaySinceKotlin() =
             System.getProperty(SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP) in listOf("true", "1")

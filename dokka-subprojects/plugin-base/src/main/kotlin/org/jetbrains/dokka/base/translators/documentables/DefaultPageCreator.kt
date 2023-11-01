@@ -803,6 +803,7 @@ public open class DefaultPageCreator(
 
 
     internal companion object {
+        // revisit in scope of https://github.com/Kotlin/dokka/issues/2776
         internal const val SHOULD_DISPLAY_ALL_TYPES_PAGE_SYS_PROP = "dokka.shouldDisplayAllTypesPage"
         private fun shouldDisplayAllTypesPage() =
             System.getProperty(SHOULD_DISPLAY_ALL_TYPES_PAGE_SYS_PROP) in listOf("true", "1")
