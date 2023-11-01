@@ -1,25 +1,36 @@
 diff --git a/build.gradle b/build.gradle
-index e7d405e12..0ca2169fe 100644
+index e7d405e12..236310823 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -107,6 +107,9 @@ allprojects {
+@@ -59,8 +59,9 @@ buildscript {
+     }
+ 
+     dependencies {
++        def dokkaVersion = System.getenv('DOKKA_VERSION')
+         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
++        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"
+         classpath "org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicfu_version"
+         classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
+         classpath "com.github.node-gradle:gradle-node-plugin:$gradle_node_version"
+@@ -107,6 +108,9 @@ allprojects {
              mavenLocal()
          }
      }
 +    repositories {
 +        mavenLocal()
 +    }
-
+ 
      ext.unpublished = unpublished
-
-@@ -142,6 +145,7 @@ allprojects {
+ 
+@@ -142,6 +146,7 @@ allprojects {
          google()
          mavenCentral()
          CommunityProjectsBuild.addDevRepositoryIfEnabled(delegate, project)
 +        mavenLocal()
      }
  }
-
+ 
 diff --git a/buildSrc/build.gradle.kts b/buildSrc/build.gradle.kts
 index ae54ad0f6..4655940a9 100644
 --- a/buildSrc/build.gradle.kts
@@ -30,7 +41,7 @@ index ae54ad0f6..4655940a9 100644
      }
 +    mavenLocal()
  }
-
+ 
  val gradleProperties = Properties().apply {
 diff --git a/buildSrc/settings.gradle.kts b/buildSrc/settings.gradle.kts
 index c2e859f65..43dc4f749 100644
@@ -44,7 +55,7 @@ index c2e859f65..43dc4f749 100644
      }
  }
 diff --git a/gradle.properties b/gradle.properties
-index 3d9431be0..b60114bc2 100644
+index 3d9431be0..d77aa3b07 100644
 --- a/gradle.properties
 +++ b/gradle.properties
 @@ -14,7 +14,7 @@ atomicfu_version=0.21.0
@@ -52,7 +63,7 @@ index 3d9431be0..b60114bc2 100644
  html_version=0.7.2
  lincheck_version=2.18.1
 -dokka_version=1.8.10
-+dokka_version=non-existing-sanity-check
++dokka_version=non-existing-sanity-check-SNAPSHOT
  byte_buddy_version=1.10.9
  reactor_version=3.4.1
  reactive_streams_version=1.0.3
@@ -67,4 +78,4 @@ index 151c087fd..e578bdb93 100644
 +        mavenLocal()
      }
  }
-
+ 

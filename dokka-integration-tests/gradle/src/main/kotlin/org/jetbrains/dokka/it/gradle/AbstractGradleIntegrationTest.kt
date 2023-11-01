@@ -36,6 +36,7 @@ public abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() 
             .withTestKitDir(File("build", "gradle-test-kit").absoluteFile)
             .withArguments(
                 listOfNotNull(
+                    "-Pdokka_it_dokka_version=${System.getenv("DOKKA_VERSION")}",
                     "-Pdokka_it_kotlin_version=${buildVersions.kotlinVersion}",
                     buildVersions.androidGradlePluginVersion?.let { androidVersion ->
                         "-Pdokka_it_android_gradle_plugin_version=$androidVersion"
