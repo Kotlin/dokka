@@ -27,9 +27,9 @@ tasks.integrationTest {
     val mvn = mavenCliSetup.mvn
     inputs.file(mvn)
 
-    environment("DOKKA_VERSION", project.version)
 
     doFirst("workaround for https://github.com/gradle/gradle/issues/24267") {
+        environment("DOKKA_VERSION", project.version)
         environment("MVN_BINARY_PATH", mvn.get().asFile.invariantSeparatorsPath)
     }
 }

@@ -19,14 +19,10 @@ dependencies {
     implementation(libs.jsoup)
 }
 
-val dokkaSubprojects = gradle.includedBuild("dokka")
-val gradlePluginClassic = gradle.includedBuild("runner-gradle-classic")
+val aggregatingProject = gradle.includedBuild("dokka")
 
 tasks.integrationTest {
-    dependsOn(
-        dokkaSubprojects.task(":publishToMavenLocal"),
-        gradlePluginClassic.task(":publishToMavenLocal"),
-    )
+    dependsOn(aggregatingProject.task(":publishToMavenLocal"))
 
     environment("DOKKA_VERSION", project.version)
 

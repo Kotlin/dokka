@@ -9,63 +9,70 @@ plugins {
 val publishedIncludedBuilds = listOf("runner-cli", "runner-gradle-classic", "runner-maven")
 val gradlePluginIncludedBuilds = listOf("runner-gradle-classic")
 
-addDependencyOnSameTaskOfIncludedBuilds("assemble")
-addDependencyOnSameTaskOfIncludedBuilds("build")
-addDependencyOnSameTaskOfIncludedBuilds("clean")
-addDependencyOnSameTaskOfIncludedBuilds("check")
+addDependencyOnSameTasksOfIncludedBuilds("assemble", "build", "clean", "check")
 
-registerParentTaskOfIncludedBuilds("test", groupName = "verification")
+registerParentGroupTasks("publishing", taskNames = listOf(
+    "publishAllPublicationsToMavenCentralRepository",
+    "publishAllPublicationsToProjectLocalRepository",
+    "publishAllPublicationsToSnapshotRepository",
+    "publishAllPublicationsToSpaceDevRepository",
+    "publishAllPublicationsToSpaceTestRepository",
+    "publishToMavenLocal"
+)) {
+    it.name in publishedIncludedBuilds
+}
 
-registerParentTaskOfPublishedIncludedBuilds("apiCheck", groupName = "verification")
-registerParentTaskOfPublishedIncludedBuilds("apiDump", groupName = "other")
+registerParentGroupTasks("verification", taskNames = listOf(
+    "test",
+    "apiCheck",
+    "apiDump"
+))
 
-registerParentTaskOfPublishedIncludedBuilds("publishAllPublicationsToMavenCentralRepository", groupName = "publication")
-registerParentTaskOfPublishedIncludedBuilds("publishAllPublicationsToProjectLocalRepository", groupName = "publication")
-registerParentTaskOfPublishedIncludedBuilds("publishAllPublicationsToSnapshotRepository", groupName = "publication")
-registerParentTaskOfPublishedIncludedBuilds("publishAllPublicationsToSpaceDevRepository", groupName = "publication")
-registerParentTaskOfPublishedIncludedBuilds("publishAllPublicationsToSpaceTestRepository", groupName = "publication")
-registerParentTaskOfPublishedIncludedBuilds("publishToMavenLocal", groupName = "publication")
-
-registerParentTaskOfGradlePluginIncludedBuilds("publishPlugins", groupName = "publication")
-registerParentTaskOfGradlePluginIncludedBuilds("validatePlugins", groupName = "plugin development")
+registerParentGroupTasks("gradle plugin", taskNames = listOf(
+    "publishPlugins",
+    "validatePlugins"
+)) {
+    it.name in gradlePluginIncludedBuilds
+}
 
 tasks.register("integrationTest") {
     group = "verification"
     description = "Runs integration tests of this project. Might take a while and require additional setup."
-    dependsOn(gradle.includedBuilds.single { it.name == "dokka-integration-tests" }.task(":integrationTest"))
+
+    dependsOn(includedBuildTasks("integrationTest") {
+        it.name == "dokka-integration-tests"
+    })
 }
 
-fun addDependencyOnSameTaskOfIncludedBuilds(existingTaskName: String, filter: (IncludedBuild) -> Boolean = { true }) {
-    tasks.named(existingTaskName) {
-        dependsOn(includedBuildTasks(existingTaskName, filter))
+fun addDependencyOnSameTasksOfIncludedBuilds(vararg taskNames: String) {
+    taskNames.forEach { taskName ->
+        tasks.named(taskName) {
+            dependsOn(includedBuildTasks(taskName))
+        }
     }
 }
 
-fun registerParentTaskOfPublishedIncludedBuilds(
-    taskName: String,
-    groupName: String
-) = registerParentTaskOfIncludedBuilds(taskName, groupName) {
-    it.name in publishedIncludedBuilds
-}
-
-fun registerParentTaskOfGradlePluginIncludedBuilds(
-    taskName: String,
-    groupName: String
-) = registerParentTaskOfIncludedBuilds(taskName, groupName) {
-    it.name in gradlePluginIncludedBuilds
-}
-
-fun registerParentTaskOfIncludedBuilds(
-    taskName: String,
+fun registerParentGroupTasks(
     groupName: String,
-    filter: (IncludedBuild) -> Boolean = { true }
-) {
+    taskNames: List<String>,
+    includedBuildFilter: (IncludedBuild) -> Boolean = { true }
+) = taskNames.forEach { taskName ->
     tasks.register(taskName) {
         group = groupName
-        description = "Runs $taskName tasks of included builds"
-        dependsOn(includedBuildTasks(taskName, filter))
+        description = "A parent task that calls tasks with the same name in all subprojects and included builds"
+
+        dependsOn(subprojectTasks(taskName), includedBuildTasks(taskName, includedBuildFilter))
     }
 }
 
-fun includedBuildTasks(taskName: String, filter: (IncludedBuild) -> Boolean): List<TaskReference> =
-    gradle.includedBuilds.filter { it.name != "build-logic" }.filter(filter).map { it.task(":$taskName") }
+fun subprojectTasks(taskName: String): List<String> =
+    subprojects
+        .filter { it.getTasksByName(taskName, false).isNotEmpty() }
+        .map { ":${it.path}:$taskName" }
+
+
+fun includedBuildTasks(taskName: String, filter: (IncludedBuild) -> Boolean = { true }): List<TaskReference> =
+    gradle.includedBuilds
+        .filter { it.name != "build-logic" }
+        .filter(filter)
+        .mapNotNull { it.task(":$taskName") }
