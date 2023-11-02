@@ -73,13 +73,13 @@ class MultiModule0IntegrationTest : AbstractGradleIntegrationTest() {
             "Expected moduleC being mentioned in -modules.html"
         )
 
-        val indexHtmls = outputDir.walkTopDown().filter {
-            it.isFile && it.name == "index.html"
+        val htmlsWithHomepageLink = outputDir.walkTopDown().filter {
+            it.isFile && it.extension == "html" && it.name != "navigation.html"
         }.toList()
 
-        assertEquals(10, indexHtmls.size)
+        assertEquals(16, htmlsWithHomepageLink.size)
 
-        indexHtmls.forEach {
+        htmlsWithHomepageLink.forEach {
             assertTrue(
                 it.readText().contains(
                     """https://github.com/Kotlin/dokka/tree/master/integration-tests/gradle/projects/it-multimodule-0/"""
