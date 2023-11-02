@@ -3481,8 +3481,8 @@ public abstract interface class org/jetbrains/dokka/model/properties/WithExtraPr
 
 public final class org/jetbrains/dokka/pages/AllTypesPageNode : org/jetbrains/dokka/pages/ContentPage {
 	public static final field Companion Lorg/jetbrains/dokka/pages/AllTypesPageNode$Companion;
-	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/List;Ljava/util/List;)V
-	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/List;)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getChildren ()Ljava/util/List;
 	public fun getContent ()Lorg/jetbrains/dokka/pages/ContentNode;
 	public fun getDocumentable ()Lorg/jetbrains/dokka/model/Documentable;

@@ -156,4 +156,86 @@ class AllTypesPageTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `all types description should be taken from most relevant sourceSet`() = withAllTypesPage {
+        testInline(
+            """
+            |/src/common/test.kt
+            |package test
+            |/**
+            | * Common
+            | */
+            |expect class FromCommon
+            |expect class FromJvm
+            |expect class FromNative
+            |/src/jvm/test.kt
+            |package test
+            |/**
+            | * JVM
+            | */
+            |actual class FromCommon
+            |/**
+            | * JVM
+            | */
+            |actual class FromJvm
+            |actual class FromNative
+            |/src/native/test.kt
+            |package test
+            |/**
+            | * Native
+            | */
+            |actual class FromCommon
+            |actual class FromJvm
+            |/**
+            | * Native
+            | */
+            |actual class FromNative
+            """.trimIndent(),
+            dokkaConfiguration {
+                sourceSets {
+                    val commonId = sourceSet {
+                        sourceRoots = listOf("src/common/")
+                        analysisPlatform = "common"
+                        name = "common"
+                    }.value.sourceSetID
+                    sourceSet {
+                        sourceRoots = listOf("src/jvm/")
+                        analysisPlatform = "jvm"
+                        name = "jvm"
+                        dependentSourceSets = setOf(commonId)
+                    }
+                    sourceSet {
+                        sourceRoots = listOf("src/native/")
+                        analysisPlatform = "native"
+                        name = "native"
+                        dependentSourceSets = setOf(commonId)
+                    }
+                }
+            }
+        ) {
+            pagesTransformationStage = { rootPage ->
+                assertNotNull(rootPage.allTypesPageNode()).content.assertNode {
+                    group {
+                        header { +"root" } // module name
+                    }
+                    header { +"All Types" }
+                    table {
+                        group {
+                            link { +"test.FromCommon" }
+                            group { group { +"Common" } }
+                        }
+                        group {
+                            link { +"test.FromJvm" }
+                            group { group { +"JVM" } }
+                        }
+                        group {
+                            link { +"test.FromNative" }
+                            group { group { +"Native" } }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

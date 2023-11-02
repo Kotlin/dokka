@@ -102,12 +102,12 @@ public class ModulePageNode(
 }
 
 public class AllTypesPageNode(
-    override val name: String,
     override val content: ContentNode,
-    override val children: List<PageNode>,
     override val embeddedResources: List<String> = listOf()
 ) : ContentPage {
     override val dri: Set<DRI> = setOf(DRI)
+    override val name: String = "All Types"
+    override val children: List<PageNode> get() = emptyList()
 
     override fun modified(name: String, children: List<PageNode>): AllTypesPageNode =
         modified(name = name, content = this.content, dri = dri, children = children)
@@ -120,7 +120,7 @@ public class AllTypesPageNode(
         children: List<PageNode>
     ): AllTypesPageNode =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else AllTypesPageNode(name, content, children, embeddedResources)
+        else AllTypesPageNode(content, embeddedResources)
 
     public companion object {
         public val DRI: DRI = DRI(packageName = ".alltypes")

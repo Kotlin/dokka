@@ -49,21 +49,13 @@ public open class DefaultPageCreator(
         configuration?.separateInheritedMembers ?: DokkaBaseConfiguration.separateInheritedMembersDefault
 
     public open fun pageForModule(m: DModule): ModulePageNode {
-        val hasTypes = m.packages.any {
-            it.classlikes.isNotEmpty() || it.typealiases.isNotEmpty()
-        }
         val packagePages = m.packages.map(::pageForPackage)
         return ModulePageNode(
             name = m.name.ifEmpty { "<root>" },
             content = contentForModule(m),
             documentables = listOf(m),
             children = when {
-                hasTypes && shouldDisplayAllTypesPage() -> packagePages + AllTypesPageNode(
-                    name = "All Types",
-                    content = contentForAllTypes(m),
-                    children = emptyList()
-                )
-
+                m.needAllTypesPage -> packagePages + AllTypesPageNode(content = contentForAllTypes(m))
                 else -> packagePages
             }
         )
@@ -281,7 +273,7 @@ public open class DefaultPageCreator(
             ) { pkg ->
                 val comment = pkg.sourceSets.mapNotNull { sourceSet ->
                     pkg.descriptions[sourceSet]?.let { sourceSet to it }
-                }.distinctBy { it.second }.singleOrNull()
+                }.distinctBy { firstParagraphBrief(it.second.root) }.singleOrNull()
 
                 link(pkg.name, pkg.dri)
                 comment?.let { (sourceSet, description) ->
@@ -289,10 +281,7 @@ public open class DefaultPageCreator(
                 }
             }
 
-            val hasTypes = m.packages.any {
-                it.classlikes.isNotEmpty() || it.typealiases.isNotEmpty()
-            }
-            if (hasTypes && shouldDisplayAllTypesPage()) {
+            if (m.needAllTypesPage) {
                 header(2, "Index", kind = ContentKind.Cover)
                 link("All Types", AllTypesPageNode.DRI)
             }
@@ -326,8 +315,9 @@ public open class DefaultPageCreator(
             //  2. if not, try to take common data
             //  3. if not, try to take JVM data (as this is most likely to be the best variant)
             //  4. if not, just take any data
-            fun <T> List<Pair<DokkaSourceSet, T>>.selectBestVariant(): Pair<DokkaSourceSet, T>? {
-                val uniqueElements = distinctBy { it.second }
+            fun <T, K> List<Pair<DokkaSourceSet, T>>.selectBestVariant(selector: (T) -> K): Pair<DokkaSourceSet, T>? {
+                if (isEmpty()) return null
+                val uniqueElements = distinctBy { selector(it.second) }
                 return uniqueElements.singleOrNull()
                     ?: uniqueElements.firstOrNull { it.first.analysisPlatform == Platform.common }
                     ?: uniqueElements.firstOrNull { it.first.analysisPlatform == Platform.jvm }
@@ -336,12 +326,12 @@ public open class DefaultPageCreator(
 
             val comment = typelike.sourceSets.mapNotNull { sourceSet ->
                 typelike.descriptions[sourceSet]?.let { sourceSet to it }
-            }.selectBestVariant()
+            }.selectBestVariant { firstParagraphBrief(it.root) }
 
             val customTags = typelike.customTags.values.mapNotNull { sourceSetTag ->
                 typelike.sourceSets.mapNotNull { sourceSet ->
                     sourceSetTag[sourceSet]?.let { sourceSet to it }
-                }.selectBestVariant()
+                }.selectBestVariant { it }
             }
 
             link(typelike.qualifiedName(), typelike.dri)
@@ -821,6 +811,14 @@ public open class DefaultPageCreator(
         internal const val SHOULD_DISPLAY_ALL_TYPES_PAGE_SYS_PROP = "dokka.shouldDisplayAllTypesPage"
         private fun shouldDisplayAllTypesPage() =
             System.getProperty(SHOULD_DISPLAY_ALL_TYPES_PAGE_SYS_PROP) in listOf("true", "1")
+
+        private val DModule.needAllTypesPage: Boolean
+            get() {
+                val hasTypes = packages.any {
+                    it.classlikes.isNotEmpty() || it.typealiases.isNotEmpty()
+                }
+                return hasTypes && shouldDisplayAllTypesPage()
+            }
     }
 }
 
