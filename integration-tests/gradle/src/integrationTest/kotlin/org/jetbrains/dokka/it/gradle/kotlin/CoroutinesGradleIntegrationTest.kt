@@ -9,7 +9,7 @@ import org.jetbrains.dokka.it.TestOutputCopier
 import org.jetbrains.dokka.it.copyAndApplyGitDiff
 import org.jetbrains.dokka.it.gradle.AbstractGradleIntegrationTest
 import org.jetbrains.dokka.it.gradle.BuildVersions
-import org.jetbrains.dokka.it.gradle.TestedVersionsWithK2SwitcherArgumentsProvider
+import org.jetbrains.dokka.it.gradle.TestedVersionsArgumentsProvider
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
@@ -24,7 +24,7 @@ private val buildVersions = BuildVersions.permutations(
 )
 
 internal class CoroutinesBuildVersionsArgumentsProvider :
-    TestedVersionsWithK2SwitcherArgumentsProvider(buildVersions)
+    TestedVersionsArgumentsProvider(buildVersions)
 class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopier {
 
     override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/htmlMultiModule") }
@@ -38,12 +38,12 @@ class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOut
         copyAndApplyGitDiff(File("projects", "coroutines/coroutines.diff"))
     }
 
-    @ParameterizedTest(name = "{0} {1}")
+    @ParameterizedTest(name = "{0}")
     @ArgumentsSource(CoroutinesBuildVersionsArgumentsProvider::class)
-    fun execute(buildVersions: BuildVersions, extraParameter: String) {
+    fun execute(buildVersions: BuildVersions) {
         val result = createGradleRunner(
             buildVersions,
-            ":dokkaHtmlMultiModule", "-i", "-s", extraParameter,
+            ":dokkaHtmlMultiModule", "-i", "-s",
             jvmArgs = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=500m")
         ).buildRelaxed()
 

@@ -9,7 +9,7 @@ import org.jetbrains.dokka.it.TestOutputCopier
 import org.jetbrains.dokka.it.copyAndApplyGitDiff
 import org.jetbrains.dokka.it.gradle.AbstractGradleIntegrationTest
 import org.jetbrains.dokka.it.gradle.BuildVersions
-import org.jetbrains.dokka.it.gradle.TestedVersionsWithK2SwitcherArgumentsProvider
+import org.jetbrains.dokka.it.gradle.TestedVersionsArgumentsProvider
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
@@ -24,7 +24,7 @@ private val buildVersions = BuildVersions.permutations(
 )
 
 internal class SerializationBuildVersionsArgumentsProvider :
-    TestedVersionsWithK2SwitcherArgumentsProvider(buildVersions)
+    TestedVersionsArgumentsProvider(buildVersions)
 
 class SerializationGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopier {
 
@@ -38,10 +38,10 @@ class SerializationGradleIntegrationTest : AbstractGradleIntegrationTest(), Test
         copyAndApplyGitDiff(File("projects", "serialization/serialization.diff"))
     }
 
-    @ParameterizedTest(name = "{0} {1}")
+    @ParameterizedTest(name = "{0}")
     @ArgumentsSource(SerializationBuildVersionsArgumentsProvider::class)
-    fun execute(buildVersions: BuildVersions, extraParameter: String) {
-        val result = createGradleRunner(buildVersions, ":dokkaHtmlMultiModule", "-i", "-s", extraParameter).buildRelaxed()
+    fun execute(buildVersions: BuildVersions) {
+        val result = createGradleRunner(buildVersions, ":dokkaHtmlMultiModule", "-i", "-s").buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtmlMultiModule")).outcome)
 
