@@ -8,6 +8,8 @@ public object TestEnvironment {
     public val isExhaustive: Boolean = checkNotNull(System.getenv("isExhaustive")) {
         "Missing `isExhaustive` environment variable"
     }.toBoolean()
+
+    public val disableK2Tests: Boolean = System.getenv("DISABLE_K2_TESTS").toBoolean()
 }
 
 /**
