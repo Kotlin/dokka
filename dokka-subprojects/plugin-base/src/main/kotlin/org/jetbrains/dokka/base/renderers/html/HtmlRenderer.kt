@@ -52,6 +52,7 @@ public open class HtmlRenderer(
     private var shouldRenderSourceSetTabs: Boolean = false
 
     override val preprocessors: List<PageTransformer> = context.plugin<DokkaBase>().query { htmlPreprocessors }
+    private val customCodeBlockRenderers = context.plugin<DokkaBase>().query { htmlCodeBlockRenderers }
 
     /**
      * Tabs themselves are created in HTML plugin since, currently, only HTML format supports them.
@@ -816,13 +817,33 @@ public open class HtmlRenderer(
         code: ContentCodeBlock,
         pageContext: ContentPage
     ) {
+        val codeText = buildString {
+            code.children.forEach {
+                when (it) {
+                    is ContentText -> append(it.text)
+                    is ContentBreakLine -> appendLine()
+                }
+            }
+        }
+
+        customCodeBlockRenderers.forEach { renderer ->
+            if (renderer.isApplicable(code.language, codeText)) {
+                // we use first applicable renderer to override rendering
+                return with(renderer) {
+                    buildCodeBlock(code.language,codeText)
+                }
+            }
+        }
+
+        // if there are no custom renderers - fall back to default
+
         div("sample-container") {
             val codeLang = "lang-" + code.language.ifEmpty { "kotlin" }
             val stylesWithBlock = code.style + TextStyle.Block + codeLang
             pre {
                 code(stylesWithBlock.joinToString(" ") { it.toString().toLowerCase() }) {
                     attributes["theme"] = "idea"
-                    code.children.forEach { buildContentNode(it, pageContext) }
+                    text(codeText)
                 }
             }
             /*

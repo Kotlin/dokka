@@ -48,6 +48,7 @@ public class DokkaBase : DokkaPlugin() {
     public val externalLocationProviderFactory: ExtensionPoint<ExternalLocationProviderFactory> by extensionPoint()
     public val outputWriter: ExtensionPoint<OutputWriter> by extensionPoint()
     public val htmlPreprocessors: ExtensionPoint<PageTransformer> by extensionPoint()
+    public val htmlCodeBlockRenderers: ExtensionPoint<HtmlCodeBlockRenderer> by extensionPoint()
 
     @Deprecated("It is not used anymore")
     public val tabSortingStrategy: ExtensionPoint<TabSortingStrategy> by extensionPoint()
