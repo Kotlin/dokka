@@ -86,10 +86,16 @@ public class DefaultTemplateModelFactory(
         return mapper
     }
 
-    override fun buildSharedModel(): TemplateMap = mapOf<String, Any>(
-        "footerMessage" to (configuration?.footerMessage?.takeIf { it.isNotEmpty() }
-            ?: DokkaBaseConfiguration.defaultFooterMessage)
-    )
+    override fun buildSharedModel(): TemplateMap {
+        val mapper = mutableMapOf<String, Any>()
+
+        mapper["footerMessage"] =
+            (configuration?.footerMessage?.takeIf(String::isNotBlank) ?: DokkaBaseConfiguration.defaultFooterMessage)
+
+        configuration?.homepageLink?.takeIf(String::isNotBlank)?.let { mapper["homepageLink"] = it }
+
+        return mapper
+    }
 
     private val DisplaySourceSet.comparableKey
         get() = sourceSetIDs.merged.let { it.scopeId + it.sourceSetName }
@@ -107,6 +113,7 @@ public class DefaultTemplateModelFactory(
                             rel = LinkRel.stylesheet,
                             href = if (resource.isAbsolute) resource else "$pathToRoot$resource"
                         )
+
                     resource.URIExtension == "js" ->
                         script(
                             type = ScriptType.textJavaScript,
@@ -117,6 +124,7 @@ public class DefaultTemplateModelFactory(
                             else
                                 async = true
                         }
+
                     resource.isImage() -> link(href = if (resource.isAbsolute) resource else "$pathToRoot$resource")
                     else -> null
                 }
@@ -125,6 +133,7 @@ public class DefaultTemplateModelFactory(
                 append(resourceHtml)
             }
         }
+
 }
 
 private class PrintDirective(val generateData: () -> String) : TemplateDirectiveModel {
@@ -144,7 +153,10 @@ private class PrintDirective(val generateData: () -> String) : TemplateDirective
     }
 }
 
-private class TemplateDirective(val configuration: DokkaConfiguration, val pathToRoot: String) : TemplateDirectiveModel {
+private class TemplateDirective(
+    val configuration: DokkaConfiguration,
+    val pathToRoot: String
+) : TemplateDirectiveModel {
     override fun execute(
         env: Environment,
         params: MutableMap<Any?, Any?>?,
@@ -170,6 +182,7 @@ private class TemplateDirective(val configuration: DokkaConfiguration, val pathT
                     Context(env, body)
                 )
             }
+
             "projectName" -> {
                 body ?: throw TemplateModelException(
                     "No directive body $commandName command."
@@ -183,6 +196,7 @@ private class TemplateDirective(val configuration: DokkaConfiguration, val pathT
                     Context(env, body)
                 )
             }
+
             else -> throw TemplateModelException(
                 "The parameter $PARAM_NAME $commandName is unknown"
             )

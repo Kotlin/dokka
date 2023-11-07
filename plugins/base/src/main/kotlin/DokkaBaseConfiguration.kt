@@ -14,7 +14,8 @@ public data class DokkaBaseConfiguration(
     var separateInheritedMembers: Boolean = separateInheritedMembersDefault,
     var footerMessage: String = defaultFooterMessage,
     var mergeImplicitExpectActualDeclarations: Boolean = mergeImplicitExpectActualDeclarationsDefault,
-    var templatesDir: File? = defaultTemplatesDir
+    var templatesDir: File? = defaultTemplatesDir,
+    var homepageLink: String? = null,
 ) : ConfigurableBlock {
     public companion object {
         public val defaultFooterMessage: String = "© ${Year.now().value} Copyright"
