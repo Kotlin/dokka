@@ -38,15 +38,3 @@ tasks.withType<DokkaTask>().configureEach {
         }
     }
 }
-
-// HACK: some dependencies (coroutines -wasm0 and atomicfu -wasm0) reference deleted *-dev libs
-configurations.all {
-    val conf = this
-    resolutionStrategy.eachDependency {
-        // for  atomicfu-wasm-js:0.22.0-wasm1 and kotlinx-coroutines-core:1.6.4-wasm1
-        if (requested.version == "1.9.30-dev-460") {
-            println("Substitute deleted version ${requested.module}:${requested.version} for ${conf.name}")
-            useVersion(project.properties["dokka_it_kotlin_version"] as String)
-        }
-    }
-}
