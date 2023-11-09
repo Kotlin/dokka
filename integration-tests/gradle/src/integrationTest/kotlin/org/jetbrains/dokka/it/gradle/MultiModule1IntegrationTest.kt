@@ -28,13 +28,13 @@ class MultiModule1IntegrationTest : AbstractGradleIntegrationTest() {
         File(templateProjectDir, "second").copyRecursively(File(projectDir, "second"))
     }
 
-    @ParameterizedTest(name = "{0} {1}")
-    @ArgumentsSource(AllSupportedTestedVersionsWithK2SwitcherArgumentsProvider::class)
-    fun execute(buildVersions: BuildVersions, extraParameter: String) {
+    @ParameterizedTest(name = "{0}")
+    @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
+    fun execute(buildVersions: BuildVersions) {
         val result = createGradleRunner(
             buildVersions,
             ":second:dokkaHtml",
-            "-i", "-s", extraParameter
+            "-i", "-s"
         ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":second:dokkaHtml")).outcome)

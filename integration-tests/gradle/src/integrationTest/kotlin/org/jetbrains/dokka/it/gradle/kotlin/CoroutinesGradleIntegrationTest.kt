@@ -9,22 +9,29 @@ import org.jetbrains.dokka.it.TestOutputCopier
 import org.jetbrains.dokka.it.copyAndApplyGitDiff
 import org.jetbrains.dokka.it.gradle.AbstractGradleIntegrationTest
 import org.jetbrains.dokka.it.gradle.BuildVersions
-import org.jetbrains.dokka.it.gradle.TestedVersionsArgumentsProvider
+import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.ArgumentsProvider
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
+import java.util.stream.Stream
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-private val buildVersions = BuildVersions.permutations(
-    gradleVersions = listOf("7.4.2"),
-    kotlinVersions = listOf("1.8.10")
-)
+class CoroutinesBuildVersionsArgumentsProvider : ArgumentsProvider {
+    private val buildVersions = BuildVersions.permutations(
+        gradleVersions = listOf("7.4.2"),
+        kotlinVersions = listOf("1.8.10")
+    )
 
-internal class CoroutinesBuildVersionsArgumentsProvider :
-    TestedVersionsArgumentsProvider(buildVersions)
+    override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
+        return buildVersions.stream().map { Arguments.of(it) }
+    }
+}
+
 class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopier {
 
     override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/htmlMultiModule") }

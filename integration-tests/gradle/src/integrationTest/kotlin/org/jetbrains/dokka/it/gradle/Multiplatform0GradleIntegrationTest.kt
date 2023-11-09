@@ -36,7 +36,7 @@ class Multiplatform0GradleIntegrationTest : AbstractGradleIntegrationTest() {
                 "-i",
                 "-s",
                 "-Pkotlin.mpp.enableGranularSourceSetsMetadata=true",
-                "-Pkotlin.native.enableDependencyPropagation=false",
+                "-Pkotlin.native.enableDependencyPropagation=false"
             ).buildRelaxed()
         else
             createGradleRunner(buildVersions, "dokkaHtml", "-i", "-s").buildRelaxed()

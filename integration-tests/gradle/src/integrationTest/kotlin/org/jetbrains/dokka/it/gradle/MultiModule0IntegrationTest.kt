@@ -21,15 +21,15 @@ class MultiModule0IntegrationTest : AbstractGradleIntegrationTest() {
         File(templateProjectDir, "moduleA").copyRecursively(File(projectDir, "moduleA"))
     }
 
-    @ParameterizedTest(name = "{0} {1}")
-    @ArgumentsSource(AllSupportedTestedVersionsWithK2SwitcherArgumentsProvider::class)
-    fun execute(buildVersions: BuildVersions, extraParameter: String) {
+    @ParameterizedTest(name = "{0}")
+    @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
+    fun execute(buildVersions: BuildVersions) {
         val result = createGradleRunner(
             buildVersions,
             ":moduleA:dokkaHtmlMultiModule",
             ":moduleA:dokkaGfmMultiModule",
             ":moduleA:dokkaJekyllMultiModule",
-            "-i", "-s", extraParameter
+            "-i", "-s"
         ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaHtmlMultiModule")).outcome)

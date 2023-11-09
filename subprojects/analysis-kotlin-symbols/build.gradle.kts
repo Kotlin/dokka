@@ -13,7 +13,7 @@ plugins {
 
 dependencies {
     compileOnly(projects.core)
-    implementation(projects.subprojects.analysisKotlinApi)
+    compileOnly(projects.subprojects.analysisKotlinApi)
 
     implementation(projects.subprojects.analysisMarkdownJb)
     implementation(projects.subprojects.analysisJavaPsi)
