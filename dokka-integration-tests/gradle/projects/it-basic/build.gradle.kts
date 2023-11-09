@@ -51,7 +51,7 @@ tasks.withType<DokkaTask> {
                 remoteUrl.set(
                     URL(
                         "https://github.com/Kotlin/dokka/tree/master/" +
-                                "integration-tests/gradle/projects/it-basic/src/main"
+                                "dokka-integration-tests/gradle/projects/it-basic/src/main"
                     )
                 )
             }

@@ -111,7 +111,7 @@ class BasicGradleIntegrationTest : AbstractGradleIntegrationTest() {
         assertTrue(
             allHtmlFiles().any { file ->
                 "https://github.com/Kotlin/dokka/tree/master/" +
-                        "integration-tests/gradle/projects/it-basic/" +
+                        "dokka-integration-tests/gradle/projects/it-basic/" +
                         "src/main/kotlin/it/basic/PublicClass.kt" in file.readText()
             },
             "Expected `PublicClass` source link to GitHub"
@@ -120,7 +120,7 @@ class BasicGradleIntegrationTest : AbstractGradleIntegrationTest() {
         assertTrue(
             allHtmlFiles().any { file ->
                 "https://github.com/Kotlin/dokka/tree/master/" +
-                        "integration-tests/gradle/projects/it-basic/" +
+                        "dokka-integration-tests/gradle/projects/it-basic/" +
                         "src/main/java/it/basic/java/SampleJavaClass.java" in file.readText()
             },
             "Expected `SampleJavaClass` source link to GitHub"

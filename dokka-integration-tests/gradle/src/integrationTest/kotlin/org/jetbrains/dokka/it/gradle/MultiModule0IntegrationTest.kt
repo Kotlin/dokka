@@ -82,7 +82,7 @@ class MultiModule0IntegrationTest : AbstractGradleIntegrationTest() {
         htmlsWithHomepageLink.forEach {
             assertTrue(
                 it.readText().contains(
-                    """https://github.com/Kotlin/dokka/tree/master/integration-tests/gradle/projects/it-multimodule-0/"""
+                    """https://github.com/Kotlin/dokka/tree/master/dokka-integration-tests/gradle/projects/it-multimodule-0/"""
                 ),
                 "File ${it.absolutePath} doesn't contain link to homepage"
             )
