@@ -20,7 +20,8 @@ internal class WasmTestedVersionsArgumentsProvider : AllSupportedTestedVersionsA
     override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
         return super.provideArguments(context).filter {
             val buildVersions = it.get().single() as BuildVersions
-            buildVersions.kotlinVersion >= "1.8.20" // 1.8.20 is the first public version that can be tested with wasm
+            buildVersions.kotlinVersion >= "1.8.20"  && // 1.8.20 is the first public version that can be tested with wasm
+            buildVersions.kotlinVersion <= "1.9.10"// in 1.9.20 wasm target was split into `wasm-js` and `wasm-wasi`
         }
     }
 }
