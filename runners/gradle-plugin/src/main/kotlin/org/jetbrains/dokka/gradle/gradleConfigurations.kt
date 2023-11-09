@@ -10,6 +10,9 @@ import org.gradle.api.artifacts.Dependency
 import org.gradle.api.attributes.Usage
 import org.gradle.kotlin.dsl.named
 
+internal fun Project.shouldUseK2() =
+    (findProperty("org.jetbrains.dokka.experimental.tryK2") as? String)?.toBoolean() ?: false
+
 internal fun Project.maybeCreateDokkaDefaultPluginConfiguration(): Configuration {
     return configurations.maybeCreate("dokkaPlugin") {
         attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
@@ -29,7 +32,10 @@ internal fun Project.maybeCreateDokkaPluginConfiguration(dokkaTaskName: String, 
         extendsFrom(maybeCreateDokkaDefaultPluginConfiguration())
         attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
         isCanBeConsumed = false
-        dependencies.add(project.dokkaArtifacts.analysisKotlinDescriptors)
+        dependencies.add(
+            if (shouldUseK2()) project.dokkaArtifacts.analysisKotlinSymbols
+            else project.dokkaArtifacts.analysisKotlinDescriptors
+        )
         dependencies.add(project.dokkaArtifacts.dokkaBase)
         dependencies.addAll(additionalDependencies)
     }
