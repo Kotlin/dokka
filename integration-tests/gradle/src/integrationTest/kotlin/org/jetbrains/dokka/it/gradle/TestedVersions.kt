@@ -9,7 +9,7 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.ArgumentsProvider
 import java.util.stream.Stream
 
-const val useK2PropertyCLIArgument = "-Porg.jetbrains.dokka.useK2=true"
+const val useK2PropertyCLIArgument = "-Porg.jetbrains.dokka.experimental.tryK2=true"
 internal class LatestTestedVersionsArgumentsProvider : TestedVersionsArgumentsProvider(listOf(TestedVersions.LATEST))
 internal open class AllSupportedTestedVersionsArgumentsProvider : TestedVersionsArgumentsProvider(TestedVersions.ALL_SUPPORTED)
 internal open class AllSupportedTestedVersionsWithK2SwitcherArgumentsProvider : TestedVersionsWithK2SwitcherArgumentsProvider(TestedVersions.ALL_SUPPORTED)

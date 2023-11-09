@@ -11,7 +11,7 @@ import org.gradle.api.attributes.Usage
 import org.gradle.kotlin.dsl.named
 
 internal fun Project.shouldUseK2() =
-    (findProperty("org.jetbrains.dokka.useK2") as? String)?.toBoolean() ?: false
+    (findProperty("org.jetbrains.dokka.experimental.tryK2") as? String)?.toBoolean() ?: false
 
 internal fun Project.maybeCreateDokkaDefaultPluginConfiguration(): Configuration {
     return configurations.maybeCreate("dokkaPlugin") {
