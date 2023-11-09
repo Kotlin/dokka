@@ -82,7 +82,6 @@ dependencies {
 
     // TODO [beresnev] get rid of it
     compileOnly(libs.kotlinx.coroutines.core)
-
 }
 
 tasks {

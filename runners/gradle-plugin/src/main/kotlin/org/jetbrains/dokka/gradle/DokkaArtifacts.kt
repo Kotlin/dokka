@@ -16,6 +16,7 @@ internal class DokkaArtifacts(private val project: Project) {
 
     // TODO [beresnev] analysis switcher
     val analysisKotlinDescriptors get() = fromModuleName("analysis-kotlin-descriptors")
+    val analysisKotlinSymbols get() = fromModuleName("analysis-kotlin-symbols")
 
     val allModulesPage get() = fromModuleName("all-modules-page-plugin")
     val dokkaCore get() = fromModuleName("dokka-core")
