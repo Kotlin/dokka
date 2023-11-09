@@ -4,7 +4,7 @@
 
 @file:Suppress("UnstableApiUsage")
 
-rootProject.name = "runner-maven"
+rootProject.name = "runner-maven-plugin"
 
 pluginManagement {
     includeBuild("../../build-logic")

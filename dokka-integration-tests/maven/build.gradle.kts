@@ -15,7 +15,7 @@ dependencies {
 }
 
 val dokkaSubprojects = gradle.includedBuild("dokka")
-val mavenPlugin = gradle.includedBuild("runner-maven")
+val mavenPlugin = gradle.includedBuild("runner-maven-plugin")
 
 tasks.integrationTest {
     dependsOn(

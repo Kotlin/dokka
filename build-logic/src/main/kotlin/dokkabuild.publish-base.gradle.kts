@@ -86,8 +86,8 @@ signing {
 // This is a hack for a Gradle 8 problem, see https://github.com/gradle/gradle/issues/26091
 //
 // Fails with the following error otherwise:
-// > Task ':runner-gradle-classic:publishDokkaPluginMarkerMavenPublicationToSpaceTestRepository' uses
-// > this output of task ':runner-gradle-classic:signPluginMavenPublication' without declaring an
+// > Task ':runner-gradle-plugin-classic:publishDokkaPluginMarkerMavenPublicationToSpaceTestRepository' uses
+// > this output of task ':runner-gradle-plugin-classic:signPluginMavenPublication' without declaring an
 // > explicit or implicit dependency.
 tasks.withType<AbstractPublishToMaven>().configureEach {
     val signingTasks = tasks.withType<Sign>()
