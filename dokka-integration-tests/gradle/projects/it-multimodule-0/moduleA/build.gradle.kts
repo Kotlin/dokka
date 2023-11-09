@@ -8,3 +8,14 @@ plugins {
     kotlin("jvm")
     id("org.jetbrains.dokka")
 }
+
+
+allprojects {
+    tasks.withType<org.jetbrains.dokka.gradle.AbstractDokkaTask> {
+        pluginsMapConfiguration.set(
+            mapOf(
+                "org.jetbrains.dokka.base.DokkaBase" to """{ "homepageLink" : "https://github.com/Kotlin/dokka/tree/master/dokka-integration-tests/gradle/projects/it-multimodule-0/" }"""
+            )
+        )
+    }
+}
