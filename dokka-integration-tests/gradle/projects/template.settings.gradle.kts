@@ -38,11 +38,6 @@ pluginManagement {
                 includeGroup("org.jetbrains.dokka")
             }
         }
-        mavenLocal {
-            content {
-                includeGroup("org.jetbrains.dokka")
-            }
-        }
         mavenCentral()
         gradlePluginPortal()
         google()
