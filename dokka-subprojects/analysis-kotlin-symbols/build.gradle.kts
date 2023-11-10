@@ -13,8 +13,8 @@ overridePublicationArtifactId("analysis-kotlin-symbols")
 
 dependencies {
     compileOnly(projects.dokkaSubprojects.dokkaCore)
-    compileOnly(projects.dokkaSubprojects.analysisKotlinApi)
 
+    implementation(projects.dokkaSubprojects.analysisKotlinApi)
     implementation(projects.dokkaSubprojects.analysisMarkdownJb)
     implementation(projects.dokkaSubprojects.analysisJavaPsi)
 
