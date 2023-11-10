@@ -45,7 +45,7 @@ It also appears under the first-level heading on your package's page.
 Content after this heading is also part of documentation for `org.jetbrains.kotlin.demo2`
 ```
 
-To explore an example project with Gradle, see [Dokka gradle example](https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-gradle-example).
+To explore an example project with Gradle, see [Dokka gradle example](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/examples/gradle/dokka-gradle-example).
 
 ## Pass files to Dokka
 

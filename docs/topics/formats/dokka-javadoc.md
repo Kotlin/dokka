@@ -15,11 +15,11 @@ or an exact copy.
 ![Screenshot of javadoc output format](javadoc-format-example.png){width=706}
 
 All Kotlin code and signatures are rendered as seen from Java's perspective. This is achieved with our
-[Kotlin as Java Dokka plugin](https://github.com/Kotlin/dokka/tree/master/plugins/kotlin-as-java), which comes bundled and
+[Kotlin as Java Dokka plugin](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/kotlin-as-java), which comes bundled and
 applied by default for this format.
 
 The Javadoc output format is implemented as a [Dokka plugin](dokka-plugins.md), and it is maintained by the Dokka team.
-It is open source and you can find the source code on [GitHub](https://github.com/Kotlin/dokka/tree/master/plugins/javadoc).
+It is open source and you can find the source code on [GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/javadoc).
 
 ## Generate Javadoc documentation
 

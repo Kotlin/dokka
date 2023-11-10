@@ -275,8 +275,8 @@ context and thus they need to be resolved at later stages by the [MultiModule](d
 
 You can also use the following Dokka-defined [directives](https://freemarker.apache.org/docs/ref_directive_userDefined.html):
 
-| **Variable**    | **Description**                                                                                                                                                                              |
-|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `<@content/>`   | The main page content.                                                                                                                                                                       |
-| `<@resources/>` | Resources such as scripts and stylesheets.                                                                                                                                                   |
-| `<@version/>`   | The module version taken from configuration. If the [versioning plugin](https://github.com/Kotlin/dokka/tree/master/plugins/versioning) is applied, it is replaced with a version navigator. |
+| **Variable**    | **Description**                                                                                                                                                                                      |
+|-----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `<@content/>`   | The main page content.                                                                                                                                                                               |
+| `<@resources/>` | Resources such as scripts and stylesheets.                                                                                                                                                           |
+| `<@version/>`   | The module version taken from configuration. If the [versioning plugin](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/versioning) is applied, it is replaced with a version navigator. |
