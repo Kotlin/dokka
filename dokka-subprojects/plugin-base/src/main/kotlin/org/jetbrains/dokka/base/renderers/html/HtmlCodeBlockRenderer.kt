@@ -14,11 +14,9 @@ import kotlinx.html.FlowContent
 public interface HtmlCodeBlockRenderer {
 
     /**
-     * Whether this renderer supports given [language].
-     *
-     * [code] can be useful to determine applicability if [language] is not provided (empty string)
+     * Whether this renderer supports given [language]
      */
-    public fun isApplicable(language: String, code: String): Boolean
+    public fun isApplicable(language: String): Boolean
 
     /**
      * Defines how to render [code] for specified [language] via HTML tags

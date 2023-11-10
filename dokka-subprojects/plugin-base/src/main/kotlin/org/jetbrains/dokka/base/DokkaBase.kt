@@ -48,6 +48,13 @@ public class DokkaBase : DokkaPlugin() {
     public val externalLocationProviderFactory: ExtensionPoint<ExternalLocationProviderFactory> by extensionPoint()
     public val outputWriter: ExtensionPoint<OutputWriter> by extensionPoint()
     public val htmlPreprocessors: ExtensionPoint<PageTransformer> by extensionPoint()
+
+    /**
+     * Extension point for providing custom HTML code block renderers.
+     *
+     * This extension point allows overriding the rendering of code blocks in different programming languages.
+     * Multiple renderers can be installed to support different languages independently.
+     */
     public val htmlCodeBlockRenderers: ExtensionPoint<HtmlCodeBlockRenderer> by extensionPoint()
 
     @Deprecated("It is not used anymore")

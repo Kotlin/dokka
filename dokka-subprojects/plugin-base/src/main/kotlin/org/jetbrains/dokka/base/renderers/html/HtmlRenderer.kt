@@ -817,25 +817,24 @@ public open class HtmlRenderer(
         code: ContentCodeBlock,
         pageContext: ContentPage
     ) {
-        val codeText = buildString {
-            code.children.forEach {
-                when (it) {
-                    is ContentText -> append(it.text)
-                    is ContentBreakLine -> appendLine()
-                }
-            }
-        }
-
         customCodeBlockRenderers.forEach { renderer ->
-            if (renderer.isApplicable(code.language, codeText)) {
+            if (renderer.isApplicable(code.language)) {
                 // we use first applicable renderer to override rendering
+                val codeText = buildString {
+                    code.children.forEach {
+                        when (it) {
+                            is ContentText -> append(it.text)
+                            is ContentBreakLine -> appendLine()
+                        }
+                    }
+                }
                 return with(renderer) {
-                    buildCodeBlock(code.language,codeText)
+                    buildCodeBlock(code.language, codeText)
                 }
             }
         }
 
-        // if there are no custom renderers - fall back to default
+        // if there are no applicable custom renderers - fall back to default
 
         div("sample-container") {
             val codeLang = "lang-" + code.language.ifEmpty { "kotlin" }
@@ -843,7 +842,7 @@ public open class HtmlRenderer(
             pre {
                 code(stylesWithBlock.joinToString(" ") { it.toString().toLowerCase() }) {
                     attributes["theme"] = "idea"
-                    text(codeText)
+                    code.children.forEach { buildContentNode(it, pageContext) }
                 }
             }
             /*

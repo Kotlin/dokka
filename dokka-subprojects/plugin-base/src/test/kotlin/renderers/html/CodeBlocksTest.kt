@@ -59,15 +59,15 @@ class CodeBlocksTest : BaseAbstractTest() {
         //  where XXX=language of code block
         assertEquals(
             """test("hello kotlin")""",
-            content.getElementsByClass("lang-kotlin").singleOrNull()?.text()
+            content.getElementsByClass("lang-kotlin").singleOrNull()?.wholeText()
         )
         assertEquals(
             """test("hello custom")""",
-            content.getElementsByClass("lang-custom").singleOrNull()?.text()
+            content.getElementsByClass("lang-custom").singleOrNull()?.wholeText()
         )
         assertEquals(
             """test("hello other")""",
-            content.getElementsByClass("lang-other").singleOrNull()?.text()
+            content.getElementsByClass("lang-other").singleOrNull()?.wholeText()
         )
     }
 
@@ -99,15 +99,15 @@ class CodeBlocksTest : BaseAbstractTest() {
         val content = renderedContent("root/test/test.html")
         assertEquals(
             """test("hello kotlin")""",
-            content.getElementsByClass("lang-kotlin").singleOrNull()?.text()
+            content.getElementsByClass("lang-kotlin").singleOrNull()?.wholeText()
         )
         assertEquals(
             """test("hello custom")""",
-            content.getElementsByClass("custom-language-block").singleOrNull()?.text()
+            content.getElementsByClass("custom-language-block").singleOrNull()?.wholeText()
         )
         assertEquals(
             """test("hello other")""",
-            content.getElementsByClass("lang-other").singleOrNull()?.text()
+            content.getElementsByClass("lang-other").singleOrNull()?.wholeText()
         )
     }
 
@@ -139,15 +139,73 @@ class CodeBlocksTest : BaseAbstractTest() {
         val content = renderedContent("root/test/test.html")
         assertEquals(
             """test("hello kotlin")""",
-            content.getElementsByClass("lang-kotlin").singleOrNull()?.text()
+            content.getElementsByClass("lang-kotlin").singleOrNull()?.wholeText()
         )
         assertEquals(
             """test("hello custom")""",
-            content.getElementsByClass("custom-language-block").singleOrNull()?.text()
+            content.getElementsByClass("custom-language-block").singleOrNull()?.wholeText()
         )
         assertEquals(
             """test("hello other")""",
-            content.getElementsByClass("other-language-block").singleOrNull()?.text()
+            content.getElementsByClass("other-language-block").singleOrNull()?.wholeText()
+        )
+    }
+
+    @Test
+    fun `multiline code block rendering with linebreaks`() = testCode(
+        """
+            /src/test.kt
+            package test
+            
+            /**
+             * Hello, world!
+             *
+             * ```kotlin
+             * // something before linebreak
+             *
+             * test("hello kotlin")
+             * ```
+             *
+             * ```custom
+             * // something before linebreak
+             *
+             * test("hello custom")
+             * ```
+             *
+             * ```other
+             * // something before linebreak
+             *
+             * test("hello other")
+             * ```
+             */
+            fun test(string: String) {}
+            """.trimIndent(),
+        listOf(CustomPlugin(applyOtherRenderer = false)) // we add only one custom renderer
+    ) {
+        val content = renderedContent("root/test/test.html")
+        assertEquals(
+            """
+            // something before linebreak
+            
+            test("hello kotlin")
+            """.trimIndent(),
+            content.getElementsByClass("lang-kotlin").singleOrNull()?.wholeText()
+        )
+        assertEquals(
+            """
+            // something before linebreak
+            
+            test("hello custom")
+            """.trimIndent(),
+            content.getElementsByClass("custom-language-block").singleOrNull()?.wholeText()
+        )
+        assertEquals(
+            """
+            // something before linebreak
+            
+            test("hello other")
+            """.trimIndent(),
+            content.getElementsByClass("lang-other").singleOrNull()?.wholeText()
         )
     }
 
@@ -165,7 +223,7 @@ class CodeBlocksTest : BaseAbstractTest() {
     }
 
     private object CustomHtmlBlockRenderer : HtmlCodeBlockRenderer {
-        override fun isApplicable(language: String, code: String): Boolean = language == "custom"
+        override fun isApplicable(language: String): Boolean = language == "custom"
 
         override fun FlowContent.buildCodeBlock(language: String, code: String) {
             div("custom-language-block") {
@@ -175,7 +233,7 @@ class CodeBlocksTest : BaseAbstractTest() {
     }
 
     private object CustomOtherHtmlBlockRenderer : HtmlCodeBlockRenderer {
-        override fun isApplicable(language: String, code: String): Boolean = language == "other"
+        override fun isApplicable(language: String): Boolean = language == "other"
 
         override fun FlowContent.buildCodeBlock(language: String, code: String) {
             div("other-language-block") {
