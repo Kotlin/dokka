@@ -3,4 +3,4 @@
  */
 
 apply(from = "../template.settings.gradle.kts")
-rootProject.name = "it-wasm-basic"
+rootProject.name = "it-wasm-js-wasi-basic"
