@@ -53,5 +53,6 @@ class Multiplatform0GradleIntegrationTest : AbstractGradleIntegrationTest() {
             assertNoEmptyLinks(file)
             assertNoEmptySpans(file)
         }
+        assertStringExistsInOutput(dokkaOutputDir.allHtmlFiles().toList(), "otherMainFunction")
     }
 }
