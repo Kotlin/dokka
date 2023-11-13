@@ -6,7 +6,8 @@ package content.annotations
 
 import matchers.content.*
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinTransformer
+import org.jetbrains.dokka.base.DokkaBaseInternalConfiguration
+import org.jetbrains.dokka.base.DokkaBaseInternalConfiguration.SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP
 import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinVersion
 import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.dfs
@@ -32,11 +33,12 @@ class SinceKotlinTest : AbstractRenderingTest() {
 
     @BeforeTest
     fun setSystemProperty() {
-        System.setProperty(SinceKotlinTransformer.SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP, "true")
+        DokkaBaseInternalConfiguration.setProperty(SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP, "true")
     }
+
     @AfterTest
     fun clearSystemProperty() {
-        System.clearProperty(SinceKotlinTransformer.SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP)
+        DokkaBaseInternalConfiguration.clearProperty(SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP)
     }
 
     @Test

@@ -25,6 +25,7 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableSourceLanguageParser
 import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
+import org.jetbrains.dokka.base.DokkaBaseInternalConfiguration
 import org.jetbrains.dokka.base.pages.AllTypesPageNode
 import kotlin.reflect.KClass
 
@@ -809,18 +810,9 @@ public open class DefaultPageCreator(
 
     protected open fun TagWrapper.toHeaderString(): String = this.javaClass.toGenericString().split('.').last()
 
-
-    internal companion object {
-        // revisit in scope of https://github.com/Kotlin/dokka/issues/2776
-        internal const val SHOULD_DISPLAY_ALL_TYPES_PAGE_SYS_PROP = "dokka.shouldDisplayAllTypesPage"
-        private fun shouldDisplayAllTypesPage() =
-            System.getProperty(SHOULD_DISPLAY_ALL_TYPES_PAGE_SYS_PROP) in listOf("true", "1")
-
-        private fun DModule.needAllTypesPage(): Boolean {
-            val hasTypes = packages.any {
-                it.classlikes.isNotEmpty() || it.typealiases.isNotEmpty()
-            }
-            return hasTypes && shouldDisplayAllTypesPage()
+    private fun DModule.needAllTypesPage(): Boolean {
+        return DokkaBaseInternalConfiguration.allTypesPageEnabled && packages.any {
+            it.classlikes.isNotEmpty() || it.typealiases.isNotEmpty()
         }
     }
 }

@@ -4,13 +4,27 @@
 
 package utils
 
-import org.jetbrains.dokka.base.translators.documentables.DefaultPageCreator
+import org.jetbrains.dokka.base.DokkaBaseInternalConfiguration
+import org.jetbrains.dokka.base.DokkaBaseInternalConfiguration.SHOULD_DISPLAY_ALL_TYPES_PAGE_SYS_PROP
 
-internal inline fun withAllTypesPage(block: () -> Unit) {
-    System.setProperty(DefaultPageCreator.SHOULD_DISPLAY_ALL_TYPES_PAGE_SYS_PROP, "true")
+internal fun withAllTypesPage(block: () -> Unit): Unit =
+    DokkaBaseInternalConfiguration.withProperty(SHOULD_DISPLAY_ALL_TYPES_PAGE_SYS_PROP, "true", block)
+
+internal fun DokkaBaseInternalConfiguration.withProperty(propertyName: String, value: String, block: () -> Unit) {
+    setProperty(propertyName, value)
     try {
         block()
     } finally {
-        System.clearProperty(DefaultPageCreator.SHOULD_DISPLAY_ALL_TYPES_PAGE_SYS_PROP)
+        clearProperty(propertyName)
     }
+}
+
+internal fun DokkaBaseInternalConfiguration.setProperty(propertyName: String, value: String) {
+    System.setProperty(propertyName, value)
+    reinitialize()
+}
+
+internal fun DokkaBaseInternalConfiguration.clearProperty(propertyName: String) {
+    System.clearProperty(propertyName)
+    reinitialize()
 }
