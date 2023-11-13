@@ -1360,7 +1360,6 @@ public final class org/jetbrains/dokka/base/translators/documentables/DefaultDoc
 public class org/jetbrains/dokka/base/translators/documentables/DefaultPageCreator {
 	public fun <init> (Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;Lorg/jetbrains/dokka/base/transformers/pages/comments/CommentsToContentConverter;Lorg/jetbrains/dokka/base/signatures/SignatureProvider;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/util/List;Lorg/jetbrains/dokka/analysis/kotlin/internal/DocumentableSourceLanguageParser;)V
 	public synthetic fun <init> (Lorg/jetbrains/dokka/base/DokkaBaseConfiguration;Lorg/jetbrains/dokka/base/transformers/pages/comments/CommentsToContentConverter;Lorg/jetbrains/dokka/base/signatures/SignatureProvider;Lorg/jetbrains/dokka/utilities/DokkaLogger;Ljava/util/List;Lorg/jetbrains/dokka/analysis/kotlin/internal/DocumentableSourceLanguageParser;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	protected fun contentForAllTypes (Lorg/jetbrains/dokka/model/DModule;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForBrief (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/Documentable;)V
 	protected fun contentForClasslikesAndEntries (Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForConstructors (Ljava/util/List;Ljava/util/Set;Ljava/util/Set;)Lorg/jetbrains/dokka/pages/ContentGroup;

@@ -16,6 +16,7 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
+import org.jetbrains.dokka.base.pages.AllTypesPageNode
 
 public abstract class NavigationDataProvider(
     dokkaContext: DokkaContext

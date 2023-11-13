@@ -25,6 +25,7 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableSourceLanguageParser
 import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
+import org.jetbrains.dokka.base.pages.AllTypesPageNode
 import kotlin.reflect.KClass
 
 internal typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
@@ -288,13 +289,13 @@ public open class DefaultPageCreator(
         }
     }
 
-    protected open fun contentForAllTypes(m: DModule): ContentGroup = contentBuilder.contentFor(m) {
+    private fun contentForAllTypes(m: DModule): ContentGroup = contentBuilder.contentFor(m) {
         group(kind = ContentKind.Cover) {
             cover(m.name)
         }
 
-        fun DTypelike.qualifiedName(): String {
-            val className = dri.classNames?.takeIf(String::isNotBlank) ?: name
+        fun Documentable.qualifiedName(): String {
+            val className = dri.classNames?.takeIf(String::isNotBlank) ?: name!! // should never
             val packageName = dri.packageName?.takeIf(String::isNotBlank) ?: return className
             return "$packageName.${className}"
         }

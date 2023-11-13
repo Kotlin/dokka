@@ -167,7 +167,7 @@ public class KotlinSignatureProvider(
                     keyword("annotation class ")
                 }
             }
-            link(c.name, c.dri, styles = mainStyles + deprecationStyles)
+            link(c.name!!, c.dri, styles = mainStyles + deprecationStyles)
             if (c is WithGenerics) {
                 list(c.generics, prefix = "<", suffix = ">",
                     separatorStyles = mainStyles + TokenStyle.Punctuation,

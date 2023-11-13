@@ -19,6 +19,7 @@ import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.resolvers.local.DokkaBaseLocationProvider
 import org.jetbrains.dokka.base.templating.*
 import org.jetbrains.dokka.base.transformers.documentables.CallableExtensions
+import org.jetbrains.dokka.base.pages.AllTypesPageNode
 import org.jetbrains.dokka.base.translators.documentables.shouldDocumentConstructors
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*

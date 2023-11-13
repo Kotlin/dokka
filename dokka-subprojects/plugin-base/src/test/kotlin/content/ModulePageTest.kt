@@ -5,9 +5,8 @@
 package content
 
 import matchers.content.*
+import org.jetbrains.dokka.base.pages.AllTypesPageNode
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.base.translators.documentables.DefaultPageCreator
-import org.jetbrains.dokka.pages.AllTypesPageNode
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.ModulePageNode
 import utils.withAllTypesPage

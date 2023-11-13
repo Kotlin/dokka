@@ -6,6 +6,7 @@ package org.jetbrains.dokka.base.resolvers.local
 
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
+import org.jetbrains.dokka.base.pages.AllTypesPageNode
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.*

@@ -24,8 +24,7 @@ public interface ContentPage : PageNode {
     public val dri: Set<DRI>
     public val embeddedResources: List<String>
 
-    @Deprecated(
-        "Deprecated. Remove its usages from your code.",
+    @Deprecated("Deprecated. Remove its usages from your code.",
         ReplaceWith("this.documentables.firstOrNull()")
     )
     public val documentable: Documentable?
@@ -62,10 +61,9 @@ public abstract class RootPageNode(
     public fun transformPageNodeTree(operation: (PageNode) -> PageNode): RootPageNode =
         this.transformNode(operation) as RootPageNode
 
-    public fun transformContentPagesTree(operation: (ContentPage) -> ContentPage): RootPageNode =
-        transformPageNodeTree {
-            if (it is ContentPage) operation(it) else it
-        }
+    public fun transformContentPagesTree(operation: (ContentPage) -> ContentPage): RootPageNode = transformPageNodeTree {
+        if (it is ContentPage) operation(it) else it
+    }
 
     private fun PageNode.transformNode(operation: (PageNode) -> PageNode): PageNode =
         operation(this).let { newNode ->
@@ -99,32 +97,6 @@ public class ModulePageNode(
     ): ModulePageNode =
         if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
         else ModulePageNode(name, content, documentables, children, embeddedResources)
-}
-
-public class AllTypesPageNode(
-    override val content: ContentNode,
-    override val embeddedResources: List<String> = listOf()
-) : ContentPage {
-    override val dri: Set<DRI> = setOf(DRI)
-    override val name: String = "All Types"
-    override val children: List<PageNode> get() = emptyList()
-
-    override fun modified(name: String, children: List<PageNode>): AllTypesPageNode =
-        modified(name = name, content = this.content, dri = dri, children = children)
-
-    override fun modified(
-        name: String,
-        content: ContentNode,
-        dri: Set<DRI>,
-        embeddedResources: List<String>,
-        children: List<PageNode>
-    ): AllTypesPageNode =
-        if (name == this.name && content === this.content && embeddedResources === this.embeddedResources && children shallowEq this.children) this
-        else AllTypesPageNode(content, embeddedResources)
-
-    public companion object {
-        public val DRI: DRI = DRI(packageName = ".alltypes")
-    }
 }
 
 public class PackagePageNode(

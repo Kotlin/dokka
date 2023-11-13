@@ -113,7 +113,7 @@ public open class JavadocPageCreator(context: DokkaContext) {
             val rootList = p.classlikes.map { allClasslikes(it) }.flatten().groupBy { it::class }.map { (key, value) ->
                 JavadocList(key.tabTitle, key.colTitle, value.map { c ->
                     RowJavadocListEntry(
-                        LinkJavadocListEntry(c.name, setOf(c.dri), JavadocContentKind.Class, sourceSets),
+                        LinkJavadocListEntry(c.name ?: "", setOf(c.dri), JavadocContentKind.Class, sourceSets),
                         c.brief()
                     )
                 })

@@ -96,11 +96,7 @@ public interface Callable : WithVisibility, WithType, WithAbstraction, WithSourc
     public val receiver: DParameter?
 }
 
-public sealed class DTypelike : Documentable(), WithVisibility, WithSources {
-    abstract override val name: String
-}
-
-public sealed class DClasslike : DTypelike(), WithScope, WithIsExpectActual
+public sealed class DClasslike : Documentable(), WithScope, WithVisibility, WithSources, WithIsExpectActual
 
 public data class DModule(
     override val name: String,
@@ -259,7 +255,7 @@ public data class DInterface(
 }
 
 public data class DObject(
-    override val name: String,
+    override val name: String?,
     override val dri: DRI,
     override val documentation: SourceSetDependent<DocumentationNode>,
     override val expectPresentInSet: DokkaSourceSet?,
@@ -389,7 +385,7 @@ public data class DTypeAlias(
     override val generics: List<DTypeParameter>,
     override val sources: SourceSetDependent<DocumentableSource>,
     override val extra: PropertyContainer<DTypeAlias> = PropertyContainer.empty()
-) : DTypelike(), WithType, WithExtraProperties<DTypeAlias>, WithGenerics {
+) : Documentable(), WithType, WithVisibility, WithExtraProperties<DTypeAlias>, WithGenerics, WithSources {
     override val children: List<Nothing>
         get() = emptyList()
 

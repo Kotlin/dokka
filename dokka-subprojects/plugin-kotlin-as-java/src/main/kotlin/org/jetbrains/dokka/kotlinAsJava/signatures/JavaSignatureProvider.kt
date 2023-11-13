@@ -90,7 +90,7 @@ public class JavaSignatureProvider internal constructor(
                     is DObject -> keyword("class ")
                     is DAnnotation -> keyword("@interface ")
                 }
-                link(c.name, c.dri, styles = mainStyles + deprecationStyles)
+                link(c.name!!, c.dri, styles = mainStyles + deprecationStyles)
                 if (c is WithGenerics) {
                     list(c.generics, prefix = "<", suffix = ">",
                         separatorStyles = mainStyles + TokenStyle.Punctuation,
