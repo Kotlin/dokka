@@ -56,7 +56,7 @@ public open class DefaultPageCreator(
             content = contentForModule(m),
             documentables = listOf(m),
             children = when {
-                m.needAllTypesPage -> packagePages + AllTypesPageNode(content = contentForAllTypes(m))
+                m.needAllTypesPage() -> packagePages + AllTypesPageNode(content = contentForAllTypes(m))
                 else -> packagePages
             }
         )
@@ -68,9 +68,8 @@ public open class DefaultPageCreator(
      *
      * @see ActualTypealias
      */
-    private fun <T : Documentable> List<T>.filterOutActualTypeAlias(): List<T> {
-        fun List<Documentable>.hasExpectClass(dri: DRI) =
-            find { it is DClasslike && it.dri == dri && it.expectPresentInSet != null } != null
+    private fun List<Documentable>.filterOutActualTypeAlias(): List<Documentable> {
+        fun List<Documentable>.hasExpectClass(dri: DRI) = find { it is DClasslike && it.dri == dri && it.expectPresentInSet != null } != null
         return this.filterNot { it is DTypeAlias && this.hasExpectClass(it.dri) }
     }
 
@@ -284,7 +283,7 @@ public open class DefaultPageCreator(
                 }
             }
 
-            if (m.needAllTypesPage) {
+            if (m.needAllTypesPage()) {
                 header(2, "Index", kind = ContentKind.Cover)
                 link("All Types", AllTypesPageNode.DRI)
             }
@@ -294,12 +293,6 @@ public open class DefaultPageCreator(
     private fun contentForAllTypes(m: DModule): ContentGroup = contentBuilder.contentFor(m) {
         group(kind = ContentKind.Cover) {
             cover(m.name)
-        }
-
-        fun Documentable.qualifiedName(): String {
-            val className = dri.classNames?.takeIf(String::isNotBlank) ?: name!! // should never
-            val packageName = dri.packageName?.takeIf(String::isNotBlank) ?: return className
-            return "$packageName.${className}"
         }
 
         block(
@@ -313,19 +306,6 @@ public open class DefaultPageCreator(
                 headers("Name")
             )
         ) { typelike ->
-            // the idea is to have at least some description, so we do:
-            //  1. if all data per source sets are the same - take it
-            //  2. if not, try to take common data
-            //  3. if not, try to take JVM data (as this is most likely to be the best variant)
-            //  4. if not, just take any data
-            fun <T, K> List<Pair<DokkaSourceSet, T>>.selectBestVariant(selector: (T) -> K): Pair<DokkaSourceSet, T>? {
-                if (isEmpty()) return null
-                val uniqueElements = distinctBy { selector(it.second) }
-                return uniqueElements.singleOrNull()
-                    ?: uniqueElements.firstOrNull { it.first.analysisPlatform == Platform.common }
-                    ?: uniqueElements.firstOrNull { it.first.analysisPlatform == Platform.jvm }
-                    ?: uniqueElements.firstOrNull()
-            }
 
             val comment = typelike.sourceSets.mapNotNull { sourceSet ->
                 typelike.descriptions[sourceSet]?.let { sourceSet to it }
@@ -337,7 +317,8 @@ public open class DefaultPageCreator(
                 }.selectBestVariant { it }
             }
 
-            link(typelike.qualifiedName(), typelike.dri)
+            // qualified name will never be 'null' for classlike and typealias
+            link(typelike.qualifiedName()!!, typelike.dri)
             comment?.let { (sourceSet, description) ->
                 createBriefComment(typelike, sourceSet, description)
             }
@@ -345,6 +326,26 @@ public open class DefaultPageCreator(
                 createBriefCustomTags(sourceSet, tag)
             }
         }
+    }
+
+    // the idea is to have at least some description, so we do:
+    //  1. if all data per source sets are the same - take it
+    //  2. if not, try to take common data
+    //  3. if not, try to take JVM data (as this is most likely to be the best variant)
+    //  4. if not, just take any data
+    private fun <T, K> List<Pair<DokkaSourceSet, T>>.selectBestVariant(selector: (T) -> K): Pair<DokkaSourceSet, T>? {
+        if (isEmpty()) return null
+        val uniqueElements = distinctBy { selector(it.second) }
+        return uniqueElements.singleOrNull()
+            ?: uniqueElements.firstOrNull { it.first.analysisPlatform == Platform.common }
+            ?: uniqueElements.firstOrNull { it.first.analysisPlatform == Platform.jvm }
+            ?: uniqueElements.firstOrNull()
+    }
+
+    private fun Documentable.qualifiedName(): String? {
+        val className = dri.classNames?.takeIf(String::isNotBlank) ?: name
+        val packageName = dri.packageName?.takeIf(String::isNotBlank) ?: return className
+        return "$packageName.${className}"
     }
 
     protected open fun contentForPackage(p: DPackage): ContentGroup {
@@ -815,13 +816,12 @@ public open class DefaultPageCreator(
         private fun shouldDisplayAllTypesPage() =
             System.getProperty(SHOULD_DISPLAY_ALL_TYPES_PAGE_SYS_PROP) in listOf("true", "1")
 
-        private val DModule.needAllTypesPage: Boolean
-            get() {
-                val hasTypes = packages.any {
-                    it.classlikes.isNotEmpty() || it.typealiases.isNotEmpty()
-                }
-                return hasTypes && shouldDisplayAllTypesPage()
+        private fun DModule.needAllTypesPage(): Boolean {
+            val hasTypes = packages.any {
+                it.classlikes.isNotEmpty() || it.typealiases.isNotEmpty()
             }
+            return hasTypes && shouldDisplayAllTypesPage()
+        }
     }
 }
 
