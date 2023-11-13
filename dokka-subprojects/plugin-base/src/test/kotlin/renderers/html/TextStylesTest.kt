@@ -92,7 +92,6 @@ class TextStylesTest : HtmlRenderingOnlyTestBase() {
             }
         }
         HtmlRenderer(context).render(page)
-        println(renderedContent)
         renderedContent.match(Var("variable"))
     }
 
@@ -104,7 +103,6 @@ class TextStylesTest : HtmlRenderingOnlyTestBase() {
             }
         }
         HtmlRenderer(context).render(page)
-        println(renderedContent)
         renderedContent.match(U("underlined text"))
     }
 

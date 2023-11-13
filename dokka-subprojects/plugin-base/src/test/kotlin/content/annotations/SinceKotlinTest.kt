@@ -79,7 +79,6 @@ class SinceKotlinTest : AbstractRenderingTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                println(writerPlugin.writer.contents.keys)
                 // 5 = 2 functions, 1 typealias, 1 property, 1 class
                 val content = writerPlugin.renderedContent("root/test/index.html")
                 assertEquals(5, content.getElementsContainingOwnText("Since Kotlin").count())
