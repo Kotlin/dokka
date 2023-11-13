@@ -271,14 +271,16 @@ public open class DefaultPageCreator(
                 headers = listOf(
                     headers("Name")
                 )
-            ) { pkg ->
-                val comment = pkg.sourceSets.mapNotNull { sourceSet ->
-                    pkg.descriptions[sourceSet]?.let { sourceSet to it }
-                }.distinctBy { firstParagraphBrief(it.second.root) }.singleOrNull()
+            ) {
+                val documentations = it.sourceSets.map { platform ->
+                    it.descriptions[platform]?.also { it.root }
+                }
+                val haveSameContent =
+                    documentations.all { it?.root == documentations.firstOrNull()?.root && it?.root != null }
 
-                link(pkg.name, pkg.dri)
-                comment?.let { (sourceSet, description) ->
-                    createBriefComment(pkg, sourceSet, description)
+                link(it.name, it.dri)
+                if (it.sourceSets.size == 1 || (documentations.isNotEmpty() && haveSameContent)) {
+                    documentations.first()?.let { firstParagraphComment(kind = ContentKind.Comment, content = it.root) }
                 }
             }
 
