@@ -16,6 +16,7 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
+import org.jetbrains.dokka.base.DokkaBaseInternalConfiguration
 import org.jetbrains.dokka.base.pages.AllTypesPageNode
 
 public abstract class NavigationDataProvider(
@@ -105,28 +106,42 @@ public abstract class NavigationDataProvider(
         }
     }
 
-    private val navigationNodeOrder: Comparator<NavigationNode> = run {
-        val comparator = compareBy(canonicalAlphabeticalOrder, NavigationNode::name)
-        // put `All Types` page at the bottom of the navigation page
-        Comparator { a, b ->
-            when {
-                a === b -> 0
-                a.dri == AllTypesPageNode.DRI -> 1
-                b.dri == AllTypesPageNode.DRI -> -1
-                else -> comparator.compare(a, b)
+    private val navigationNodeOrder: Comparator<NavigationNode> =
+        compareBy(canonicalAlphabeticalOrder, NavigationNode::name)
+
+    private val navigationModuleNodeOrder: Comparator<NavigationNode> =
+        when (DokkaBaseInternalConfiguration.allTypesPageEnabled) {
+            false -> navigationNodeOrder
+            // put `All Types` page at the bottom of the navigation page
+            true -> Comparator { a, b ->
+                when {
+                    a === b -> 0
+                    a.dri == AllTypesPageNode.DRI -> 1
+                    b.dri == AllTypesPageNode.DRI -> -1
+                    else -> navigationNodeOrder.compare(a, b)
+                }
             }
         }
-    }
 
-    private fun ContentPage.navigableChildren() =
-        if (this is ClasslikePage) {
+    private fun ContentPage.navigableChildren() = when (this) {
+        is ClasslikePage -> {
             this.navigableChildren()
-        } else {
+        }
+
+        is ModulePage -> {
+            children
+                .filterIsInstance<ContentPage>()
+                .map(::visit)
+                .sortedWith(navigationModuleNodeOrder)
+        }
+
+        else -> {
             children
                 .filterIsInstance<ContentPage>()
                 .map(::visit)
                 .sortedWith(navigationNodeOrder)
         }
+    }
 
     private fun ClasslikePage.navigableChildren(): List<NavigationNode> {
         // Classlikes should only have other classlikes as navigable children
