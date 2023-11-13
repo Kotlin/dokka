@@ -475,8 +475,9 @@ public open class HtmlRenderer(
             ?.let {
                 when (pageContext) {
                     is MultimoduleRootPage -> buildRowForMultiModule(node, it, pageContext, sourceSetRestriction)
+
                     is ModulePage,
-                    is AllTypesPageNode -> buildRowForModule(node, it, pageContext, sourceSetRestriction)
+                    is AllTypesPageNode -> buildRowForPlatformTaggedBrief(node, it, pageContext, sourceSetRestriction)
 
                     else -> buildRowForContent(node, it, pageContext, sourceSetRestriction)
                 }
@@ -500,7 +501,12 @@ public open class HtmlRenderer(
         }
     }
 
-    private fun FlowContent.buildRowForModule(
+    /**
+     * Builds a row with support for filtering and showing platform bubble and brief content.
+     *
+     * Used for rendering packages in [ModulePage] and types in [AllTypesPageNode]
+     */
+    private fun FlowContent.buildRowForPlatformTaggedBrief(
         contextNode: ContentGroup,
         toRender: List<ContentNode>,
         pageContext: ContentPage,
