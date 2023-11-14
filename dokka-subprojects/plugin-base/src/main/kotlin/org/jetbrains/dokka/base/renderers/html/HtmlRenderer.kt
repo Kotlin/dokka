@@ -817,19 +817,25 @@ public open class HtmlRenderer(
         code: ContentCodeBlock,
         pageContext: ContentPage
     ) {
-        customCodeBlockRenderers.forEach { renderer ->
-            if (renderer.isApplicable(code.language)) {
-                // we use first applicable renderer to override rendering
-                val codeText = buildString {
-                    code.children.forEach {
-                        when (it) {
-                            is ContentText -> append(it.text)
-                            is ContentBreakLine -> appendLine()
-                        }
+        if (customCodeBlockRenderers.isNotEmpty()) {
+            val language = code.language.takeIf(String::isNotBlank)
+            val codeText = buildString {
+                code.children.forEach {
+                    when (it) {
+                        is ContentText -> append(it.text)
+                        is ContentBreakLine -> appendLine()
                     }
                 }
-                return with(renderer) {
-                    buildCodeBlock(code.language, codeText)
+            }
+
+            // we use first applicable renderer to override rendering
+            val applicableRenderer = when (language) {
+                null -> customCodeBlockRenderers.firstOrNull { it.isApplicableForUndefinedLanguage(codeText) }
+                else -> customCodeBlockRenderers.firstOrNull { it.isApplicableForDefinedLanguage(language) }
+            }
+            if (applicableRenderer != null) {
+                return with(applicableRenderer) {
+                    buildCodeBlock(language, codeText)
                 }
             }
         }

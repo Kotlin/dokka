@@ -12,11 +12,14 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
 import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
+import org.jsoup.nodes.Element
 import signatures.renderedContent
 import utils.TestOutputWriter
 import utils.TestOutputWriterPlugin
+import utils.assertContains
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class CodeBlocksTest : BaseAbstractTest() {
 
@@ -28,91 +31,137 @@ class CodeBlocksTest : BaseAbstractTest() {
         }
     }
 
+    private val contentWithExplicitLanguages =
+        """
+        /src/test.kt
+        package test
+        
+        /**
+         * Hello, world!
+         *
+         * ```kotlin
+         * test("hello kotlin")
+         * ```
+         *
+         * ```custom
+         * test("hello custom")
+         * ```
+         *
+         * ```other
+         * test("hello other")
+         * ```
+         */
+        fun test(string: String) {}
+        """.trimIndent()
+
     @Test
     fun `default code block rendering`() = testCode(
-        """
-            /src/test.kt
-            package test
-            
-            /**
-             * Hello, world!
-             *
-             * ```kotlin
-             * test("hello kotlin")
-             * ```
-             *
-             * ```custom
-             * test("hello custom")
-             * ```
-             *
-             * ```other
-             * test("hello other")
-             * ```
-             */
-            fun test(string: String) {}
-            """.trimIndent(),
+        contentWithExplicitLanguages,
         emptyList()
     ) {
         val content = renderedContent("root/test/test.html")
 
         // by default, every code block is rendered as an element with `lang-XXX` class,
         //  where XXX=language of code block
-        assertEquals(
-            """test("hello kotlin")""",
-            content.getElementsByClass("lang-kotlin").singleOrNull()?.wholeText()
-        )
-        assertEquals(
-            """test("hello custom")""",
-            content.getElementsByClass("lang-custom").singleOrNull()?.wholeText()
-        )
-        assertEquals(
-            """test("hello other")""",
-            content.getElementsByClass("lang-other").singleOrNull()?.wholeText()
-        )
+        assertEquals("""test("hello kotlin")""", content.textOfSingleElementByClass("lang-kotlin"))
+        assertEquals("""test("hello custom")""", content.textOfSingleElementByClass("lang-custom"))
+        assertEquals("""test("hello other")""", content.textOfSingleElementByClass("lang-other"))
     }
 
     @Test
     fun `code block rendering with custom renderer`() = testCode(
-        """
-            /src/test.kt
-            package test
-            
-            /**
-             * Hello, world!
-             *
-             * ```kotlin
-             * test("hello kotlin")
-             * ```
-             *
-             * ```custom
-             * test("hello custom")
-             * ```
-             *
-             * ```other
-             * test("hello other")
-             * ```
-             */
-            fun test(string: String) {}
-            """.trimIndent(),
-        listOf(CustomPlugin(applyOtherRenderer = false)) // we add only one custom renderer
+        contentWithExplicitLanguages,
+        listOf(SingleRendererPlugin(CustomDefinedHtmlBlockRenderer))
     ) {
         val content = renderedContent("root/test/test.html")
-        assertEquals(
-            """test("hello kotlin")""",
-            content.getElementsByClass("lang-kotlin").singleOrNull()?.wholeText()
-        )
-        assertEquals(
-            """test("hello custom")""",
-            content.getElementsByClass("custom-language-block").singleOrNull()?.wholeText()
-        )
-        assertEquals(
-            """test("hello other")""",
-            content.getElementsByClass("lang-other").singleOrNull()?.wholeText()
-        )
+
+        assertEquals("""test("hello kotlin")""", content.textOfSingleElementByClass("lang-kotlin"))
+        assertEquals("""test("hello custom")""", content.textOfSingleElementByClass("custom-defined-language-block"))
+        assertEquals("""test("hello other")""", content.textOfSingleElementByClass("lang-other"))
     }
 
     @Test
     fun `code block rendering with multiple custom renderers`() = testCode(
+        contentWithExplicitLanguages,
+        listOf(MultiRendererPlugin(CustomDefinedHtmlBlockRenderer, OtherDefinedHtmlBlockRenderer))
+    ) {
+        val content = renderedContent("root/test/test.html")
+
+        assertEquals("""test("hello kotlin")""", content.textOfSingleElementByClass("lang-kotlin"))
+        assertEquals("""test("hello custom")""", content.textOfSingleElementByClass("custom-defined-language-block"))
+        assertEquals("""test("hello other")""", content.textOfSingleElementByClass("other-defined-language-block"))
+    }
+
+    private val contentWithImplicitLanguages =
+        """
+        /src/test.kt
+        package test
+        
+        /**
+         * Hello, world!
+         *
+         * ```
+         * test("hello kotlin")
+         * ```
+         *
+         * ```
+         * test("hello custom")
+         * ```
+         *
+         * ```
+         * test("hello other")
+         * ```
+         */
+        fun test(string: String) {}
+        """.trimIndent()
+
+    @Test
+    fun `default code block rendering with undefined language`() = testCode(
+        contentWithImplicitLanguages,
+        emptyList()
+    ) {
+        val content = renderedContent("root/test/test.html")
+
+        val contentsDefault = content.getElementsByClass("lang-kotlin").map(Element::wholeText)
+
+        assertContains(contentsDefault, """test("hello kotlin")""")
+        assertContains(contentsDefault, """test("hello custom")""")
+        assertContains(contentsDefault, """test("hello other")""")
+
+        assertEquals(3, contentsDefault.size)
+    }
+
+    @Test
+    fun `code block rendering with custom renderer and undefined language`() = testCode(
+        contentWithImplicitLanguages,
+        listOf(SingleRendererPlugin(CustomUndefinedHtmlBlockRenderer))
+    ) {
+        val content = renderedContent("root/test/test.html")
+
+        val contentsDefault = content.getElementsByClass("lang-kotlin").map(Element::wholeText)
+
+        assertContains(contentsDefault, """test("hello kotlin")""")
+        assertContains(contentsDefault, """test("hello other")""")
+
+        assertEquals(2, contentsDefault.size)
+
+        assertEquals("""test("hello custom")""", content.textOfSingleElementByClass("custom-undefined-language-block"))
+    }
+
+    @Test
+    fun `code block rendering with multiple custom renderers and undefined language`() = testCode(
+        contentWithImplicitLanguages,
+        listOf(MultiRendererPlugin(CustomUndefinedHtmlBlockRenderer, OtherUndefinedHtmlBlockRenderer))
+    ) {
+        val content = renderedContent("root/test/test.html")
+
+        assertEquals("""test("hello kotlin")""", content.textOfSingleElementByClass("lang-kotlin"))
+        assertEquals("""test("hello custom")""", content.textOfSingleElementByClass("custom-undefined-language-block"))
+        assertEquals("""test("hello other")""", content.textOfSingleElementByClass("other-undefined-language-block"))
+    }
+
+    @Test
+    fun `code block rendering with multiple mixed custom renderers`() = testCode(
         """
             /src/test.kt
             package test
@@ -124,7 +173,7 @@ class CodeBlocksTest : BaseAbstractTest() {
              * test("hello kotlin")
              * ```
              *
-             * ```custom
+             * ```
              * test("hello custom")
              * ```
              *
@@ -134,21 +183,18 @@ class CodeBlocksTest : BaseAbstractTest() {
              */
             fun test(string: String) {}
             """.trimIndent(),
-        listOf(CustomPlugin(applyOtherRenderer = true))
+        listOf(
+            MultiRendererPlugin(
+                CustomUndefinedHtmlBlockRenderer,
+                OtherDefinedHtmlBlockRenderer,
+            )
+        )
     ) {
         val content = renderedContent("root/test/test.html")
-        assertEquals(
-            """test("hello kotlin")""",
-            content.getElementsByClass("lang-kotlin").singleOrNull()?.wholeText()
-        )
-        assertEquals(
-            """test("hello custom")""",
-            content.getElementsByClass("custom-language-block").singleOrNull()?.wholeText()
-        )
-        assertEquals(
-            """test("hello other")""",
-            content.getElementsByClass("other-language-block").singleOrNull()?.wholeText()
-        )
+
+        assertEquals("""test("hello kotlin")""", content.textOfSingleElementByClass("lang-kotlin"))
+        assertEquals("""test("hello custom")""", content.textOfSingleElementByClass("custom-undefined-language-block"))
+        assertEquals("""test("hello other")""", content.textOfSingleElementByClass("other-defined-language-block"))
     }
 
     @Test
@@ -171,16 +217,10 @@ class CodeBlocksTest : BaseAbstractTest() {
              *
              * test("hello custom")
              * ```
-             *
-             * ```other
-             * // something before linebreak
-             *
-             * test("hello other")
-             * ```
              */
             fun test(string: String) {}
             """.trimIndent(),
-        listOf(CustomPlugin(applyOtherRenderer = false)) // we add only one custom renderer
+        listOf(SingleRendererPlugin(CustomDefinedHtmlBlockRenderer))
     ) {
         val content = renderedContent("root/test/test.html")
         assertEquals(
@@ -189,7 +229,7 @@ class CodeBlocksTest : BaseAbstractTest() {
             
             test("hello kotlin")
             """.trimIndent(),
-            content.getElementsByClass("lang-kotlin").singleOrNull()?.wholeText()
+            content.textOfSingleElementByClass("lang-kotlin")
         )
         assertEquals(
             """
@@ -197,15 +237,7 @@ class CodeBlocksTest : BaseAbstractTest() {
             
             test("hello custom")
             """.trimIndent(),
-            content.getElementsByClass("custom-language-block").singleOrNull()?.wholeText()
-        )
-        assertEquals(
-            """
-            // something before linebreak
-            
-            test("hello other")
-            """.trimIndent(),
-            content.getElementsByClass("lang-other").singleOrNull()?.wholeText()
+            content.textOfSingleElementByClass("custom-defined-language-block")
         )
     }
 
@@ -222,35 +254,79 @@ class CodeBlocksTest : BaseAbstractTest() {
         }
     }
 
-    private object CustomHtmlBlockRenderer : HtmlCodeBlockRenderer {
-        override fun isApplicable(language: String): Boolean = language == "custom"
+    private fun Element.textOfSingleElementByClass(className: String): String {
+        val elements = getElementsByClass(className)
+        assertEquals(1, elements.size)
+        return elements.single().wholeText()
+    }
 
-        override fun FlowContent.buildCodeBlock(language: String, code: String) {
-            div("custom-language-block") {
+    private object CustomDefinedHtmlBlockRenderer : HtmlCodeBlockRenderer {
+        override fun isApplicableForDefinedLanguage(language: String): Boolean = language == "custom"
+        override fun isApplicableForUndefinedLanguage(code: String): Boolean = false
+
+        override fun FlowContent.buildCodeBlock(language: String?, code: String) {
+            assertEquals("custom", language)
+            div("custom-defined-language-block") {
                 text(code)
             }
         }
     }
 
-    private object CustomOtherHtmlBlockRenderer : HtmlCodeBlockRenderer {
-        override fun isApplicable(language: String): Boolean = language == "other"
+    private object OtherDefinedHtmlBlockRenderer : HtmlCodeBlockRenderer {
+        override fun isApplicableForDefinedLanguage(language: String): Boolean = language == "other"
+        override fun isApplicableForUndefinedLanguage(code: String): Boolean = false
 
-        override fun FlowContent.buildCodeBlock(language: String, code: String) {
-            div("other-language-block") {
+        override fun FlowContent.buildCodeBlock(language: String?, code: String) {
+            assertEquals("other", language)
+            div("other-defined-language-block") {
                 text(code)
             }
         }
     }
 
-    class CustomPlugin(applyOtherRenderer: Boolean) : DokkaPlugin() {
-        val customHtmlBlockRenderer by extending {
-            plugin<DokkaBase>().htmlCodeBlockRenderers with CustomHtmlBlockRenderer
+    private object CustomUndefinedHtmlBlockRenderer : HtmlCodeBlockRenderer {
+        override fun isApplicableForDefinedLanguage(language: String): Boolean = false
+        override fun isApplicableForUndefinedLanguage(code: String): Boolean = code.contains("custom")
+
+        override fun FlowContent.buildCodeBlock(language: String?, code: String) {
+            assertNull(language)
+            div("custom-undefined-language-block") {
+                text(code)
+            }
+        }
+    }
+
+    private object OtherUndefinedHtmlBlockRenderer : HtmlCodeBlockRenderer {
+        override fun isApplicableForDefinedLanguage(language: String): Boolean = false
+        override fun isApplicableForUndefinedLanguage(code: String): Boolean = code.contains("other")
+
+        override fun FlowContent.buildCodeBlock(language: String?, code: String) {
+            assertNull(language)
+            div("other-undefined-language-block") {
+                text(code)
+            }
+        }
+    }
+
+    class SingleRendererPlugin(renderer: HtmlCodeBlockRenderer) : DokkaPlugin() {
+        val codeBlockRenderer by extending {
+            plugin<DokkaBase>().htmlCodeBlockRenderers with renderer
         }
 
-        val otherHtmlBlockRenderer by extending {
-            plugin<DokkaBase>().htmlCodeBlockRenderers with CustomOtherHtmlBlockRenderer applyIf {
-                applyOtherRenderer
-            }
+        @OptIn(DokkaPluginApiPreview::class)
+        override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement =
+            PluginApiPreviewAcknowledgement
+    }
+
+    class MultiRendererPlugin(
+        renderer1: HtmlCodeBlockRenderer,
+        renderer2: HtmlCodeBlockRenderer
+    ) : DokkaPlugin() {
+        val codeBlockRenderer1 by extending {
+            plugin<DokkaBase>().htmlCodeBlockRenderers with renderer1
+        }
+        val codeBlockRenderer2 by extending {
+            plugin<DokkaBase>().htmlCodeBlockRenderers with renderer2
         }
 
         @OptIn(DokkaPluginApiPreview::class)

@@ -14,12 +14,36 @@ import kotlinx.html.FlowContent
 public interface HtmlCodeBlockRenderer {
 
     /**
-     * Whether this renderer supports given [language]
+     * Whether this renderer supports rendering Markdown code blocks
+     * for the given [language] explicitly specified in the fenced code block definition,
      */
-    public fun isApplicable(language: String): Boolean
+    public fun isApplicableForDefinedLanguage(language: String): Boolean
 
     /**
-     * Defines how to render [code] for specified [language] via HTML tags
+     * Whether this renderer supports rendering Markdown code blocks
+     * for the given [code] when language is not specified in fenced code blocks
+     * or indented code blocks are used.
      */
-    public fun FlowContent.buildCodeBlock(language: String, code: String)
+    public fun isApplicableForUndefinedLanguage(code: String): Boolean
+
+    /**
+     * Defines how to render [code] for specified [language] via HTML tags.
+     *
+     * The value of the [language] will be the same as in the input Markdown fenced code block definition.
+     * In the following example [language] = `kotlin` and [code] = `val a`:
+     * ~~~markdown
+     * ```kotlin
+     * val a
+     * ```
+     * ~~~
+     * The value of the [language] will be `null` if language is not specified in the fenced code block definition
+     * or indented code blocks are used.
+     * In the following example [language] = `null` and [code] = `val a`:
+     * ~~~markdown
+     * ```
+     * val a
+     * ```
+     * ~~~
+     */
+    public fun FlowContent.buildCodeBlock(language: String?, code: String)
 }
