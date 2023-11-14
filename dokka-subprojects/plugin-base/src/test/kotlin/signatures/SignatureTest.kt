@@ -198,6 +198,27 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `fun with use site variance modifier in`() {
+        val source = source("fun simpleFun(params: Array<in String>): Unit")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
+                    "fun ", A("simpleFun"), "(", Parameters(
+                        Parameter("params: ", A("Array"), "<in ", A("String"), ">"),
+                    ), ")",
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
     fun `fun with definitely non-nullable types`() {
         val source = source("fun <T> elvisLike(x: T, y: T & Any): T & Any = x ?: y")
         val writerPlugin = TestOutputWriterPlugin()
@@ -307,6 +328,28 @@ class SignatureTest : BaseAbstractTest() {
                     "class ", A("InheritingClassFromGenericType"), " <", A("T"), " : ", A("Number"), ", ", A("R"), " : ", A("CharSequence"),
                     "> : ", A("Comparable"), "<", A("T"), "> , ", A("Collection"), "<", A("R"), ">",
                         ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `class with declaration site variance modifier`() {
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+                |/src/main/kotlin/common/Test.kt
+                |package example
+                |
+                |class PrimaryConstructorClass<out T> { }
+            """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/-primary-constructor-class/index.html").firstSignature().match(
+                    Span("class "), A("PrimaryConstructorClass"), Span("<"), Span("out "), A("T"), Span(">"),
                 )
             }
         }
@@ -896,8 +939,7 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-primary-constructor-class/index.html").firstSignature().match(
-                    // In `<T>` expression, an empty `<span class="token keyword"></span>` is present for some reason
-                    Span("class "), A("PrimaryConstructorClass"), Span("<"), Span(), A("T"), Span(">"), Span("("), Parameters(
+                    Span("class "), A("PrimaryConstructorClass"), Span("<"), A("T"), Span(">"), Span("("), Parameters(
                         Parameter(Span("val "), "x", Span(": "), A("Int"), Span(",")),
                         Parameter(Span("var "), "s", Span(": "), A("String"))
                     ), Span(")"),

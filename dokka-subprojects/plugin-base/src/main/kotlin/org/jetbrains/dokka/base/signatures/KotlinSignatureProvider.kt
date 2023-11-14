@@ -434,7 +434,7 @@ public class KotlinSignatureProvider(
                 }
 
             is Variance<*> -> group(styles = emptySet()) {
-                keyword("$p ".takeIf { it.isNotBlank() } ?: "")
+                p.takeIf { it.toString().isNotEmpty() }?.let { keyword("$it ") }
                 signatureForProjection(p.inner, showFullyQualifiedName)
             }
 
