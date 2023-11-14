@@ -248,7 +248,7 @@ public class KotlinSignatureProvider(
                 p.modifier[sourceSet].takeIf { it !in ignoredModifiers }?.let {
                         if (it is JavaModifier.Empty) KotlinModifier.Open else it
                     }?.name?.let { keyword("$it ") }
-                p.modifiers()[sourceSet]?.toSignatureString()?.let { keyword(it) }
+                p.modifiers()[sourceSet]?.toSignatureString()?.takeIf { it.isNotEmpty() }?.let { keyword(it) }
                 if (p.isMutable()) keyword("var ") else keyword("val ")
                 list(p.generics, prefix = "<", suffix = "> ",
                     separatorStyles = mainStyles + TokenStyle.Punctuation,
@@ -303,7 +303,7 @@ public class KotlinSignatureProvider(
                     f.modifier[sourceSet]?.takeIf { it !in ignoredModifiers }?.let {
                         if (it is JavaModifier.Empty) KotlinModifier.Open else it
                     }?.name?.let { keyword("$it ") }
-                    f.modifiers()[sourceSet]?.toSignatureString()?.let { keyword(it) }
+                    f.modifiers()[sourceSet]?.toSignatureString()?.takeIf { it.isNotEmpty() }?.let { keyword(it) }
                     keyword("fun ")
                     list(
                         f.generics, prefix = "<", suffix = "> ",
@@ -434,7 +434,7 @@ public class KotlinSignatureProvider(
                 }
 
             is Variance<*> -> group(styles = emptySet()) {
-                keyword("$p ".takeIf { it.isNotBlank() } ?: "")
+                p.takeIf { it.toString().isNotEmpty() }?.let { keyword("$it ") }
                 signatureForProjection(p.inner, showFullyQualifiedName)
             }
 
