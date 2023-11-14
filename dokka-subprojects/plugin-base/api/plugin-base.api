@@ -300,7 +300,8 @@ public final class org/jetbrains/dokka/base/renderers/html/CustomResourceInstall
 
 public abstract interface class org/jetbrains/dokka/base/renderers/html/HtmlCodeBlockRenderer {
 	public abstract fun buildCodeBlock (Lkotlinx/html/FlowContent;Ljava/lang/String;Ljava/lang/String;)V
-	public abstract fun isApplicable (Ljava/lang/String;)Z
+	public abstract fun isApplicableForDefinedLanguage (Ljava/lang/String;)Z
+	public abstract fun isApplicableForUndefinedLanguage (Ljava/lang/String;)Z
 }
 
 public final class org/jetbrains/dokka/base/renderers/html/HtmlFormatingUtilsKt {
