@@ -356,6 +356,26 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `constructor property on class page`() {
+        val source = source("data class DataClass(val arg: String)")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                assertEquals(
+                    writerPlugin.writer.renderedContent("root/example/-data-class/index.html").lastSignature().html(),
+                    "<span class=\"token keyword\">val </span><a href=\"arg.html\">arg</a><span class=\"token operator\">: </span><a href=\"https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html\">String</a>"
+
+                )
+            }
+        }
+    }
+
+    @Test
     fun `functional interface`() {
         val source = source("fun interface KRunnable")
         val writerPlugin = TestOutputWriterPlugin()
