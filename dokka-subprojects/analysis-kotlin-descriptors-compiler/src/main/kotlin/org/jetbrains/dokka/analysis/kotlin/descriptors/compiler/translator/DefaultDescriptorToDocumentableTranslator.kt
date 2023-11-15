@@ -621,7 +621,7 @@ private class DokkaDescriptorVisitor(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     (descriptor.getAnnotations() + descriptor.fileLevelAnnotations()).toSourceSetDependent()
                         .toAnnotations(),
-                    ObviousMember.takeIf { descriptor.isObvious() },
+                    ObviousMember.takeIf { descriptor.isObvious(inheritedFrom) },
                 )
             )
         }
@@ -649,15 +649,16 @@ private class DokkaDescriptorVisitor(
             .takeIf { parent.dri.classNames != this.classNames || parent.dri.packageName != this.packageName }
     }
 
-    private fun FunctionDescriptor.isObvious(): Boolean {
+    private fun FunctionDescriptor.isObvious(inheritedFrom: DRI?): Boolean {
         return kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE
                 || (kind == CallableMemberDescriptor.Kind.SYNTHESIZED && !syntheticDocProvider.isDocumented(this))
-                || containingDeclaration.fqNameOrNull()?.isObvious() == true
+                || inheritedFrom?.isObvious() == true
     }
 
-    private fun FqName.isObvious(): Boolean = with(this.asString()) {
-            return this == "kotlin.Any" || this == "kotlin.Enum"
-                    || this == "java.lang.Object" || this == "java.lang.Enum"
+    private fun DRI.isObvious(): Boolean = when (packageName) {
+        "kotlin" -> classNames == "Any" || classNames == "Enum"
+        "java.lang" -> classNames == "Object" || classNames == "Enum"
+        else -> false
     }
 
     suspend fun visitConstructorDescriptor(descriptor: ConstructorDescriptor, parent: DRIWithPlatformInfo): DFunction {

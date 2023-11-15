@@ -54,7 +54,9 @@ internal fun getLanguageVersionSettings(
         apiVersion = apiVersion, analysisFlags = hashMapOf(
             // special flag for Dokka
             // force to resolve light classes (lazily by default)
-            AnalysisFlags.eagerResolveOfLightClasses to true
+            AnalysisFlags.eagerResolveOfLightClasses to true,
+            // TODO: looks like we need to hide it under a flag?
+            AnalysisFlags.allowKotlinPackage to true
         )
     )
 }

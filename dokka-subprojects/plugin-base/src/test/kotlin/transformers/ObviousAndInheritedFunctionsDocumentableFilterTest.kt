@@ -66,6 +66,26 @@ class ObviousAndInheritedFunctionsDocumentableFilterTest : BaseAbstractTest() {
             """
             /src/suppressed/Suppressed.kt
             package suppressed
+            class Suppressed(val x: String) {
+              fun custom() {}
+            }
+            """.trimIndent(),
+            suppressingConfiguration
+        ) {
+            preMergeDocumentablesTransformationStage = { modules ->
+                val functions = modules.flatMap { it.packages }.flatMap { it.classlikes }.flatMap { it.functions }
+                assertEquals(1, functions.size)
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = ["suppressingObviousConfiguration"])
+    fun `should suppress toString, equals and hashcode for data class`(suppressingConfiguration: DokkaConfigurationImpl) {
+        testInline(
+            """
+            /src/suppressed/Suppressed.kt
+            package suppressed
             data class Suppressed(val x: String)
             """.trimIndent(),
             suppressingConfiguration
@@ -223,6 +243,54 @@ class ObviousAndInheritedFunctionsDocumentableFilterTest : BaseAbstractTest() {
                         "notifyAll"
                     ).intersect(functions.map { it.name }).size
                 )
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = ["suppressingObviousConfiguration"])
+    fun `should not suppress toString, equals and hashcode of kotlin Any`(suppressingConfiguration: DokkaConfigurationImpl) {
+        testInline(
+            """
+            /src/Any.kt
+            package kotlin
+            public open class Any {
+                public open fun equals(other: Any?): Boolean
+                public open fun hashCode(): Int
+                public open fun toString(): String
+            }
+            """.trimIndent(),
+            suppressingConfiguration
+        ) {
+            preMergeDocumentablesTransformationStage = { modules ->
+                val functions = modules.flatMap { it.packages }.flatMap { it.classlikes }.flatMap { it.functions }
+                assertEquals(3, functions.size)
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = ["suppressingObviousConfiguration"])
+    fun `should not suppress toString, equals and hashcode of kotlin Enum`(suppressingConfiguration: DokkaConfigurationImpl) {
+        testInline(
+            """
+            /src/Enum.kt
+            package kotlin
+            public abstract class Enum<E : Enum<E>>(name: String, ordinal: Int): Comparable<E> {
+                public override final fun compareTo(other: E): Int
+                public override final fun equals(other: Any?): Boolean
+                public override final fun hashCode(): Int
+                public override fun toString(): String
+            }
+            """.trimIndent(),
+            suppressingConfiguration
+        ) {
+            preMergeDocumentablesTransformationStage = { modules ->
+                val functions = modules.flatMap { it.packages }.flatMap { it.classlikes }.flatMap { it.functions }
+                // TODO: fails on K2 (functions.size=5)
+                //  for some reason functions contains getDeclaringClass from Enum.java
+                //  no such function exists when using K1
+                assertEquals(4, functions.size)
             }
         }
     }
