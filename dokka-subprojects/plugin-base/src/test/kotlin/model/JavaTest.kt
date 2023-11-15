@@ -6,6 +6,7 @@ package model
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.modifiers
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
@@ -228,6 +229,193 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
                     name equals "D"
                     children counts 1 // default constructor
                 }
+            }
+        }
+    }
+
+    @Test
+    fun innerClassModifiers() = inlineModelTest(
+        """
+        |public class JavaClass {
+        |    public class InnerClass { }
+        |    public static class NestedClass { }
+        |    public enum InnerEnum {S}
+        |    public static enum NestedEnum {S}
+        |    public interface InnerInterface { }
+        |    public static interface NestedInterface { }
+        |    public @interface InnerAnnotation { }
+        |    public static @interface NestedAnnotation { }
+        |}
+        """,
+        configuration = configuration
+    ) {
+        with((this / "java" / "JavaClass").cast<DClass>()) {
+            assertTrue(modifiers().isEmpty())
+
+            with((this / "InnerClass").cast<DClass>()) {
+                assertContains(modifiers().values.single(), ExtraModifiers.KotlinOnlyModifiers.Inner)
+            }
+            with((this / "NestedClass").cast<DClass>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "InnerEnum").cast<DEnum>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "NestedEnum").cast<DEnum>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "InnerInterface").cast<DInterface>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "NestedInterface").cast<DInterface>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "InnerAnnotation").cast<DAnnotation>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "NestedAnnotation").cast<DAnnotation>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+        }
+    }
+
+    @Test
+    fun innerEnumModifiers() = inlineModelTest(
+        """
+        |public enum JavaEnum { S;
+        |    public class InnerClass { }
+        |    public static class NestedClass { }
+        |    public enum InnerEnum {S}
+        |    public static enum NestedEnum {S}
+        |    public interface InnerInterface { }
+        |    public static interface NestedInterface { }
+        |    public @interface InnerAnnotation { }
+        |    public static @interface NestedAnnotation { }
+        |}
+        """,
+        configuration = configuration
+    ) {
+        // `enum` behaves the same as `class` regarding `inner`
+        with((this / "java" / "JavaEnum").cast<DEnum>()) {
+            assertTrue(modifiers().isEmpty())
+
+            with((this / "InnerClass").cast<DClass>()) {
+                assertContains(modifiers().values.single(), ExtraModifiers.KotlinOnlyModifiers.Inner)
+            }
+            with((this / "NestedClass").cast<DClass>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "InnerEnum").cast<DEnum>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "NestedEnum").cast<DEnum>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "InnerInterface").cast<DInterface>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "NestedInterface").cast<DInterface>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "InnerAnnotation").cast<DAnnotation>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "NestedAnnotation").cast<DAnnotation>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+        }
+    }
+
+    @Test
+    fun innerInterfaceModifiers() = inlineModelTest(
+        """
+        |public interface JavaInterface {
+        |    public class InnerClass { }
+        |    public static class NestedClass { }
+        |    public enum InnerEnum {S}
+        |    public static enum NestedEnum {S}
+        |    public interface InnerInterface { }
+        |    public static interface NestedInterface { }
+        |    public @interface InnerAnnotation { }
+        |    public static @interface NestedAnnotation { }
+        |}
+        """,
+        configuration = configuration
+    ) {
+        // new types nested in `interface` are `static` by default (no `inner` modifier)
+        with((this / "java" / "JavaInterface").cast<DInterface>()) {
+            assertTrue(modifiers().isEmpty())
+
+            with((this / "InnerClass").cast<DClass>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "NestedClass").cast<DClass>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "InnerEnum").cast<DEnum>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "NestedEnum").cast<DEnum>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "InnerInterface").cast<DInterface>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "NestedInterface").cast<DInterface>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "InnerAnnotation").cast<DAnnotation>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "NestedAnnotation").cast<DAnnotation>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+        }
+    }
+
+    @Test
+    fun innerAnnotationModifiers() = inlineModelTest(
+        """
+        |public @interface JavaInterface {
+        |    public class InnerClass { }
+        |    public static class NestedClass { }
+        |    public enum InnerEnum {S}
+        |    public static enum NestedEnum {S}
+        |    public interface InnerInterface { }
+        |    public static interface NestedInterface { }
+        |    public @interface InnerAnnotation { }
+        |    public static @interface NestedAnnotation { }
+        |}
+        """,
+        configuration = configuration
+    ) {
+        // `@interface` behaves the same as `interface` regarding `inner`
+        with((this / "java" / "JavaInterface").cast<DAnnotation>()) {
+            assertTrue(modifiers().isEmpty())
+
+            with((this / "InnerClass").cast<DClass>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "NestedClass").cast<DClass>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "InnerEnum").cast<DEnum>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "NestedEnum").cast<DEnum>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "InnerInterface").cast<DInterface>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "NestedInterface").cast<DInterface>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "InnerAnnotation").cast<DAnnotation>()) {
+                assertTrue(modifiers().isEmpty())
+            }
+            with((this / "NestedAnnotation").cast<DAnnotation>()) {
+                assertTrue(modifiers().isEmpty())
             }
         }
     }
