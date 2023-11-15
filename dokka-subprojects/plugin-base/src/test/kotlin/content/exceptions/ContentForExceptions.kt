@@ -60,7 +60,6 @@ class ContentForExceptions : BaseAbstractTest() {
         )
     }
 
-    @OnlyDescriptors("Fixed in 1.9.20 (IMPORT STAR)")
     @Test
     fun `function with navigatable thrown exception`() {
         testInline(
