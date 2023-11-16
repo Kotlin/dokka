@@ -41,5 +41,6 @@ internal class AllTypesPageNode(
     }
 }
 
+// copy-pasted from dokka-core, not sure why it was needed in the first place
 private infix fun <T> List<T>.shallowEq(other: List<T>) =
     this === other || (this.size == other.size && (this zip other).all { (a, b) -> a === b })
