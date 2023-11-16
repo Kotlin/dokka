@@ -60,6 +60,7 @@ public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plug
 	public final fun getExternalLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getFallbackMerger ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getFileWriter ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getHtmlCodeBlockRenderers ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getHtmlPreprocessors ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getHtmlRenderer ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getImmediateHtmlCommandConsumer ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
@@ -295,6 +296,12 @@ public final class org/jetbrains/dokka/base/renderers/html/CustomResourceInstall
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 	public final fun getDokkaContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
 	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
+}
+
+public abstract interface class org/jetbrains/dokka/base/renderers/html/HtmlCodeBlockRenderer {
+	public abstract fun buildCodeBlock (Lkotlinx/html/FlowContent;Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun isApplicableForDefinedLanguage (Ljava/lang/String;)Z
+	public abstract fun isApplicableForUndefinedLanguage (Ljava/lang/String;)Z
 }
 
 public final class org/jetbrains/dokka/base/renderers/html/HtmlFormatingUtilsKt {
