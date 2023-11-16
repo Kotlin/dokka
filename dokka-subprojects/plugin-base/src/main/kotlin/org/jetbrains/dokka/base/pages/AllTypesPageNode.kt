@@ -9,6 +9,12 @@ import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.PageNode
 
+/**
+ * This page is internal because it's an stdlib-specific feature,
+ * which is not intended for public use or customization.
+ * 
+ * For more details, see https://github.com/Kotlin/dokka/issues/2887
+ */
 internal class AllTypesPageNode(
     override val content: ContentNode,
     override val embeddedResources: List<String> = listOf()
