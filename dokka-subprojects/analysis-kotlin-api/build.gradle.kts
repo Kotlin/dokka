@@ -7,6 +7,7 @@ import dokkabuild.overridePublicationArtifactId
 plugins {
     id("dokkabuild.kotlin-jvm")
     id("dokkabuild.publish-jvm")
+    id("dokkabuild.test-k2")
     `java-test-fixtures`
 }
 
@@ -18,7 +19,9 @@ dependencies {
     testFixturesApi(projects.dokkaSubprojects.dokkaCore)
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.dokkaSubprojects.analysisKotlinDescriptors)
+
+    symbolsTestConfiguration(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestConfiguration(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
 }
 
 disableTestFixturesPublishing()
