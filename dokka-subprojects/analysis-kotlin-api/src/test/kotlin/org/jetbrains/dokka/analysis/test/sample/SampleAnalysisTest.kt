@@ -9,9 +9,8 @@ import org.jetbrains.dokka.analysis.test.api.kotlinJvmTestProject
 import org.jetbrains.dokka.analysis.test.api.mixedJvmTestProject
 import org.jetbrains.dokka.analysis.test.api.useServices
 import org.jetbrains.dokka.analysis.test.api.util.CollectingDokkaConsoleLogger
-import org.jetbrains.dokka.analysis.test.api.util.defaultJavaSourceSet
-import org.jetbrains.dokka.analysis.test.api.util.defaultKotlinSourceSet
 import org.jetbrains.dokka.analysis.test.api.util.singleSourceSet
+import org.junit.jupiter.api.Tag
 import kotlin.test.*
 
 class SampleAnalysisTest {
@@ -76,6 +75,7 @@ class SampleAnalysisTest {
     }
 
     @Test
+    @Tag("onlyDescriptors") // TODO #3359
     fun `should resolve a valid sample if set via the additionalSourceRoots option`() {
         val testProject = kotlinJvmTestProject {
             dokkaConfiguration {
@@ -135,6 +135,7 @@ class SampleAnalysisTest {
     }
 
     @Test
+    @Tag("onlyDescriptors") // TODO #3359
     fun `should resolve a valid sample function that exists in the main source set`() {
         val testProject = kotlinJvmTestProject {
             ktFile("org/jetbrains/dokka/test/MyKotlinFile.kt") {
@@ -324,6 +325,7 @@ class SampleAnalysisTest {
     }
 
     @Test
+    @Tag("onlyDescriptors") // TODO #3359
     fun `should return null if trying to resolve a non-kotlin sample link`() {
         val testProject = mixedJvmTestProject {
             kotlinSourceDirectory {
@@ -364,6 +366,7 @@ class SampleAnalysisTest {
     }
 
     @Test
+    @Tag("onlyDescriptors") // TODO #3359
     fun `should filter out empty import statement lines`() {
         val testProject = kotlinJvmTestProject {
             ktFile("org/jetbrains/dokka/test/MyKotlinFile.kt") {
@@ -400,6 +403,7 @@ class SampleAnalysisTest {
     }
 
     @Test
+    @Tag("onlyDescriptors") // TODO #3359
     fun `should return an empty list of imports if sample file has none`() {
         val testProject = kotlinJvmTestProject {
             ktFile("org/jetbrains/dokka/test/MyKotlinFile.kt") {
@@ -426,6 +430,7 @@ class SampleAnalysisTest {
     }
 
     @Test
+    @Tag("onlyDescriptors") // TODO #3359
     fun `should filter out leading and trailing line breaks`() {
         val testProject = kotlinJvmTestProject {
             ktFile("org/jetbrains/dokka/test/MyKotlinFile.kt") {
@@ -454,6 +459,7 @@ class SampleAnalysisTest {
     }
 
     @Test
+    @Tag("onlyDescriptors") // TODO #3359
     fun `should filter out trailing whitespace`() {
         val testProject = kotlinJvmTestProject {
             ktFile("org/jetbrains/dokka/test/MyKotlinFile.kt") {
