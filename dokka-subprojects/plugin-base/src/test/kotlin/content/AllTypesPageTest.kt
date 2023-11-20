@@ -22,6 +22,28 @@ class AllTypesPageTest : BaseAbstractTest() {
         }
     }
 
+    private val multiplatformConfiguration = dokkaConfiguration {
+        sourceSets {
+            val commonId = sourceSet {
+                sourceRoots = listOf("src/common/")
+                analysisPlatform = "common"
+                name = "common"
+            }.value.sourceSetID
+            sourceSet {
+                sourceRoots = listOf("src/jvm/")
+                analysisPlatform = "jvm"
+                name = "jvm"
+                dependentSourceSets = setOf(commonId)
+            }
+            sourceSet {
+                sourceRoots = listOf("src/native/")
+                analysisPlatform = "native"
+                name = "native"
+                dependentSourceSets = setOf(commonId)
+            }
+        }
+    }
+
     private fun RootPageNode.allTypesPageNode(): AllTypesPageNode? =
         children.singleOrNull { it is AllTypesPageNode } as? AllTypesPageNode
 
@@ -48,7 +70,7 @@ class AllTypesPageTest : BaseAbstractTest() {
             pagesTransformationStage = { rootPage ->
                 assertNotNull(rootPage.allTypesPageNode()).content.assertNode {
                     group {
-                        header { +"root" } // module name
+                        header { +"root" }
                     }
                     header { +"All Types" }
                     table {
@@ -138,7 +160,7 @@ class AllTypesPageTest : BaseAbstractTest() {
             pagesTransformationStage = { rootPage ->
                 assertNotNull(rootPage.allTypesPageNode()).content.assertNode {
                     group {
-                        header { +"root" } // module name
+                        header { +"root" }
                     }
                     header { +"All Types" }
                     table {
@@ -158,7 +180,7 @@ class AllTypesPageTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `all types description should be taken from most relevant sourceSet`() = withAllTypesPage {
+    fun `all types description is the same for all sourceSets`() = withAllTypesPage {
         testInline(
             """
             |/src/common/test.kt
@@ -166,53 +188,103 @@ class AllTypesPageTest : BaseAbstractTest() {
             |/**
             | * Common
             | */
-            |expect class FromCommon
-            |expect class FromJvm
-            |expect class FromNative
+            |expect class ExpectActual
+            |/src/jvm/test.kt
+            |package test
+            |/**
+            | * Common
+            | */
+            |actual class ExpectActual
+            |/src/native/test.kt
+            |package test
+            |/**
+            | * Common
+            | */
+            |actual class ExpectActual
+            """.trimIndent(),
+            multiplatformConfiguration
+        ) {
+            pagesTransformationStage = { rootPage ->
+                assertNotNull(rootPage.allTypesPageNode()).content.assertNode {
+                    group {
+                        header { +"root" }
+                    }
+                    header { +"All Types" }
+                    table {
+                        group {
+                            link { +"test.ExpectActual" }
+                            group { group { +"Common" } }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `all types description should should be taken from common if others different has different description`() =
+        withAllTypesPage {
+            testInline(
+                """
+                |/src/common/test.kt
+                |package test
+                |/**
+                | * Common
+                | */
+                |expect class ExpectActual
+                |/src/jvm/test.kt
+                |package test
+                |/**
+                | * JVM
+                | */
+                |actual class ExpectActual
+                |/src/native/test.kt
+                |package test
+                |/**
+                | * Native
+                | */
+                |actual class ExpectActual
+                """.trimIndent(),
+                multiplatformConfiguration
+            ) {
+                pagesTransformationStage = { rootPage ->
+                    assertNotNull(rootPage.allTypesPageNode()).content.assertNode {
+                        group {
+                            header { +"root" } // module name
+                        }
+                        header { +"All Types" }
+                        table {
+                            group {
+                                link { +"test.ExpectActual" }
+                                group { group { +"Common" } }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    @Test
+    fun `all types description should should be taken from jvm if common description is missing`() = withAllTypesPage {
+        testInline(
+            """
+            |/src/common/test.kt
+            |package test
+            |expect class ExpectActual
             |/src/jvm/test.kt
             |package test
             |/**
             | * JVM
             | */
-            |actual class FromCommon
-            |/**
-            | * JVM
-            | */
-            |actual class FromJvm
-            |actual class FromNative
+            |actual class ExpectActual
             |/src/native/test.kt
             |package test
             |/**
             | * Native
             | */
-            |actual class FromCommon
-            |actual class FromJvm
-            |/**
-            | * Native
-            | */
-            |actual class FromNative
+            |actual class ExpectActual
             """.trimIndent(),
-            dokkaConfiguration {
-                sourceSets {
-                    val commonId = sourceSet {
-                        sourceRoots = listOf("src/common/")
-                        analysisPlatform = "common"
-                        name = "common"
-                    }.value.sourceSetID
-                    sourceSet {
-                        sourceRoots = listOf("src/jvm/")
-                        analysisPlatform = "jvm"
-                        name = "jvm"
-                        dependentSourceSets = setOf(commonId)
-                    }
-                    sourceSet {
-                        sourceRoots = listOf("src/native/")
-                        analysisPlatform = "native"
-                        name = "native"
-                        dependentSourceSets = setOf(commonId)
-                    }
-                }
-            }
+            multiplatformConfiguration
         ) {
             pagesTransformationStage = { rootPage ->
                 assertNotNull(rootPage.allTypesPageNode()).content.assertNode {
@@ -222,20 +294,49 @@ class AllTypesPageTest : BaseAbstractTest() {
                     header { +"All Types" }
                     table {
                         group {
-                            link { +"test.FromCommon" }
-                            group { group { +"Common" } }
-                        }
-                        group {
-                            link { +"test.FromJvm" }
+                            link { +"test.ExpectActual" }
                             group { group { +"JVM" } }
-                        }
-                        group {
-                            link { +"test.FromNative" }
-                            group { group { +"Native" } }
                         }
                     }
                 }
             }
         }
     }
+
+    @Test
+    fun `all types description should should be taken from any source set if common and jvm descriptions are missing`() =
+        withAllTypesPage {
+            testInline(
+                """
+                |/src/common/test.kt
+                |package test
+                |expect class ExpectActual
+                |/src/jvm/test.kt
+                |package test
+                |actual class ExpectActual
+                |/src/native/test.kt
+                |package test
+                |/**
+                | * Native
+                | */
+                |actual class ExpectActual
+                """.trimIndent(),
+                multiplatformConfiguration
+            ) {
+                pagesTransformationStage = { rootPage ->
+                    assertNotNull(rootPage.allTypesPageNode()).content.assertNode {
+                        group {
+                            header { +"root" } // module name
+                        }
+                        header { +"All Types" }
+                        table {
+                            group {
+                                link { +"test.ExpectActual" }
+                                group { group { +"Native" } }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 }
