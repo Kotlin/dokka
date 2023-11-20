@@ -213,6 +213,8 @@ class LinkableContentTest : BaseAbstractTest() {
                     assertEquals(
                         """
                         |import p2.${name}Class
+                        |import kotlin.collections.List
+                        |import kotlin.collections.Map
                             |
                             |fun main() { 
                             |   //sampleStart 

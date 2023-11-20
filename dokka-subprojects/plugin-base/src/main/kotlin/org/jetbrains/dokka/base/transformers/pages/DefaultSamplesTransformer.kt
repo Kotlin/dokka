@@ -58,8 +58,38 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
         return dfs(fqLink, node)
     }
 
+    /**
+     * If both [imports] and [body] are present, it should return
+     *
+     * ```kotlin
+     * import com.example.One
+     * import com.example.Two
+     *
+     * fun main() {
+     *    //sampleStart
+     *    println("Sample function body")
+     *    println("Another line")
+     *    //sampleEnd
+     * }
+     * ```
+     *
+     * If [imports] are empty, it should return:
+     *
+     * ```kotlin
+     * fun main() {
+     *    //sampleStart
+     *    println("Sample function body")
+     *    println("Another line")
+     *    //sampleEnd
+     * }
+     * ```
+     *
+     * Notice the presence/absence of the new line before the body.
+     */
     private fun createSampleBody(imports: List<String>, body: String) =
-        """ |${imports.takeIf { it.isNotEmpty() }?.joinToString { "import $it\n" } ?: ""}
+        // takeIf {} is needed so that joinToString's postfix is not added for empty lists,
+        // and trimMargin() then removes the first empty line
+        """ |${imports.takeIf { it.isNotEmpty() }?.joinToString(separator = "\n", postfix = "\n") { "import $it" } ?: "" }
             |fun main() { 
             |   //sampleStart 
             |   $body 
