@@ -6,9 +6,13 @@ package utils
 
 import org.jetbrains.dokka.base.DokkaBaseInternalConfiguration
 import org.jetbrains.dokka.base.DokkaBaseInternalConfiguration.SHOULD_DISPLAY_ALL_TYPES_PAGE_SYS_PROP
+import org.jetbrains.dokka.base.DokkaBaseInternalConfiguration.SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP
 
 internal fun withAllTypesPage(block: () -> Unit): Unit =
     DokkaBaseInternalConfiguration.withProperty(SHOULD_DISPLAY_ALL_TYPES_PAGE_SYS_PROP, "true", block)
+
+internal fun withSinceKotlin(block: () -> Unit): Unit =
+    DokkaBaseInternalConfiguration.withProperty(SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP, "true", block)
 
 internal fun DokkaBaseInternalConfiguration.withProperty(propertyName: String, value: String, block: () -> Unit) {
     setProperty(propertyName, value)

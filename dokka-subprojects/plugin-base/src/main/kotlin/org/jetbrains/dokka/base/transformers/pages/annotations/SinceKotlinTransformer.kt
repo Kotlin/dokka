@@ -37,19 +37,28 @@ public class SinceKotlinVersion(str: String) : Comparable<SinceKotlinVersion> {
     }
 
     override fun toString(): String = parts.joinToString(".")
+
+    internal companion object {
+        internal const val SINCE_KOTLIN_TAG_NAME = "Since Kotlin"
+
+        private val minSinceKotlinVersionOfPlatform = mapOf(
+            Platform.common to SinceKotlinVersion("1.0"),
+            Platform.jvm to SinceKotlinVersion("1.0"),
+            Platform.js to SinceKotlinVersion("1.1"),
+            Platform.native to SinceKotlinVersion("1.3"),
+            Platform.wasm to SinceKotlinVersion("1.8"),
+        )
+
+        fun minSinceKotlinVersionOfPlatform(platform: Platform): SinceKotlinVersion {
+            return minSinceKotlinVersionOfPlatform[platform]
+                ?: throw IllegalStateException("No value for platform: $platform")
+        }
+    }
 }
 
 public class SinceKotlinTransformer(
     public val context: DokkaContext
 ) : DocumentableTransformer {
-
-    private val minSinceKotlinVersionOfPlatform = mapOf(
-        Platform.common to SinceKotlinVersion("1.0"),
-        Platform.jvm to SinceKotlinVersion("1.0"),
-        Platform.js to SinceKotlinVersion("1.1"),
-        Platform.native to SinceKotlinVersion("1.3"),
-        Platform.wasm to SinceKotlinVersion("1.8"),
-    )
 
     override fun invoke(original: DModule, context: DokkaContext): DModule = original.transform() as DModule
 
@@ -132,8 +141,7 @@ public class SinceKotlinTransformer(
                 ?.params?.let { it["version"] as? StringValue }?.value
                 ?.let { SinceKotlinVersion(it) }
 
-        val minSinceKotlin = minSinceKotlinVersionOfPlatform[sourceSet.analysisPlatform]
-            ?: throw IllegalStateException("No value for platform: ${sourceSet.analysisPlatform}")
+        val minSinceKotlin = SinceKotlinVersion.minSinceKotlinVersionOfPlatform(sourceSet.analysisPlatform)
 
         return annotatedVersion?.takeIf { version -> version >= minSinceKotlin } ?: minSinceKotlin
     }
@@ -155,6 +163,8 @@ public class SinceKotlinTransformer(
 
             val version = versions[sourceSet]
 
+            // the structure of custom tag content for SinceKotlin should be in sync
+            // with how DefaultPageCreator.contentForAllTypes reads it
             val sinceKotlinCustomTag = CustomTagWrapper(
                 CustomDocTag(
                     listOf(
@@ -164,7 +174,7 @@ public class SinceKotlinTransformer(
                     ),
                     name = MARKDOWN_ELEMENT_FILE_NAME
                 ),
-                "Since Kotlin"
+                SinceKotlinVersion.SINCE_KOTLIN_TAG_NAME
             )
             if (acc[sourceSet] == null)
                 acc + (sourceSet to DocumentationNode(listOf(sinceKotlinCustomTag)))

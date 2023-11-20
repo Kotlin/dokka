@@ -9,6 +9,7 @@ import org.jetbrains.dokka.base.pages.AllTypesPageNode
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.pages.RootPageNode
 import utils.withAllTypesPage
+import utils.withSinceKotlin
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -339,4 +340,87 @@ class AllTypesPageTest : BaseAbstractTest() {
                 }
             }
         }
+
+
+    @Test
+    fun `since kotlin is the same for all sourceSets`() = withAllTypesPage {
+        withSinceKotlin {
+            testInline(
+                """
+                |/src/common/test.kt
+                |package test
+                |@SinceKotlin("1.3")
+                |expect class ExpectActual
+                |/src/jvm/test.kt
+                |package test
+                |@SinceKotlin("1.3")
+                |actual class ExpectActual
+                |/src/native/test.kt
+                |package test
+                |@SinceKotlin("1.3")
+                |actual class ExpectActual
+                """.trimIndent(),
+                multiplatformConfiguration
+            ) {
+                pagesTransformationStage = { rootPage ->
+                    assertNotNull(rootPage.allTypesPageNode()).content.assertNode {
+                        group {
+                            header { +"root" }
+                        }
+                        header { +"All Types" }
+                        table {
+                            group {
+                                link { +"test.ExpectActual" }
+                                group {
+                                    +"Since Kotlin "
+                                    group { +"1.3" }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `minimal since kotlin is used if it's different between sourceSets`() = withAllTypesPage {
+        withSinceKotlin {
+            testInline(
+                """
+                |/src/common/test.kt
+                |package test
+                |@SinceKotlin("1.4")
+                |expect class ExpectActual
+                |/src/jvm/test.kt
+                |package test
+                |@SinceKotlin("1.2")
+                |actual class ExpectActual
+                |/src/native/test.kt
+                |package test
+                |@SinceKotlin("1.5")
+                |actual class ExpectActual
+                """.trimIndent(),
+                multiplatformConfiguration
+            ) {
+                pagesTransformationStage = { rootPage ->
+                    assertNotNull(rootPage.allTypesPageNode()).content.assertNode {
+                        group {
+                            header { +"root" }
+                        }
+                        header { +"All Types" }
+                        table {
+                            group {
+                                link { +"test.ExpectActual" }
+                                group {
+                                    +"Since Kotlin "
+                                    group { +"1.2" }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

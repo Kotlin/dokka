@@ -27,6 +27,7 @@ import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableSourceLanguagePa
 import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
 import org.jetbrains.dokka.base.DokkaBaseInternalConfiguration
 import org.jetbrains.dokka.base.pages.AllTypesPageNode
+import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinVersion
 import kotlin.reflect.KClass
 
 internal typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
@@ -312,10 +313,16 @@ public open class DefaultPageCreator(
                 typelike.descriptions[sourceSet]?.let { sourceSet to it }
             }.selectBestVariant { firstParagraphBrief(it.root) }
 
-            val customTags = typelike.customTags.values.mapNotNull { sourceSetTag ->
+            val sinceKotlinTag = typelike.customTags[SinceKotlinVersion.SINCE_KOTLIN_TAG_NAME]?.let { sourceSetTag ->
                 typelike.sourceSets.mapNotNull { sourceSet ->
                     sourceSetTag[sourceSet]?.let { sourceSet to it }
-                }.selectBestVariant { it }
+                }.minByOrNull { (sourceSet, tagWrapper) ->
+                    // this code should be in sync with how SinceKotlinTransformer.appendSinceKotlin works
+                    val customTag = tagWrapper.root as? CustomDocTag
+                    val sinceKotlinVersionText = customTag?.children?.firstOrNull() as? Text
+                    sinceKotlinVersionText?.body?.let(::SinceKotlinVersion)
+                        ?: SinceKotlinVersion.minSinceKotlinVersionOfPlatform(sourceSet.analysisPlatform)
+                }
             }
 
             // qualified name will never be 'null' for classlike and typealias
@@ -323,7 +330,7 @@ public open class DefaultPageCreator(
             comment?.let { (sourceSet, description) ->
                 createBriefComment(typelike, sourceSet, description)
             }
-            customTags.forEach { (sourceSet, tag) ->
+            sinceKotlinTag?.let { (sourceSet, tag) ->
                 createBriefCustomTags(sourceSet, tag)
             }
         }

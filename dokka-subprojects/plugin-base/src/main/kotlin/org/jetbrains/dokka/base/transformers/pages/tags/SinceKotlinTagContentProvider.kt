@@ -5,6 +5,7 @@
 package org.jetbrains.dokka.base.transformers.pages.tags
 
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinVersion
 import org.jetbrains.dokka.base.translators.documentables.KDOC_TAG_HEADER_LEVEL
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
 import org.jetbrains.dokka.model.doc.CustomTagWrapper
@@ -12,9 +13,8 @@ import org.jetbrains.dokka.pages.TextStyle
 
 public object SinceKotlinTagContentProvider : CustomTagContentProvider {
 
-    private const val SINCE_KOTLIN_TAG_NAME = "Since Kotlin"
-
-    override fun isApplicable(customTag: CustomTagWrapper): Boolean = customTag.name == SINCE_KOTLIN_TAG_NAME
+    override fun isApplicable(customTag: CustomTagWrapper): Boolean =
+        customTag.name == SinceKotlinVersion.SINCE_KOTLIN_TAG_NAME
 
     override fun DocumentableContentBuilder.contentForDescription(
         sourceSet: DokkaConfiguration.DokkaSourceSet,
