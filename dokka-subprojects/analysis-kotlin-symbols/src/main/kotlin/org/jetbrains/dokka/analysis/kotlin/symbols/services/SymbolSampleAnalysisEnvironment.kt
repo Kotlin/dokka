@@ -20,7 +20,8 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.analysis.api.analyze
-import org.jetbrains.kotlin.codegen.optimization.common.analyze
+import org.jetbrains.kotlin.analysis.api.symbols.sourcePsiSafe
+import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtFile
@@ -63,7 +64,7 @@ private class SymbolSampleAnalysisEnvironment(
                         "Expecting a link to a reachable (resolvable) top-level Kotlin function."
             )
             return null
-        } else if (psiElement.containingFile !is KtFile) {
+        } else if (psiElement.language != KotlinLanguage.INSTANCE) {
             dokkaLogger.warn("Unable to resolve non-Kotlin @sample links: \"$fullyQualifiedLink\"")
             return null
         } else if (psiElement !is KtFunction) {
@@ -82,7 +83,8 @@ private class SymbolSampleAnalysisEnvironment(
             ?: projectKotlinAnalysis.getModule(sourceSet)
 
         return analyze(ktSourceModule) {
-            resolveKDocTextLinkSymbol(fqLink)?.psi
+            resolveKDocTextLinkSymbol(fqLink)
+                ?.sourcePsiSafe()
         }
     }
 
