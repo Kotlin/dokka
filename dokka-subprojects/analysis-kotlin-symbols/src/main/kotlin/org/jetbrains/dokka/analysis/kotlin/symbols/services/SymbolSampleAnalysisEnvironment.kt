@@ -78,13 +78,27 @@ private class SymbolSampleAnalysisEnvironment(
         return SampleSnippet(imports, body)
     }
 
-    private fun findPsiElement(sourceSet: DokkaSourceSet, fqLink: String): PsiElement? {
-        val ktSourceModule = samplesKotlinAnalysis.getModuleOrNull(sourceSet)
-            ?: projectKotlinAnalysis.getModule(sourceSet)
+    // copy-pasted from StdLib 1.5
+     private inline fun <T, R : Any> Iterable<T>.firstNotNullOfOrNull(transform: (T) -> R?): R? {
+        for (element in this) {
+            val result = transform(element)
+            if (result != null) {
+                return result
+            }
+        }
+        return null
+    }
 
-        return analyze(ktSourceModule) {
-            resolveKDocTextLinkSymbol(fqLink)
-                ?.sourcePsiSafe()
+    private fun findPsiElement(sourceSet: DokkaSourceSet, fqLink: String): PsiElement? {
+        // fallback to default roots of the source set even if sample roots are assigned
+        val ktSourceModules =
+            listOfNotNull(samplesKotlinAnalysis.getModuleOrNull(sourceSet), projectKotlinAnalysis.getModule(sourceSet))
+
+        return ktSourceModules.firstNotNullOfOrNull { ktSourceModule ->
+            analyze(ktSourceModule) {
+                resolveKDocTextLinkSymbol(fqLink)
+                    ?.sourcePsiSafe()
+            }
         }
     }
 
