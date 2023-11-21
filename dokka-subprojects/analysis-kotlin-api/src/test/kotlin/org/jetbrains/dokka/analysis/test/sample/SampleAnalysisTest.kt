@@ -10,7 +10,6 @@ import org.jetbrains.dokka.analysis.test.api.mixedJvmTestProject
 import org.jetbrains.dokka.analysis.test.api.useServices
 import org.jetbrains.dokka.analysis.test.api.util.CollectingDokkaConsoleLogger
 import org.jetbrains.dokka.analysis.test.api.util.singleSourceSet
-import org.junit.jupiter.api.Tag
 import kotlin.test.*
 
 class SampleAnalysisTest {
@@ -323,7 +322,6 @@ class SampleAnalysisTest {
     }
 
     @Test
-    @Tag("onlyDescriptors") // TODO #3359
     fun `should return null if trying to resolve a non-kotlin sample link`() {
         val testProject = mixedJvmTestProject {
             kotlinSourceDirectory {
