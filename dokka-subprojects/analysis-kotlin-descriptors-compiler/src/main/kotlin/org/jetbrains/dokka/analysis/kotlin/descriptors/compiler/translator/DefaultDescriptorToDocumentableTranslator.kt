@@ -99,11 +99,13 @@ internal class DefaultDescriptorToDocumentableTranslator(
             .mapNotNull { analysisContext.resolveSession.getPackageFragment(it) }
             .toList()
 
-        val javadocParser = JavadocParser(
-            docCommentParsers = context.plugin<JavaAnalysisPlugin>().query { docCommentParsers },
-            docCommentFinder = context.plugin<JavaAnalysisPlugin>().docCommentFinder
-        )
-
+        val javadocParser =
+            if (sourceSet.analysisPlatform == Platform.jvm)
+                JavadocParser(
+                    docCommentParsers = context.plugin<JavaAnalysisPlugin>().query { docCommentParsers },
+                    docCommentFinder = context.plugin<JavaAnalysisPlugin>().docCommentFinder
+                )
+            else null
 
         return DokkaDescriptorVisitor(sourceSet, kdocFinder, kotlinAnalysis[sourceSet], context.logger, javadocParser).run {
             packageFragments.parallelMap {
