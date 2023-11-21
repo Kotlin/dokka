@@ -11,6 +11,7 @@ import org.jetbrains.dokka.InternalDokkaApi
 import org.jetbrains.dokka.analysis.java.BreakingAbstractionKotlinLightMethodChecker
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration.DokkaAnalysisConfiguration
+import org.jetbrains.dokka.analysis.kotlin.KotlinAnalysisPlugin
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration.KotlinAnalysis
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration.ProjectKotlinAnalysis
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.impl.*
@@ -20,7 +21,6 @@ import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.translator.Defau
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.translator.DefaultExternalDocumentablesProvider
 import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
-import org.jetbrains.dokka.analysis.kotlin.internal.SampleProviderFactory
 import org.jetbrains.dokka.plugability.*
 import org.jetbrains.kotlin.asJava.elements.KtLightAbstractAnnotation
 
@@ -75,13 +75,8 @@ public class CompilerDescriptorAnalysisPlugin : DokkaPlugin() {
         plugin<InternalKotlinAnalysisPlugin>().fullClassHierarchyBuilder providing { DescriptorFullClassHierarchyBuilder() }
     }
 
-    /**
-     * StdLib has its own a sample provider
-     * So it should have a possibility to override this extension
-     */
-    @InternalDokkaApi
-    public val kotlinSampleProviderFactory: Extension<SampleProviderFactory, *, *> by extending {
-        plugin<InternalKotlinAnalysisPlugin>().sampleProviderFactory providing ::KotlinSampleProviderFactory
+    internal val descriptorSampleAnalysisEnvironmentCreator by extending {
+        plugin<KotlinAnalysisPlugin>().sampleAnalysisEnvironmentCreator providing ::DescriptorSampleAnalysisEnvironmentCreator
     }
 
     internal val descriptorSyntheticDocumentableDetector by extending {

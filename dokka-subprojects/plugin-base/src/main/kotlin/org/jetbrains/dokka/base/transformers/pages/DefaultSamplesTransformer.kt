@@ -4,6 +4,7 @@
 
 package org.jetbrains.dokka.base.transformers.pages
 
+import org.jetbrains.dokka.analysis.kotlin.KotlinAnalysisPlugin
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.doc.Sample
@@ -13,18 +14,18 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageTransformer
-import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
-import org.jetbrains.dokka.analysis.kotlin.internal.SampleProvider
-import org.jetbrains.dokka.analysis.kotlin.internal.SampleProviderFactory
+import org.jetbrains.dokka.analysis.kotlin.sample.SampleAnalysisEnvironmentCreator
+import org.jetbrains.dokka.analysis.kotlin.sample.SampleSnippet
 
 internal const val KOTLIN_PLAYGROUND_SCRIPT = "https://unpkg.com/kotlin-playground@1/dist/playground.min.js"
 
 internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransformer {
 
-    private val sampleProviderFactory: SampleProviderFactory = context.plugin<InternalKotlinAnalysisPlugin>().querySingle { sampleProviderFactory }
+    private val sampleAnalysisEnvironment: SampleAnalysisEnvironmentCreator =
+        context.plugin<KotlinAnalysisPlugin>().querySingle { sampleAnalysisEnvironmentCreator }
 
     override fun invoke(input: RootPageNode): RootPageNode {
-        return sampleProviderFactory.build().use { sampleProvider ->
+        return sampleAnalysisEnvironment.use {
             input.transformContentPagesTree { page ->
                 val samples = (page as? WithDocumentables)?.documentables?.flatMap {
                     it.documentation.entries.flatMap { entry ->
@@ -33,7 +34,7 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
                 } ?: return@transformContentPagesTree page
 
                 val newContent = samples.fold(page.content) { acc, (sampleSourceSet, sample) ->
-                    sampleProvider.getSample(sampleSourceSet, sample.name)
+                    resolveSample(sampleSourceSet, sample.name)
                         ?.let {
                             acc.addSample(page, sample.name, it)
                         } ?: acc
@@ -51,14 +52,44 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
     private fun ContentNode.addSample(
         contentPage: ContentPage,
         fqLink: String,
-        sample: SampleProvider.SampleSnippet,
+        sample: SampleSnippet,
     ): ContentNode {
         val node = contentCode(contentPage.content.sourceSets, contentPage.dri, createSampleBody(sample.imports, sample.body), "kotlin")
         return dfs(fqLink, node)
     }
 
-    fun createSampleBody(imports: String, body: String) =
-        """ |$imports
+    /**
+     * If both [imports] and [body] are present, it should return
+     *
+     * ```kotlin
+     * import com.example.One
+     * import com.example.Two
+     *
+     * fun main() {
+     *    //sampleStart
+     *    println("Sample function body")
+     *    println("Another line")
+     *    //sampleEnd
+     * }
+     * ```
+     *
+     * If [imports] are empty, it should return:
+     *
+     * ```kotlin
+     * fun main() {
+     *    //sampleStart
+     *    println("Sample function body")
+     *    println("Another line")
+     *    //sampleEnd
+     * }
+     * ```
+     *
+     * Notice the presence/absence of the new line before the body.
+     */
+    private fun createSampleBody(imports: List<String>, body: String) =
+        // takeIf {} is needed so that joinToString's postfix is not added for empty lists,
+        // and trimMargin() then removes the first empty line
+        """ |${imports.takeIf { it.isNotEmpty() }?.joinToString(separator = "\n", postfix = "\n") { "import $it" } ?: "" }
             |fun main() { 
             |   //sampleStart 
             |   $body 

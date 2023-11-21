@@ -1,5 +1,6 @@
 public final class org/jetbrains/dokka/analysis/kotlin/KotlinAnalysisPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
+	public final fun getSampleAnalysisEnvironmentCreator ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 }
 
 public final class org/jetbrains/dokka/analysis/kotlin/internal/DocumentableLanguage : java/lang/Enum {
@@ -51,7 +52,6 @@ public final class org/jetbrains/dokka/analysis/kotlin/internal/InternalKotlinAn
 	public final fun getInheritanceBuilder ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getKotlinToJavaService ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getModuleAndPackageDocumentationReader ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getSampleProviderFactory ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getSyntheticDocumentableDetector ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 }
 
@@ -65,21 +65,24 @@ public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/Mod
 	public abstract fun read (Lorg/jetbrains/dokka/model/DPackage;)Ljava/util/Map;
 }
 
-public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/SampleProvider : java/lang/AutoCloseable {
-	public abstract fun getSample (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/lang/String;)Lorg/jetbrains/dokka/analysis/kotlin/internal/SampleProvider$SampleSnippet;
-}
-
-public final class org/jetbrains/dokka/analysis/kotlin/internal/SampleProvider$SampleSnippet {
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
-	public final fun getBody ()Ljava/lang/String;
-	public final fun getImports ()Ljava/lang/String;
-}
-
-public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/SampleProviderFactory {
-	public abstract fun build ()Lorg/jetbrains/dokka/analysis/kotlin/internal/SampleProvider;
-}
-
 public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/SyntheticDocumentableDetector {
 	public abstract fun isSynthetic (Lorg/jetbrains/dokka/model/Documentable;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Z
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/kotlin/sample/SampleAnalysisEnvironment {
+	public abstract fun resolveSample (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/lang/String;)Lorg/jetbrains/dokka/analysis/kotlin/sample/SampleSnippet;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/kotlin/sample/SampleAnalysisEnvironmentCreator {
+	public abstract fun use (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class org/jetbrains/dokka/analysis/kotlin/sample/SampleSnippet {
+	public fun <init> (Ljava/util/List;Ljava/lang/String;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBody ()Ljava/lang/String;
+	public final fun getImports ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 

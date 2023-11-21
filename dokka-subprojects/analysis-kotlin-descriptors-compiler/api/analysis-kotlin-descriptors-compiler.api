@@ -10,7 +10,6 @@ public final class org/jetbrains/dokka/analysis/kotlin/descriptors/compiler/Comp
 	public final fun getKdocFinder ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getKlibService ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getKotlinAnalysis ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getKotlinSampleProviderFactory ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getMockApplicationHack ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 }
 
@@ -83,21 +82,6 @@ public abstract class org/jetbrains/dokka/analysis/kotlin/descriptors/compiler/c
 	public fun <init> (Lorg/jetbrains/dokka/analysis/kotlin/descriptors/compiler/configuration/KotlinAnalysis;)V
 	public synthetic fun <init> (Lorg/jetbrains/dokka/analysis/kotlin/descriptors/compiler/configuration/KotlinAnalysis;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun get (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/analysis/kotlin/descriptors/compiler/configuration/AnalysisContext;
-}
-
-public class org/jetbrains/dokka/analysis/kotlin/descriptors/compiler/impl/KotlinSampleProvider : org/jetbrains/dokka/analysis/kotlin/internal/SampleProvider {
-	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public fun close ()V
-	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
-	public fun getSample (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/lang/String;)Lorg/jetbrains/dokka/analysis/kotlin/internal/SampleProvider$SampleSnippet;
-	protected fun processBody (Lcom/intellij/psi/PsiElement;)Ljava/lang/String;
-	protected fun processImports (Lcom/intellij/psi/PsiElement;)Ljava/lang/String;
-}
-
-public final class org/jetbrains/dokka/analysis/kotlin/descriptors/compiler/impl/KotlinSampleProviderFactory : org/jetbrains/dokka/analysis/kotlin/internal/SampleProviderFactory {
-	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public fun build ()Lorg/jetbrains/dokka/analysis/kotlin/internal/SampleProvider;
-	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
 }
 
 public final class org/jetbrains/kotlin/cli/jvm/compiler/KotlinCliJavaFileManagerImpl : com/intellij/core/CoreJavaFileManager, org/jetbrains/kotlin/resolve/jvm/KotlinCliJavaFileManager {
