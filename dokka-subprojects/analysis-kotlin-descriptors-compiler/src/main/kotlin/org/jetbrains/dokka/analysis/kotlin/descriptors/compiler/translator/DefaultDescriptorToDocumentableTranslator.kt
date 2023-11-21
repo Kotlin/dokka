@@ -1091,8 +1091,6 @@ private class DokkaDescriptorVisitor(
         }
 
     private fun JavadocParser.getJavaDocs(declarationDescriptor: DeclarationDescriptor): DocumentationNode? {
-        if(sourceSet.analysisPlatform != Platform.jvm) return null // javadoc is only on JVM platform
-
         val overriddenDescriptors = (declarationDescriptor as? CallableDescriptor)?.overriddenDescriptors ?: emptyList()
         val allDescriptors = overriddenDescriptors + listOf(declarationDescriptor)
         return allDescriptors
