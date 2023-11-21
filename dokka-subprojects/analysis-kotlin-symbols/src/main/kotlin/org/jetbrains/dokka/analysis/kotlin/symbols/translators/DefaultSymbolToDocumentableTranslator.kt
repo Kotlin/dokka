@@ -112,11 +112,16 @@ internal class DokkaSymbolVisitor(
         get() = (psi as? KtModifierListOwner)?.hasExpectModifier() == true
 
     private fun <T : KtSymbol> Collection<T>.filterSymbolsInSourceSet() = filter {
-        it.psi?.containingFile?.virtualFile?.path?.let { path ->
-            path.isNotBlank() && sourceSet.sourceRoots.any { root ->
-                Paths.get(path).startsWith(root.toPath())
+        val pathString = it.psi?.containingFile?.virtualFile?.path
+        when {
+            pathString.isNullOrBlank() -> false
+            else -> {
+                val absolutePath = Paths.get(pathString).toAbsolutePath()
+                sourceSet.sourceRoots.any { root ->
+                    absolutePath.startsWith(root.toPath().toAbsolutePath())
+                }
             }
-        } == true
+        }
     }
 
     fun visitModule(): DModule {
