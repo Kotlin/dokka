@@ -9,6 +9,7 @@ import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiLiteralUtil.*
 import kotlinx.coroutines.*
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
 import org.jetbrains.dokka.analysis.java.parsers.JavadocParser
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.CompilerDescriptorAnalysisPlugin
@@ -98,11 +99,13 @@ internal class DefaultDescriptorToDocumentableTranslator(
             .mapNotNull { analysisContext.resolveSession.getPackageFragment(it) }
             .toList()
 
-        val javadocParser = JavadocParser(
-            docCommentParsers = context.plugin<JavaAnalysisPlugin>().query { docCommentParsers },
-            docCommentFinder = context.plugin<JavaAnalysisPlugin>().docCommentFinder
-        )
-
+        val javadocParser =
+            if (sourceSet.analysisPlatform == Platform.jvm)
+                JavadocParser(
+                    docCommentParsers = context.plugin<JavaAnalysisPlugin>().query { docCommentParsers },
+                    docCommentFinder = context.plugin<JavaAnalysisPlugin>().docCommentFinder
+                )
+            else null
 
         return DokkaDescriptorVisitor(sourceSet, kdocFinder, kotlinAnalysis[sourceSet], context.logger, javadocParser).run {
             packageFragments.parallelMap {
@@ -128,10 +131,13 @@ internal class DefaultDescriptorToDocumentableTranslator(
     override fun translateClassDescriptor(descriptor: ClassDescriptor, sourceSet: DokkaSourceSet): DClasslike {
         val driInfo = DRI.from(descriptor.parents.first()).withEmptyInfo()
 
-        val javadocParser = JavadocParser(
-            docCommentParsers = context.plugin<JavaAnalysisPlugin>().query { docCommentParsers },
-            docCommentFinder = context.plugin<JavaAnalysisPlugin>().docCommentFinder
-        )
+        val javadocParser =
+            if (sourceSet.analysisPlatform == Platform.jvm)
+                JavadocParser(
+                    docCommentParsers = context.plugin<JavaAnalysisPlugin>().query { docCommentParsers },
+                    docCommentFinder = context.plugin<JavaAnalysisPlugin>().docCommentFinder
+                )
+            else null
 
         return newSingleThreadContext("Generating documentable model of classlike").use { coroutineContext -> // see https://github.com/Kotlin/dokka/issues/3151
             runBlocking(coroutineContext) {
@@ -149,12 +155,15 @@ internal data class DRIWithPlatformInfo(
 
 internal fun DRI.withEmptyInfo() = DRIWithPlatformInfo(this, emptyMap())
 
+/**
+ * @param javadocParser can be null for non JVM platform
+ */
 private class DokkaDescriptorVisitor(
     private val sourceSet: DokkaSourceSet,
     private val kDocFinder: KDocFinder,
     private val analysisContext: AnalysisContext,
     private val logger: DokkaLogger,
-    private val javadocParser: JavadocParser
+    private val javadocParser: JavadocParser? = null
 ) {
     private val syntheticDocProvider = SyntheticDescriptorDocumentationProvider(kDocFinder, sourceSet)
 
@@ -1080,16 +1089,16 @@ private class DokkaDescriptorVisitor(
                         else it
                     }
                 )
-            } ?: getJavaDocs())?.takeIf { it.children.isNotEmpty() }
+            } ?: javadocParser?.getJavaDocs(this))?.takeIf { it.children.isNotEmpty() }
         }
 
-    private fun DeclarationDescriptor.getJavaDocs(): DocumentationNode? {
-        val overriddenDescriptors = (this as? CallableDescriptor)?.overriddenDescriptors ?: emptyList()
-        val allDescriptors = overriddenDescriptors + listOf(this)
+    private fun JavadocParser.getJavaDocs(declarationDescriptor: DeclarationDescriptor): DocumentationNode? {
+        val overriddenDescriptors = (declarationDescriptor as? CallableDescriptor)?.overriddenDescriptors ?: emptyList()
+        val allDescriptors = overriddenDescriptors + listOf(declarationDescriptor)
         return allDescriptors
             .mapNotNull { it.findPsi() as? PsiNamedElement }
             .firstOrNull()
-            ?.let { javadocParser.parseDocumentation(it) }
+            ?.let { parseDocumentation(it) }
     }
 
     private suspend fun ClassDescriptor.companion(dri: DRIWithPlatformInfo): DObject? = companionObjectDescriptor?.let {
