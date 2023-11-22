@@ -6,7 +6,7 @@ package org.jetbrains.dokka.tests
 
 import markdown.KDocTest
 
-import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_ELEMENT_FILE_NAME
+import org.jetbrains.dokka.analysis.kotlin.internal.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.analysis.markdown.jb.MarkdownParser
 import org.jetbrains.dokka.model.doc.*
 import kotlin.test.Ignore

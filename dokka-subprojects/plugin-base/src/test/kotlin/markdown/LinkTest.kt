@@ -4,6 +4,7 @@
 
 package markdown
 
+import org.jetbrains.dokka.analysis.kotlin.internal.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.WithGenerics
@@ -172,7 +173,7 @@ class LinkTest : BaseAbstractTest() {
                                 )
                             )
                         ),
-                        name = "MARKDOWN_FILE"
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
 
@@ -229,7 +230,7 @@ class LinkTest : BaseAbstractTest() {
                                 )
                             )
                         ),
-                        name = "MARKDOWN_FILE"
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
 

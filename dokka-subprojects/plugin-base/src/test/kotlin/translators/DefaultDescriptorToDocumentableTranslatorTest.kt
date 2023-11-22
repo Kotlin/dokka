@@ -911,7 +911,7 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
                                     Text("This method may be used to iterate over the constants.")
                                 ))
                             ),
-                            name = "MARKDOWN_FILE"
+                            name = MARKDOWN_ELEMENT_FILE_NAME
                         )
                     )
                 ))
@@ -974,7 +974,7 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
                                     Text("This method may be used to iterate over the enum entries.")
                                 ))
                             ),
-                            name = "MARKDOWN_FILE"
+                            name = MARKDOWN_ELEMENT_FILE_NAME
                         )
                     )
                 ))
@@ -1023,7 +1023,7 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
                                     )
                                 ))
                             ),
-                            name = "MARKDOWN_FILE"
+                            name = MARKDOWN_ELEMENT_FILE_NAME
                         )
                     ),
                     Throws(
@@ -1033,7 +1033,7 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
                                     Text("if this enum type has no constant with the specified name")
                                 ))
                             ),
-                            name = "MARKDOWN_FILE"
+                            name = MARKDOWN_ELEMENT_FILE_NAME
                         ),
                         name = "kotlin.IllegalArgumentException",
                         exceptionAddress = DRI(

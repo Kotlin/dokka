@@ -6,7 +6,7 @@ package org.jetbrains.dokka.base.transformers.pages.comments
 
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_ELEMENT_FILE_NAME
+import org.jetbrains.dokka.analysis.kotlin.internal.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.model.properties.plus

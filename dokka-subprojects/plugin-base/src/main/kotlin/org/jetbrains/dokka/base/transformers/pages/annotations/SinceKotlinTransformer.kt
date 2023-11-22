@@ -7,7 +7,7 @@ package org.jetbrains.dokka.base.transformers.pages.annotations
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_ELEMENT_FILE_NAME
+import org.jetbrains.dokka.analysis.kotlin.internal.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.annotations
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.CustomDocTag

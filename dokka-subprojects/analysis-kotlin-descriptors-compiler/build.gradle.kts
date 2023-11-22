@@ -18,6 +18,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
     testImplementation(projects.dokkaSubprojects.coreTestApi)
+    testImplementation(projects.dokkaSubprojects.analysisKotlinApi)
 
     // TODO [beresnev] get rid of it
     compileOnly(libs.kotlinx.coroutines.core)

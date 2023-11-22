@@ -9,7 +9,7 @@ import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.flavours.gfm.GFMElementTypes
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes
-import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_ELEMENT_FILE_NAME
+import org.jetbrains.dokka.analysis.kotlin.internal.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.analysis.markdown.jb.parseHtmlEncodedWithNormalisedSpaces
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*

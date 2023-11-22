@@ -4,6 +4,7 @@
 
 package translators
 
+import org.jetbrains.dokka.analysis.kotlin.internal.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.doc.CustomDocTag
 import org.jetbrains.dokka.model.doc.Description
@@ -51,7 +52,7 @@ class JavadocInheritDocsTest : BaseAbstractTest() {
                                 children = listOf(Text("Superclass docs"))
                             )
                         ),
-                        name = "MARKDOWN_FILE"
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
 
@@ -89,7 +90,7 @@ class JavadocInheritDocsTest : BaseAbstractTest() {
                                 children = listOf(Text("Subclass docs. Superclass docs End of subclass docs"))
                             )
                         ),
-                        name = "MARKDOWN_FILE"
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
 
@@ -124,7 +125,7 @@ class JavadocInheritDocsTest : BaseAbstractTest() {
                                 children = listOf(Text("Subclass docs. End of subclass docs"))
                             )
                         ),
-                        name = "MARKDOWN_FILE"
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
 
@@ -166,7 +167,7 @@ class JavadocInheritDocsTest : BaseAbstractTest() {
                                 children = listOf(Text("Subclass docs. Super super docs End of subclass docs"))
                             )
                         ),
-                        name = "MARKDOWN_FILE"
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
 
@@ -205,7 +206,7 @@ class JavadocInheritDocsTest : BaseAbstractTest() {
                                 children = listOf(Text("Subclass docs. End of subclass docs"))
                             )
                         ),
-                        name = "MARKDOWN_FILE"
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
 
@@ -250,7 +251,7 @@ class JavadocInheritDocsTest : BaseAbstractTest() {
                                 children = listOf(Text("Subclass docs. Super class docs End of subclass docs"))
                             )
                         ),
-                        name = "MARKDOWN_FILE"
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
 
@@ -301,7 +302,7 @@ class JavadocInheritDocsTest : BaseAbstractTest() {
                                 children = listOf(Text("Sample sub method. Sample super method"))
                             )
                         ),
-                        name = "MARKDOWN_FILE"
+                        name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
 

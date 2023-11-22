@@ -4,6 +4,7 @@
 
 package content
 
+import org.jetbrains.dokka.analysis.kotlin.internal.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.doc.*
 import kotlin.test.Test
@@ -33,7 +34,7 @@ class ContentInDescriptionTest : BaseAbstractTest() {
                 )
             ),
             params = emptyMap(),
-            name = "MARKDOWN_FILE"
+            name = MARKDOWN_ELEMENT_FILE_NAME
         )
     )
 

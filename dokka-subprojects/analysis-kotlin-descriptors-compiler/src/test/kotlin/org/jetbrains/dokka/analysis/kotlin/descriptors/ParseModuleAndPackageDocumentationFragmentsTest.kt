@@ -8,7 +8,7 @@ package org.jetbrains.dokka.analysis.kotlin.descriptors
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.impl.moduledocs.*
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.impl.moduledocs.ModuleAndPackageDocumentation.Classifier.Module
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.impl.moduledocs.ModuleAndPackageDocumentation.Classifier.Package
-import org.jetbrains.dokka.analysis.markdown.jb.MARKDOWN_ELEMENT_FILE_NAME
+import org.jetbrains.dokka.analysis.kotlin.internal.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.junit.jupiter.api.io.TempDir

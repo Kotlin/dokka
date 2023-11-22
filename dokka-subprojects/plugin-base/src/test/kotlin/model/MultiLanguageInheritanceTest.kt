@@ -5,6 +5,7 @@
 package model
 
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.analysis.kotlin.internal.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
@@ -168,7 +169,7 @@ class MultiLanguageInheritanceTest : BaseAbstractTest() {
 
                     ),
                     params = emptyMap(),
-                    name = "MARKDOWN_FILE"
+                    name = MARKDOWN_ELEMENT_FILE_NAME
                 )
 
                 assertEquals("", module.documentationOf("ChildInJava"))
@@ -246,7 +247,7 @@ class MultiLanguageInheritanceTest : BaseAbstractTest() {
                         )
                     ),
                     params = emptyMap(),
-                    name = "MARKDOWN_FILE"
+                    name = MARKDOWN_ELEMENT_FILE_NAME
                 )
 
                 assertEquals("", module.documentationOf("ChildInJava"))
