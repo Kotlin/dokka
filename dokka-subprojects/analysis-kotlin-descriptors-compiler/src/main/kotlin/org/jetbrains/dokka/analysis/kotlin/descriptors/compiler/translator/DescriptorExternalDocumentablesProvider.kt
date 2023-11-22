@@ -11,7 +11,7 @@ import org.jetbrains.dokka.model.DClasslike
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
-import org.jetbrains.dokka.analysis.kotlin.internal.ExternalDocumentablesProvider
+import org.jetbrains.dokka.analysis.kotlin.documentable.ExternalDocumentableProvider
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.PackageViewDescriptor
@@ -19,12 +19,12 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.resolve.scopes.getDescriptorsFiltered
 
-internal class DefaultExternalDocumentablesProvider(context: DokkaContext) : ExternalDocumentablesProvider {
+internal class DescriptorExternalDocumentablesProvider(context: DokkaContext) : ExternalDocumentableProvider {
     private val analysis = context.plugin<CompilerDescriptorAnalysisPlugin>().querySingle { kotlinAnalysis }
 
     private val translator: ExternalClasslikesTranslator = DefaultDescriptorToDocumentableTranslator(context)
 
-    override fun findClasslike(dri: DRI, sourceSet: DokkaSourceSet): DClasslike? {
+    override fun getClasslike(dri: DRI, sourceSet: DokkaSourceSet): DClasslike? {
         val pkg = dri.packageName?.let { FqName(it) } ?: FqName.ROOT
         val names = dri.classNames?.split('.') ?: return null
 

@@ -18,7 +18,7 @@ import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.impl.*
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.impl.moduledocs.ModuleAndPackageDocumentationReader
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.java.*
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.translator.DefaultDescriptorToDocumentableTranslator
-import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.translator.DefaultExternalDocumentablesProvider
+import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.translator.DescriptorExternalDocumentablesProvider
 import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import org.jetbrains.dokka.plugability.*
@@ -95,8 +95,8 @@ public class CompilerDescriptorAnalysisPlugin : DokkaPlugin() {
         plugin<InternalKotlinAnalysisPlugin>().inheritanceBuilder providing { DescriptorInheritanceBuilder() }
     }
 
-    internal val defaultExternalDocumentablesProvider by extending {
-        plugin<InternalKotlinAnalysisPlugin>().externalDocumentablesProvider providing ::DefaultExternalDocumentablesProvider
+    internal val descriptorExternalDocumentableProvider by extending {
+        plugin<KotlinAnalysisPlugin>().externalDocumentableProvider providing ::DescriptorExternalDocumentablesProvider
     }
 
     private val javaAnalysisPlugin by lazy { plugin<JavaAnalysisPlugin>() }
