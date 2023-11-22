@@ -79,18 +79,6 @@ private class SymbolSampleAnalysisEnvironment(
         return SampleSnippet(imports, body)
     }
 
-    // copy-pasted from StdLib 1.5
-    // TODO use it from Stdlib
-     private inline fun <T, R : Any> Iterable<T>.firstNotNullOfOrNull(transform: (T) -> R?): R? {
-        for (element in this) {
-            val result = transform(element)
-            if (result != null) {
-                return result
-            }
-        }
-        return null
-    }
-
     // TODO: remove after KT-53669 and use [org.jetbrains.kotlin.analysis.api.symbols.sourcePsiSafe] from Analysis API
     private inline fun <reified PSI : PsiElement> KtSymbol.kotlinAndJavaSourcePsiSafe(): PSI? {
         // TODO: support Java sources after KT-53669
@@ -114,15 +102,17 @@ private class SymbolSampleAnalysisEnvironment(
     }
 
     private fun findPsiElement(sourceSet: DokkaSourceSet, fqLink: String): PsiElement? {
-        // fallback to default roots of the source set even if sample roots are assigned
-        val ktSourceModules =
-            listOfNotNull(samplesKotlinAnalysis.getModuleOrNull(sourceSet), projectKotlinAnalysis.getModule(sourceSet))
+        // fallback to default roots of the source set even if sample roots are assigned,
+        // because `@sample` tag can contain links to functions from project sources
+        return samplesKotlinAnalysis.findPsiElement(sourceSet, fqLink)
+            ?: projectKotlinAnalysis.findPsiElement(sourceSet, fqLink)
+    }
 
-        return ktSourceModules.firstNotNullOfOrNull { ktSourceModule ->
-            analyze(ktSourceModule) {
-                resolveKDocTextLinkSymbol(fqLink)
-                    ?.kotlinAndJavaSourcePsiSafe()
-            }
+    private fun KotlinAnalysis.findPsiElement(sourceSet: DokkaSourceSet, fqLink: String): PsiElement? {
+        val ktSourceModule = this.getModuleOrNull(sourceSet) ?: return null
+        return analyze(ktSourceModule) {
+            resolveKDocTextLinkSymbol(fqLink)
+                ?.kotlinAndJavaSourcePsiSafe()
         }
     }
 
