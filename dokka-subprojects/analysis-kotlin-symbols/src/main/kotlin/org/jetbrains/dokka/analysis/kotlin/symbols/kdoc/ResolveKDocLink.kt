@@ -35,7 +35,7 @@ internal inline fun DRI?.ifUnresolved(action: () -> Unit): DRI? = this ?: run {
  *
  * @return [DRI] or null if the [link] is unresolved
  */
-internal fun KtAnalysisSession.resolveKDocTextLinkDRI(link: String, context: PsiElement? = null): DRI? {
+internal fun KtAnalysisSession.resolveKDocTextLinkToDRI(link: String, context: PsiElement? = null): DRI? {
     val kDocLink = createKDocLink(link, context)
     return kDocLink?.let { resolveKDocLinkToDRI(it) }
 }
@@ -46,7 +46,7 @@ internal fun KtAnalysisSession.resolveKDocTextLinkDRI(link: String, context: Psi
  *
  * @return [KtSymbol] or null if the [link] is unresolved
  */
-internal fun KtAnalysisSession.resolveKDocTextLinkSymbol(link: String, context: PsiElement? = null): KtSymbol? {
+internal fun KtAnalysisSession.resolveKDocTextLinkToSymbol(link: String, context: PsiElement? = null): KtSymbol? {
     val kDocLink = createKDocLink(link, context)
     return kDocLink?.let { resolveToSymbol(it) }
 }
