@@ -1,6 +1,11 @@
 public final class org/jetbrains/dokka/analysis/kotlin/KotlinAnalysisPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
+	public final fun getExternalDocumentableProvider ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getSampleAnalysisEnvironmentCreator ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/kotlin/documentable/ExternalDocumentableProvider {
+	public abstract fun getClasslike (Lorg/jetbrains/dokka/links/DRI;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/DClasslike;
 }
 
 public final class org/jetbrains/dokka/analysis/kotlin/internal/DocumentableLanguage : java/lang/Enum {
@@ -12,10 +17,6 @@ public final class org/jetbrains/dokka/analysis/kotlin/internal/DocumentableLang
 
 public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/DocumentableSourceLanguageParser {
 	public abstract fun getLanguage (Lorg/jetbrains/dokka/model/Documentable;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/analysis/kotlin/internal/DocumentableLanguage;
-}
-
-public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/ExternalDocumentablesProvider {
-	public abstract fun findClasslike (Lorg/jetbrains/dokka/links/DRI;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/DClasslike;
 }
 
 public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/FullClassHierarchyBuilder {
@@ -47,7 +48,6 @@ public final class org/jetbrains/dokka/analysis/kotlin/internal/InheritanceNode 
 public final class org/jetbrains/dokka/analysis/kotlin/internal/InternalKotlinAnalysisPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
 	public final fun getDocumentableSourceLanguageParser ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
-	public final fun getExternalDocumentablesProvider ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getFullClassHierarchyBuilder ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getInheritanceBuilder ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getKotlinToJavaService ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
