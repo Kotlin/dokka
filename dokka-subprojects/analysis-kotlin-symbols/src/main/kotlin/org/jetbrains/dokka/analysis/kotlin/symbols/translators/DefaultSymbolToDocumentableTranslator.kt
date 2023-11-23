@@ -116,9 +116,9 @@ internal class DokkaSymbolVisitor(
         when {
             pathString.isNullOrBlank() -> false
             else -> {
-                val absolutePath = Paths.get(pathString).toAbsolutePath()
+                val absolutePath = Paths.get(pathString).toRealPath()
                 sourceSet.sourceRoots.any { root ->
-                    absolutePath.startsWith(root.toPath().toAbsolutePath())
+                    absolutePath.startsWith(root.toPath().toRealPath())
                 }
             }
         }
