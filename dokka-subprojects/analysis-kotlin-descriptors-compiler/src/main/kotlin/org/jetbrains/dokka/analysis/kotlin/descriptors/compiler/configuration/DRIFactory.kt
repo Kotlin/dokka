@@ -13,6 +13,11 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.parentsWithSelf
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 internal fun DRI.Companion.from(descriptor: DeclarationDescriptor) = descriptor.parentsWithSelf.run {
+    if (descriptor is PackageViewDescriptor) {
+        return@run DRI(
+            packageName = descriptor.fqName.asString()
+        )
+    }
     val parameter = firstIsInstanceOrNull<ValueParameterDescriptor>()
     val callable = parameter?.containingDeclaration ?: firstIsInstanceOrNull<CallableDescriptor>()
 
