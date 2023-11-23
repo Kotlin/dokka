@@ -317,11 +317,10 @@ public open class DefaultPageCreator(
                 typelike.sourceSets.mapNotNull { sourceSet ->
                     sourceSetTag[sourceSet]?.let { sourceSet to it }
                 }.minByOrNull { (sourceSet, tagWrapper) ->
-                    // this code should be in sync with how SinceKotlinTransformer.appendSinceKotlin works
-                    val customTag = tagWrapper.root as? CustomDocTag
-                    val sinceKotlinVersionText = customTag?.children?.firstOrNull() as? Text
-                    sinceKotlinVersionText?.body?.let(::SinceKotlinVersion)
-                        ?: SinceKotlinVersion.minSinceKotlinVersionOfPlatform(sourceSet.analysisPlatform)
+                    SinceKotlinVersion.extractSinceKotlinVersionFromCustomTag(
+                        tagWrapper = tagWrapper,
+                        platform = sourceSet.analysisPlatform
+                    )
                 }
             }
 

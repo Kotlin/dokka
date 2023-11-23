@@ -41,7 +41,7 @@ public class SinceKotlinVersion(str: String) : Comparable<SinceKotlinVersion> {
     internal companion object {
         internal const val SINCE_KOTLIN_TAG_NAME = "Since Kotlin"
 
-        private val minSinceKotlinVersionOfPlatform = mapOf(
+        private val minVersionOfPlatform = mapOf(
             Platform.common to SinceKotlinVersion("1.0"),
             Platform.jvm to SinceKotlinVersion("1.0"),
             Platform.js to SinceKotlinVersion("1.1"),
@@ -49,10 +49,41 @@ public class SinceKotlinVersion(str: String) : Comparable<SinceKotlinVersion> {
             Platform.wasm to SinceKotlinVersion("1.8"),
         )
 
-        fun minSinceKotlinVersionOfPlatform(platform: Platform): SinceKotlinVersion {
-            return minSinceKotlinVersionOfPlatform[platform]
+        fun minVersionOfPlatform(platform: Platform): SinceKotlinVersion {
+            return minVersionOfPlatform[platform]
                 ?: throw IllegalStateException("No value for platform: $platform")
         }
+
+        /**
+         * Should be in sync with [extractSinceKotlinVersionFromCustomTag]
+         */
+        fun createCustomTagFromSinceKotlinVersion(
+            version: SinceKotlinVersion?,
+            platform: Platform
+        ): CustomTagWrapper {
+            val sinceKotlinVersion = version?: minVersionOfPlatform(platform)
+            return CustomTagWrapper(
+                CustomDocTag(
+                    children = listOf(Text(sinceKotlinVersion.toString())),
+                    name = MARKDOWN_ELEMENT_FILE_NAME
+                ),
+                SINCE_KOTLIN_TAG_NAME
+            )
+        }
+
+        /**
+         * Should be in sync with [createCustomTagFromSinceKotlinVersion]
+         */
+        fun extractSinceKotlinVersionFromCustomTag(
+            tagWrapper: CustomTagWrapper,
+            platform: Platform
+        ): SinceKotlinVersion {
+            val customTag = tagWrapper.root as? CustomDocTag
+            val sinceKotlinVersionText = customTag?.children?.firstOrNull() as? Text
+            val sinceKotlinVersion = sinceKotlinVersionText?.body?.let(::SinceKotlinVersion)
+            return sinceKotlinVersion ?: minVersionOfPlatform(platform)
+        }
+
     }
 }
 
@@ -141,7 +172,7 @@ public class SinceKotlinTransformer(
                 ?.params?.let { it["version"] as? StringValue }?.value
                 ?.let { SinceKotlinVersion(it) }
 
-        val minSinceKotlin = SinceKotlinVersion.minSinceKotlinVersionOfPlatform(sourceSet.analysisPlatform)
+        val minSinceKotlin = SinceKotlinVersion.minVersionOfPlatform(sourceSet.analysisPlatform)
 
         return annotatedVersion?.takeIf { version -> version >= minSinceKotlin } ?: minSinceKotlin
     }
@@ -161,29 +192,16 @@ public class SinceKotlinTransformer(
     private fun Documentable.appendSinceKotlin(versions: SourceSetDependent<SinceKotlinVersion>) =
         sourceSets.fold(documentation) { acc, sourceSet ->
 
-            val version = versions[sourceSet]
-
-            // the structure of custom tag content for SinceKotlin should be in sync
-            // with how DefaultPageCreator.contentForAllTypes reads it
-            val sinceKotlinCustomTag = CustomTagWrapper(
-                CustomDocTag(
-                    listOf(
-                        Text(
-                            version.toString()
-                        )
-                    ),
-                    name = MARKDOWN_ELEMENT_FILE_NAME
-                ),
-                SinceKotlinVersion.SINCE_KOTLIN_TAG_NAME
+            val sinceKotlinCustomTag = SinceKotlinVersion.createCustomTagFromSinceKotlinVersion(
+                version = versions[sourceSet],
+                platform = sourceSet.analysisPlatform
             )
             if (acc[sourceSet] == null)
                 acc + (sourceSet to DocumentationNode(listOf(sinceKotlinCustomTag)))
             else
                 acc.mapValues {
                     if (it.key == sourceSet) it.value.copy(
-                        it.value.children + listOf(
-                            sinceKotlinCustomTag
-                        )
+                        it.value.children + listOf(sinceKotlinCustomTag)
                     ) else it.value
                 }
         }
