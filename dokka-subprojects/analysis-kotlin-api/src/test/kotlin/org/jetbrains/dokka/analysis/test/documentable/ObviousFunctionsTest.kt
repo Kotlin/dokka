@@ -133,6 +133,110 @@ class ObviousFunctionsTest {
         }
     }
 
+    @Test
+    fun `should mark only toString, equals and hashcode as obvious for class`() {
+        val project = kotlinJvmTestProject {
+            ktFile("SomeClass.kt") {
+                +"""
+                    class SomeClass {
+                        fun custom() {}
+                    }
+                """
+            }
+        }
+
+        val module = project.parse()
+
+        val pkg = module.packages.single()
+        val cls = pkg.classlikes.single()
+
+        assertEquals("SomeClass", cls.name)
+
+        assertObviousFunctions(
+            expectedObviousFunctions = setOf("equals", "hashCode", "toString"),
+            expectedNonObviousFunctions = setOf("custom"),
+            actualFunctions = cls.functions
+        )
+    }
+
+    @Test
+    fun `should mark only toString, equals and hashcode as obvious for interface`() {
+        val project = kotlinJvmTestProject {
+            ktFile("SomeClass.kt") {
+                +"""
+                    interface SomeClass {
+                        fun custom()
+                    }
+                """
+            }
+        }
+
+        val module = project.parse()
+
+        val pkg = module.packages.single()
+        val cls = pkg.classlikes.single()
+
+        assertEquals("SomeClass", cls.name)
+
+        assertObviousFunctions(
+            expectedObviousFunctions = setOf("equals", "hashCode", "toString"),
+            expectedNonObviousFunctions = setOf("custom"),
+            actualFunctions = cls.functions
+        )
+    }
+
+    @Test
+    fun `should mark data class generated functions as obvious`() {
+        val project = kotlinJvmTestProject {
+            ktFile("SomeClass.kt") {
+                +"""
+                    data class SomeClass(val x: String) {
+                        fun custom() {}
+                    }
+                """
+            }
+        }
+
+        val module = project.parse()
+
+        val pkg = module.packages.single()
+        val cls = pkg.classlikes.single()
+
+        assertEquals("SomeClass", cls.name)
+
+        assertObviousFunctions(
+            expectedObviousFunctions = setOf("equals", "hashCode", "toString", "component1", "copy"),
+            expectedNonObviousFunctions = setOf("custom"),
+            actualFunctions = cls.functions
+        )
+    }
+
+    @Test
+    fun `should not mark as obvious if override`() {
+        val project = kotlinJvmTestProject {
+            ktFile("SomeClass.kt") {
+                +"""
+                    data class SomeClass(val x: String) {
+                        override fun toString(): String = x
+                    }
+                """
+            }
+        }
+
+        val module = project.parse()
+
+        val pkg = module.packages.single()
+        val cls = pkg.classlikes.single()
+
+        assertEquals("SomeClass", cls.name)
+
+        assertObviousFunctions(
+            expectedObviousFunctions = setOf("equals", "hashCode", "component1", "copy"),
+            expectedNonObviousFunctions = setOf("toString"),
+            actualFunctions = cls.functions
+        )
+    }
+
     private fun assertObviousFunctions(
         expectedObviousFunctions: Set<String>,
         expectedNonObviousFunctions: Set<String>,
