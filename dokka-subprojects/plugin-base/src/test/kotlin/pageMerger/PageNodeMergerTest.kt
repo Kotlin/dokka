@@ -141,7 +141,6 @@ class PageNodeMergerTest : BaseAbstractTest() {
             configuration
         ) {
             pagesTransformationStage = {
-                println(it)
                 val allChildren = it.childrenRec().filterIsInstance<ClasslikePageNode>()
                 val jvmClass = allChildren.filter { it.name == "[jvm]DoNotMerge" }
                 val jsClass = allChildren.filter { it.name == "[js]DoNotMerge" }

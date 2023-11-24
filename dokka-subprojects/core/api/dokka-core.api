@@ -3807,6 +3807,7 @@ public final class org/jetbrains/dokka/pages/ContentHeader : org/jetbrains/dokka
 }
 
 public final class org/jetbrains/dokka/pages/ContentKind : java/lang/Enum, org/jetbrains/dokka/pages/Kind {
+	public static final field AllTypes Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Annotations Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field BriefComment Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Classlikes Lorg/jetbrains/dokka/pages/ContentKind;

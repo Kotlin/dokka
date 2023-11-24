@@ -336,7 +336,7 @@ public enum class ContentKind : Kind {
      */
     Symbol,
 
-    Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, Sample, Main, BriefComment,
+    Comment, Constructors, Functions, Parameters, Properties, Classlikes, Packages, AllTypes, Sample, Main, BriefComment,
     Empty, Source, TypeAliases, Cover, Inheritors, SourceSetDependentHint, Extensions, Annotations,
 
     /**
@@ -352,6 +352,7 @@ public enum class ContentKind : Kind {
                 Properties,
                 Classlikes,
                 Packages,
+                AllTypes,
                 Source,
                 TypeAliases,
                 Inheritors,

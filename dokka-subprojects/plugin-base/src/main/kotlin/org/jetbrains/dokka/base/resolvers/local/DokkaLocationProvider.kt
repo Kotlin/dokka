@@ -6,6 +6,7 @@ package org.jetbrains.dokka.base.resolvers.local
 
 import org.jetbrains.dokka.base.renderers.sourceSets
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
+import org.jetbrains.dokka.base.pages.AllTypesPageNode
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.*
@@ -24,6 +25,9 @@ public open class DokkaLocationProvider(
         fun registerPath(page: PageNode, prefix: List<String>) {
             if (page is RootPageNode && page.forceTopLevelName) {
                 put(page, prefix + PAGE_WITH_CHILDREN_SUFFIX)
+                page.children.forEach { registerPath(it, prefix) }
+            } else if (page is AllTypesPageNode) {
+                put(page, prefix + ALL_TYPES_PAGE_PATH)
                 page.children.forEach { registerPath(it, prefix) }
             } else {
                 val newPrefix = prefix + page.pathName
@@ -159,7 +163,12 @@ public open class DokkaLocationProvider(
     protected data class PageWithKind(val page: ContentPage, val kind: Kind)
 
     public companion object {
-        public val reservedFilenames: Set<String> = setOf("index", "con", "aux", "lst", "prn", "nul", "eof", "inp", "out")
+        private const val ALL_TYPES_PAGE_PATH: String = "all-types"
+
+        public val reservedFilenames: Set<String> = setOf(
+            "index", "con", "aux", "lst", "prn", "nul", "eof", "inp", "out",
+            ALL_TYPES_PAGE_PATH
+        )
 
         //Taken from: https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
         internal val reservedCharacters = setOf('|', '>', '<', '*', ':', '"', '?', '%')
