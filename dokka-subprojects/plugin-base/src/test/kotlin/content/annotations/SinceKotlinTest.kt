@@ -6,7 +6,8 @@ package content.annotations
 
 import matchers.content.*
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinTransformer
+import org.jetbrains.dokka.base.DokkaBaseInternalConfiguration
+import org.jetbrains.dokka.base.DokkaBaseInternalConfiguration.SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP
 import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinVersion
 import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.dfs
@@ -32,11 +33,12 @@ class SinceKotlinTest : AbstractRenderingTest() {
 
     @BeforeTest
     fun setSystemProperty() {
-        System.setProperty(SinceKotlinTransformer.SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP, "true")
+        DokkaBaseInternalConfiguration.setProperty(SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP, "true")
     }
+
     @AfterTest
     fun clearSystemProperty() {
-        System.clearProperty(SinceKotlinTransformer.SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP)
+        DokkaBaseInternalConfiguration.clearProperty(SHOULD_DISPLAY_SINCE_KOTLIN_SYS_PROP)
     }
 
     @Test
@@ -50,7 +52,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
     }
 
     @Test
-    fun `rendered SinceKotlin custom tag for typealias, extensions, functions, properties`() {
+    fun `rendered SinceKotlin custom tag for typealias, extensions, functions, properties`() = withAllTypesPage {
         val writerPlugin = TestOutputWriterPlugin()
 
         testInline(
@@ -70,13 +72,20 @@ class SinceKotlinTest : AbstractRenderingTest() {
             |typealias Str = String
             |@SinceKotlin("1.5")
             |val str = "str"
+            |@SinceKotlin("1.5")
+            |class A
         """.trimIndent(),
             testConfiguration,
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
+                // 5 = 2 functions, 1 typealias, 1 property, 1 class
                 val content = writerPlugin.renderedContent("root/test/index.html")
-                assertEquals(4, content.getElementsContainingOwnText("Since Kotlin").count())
+                assertEquals(5, content.getElementsContainingOwnText("Since Kotlin").count())
+
+                // 2 = 1 typealias, 1 class
+                val allTypesContent = writerPlugin.renderedContent("root/all-types.html")
+                assertEquals(2, allTypesContent.getElementsContainingOwnText("Since Kotlin").count())
             }
         }
     }

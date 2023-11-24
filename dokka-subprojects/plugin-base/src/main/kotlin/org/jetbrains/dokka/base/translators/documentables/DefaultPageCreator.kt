@@ -5,6 +5,7 @@
 package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
 import org.jetbrains.dokka.base.signatures.SignatureProvider
@@ -24,6 +25,9 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableSourceLanguageParser
 import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
+import org.jetbrains.dokka.base.DokkaBaseInternalConfiguration
+import org.jetbrains.dokka.base.pages.AllTypesPageNode
+import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinVersion
 import kotlin.reflect.KClass
 
 internal typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
@@ -47,8 +51,18 @@ public open class DefaultPageCreator(
     protected val separateInheritedMembers: Boolean =
         configuration?.separateInheritedMembers ?: DokkaBaseConfiguration.separateInheritedMembersDefault
 
-    public open fun pageForModule(m: DModule): ModulePageNode =
-        ModulePageNode(m.name.ifEmpty { "<root>" }, contentForModule(m), listOf(m), m.packages.map(::pageForPackage))
+    public open fun pageForModule(m: DModule): ModulePageNode {
+        val packagePages = m.packages.map(::pageForPackage)
+        return ModulePageNode(
+            name = m.name.ifEmpty { "<root>" },
+            content = contentForModule(m),
+            documentables = listOf(m),
+            children = when {
+                m.needAllTypesPage() -> packagePages + AllTypesPageNode(content = contentForAllTypes(m))
+                else -> packagePages
+            }
+        )
+    }
 
     /**
      * We want to generate separated pages for no-actual typealias.
@@ -270,7 +284,75 @@ public open class DefaultPageCreator(
                     documentations.first()?.let { firstParagraphComment(kind = ContentKind.Comment, content = it.root) }
                 }
             }
+
+            if (m.needAllTypesPage()) {
+                header(2, "Index", kind = ContentKind.Cover)
+                link("All Types", AllTypesPageNode.DRI)
+            }
         }
+    }
+
+    private fun contentForAllTypes(m: DModule): ContentGroup = contentBuilder.contentFor(m) {
+        group(kind = ContentKind.Cover) {
+            cover(m.name)
+        }
+
+        block(
+            name = "All Types",
+            level = 2,
+            kind = ContentKind.AllTypes,
+            elements = m.packages.flatMap { it.classlikes + it.typealiases }.filterOutActualTypeAlias(),
+            sourceSets = m.sourceSets.toSet(),
+            needsAnchors = true,
+            headers = listOf(
+                headers("Name")
+            )
+        ) { typelike ->
+
+            val comment = typelike.sourceSets.mapNotNull { sourceSet ->
+                typelike.descriptions[sourceSet]?.let { sourceSet to it }
+            }.selectBestVariant { firstParagraphBrief(it.root) }
+
+            val sinceKotlinTag = typelike.customTags[SinceKotlinVersion.SINCE_KOTLIN_TAG_NAME]?.let { sourceSetTag ->
+                typelike.sourceSets.mapNotNull { sourceSet ->
+                    sourceSetTag[sourceSet]?.let { sourceSet to it }
+                }.minByOrNull { (sourceSet, tagWrapper) ->
+                    SinceKotlinVersion.extractSinceKotlinVersionFromCustomTag(
+                        tagWrapper = tagWrapper,
+                        platform = sourceSet.analysisPlatform
+                    )
+                }
+            }
+
+            // qualified name will never be 'null' for classlike and typealias
+            link(typelike.qualifiedName()!!, typelike.dri)
+            comment?.let { (sourceSet, description) ->
+                createBriefComment(typelike, sourceSet, description)
+            }
+            sinceKotlinTag?.let { (sourceSet, tag) ->
+                createBriefCustomTags(sourceSet, tag)
+            }
+        }
+    }
+
+    // the idea is to have at least some description, so we do:
+    //  1. if all data per source sets are the same - take it
+    //  2. if not, try to take common data
+    //  3. if not, try to take JVM data (as this is most likely to be the best variant)
+    //  4. if not, just take any data
+    private fun <T, K> List<Pair<DokkaSourceSet, T>>.selectBestVariant(selector: (T) -> K): Pair<DokkaSourceSet, T>? {
+        if (isEmpty()) return null
+        val uniqueElements = distinctBy { selector(it.second) }
+        return uniqueElements.singleOrNull()
+            ?: uniqueElements.firstOrNull { it.first.analysisPlatform == Platform.common }
+            ?: uniqueElements.firstOrNull { it.first.analysisPlatform == Platform.jvm }
+            ?: uniqueElements.firstOrNull()
+    }
+
+    private fun Documentable.qualifiedName(): String? {
+        val className = dri.classNames?.takeIf(String::isNotBlank) ?: name
+        val packageName = dri.packageName?.takeIf(String::isNotBlank) ?: return className
+        return "$packageName.${className}"
     }
 
     protected open fun contentForPackage(p: DPackage): ContentGroup {
@@ -482,7 +564,7 @@ public open class DefaultPageCreator(
     protected open fun contentForDescription(
         d: Documentable
     ): List<ContentNode> {
-        val sourceSets = d.sourceSets.toSet()
+        val sourceSets = d.sourceSets
         val tags = d.groupedTags
 
         return contentBuilder.contentFor(d) {
@@ -715,17 +797,30 @@ public open class DefaultPageCreator(
         documentable.sourceSets.forEach { sourceSet ->
             customTags.forEach { (_, sourceSetTag) ->
                 sourceSetTag[sourceSet]?.let { tag ->
-                    customTagContentProviders.filter { it.isApplicable(tag) }.forEach { provider ->
-                        with(provider) {
-                            contentForBrief(sourceSet, tag)
-                        }
-                    }
+                    createBriefCustomTags(sourceSet, tag)
                 }
             }
         }
     }
 
+    private fun DocumentableContentBuilder.createBriefCustomTags(
+        sourceSet: DokkaSourceSet,
+        customTag: CustomTagWrapper
+    ) {
+        customTagContentProviders.filter { it.isApplicable(customTag) }.forEach { provider ->
+            with(provider) {
+                contentForBrief(sourceSet, customTag)
+            }
+        }
+    }
+
     protected open fun TagWrapper.toHeaderString(): String = this.javaClass.toGenericString().split('.').last()
+
+    private fun DModule.needAllTypesPage(): Boolean {
+        return DokkaBaseInternalConfiguration.allTypesPageEnabled && packages.any {
+            it.classlikes.isNotEmpty() || it.typealiases.isNotEmpty()
+        }
+    }
 }
 
 internal val List<Documentable>.sourceSets: Set<DokkaSourceSet>
