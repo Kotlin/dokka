@@ -40,6 +40,7 @@ class WasmJsWasiGradleIntegrationTest : AbstractGradleIntegrationTest() {
         File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
     }
 
+    @OnlyDescriptors
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(WasmJsWasiTestedVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {

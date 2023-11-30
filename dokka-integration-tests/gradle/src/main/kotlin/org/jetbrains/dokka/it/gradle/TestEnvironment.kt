@@ -4,6 +4,8 @@
 
 package org.jetbrains.dokka.it.gradle
 
+import org.junit.jupiter.api.Tag
+
 public object TestEnvironment {
     public const val TRY_K2: String = "org.jetbrains.dokka.experimental.tryK2"
 
@@ -27,3 +29,19 @@ public object TestEnvironment {
 public inline fun <reified T> ifExhaustive(vararg values: T): Array<out T> {
     return if (TestEnvironment.isExhaustive) values else emptyArray()
 }
+
+/**
+ * Run a test only for descriptors (K1), not symbols (K2).
+ * The test with this annotation will be ignored only if the property [TestEnvironment.TRY_K2] = true.
+ */
+@Target(
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER
+)
+@Retention(
+    AnnotationRetention.RUNTIME
+)
+@Tag("onlyDescriptors")
+public annotation class OnlyDescriptors(val reason: String = "")
