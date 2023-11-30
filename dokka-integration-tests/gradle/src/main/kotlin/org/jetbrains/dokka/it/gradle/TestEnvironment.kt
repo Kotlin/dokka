@@ -5,9 +5,20 @@
 package org.jetbrains.dokka.it.gradle
 
 public object TestEnvironment {
+    public const val TRY_K2: String = "org.jetbrains.dokka.experimental.tryK2"
+
     public val isExhaustive: Boolean = checkNotNull(System.getenv("isExhaustive")) {
         "Missing `isExhaustive` environment variable"
     }.toBoolean()
+
+    /**
+     * By default, it is disabled
+     */
+    public fun shouldUseK2(): Boolean = getBooleanProperty(TRY_K2)
+
+    private fun getBooleanProperty(propertyName: String): Boolean {
+        return System.getProperty(propertyName) in setOf("1", "true")
+    }
 }
 
 /**
