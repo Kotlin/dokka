@@ -27,9 +27,9 @@ fun createTask(name: String) {
         dokkaSourceSets {
             moduleName.set("Some example")
             register("kotlin-stdlib-common") {
-                sourceRoots.from("src/main/java")
-                sourceRoots.from("src/main/kotlin")
-                samples.from("src/main/kotlin")
+                sourceRoots.from("src/common/java")
+                sourceRoots.from("src/common/kotlin")
+                samples.from("src/common/kotlin")
             }
         }
     }
