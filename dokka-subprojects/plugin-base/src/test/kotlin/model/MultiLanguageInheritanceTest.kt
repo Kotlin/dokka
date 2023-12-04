@@ -8,6 +8,7 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
+import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.withDescendants
@@ -107,6 +108,40 @@ class MultiLanguageInheritanceTest : BaseAbstractTest() {
                 assertEquals("parent function docs", module.documentationOf("Child", "parentFunction"))
                 assertEquals("for details", (seeTag?.root?.dfs { it is Text } as Text).body)
                 assertEquals("java.lang.String", seeTag.name)
+            }
+        }
+    }
+
+    @Test
+    fun `java nested classed should not be in inheritor`() {
+        testInline(
+            """
+            |/src/main/kotlin/sample/ParentInKotlin.kt
+            |package sample
+            |class Child: JavaParent()
+            |
+            |class KotlinParent {
+            | class NestedJavaParent
+            |}
+            |class ChildB: KotlinParent() 
+            |
+            |/src/main/kotlin/sample/ChildInJava.java
+            |package sample;
+            |public class JavaParent {
+            |    public class InnerJavaParent{}
+            |    public static class NestedJavaParent{}
+            |}
+            """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val childBClass = module.packages.flatMap { it.classlikes }
+                    .find { it.name == "ChildB" } as DClass
+                assertEquals(childBClass.classlikes, emptyList())
+
+                val childClass = module.packages.flatMap { it.classlikes }
+                    .find { it.name == "Child" } as DClass
+                assertEquals(childClass.classlikes, emptyList())
             }
         }
     }
