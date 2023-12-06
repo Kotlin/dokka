@@ -19,3 +19,9 @@ In order to update:
 * Go to `$pathToProjectInDokka`, `git fetch && git checkout $revisionNumber`
     - Prior to that, ensure that you have your git submodules initialized
 * Ensure that the corresponding `GradleIntegrationTest` passes locally and push
+
+
+### Run integration tests with K2 (symbols)
+
+To run integration tests with K2, the property `org.jetbrains.dokka.experimental.tryK2` should be set to `true`. 
+By default, the task `integrationTest` is run with K1 (descriptors).

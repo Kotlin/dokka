@@ -41,6 +41,12 @@ public abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() 
                     buildVersions.androidGradlePluginVersion?.let { androidVersion ->
                         "-Pdokka_it_android_gradle_plugin_version=$androidVersion"
                     },
+                    // property flag to use K2
+                    if (TestEnvironment.shouldUseK2())
+                        "-P${TestEnvironment.TRY_K2}=true"
+                    else
+                        null,
+
                     * arguments
                 )
             ).run { this as DefaultGradleRunner }
