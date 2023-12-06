@@ -483,6 +483,12 @@ public class KotlinSignatureProvider(
                 type.projections
 
             punctuation("(")
+            if(args.isEmpty()) {
+                contentBuilder.logger.warn("Functional type should have at least one argument in ${type.dri}")
+                text("ERROR CLASS: functional type should have at least one argument in ${type.dri}")
+                return@contentFor
+            }
+
             args.subList(0, args.size - 1).forEachIndexed { i, arg ->
                 signatureForProjection(arg)
                 if (i < args.size - 2) punctuation(", ")
