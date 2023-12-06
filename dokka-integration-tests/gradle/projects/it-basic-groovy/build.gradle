@@ -13,6 +13,7 @@ dokkaHtml {
     outputDirectory = new File(buildDir, "/dokka/customHtml")
     failOnWarning = false
     dokkaSourceSets {
+        // create a new source set
         customSourceSet {
             sourceRoot(file("src/custom/java"))
             sourceRoot(file("src/custom/kotlin"))
