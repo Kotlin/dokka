@@ -258,6 +258,11 @@ class ContentForInheritorsTest : BaseAbstractTest() {
                 |
                 |class Child : Parent()
                 |
+                |/src/linuxX64Main/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |class Child : Parent()
+                |
             """.trimMargin(),
             mppTestConfiguration
         ) {

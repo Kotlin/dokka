@@ -168,9 +168,14 @@ private class DokkaDescriptorVisitor(
     private val syntheticDocProvider = SyntheticDescriptorDocumentationProvider(kDocFinder, sourceSet)
 
     private fun Collection<DeclarationDescriptor>.filterDescriptorsInSourceSet() = filter {
-        it.toSourceElement.containingFile.toString().let { path ->
-            path.isNotBlank() && sourceSet.sourceRoots.any { root ->
-                Paths.get(path).startsWith(root.toPath())
+        val pathString = it.toSourceElement.containingFile.toString()
+        when {
+            pathString.isBlank() -> false
+            else -> {
+                val absolutePath = Paths.get(pathString).toRealPath()
+                sourceSet.sourceRoots.any { root ->
+                    absolutePath.startsWith(root.toPath().toRealPath())
+                }
             }
         }
     }
