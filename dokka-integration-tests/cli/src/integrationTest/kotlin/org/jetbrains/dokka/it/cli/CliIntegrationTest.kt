@@ -374,4 +374,42 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
 
         assertTrue(dokkaOutputDir.isDirectory, "Missing dokka output directory")
     }
+
+    @Test
+    fun `relative paths in configuraiton should work`() {
+        val resourcePath =
+            javaClass.getResource("/my-file.json")?.toURI() ?: throw IllegalStateException("No JSON found!")
+        val jsonPath = File(resourcePath)
+
+        val dokkaOutputDir = File(projectDir, "output-relative")
+        assertTrue(dokkaOutputDir.mkdirs())
+        jsonPath.writeText(
+            jsonBuilder(
+                outputPath = dokkaOutputDir.invariantSeparatorsPath,
+                pluginsClasspath = basePluginJarFile.absoluteFile.invariantSeparatorsPath,
+                projectPath = "src", // relative path
+            )
+        )
+
+        ProcessBuilder(
+            "java", "-jar", cliJarFile.absolutePath, jsonPath.absolutePath
+        ).directory(projectDir).redirectErrorStream(true).start().also { process ->
+            val result = process.awaitProcessResult()
+            assertEquals(0, result.exitCode, "Expected exitCode 0 (Success)")
+        }
+
+        assertTrue(dokkaOutputDir.isDirectory, "Missing dokka output directory")
+
+        val htmlFiles = dokkaOutputDir.allHtmlFiles().map { it.relativeTo(dokkaOutputDir).path }.toList()
+
+        // check that both Kotlin and Java sources are processed
+
+        // kotlin:
+        assertContains(htmlFiles, "-dokka -example/it.basic/index.html")
+        assertContains(htmlFiles, "-dokka -example/it.basic/-public-class/public-documented-function.html")
+
+        // java:
+        assertContains(htmlFiles, "-dokka -example/it.basic.java/index.html")
+        assertContains(htmlFiles, "-dokka -example/it.basic.java/-sample-java-class/public-documented-function.html")
+    }
 }
