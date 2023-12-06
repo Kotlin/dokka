@@ -26,10 +26,11 @@ fun createTask(name: String) {
     tasks.register(name, org.jetbrains.dokka.gradle.DokkaTask::class) {
         dokkaSourceSets {
             moduleName.set("Some example")
+            // create a new source set
             register("kotlin-stdlib-common") {
-                sourceRoots.from("src/main/java")
-                sourceRoots.from("src/main/kotlin")
-                samples.from("src/main/kotlin")
+                sourceRoots.from("src/common/java")
+                sourceRoots.from("src/common/kotlin")
+                samples.from("src/common/kotlin")
             }
         }
     }

@@ -36,6 +36,7 @@ class JsIRGradleIntegrationTest : AbstractGradleIntegrationTest() {
         File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
     }
 
+    @OnlyDescriptors
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {

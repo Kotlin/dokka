@@ -50,7 +50,10 @@ val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
     testClassesDirs = integrationTestSourceSet.output.classesDirs
     classpath = integrationTestSourceSet.runtimeClasspath
 
-    useJUnitPlatform()
+    useJUnitPlatform {
+        val useK2 = (project.properties["org.jetbrains.dokka.experimental.tryK2"] as? String)?.toBoolean() ?: false
+        if (useK2) excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
+    }
 
     setForkEvery(1)
     project.properties["dokka_integration_test_parallelism"]?.toString()?.toIntOrNull()?.let { parallelism ->
