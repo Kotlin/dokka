@@ -13,6 +13,8 @@ public object TestEnvironment {
         "Missing `isExhaustive` environment variable"
     }.toBoolean()
 
+    public val isDisabledDebug: Boolean = System.getenv("DISABLE_DEBUG").toBoolean()
+
     /**
      * By default, it is disabled
      */

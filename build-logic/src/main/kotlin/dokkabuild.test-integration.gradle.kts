@@ -67,6 +67,9 @@ val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
             ?: false.toString()
     )
 
+    if (project.hasProperty("teamcity"))
+        environment("DISABLE_DEBUG", "true")
+    
     testLogging {
         exceptionFormat = TestExceptionFormat.FULL
         events(TestLogEvent.SKIPPED, TestLogEvent.FAILED)
