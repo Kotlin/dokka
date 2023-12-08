@@ -130,7 +130,7 @@ public class KotlinSignatureProvider(
             sourceSets = setOf(sourceSet)
         ) {
             annotationsBlock(c)
-            c.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
+            c.visibility[sourceSet]?.takeIf { it.name.isNotBlank() && it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
             if (c.isExpectActual) keyword(if (sourceSet == c.expectPresentInSet) "expect " else "actual ")
             if (c is DClass) {
                 val modifier =
