@@ -11,7 +11,7 @@ import org.jetbrains.dokka.model.doc.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class JavadocAnalysisTest {
+class JavadocParamAnalysisTest {
 
     @Test
     fun `should parse javadoc @param for type parameter on class`() {
@@ -105,6 +105,40 @@ class JavadocAnalysisTest {
             )
         )
     }
+
+    // this test just freezes current behavior - correct way to annotate type parameter is `<Bar>` not `Bar`
+    @Test
+    fun `should parse javadoc @param for type parameter without angle brackets on function`() {
+        val testProject = javaTestProject {
+            javaFile(pathFromSrc = "Foo.java") {
+                +"""
+                    public class Foo {
+                        /**
+                         * function
+                         *
+                         * @param Bar type parameter,
+                         *  long type parameter description
+                         */
+                        public <Bar> void something(Bar bar) {}
+                    }
+                """
+            }
+        }
+
+        val module = testProject.parse()
+        val pkg = module.packages.single()
+        val cls = pkg.classlikes.single()
+        val function = cls.functions.single { it.name == "something" }
+
+        assertDocumentationNodeContains(
+            function.documentation,
+            listOf(
+                Description(customDocTag("function")),
+                Param(customDocTag("type parameter, long type parameter description"), "Bar"),
+            )
+        )
+    }
+
 
     private fun customDocTag(text: String): CustomDocTag {
         return CustomDocTag(listOf(P(listOf(Text(text)))), name = "MARKDOWN_FILE")
