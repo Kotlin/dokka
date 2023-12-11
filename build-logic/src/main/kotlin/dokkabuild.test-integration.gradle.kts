@@ -66,9 +66,6 @@ val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
             ?: System.getenv("DOKKA_INTEGRATION_TEST_IS_EXHAUSTIVE")?.toBoolean()
             ?: false.toString()
     )
-
-    if (project.hasProperty("teamcity"))
-        environment("DISABLE_DEBUG", "true")
     
     testLogging {
         exceptionFormat = TestExceptionFormat.FULL
