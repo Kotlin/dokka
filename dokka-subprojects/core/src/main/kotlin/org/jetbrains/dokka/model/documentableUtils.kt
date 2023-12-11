@@ -24,8 +24,4 @@ public fun DTypeParameter.filter(filteredSet: Set<DokkaSourceSet>): DTypeParamet
         )
     }
 
-@Deprecated(
-    "Deprecated for removal",
-    ReplaceWith("this is Callable && this.receiver != null")
-)
 public fun Documentable.isExtension(): Boolean = this is Callable && receiver != null
