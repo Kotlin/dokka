@@ -37,7 +37,7 @@ class ExtensionsTest : BaseAbstractTest() {
                     group {
                         assertTabGroup("Functions", BasicTabbedContentType.EXTENSION_FUNCTION) {
                             assertTableWithTabs(
-                                "extension" to BasicTabbedContentType.EXTENSION_FUNCTION
+                                "extension" to null
                             )
                         }
                     }
@@ -119,7 +119,7 @@ class ExtensionsTest : BaseAbstractTest() {
                     group {
                         assertTabGroup("Functions", BasicTabbedContentType.EXTENSION_FUNCTION) {
                             assertTableWithTabs(
-                                "topLevelExtension" to BasicTabbedContentType.EXTENSION_FUNCTION
+                                "topLevelExtension" to null
                             )
                         }
                     }
@@ -214,7 +214,7 @@ class ExtensionsTest : BaseAbstractTest() {
                     group {
                         assertTabGroup("Functions", BasicTabbedContentType.EXTENSION_FUNCTION) {
                             assertTableWithTabs(
-                                "topLevelExtension" to BasicTabbedContentType.EXTENSION_FUNCTION
+                                "topLevelExtension" to null
                             )
                         }
                     }
@@ -246,7 +246,7 @@ class ExtensionsTest : BaseAbstractTest() {
                     group {
                         assertTabGroup("Functions", BasicTabbedContentType.EXTENSION_FUNCTION) {
                             assertTableWithTabs(
-                                "extensionFromB" to BasicTabbedContentType.EXTENSION_FUNCTION
+                                "extensionFromB" to null
                             )
                         }
                     }
@@ -322,7 +322,7 @@ class ExtensionsTest : BaseAbstractTest() {
                         assertTabGroup("Types", BasicTabbedContentType.TYPE) { skipAllNotMatching() }
                         assertTabGroup("Functions", BasicTabbedContentType.EXTENSION_FUNCTION) {
                             assertTableWithTabs(
-                                "companionMemberExtensionForA" to BasicTabbedContentType.EXTENSION_FUNCTION,
+                                "companionMemberExtensionForA" to null,
                             )
                         }
                     }
@@ -362,7 +362,7 @@ class ExtensionsTest : BaseAbstractTest() {
                     group {
                         assertTabGroup("Properties", BasicTabbedContentType.EXTENSION_PROPERTY) {
                             assertTableWithTabs(
-                                "extension" to BasicTabbedContentType.EXTENSION_PROPERTY
+                                "extension" to null
                             )
                         }
                     }
@@ -444,7 +444,7 @@ class ExtensionsTest : BaseAbstractTest() {
                     group {
                         assertTabGroup("Properties", BasicTabbedContentType.EXTENSION_PROPERTY) {
                             assertTableWithTabs(
-                                "topLevelExtension" to BasicTabbedContentType.EXTENSION_PROPERTY
+                                "topLevelExtension" to null
                             )
                         }
                     }
@@ -539,7 +539,7 @@ class ExtensionsTest : BaseAbstractTest() {
                     group {
                         assertTabGroup("Properties", BasicTabbedContentType.EXTENSION_PROPERTY) {
                             assertTableWithTabs(
-                                "topLevelExtension" to BasicTabbedContentType.EXTENSION_PROPERTY
+                                "topLevelExtension" to null
                             )
                         }
                     }
@@ -571,7 +571,7 @@ class ExtensionsTest : BaseAbstractTest() {
                     group {
                         assertTabGroup("Properties", BasicTabbedContentType.EXTENSION_PROPERTY) {
                             assertTableWithTabs(
-                                "extensionFromB" to BasicTabbedContentType.EXTENSION_PROPERTY
+                                "extensionFromB" to null
                             )
                         }
                     }
@@ -647,7 +647,7 @@ class ExtensionsTest : BaseAbstractTest() {
                         assertTabGroup("Types", BasicTabbedContentType.TYPE) { skipAllNotMatching() }
                         assertTabGroup("Properties", BasicTabbedContentType.EXTENSION_PROPERTY) {
                             assertTableWithTabs(
-                                "companionMemberExtensionForA" to BasicTabbedContentType.EXTENSION_PROPERTY,
+                                "companionMemberExtensionForA" to null,
                             )
                         }
                     }

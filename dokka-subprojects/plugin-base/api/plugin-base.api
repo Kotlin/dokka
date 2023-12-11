@@ -1371,7 +1371,8 @@ public class org/jetbrains/dokka/base/translators/documentables/DefaultPageCreat
 	protected fun contentForModule (Lorg/jetbrains/dokka/model/DModule;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForPackage (Lorg/jetbrains/dokka/model/DPackage;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForProperty (Lorg/jetbrains/dokka/model/DProperty;)Lorg/jetbrains/dokka/pages/ContentGroup;
-	protected fun contentForScope (Lorg/jetbrains/dokka/model/WithScope;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;)Lorg/jetbrains/dokka/pages/ContentGroup;
+	protected fun contentForScope (Lorg/jetbrains/dokka/model/WithScope;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentGroup;
+	public static synthetic fun contentForScope$default (Lorg/jetbrains/dokka/base/translators/documentables/DefaultPageCreator;Lorg/jetbrains/dokka/model/WithScope;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForScopes (Ljava/util/List;Ljava/util/Set;Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	public static synthetic fun contentForScopes$default (Lorg/jetbrains/dokka/base/translators/documentables/DefaultPageCreator;Ljava/util/List;Ljava/util/Set;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun getContentBuilder ()Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder;

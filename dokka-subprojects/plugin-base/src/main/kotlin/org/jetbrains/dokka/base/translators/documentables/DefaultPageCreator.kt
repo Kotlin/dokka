@@ -372,7 +372,14 @@ public open class DefaultPageCreator(
                 }
             }
             group(styles = setOf(ContentStyle.TabbedContent), extra = mainExtra) {
-                +contentForScope(p, p.dri, p.sourceSets)
+                val (functions, extensionFunctions) = p.functions.partition { it.receiver == null }
+                val (properties, extensionProperties) = p.properties.partition { it.receiver == null }
+                +contentForScope(
+                    s = p.copy(functions = functions, properties = properties),
+                    dri = p.dri,
+                    sourceSets = p.sourceSets,
+                    extensions = extensionFunctions + extensionProperties
+                )
             }
         }
     }
@@ -381,45 +388,22 @@ public open class DefaultPageCreator(
         scopes: List<WithScope>,
         sourceSets: Set<DokkaSourceSet>,
         extensions: List<Documentable> = emptyList()
-    ): ContentGroup {
-        val types = scopes.flatMap { it.classlikes } + scopes.filterIsInstance<DPackage>().flatMap { it.typealiases }
-        val (extensionProperties, extensionFunctions) = extensions.splitPropsAndFuns()
-        return contentForScope(
-            dri = @Suppress("UNCHECKED_CAST")
-            (scopes as List<Documentable>).dri,
-            sourceSets = sourceSets,
-            types = types,
-            functions = scopes.flatMap { it.functions },
-            properties = scopes.flatMap { it.properties },
-            extensionFunctions = extensionFunctions,
-            extensionProperties = extensionProperties
-        )
-    }
+    ): ContentGroup = contentForScope(
+        dri = @Suppress("UNCHECKED_CAST") (scopes as List<Documentable>).dri,
+        sourceSets = sourceSets,
+        types = scopes.flatMap { it.classlikes } +
+                scopes.filterIsInstance<DPackage>().flatMap { it.typealiases },
+        functions = scopes.flatMap { it.functions },
+        properties = scopes.flatMap { it.properties },
+        extensions = extensions,
+    )
 
     protected open fun contentForScope(
         s: WithScope,
         dri: DRI,
-        sourceSets: Set<DokkaSourceSet>
-    ): ContentGroup {
-        val types = listOf(
-            s.classlikes,
-            (s as? DPackage)?.typealiases ?: emptyList()
-        ).flatten()
-
-        // can be used only for packages
-        val (extensionFunctions, functions) = s.functions.partition { it.receiver != null }
-        val (extensionProperties, properties) = s.properties.partition { it.receiver != null }
-
-        return contentForScope(
-            dri = setOf(dri),
-            sourceSets = sourceSets,
-            types = types,
-            functions = functions,
-            properties = properties,
-            extensionFunctions = extensionFunctions,
-            extensionProperties = extensionProperties
-        )
-    }
+        sourceSets: Set<DokkaSourceSet>,
+        extensions: List<Documentable> = emptyList()
+    ): ContentGroup = contentForScopes(listOf(s), sourceSets, extensions)
 
     private fun contentForScope(
         dri: Set<DRI>,
@@ -427,10 +411,10 @@ public open class DefaultPageCreator(
         types: List<Documentable>,
         functions: List<DFunction>,
         properties: List<DProperty>,
-        extensionFunctions: List<DFunction>,
-        extensionProperties: List<DProperty>,
+        extensions: List<Documentable>,
     ) = contentBuilder.contentFor(dri, sourceSets) {
         typesBlock(types)
+        val (extensionProperties, extensionFunctions) = extensions.splitPropsAndFuns()
         if (separateInheritedMembers) {
             val (inheritedFunctions, memberFunctions) = functions.splitInherited()
             val (inheritedProperties, memberProperties) = properties.splitInherited()
@@ -445,33 +429,14 @@ public open class DefaultPageCreator(
                 directExtensionProperties
             ) = extensionProperties.splitInheritedExtension(dri)
 
-            declarationsBlock(
-                name = "Properties",
-                isFunctions = false,
-                declarations = memberProperties,
-                extensions = directExtensionProperties
-            )
-            declarationsBlock(
-                name = "Inherited properties",
-                isFunctions = false,
-                declarations = inheritedProperties,
-                extensions = inheritedExtensionProperties
-            )
-            declarationsBlock(
-                name = "Functions",
-                isFunctions = true,
-                declarations = memberFunctions,
-                extensions = directExtensionFunctions
-            )
-            declarationsBlock(
-                name = "Inherited functions",
-                isFunctions = true,
-                declarations = inheritedFunctions,
-                extensions = inheritedExtensionFunctions
-            )
+            propertiesBlock("Properties", memberProperties, directExtensionProperties)
+            propertiesBlock("Inherited properties", inheritedProperties, inheritedExtensionProperties)
+
+            functionsBlock("Functions", memberFunctions, directExtensionFunctions)
+            functionsBlock("Inherited functions", inheritedFunctions, inheritedExtensionFunctions)
         } else {
-            declarationsBlock("Properties", isFunctions = false, properties, extensionProperties)
-            declarationsBlock("Functions", isFunctions = true, functions, extensionFunctions)
+            propertiesBlock("Properties", properties, extensionProperties)
+            functionsBlock("Functions", functions, extensionFunctions)
         }
     }
 
@@ -688,7 +653,6 @@ public open class DefaultPageCreator(
                 DivergentElementGroup(
                     name = name,
                     kind = ContentKind.Classlikes,
-                    contentTypeOverride = null,
                     elements = elements
                 )
             }
@@ -702,28 +666,48 @@ public open class DefaultPageCreator(
         )
     }
 
-    private fun DocumentableContentBuilder.declarationsBlock(
+    private fun DocumentableContentBuilder.functionsBlock(
         name: String,
-        isFunctions: Boolean,
+        declarations: List<DFunction>,
+        extensions: List<DFunction>
+    ) {
+        functionsOrPropertiesBlock(
+            name = name,
+            contentKind = ContentKind.Functions,
+            contentType = when {
+                declarations.isEmpty() -> BasicTabbedContentType.EXTENSION_FUNCTION
+                else -> BasicTabbedContentType.FUNCTION
+            },
+            declarations = declarations,
+            extensions = extensions
+        )
+    }
+
+    private fun DocumentableContentBuilder.propertiesBlock(
+        name: String,
+        declarations: List<DProperty>,
+        extensions: List<DProperty>
+    ) {
+        functionsOrPropertiesBlock(
+            name = name,
+            contentKind = ContentKind.Properties,
+            contentType = when {
+                declarations.isEmpty() -> BasicTabbedContentType.EXTENSION_PROPERTY
+                else -> BasicTabbedContentType.PROPERTY
+            },
+            declarations = declarations,
+            extensions = extensions
+        )
+    }
+
+    private fun DocumentableContentBuilder.functionsOrPropertiesBlock(
+        name: String,
+        contentKind: ContentKind,
+        contentType: BasicTabbedContentType,
         declarations: List<Documentable>,
         extensions: List<Documentable>
     ) {
         if (declarations.isEmpty() && extensions.isEmpty()) return
-
-        val contentKind = when {
-            isFunctions -> ContentKind.Functions
-            else -> ContentKind.Properties
-        }
-
-        val declarationContentType = when {
-            isFunctions -> BasicTabbedContentType.FUNCTION
-            else -> BasicTabbedContentType.PROPERTY
-        }
-
-        val extensionContentType = when {
-            isFunctions -> BasicTabbedContentType.EXTENSION_FUNCTION
-            else -> BasicTabbedContentType.EXTENSION_PROPERTY
-        }
 
         // This groupBy should probably use LocationProvider
         val grouped = declarations.groupBy {
@@ -741,10 +725,6 @@ public open class DefaultPageCreator(
                         nameAndIsExtension.isExtension -> ContentKind.Extensions
                         else -> contentKind
                     },
-                    contentTypeOverride = when {
-                        nameAndIsExtension.isExtension -> extensionContentType
-                        else -> null
-                    },
                     elements = elements
                 )
             }
@@ -753,11 +733,7 @@ public open class DefaultPageCreator(
             name = name,
             kind = contentKind,
             extra = mainExtra,
-            contentType = when {
-                // if only extensions
-                declarations.isEmpty() -> extensionContentType
-                else -> declarationContentType
-            },
+            contentType = contentType,
             groups = groups
         )
     }
@@ -774,7 +750,6 @@ public open class DefaultPageCreator(
     private class DivergentElementGroup(
         val name: String?,
         val kind: ContentKind,
-        val contentTypeOverride: BasicTabbedContentType?,
         val elements: List<Documentable>
     )
 
@@ -786,8 +761,9 @@ public open class DefaultPageCreator(
         groups: List<DivergentElementGroup>,
     ) {
         if (groups.isEmpty()) return
+
+        // be careful: extra here will be applied for children by default
         group(extra = extra + TabbedContentTypeExtra(contentType)) {
-            // be careful: groupExtra will be applied for children by default
             header(2, name, kind = kind, extra = extra) { }
             table(kind, extra = extra, styles = emptySet()) {
                 header {
@@ -799,6 +775,21 @@ public open class DefaultPageCreator(
                     val rowKind = group.kind
                     val sortedElements = sortDivergentElementsDeterministically(group.elements)
 
+                    // This override here is needed to be able to split members and extensions into separate tabs in HTML renderer.
+                    // The idea is that `contentType` is set to the `tab group` itself to `FUNCTION` or `PROPERTY` (above in the code),
+                    // and then for `extensions` we override it - in this case we are able to create 2 tabs in HTML renderer:
+                    // - `Members` - which show ONLY member functions/properties
+                    // - `Members & Extensions` - which show BOTH member functions/properties and extensions for this classlike
+                    val rowContentTypeOverride = when (rowKind) {
+                        ContentKind.Extensions -> when (contentType) {
+                            BasicTabbedContentType.FUNCTION -> BasicTabbedContentType.EXTENSION_FUNCTION
+                            BasicTabbedContentType.PROPERTY -> BasicTabbedContentType.EXTENSION_PROPERTY
+                            else -> null
+                        }
+
+                        else -> null
+                    }
+
                     row(
                         dri = sortedElements.map { it.dri }.toSet(),
                         sourceSets = sortedElements.flatMap { it.sourceSets }.toSet(),
@@ -806,7 +797,7 @@ public open class DefaultPageCreator(
                         styles = emptySet(),
                         extra = extra.addAll(
                             listOfNotNull(
-                                group.contentTypeOverride?.let(::TabbedContentTypeExtra),
+                                rowContentTypeOverride?.let(::TabbedContentTypeExtra),
                                 elementName?.let { name -> SymbolAnchorHint(name, kind) }
                             )
                         )
