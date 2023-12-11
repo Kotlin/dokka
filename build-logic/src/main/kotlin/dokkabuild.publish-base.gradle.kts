@@ -3,8 +3,10 @@
  */
 
 plugins {
+    id("dokkabuild.base")
     `maven-publish`
     signing
+    id("dev.adamko.dev-publish")
 }
 
 publishing {
@@ -33,13 +35,12 @@ publishing {
                 password = System.getenv("DOKKA_SPACE_PACKAGES_SECRET")
             }
         }
-        // Publish to a project-local Maven directory, for verification. To test, run:
-        // ./gradlew publishAllPublicationsToProjectLocalRepository
-        // and check $rootDir/build/maven-project-local
-        maven {
-            name = "projectLocal"
-            url = uri(rootProject.layout.buildDirectory.dir("maven-project-local"))
-        }
+//        // Publish to a project-local Maven directory, for verification. To test, run:
+//        // ./gradlew publishAllPublicationsToProjectLocalRepository
+//        // and check $rootDir/build/maven-project-local
+//        maven(dokkaBuild.projectLocalMavenDir) {
+//            name = "ProjectLocal"
+//        }
     }
 
     publications.withType<MavenPublication>().configureEach {
@@ -93,3 +94,7 @@ tasks.withType<AbstractPublishToMaven>().configureEach {
     val signingTasks = tasks.withType<Sign>()
     mustRunAfter(signingTasks)
 }
+
+//tasks.named("integrationTestPreparation").configure {
+//    dependsOn(tasks.named("publishAllPublicationsToProjectLocalRepository"))
+//}

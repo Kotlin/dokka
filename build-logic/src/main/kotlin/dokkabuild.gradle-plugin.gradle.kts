@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.gradle.kotlin.kotlin-dsl")
     id("dokkabuild.java")
-    kotlin("jvm")
+//    kotlin("jvm")
     id("dokkabuild.publish-gradle-plugin")
 }
 

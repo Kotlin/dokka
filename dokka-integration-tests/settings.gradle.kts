@@ -10,8 +10,8 @@ pluginManagement {
     includeBuild("../build-logic")
 
     repositories {
-        gradlePluginPortal()
         mavenCentral()
+        gradlePluginPortal()
     }
 }
 
@@ -22,6 +22,7 @@ plugins {
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
+        gradlePluginPortal()
     }
 
     versionCatalogs {
@@ -31,16 +32,23 @@ dependencyResolutionManagement {
     }
 }
 
+includeBuild("../dokka-subprojects")
 includeBuild("../dokka-runners/runner-gradle-plugin-classic")
 includeBuild("../dokka-runners/runner-maven-plugin")
 includeBuild("../dokka-runners/runner-cli")
-includeBuild("../.") // include the very root aggregating build so that we can depend on its tasks
+//includeBuild("../.") // include the very root aggregating build so that we can depend on its tasks
 
 include(
-    ":cli",
+    ":template-projects-tests",
+    ":external-projects-tests",
+    ":example-projects-tests",
+//    ":cli",
     ":gradle",
-    ":maven",
+//    ":gradle-it",
+//    ":maven",
     ":utilities",
 )
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+//includeBuild("./gradle-it/projects/it-basic")

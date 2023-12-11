@@ -1,4 +1,8 @@
-package org.jetbrains.dokka.dokkatoo.utils
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+package org.jetbrains.dokka.it
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.BuildTask
@@ -25,6 +29,7 @@ inline fun GradleRunner.buildAndFail(
 ): Unit = buildAndFail().let(handleResult)
 
 
+// workaround for https://github.com/gradle/gradle/issues/1043
 fun GradleRunner.withJvmArguments(
   vararg jvmArguments: String
 ): GradleRunner = (this as DefaultGradleRunner).withJvmArguments(*jvmArguments)

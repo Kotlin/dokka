@@ -7,11 +7,11 @@ plugins {
 }
 
 dependencies {
-    compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.core)
 
     api(libs.intellij.java.psi.api)
 
-    implementation(projects.dokkaSubprojects.analysisMarkdownJb)
+    implementation(projects.analysisMarkdownJb)
 
     implementation(libs.intellij.java.psi.impl)
     implementation(libs.intellij.platform.util.api)

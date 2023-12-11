@@ -32,4 +32,11 @@ dependencyResolutionManagement {
     }
 }
 
+includeBuild("../../dokka-subprojects")
+//{
+//    dependencySubstitution {
+//        substitute(module("org.jetbrains.dokka:dokka-core")).using(project(":dokka-core"))
+//    }
+//}
+
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

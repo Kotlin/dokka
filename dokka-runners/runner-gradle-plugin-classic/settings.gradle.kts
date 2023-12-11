@@ -32,4 +32,6 @@ dependencyResolutionManagement {
     }
 }
 
+includeBuild("../../dokka-subprojects")
+
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

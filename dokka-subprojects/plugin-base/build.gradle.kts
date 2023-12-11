@@ -14,10 +14,10 @@ plugins {
 overridePublicationArtifactId("dokka-base")
 
 dependencies {
-    compileOnly(projects.dokkaSubprojects.dokkaCore)
-    compileOnly(projects.dokkaSubprojects.analysisKotlinApi)
+    compileOnly(projects.core)
+    compileOnly(projects.analysisKotlinApi)
 
-    implementation(projects.dokkaSubprojects.analysisMarkdownJb)
+    implementation(projects.analysisMarkdownJb)
 
     // Other
     implementation(kotlin("reflect"))
@@ -36,15 +36,15 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(libs.junit.jupiterParams)
 
-    symbolsTestConfiguration(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
-    descriptorsTestConfiguration(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
-    testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils) {
+    symbolsTestConfiguration(project(path = ":analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestConfiguration(project(path = ":analysis-kotlin-descriptors", configuration = "shadow"))
+    testImplementation(projects.pluginBaseTestUtils) {
         exclude(module = "analysis-kotlin-descriptors")
     }
-    testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
-    testImplementation(projects.dokkaSubprojects.coreTestApi)
+    testImplementation(projects.coreContentMatcherTestUtils)
+    testImplementation(projects.coreTestApi)
 
-    dokkaHtmlFrontendFiles(projects.dokkaSubprojects.pluginBaseFrontend) {
+    dokkaHtmlFrontendFiles(projects.pluginBaseFrontend) {
         because("fetch frontend files from subproject :plugin-base-frontend")
     }
 }
@@ -55,7 +55,7 @@ val dokkaHtmlFrontendFiles: Provider<FileCollection> =
         frontendFiles.incoming.artifacts.artifactFiles
     }
 
-val preparedokkaHtmlFrontendFiles by tasks.registering(Sync::class) {
+val prepareDokkaHtmlFrontendFiles by tasks.registering(Sync::class) {
     description = "copy Dokka Base frontend files into the resources directory"
 
     from(dokkaHtmlFrontendFiles) {
@@ -72,7 +72,7 @@ val preparedokkaHtmlFrontendFiles by tasks.registering(Sync::class) {
 }
 
 sourceSets.main {
-    resources.srcDir(preparedokkaHtmlFrontendFiles.map { it.destinationDir })
+    resources.srcDir(prepareDokkaHtmlFrontendFiles.map { it.destinationDir })
 }
 
 tasks.test {

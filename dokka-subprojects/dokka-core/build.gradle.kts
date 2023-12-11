@@ -2,18 +2,13 @@
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import dokkabuild.overridePublicationArtifactId
-
 plugins {
     id("dokkabuild.kotlin-jvm")
     id("dokkabuild.publish-jvm")
 }
 
-overridePublicationArtifactId("analysis-markdown")
+// dummy project to satisfy the Gradle soft-requirement that the subproject name matches the artifact name
 
 dependencies {
-    compileOnly(projects.core)
-
-    implementation(libs.jsoup)
-    implementation(libs.jetbrains.markdown)
+    api(projects.core)
 }

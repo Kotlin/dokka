@@ -12,11 +12,11 @@ plugins {
 overridePublicationArtifactId("analysis-kotlin-symbols")
 
 dependencies {
-    compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.core)
 
-    implementation(projects.dokkaSubprojects.analysisKotlinApi)
-    implementation(projects.dokkaSubprojects.analysisMarkdownJb)
-    implementation(projects.dokkaSubprojects.analysisJavaPsi)
+    implementation(projects.analysisKotlinApi)
+    implementation(projects.analysisMarkdownJb)
+    implementation(projects.analysisJavaPsi)
 
 
     // ----------- IDE dependencies ----------------------------------------------------------------------------

@@ -9,7 +9,7 @@ plugins {
     id("dokkabuild.publish-jvm")
 }
 
-overridePublicationArtifactId("dokka-core")
+//overridePublicationArtifactId("dokka-core")
 
 dependencies {
     implementation(kotlin("reflect"))
@@ -23,18 +23,15 @@ dependencies {
     }
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.dokkaSubprojects.coreTestApi)
+    testImplementation(projects.coreTestApi)
 }
 
-tasks {
-    processResources {
-        inputs.property("dokkaVersion", project.version)
-        eachFile {
-            if (name == "dokka-version.properties") {
-                filter { line ->
-                    line.replace("<dokka-version>", project.version.toString())
-                }
-            }
+tasks.processResources {
+    val projectVersion = provider { project.version.toString() }
+    inputs.property("dokkaVersion", projectVersion)
+    eachFile {
+        if (name == "dokka-version.properties") {
+            expand("dokkaVersion" to projectVersion.get())
         }
     }
 }

@@ -12,16 +12,16 @@ plugins {
 overridePublicationArtifactId("gfm-template-processing-plugin")
 
 dependencies {
-    compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.core)
 
-    implementation(projects.dokkaSubprojects.pluginBase)
-    implementation(projects.dokkaSubprojects.pluginGfm)
-    implementation(projects.dokkaSubprojects.pluginAllModulesPage)
-    implementation(projects.dokkaSubprojects.pluginTemplating)
+    implementation(projects.pluginBase)
+    implementation(projects.pluginGfm)
+    implementation(projects.pluginAllModulesPage)
+    implementation(projects.pluginTemplating)
 
     implementation(kotlin("reflect"))
     implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.dokkaSubprojects.coreTestApi)
+    testImplementation(projects.coreTestApi)
 }
