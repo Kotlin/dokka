@@ -7,7 +7,7 @@
     "dist": "./dist"
   },
   "scripts": {
-    "build": "webpack --mode=production --devtool source-map",
+    "build": "npm ci && webpack --mode=production --devtool source-map",
     "lint": "eslint . && npm run stylelint",
     "stylelint": "stylelint --ignore-path .gitignore ./src/main/**/*.scss",
     "start": "webpack-dev-server -d --history-api-fallback --inline --hot --colors --port 9010"
