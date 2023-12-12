@@ -4,6 +4,7 @@
 
 package signatures
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DFunction
@@ -1091,6 +1092,43 @@ class SignatureTest : BaseAbstractTest() {
                         ignoreSpanWithTokenStyle = true
                     )
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `should not add an empty span with java default visibility`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    documentedVisibilities = setOf(
+                        DokkaConfiguration.Visibility.PUBLIC,
+                        DokkaConfiguration.Visibility.PACKAGE
+                    )
+                }
+            }
+        }
+
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/test/JavaAnnotationWithSpace.java
+            |package test;
+            |
+            |@interface JavaAnnotationWithSpace {}
+        """.trimIndent(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val signatureHtml = writerPlugin.writer.renderedContent("root/test/-java-annotation-with-space/index.html")
+                    .firstSignature()
+                    .html()
+
+                val expectedSignature = "<span class=\"token keyword\">annotation class </span><a href=\"index.html\">JavaAnnotationWithSpace</a>"
+
+                assertEquals(expectedSignature, signatureHtml)
             }
         }
     }
