@@ -6,6 +6,8 @@ build.gradle.kts file -> "import gradle project".
 Before importing: Make sure that you have dokka installed
 locally (`./gradlew publishToMavenLocal`).
 
+To debug Gradle tests, the environment variable `ENABLE_DEBUG=true` should be declared.
+
 ### To update git submodules 
 
 Integration tests have fixed git revision number, with the diff patch applied from the corresponding file (e.g. [`coroutines.diff`](projects/coroutines/coroutines.diff)).
