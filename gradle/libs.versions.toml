@@ -29,6 +29,7 @@ kotlinx-html = "0.9.1"
 
 ## Markdown
 jetbrains-markdown = "0.5.2"
+fastutil = "8.5.12"
 
 ## JSON
 jackson = "2.12.7" # jackson 2.13.X does not support kotlin language version 1.4, check before updating
@@ -112,6 +113,7 @@ korlibs-template = { module = "com.soywiz.korlibs.korte:korte-jvm", version.ref 
 
 #### Markdown ####
 jetbrains-markdown = { module = "org.jetbrains:markdown", version.ref = "jetbrains-markdown" }
+fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
 
 #### Jackson ####
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
