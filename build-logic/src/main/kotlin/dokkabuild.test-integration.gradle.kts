@@ -66,7 +66,7 @@ val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
             ?: System.getenv("DOKKA_INTEGRATION_TEST_IS_EXHAUSTIVE")?.toBoolean()
             ?: false.toString()
     )
-
+    
     testLogging {
         exceptionFormat = TestExceptionFormat.FULL
         events(TestLogEvent.SKIPPED, TestLogEvent.FAILED)
