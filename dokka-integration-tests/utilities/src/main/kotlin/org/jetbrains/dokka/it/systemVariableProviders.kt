@@ -1,11 +1,13 @@
-package org.jetbrains.dokka.dokkatoo.utils
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+package org.jetbrains.dokka.it
 
 import kotlin.properties.ReadOnlyProperty
 
 // Utilities for fetching System Properties and Environment Variables via delegated properties
 
-
-internal fun optionalSystemProperty() = optionalSystemProperty { it }
 
 internal fun <T : Any> optionalSystemProperty(
   convert: (String) -> T?
@@ -16,9 +18,7 @@ internal fun <T : Any> optionalSystemProperty(
   }
 
 
-internal fun systemProperty() = systemProperty { it }
-
-internal fun <T> systemProperty(
+fun <T> systemProperty(
   convert: (String) -> T
 ): ReadOnlyProperty<Any, T> =
   ReadOnlyProperty { _, property ->
@@ -28,8 +28,6 @@ internal fun <T> systemProperty(
     convert(value)
   }
 
-
-internal fun optionalEnvironmentVariable() = optionalEnvironmentVariable { it }
 
 internal fun <T : Any> optionalEnvironmentVariable(
   convert: (String) -> T?

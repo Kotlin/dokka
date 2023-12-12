@@ -10,25 +10,23 @@ import org.jetbrains.dokka.DokkaConfiguration
 import java.net.URL
 
 plugins {
-    kotlin("jvm")
-    id("org.jetbrains.dokka")
+    kotlin("jvm") version "%{KOTLIN_VERSION}%"
+    id("org.jetbrains.dokka") version "%{DOKKA_VERSION}%"
 }
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.dokka:dokka-base:${System.getenv("DOKKA_VERSION")}")
+        classpath("org.jetbrains.dokka:dokka-base:%{DOKKA_VERSION}%")
     }
 }
 
 version = "1.9.20-SNAPSHOT"
 
-apply(from = "../template.root.gradle.kts")
-
 dependencies {
     testImplementation(kotlin("test-junit"))
 }
 
-tasks.withType<DokkaTask> {
+tasks.withType<DokkaTask>().configureEach {
     moduleName.set("Basic Project")
     dokkaSourceSets {
         configureEach {
@@ -63,5 +61,28 @@ tasks.withType<DokkaTask> {
     }
     suppressObviousFunctions.set(false)
 
-    pluginsMapConfiguration.set(mapOf(DokkaBase::class.qualifiedName to """{ "customStyleSheets": ["${file("../customResources/logo-styles.css").invariantSeparatorsPath}", "${file("../customResources/custom-style-to-add.css").invariantSeparatorsPath}"], "customAssets" : ["${file("../customResources/custom-resource.svg").invariantSeparatorsPath}"] }"""))
+    val logoStylesCss = file("customResources/logo-styles.css")
+    val customStyleToAddCss = file("customResources/custom-style-to-add.css")
+    val customResourceSvg = file("customResources/custom-resource.svg")
+    inputs.files(
+        logoStylesCss,
+        customStyleToAddCss,
+        customResourceSvg,
+    )
+
+    pluginsMapConfiguration.set(
+        mapOf(
+            DokkaBase::class.qualifiedName to """
+                { 
+                  "customStyleSheets": [
+                    "${logoStylesCss.invariantSeparatorsPath}",
+                    "${customStyleToAddCss.invariantSeparatorsPath}"
+                  ],
+                  "customAssets": [
+                    "${customResourceSvg.invariantSeparatorsPath}"
+                  ]
+                }
+            """.trimIndent()
+        )
+    )
 }

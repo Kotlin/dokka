@@ -10,8 +10,8 @@ pluginManagement {
     includeBuild("../build-logic")
 
     repositories {
-        gradlePluginPortal()
         mavenCentral()
+        gradlePluginPortal()
     }
 }
 
@@ -22,6 +22,7 @@ plugins {
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
+        gradlePluginPortal()
     }
 
     versionCatalogs {

@@ -49,6 +49,11 @@ abstract class DokkaBuildProperties @Inject constructor(
         dokkaProperty("kotlinLanguageLevel", KotlinVersion::fromVersion)
 
 
+    val tryK2: Provider<Boolean> =
+        dokkaProperty("experimental.tryK2", String::toBoolean)
+            .orElse(false)
+
+
     private fun <T : Any> dokkaProperty(name: String, convert: (String) -> T) =
         providers.gradleProperty("org.jetbrains.dokka.$name").map(convert)
 
