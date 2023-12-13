@@ -119,7 +119,8 @@ tasks.withType<Test>().configureEach {
 
     systemProperty("org.jetbrains.dokka.experimental.tryK2", useK2)
 
-    systemProperty("junit.jupiter.tempdir.cleanup.mode.default", "NEVER")
+    // allow inspecting projects in failing tests
+    systemProperty("junit.jupiter.tempdir.cleanup.mode.default", "ON_SUCCESS")
 
     testLogging {
         exceptionFormat = FULL
