@@ -10,13 +10,13 @@ import org.jetbrains.dokka.DokkaConfiguration
 import java.net.URL
 
 plugins {
-    kotlin("jvm") version "%{KOTLIN_VERSION}%"
-    id("org.jetbrains.dokka") version "%{DOKKA_VERSION}%"
+    kotlin("jvm")
+    id("org.jetbrains.dokka") version "+"
 }
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.dokka:dokka-base:%{DOKKA_VERSION}%")
+        classpath("org.jetbrains.dokka:dokka-base:+")
     }
 }
 

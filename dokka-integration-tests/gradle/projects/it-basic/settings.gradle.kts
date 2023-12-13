@@ -7,8 +7,8 @@ rootProject.name = "it-basic"
 pluginManagement {
     val dokka_it_kotlin_version: String by settings
     plugins {
-        id("org.jetbrains.kotlin.jvm") version "$dokka_it_kotlin_version"
-        id("org.jetbrains.dokka") version "%{DOKKA_VERSION}%"
+        id("org.jetbrains.kotlin.jvm") version dokka_it_kotlin_version
+        id("org.jetbrains.dokka") version "+"
     }
 
     repositories {

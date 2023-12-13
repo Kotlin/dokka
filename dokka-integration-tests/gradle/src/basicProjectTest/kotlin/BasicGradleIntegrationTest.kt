@@ -42,9 +42,6 @@ class BasicGradleIntegrationTest : AbstractGradleIntegrationTest() {
                           """.trimMargin()
                         }
                     )
-                    // TODO don't hardcode the versions
-                    .replace("%{KOTLIN_VERSION}%", "1.9.21")
-                    .replace("%{DOKKA_VERSION}%", "1.9.20-SNAPSHOT")
             )
         }
     }
