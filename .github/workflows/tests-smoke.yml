@@ -32,11 +32,11 @@ jobs:
         # Running tests with the Gradle daemon on windows agents leads to some very strange
         # JVM crashes for some reason. Most likely a problem of Gradle/GitHub/Windows server
         run: >
-          ./gradlew test --stacktrace --no-daemon --no-parallel 
+          ./gradlew check --stacktrace --no-daemon --no-parallel 
           "-Dorg.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=500m"
           "-Porg.jetbrains.dokka.javaToolchain.testLauncher=${{ env.JAVA_TEST_VERSION }}"
       - name: Run tests under Ubuntu
         if: matrix.os != 'windows-latest'
         run: >
-          ./gradlew test --stacktrace 
+          ./gradlew check --stacktrace 
           "-Porg.jetbrains.dokka.javaToolchain.testLauncher=${{ env.JAVA_TEST_VERSION }}"
