@@ -4,7 +4,7 @@ plugins {
     kotlin("android")
 }
 
-//apply(from = "./template.root.gradle.kts")
+apply(from = "./template.root.gradle.kts")
 
 android {
     defaultConfig {

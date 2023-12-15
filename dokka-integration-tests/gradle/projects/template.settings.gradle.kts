@@ -6,7 +6,6 @@
 
 pluginManagement {
     val dokka_it_kotlin_version: String by settings
-    //val dokka_it_dokka_version: String by settings
     val dokka_it_android_gradle_plugin_version: String? by settings
 
     plugins {

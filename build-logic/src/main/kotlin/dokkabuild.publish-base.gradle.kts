@@ -35,13 +35,6 @@ publishing {
                 password = System.getenv("DOKKA_SPACE_PACKAGES_SECRET")
             }
         }
-//        // Publish to a project-local Maven directory, for verification. To test, run:
-//        // ./gradlew publishAllPublicationsToProjectLocalRepository
-//        // and check $rootDir/build/maven-project-local
-//        maven {
-//            name = "projectLocal"
-//            url = uri(rootProject.layout.buildDirectory.dir("maven-project-local"))
-//        }
     }
 
     publications.withType<MavenPublication>().configureEach {

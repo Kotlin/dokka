@@ -26,9 +26,6 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
     @BeforeTest
     fun beforeEachTest() {
         prepareProjectFiles()
-//        templateProjectDir.copyToRecursively(projectDir.toPath(), followLinks = false, overwrite = true)
-//        templateSettingsGradleKts.copyTo(projectDir.resolve("template.settings.gradle.kts").toPath())
-//        projectDir.updateProjectLocalMavenDir()
     }
 
     fun prepareProjectFiles(
@@ -39,14 +36,6 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
         templateSettingsGradleKts.copyTo(destination.resolve("template.settings.gradle.kts").toPath())
         destination.updateProjectLocalMavenDir()
     }
-
-//    @BeforeTest
-//    fun copyTemplates() {
-//        File("projects").listFiles().orEmpty()
-//            .filter { it.isFile }
-//            .filter { it.name.startsWith("template.") }
-//            .forEach { file -> file.copyTo(File(tempFolder, file.name)) }
-//    }
 
     fun createGradleRunner(
         buildVersions: BuildVersions,

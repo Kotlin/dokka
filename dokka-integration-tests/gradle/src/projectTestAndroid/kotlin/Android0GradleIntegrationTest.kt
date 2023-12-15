@@ -37,15 +37,6 @@ class Android0GradleIntegrationTest : AbstractGradleIntegrationTest() {
     @BeforeTest
     fun prepareAndroidProjectFiles() {
         assumeAndroidSdkInstalled()
-//        val templateProjectDir = File("projects", "it-android-0")
-//
-//        templateProjectDir.listFiles().orEmpty()
-//            .filter { it.isFile }
-//            .filterNot { it.name == "local.properties" }
-//            .filterNot { it.name.startsWith("gradlew") }
-//            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
-//
-//        File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
     }
 
     @ParameterizedTest(name = "{0}")

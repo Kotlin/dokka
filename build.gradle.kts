@@ -4,7 +4,7 @@
 
 plugins {
     id("dokkabuild.base")
-    id("dev.adamko.dev-publish") version "0.2.0"
+    alias(libs.plugins.devPublish)
     idea
 }
 

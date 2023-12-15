@@ -25,5 +25,5 @@ dependencies {
     // https://github.com/gradle/gradle/issues/15383#issuecomment-779893192
     implementation(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
 
-    implementation("dev.adamko.gradle:dev-publish-plugin:0.2.0")
+    implementation(libs.gradlePlugin.devPublish)
 }

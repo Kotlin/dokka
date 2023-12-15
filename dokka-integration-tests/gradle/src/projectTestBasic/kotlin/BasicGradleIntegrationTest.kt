@@ -18,12 +18,6 @@ import kotlin.test.assertTrue
 @IntegrationTest
 class BasicGradleIntegrationTest : AbstractGradleIntegrationTest() {
 
-//    @BeforeTest
-//    fun prepareProjectFiles() {
-//        templateProjectDir.copyToRecursively(projectDir.toPath(), followLinks = false, overwrite = true)
-//        projectDir.updateProjectLocalMavenDir()
-//    }
-
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {

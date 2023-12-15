@@ -23,19 +23,6 @@ class JsIRGradleIntegrationTest : AbstractGradleIntegrationTest() {
         "1.4.0", "1.4.32"
     )
 
-//    @BeforeTest
-//    fun prepareProjectFiles() {
-//        val templateProjectDir = File("projects", "it-js-ir-0")
-//
-//        templateProjectDir.listFiles().orEmpty()
-//            .filter { it.isFile }
-//            .filterNot { it.name == "local.properties" }
-//            .filterNot { it.name.startsWith("gradlew") }
-//            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
-//
-//        File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
-//    }
-
     @OnlyDescriptors
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
