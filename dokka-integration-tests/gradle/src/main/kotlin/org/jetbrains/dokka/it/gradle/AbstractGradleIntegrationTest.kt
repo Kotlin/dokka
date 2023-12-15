@@ -24,7 +24,7 @@ import kotlin.test.BeforeTest
 abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
 
     @BeforeTest
-    fun beforeEachTest() {
+    open fun beforeEachTest() {
         prepareProjectFiles()
     }
 
@@ -33,7 +33,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
         destination: File = projectDir,
     ) {
         templateProjectDir.copyToRecursively(destination.toPath(), followLinks = false, overwrite = true)
-        templateSettingsGradleKts.copyTo(destination.resolve("template.settings.gradle.kts").toPath())
+        templateSettingsGradleKts.copyTo(destination.resolve("template.settings.gradle.kts").toPath(), overwrite = true)
         destination.updateProjectLocalMavenDir()
     }
 

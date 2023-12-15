@@ -4,6 +4,7 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
+import org.gradle.language.base.plugins.LifecycleBasePlugin.VERIFICATION_GROUP
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Disabled
 
 plugins {
@@ -23,6 +24,15 @@ dependencies {
     api(libs.junit.jupiterParams)
 
     api(gradleTestKit())
+}
+
+kotlin {
+    explicitApi = Disabled
+
+    compilerOptions {
+        allWarningsAsErrors = false
+        optIn.add("kotlin.io.path.ExperimentalPathApi")
+    }
 }
 
 val dokkaModules = gradle.includedBuild("dokka")
@@ -85,14 +95,25 @@ testing {
             sources { java { setSrcDirs(emptyList<String>()) } }
         }
 
-        fun registerTestProjectSuite(name: String, dirName: String, configure: JvmTestSuite.() -> Unit = {}) {
+        fun registerTestProjectSuite(
+            name: String,
+            dirName: String,
+            jvm: JavaLanguageVersion? = null,
+            configure: JvmTestSuite.() -> Unit = {},
+        ) {
             val templateProjectDir = templateProjectsDir.dir(dirName)
 
             register<JvmTestSuite>(name) {
                 targets.configureEach {
                     testTask.configure {
+                        // Register the project dir as a specific input, so changes in other projects don't affect the caching of this test
                         inputs.dir(templateProjectDir)
+                        // Pass the template dir in as a property, it is accessible in tests.
                         systemProperty("templateProjectDir", templateProjectDir.asFile.invariantSeparatorsPath)
+
+                        if (jvm != null) {
+                            javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
+                        }
                     }
                 }
                 configure()
@@ -100,40 +121,78 @@ testing {
         }
 
         // register a separate test suite for each template project, to help with Gradle caching
-        registerTestProjectSuite("projectTestAndroid", "it-android-0") {
+        registerTestProjectSuite(
+            "testTemplateProjectAndroid",
+            "it-android-0",
+            // AGP requires JVM 11+
+            jvm = JavaLanguageVersion.of(11)
+        )
+        registerTestProjectSuite("testTemplateProjectBasic", "it-basic")
+        registerTestProjectSuite("testTemplateProjectBasicGroovy", "it-basic-groovy")
+        registerTestProjectSuite("testTemplateProjectCollector", "it-collector-0")
+        registerTestProjectSuite("testTemplateProjectConfiguration", "it-configuration")
+        registerTestProjectSuite("testTemplateProjectJsIr", "it-js-ir-0")
+        registerTestProjectSuite("testTemplateProjectMultimodule0", "it-multimodule-0")
+        registerTestProjectSuite("testTemplateProjectMultimodule1", "it-multimodule-1")
+        registerTestProjectSuite("testTemplateProjectMultimoduleVersioning", "it-multimodule-versioning-0")
+        registerTestProjectSuite("testTemplateProjectMultiplatform", "it-multiplatform-0")
+        registerTestProjectSuite("testTemplateProjectTasksExecutionStress", "it-sequential-tasks-execution-stress")
+        registerTestProjectSuite("testTemplateProjectWasmBasic", "it-wasm-basic")
+        registerTestProjectSuite("testTemplateProjectWasmJsWasiBasic", "it-wasm-js-wasi-basic")
+
+        registerTestProjectSuite(
+            "testExternalProjectKotlinxCoroutines",
+            "coroutines/kotlinx-coroutines",
+            jvm = JavaLanguageVersion.of(11) // https://github.com/Kotlin/kotlinx.coroutines/issues/3665
+        ) {
             targets.configureEach {
                 testTask.configure {
-                    // AGP requires JVM 11+
-                    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(11) }
+                    inputs.dir(templateProjectsDir.file("coroutines"))
                 }
             }
         }
-        registerTestProjectSuite("projectTestBasic", "it-basic")
-        registerTestProjectSuite("projectTestBasicGroovy", "it-basic-groovy")
-        registerTestProjectSuite("projectTestCollector", "it-collector-0")
-        registerTestProjectSuite("projectTestConfiguration", "it-configuration")
-        registerTestProjectSuite("projectTestJsIr", "it-js-ir-0")
-        registerTestProjectSuite("projectTestMultimodule0", "it-multimodule-0")
-        registerTestProjectSuite("projectTestMultimodule1", "it-multimodule-1")
-        registerTestProjectSuite("projectTestMultimoduleVersioning", "it-multimodule-versioning-0")
-        registerTestProjectSuite("projectTestMultiplatform", "it-multiplatform-0")
-        registerTestProjectSuite("projectTestSequentialTasksExecutionStress", "it-sequential-tasks-execution-stress")
-        registerTestProjectSuite("projectTestWasmBasic", "it-wasm-basic")
-        registerTestProjectSuite("projectTestWasmJsWasiBasic", "it-wasm-js-wasi-basic")
+        registerTestProjectSuite("testExternalProjectKotlinxSerialization", "serialization/kotlinx-serialization") {
+            targets.configureEach {
+                testTask.configure {
+                    inputs.dir(templateProjectsDir.file("serialization"))
+                }
+            }
+        }
     }
     tasks.check {
         dependsOn(suites)
     }
 }
 
-kotlin {
-    explicitApi = Disabled
+val testTemplateProjectsTasks = tasks.withType<Test>().matching { it.name.startsWith("testTemplateProject") }
+val testExternalProjectsTasks = tasks.withType<Test>().matching { it.name.startsWith("testExternalProject") }
 
-    compilerOptions {
-        allWarningsAsErrors = false
-        optIn.add("kotlin.io.path.ExperimentalPathApi")
-    }
+//region task ordering
+testTemplateProjectsTasks.configureEach {
+    shouldRunAfter(tasks.test)
 }
+testExternalProjectsTasks.configureEach {
+    shouldRunAfter(tasks.test)
+    shouldRunAfter(testTemplateProjectsTasks)
+}
+//endregion
+
+//region define lifecycle tasks
+val testAllTemplateProjects by tasks.registering {
+    description = "Lifecycle task for running all template-project tests"
+    group = VERIFICATION_GROUP
+    dependsOn(testTemplateProjectsTasks)
+    doNotTrackState("lifecycle task, should always run")
+}
+
+val testAllExternalProjects by tasks.registering {
+    description = "Lifecycle task for running all external-project tests"
+    group = VERIFICATION_GROUP
+    shouldRunAfter(testAllTemplateProjects)
+    dependsOn(testExternalProjectsTasks)
+    doNotTrackState("lifecycle task, should always run")
+}
+//endregion
 
 tasks.withType<Test>().configureEach {
     maxHeapSize = "2G"
@@ -144,22 +203,20 @@ tasks.withType<Test>().configureEach {
         if (useK2) excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
     }
 
-    setForkEvery(1)
-    project.properties["dokka_integration_test_parallelism"]?.toString()?.toIntOrNull()?.let { parallelism ->
-        maxParallelForks = parallelism
-    }
-
-    environment(
-        "isExhaustive",
-        project.properties["dokka_integration_test_is_exhaustive"]?.toString()?.toBoolean()
-            ?: System.getenv("DOKKA_INTEGRATION_TEST_IS_EXHAUSTIVE")?.toBoolean()
-            ?: false.toString()
-    )
-
     systemProperty("org.jetbrains.dokka.experimental.tryK2", useK2)
 
-    // allow inspecting projects in failing tests
-    systemProperty("junit.jupiter.tempdir.cleanup.mode.default", "ON_SUCCESS")
+    setForkEvery(1)
+    dokkaBuild.integrationTestParallelism.orNull?.let {
+        maxParallelForks = it
+    }
+
+    environment("isExhaustive", dokkaBuild.integrationTestExhaustive)
+
+    // allow inspecting projects in temporary dirs after a test fails
+    systemProperty(
+        "junit.jupiter.tempdir.cleanup.mode.default",
+        dokkaBuild.isCI.map { isCi -> if (isCi) "ALWAYS" else "ON_SUCCESS" }.get(),
+    )
 
     testLogging {
         exceptionFormat = FULL

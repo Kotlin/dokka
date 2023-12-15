@@ -138,7 +138,7 @@ idea {
             addAll(
                 projectDir.walk().filter { file ->
                     excludedDirs.any {
-                        file.invariantSeparatorsPath.endsWith(it)
+                        file.invariantSeparatorsPath.endsWith("/$it")
                     }
                 }
             )

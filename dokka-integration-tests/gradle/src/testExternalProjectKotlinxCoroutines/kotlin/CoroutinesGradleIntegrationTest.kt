@@ -22,10 +22,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class SerializationBuildVersionsArgumentsProvider : ArgumentsProvider {
+class CoroutinesBuildVersionsArgumentsProvider : ArgumentsProvider {
     private val buildVersions = BuildVersions.permutations(
-        gradleVersions = listOf("7.6.1"),
-        kotlinVersions = listOf("1.9.0")
+        gradleVersions = listOf("7.4.2"),
+        kotlinVersions = listOf("1.8.10")
     )
 
     override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
@@ -33,34 +33,41 @@ class SerializationBuildVersionsArgumentsProvider : ArgumentsProvider {
     }
 }
 
-class SerializationGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopier {
+class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopier {
 
     override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/htmlMultiModule") }
 
     @BeforeTest
-    fun prepareSerializationProjectFiles() {
-        val templateProjectDir = File("projects", "serialization/kotlinx-serialization")
-        templateProjectDir.listFiles().orEmpty()
-            .forEach { topLevelFile -> topLevelFile.copyRecursively(File(projectDir, topLevelFile.name)) }
-        copyAndApplyGitDiff(File("projects", "serialization/serialization.diff"))
+    override fun beforeEachTest() {
+        prepareProjectFiles()
+        copyAndApplyGitDiff(
+            projectDir.toPath(),
+            templateProjectDir.parent.resolve("coroutines.diff"),
+//            projectLocalMavenDirs,
+        )
     }
 
-    @OnlyDescriptors // failed due to https://github.com/Kotlin/dokka/issues/3207
+    @OnlyDescriptors
     @ParameterizedTest(name = "{0}")
-    @ArgumentsSource(SerializationBuildVersionsArgumentsProvider::class)
+    @ArgumentsSource(CoroutinesBuildVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
-        val result = createGradleRunner(buildVersions, ":dokkaHtmlMultiModule", "-i", "-s").buildRelaxed()
+        val result = createGradleRunner(
+            buildVersions,
+            ":dokkaHtmlMultiModule", "-i", "-s",
+            jvmArgs = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=500m")
+        ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtmlMultiModule")).outcome)
 
         assertTrue(projectOutputLocation.isDirectory, "Missing dokka output directory")
 
         projectOutputLocation.allHtmlFiles().forEach { file ->
-            assertContainsNoErrorClass(file)
-            assertNoUnresolvedLinks(file)
+//            assertContainsNoErrorClass(file)
+//            assertNoUnresolvedLinks(file)
 //            assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoEmptyLinks(file)
             assertNoEmptySpans(file)
+            assertNoUnsubstitutedTemplatesInHtml(file)
         }
     }
 }

@@ -6,32 +6,37 @@ package org.jetbrains.dokka.it
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.*
 
-public fun AbstractIntegrationTest.copyAndApplyGitDiff(diffFile: File) {
-    copyGitDiffFileToParent(diffFile).let(::applyGitDiffFromFile)
-}
+fun copyAndApplyGitDiff(
+    projectDir: Path,
+    diffFile: Path,
+//    projectLocalMavenDirs: List<Path>,
+) {
 
-public fun AbstractIntegrationTest.copyGitDiffFileToParent(originalDiffFile: File): File =
-    originalDiffFile.copyTo(File(projectDir.parent, originalDiffFile.name))
+    val diffFileText = diffFile.readText()
 
-public fun AbstractIntegrationTest.applyGitDiffFromFile(diffFile: File) {
+    projectDir.parent.resolve(diffFile.fileName).apply {
+        createFile()
+        writeText(diffFileText)
+    }
+
     val projectGitFile = projectDir.resolve(".git")
     val git = if (projectGitFile.exists()) {
-        if (projectGitFile.isFile) {
+        if (projectGitFile.isRegularFile()) {
             println(".git file inside project directory exists, removing")
-            removeGitFile(projectDir.toPath())
-            Git.init().setDirectory(projectDir).call()
+            removeGitFile(projectDir)
+            Git.init().setDirectory(projectDir.toFile()).call()
         } else {
             println(".git directory inside project directory exists, reusing")
             FileRepositoryBuilder().apply {
                 isMustExist = true
-                gitDir = projectDir
+                gitDir = projectGitFile.toFile()
             }.let { Git(it.build()) }
         }
     } else {
-        Git.init().setDirectory(projectDir).call()
+        Git.init().setDirectory(projectDir.toFile()).call()
     }
     git.apply().setPatch(diffFile.inputStream()).call()
 }
