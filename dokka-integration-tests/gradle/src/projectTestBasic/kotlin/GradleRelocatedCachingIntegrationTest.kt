@@ -5,6 +5,7 @@
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
@@ -15,15 +16,19 @@ class GradleRelocatedCachingIntegrationTest : AbstractGradleCachingIntegrationTe
 
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
-    fun execute(buildVersions: BuildVersions) {
-        setupProject(buildVersions, projectFolder(1))
-        setupProject(buildVersions, projectFolder(2))
+    fun `verify build cache is relocatable`(buildVersions: BuildVersions) {
+        duplicateTemplateProject(buildVersions, projectFolder(1))
+        duplicateTemplateProject(buildVersions, projectFolder(2))
 
         runAndAssertOutcomeAndContents(buildVersions, projectFolder(1), TaskOutcome.SUCCESS)
         runAndAssertOutcomeAndContents(buildVersions, projectFolder(2), TaskOutcome.FROM_CACHE)
     }
 
-    private fun runAndAssertOutcomeAndContents(buildVersions: BuildVersions, project: File, expectedOutcome: TaskOutcome) {
+    private fun runAndAssertOutcomeAndContents(
+        buildVersions: BuildVersions,
+        project: File,
+        expectedOutcome: TaskOutcome,
+    ) {
         val result = createGradleRunner(
             buildVersions,
             "clean", "dokkaHtml", "-i", "-s", "-Dorg.gradle.caching.debug=true", "--build-cache"

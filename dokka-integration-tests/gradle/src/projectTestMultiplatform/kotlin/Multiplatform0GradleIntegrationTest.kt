@@ -15,14 +15,14 @@ import kotlin.test.assertTrue
 
 class Multiplatform0GradleIntegrationTest : AbstractGradleIntegrationTest() {
 
-    @BeforeTest
-    fun prepareProjectFiles() {
-        val templateProjectDir = File("projects", "it-multiplatform-0")
-        templateProjectDir.listFiles().orEmpty()
-            .filter { it.isFile }
-            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
-        File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
-    }
+//    @BeforeTest
+//    fun prepareProjectFiles() {
+//        val templateProjectDir = File("projects", "it-multiplatform-0")
+//        templateProjectDir.listFiles().orEmpty()
+//            .filter { it.isFile }
+//            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
+//        File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
+//    }
 
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)

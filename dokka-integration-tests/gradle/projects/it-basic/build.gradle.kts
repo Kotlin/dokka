@@ -61,28 +61,27 @@ tasks.withType<DokkaTask>().configureEach {
     }
     suppressObviousFunctions.set(false)
 
-    val logoStylesCss = file("customResources/logo-styles.css")
-    val customStyleToAddCss = file("customResources/custom-style-to-add.css")
-    val customResourceSvg = file("customResources/custom-resource.svg")
-    inputs.files(
-        logoStylesCss,
-        customStyleToAddCss,
-        customResourceSvg,
-    )
+    val customResourcesDir = layout.projectDirectory.dir("customResources")
+    inputs.dir(customResourcesDir)
+        .withPropertyName("customResourcesDir")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+        .normalizeLineEndings()
 
-    pluginsMapConfiguration.set(
-        mapOf(
-            DokkaBase::class.qualifiedName to """
-                { 
-                  "customStyleSheets": [
-                    "${logoStylesCss.invariantSeparatorsPath}",
-                    "${customStyleToAddCss.invariantSeparatorsPath}"
-                  ],
-                  "customAssets": [
-                    "${customResourceSvg.invariantSeparatorsPath}"
-                  ]
-                }
-            """.trimIndent()
-        )
+    val logoStylesCss = customResourcesDir.file("logo-styles.css").asFile.invariantSeparatorsPath
+    val customStyleToAddCss = customResourcesDir.file("custom-style-to-add.css").asFile.invariantSeparatorsPath
+    val customResourceSvg = customResourcesDir.file("custom-resource.svg").asFile.invariantSeparatorsPath
+
+    pluginsMapConfiguration.set(mapOf(DokkaBase::class.qualifiedName to """
+            { 
+                "customStyleSheets": [
+                    "$logoStylesCss",
+                    "$customStyleToAddCss"
+                ],
+                "customAssets" : [
+                    "$customResourceSvg"
+                ]
+            }
+        """.trimIndent()
+    )
     )
 }

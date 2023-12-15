@@ -15,14 +15,14 @@ import kotlin.test.assertTrue
 
 class Collector0IntegrationTest : AbstractGradleIntegrationTest() {
 
-    @BeforeTest
-    fun prepareProjectFiles() {
-        val templateProjectDir = File("projects", "it-collector-0")
-        templateProjectDir.listFiles().orEmpty()
-            .filter { it.isFile }
-            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
-        File(templateProjectDir, "moduleA").copyRecursively(File(projectDir, "moduleA"))
-    }
+//    @BeforeTest
+//    fun prepareProjectFiles() {
+//        val templateProjectDir = File("projects", "it-collector-0")
+//        templateProjectDir.listFiles().orEmpty()
+//            .filter { it.isFile }
+//            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
+//        File(templateProjectDir, "moduleA").copyRecursively(File(projectDir, "moduleA"))
+//    }
 
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
@@ -80,4 +80,3 @@ class Collector0IntegrationTest : AbstractGradleIntegrationTest() {
         assertTrue(isDirectory, "Missing dokka gfmCollector output directory")
     }
 }
-

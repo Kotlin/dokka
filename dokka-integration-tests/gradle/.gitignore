@@ -9,7 +9,7 @@ gradlew
 # gradle.properties will be auto-updated by Gradle tasks
 #gradle.properties
 
-ANDROID_SDK/*
+projects/ANDROID_SDK/*
 **/local.properties
 # Don't ignore licenses - they're required by Android to auto-download the SDK
-!ANDROID_SDK/licenses/
+!projects/ANDROID_SDK/licenses/

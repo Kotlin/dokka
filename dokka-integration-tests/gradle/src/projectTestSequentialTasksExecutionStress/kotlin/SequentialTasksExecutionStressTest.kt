@@ -20,16 +20,16 @@ import kotlin.test.assertNotNull
  */
 class SequentialTasksExecutionStressTest : AbstractGradleIntegrationTest() {
 
-    @BeforeTest
-    fun prepareProjectFiles() {
-        val templateProjectDir = File("projects", "it-sequential-tasks-execution-stress")
-
-        templateProjectDir.listFiles().orEmpty()
-            .filter { it.isFile }
-            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
-
-        File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
-    }
+//    @BeforeTest
+//    fun prepareProjectFiles() {
+//        val templateProjectDir = File("projects", "it-sequential-tasks-execution-stress")
+//
+//        templateProjectDir.listFiles().orEmpty()
+//            .filter { it.isFile }
+//            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
+//
+//        File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
+//    }
 
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(LatestTestedVersionsArgumentsProvider::class)

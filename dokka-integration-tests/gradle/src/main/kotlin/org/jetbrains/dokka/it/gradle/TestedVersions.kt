@@ -12,7 +12,7 @@ import java.util.stream.Stream
 class LatestTestedVersionsArgumentsProvider : TestedVersionsArgumentsProvider(listOf(TestedVersions.LATEST))
 open class AllSupportedTestedVersionsArgumentsProvider : TestedVersionsArgumentsProvider(TestedVersions.ALL_SUPPORTED)
 
-internal object TestedVersions {
+object TestedVersions {
 
     val LATEST = BuildVersions("7.6.2", "1.9.20")
 

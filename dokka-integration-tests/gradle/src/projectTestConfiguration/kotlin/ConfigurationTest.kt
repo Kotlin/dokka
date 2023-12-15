@@ -26,16 +26,16 @@ import kotlin.test.assertNotNull
  */
 class ConfigurationTest : AbstractGradleIntegrationTest() {
 
-    @BeforeTest
-    fun prepareProjectFiles() {
-        val templateProjectDir = File("projects", "it-configuration")
-
-        templateProjectDir.listFiles().orEmpty()
-            .filter { it.isFile }
-            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
-
-        File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
-    }
+//    @BeforeTest
+//    fun prepareProjectFiles() {
+//        val templateProjectDir = File("projects", "it-configuration")
+//
+//        templateProjectDir.listFiles().orEmpty()
+//            .filter { it.isFile }
+//            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
+//
+//        File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
+//    }
 
     /**
      * The test project contains some undocumented declarations, so if both `reportUndocumented`
@@ -43,7 +43,6 @@ class ConfigurationTest : AbstractGradleIntegrationTest() {
      */
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(LatestTestedVersionsArgumentsProvider::class)
-    @Suppress("FunctionName")
     fun `should fail with DokkaException and readable message if failOnWarning is triggered`(
         buildVersions: BuildVersions
     ) {

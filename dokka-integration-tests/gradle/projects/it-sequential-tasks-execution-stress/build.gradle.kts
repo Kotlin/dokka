@@ -16,11 +16,9 @@ plugins {
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.dokka:dokka-base:${System.getenv("DOKKA_VERSION")}")
+        classpath("org.jetbrains.dokka:dokka-base:+")
     }
 }
-
-apply(from = "../template.root.gradle.kts")
 
 fun createTask(name: String) {
     tasks.register(name, org.jetbrains.dokka.gradle.DokkaTask::class) {

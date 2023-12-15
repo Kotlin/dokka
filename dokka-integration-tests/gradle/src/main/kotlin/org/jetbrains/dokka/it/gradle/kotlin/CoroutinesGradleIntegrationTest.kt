@@ -38,7 +38,7 @@ class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOut
     override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/htmlMultiModule") }
 
     @BeforeTest
-    fun prepareProjectFiles() {
+    fun prepareCoroutinesProjectFiles() {
         val templateProjectDir = File("projects", "coroutines/kotlinx-coroutines")
         templateProjectDir.listFiles().orEmpty()
             .forEach { topLevelFile -> topLevelFile.copyRecursively(File(projectDir, topLevelFile.name)) }

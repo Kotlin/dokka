@@ -10,6 +10,7 @@ plugins {
     id("dokkabuild.kotlin-jvm")
     `test-suite-base`
     `java-test-fixtures`
+    id("dokkabuild.testing.android-setup")
 }
 
 dependencies {
@@ -47,12 +48,14 @@ tasks.withType<Test>().configureEach {
 
 val templateProjectsDir = layout.projectDirectory.dir("projects")
 val exampleProjectsDir = layout.projectDirectory.dir("../../examples/gradle")
+val templateSettingsGradleKts = layout.projectDirectory.file("projects/template.settings.gradle.kts")
 
 @Suppress("UnstableApiUsage")
 testing {
     suites {
         withType<JvmTestSuite>().configureEach {
             useJUnitJupiter()
+
             dependencies {
                 implementation(project())
             }
@@ -65,23 +68,58 @@ testing {
                         testMavenDirs.joinToString(":") { it.invariantSeparatorsPath }
                     )
 
-//                    inputs.dir(templateProjectsDir).withPropertyName("templateProjectsDir")
-                    systemProperty("templateProjectsDir", templateProjectsDir.asFile.invariantSeparatorsPath)
-                    systemProperty("exampleProjectsDir", exampleProjectsDir.asFile.invariantSeparatorsPath)
+                    environment("ANDROID_HOME", templateProjectsDir.dir("ANDROID_SDK").asFile.invariantSeparatorsPath)
+
+                    inputs.file(templateSettingsGradleKts)
+                    systemProperty(
+                        "templateSettingsGradleKts",
+                        templateSettingsGradleKts.asFile.invariantSeparatorsPath
+                    )
+
                     doFirst {
                         logger.lifecycle("running $path with javaLauncher:${javaLauncher.orNull?.metadata?.javaRuntimeVersion}")
                     }
                 }
             }
+
+            sources { java { setSrcDirs(emptyList<String>()) } }
         }
 
-        register<JvmTestSuite>("basicProjectTest") {
+        fun registerTestProjectSuite(name: String, dirName: String, configure: JvmTestSuite.() -> Unit = {}) {
+            val templateProjectDir = templateProjectsDir.dir(dirName)
+
+            register<JvmTestSuite>(name) {
+                targets.configureEach {
+                    testTask.configure {
+                        inputs.dir(templateProjectDir)
+                        systemProperty("templateProjectDir", templateProjectDir.asFile.invariantSeparatorsPath)
+                    }
+                }
+                configure()
+            }
+        }
+
+        // register a separate test suite for each template project, to help with Gradle caching
+        registerTestProjectSuite("projectTestAndroid", "it-android-0") {
             targets.configureEach {
                 testTask.configure {
-                    inputs.dir(templateProjectsDir.dir("it-basic"))
+                    // AGP requires JVM 11+
+                    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(11) }
                 }
             }
         }
+        registerTestProjectSuite("projectTestBasic", "it-basic")
+        registerTestProjectSuite("projectTestBasicGroovy", "it-basic-groovy")
+        registerTestProjectSuite("projectTestCollector", "it-collector-0")
+        registerTestProjectSuite("projectTestConfiguration", "it-configuration")
+        registerTestProjectSuite("projectTestJsIr", "it-js-ir-0")
+        registerTestProjectSuite("projectTestMultimodule0", "it-multimodule-0")
+        registerTestProjectSuite("projectTestMultimodule1", "it-multimodule-1")
+        registerTestProjectSuite("projectTestMultimoduleVersioning", "it-multimodule-versioning-0")
+        registerTestProjectSuite("projectTestMultiplatform", "it-multiplatform-0")
+        registerTestProjectSuite("projectTestSequentialTasksExecutionStress", "it-sequential-tasks-execution-stress")
+        registerTestProjectSuite("projectTestWasmBasic", "it-wasm-basic")
+        registerTestProjectSuite("projectTestWasmJsWasiBasic", "it-wasm-js-wasi-basic")
     }
     tasks.check {
         dependsOn(suites)
@@ -93,6 +131,7 @@ kotlin {
 
     compilerOptions {
         allWarningsAsErrors = false
+        optIn.add("kotlin.io.path.ExperimentalPathApi")
     }
 }
 
@@ -129,4 +168,35 @@ tasks.withType<Test>().configureEach {
         showCauses = true
         showStackTraces = true
     }
+}
+
+val updateProjectsAndroidLocalProperties by tasks.registering {
+    description = "updates the local.properties file in each test project"
+
+    // find all Android projects that need a local.properties file
+    val androidProjects = templateProjectsDir.asFile.walk()
+        .filter { it.isDirectory && it.name in setOf("it-android-0") }
+
+    // determine the task outputs for up-to-date checks
+    val propertyFileDestinations = androidProjects.map { project ->
+        project.resolve("local.properties")
+    }
+    outputs.files(propertyFileDestinations.toList()).withPropertyName("propertyFileDestinations")
+
+    // the source local.properties file
+    val sourcePropertyFile = tasks.createAndroidLocalPropertiesFile.flatMap { it.localPropertiesFile.asFile }
+    inputs.file(sourcePropertyFile).withPropertyName("sourcePropertyFile").normalizeLineEndings()
+
+    doLast("update local.properties files") {
+        val src = sourcePropertyFile.get().readText()
+
+        propertyFileDestinations.forEach { dst ->
+            dst.createNewFile()
+            dst.writeText(src)
+        }
+    }
+}
+
+tasks.integrationTestPreparation {
+    dependsOn(updateProjectsAndroidLocalProperties)
 }

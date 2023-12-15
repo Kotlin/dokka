@@ -9,9 +9,7 @@ import org.jetbrains.dokka.it.IntegrationTest
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
-import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -20,31 +18,11 @@ import kotlin.test.assertTrue
 @IntegrationTest
 class BasicGradleIntegrationTest : AbstractGradleIntegrationTest() {
 
-    @OptIn(ExperimentalPathApi::class)
-    @BeforeTest
-    fun prepareProjectFiles() {
-        val basicProjectOriginalDir = templateProjectsDir.resolve("it-basic")
-
-        basicProjectOriginalDir.copyToRecursively(projectDir.toPath(), followLinks = false, overwrite = true)
-
-        projectDir.walk().filter { it.isFile }.forEach { file ->
-            file.writeText(
-                file.readText()
-                    .replace(
-                        "/* %{PROJECT_LOCAL_MAVEN_DIR}% */",
-                        projectLocalMavenDirs.joinToString("\n") { /*language=TEXT*/ """
-                            |maven("${it.invariantSeparatorsPathString}") {
-                            |    mavenContent { 
-                            |        includeGroup("org.jetbrains.dokka")
-                            |    }
-                            |}
-                            |
-                          """.trimMargin()
-                        }
-                    )
-            )
-        }
-    }
+//    @BeforeTest
+//    fun prepareProjectFiles() {
+//        templateProjectDir.copyToRecursively(projectDir.toPath(), followLinks = false, overwrite = true)
+//        projectDir.updateProjectLocalMavenDir()
+//    }
 
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)

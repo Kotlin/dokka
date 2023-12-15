@@ -9,23 +9,44 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.it.AbstractIntegrationTest
+import org.jetbrains.dokka.it.gradle.AbstractGradleIntegrationTest.Companion.templateProjectDir
 import org.jetbrains.dokka.it.systemProperty
 import org.jetbrains.dokka.it.withJvmArguments
 import java.io.File
 import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.io.path.copyTo
+import kotlin.io.path.copyToRecursively
+import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.test.BeforeTest
 
 abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
 
     @BeforeTest
-    fun copyTemplates() {
-        File("projects").listFiles().orEmpty()
-            .filter { it.isFile }
-            .filter { it.name.startsWith("template.") }
-            .forEach { file -> file.copyTo(File(tempFolder, file.name)) }
+    fun beforeEachTest() {
+        prepareProjectFiles()
+//        templateProjectDir.copyToRecursively(projectDir.toPath(), followLinks = false, overwrite = true)
+//        templateSettingsGradleKts.copyTo(projectDir.resolve("template.settings.gradle.kts").toPath())
+//        projectDir.updateProjectLocalMavenDir()
     }
+
+    fun prepareProjectFiles(
+        templateProjectDir: Path = AbstractGradleIntegrationTest.templateProjectDir,
+        destination: File = projectDir,
+    ) {
+        templateProjectDir.copyToRecursively(destination.toPath(), followLinks = false, overwrite = true)
+        templateSettingsGradleKts.copyTo(destination.resolve("template.settings.gradle.kts").toPath())
+        destination.updateProjectLocalMavenDir()
+    }
+
+//    @BeforeTest
+//    fun copyTemplates() {
+//        File("projects").listFiles().orEmpty()
+//            .filter { it.isFile }
+//            .filter { it.name.startsWith("template.") }
+//            .forEach { file -> file.copyTo(File(tempFolder, file.name)) }
+//    }
 
     fun createGradleRunner(
         buildVersions: BuildVersions,
@@ -70,12 +91,42 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
     }
 
     companion object {
-        val exampleProjectsDir: Path by systemProperty(Paths::get)
-        val templateProjectsDir: Path by systemProperty(Paths::get)
+        /**
+         * Location of the template project that this test will use.
+         *
+         * This value is provided by the Gradle Test task.
+         */
+        val templateProjectDir: Path by systemProperty(Paths::get)
+
+        /**
+         * Location of the `template.settings.gradle.kts` file used to provide common Gradle Settings configuration for template projects.
+         *
+         * This value is provided by the Gradle Test task.
+         */
+        val templateSettingsGradleKts: Path by systemProperty(Paths::get)
 
         /** file-based Maven repositories that contains the Dokka dependencies */
         val projectLocalMavenDirs: List<Path> by systemProperty { it.split(":").map(Paths::get) }
 
+        fun File.updateProjectLocalMavenDir() {
+            walk().filter { it.isFile }.forEach { file ->
+                file.writeText(
+                    file.readText()
+                        .replace(
+                            "/* %{PROJECT_LOCAL_MAVEN_DIR}% */",
+                            projectLocalMavenDirs.joinToString("\n") { /*language=TEXT*/ """
+                                |maven("${it.invariantSeparatorsPathString}") {
+                                |    mavenContent { 
+                                |        includeGroup("org.jetbrains.dokka")
+                                |    }
+                                |}
+                                |
+                              """.trimMargin()
+                            }
+                        )
+                )
+            }
+        }
     }
 }
 

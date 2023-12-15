@@ -15,16 +15,16 @@ import kotlin.test.assertTrue
 
 class BasicGroovyIntegrationTest : AbstractGradleIntegrationTest() {
 
-    @BeforeTest
-    fun prepareProjectFiles() {
-        val templateProjectDir = File("projects", "it-basic-groovy")
-
-        templateProjectDir.listFiles().orEmpty()
-            .filter { it.isFile }
-            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
-
-        File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
-    }
+//    @BeforeTest
+//    fun prepareProjectFiles() {
+//        val templateProjectDir = File("projects", "it-basic-groovy")
+//
+//        templateProjectDir.listFiles().orEmpty()
+//            .filter { it.isFile }
+//            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
+//
+//        File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
+//    }
 
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)

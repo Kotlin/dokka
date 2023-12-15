@@ -6,7 +6,7 @@
 
 pluginManagement {
     val dokka_it_kotlin_version: String by settings
-    val dokka_it_dokka_version: String by settings
+    //val dokka_it_dokka_version: String by settings
     val dokka_it_android_gradle_plugin_version: String? by settings
 
     plugins {
@@ -14,15 +14,13 @@ pluginManagement {
         id("org.jetbrains.kotlin.jvm") version dokka_it_kotlin_version
         id("org.jetbrains.kotlin.android") version dokka_it_kotlin_version
         id("org.jetbrains.kotlin.multiplatform") version dokka_it_kotlin_version
-        id("org.jetbrains.dokka") version dokka_it_dokka_version
+        // only one repository should provide Dokka, and that's a project-local directory,
+        // so just use the latest Dokka version
+        id("org.jetbrains.dokka") version "+"
     }
 
     resolutionStrategy {
         eachPlugin {
-            if (requested.id.id == "org.jetbrains.dokka") {
-                useModule("org.jetbrains.dokka:dokka-gradle-plugin:${System.getenv("DOKKA_VERSION")}")
-            }
-
             if (requested.id.id == "com.android.library") {
                 useModule("com.android.tools.build:gradle:$dokka_it_android_gradle_plugin_version")
             }
@@ -33,13 +31,25 @@ pluginManagement {
         }
     }
     repositories {
-        mavenLocal {
-            content {
-                includeGroup("org.jetbrains.dokka")
-            }
-        }
+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
         mavenCentral()
         gradlePluginPortal()
         google()
+    }
+}
+
+@Suppress("UnstableApiUsage")
+dependencyResolutionManagement {
+    repositories {
+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
+        mavenCentral()
+        google()
+        maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
+            content {
+                includeGroup("org.jetbrains.kotlinx")
+            }
+        }
+        // Remove when Kotlin/Wasm is published into public Maven repository
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
     }
 }
