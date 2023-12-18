@@ -43,7 +43,6 @@ class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOut
         copyAndApplyGitDiff(
             projectDir.toPath(),
             templateProjectDir.parent.resolve("coroutines.diff"),
-//            projectLocalMavenDirs,
         )
     }
 

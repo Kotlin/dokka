@@ -42,7 +42,6 @@ class SerializationGradleIntegrationTest : AbstractGradleIntegrationTest(), Test
         copyAndApplyGitDiff(
             projectDir.toPath(),
             templateProjectDir.parent.resolve("serialization.diff"),
-//            projectLocalMavenDirs,
         )
     }
 

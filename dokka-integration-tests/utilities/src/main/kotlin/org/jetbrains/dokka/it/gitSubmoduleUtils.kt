@@ -12,7 +12,6 @@ import kotlin.io.path.*
 fun copyAndApplyGitDiff(
     projectDir: Path,
     diffFile: Path,
-//    projectLocalMavenDirs: List<Path>,
 ) {
 
     val diffFileText = diffFile.readText()
