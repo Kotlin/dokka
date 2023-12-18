@@ -9,7 +9,6 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.it.AbstractIntegrationTest
-import org.jetbrains.dokka.it.gradle.AbstractGradleIntegrationTest.Companion.templateProjectDir
 import org.jetbrains.dokka.it.systemProperty
 import org.jetbrains.dokka.it.withJvmArguments
 import java.io.File
@@ -18,7 +17,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.copyTo
 import kotlin.io.path.copyToRecursively
-import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.test.BeforeTest
 
 abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
@@ -104,13 +102,16 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                         .replace(
                             "/* %{PROJECT_LOCAL_MAVEN_DIR}% */",
                             projectLocalMavenDirs.joinToString("\n") { /*language=TEXT*/ """
-                                |maven("${it.invariantSeparatorsPathString}") {
-                                |    mavenContent { 
+                                |exclusiveContent {
+                                |    forRepository {
+                                |        maven("missingValue")
+                                |    }
+                                |    filter {
                                 |        includeGroup("org.jetbrains.dokka")
                                 |    }
                                 |}
                                 |
-                              """.trimMargin()
+                                """.trimMargin()
                             }
                         )
                 )
