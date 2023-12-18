@@ -6,3 +6,8 @@
 gradlew.bat
 gradlew
 gradle.properties
+
+projects/ANDROID_SDK/*
+**/local.properties
+# Don't ignore licenses - they're required by Android to auto-download the SDK
+!projects/ANDROID_SDK/licenses/
