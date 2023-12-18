@@ -39,6 +39,7 @@ pluginManagement {
 
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         /* %{PROJECT_LOCAL_MAVEN_DIR}% */
         mavenCentral()

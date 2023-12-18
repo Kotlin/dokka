@@ -17,6 +17,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.copyTo
 import kotlin.io.path.copyToRecursively
+import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.test.BeforeTest
 
 abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
@@ -96,23 +97,25 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
         val projectLocalMavenDirs: List<Path> by systemProperty { it.split(":").map(Paths::get) }
 
         fun File.updateProjectLocalMavenDir() {
+
+            val repositories =
+                projectLocalMavenDirs.joinToString(", ") { "maven(\"${it.invariantSeparatorsPathString}\")" }
+
             walk().filter { it.isFile }.forEach { file ->
                 file.writeText(
                     file.readText()
                         .replace(
                             "/* %{PROJECT_LOCAL_MAVEN_DIR}% */",
-                            projectLocalMavenDirs.joinToString("\n") { /*language=TEXT*/ """
+                            /*language=TEXT*/
+                            """
                                 |exclusiveContent {
-                                |    forRepository {
-                                |        maven("missingValue")
-                                |    }
+                                |    forRepositories($repositories)
                                 |    filter {
                                 |        includeGroup("org.jetbrains.dokka")
                                 |    }
                                 |}
                                 |
-                                """.trimMargin()
-                            }
+                            """.trimMargin()
                         )
                 )
             }
