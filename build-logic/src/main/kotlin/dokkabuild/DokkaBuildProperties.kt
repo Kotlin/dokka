@@ -4,6 +4,7 @@
 
 package dokkabuild
 
+import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.jvm.toolchain.JavaLanguageVersion
@@ -48,11 +49,46 @@ abstract class DokkaBuildProperties @Inject constructor(
     val kotlinLanguageLevel: Provider<KotlinVersion> =
         dokkaProperty("kotlinLanguageLevel", KotlinVersion::fromVersion)
 
+    val integrationTestParallelism: Provider<Int> =
+        dokkaProperty("integration_test.parallelism", String::toInt)
+            // fallback & warn if the old property is used
+            .orElse(
+                providers.gradleProperty("dokka_integration_test_parallelism")
+                    .map {
+                        logger.warn("dokka_integration_test_parallelism is deprecated - use org.jetbrains.dokka.integration_test.parallelism instead")
+                        it.toInt()
+                    }
+            )
+
+    val integrationTestExhaustive: Provider<Boolean> =
+        dokkaProperty("integration_test.exhaustive", String::toBoolean)
+            // fallback & warn if the old property is used
+            .orElse(
+                providers.gradleProperty("dokka_integration_test_is_exhaustive")
+                    .map {
+                        logger.warn("dokka_integration_test_is_exhaustive is deprecated - use org.jetbrains.dokka.integration_test.exhaustive instead")
+                        it.toBoolean()
+                    }
+            )
+            .orElse(
+                providers.environmentVariable("DOKKA_INTEGRATION_TEST_IS_EXHAUSTIVE")
+                    .map {
+                        logger.warn("DOKKA_INTEGRATION_TEST_IS_EXHAUSTIVE is deprecated - use ORG_GRADLE_PROJECT_org.jetbrains.dokka.integration_test.exhaustive instead")
+                        it.toBoolean()
+                    }
+            )
+
+    val tryK2: Provider<Boolean> =
+        dokkaProperty("experimental.tryK2", String::toBoolean)
+            .orElse(false)
+
 
     private fun <T : Any> dokkaProperty(name: String, convert: (String) -> T) =
         providers.gradleProperty("org.jetbrains.dokka.$name").map(convert)
 
     companion object {
+        private val logger = Logging.getLogger(DokkaBuildProperties::class.java)
+
         const val EXTENSION_NAME = "dokkaBuild"
     }
 }
