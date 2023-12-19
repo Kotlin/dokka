@@ -46,6 +46,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             .forwardOutput()
             .withJetBrainsCachedGradleVersion(buildVersions.gradleVersion)
             .withTestKitDir(File("build", "gradle-test-kit").absoluteFile)
+            .withDebug(TestEnvironment.isEnabledDebug)
             .withArguments(
                 listOfNotNull(
                     "-Pdokka_it_dokka_version=${System.getenv("DOKKA_VERSION")}",

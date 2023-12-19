@@ -5,9 +5,7 @@
 **/gradle/wrapper/**
 gradlew.bat
 gradlew
-
-# gradle.properties will be auto-updated by Gradle tasks
-#gradle.properties
+gradle.properties
 
 projects/ANDROID_SDK/*
 **/local.properties
