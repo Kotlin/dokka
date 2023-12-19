@@ -41,44 +41,31 @@ tasks.integrationTest {
 }
 
 val templateProjectsDir = layout.projectDirectory.dir("projects")
-val androidSdkDir = templateProjectsDir.dir("ANDROID_SDK")
+val androidSdkDir = providers
+    // first try getting pre-installed SDK (e.g. via GitHub step setup-android)
+    .environmentVariable("ANDROID_SDK_ROOT").map(::File)
+    .orElse(providers.environmentVariable("ANDROID_HOME").map(::File))
+    // else get the project-local SDK
+    .orElse(templateProjectsDir.dir("ANDROID_SDK").asFile)
 
 tasks.withType<Test>().configureEach {
-    environment("ANDROID_HOME", androidSdkDir.asFile.invariantSeparatorsPath)
+    environment("ANDROID_HOME", androidSdkDir.get().invariantSeparatorsPath)
 }
 
-val updateProjectsAndroidLocalProperties by tasks.registering {
-    description = "updates the local.properties file in each test project, so the local ANDROID_SDK dir is used"
-
+tasks.createAndroidLocalPropertiesFiles {
     // The names of android projects that require a local.properties file
     val androidProjects = setOf(
         "it-android-0",
     )
-
     // find all Android projects that need a local.properties file
-    val androidProjectsDirectories = templateProjectsDir.asFile.walk()
-        .filter { it.isDirectory && it.name in androidProjects }
-
-    // determine the task outputs for up-to-date checks
-    val propertyFileDestinations = androidProjectsDirectories.map { project ->
-        project.resolve("local.properties")
-    }
-    outputs.files(propertyFileDestinations.toList()).withPropertyName("propertyFileDestinations")
-
-    // the source local.properties file
-    val sourcePropertyFile = tasks.createAndroidLocalPropertiesFile.flatMap { it.localPropertiesFile.asFile }
-    inputs.file(sourcePropertyFile).withPropertyName("sourcePropertyFile").normalizeLineEndings()
-
-    doLast("update local.properties files") {
-        val src = sourcePropertyFile.get().readText()
-
-        propertyFileDestinations.forEach { dst ->
-            dst.createNewFile()
-            dst.writeText(src)
+    androidProjectsDirectories.from(
+        templateProjectsDir.asFileTree.matching {
+            include { it.isDirectory && it.name in androidProjects }
         }
-    }
+    )
+    androidSdkDirPath.set(androidSdkDir.map { it.invariantSeparatorsPath })
 }
 
 tasks.integrationTestPreparation {
-    dependsOn(updateProjectsAndroidLocalProperties)
+    dependsOn(tasks.createAndroidLocalPropertiesFiles)
 }
