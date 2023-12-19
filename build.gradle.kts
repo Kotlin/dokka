@@ -5,7 +5,6 @@
 plugins {
     id("dokkabuild.base")
     alias(libs.plugins.devPublish)
-    idea
 }
 
 dependencies {
@@ -122,26 +121,3 @@ fun includedBuildTasks(taskName: String, filter: (IncludedBuild) -> Boolean = { 
         .filter { it.name != "build-logic" }
         .filter(filter)
         .mapNotNull { it.task(":$taskName") }
-
-idea {
-    module {
-        excludeDirs.apply {
-            // exclude .gradle, IDE dirs from nested projects (e.g. example & template projects)
-            // so IntelliJ project-wide search isn't cluttered with irrelevant files
-            val excludedDirs = setOf(
-                ".idea",
-                ".gradle",
-                "build",
-                "gradle/wrapper",
-                "ANDROID_SDK",
-            )
-            addAll(
-                projectDir.walk().filter { file ->
-                    excludedDirs.any {
-                        file.invariantSeparatorsPath.endsWith("/$it")
-                    }
-                }
-            )
-        }
-    }
-}
