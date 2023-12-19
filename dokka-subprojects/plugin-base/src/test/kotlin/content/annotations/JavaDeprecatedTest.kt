@@ -151,7 +151,7 @@ class JavaDeprecatedTest : BaseAbstractTest() {
             |     * Don't do anything
             |     * @deprecated
             |     * This method is no longer acceptable to compute time between versions.
-            |     * <p> Use {@link DeprecatedJClass#getStringMethodNew()} instead.
+            |     * <p>Use {@link DeprecatedJClass#getStringMethodNew()} instead.</p>
             |     */
             |    @Deprecated(since = "18.0.2", forRemoval = true)
             |    public void getStringMethod(){}
@@ -196,7 +196,7 @@ class JavaDeprecatedTest : BaseAbstractTest() {
                                                 +"Thismethod is no longer acceptable to compute time between versions. "
                                             }
                                             p {
-                                                +" Use "
+                                                +"Use "
                                                 +"getStringMethodNew"
                                                 +" instead."
                                             }
