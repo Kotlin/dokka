@@ -11,7 +11,6 @@ plugins {
     `test-suite-base`
     `java-test-fixtures`
     id("dokkabuild.testing.android-setup")
-    id("dokkabuild.testing.android-setup")
 }
 
 dependencies {
@@ -57,7 +56,12 @@ tasks.withType<Test>().configureEach {
 val templateProjectsDir = layout.projectDirectory.dir("projects")
 val exampleProjectsDir = layout.projectDirectory.dir("../../examples/gradle")
 val templateSettingsGradleKts = layout.projectDirectory.file("projects/template.settings.gradle.kts")
-val androidSdkDir = templateProjectsDir.dir("ANDROID_SDK")
+val androidSdkDir = providers
+    // first try getting pre-installed SDK (e.g. via GitHub step setup-android)
+    .environmentVariable("ANDROID_SDK_ROOT").map(::File)
+    .orElse(providers.environmentVariable("ANDROID_HOME").map(::File))
+    // else get the project-local SDK
+    .orElse(templateProjectsDir.dir("ANDROID_SDK").asFile)
 
 @Suppress("UnstableApiUsage")
 testing {
@@ -77,7 +81,7 @@ testing {
                         testMavenDirs.joinToString(":") { it.invariantSeparatorsPath }
                     )
 
-                    environment("ANDROID_HOME", androidSdkDir.asFile.invariantSeparatorsPath)
+                    environment("ANDROID_HOME", androidSdkDir.get().invariantSeparatorsPath)
 
                     inputs.file(templateSettingsGradleKts)
                     systemProperty(
@@ -204,7 +208,7 @@ val testAllExternalProjects by tasks.registering {
 tasks.withType<Test>().configureEach {
     maxHeapSize = "2G"
 
-    val useK2 = dokkaBuild.tryK2.get()
+    val useK2 = dokkaBuild.integrationTestUseK2.get()
 
     useJUnitPlatform {
         if (useK2) excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
@@ -233,14 +237,6 @@ tasks.withType<Test>().configureEach {
         showStackTraces = true
     }
 }
-
-val templateProjectsDir = layout.projectDirectory.dir("projects")
-val androidSdkDir = providers
-    // first try getting pre-installed SDK (e.g. via GitHub step setup-android)
-    .environmentVariable("ANDROID_SDK_ROOT").map(::File)
-    .orElse(providers.environmentVariable("ANDROID_HOME").map(::File))
-    // else get the project-local SDK
-    .orElse(templateProjectsDir.dir("ANDROID_SDK").asFile)
 
 tasks.withType<Test>().configureEach {
     environment("ANDROID_HOME", androidSdkDir.get().invariantSeparatorsPath)
