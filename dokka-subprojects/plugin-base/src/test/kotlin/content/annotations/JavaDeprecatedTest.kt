@@ -12,11 +12,8 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.ContentStyle
-import utils.pWrapped
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import utils.*
+import kotlin.test.*
 
 class JavaDeprecatedTest : BaseAbstractTest() {
 
@@ -68,7 +65,7 @@ class JavaDeprecatedTest : BaseAbstractTest() {
             |package deprecated
             |
             |/**
-            | * Average function description
+            | * Average class description
             | */
             |@Deprecated(forRemoval = true)
             |public class DeprecatedJavaClass {}
@@ -90,7 +87,7 @@ class JavaDeprecatedTest : BaseAbstractTest() {
                                     +"Deprecated (for removal)"
                                 }
                             }
-                            group { pWrapped("Average function description") }
+                            group { pWrapped("Average class description") }
                         }
                     }
                     skipAllNotMatching()
@@ -137,6 +134,79 @@ class JavaDeprecatedTest : BaseAbstractTest() {
                         }
                     }
                     skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `should take deprecation message from @deprecated javadoc tag`() {
+        testInline(
+            """
+            |/src/main/kotlin/deprecated/DeprecatedJavaClass.java
+            |package deprecated
+            |
+            |public class DeprecatedJClass {
+            |    /**
+            |     * Don't do anything
+            |     * @deprecated
+            |     * This method is no longer acceptable to compute time between versions.
+            |     * <p> Use {@link DeprecatedJClass#getStringMethodNew()} instead.
+            |     */
+            |    @Deprecated(since = "18.0.2", forRemoval = true)
+            |    public void getStringMethod(){}
+            |}
+            """.trimIndent(),
+            testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val deprecatedFunction = module.children
+                    .single { it.name == "deprecated" }.children
+                    .single { it.name == "DeprecatedJClass" }.children
+                    .single { it.name == "getStringMethod" } as ContentPage
+
+                deprecatedFunction.content.assertNode {
+                    group {
+                        header(1) { +"getStringMethod" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature(
+                                    annotations = emptyMap(),
+                                    visibility = "",
+                                    modifier = "open",
+                                    keywords = emptySet(),
+                                    name = "getStringMethod",
+                                    returnType = null
+                                )
+                            }
+                            after {
+                                group {
+                                    header(3) {
+                                        +"Deprecated (for removal)"
+                                    }
+                                    group {
+                                        check { assertEquals(ContentStyle.Footnote, this.style.firstOrNull()) }
+                                        +"Since version 18.0.2"
+                                    }
+                                    p {
+                                        comment {
+                                            p {
+                                                +"Thismethod is no longer acceptable to compute time between versions. "
+                                            }
+                                            p {
+                                                +" Use "
+                                                +"getStringMethodNew"
+                                                +" instead."
+                                            }
+                                        }
+                                    }
+                                }
+                                group { pWrapped("Don't do anything") }
+                            }
+                        }
+                    }
                 }
             }
         }
