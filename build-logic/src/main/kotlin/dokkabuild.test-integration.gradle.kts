@@ -51,15 +51,14 @@ val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
     classpath = integrationTestSourceSet.runtimeClasspath
 
     useJUnitPlatform {
-        if (dokkaBuild.tryK2.get()) excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
+        if (dokkaBuild.integrationTestUseK2.get()) excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
     }
 
-    systemProperty("org.jetbrains.dokka.experimental.tryK2", dokkaBuild.tryK2.get())
+    systemProperty("org.jetbrains.dokka.experimental.tryK2", dokkaBuild.integrationTestUseK2.get())
 
     dokkaBuild.integrationTestParallelism.orNull?.let { parallelism ->
         maxParallelForks = parallelism
     }
-
 
     environment("isExhaustive", dokkaBuild.integrationTestExhaustive.get())
     

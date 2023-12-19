@@ -78,8 +78,8 @@ abstract class DokkaBuildProperties @Inject constructor(
                     }
             )
 
-    val tryK2: Provider<Boolean> =
-        dokkaProperty("experimental.tryK2", String::toBoolean)
+    val integrationTestUseK2: Provider<Boolean> =
+        dokkaProperty("integration_test.useK2", String::toBoolean)
             .orElse(false)
 
 
