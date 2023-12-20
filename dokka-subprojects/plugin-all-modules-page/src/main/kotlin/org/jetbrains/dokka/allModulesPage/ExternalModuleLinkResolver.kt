@@ -6,6 +6,7 @@ package org.jetbrains.dokka.allModulesPage
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
 import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.PACKAGE_LIST_NAME
@@ -13,6 +14,7 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
+import org.jetbrains.dokka.utilities.associateWithNotNull
 import java.io.File
 import java.net.URL
 
@@ -24,14 +26,24 @@ public interface ExternalModuleLinkResolver {
 public class DefaultExternalModuleLinkResolver(
     public val context: DokkaContext
 ) : ExternalModuleLinkResolver {
+
+    private class ExternalLocationProviderWithModuleDescription(
+        val locationProvider: ExternalLocationProvider,
+        val moduleDescription: DokkaModuleDescription
+    )
+
     private val elpFactory = context.plugin<DokkaBase>().query { externalLocationProviderFactory }
     private val externalDocumentations by lazy(::setupExternalDocumentations)
     private val elps by lazy {
-        elpFactory.flatMap { externalDocumentations.map { ed -> it.getExternalLocationProvider(ed) } }.filterNotNull()
+        elpFactory.flatMap {
+            externalDocumentations.mapNotNull { (mdl, ed) ->
+                it.getExternalLocationProvider(ed)?.let { ExternalLocationProviderWithModuleDescription(it, mdl) }
+            }
+        }
     }
 
-    private fun setupExternalDocumentations(): List<ExternalDocumentation> =
-        context.configuration.modules.mapNotNull { module ->
+    private fun setupExternalDocumentations(): Map<DokkaModuleDescription, ExternalDocumentation> =
+        context.configuration.modules.associateWithNotNull { module ->
             loadPackageListForModule(module)?.let { packageList ->
                 ExternalDocumentation(
                     URL("file:/${module.relativePathToOutputDirectory.toRelativeOutputDir()}"),
@@ -57,19 +69,34 @@ public class DefaultExternalModuleLinkResolver(
         }
 
     override fun resolve(dri: DRI, fileContext: File): String? {
-        val resolvedLinks = elps.mapNotNull { it.resolve(dri)?.removePrefix("file:") }
-        val modulePath = context.configuration.outputDir.absolutePath
+        val resolvedLinks = elps.mapNotNull { locProviderWithMdl ->
+            locProviderWithMdl.locationProvider.resolve(dri)?.let { it to locProviderWithMdl.moduleDescription }
+        }
         val validLink = resolvedLinks.firstOrNull {
-            val absolutePath = File(modulePath + it)
-            absolutePath.isFile
-        } ?: return null
+            // this is a temporary hack for the first case (short-term solution) of #3368:
+            // a situation where 2 (or more) local modules have the same package name.
+            // TODO #3368 currently, it does not work for external modules with the same package name
+            if (resolvedLinks.size > 1) {
+                val moduleDescription = it.second
+                val resolvedLinkWithoutRelativePath = it.first.removePrefix(
+                   "file:/" + moduleDescription.relativePathToOutputDirectory.toRelativeOutputDir()
+                        .toString()
+                )
+
+                val partialModuleOutput = moduleDescription.sourceOutputDirectory
+                val absolutePath = File(partialModuleOutput.absolutePath + resolvedLinkWithoutRelativePath)
+                absolutePath.isFile
+            } else true
+        }?.first ?: return null
+
+        val modulePath = context.configuration.outputDir.absolutePath
         val modulePathParts = modulePath.split(File.separator)
         val contextPathParts = fileContext.absolutePath.split(File.separator)
         val commonPathElements = modulePathParts.zip(contextPathParts)
             .takeWhile { (a, b) -> a == b }.count()
 
         return (List(contextPathParts.size - commonPathElements - 1) { ".." } + modulePathParts.drop(commonPathElements))
-            .joinToString("/") + validLink
+            .joinToString("/") + validLink.removePrefix("file:")
     }
 
     override fun resolveLinkToModuleIndex(moduleName: String): String? =
