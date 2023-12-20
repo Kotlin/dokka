@@ -1,15 +1,19 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 
 plugins {
-    kotlin("jvm") version "1.8.10"
-    id("org.jetbrains.dokka") version ("1.7.20")
+    kotlin("jvm") version "1.9.10"
+    id("org.jetbrains.dokka") version "1.9.10"
 }
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.dokka:dokka-base:1.7.20")
+        classpath("org.jetbrains.dokka:dokka-base:1.9.10")
     }
 }
 
@@ -31,6 +35,5 @@ tasks.dokkaHtml {
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
     testImplementation(kotlin("test-junit"))
 }

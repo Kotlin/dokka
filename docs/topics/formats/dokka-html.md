@@ -195,7 +195,6 @@ It's also possible to override Dokka's default stylesheets by providing files wi
 | `style.css`          | Main stylesheet, contains most of the styles used across all pages |
 | `logo-styles.css`    | Header logo styling                                                |
 | `prism.css`          | Styles for [PrismJS](https://prismjs.com/) syntax highlighter      |
-| `jetbrains-mono.css` | Font styling                                                       |
 
 The source code for all of Dokka's stylesheets is
 [available on GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/base/src/main/resources/dokka/styles).
@@ -236,13 +235,13 @@ You can change the header completely, add your own banners/menus/search, load an
 
 Dokka uses the following templates:
 
-| **Template**                      | **Description**                                                                                                       |
-|-----------------------------------|-----------------------------------------------------------------------------------------------------------------------|
-| `base.ftl`                        | Defines the general design of all pages to be rendered.                                                               |
-| `includes/header.ft`              | The page header that by default contains the logo, version, source set selector, light/dark theme switch, and search. |
-| `includes/footer.ft`              | The page footer that contains the `footerMessage` [configuration option](#configuration) and copyright.               |
-| `includes/page_metadata.ft`       | Metadata used within `<head>` container.                                                                              |
-| `includes/source_set_selector.ft` | [The source set](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) selector in the header. |
+| **Template**                       | **Description**                                                                                                       |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| `base.ftl`                         | Defines the general design of all pages to be rendered.                                                               |
+| `includes/header.ftl`              | The page header that by default contains the logo, version, source set selector, light/dark theme switch, and search. |
+| `includes/footer.ftl`              | The page footer that contains the `footerMessage` [configuration option](#configuration) and copyright.               |
+| `includes/page_metadata.ftl`       | Metadata used within `<head>` container.                                                                              |
+| `includes/source_set_selector.ftl` | [The source set](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) selector in the header. |
 
 The base template is `base.ftl` and it includes all of the remaining listed templates. You can find the source code for all of Dokka's templates
 [on GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/base/src/main/resources/dokka/templates).
@@ -276,8 +275,8 @@ context and thus they need to be resolved at later stages by the [MultiModule](d
 
 You can also use the following Dokka-defined [directives](https://freemarker.apache.org/docs/ref_directive_userDefined.html):
 
-| **Variable**    | **Description**                                                                                                                                                                              |
-|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `<@content/>`   | The main page content.                                                                                                                                                                       |
-| `<@resources/>` | Resources such as scripts and stylesheets.                                                                                                                                                   |
-| `<@version/>`   | The module version taken from configuration. If the [versioning plugin](https://github.com/Kotlin/dokka/tree/master/plugins/versioning) is applied, it is replaced with a version navigator. |
+| **Variable**    | **Description**                                                                                                                                                                                      |
+|-----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `<@content/>`   | The main page content.                                                                                                                                                                               |
+| `<@resources/>` | Resources such as scripts and stylesheets.                                                                                                                                                           |
+| `<@version/>`   | The module version taken from configuration. If the [versioning plugin](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/versioning) is applied, it is replaced with a version navigator. |

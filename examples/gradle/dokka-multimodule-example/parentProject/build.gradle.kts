@@ -1,5 +1,10 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.jetbrains.dokka.DokkaConfiguration.Visibility
 import org.jetbrains.dokka.gradle.DokkaTaskPartial
+import java.net.URL
 
 plugins {
     kotlin("jvm")
@@ -17,6 +22,15 @@ subprojects {
                 Visibility.PUBLIC,
                 Visibility.PROTECTED
             ))
+
+            // Read docs for more details: https://kotlinlang.org/docs/dokka-gradle.html#source-link-configuration
+            sourceLink {
+                val exampleDir = "https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-multimodule-example"
+
+                localDirectory.set(rootProject.projectDir)
+                remoteUrl.set(URL("$exampleDir"))
+                remoteLineSuffix.set("#L")
+            }
         }
     }
 }
@@ -26,8 +40,3 @@ subprojects {
 tasks.dokkaHtmlMultiModule {
     moduleName.set("Dokka MultiModule Example")
 }
-
-dependencies {
-    implementation(kotlin("stdlib"))
-}
-

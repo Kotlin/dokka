@@ -1,9 +1,9 @@
 [submodule "integration-tests/gradle/projects/coroutines/kotlinx-coroutines"]
-	path = integration-tests/gradle/projects/coroutines/kotlinx-coroutines
+	path = dokka-integration-tests/gradle/projects/coroutines/kotlinx-coroutines
 	url = https://github.com/Kotlin/kotlinx.coroutines
 [submodule "integration-tests/gradle/projects/serialization/kotlinx-serialization"]
-	path = integration-tests/gradle/projects/serialization/kotlinx-serialization
+	path = dokka-integration-tests/gradle/projects/serialization/kotlinx-serialization
 	url = https://github.com/Kotlin/kotlinx.serialization
 [submodule "integration-tests/maven/projects/biojava/biojava"]
-	path = integration-tests/maven/projects/biojava/biojava
+	path = dokka-integration-tests/maven/projects/biojava/biojava
 	url = https://github.com/biojava/biojava

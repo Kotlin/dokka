@@ -1,0 +1,96 @@
+name: Publish preview to GitHub Actions Artifacts
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  kotlinx-coroutines:
+    runs-on: ubuntu-latest
+    if: >  # Run this job only for pull requests from forks because members with write access have web preview
+      github.event_name != 'pull_request' || 
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != 'Kotlin/dokka')
+    steps:
+      - name: Checkout dokka
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 17
+          cache: 'maven'
+      - name: Document coroutines
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-home-cache-cleanup: true
+          arguments: :dokka-integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.CoroutinesGradleIntegrationTest --stacktrace "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=500m"
+        env:
+          DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/coroutines
+      - name: Copy files to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dokka-coroutines
+          path: /home/runner/work/dokka/coroutines
+          retention-days: 7
+
+  kotlinx-serialization:
+    runs-on: ubuntu-latest
+    if: >  # Run this job only for pull requests from forks because members with write access have web preview
+      github.event_name != 'pull_request' || 
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != 'Kotlin/dokka')
+    steps:
+      - name: Checkout dokka
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 17
+          cache: 'maven'
+      - name: Document serialization
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-home-cache-cleanup: true
+          arguments: :dokka-integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.SerializationGradleIntegrationTest --stacktrace "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=500m"
+        env:
+          DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/serialization
+      - name: Copy files to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dokka-serialization
+          path: /home/runner/work/dokka/serialization
+          retention-days: 7
+
+  biojava:
+    runs-on: ubuntu-latest
+    if: >  # Run this job only for pull requests from forks because members with write access have web preview
+      github.event_name != 'pull_request' || 
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != 'Kotlin/dokka')
+    steps:
+      - name: Checkout dokka
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 17
+          cache: 'maven'
+      - name: Document biojava-core
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-home-cache-cleanup: true
+          arguments: :dokka-integration-tests:maven:integrationTest --tests org.jetbrains.dokka.it.maven.BiojavaIntegrationTest --stacktrace
+        env:
+          DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/biojava
+      - name: Copy files to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dokka-biojava
+          path: /home/runner/work/dokka/biojava
+          retention-days: 7

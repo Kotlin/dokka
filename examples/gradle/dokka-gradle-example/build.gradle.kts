@@ -1,9 +1,13 @@
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.jetbrains.dokka.gradle.DokkaTask
 import java.net.URL
 
 plugins {
-    kotlin("jvm") version "1.8.10"
-    id("org.jetbrains.dokka") version ("1.7.20")
+    kotlin("jvm") version "1.9.10"
+    id("org.jetbrains.dokka") version "1.9.10"
 }
 
 repositories {
@@ -11,7 +15,6 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
     testImplementation(kotlin("test-junit"))
 }
 

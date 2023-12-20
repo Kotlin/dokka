@@ -1,20 +1,24 @@
 /*
- * All Margins and sizes are custom for the ktor-logo.png file.
- * You may need to modify it and find what works best for your case.
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-.library-name a {
-    position: relative;
-    margin-left: 55px;
+
+/*
+ * All Margins and sizes are custom for the ktor-logo.png file.
+ * You may need to override it and find what works best for your case.
+ */
+:root {
+    --dokka-logo-image-url: url('../images/ktor-logo.png');
+    --dokka-logo-height: 125px;
+    --dokka-logo-width: 50px;
 }
 
-.library-name a::before {
-    content: '';
-    background-image: url('../images/ktor-logo.png');
-    background-repeat: no-repeat;
-    background-size: 125px 50px;
-    position: absolute;
+/* link custom rules styles */
+.library-name--link {
+    /* ... */
+}
+
+/* logo custom rules styles */
+.library-name--link::before {
+    background-position: left;
     width: 52px;
-    height: 50px;
-    top: -18px;
-    left: -62px;
 }

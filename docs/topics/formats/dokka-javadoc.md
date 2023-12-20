@@ -1,6 +1,6 @@
 [//]: # (title: Javadoc)
 
-> The Javadoc output format is still in Alpha so you may find bugs and experience migration issues when using it. 
+> The Javadoc output format is still in Alpha, so you may find bugs and experience migration issues when using it. 
 > Successful integration with tools that accept Java's Javadoc HTML as input is not guaranteed.
 > **You use it at your own risk.**
 >
@@ -15,11 +15,11 @@ or an exact copy.
 ![Screenshot of javadoc output format](javadoc-format-example.png){width=706}
 
 All Kotlin code and signatures are rendered as seen from Java's perspective. This is achieved with our
-[Kotlin as Java Dokka plugin](https://github.com/Kotlin/dokka/tree/master/plugins/kotlin-as-java), which comes bundled and
+[Kotlin as Java Dokka plugin](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/kotlin-as-java), which comes bundled and
 applied by default for this format.
 
 The Javadoc output format is implemented as a [Dokka plugin](dokka-plugins.md), and it is maintained by the Dokka team.
-It is open source and you can find the source code on [GitHub](https://github.com/Kotlin/dokka/tree/master/plugins/javadoc).
+It is open source and you can find the source code on [GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/javadoc).
 
 ## Generate Javadoc documentation
 
@@ -56,12 +56,12 @@ by using the following goals:
 <tab title="CLI" group-key="cli">
 
 Since the Javadoc output format is a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to 
-download the plugin's [JAR file](https://mvnrepository.com/artifact/org.jetbrains.dokka/javadoc-plugin/%dokkaVersion%).
+[download the plugin's JAR file](https://repo1.maven.org/maven2/org/jetbrains/dokka/javadoc-plugin/%dokkaVersion%/javadoc-plugin-%dokkaVersion%.jar).
 
 The Javadoc output format has two dependencies that you need to provide as additional JAR files:
 
-* [kotlin-as-java plugin](https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-as-java-plugin/%dokkaVersion%)
-* [korte-jvm](https://mvnrepository.com/artifact/com.soywiz.korlibs.korte/korte-jvm/3.3.0)
+* [kotlin-as-java plugin](https://repo1.maven.org/maven2/org/jetbrains/dokka/kotlin-as-java-plugin/%dokkaVersion%/kotlin-as-java-plugin-%dokkaVersion%.jar)
+* [korte-jvm](https://repo1.maven.org/maven2/com/soywiz/korlibs/korte/korte-jvm/3.3.0/korte-jvm-3.3.0.jar)
 
 Via [command line options](dokka-cli.md#run-with-command-line-options):
 

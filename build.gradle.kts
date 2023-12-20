@@ -1,89 +1,84 @@
-import org.jetbrains.*
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+/*
+ * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 
 plugins {
-    kotlin("jvm") apply false
-    id("java")
-    id("org.jetbrains.dokka") version "1.7.20"
-    id("io.github.gradle-nexus.publish-plugin")
+    id("dokkabuild.base")
 }
 
-val dokka_version: String by project
+val publishedIncludedBuilds = listOf("runner-cli", "runner-gradle-plugin-classic", "runner-maven-plugin")
+val gradlePluginIncludedBuilds = listOf("runner-gradle-plugin-classic")
 
-allprojects {
-    configureDokkaVersion()
+addDependencyOnSameTasksOfIncludedBuilds("assemble", "build", "clean", "check")
 
-    group = "org.jetbrains.dokka"
-    version = dokka_version
-
-
-    val language_version: String by project
-    tasks.withType(KotlinCompile::class).all {
-        kotlinOptions {
-            freeCompilerArgs = freeCompilerArgs + listOf(
-                "-opt-in=kotlin.RequiresOptIn",
-                "-Xjsr305=strict",
-                "-Xskip-metadata-version-check",
-                // need 1.4 support, otherwise there might be problems with Gradle 6.x (it's bundling Kotlin 1.4)
-                "-Xsuppress-version-warnings"
-            )
-            allWarningsAsErrors = true
-            languageVersion = language_version
-            apiVersion = language_version
-            jvmTarget = "1.8"
-        }
-    }
-
-    repositories {
-        mavenCentral()
-    }
+registerParentGroupTasks("publishing", taskNames = listOf(
+    "publishAllPublicationsToMavenCentralRepository",
+    "publishAllPublicationsToProjectLocalRepository",
+    "publishAllPublicationsToSnapshotRepository",
+    "publishAllPublicationsToSpaceDevRepository",
+    "publishAllPublicationsToSpaceTestRepository",
+    "publishToMavenLocal"
+)) {
+    it.name in publishedIncludedBuilds
 }
 
-subprojects {
-    apply {
-        plugin("org.jetbrains.kotlin.jvm")
-        plugin("java")
-        plugin("signing")
-        plugin("org.jetbrains.dokka")
-    }
+registerParentGroupTasks("gradle plugin", taskNames = listOf(
+    "publishPlugins",
+    "validatePlugins"
+)) {
+    it.name in gradlePluginIncludedBuilds
+}
 
-    // Gradle metadata
-    java {
-        @Suppress("UnstableApiUsage")
-        withSourcesJar()
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
+registerParentGroupTasks("bcv", taskNames = listOf(
+    "apiDump",
+    "apiCheck",
+    "apiBuild"
+)) {
+    it.name in publishedIncludedBuilds
+}
 
-    tasks {
-        val dokkaOutputDir = "$buildDir/dokka"
+registerParentGroupTasks("verification", taskNames = listOf(
+    "test"
+))
 
-        dokkaHtml {
-            onlyIf { !isLocalPublication }
-            outputDirectory.set(file(dokkaOutputDir))
-        }
+tasks.register("integrationTest") {
+    group = "verification"
+    description = "Runs integration tests of this project. Might take a while and require additional setup."
 
-        register<Jar>("javadocJar") {
-            archiveClassifier.set("javadoc")
-            dependsOn(dokkaHtml)
-            from(dokkaOutputDir)
+    dependsOn(includedBuildTasks("integrationTest") {
+        it.name == "dokka-integration-tests"
+    })
+}
+
+fun addDependencyOnSameTasksOfIncludedBuilds(vararg taskNames: String) {
+    taskNames.forEach { taskName ->
+        tasks.named(taskName) {
+            dependsOn(includedBuildTasks(taskName))
         }
     }
 }
 
-println("Publication version: $dokka_version")
-tasks.register<ValidatePublications>("validatePublications")
+fun registerParentGroupTasks(
+    groupName: String,
+    taskNames: List<String>,
+    includedBuildFilter: (IncludedBuild) -> Boolean = { true }
+) = taskNames.forEach { taskName ->
+    tasks.register(taskName) {
+        group = groupName
+        description = "A parent task that calls tasks with the same name in all subprojects and included builds"
 
-nexusPublishing {
-    repositories {
-        sonatype {
-            username.set(System.getenv("SONATYPE_USER"))
-            password.set(System.getenv("SONATYPE_PASSWORD"))
-        }
+        dependsOn(subprojectTasks(taskName), includedBuildTasks(taskName, includedBuildFilter))
     }
 }
 
-tasks.maybeCreate("dokkaPublish").run {
-    if (publicationChannels.any { it.isMavenRepository() }) {
-        finalizedBy(tasks.named("closeAndReleaseSonatypeStagingRepository"))
-    }
-}
+fun subprojectTasks(taskName: String): List<String> =
+    subprojects
+        .filter { it.getTasksByName(taskName, false).isNotEmpty() }
+        .map { ":${it.path}:$taskName" }
+
+
+fun includedBuildTasks(taskName: String, filter: (IncludedBuild) -> Boolean = { true }): List<TaskReference> =
+    gradle.includedBuilds
+        .filter { it.name != "build-logic" }
+        .filter(filter)
+        .mapNotNull { it.task(":$taskName") }

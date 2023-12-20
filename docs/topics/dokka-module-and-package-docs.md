@@ -33,19 +33,19 @@ It also appears under the first-level heading on your package's page.
 
 ## Level 2 heading for package org.jetbrains.kotlin.demo
 
-Content after this heading is also part of documentation for org.jetbrains.kotlin.demo
+Content after this heading is also part of documentation for `org.jetbrains.kotlin.demo`
 
 # Package org.jetbrains.kotlin.demo2
 
 This content appears under your package name in the packages list.
 It also appears under the first-level heading on your package's page.
 
-## Level 2 heading for package org.jetbrains.kotlin.demo
+## Level 2 heading for package org.jetbrains.kotlin.demo2
 
 Content after this heading is also part of documentation for `org.jetbrains.kotlin.demo2`
 ```
 
-To explore an example project with Gradle, see [Dokka gradle example](https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-gradle-example).
+To explore an example project with Gradle, see [Dokka gradle example](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/examples/gradle/dokka-gradle-example).
 
 ## Pass files to Dokka
 

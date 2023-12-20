@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+  -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -8,8 +12,8 @@
     <artifactId>kotlin-maven-example</artifactId>
     <version>1.0-SNAPSHOT</version>
     <properties>
-        <kotlin.version>1.8.10</kotlin.version>
-        <dokka.version>1.7.20</dokka.version>
+        <kotlin.version>1.9.10</kotlin.version>
+        <dokka.version>1.9.10</dokka.version>
     </properties>
 
     <dependencies>

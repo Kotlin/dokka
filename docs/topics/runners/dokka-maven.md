@@ -288,8 +288,8 @@ with [all configuration options](#complete-configuration) applied at the bottom 
     <def title="documentedVisibilities">
         <p>The set of visibility modifiers that should be documented.</p>
         <p>
-            This can be used if you want to document protected/internal/private declarations,
-            as well as if you want to exclude public declarations and only document internal API.
+            This can be used if you want to document <code>protected</code>/<code>internal</code>/<code>private</code> declarations,
+            as well as if you want to exclude <code>public</code> declarations and only document internal API.
         </p>
         <p>Can be configured on per-package basis.</p>
         <p>Default: <code>PUBLIC</code></p>
@@ -407,7 +407,7 @@ function in `kotlinx.coroutines`.
     <configuration>
         <sourceLinks>
             <link>
-                <path>${project.basedir}/src</path>
+                <path>src</path>
                 <url>https://github.com/kotlin/dokka/tree/master/src</url>
                 <lineSuffix>#L</lineSuffix>
             </link>
@@ -421,6 +421,9 @@ function in `kotlinx.coroutines`.
         <p>
             The path to the local source directory. The path must be relative to the root of the
             current module.
+        </p>
+        <p>
+            Note: Only Unix based paths are allowed, Windows-style paths will throw an error.
         </p>
     </def>
     <def title="url">
@@ -450,9 +453,9 @@ function in `kotlinx.coroutines`.
     </def>
 </deflist>
 
-#### External documentation links configuration
+### External documentation links configuration
 
-The `externalDocumentationLink` block allows the creation of links that lead to the externally hosted documentation of
+The `externalDocumentationLinks` block allows the creation of links that lead to the externally hosted documentation of
 your dependencies.
 
 For example, if you are using types from `kotlinx.serialization`, by default they are unclickable in your
@@ -545,8 +548,8 @@ The `perPackageOptions` configuration block allows setting some options for spec
     <def title="documentedVisibilities">
         <p>The set of visibility modifiers that should be documented.</p>
         <p>
-            This can be used if you want to document protected/internal/private declarations within this package,
-            as well as if you want to exclude public declarations and only document internal API.
+            This can be used if you want to document <code>protected</code>/<code>internal</code>/<code>private</code> declarations within this package,
+            as well as if you want to exclude <code>public</code> declarations and only document internal API.
         </p>
         <p>Default: <code>PUBLIC</code></p>
     </def>
@@ -583,7 +586,7 @@ Below you can see all the possible configuration options applied at the same tim
         <suppressInheritedMembers>false</suppressInheritedMembers>
         <offlineMode>false</offlineMode>
         <sourceDirectories>
-            <dir>${project.basedir}/src</dir>
+            <dir>src</dir>
         </sourceDirectories>
         <documentedVisibilities>
             <visibility>PUBLIC</visibility>
