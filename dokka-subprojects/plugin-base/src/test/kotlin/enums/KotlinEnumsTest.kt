@@ -16,7 +16,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import signatures.renderedContent
 import utils.*
-import java.net.URL
+import java.net.URI
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -430,7 +430,7 @@ class KotlinEnumsTest : BaseAbstractTest() {
                     sourceLinks = listOf(
                         SourceLinkDefinitionImpl(
                             localDirectory = "src/main/kotlin",
-                            remoteUrl = URL("https://github.com/user/repo/tree/master/src/main/kotlin"),
+                            remoteUrl = URI("https://github.com/user/repo/tree/master/src/main/kotlin").toURL(),
                             remoteLineSuffix = "#L"
                         )
                     )

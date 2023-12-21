@@ -4,7 +4,7 @@
 
 package org.jetbrains.dokka.it
 
-import java.net.URL
+import java.net.URI
 import kotlin.test.Test
 
 class StdLibDocumentationIntegrationTest {
@@ -20,7 +20,7 @@ class StdLibDocumentationIntegrationTest {
     @Test
     fun shouldAssertEnumDocumentationHasNotChanged() {
         val sourcesLink = "https://raw.githubusercontent.com/JetBrains/kotlin/master/core/builtins/native/kotlin/Enum.kt"
-        val sources = URL(sourcesLink).readText()
+        val sources = URI(sourcesLink).toURL().readText()
 
         val expectedValuesDoc =
             "    /**\n" +

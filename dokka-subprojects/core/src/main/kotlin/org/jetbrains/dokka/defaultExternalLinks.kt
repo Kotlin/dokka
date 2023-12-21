@@ -5,7 +5,7 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
-import java.net.URL
+import java.net.URI
 
 
 public fun ExternalDocumentationLink.Companion.jdk(jdkVersion: Int): ExternalDocumentationLinkImpl =
@@ -28,6 +28,6 @@ public fun ExternalDocumentationLink.Companion.androidSdk(): ExternalDocumentati
 
 
 public fun ExternalDocumentationLink.Companion.androidX(): ExternalDocumentationLinkImpl = ExternalDocumentationLink(
-    url = URL("https://developer.android.com/reference/kotlin/"),
-    packageListUrl = URL("https://developer.android.com/reference/kotlin/androidx/package-list")
+    url = URI("https://developer.android.com/reference/kotlin/").toURL(),
+    packageListUrl = URI("https://developer.android.com/reference/kotlin/androidx/package-list").toURL()
 )

@@ -26,7 +26,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import java.io.File
-import java.net.URL
+import java.net.URI
 
 public abstract class AbstractDokkaMojo(
     private val defaultDokkaPlugins: List<Dependency>
@@ -389,7 +389,7 @@ public abstract class AbstractDokkaMojo(
             skipEmptyPackages = skipEmptyPackages,
             skipDeprecated = skipDeprecated,
             jdkVersion = jdkVersion,
-            sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(File(it.path).canonicalPath, URL(it.url), it.lineSuffix) }.toSet(),
+            sourceLinks = sourceLinks.map { SourceLinkDefinitionImpl(File(it.path).canonicalPath, URI(it.url).toURL(), it.lineSuffix) }.toSet(),
             perPackageOptions = perPackageOptions.map {
                 @Suppress("DEPRECATION") // for includeNonPublic, preserve backwards compatibility
                 PackageOptionsImpl(

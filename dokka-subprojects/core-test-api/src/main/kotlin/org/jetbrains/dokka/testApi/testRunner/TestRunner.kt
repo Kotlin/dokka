@@ -15,7 +15,7 @@ import org.jetbrains.dokka.testApi.logger.TestLogger
 import org.jetbrains.dokka.utilities.DokkaLogger
 import testApi.testRunner.TestDokkaConfigurationBuilder
 import java.io.File
-import java.net.URL
+import java.net.URI
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.InvalidPathException
@@ -199,8 +199,8 @@ public abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : Dokk
     }
 
     protected val stdlibExternalDocumentationLink: ExternalDocumentationLinkImpl = ExternalDocumentationLinkImpl(
-        URL("https://kotlinlang.org/api/latest/jvm/stdlib/"),
-        URL("https://kotlinlang.org/api/latest/jvm/stdlib/package-list")
+        URI("https://kotlinlang.org/api/latest/jvm/stdlib/").toURL(),
+        URI("https://kotlinlang.org/api/latest/jvm/stdlib/package-list").toURL()
     )
 
     public companion object {

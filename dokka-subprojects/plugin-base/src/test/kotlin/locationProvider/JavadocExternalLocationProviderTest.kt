@@ -14,7 +14,7 @@ import org.jetbrains.dokka.links.DRIExtraContainer
 import org.jetbrains.dokka.links.EnumEntryDRIExtra
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.plugability.DokkaContext
-import java.net.URL
+import java.net.URI
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -23,7 +23,7 @@ class JavadocExternalLocationProviderTest : BaseAbstractTest() {
         getTestDataDir("locationProvider").toAbsolutePath().toString().removePrefix("/").let { "/$it" }
 
     private val jdk = "https://docs.oracle.com/javase/8/docs/api/"
-    private val jdkPackageListURL = URL("file://$testDataDir/jdk8-package-list")
+    private val jdkPackageListURL = URI("file://$testDataDir/jdk8-package-list").toURL()
 
     private val configuration = dokkaConfiguration {
         sourceSets {
@@ -38,7 +38,7 @@ class JavadocExternalLocationProviderTest : BaseAbstractTest() {
         val dokkaContext = context ?: DokkaContext.create(configuration, logger, emptyList())
         val packageList = PackageList.load(jdkPackageListURL, 8, true)!!
         val externalDocumentation =
-            ExternalDocumentation(URL(jdk), packageList)
+            ExternalDocumentation(URI(jdk).toURL(), packageList)
         return JavadocExternalLocationProvider(externalDocumentation, "--", "-", dokkaContext)
     }
 

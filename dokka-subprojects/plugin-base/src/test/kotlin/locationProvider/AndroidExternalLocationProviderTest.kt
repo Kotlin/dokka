@@ -14,27 +14,27 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.plugability.DokkaContext
-import java.net.URL
+import java.net.URI
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class AndroidExternalLocationProviderTest : BaseAbstractTest() {
     private val android = ExternalDocumentation(
-        URL("https://developer.android.com/reference/kotlin"),
+        URI("https://developer.android.com/reference/kotlin").toURL(),
         PackageList(
             RecognizedLinkFormat.DokkaHtml,
             mapOf("" to setOf("android.content", "android.net")),
             emptyMap(),
-            URL("file://not-used")
+            URI("file://not-used").toURL()
         )
     )
     private val androidx = ExternalDocumentation(
-        URL("https://developer.android.com/reference/kotlin"),
+        URI("https://developer.android.com/reference/kotlin").toURL(),
         PackageList(
             RecognizedLinkFormat.DokkaHtml,
             mapOf("" to setOf("androidx.appcompat.app")),
             emptyMap(),
-            URL("file://not-used")
+            URI("file://not-used").toURL()
         )
     )
     private val configuration = dokkaConfiguration {

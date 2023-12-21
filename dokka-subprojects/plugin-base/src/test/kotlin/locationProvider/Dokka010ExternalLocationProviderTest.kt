@@ -12,7 +12,7 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.plugability.DokkaContext
-import java.net.URL
+import java.net.URI
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -20,7 +20,7 @@ class Dokka010ExternalLocationProviderTest : BaseAbstractTest() {
     private val testDataDir =
         getTestDataDir("locationProvider").toAbsolutePath().toString().removePrefix("/").let { "/$it" }
     private val kotlinLang = "https://kotlinlang.org/api/latest/jvm/stdlib"
-    private val packageListURL = URL("file://$testDataDir/old-package-list")
+    private val packageListURL = URI("file://$testDataDir/old-package-list").toURL()
     private val configuration = dokkaConfiguration {
         sourceSets {
             sourceSet {
@@ -34,7 +34,7 @@ class Dokka010ExternalLocationProviderTest : BaseAbstractTest() {
         val dokkaContext = context ?: DokkaContext.create(configuration, logger, emptyList())
         val packageList = PackageList.load(packageListURL, 8, true)!!
         val externalDocumentation =
-            ExternalDocumentation(URL(kotlinLang), packageList)
+            ExternalDocumentation(URI(kotlinLang).toURL(), packageList)
         return Dokka010ExternalLocationProvider(externalDocumentation, ".html", dokkaContext)
     }
 

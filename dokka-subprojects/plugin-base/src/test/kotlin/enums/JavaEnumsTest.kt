@@ -8,7 +8,7 @@ import org.jetbrains.dokka.SourceLinkDefinitionImpl
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import signatures.renderedContent
 import utils.TestOutputWriterPlugin
-import java.net.URL
+import java.net.URI
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -33,7 +33,7 @@ class JavaEnumsTest : BaseAbstractTest() {
                     sourceLinks = listOf(
                         SourceLinkDefinitionImpl(
                             localDirectory = "src/main/java",
-                            remoteUrl = URL("https://github.com/user/repo/tree/master/src/main/java"),
+                            remoteUrl = URI("https://github.com/user/repo/tree/master/src/main/java").toURL(),
                             remoteLineSuffix = "#L"
                         )
                     )

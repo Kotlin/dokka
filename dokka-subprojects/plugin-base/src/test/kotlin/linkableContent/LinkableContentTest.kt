@@ -15,7 +15,7 @@ import org.jetbrains.dokka.pages.*
 import org.jsoup.Jsoup
 import utils.TestOutputWriterPlugin
 import utils.assertNotNull
-import java.net.URL
+import java.net.URI
 import java.nio.file.Paths
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -109,7 +109,7 @@ class LinkableContentTest : BaseAbstractTest() {
                     sourceLinks = listOf(
                         SourceLinkDefinitionImpl(
                             localDirectory = "$testDataDir/jsMain/kotlin",
-                            remoteUrl = URL("https://github.com/user/repo/tree/master/src/jsMain/kotlin"),
+                            remoteUrl = URI("https://github.com/user/repo/tree/master/src/jsMain/kotlin").toURL(),
                             remoteLineSuffix = "#L"
                         )
                     )
@@ -123,7 +123,7 @@ class LinkableContentTest : BaseAbstractTest() {
                     sourceLinks = listOf(
                         SourceLinkDefinitionImpl(
                             localDirectory = "$testDataDir/jvmMain/kotlin",
-                            remoteUrl = URL("https://github.com/user/repo/tree/master/src/jvmMain/kotlin"),
+                            remoteUrl = URI("https://github.com/user/repo/tree/master/src/jvmMain/kotlin").toURL(),
                             remoteLineSuffix = "#L"
                         )
                     )

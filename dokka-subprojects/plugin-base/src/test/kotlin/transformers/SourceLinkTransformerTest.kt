@@ -10,7 +10,7 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jsoup.nodes.Element
 import signatures.renderedContent
 import utils.TestOutputWriterPlugin
-import java.net.URL
+import java.net.URI
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -29,7 +29,7 @@ class SourceLinkTransformerTest : BaseAbstractTest() {
                     sourceLinks = listOf(
                         SourceLinkDefinitionImpl(
                             localDirectory = "src/main/kotlin",
-                            remoteUrl = URL("https://github.com/user/repo/tree/master/src/main/kotlin"),
+                            remoteUrl = URI("https://github.com/user/repo/tree/master/src/main/kotlin").toURL(),
                             remoteLineSuffix = "#L"
                         )
                     )
@@ -90,7 +90,7 @@ class SourceLinkTransformerTest : BaseAbstractTest() {
                     sourceLinks = listOf(
                         SourceLinkDefinitionImpl(
                             localDirectory = "src/main/kotlin",
-                            remoteUrl = URL("https://github.com/user/repo/tree/master/src/main/kotlin"),
+                            remoteUrl = URI("https://github.com/user/repo/tree/master/src/main/kotlin").toURL(),
                             remoteLineSuffix = "#L"
                         )
                     )

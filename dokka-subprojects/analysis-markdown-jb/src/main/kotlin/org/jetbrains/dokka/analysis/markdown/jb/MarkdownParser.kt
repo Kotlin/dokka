@@ -20,7 +20,8 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.doc.*
 import java.net.MalformedURLException
-import java.net.URL
+import java.net.URI
+import java.net.URISyntaxException
 import org.intellij.markdown.parser.MarkdownParser as IntellijMarkdownParser
 
 @InternalDokkaApi
@@ -191,9 +192,13 @@ public open class MarkdownParser(
             .removeSuffix("]")
             .let { link ->
                 try {
-                    URL(link)
+                    URI(link).toURL()
                     null
                 } catch (e: MalformedURLException) {
+                    externalDri(link)
+                } catch (e: IllegalArgumentException) {
+                    externalDri(link)
+                } catch (e: URISyntaxException) {
                     externalDri(link)
                 }
             }
@@ -317,9 +322,13 @@ public open class MarkdownParser(
     )
 
     private fun String.isRemoteLink() = try {
-        URL(this)
+        URI(this).toURL()
         true
     } catch (e: MalformedURLException) {
+        false
+    } catch (e: IllegalArgumentException) {
+        false
+    } catch (e: URISyntaxException) {
         false
     }
 

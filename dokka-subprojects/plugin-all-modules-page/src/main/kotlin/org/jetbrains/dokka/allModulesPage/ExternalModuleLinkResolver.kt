@@ -14,7 +14,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import java.io.File
-import java.net.URL
+import java.net.URI
 
 public interface ExternalModuleLinkResolver {
     public fun resolve(dri: DRI, fileContext: File): String?
@@ -34,7 +34,7 @@ public class DefaultExternalModuleLinkResolver(
         context.configuration.modules.mapNotNull { module ->
             loadPackageListForModule(module)?.let { packageList ->
                 ExternalDocumentation(
-                    URL("file:/${module.relativePathToOutputDirectory.toRelativeOutputDir()}"),
+                    URI("file:/${module.relativePathToOutputDirectory.toRelativeOutputDir()}").toURL(),
                     packageList
                 )
             }
@@ -50,7 +50,7 @@ public class DefaultExternalModuleLinkResolver(
     private fun loadPackageListForModule(module: DokkaModuleDescription) =
         module.sourceOutputDirectory.walkTopDown().maxDepth(3).firstOrNull { it.name == PACKAGE_LIST_NAME }?.let {
             PackageList.load(
-                URL("file:" + it.path),
+                URI("file:" + it.path).toURL(),
                 8,
                 true
             )

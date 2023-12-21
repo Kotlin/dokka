@@ -7,6 +7,7 @@ package org.jetbrains.dokka
 import org.jetbrains.dokka.utilities.cast
 import java.io.File
 import java.io.Serializable
+import java.net.URI
 import java.net.URL
 
 public object DokkaDefaults {
@@ -267,9 +268,14 @@ public fun ExternalDocumentationLink(
 ): ExternalDocumentationLinkImpl {
     return if (packageListUrl != null && url != null)
         ExternalDocumentationLinkImpl(url, packageListUrl)
-    else if (url != null)
-        ExternalDocumentationLinkImpl(url, URL(url, "package-list"))
-    else
+    else if (url != null) {
+        val uri = url.toURI()
+        val packageListUri = when {
+            uri.path?.endsWith("/") == true -> uri
+            else -> uri.resolve("/")
+        }.resolve("package-list")
+        ExternalDocumentationLinkImpl(url, packageListUri.toURL())
+    } else
         throw IllegalArgumentException("url or url && packageListUrl must not be null for external documentation link")
 }
 
@@ -277,4 +283,4 @@ public fun ExternalDocumentationLink(
 public fun ExternalDocumentationLink(
     url: String, packageListUrl: String? = null
 ): ExternalDocumentationLinkImpl =
-    ExternalDocumentationLink(url.let(::URL), packageListUrl?.let(::URL))
+    ExternalDocumentationLink(URI(url).toURL(), packageListUrl?.let(::URI)?.toURL())

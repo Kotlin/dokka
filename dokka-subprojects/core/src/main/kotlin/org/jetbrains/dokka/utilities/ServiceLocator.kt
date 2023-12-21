@@ -6,6 +6,7 @@ package org.jetbrains.dokka.utilities
 
 import org.jetbrains.dokka.InternalDokkaApi
 import java.io.File
+import java.net.URI
 import java.net.URISyntaxException
 import java.net.URL
 import java.util.*
@@ -73,7 +74,7 @@ public object ServiceLocator {
             when (it.protocol) {
                 "file" -> it.toFile().listFiles()?.filter { it.extension == "properties" }?.map { lookupDescriptor(category, it.nameWithoutExtension) } ?: emptyList()
                 "jar" -> {
-                    JarFile(URL(it.file.substringBefore("!")).toFile()).use { file ->
+                    JarFile(URI(it.file.substringBefore("!")).toURL().toFile()).use { file ->
                         val jarPath = it.file.substringAfterLast("!").removePrefix("/").removeSuffix("/")
                         file.entries()
                             .asSequence()

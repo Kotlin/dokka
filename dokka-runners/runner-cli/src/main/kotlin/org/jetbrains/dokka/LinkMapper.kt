@@ -6,7 +6,7 @@ package org.jetbrains.dokka
 
 import java.io.File
 import java.net.MalformedURLException
-import java.net.URL
+import java.net.URI
 
 @OptIn(ExperimentalStdlibApi::class) // for buildList
 public fun defaultLinks(config: DokkaConfiguration.DokkaSourceSet): MutableList<DokkaConfiguration.ExternalDocumentationLink> =
@@ -29,10 +29,10 @@ public fun parseLinks(links: List<String>): List<DokkaConfiguration.ExternalDocu
 
     return parsedLinks.map { (root) -> ExternalDocumentationLink(root) } +
             parsedOfflineLinks.map { (root, packageList) ->
-                val rootUrl = URL(root)
+                val rootUrl = URI(root).toURL()
                 val packageListUrl =
                     try {
-                        URL(packageList)
+                        URI(packageList).toURL()
                     } catch (ex: MalformedURLException) {
                         File(packageList).toURI().toURL()
                     }
