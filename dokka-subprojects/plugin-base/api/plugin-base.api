@@ -1375,8 +1375,6 @@ public class org/jetbrains/dokka/base/translators/documentables/DefaultPageCreat
 	public static synthetic fun contentForScope$default (Lorg/jetbrains/dokka/base/translators/documentables/DefaultPageCreator;Lorg/jetbrains/dokka/model/WithScope;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	protected fun contentForScopes (Ljava/util/List;Ljava/util/Set;Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentGroup;
 	public static synthetic fun contentForScopes$default (Lorg/jetbrains/dokka/base/translators/documentables/DefaultPageCreator;Ljava/util/List;Ljava/util/Set;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/pages/ContentGroup;
-	protected fun divergentBlock (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Ljava/lang/String;Ljava/util/Collection;Lorg/jetbrains/dokka/pages/ContentKind;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
-	public static synthetic fun divergentBlock$default (Lorg/jetbrains/dokka/base/translators/documentables/DefaultPageCreator;Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Ljava/lang/String;Ljava/util/Collection;Lorg/jetbrains/dokka/pages/ContentKind;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILjava/lang/Object;)V
 	protected fun getContentBuilder ()Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder;
 	public final fun getCustomTagContentProviders ()Ljava/util/List;
 	public final fun getDocumentableAnalyzer ()Lorg/jetbrains/dokka/analysis/kotlin/internal/DocumentableSourceLanguageParser;
