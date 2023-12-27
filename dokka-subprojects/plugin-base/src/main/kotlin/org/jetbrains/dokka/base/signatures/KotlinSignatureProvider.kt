@@ -36,7 +36,7 @@ public class KotlinSignatureProvider(
     private val contentBuilder = PageContentBuilder(ctcc, this, logger)
 
     private val ignoredVisibilities = setOf(JavaVisibility.Public, KotlinVisibility.Public)
-    private val ignoredModifiers = setOf(JavaModifier.Final, KotlinModifier.Final)
+    private val ignoredModifiers = setOf(JavaModifier.Final, KotlinModifier.Final, KotlinModifier.Empty)
     private val ignoredExtraModifiers = setOf(
         ExtraModifiers.KotlinOnlyModifiers.TailRec,
         ExtraModifiers.KotlinOnlyModifiers.External
@@ -55,6 +55,33 @@ public class KotlinSignatureProvider(
         else -> throw NotImplementedError(
             "Cannot generate signature for ${documentable::class.qualifiedName} ${documentable.name}"
         )
+    }
+
+    private fun Documentable.isDataClass(sourceSet: DokkaSourceSet): Boolean {
+        return (this as? DClass)
+            ?.extra?.get(AdditionalModifiers)
+            ?.content?.get(sourceSet)
+            ?.contains(ExtraModifiers.KotlinOnlyModifiers.Data) == true
+    }
+
+    private fun <T> PageContentBuilder.DocumentableContentBuilder.modifier(
+        documentable: T,
+        sourceSet: DokkaSourceSet
+    ) where T : Documentable, T : WithAbstraction {
+        val modifier = documentable.modifier[sourceSet] ?: return
+
+        val kotlinModifier = if (modifier == JavaModifier.Empty) {
+            // java `interface` -> kotlin `interface`
+            // java `class`     -> kotlin `open class`
+            when (documentable) {
+                is DInterface -> KotlinModifier.Empty
+                else -> KotlinModifier.Open
+            }
+        } else modifier
+
+        if (kotlinModifier in ignoredModifiers) return
+
+        keyword("${kotlinModifier.name} ")
     }
 
     private fun <T> PageContentBuilder.DocumentableContentBuilder.processExtraModifiers(t: T)
@@ -132,18 +159,8 @@ public class KotlinSignatureProvider(
             annotationsBlock(c)
             c.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities && it.name.isNotBlank() }?.name?.let { keyword("$it ") }
             if (c.isExpectActual) keyword(if (sourceSet == c.expectPresentInSet) "expect " else "actual ")
-            if (c is DClass) {
-                val modifier =
-                    if (c.modifier[sourceSet] !in ignoredModifiers) {
-                        when {
-                            c.extra[AdditionalModifiers]?.content?.get(sourceSet)?.contains(ExtraModifiers.KotlinOnlyModifiers.Data) == true -> ""
-                            c.modifier[sourceSet] is JavaModifier.Empty -> "${KotlinModifier.Open.name} "
-                            else -> c.modifier[sourceSet]?.name?.let { "$it " }
-                        }
-                    } else {
-                        null
-                    }
-                modifier?.takeIf { it.isNotEmpty() }?.let { keyword(it) }
+            if (c is WithAbstraction && !c.isDataClass(sourceSet)) {
+                modifier(c, sourceSet)
             }
             when (c) {
                 is DClass -> {
@@ -245,9 +262,7 @@ public class KotlinSignatureProvider(
                 annotationsBlock(p)
                 p.visibility[sourceSet].takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
                 if (p.isExpectActual) keyword(if (sourceSet == p.expectPresentInSet) "expect " else "actual ")
-                p.modifier[sourceSet].takeIf { it !in ignoredModifiers }?.let {
-                        if (it is JavaModifier.Empty) KotlinModifier.Open else it
-                    }?.name?.let { keyword("$it ") }
+                modifier(p, sourceSet)
                 p.modifiers()[sourceSet]?.toSignatureString()?.takeIf { it.isNotEmpty() }?.let { keyword(it) }
                 if (p.isMutable()) keyword("var ") else keyword("val ")
                 list(p.generics, prefix = "<", suffix = "> ",
@@ -300,9 +315,7 @@ public class KotlinSignatureProvider(
                 if (f.isConstructor) {
                     keyword("constructor")
                 } else {
-                    f.modifier[sourceSet]?.takeIf { it !in ignoredModifiers }?.let {
-                        if (it is JavaModifier.Empty) KotlinModifier.Open else it
-                    }?.name?.let { keyword("$it ") }
+                    modifier(f, sourceSet)
                     f.modifiers()[sourceSet]?.toSignatureString()?.takeIf { it.isNotEmpty() }?.let { keyword(it) }
                     keyword("fun ")
                     list(
