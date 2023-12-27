@@ -89,3 +89,27 @@ tasks.shadowJar {
     // from the dependencies are loaded, and not just a single one.
     mergeServiceFiles()
 }
+
+
+/**
+ * hack for shadow jar and fastutil because of kotlin-compiler
+ *
+ * KT issue: https://youtrack.jetbrains.com/issue/KT-47150
+ *
+ * what is happening here?
+ *   fastutil is removed from shadow-jar completely,
+ *   instead we declare a maven RUNTIME dependency on fastutil;
+ *   this dependency will be fetched by Gradle at build time (as any other dependency from maven-central)
+ *
+ * why do we need this?
+ *   because `kotlin-compiler` artifact includes unshaded (not-relocated) STRIPPED `fastutil` dependency,
+ *   STRIPPED here means, that it doesn't provide full `fastutil` classpath, but only a part of it which is used
+ *   and so when shadowJar task is executed it takes classes from `fastutil` from `kotlin-compiler` and adds it to shadow-jar
+ *   then adds all other classes from `fastutil` coming from `markdown-jb`,
+ *   but because `fastutil` from `kotlin-compiler` is STRIPPED, some classes (like `IntStack`) has no some methods
+ *   and so such classes are not replaced afterward by `shadowJar` task - it visits every class once
+ *
+ */
+dependencies.shadow(libs.fastutil)
+tasks.shadowJar { exclude("it/unimi/dsi/fastutil/**") }
+
