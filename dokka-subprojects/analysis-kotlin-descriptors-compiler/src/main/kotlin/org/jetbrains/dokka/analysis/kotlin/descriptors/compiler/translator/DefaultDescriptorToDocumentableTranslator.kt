@@ -1115,8 +1115,10 @@ private class DokkaDescriptorVisitor(
     private fun MemberDescriptor.modifier(): KotlinModifier {
         val isInterface = this is ClassDescriptor && this.kind == ClassKind.INTERFACE
         return if (isInterface) {
+            // only two modalities are possible for interfaces:
+            //  - `SEALED` - when it's declared as `sealed interface`
+            //  - `ABSTRACT` - when it's declared as `interface` or `abstract interface` (`abstract` is redundant but possible here)
             when (modality) {
-                // modifiers other than "sealed" are redundant for interfaces
                 Modality.SEALED -> KotlinModifier.Sealed
                 else -> KotlinModifier.Empty
             }
@@ -1126,7 +1128,6 @@ private class DokkaDescriptorVisitor(
                 Modality.SEALED -> KotlinModifier.Sealed
                 Modality.OPEN -> KotlinModifier.Open
                 Modality.ABSTRACT -> KotlinModifier.Abstract
-                else -> KotlinModifier.Empty
             }
         }
     }
