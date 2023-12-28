@@ -686,6 +686,26 @@ code.paragraph {
     text-decoration: line-through;
 }
 
+/* Workaround for Firefox  https://github.com/Kotlin/dokka/issues/3156 */
+@-moz-document url-prefix() {
+    .strikethrough {
+        position: relative;
+        text-decoration: none;
+    }
+
+    /* complex selectors here are required to handle multiline cases */
+    .strikethrough::after, .strikethrough span:after  {
+        content: '';
+        position: absolute;
+        top: 7px;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background-color: currentColor;
+        z-index: 1;
+    }
+}
+
 .symbol:empty {
     padding: 0;
 }
