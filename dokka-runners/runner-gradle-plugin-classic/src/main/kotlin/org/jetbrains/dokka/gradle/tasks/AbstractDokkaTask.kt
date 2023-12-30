@@ -20,6 +20,7 @@ import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.mapProperty
 import org.gradle.kotlin.dsl.property
+import org.gradle.util.GradleVersion
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.plugability.ConfigurableBlock
@@ -27,7 +28,6 @@ import org.jetbrains.dokka.plugability.DokkaPlugin
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.BiConsumer
 import kotlin.reflect.full.createInstance
-import kotlin.reflect.full.memberFunctions
 
 @DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
 abstract class AbstractDokkaTask : DefaultTask() {
@@ -238,8 +238,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
     init {
         group = JavaBasePlugin.DOCUMENTATION_GROUP
         // notCompatibleWithConfigurationCache was introduced in Gradle 7.4
-        val containsNotCompatibleWithConfigurationCache = this::class.memberFunctions.any { it.name == "notCompatibleWithConfigurationCache" && it.parameters.firstOrNull()?.name == "reason" }
-        if (containsNotCompatibleWithConfigurationCache) {
+        if (GradleVersion.current() >= GradleVersion.version("7.4")) {
             super.notCompatibleWithConfigurationCache("Dokka tasks are not yet compatible with the Gradle configuration cache. See https://github.com/Kotlin/dokka/issues/1217")
         }
     }
