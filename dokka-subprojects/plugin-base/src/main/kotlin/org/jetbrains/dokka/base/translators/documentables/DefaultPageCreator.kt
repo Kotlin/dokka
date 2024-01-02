@@ -71,7 +71,8 @@ public open class DefaultPageCreator(
      * @see ActualTypealias
      */
     private fun List<Documentable>.filterOutActualTypeAlias(): List<Documentable> {
-        fun List<Documentable>.hasExpectClass(dri: DRI) = find { it is DClasslike && it.dri == dri && it.expectPresentInSet != null } != null
+        fun List<Documentable>.hasExpectClass(dri: DRI) =
+            find { it is DClasslike && it.dri == dri && it.expectPresentInSet != null } != null
         return this.filterNot { it is DTypeAlias && this.hasExpectClass(it.dri) }
     }
 
@@ -371,7 +372,14 @@ public open class DefaultPageCreator(
                 }
             }
             group(styles = setOf(ContentStyle.TabbedContent), extra = mainExtra) {
-                +contentForScope(p, p.dri, p.sourceSets)
+                val (functions, extensionFunctions) = p.functions.partition { it.receiver == null }
+                val (properties, extensionProperties) = p.properties.partition { it.receiver == null }
+                +contentForScope(
+                    s = p.copy(functions = functions, properties = properties),
+                    dri = p.dri,
+                    sourceSets = p.sourceSets,
+                    extensions = extensionFunctions + extensionProperties
+                )
             }
         }
     }
@@ -380,31 +388,22 @@ public open class DefaultPageCreator(
         scopes: List<WithScope>,
         sourceSets: Set<DokkaSourceSet>,
         extensions: List<Documentable> = emptyList()
-    ): ContentGroup {
-        val types = scopes.flatMap { it.classlikes } + scopes.filterIsInstance<DPackage>().flatMap { it.typealiases }
-        return contentForScope(
-            @Suppress("UNCHECKED_CAST")
-            (scopes as List<Documentable>).dri,
-            sourceSets,
-            types,
-            scopes.flatMap { it.functions },
-            scopes.flatMap { it.properties },
-            extensions
-        )
-    }
+    ): ContentGroup = contentForScope(
+        dri = @Suppress("UNCHECKED_CAST") (scopes as List<Documentable>).dri,
+        sourceSets = sourceSets,
+        types = scopes.flatMap { it.classlikes } +
+                scopes.filterIsInstance<DPackage>().flatMap { it.typealiases },
+        functions = scopes.flatMap { it.functions },
+        properties = scopes.flatMap { it.properties },
+        extensions = extensions,
+    )
 
     protected open fun contentForScope(
         s: WithScope,
         dri: DRI,
         sourceSets: Set<DokkaSourceSet>,
         extensions: List<Documentable> = emptyList()
-    ): ContentGroup {
-        val types = listOf(
-            s.classlikes,
-            (s as? DPackage)?.typealiases ?: emptyList()
-        ).flatten()
-        return contentForScope(setOf(dri), sourceSets, types, s.functions, s.properties, extensions)
-    }
+    ): ContentGroup = contentForScopes(listOf(s), sourceSets, extensions)
 
     private fun contentForScope(
         dri: Set<DRI>,
@@ -412,40 +411,34 @@ public open class DefaultPageCreator(
         types: List<Documentable>,
         functions: List<DFunction>,
         properties: List<DProperty>,
-        extensions: List<Documentable>
+        extensions: List<Documentable>,
     ) = contentBuilder.contentFor(dri, sourceSets) {
-        divergentBlock(
-            "Types",
-            types,
-            ContentKind.Classlikes
-        )
-        val (extensionProps, extensionFuns) = extensions.splitPropsAndFuns()
+        typesBlock(types)
+        val (extensionProperties, extensionFunctions) = extensions.splitPropsAndFuns()
         if (separateInheritedMembers) {
             val (inheritedFunctions, memberFunctions) = functions.splitInherited()
             val (inheritedProperties, memberProperties) = properties.splitInherited()
 
-            val (inheritedExtensionFunctions, extensionFunctions) = extensionFuns.splitInheritedExtension(dri)
-            val (inheritedExtensionProperties, extensionProperties) = extensionProps.splitInheritedExtension(dri)
-            propertiesBlock(
-                "Properties", memberProperties + extensionProperties
-            )
-            propertiesBlock(
-                "Inherited properties", inheritedProperties + inheritedExtensionProperties
-            )
-            functionsBlock("Functions", memberFunctions + extensionFunctions)
-            functionsBlock(
-                "Inherited functions", inheritedFunctions + inheritedExtensionFunctions
-            )
+            val (
+                inheritedExtensionFunctions,
+                directExtensionFunctions
+            ) = extensionFunctions.splitInheritedExtension(dri)
+
+            val (
+                inheritedExtensionProperties,
+                directExtensionProperties
+            ) = extensionProperties.splitInheritedExtension(dri)
+
+            propertiesBlock("Properties", memberProperties, directExtensionProperties)
+            propertiesBlock("Inherited properties", inheritedProperties, inheritedExtensionProperties)
+
+            functionsBlock("Functions", memberFunctions, directExtensionFunctions)
+            functionsBlock("Inherited functions", inheritedFunctions, inheritedExtensionFunctions)
         } else {
-            propertiesBlock(
-                "Properties", properties + extensionProps
-            )
-            functionsBlock("Functions", functions + extensionFuns)
+            propertiesBlock("Properties", properties, extensionProperties)
+            functionsBlock("Functions", functions, extensionFunctions)
         }
     }
-
-    private fun Iterable<DFunction>.sorted() =
-        sortedWith(compareBy({ it.name }, { it.parameters.size }, { it.dri.toString() }))
 
     /**
      * @param documentables a list of [DClasslike] and [DEnumEntry] and [DTypeAlias] with the same dri in different sourceSets
@@ -491,6 +484,7 @@ public open class DefaultPageCreator(
                 +contentForScopes(scopes, documentables.sourceSets, extensions)
             }
         }
+
     protected open fun contentForConstructors(
         constructorsToDocumented: List<DFunction>,
         dri: Set<DRI>,
@@ -560,7 +554,6 @@ public open class DefaultPageCreator(
     }
 
 
-
     protected open fun contentForDescription(
         d: Documentable
     ): List<ContentNode> {
@@ -611,7 +604,7 @@ public open class DefaultPageCreator(
         tag: TagWrapper
     ) {
         val language = documentableAnalyzer.getLanguage(documentable, sourceSet)
-        when(language) {
+        when (language) {
             DocumentableLanguage.JAVA -> firstSentenceComment(tag.root)
             DocumentableLanguage.KOTLIN -> firstParagraphComment(tag.root)
             else -> firstParagraphComment(tag.root)
@@ -643,128 +636,206 @@ public open class DefaultPageCreator(
             }
         }
 
+    private fun DocumentableContentBuilder.typesBlock(types: List<Documentable>) {
+        if (types.isEmpty()) return
+
+        val grouped = types
+            // This groupBy should probably use LocationProvider
+            .groupBy(Documentable::name)
+            .mapValues { (_, elements) ->
+                // This hacks displaying actual typealias signatures along classlike ones
+                if (elements.any { it is DClasslike }) elements.filter { it !is DTypeAlias } else elements
+            }
+
+        val groups = grouped.entries
+            .sortedWith(compareBy(nullsFirst(canonicalAlphabeticalOrder)) { it.key })
+            .map { (name, elements) ->
+                DivergentElementGroup(
+                    name = name,
+                    kind = ContentKind.Classlikes,
+                    elements = elements
+                )
+            }
+
+        divergentBlock(
+            name = "Types",
+            kind = ContentKind.Classlikes,
+            extra = mainExtra,
+            contentType = BasicTabbedContentType.TYPE,
+            groups = groups
+        )
+    }
+
     private fun DocumentableContentBuilder.functionsBlock(
         name: String,
-        list: Collection<DFunction>
+        declarations: List<DFunction>,
+        extensions: List<DFunction>
     ) {
-        divergentBlock(
-            name,
-            list.sorted(),
-            ContentKind.Functions,
-            extra = mainExtra
+        functionsOrPropertiesBlock(
+            name = name,
+            contentKind = ContentKind.Functions,
+            contentType = when {
+                declarations.isEmpty() -> BasicTabbedContentType.EXTENSION_FUNCTION
+                else -> BasicTabbedContentType.FUNCTION
+            },
+            declarations = declarations,
+            extensions = extensions
         )
     }
 
     private fun DocumentableContentBuilder.propertiesBlock(
         name: String,
-        list: Collection<DProperty>
+        declarations: List<DProperty>,
+        extensions: List<DProperty>
     ) {
-        divergentBlock(
-            name,
-            list,
-            ContentKind.Properties,
-            extra = mainExtra
+        functionsOrPropertiesBlock(
+            name = name,
+            contentKind = ContentKind.Properties,
+            contentType = when {
+                declarations.isEmpty() -> BasicTabbedContentType.EXTENSION_PROPERTY
+                else -> BasicTabbedContentType.PROPERTY
+            },
+            declarations = declarations,
+            extensions = extensions
         )
-
-    }
-    private data class NameAndIsExtension(val name:String?, val isExtension: Boolean)
-
-    private fun groupAndSortDivergentCollection(collection: Collection<Documentable>): List<Map.Entry<NameAndIsExtension, List<Documentable>>> {
-        val groupKeyComparator: Comparator<Map.Entry<NameAndIsExtension, List<Documentable>>> =
-            compareBy<Map.Entry<NameAndIsExtension, List<Documentable>>, String?>(
-                nullsFirst(canonicalAlphabeticalOrder)
-            ) { it.key.name }
-                .thenBy { it.key.isExtension }
-
-       return collection
-            .groupBy {
-                NameAndIsExtension(
-                    it.name,
-                    it.isExtension()
-                )
-            } // This groupBy should probably use LocationProvider
-            // This hacks displaying actual typealias signatures along classlike ones
-            .mapValues { if (it.value.any { it is DClasslike }) it.value.filter { it !is DTypeAlias } else it.value }
-            .entries.sortedWith(groupKeyComparator)
     }
 
-    protected open fun DocumentableContentBuilder.divergentBlock(
+    private fun DocumentableContentBuilder.functionsOrPropertiesBlock(
         name: String,
-        collection: Collection<Documentable>,
-        kind: ContentKind,
-        extra: PropertyContainer<ContentNode> = mainExtra
+        contentKind: ContentKind,
+        contentType: BasicTabbedContentType,
+        declarations: List<Documentable>,
+        extensions: List<Documentable>
     ) {
-        if (collection.any()) {
-            val onlyExtensions = collection.all { it.isExtension() }
-            val groupExtra = when(kind) {
-                ContentKind.Functions -> extra + TabbedContentTypeExtra(if (onlyExtensions) BasicTabbedContentType.EXTENSION_FUNCTION else BasicTabbedContentType.FUNCTION)
-                ContentKind.Properties -> extra + TabbedContentTypeExtra(if (onlyExtensions) BasicTabbedContentType.EXTENSION_PROPERTY else BasicTabbedContentType.PROPERTY)
-                ContentKind.Classlikes -> extra + TabbedContentTypeExtra(BasicTabbedContentType.TYPE)
-                else -> extra
+        if (declarations.isEmpty() && extensions.isEmpty()) return
+
+        // This groupBy should probably use LocationProvider
+        val grouped = declarations.groupBy {
+            NameAndIsExtension(it.name, isExtension = false)
+        } + extensions.groupBy {
+            NameAndIsExtension(it.name, isExtension = true)
+        }
+
+        val groups = grouped.entries
+            .sortedWith(compareBy(NameAndIsExtension.comparator) { it.key })
+            .map { (nameAndIsExtension, elements) ->
+                DivergentElementGroup(
+                    name = nameAndIsExtension.name,
+                    kind = when {
+                        nameAndIsExtension.isExtension -> ContentKind.Extensions
+                        else -> contentKind
+                    },
+                    elements = elements
+                )
             }
 
-            group(extra = groupExtra) {
-                // be careful: groupExtra will be applied for children by default
-                header(2, name, kind = kind, extra = extra) { }
-                val isFunctions = collection.any { it is DFunction }
-                table(kind, extra = extra, styles = emptySet()) {
-                    header {
-                        group { text("Name") }
-                        group { text("Summary") }
+        divergentBlock(
+            name = name,
+            kind = contentKind,
+            extra = mainExtra,
+            contentType = contentType,
+            groups = groups
+        )
+    }
+
+    private data class NameAndIsExtension(val name: String?, val isExtension: Boolean) {
+        companion object {
+            val comparator = compareBy(
+                comparator = nullsFirst(canonicalAlphabeticalOrder),
+                selector = NameAndIsExtension::name
+            ).thenBy(NameAndIsExtension::isExtension)
+        }
+    }
+
+    private class DivergentElementGroup(
+        val name: String?,
+        val kind: ContentKind,
+        val elements: List<Documentable>
+    )
+
+    private fun DocumentableContentBuilder.divergentBlock(
+        name: String,
+        kind: ContentKind,
+        extra: PropertyContainer<ContentNode>,
+        contentType: BasicTabbedContentType,
+        groups: List<DivergentElementGroup>,
+    ) {
+        if (groups.isEmpty()) return
+
+        // be careful: extra here will be applied for children by default
+        group(extra = extra + TabbedContentTypeExtra(contentType)) {
+            header(2, name, kind = kind, extra = extra) { }
+            table(kind, extra = extra, styles = emptySet()) {
+                header {
+                    group { text("Name") }
+                    group { text("Summary") }
+                }
+                groups.forEach { group ->
+                    val elementName = group.name
+                    val rowKind = group.kind
+                    val sortedElements = sortDivergentElementsDeterministically(group.elements)
+
+                    // This override here is needed to be able to split members and extensions into separate tabs in HTML renderer.
+                    // The idea is that `contentType` is set to the `tab group` itself to `FUNCTION` or `PROPERTY` (above in the code),
+                    // and then for `extensions` we override it - in this case we are able to create 2 tabs in HTML renderer:
+                    // - `Members` - which show ONLY member functions/properties
+                    // - `Members & Extensions` - which show BOTH member functions/properties and extensions for this classlike
+                    val rowContentTypeOverride = when (rowKind) {
+                        ContentKind.Extensions -> when (contentType) {
+                            BasicTabbedContentType.FUNCTION -> BasicTabbedContentType.EXTENSION_FUNCTION
+                            BasicTabbedContentType.PROPERTY -> BasicTabbedContentType.EXTENSION_PROPERTY
+                            else -> null
+                        }
+
+                        else -> null
                     }
-                        groupAndSortDivergentCollection(collection)
-                        .forEach { (elementNameAndIsExtension, elements) -> // This groupBy should probably use LocationProvider
-                            val elementName = elementNameAndIsExtension.name
-                            val isExtension = elementNameAndIsExtension.isExtension
-                            val rowExtra =
-                                if (isExtension) extra + TabbedContentTypeExtra(if(isFunctions) BasicTabbedContentType.EXTENSION_FUNCTION else BasicTabbedContentType.EXTENSION_PROPERTY) else extra
-                            val rowKind = if (isExtension) ContentKind.Extensions else kind
-                            val sortedElements = sortDivergentElementsDeterministically(elements)
-                            row(
-                                dri = sortedElements.map { it.dri }.toSet(),
-                                sourceSets = sortedElements.flatMap { it.sourceSets }.toSet(),
-                                kind = rowKind,
-                                styles = emptySet(),
-                                extra = elementName?.let { name -> rowExtra + SymbolAnchorHint(name, kind) } ?: rowExtra
-                            ) {
-                                link(
-                                    text = elementName.orEmpty(),
-                                    address = sortedElements.first().dri,
-                                    kind = rowKind,
-                                    styles = setOf(ContentStyle.RowTitle),
-                                    sourceSets = sortedElements.sourceSets.toSet(),
-                                    extra = extra
-                                )
-                                divergentGroup(
-                                    ContentDivergentGroup.GroupID(name),
-                                    sortedElements.map { it.dri }.toSet(),
-                                    kind = rowKind,
-                                    extra = extra
+
+                    row(
+                        dri = sortedElements.map { it.dri }.toSet(),
+                        sourceSets = sortedElements.flatMap { it.sourceSets }.toSet(),
+                        kind = rowKind,
+                        styles = emptySet(),
+                        extra = extra.addAll(
+                            listOfNotNull(
+                                rowContentTypeOverride?.let(::TabbedContentTypeExtra),
+                                elementName?.let { name -> SymbolAnchorHint(name, kind) }
+                            )
+                        )
+                    ) {
+                        link(
+                            text = elementName.orEmpty(),
+                            address = sortedElements.first().dri,
+                            kind = rowKind,
+                            styles = setOf(ContentStyle.RowTitle),
+                            sourceSets = sortedElements.sourceSets.toSet(),
+                            extra = extra
+                        )
+                        divergentGroup(
+                            ContentDivergentGroup.GroupID(name),
+                            sortedElements.map { it.dri }.toSet(),
+                            kind = rowKind,
+                            extra = extra
+                        ) {
+                            sortedElements.map { element ->
+                                instance(
+                                    setOf(element.dri),
+                                    element.sourceSets.toSet()
                                 ) {
-                                    sortedElements.map { element ->
-                                        instance(
-                                            setOf(element.dri),
-                                            element.sourceSets.toSet(),
-                                            extra = PropertyContainer.withAll(
-                                                SymbolAnchorHint(element.name ?: "", rowKind)
-                                            )
-                                        ) {
-                                            divergent(extra = PropertyContainer.empty()) {
-                                                group {
-                                                    +buildSignature(element)
-                                                }
-                                            }
-                                            after(
-                                                extra = PropertyContainer.empty()
-                                            ) {
-                                                contentForBrief(element)
-                                                contentForCustomTagsBrief(element)
-                                            }
+                                    divergent(extra = PropertyContainer.empty()) {
+                                        group {
+                                            +buildSignature(element)
                                         }
+                                    }
+                                    after(
+                                        extra = PropertyContainer.empty()
+                                    ) {
+                                        contentForBrief(element)
+                                        contentForCustomTagsBrief(element)
                                     }
                                 }
                             }
                         }
+                    }
                 }
             }
         }

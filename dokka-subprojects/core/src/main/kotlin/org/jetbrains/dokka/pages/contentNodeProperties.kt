@@ -16,7 +16,30 @@ public class SimpleAttr(
 }
 
 public enum class BasicTabbedContentType : TabbedContentType {
-    TYPE, CONSTRUCTOR, FUNCTION, PROPERTY, ENTRY, EXTENSION_PROPERTY, EXTENSION_FUNCTION
+    TYPE, CONSTRUCTOR,
+
+    // property/function here means a different things depending on parent:
+    // - if parent=package - describes just `top-level` property/function without receiver
+    // - if parent=classlike - describes `member` property/function,
+    //   it could have receiver (becoming member extension property/function) or not (ordinary member property/function)
+    // for examples look at docs for `EXTENSION_PROPERTY`, `EXTENSION_FUNCTION`
+    FUNCTION, PROPERTY,
+
+    ENTRY,
+
+    // property/function here means a different things depending on parent,
+    // and not just `an extension property/function`:
+    // example 1: `fun Foo.bar()` - top-level extension function
+    // - on a page describing `Foo` class `bar` will have type=`EXTENSION_FUNCTION`
+    // - on a page describing package declarations `bar` will have type=`EXTENSION_FUNCTION`
+    // example 2: `object Namespace { fun Foo.bar() }` - member extension function
+    // - on a page describing `Foo` class `bar` will have type=`EXTENSION_FUNCTION`
+    // - on a page describing `Namespace` object `bar` will have type=`FUNCTION`
+    //
+    // These types are needed to separate member functions and extension function on classlike pages.
+    // The same split rules are also used
+    // when grouping functions/properties with the same name on pages for classlike and package
+    EXTENSION_PROPERTY, EXTENSION_FUNCTION
 }
 
 /**
