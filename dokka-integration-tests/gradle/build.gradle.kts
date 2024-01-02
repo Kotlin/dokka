@@ -57,11 +57,10 @@ tasks.createAndroidLocalPropertiesFiles {
     val androidProjects = setOf(
         "it-android-0",
     )
-    // find all Android projects that need a local.properties file
     androidProjectsDirectories.from(
-        templateProjectsDir.asFileTree.matching {
-            include { it.isDirectory && it.name in androidProjects }
-        }
+        templateProjectsDir.asFile.walk()
+            .filter { it.isDirectory && it.name in androidProjects }
+            .asIterable()
     )
     androidSdkDirPath.set(androidSdkDir.map { it.invariantSeparatorsPath })
 }
