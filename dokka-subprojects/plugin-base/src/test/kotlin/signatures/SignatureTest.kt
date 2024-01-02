@@ -5,11 +5,13 @@
 package signatures
 
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.DefinitelyNonNullable
 import org.jetbrains.dokka.model.dfs
+import org.jsoup.nodes.Element
 import utils.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -354,6 +356,201 @@ class SignatureTest : BaseAbstractTest() {
                 )
             }
         }
+    }
+
+    @Test
+    fun `kotlin sealed class should render sealed`() = testRender(
+        """
+            |/src/main/kotlin/common/Test.kt
+            |package example
+            |sealed class Class
+        """.trimMargin(),
+    ) {
+        renderedContent("root/example/-class/index.html").firstSignature().matchIgnoringSpans(
+            "sealed class", A("Class"),
+        )
+    }
+
+    @Test
+    fun `kotlin abstract class should render abstract`() = testRender(
+        """
+            |/src/main/kotlin/common/Test.kt
+            |package example
+            |abstract class Class
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-class/index.html").firstSignature().matchIgnoringSpans(
+            "abstract class", A("Class"),
+        )
+    }
+
+    @Test
+    fun `kotlin open class should render open`() = testRender(
+        """
+            |/src/main/kotlin/common/Test.kt
+            |package example
+            |open class Class
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-class/index.html").firstSignature().matchIgnoringSpans(
+            "open class", A("Class"),
+        )
+    }
+
+    @Test
+    fun `kotlin final class should render just class`() = testRender(
+        """
+            |/src/main/kotlin/common/Test.kt
+            |package example
+            |final class Class
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-class/index.html").firstSignature().matchIgnoringSpans(
+            "class ", A("Class"),
+        )
+    }
+
+    @Test
+    fun `kotlin sealed interface should render sealed`() = testRender(
+        """
+            |/src/main/kotlin/common/Test.kt
+            |package example
+            |sealed interface Interface
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-interface/index.html").firstSignature().matchIgnoringSpans(
+            "sealed interface", A("Interface"),
+        )
+    }
+
+    @Test
+    fun `kotlin interface should render just interface`() = testRender(
+        """
+            |/src/main/kotlin/common/Test.kt
+            |package example
+            |interface Interface
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-interface/index.html").firstSignature().matchIgnoringSpans(
+            "interface", A("Interface"),
+        )
+    }
+
+    @Test
+    fun `kotlin abstract interface should render just interface`() = testRender(
+        """
+            |/src/main/kotlin/common/Test.kt
+            |package example
+            |abstract interface Interface
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-interface/index.html").firstSignature().matchIgnoringSpans(
+            "interface", A("Interface"),
+        )
+    }
+
+    @Test
+    fun `kotlin enum should render just enum`() = testRender(
+        """
+            |/src/main/kotlin/common/Test.kt
+            |package example
+            |enum class EnumClass { T }
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-enum-class/index.html").firstSignature().matchIgnoringSpans(
+            "enum", A("EnumClass"), ":", A("Enum"), "<", A("EnumClass"), ">"
+        )
+    }
+
+    @Test
+    fun `kotlin object should render just object`() = testRender(
+        """
+            |/src/main/kotlin/common/Test.kt
+            |package example
+            |object Obj
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-obj/index.html").firstSignature().matchIgnoringSpans(
+            "object", A("Obj"),
+        )
+    }
+
+    @Test
+    fun `java class should render open`() = testRender(
+        """
+            |/src/example/Class.java
+            |package example;
+            |public class Class {}
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-class/index.html").firstSignature().matchIgnoringSpans(
+            "open class", A("Class"),
+        )
+    }
+
+    @Test
+    fun `java final class should render just class`() = testRender(
+        """
+            |/src/example/Class.java
+            |package example;
+            |public final class Class {}
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-class/index.html").firstSignature().matchIgnoringSpans(
+            "class", A("Class"),
+        )
+    }
+
+    @Test
+    fun `java abstract class should render abstract`() = testRender(
+        """
+            |/src/example/Class.java
+            |package example;
+            |public abstract class Class {}
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-class/index.html").firstSignature().matchIgnoringSpans(
+            "abstract class", A("Class"),
+        )
+    }
+
+    @Test
+    fun `java interface should render just interface`() = testRender(
+        """
+            |/src/example/Interface.java
+            |package example;
+            |public interface Interface {}
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-interface/index.html").firstSignature().matchIgnoringSpans(
+            "interface ", A("Interface"),
+        )
+    }
+
+    @Test
+    fun `java abstract interface should render just interface`() = testRender(
+        """
+            |/src/example/Interface.java
+            |package example;
+            |public abstract interface Interface {}
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-interface/index.html").firstSignature().matchIgnoringSpans(
+            "interface", A("Interface"),
+        )
+    }
+
+    @Test
+    fun `java enum should render just enum`() = testRender(
+        """
+            |/src/example/EnumClass.java
+            |package example;
+            |public enum EnumClass { T; }
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-enum-class/index.html").firstSignature().matchIgnoringSpans(
+            "enum", A("EnumClass"),
+        )
     }
 
     @Test
@@ -1131,5 +1328,20 @@ class SignatureTest : BaseAbstractTest() {
                 assertEquals(expectedSignature, signatureHtml)
             }
         }
+    }
+
+    private fun testRender(
+        query: String,
+        configuration: DokkaConfigurationImpl = this.configuration,
+        block: TestOutputWriter.() -> Unit
+    ) {
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(query, configuration, pluginOverrides = listOf(writerPlugin)) {
+            renderingStage = { _, _ -> writerPlugin.writer.block() }
+        }
+    }
+
+    private fun Element.matchIgnoringSpans(vararg matchers: Any) {
+        return match(*matchers, ignoreSpanWithTokenStyle = true)
     }
 }
