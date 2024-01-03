@@ -25,6 +25,6 @@ tasks.withType<AbstractArchiveTask>().configureEach {
 
 val integrationTestPreparation by tasks.registering {
     description =
-        "lifecycle task for preparing the project for integration tests (for example, publishing to the test Maven repo)"
+        "Lifecycle task for preparing the project for integration tests (for example, publishing to the test Maven repo)"
     group = VERIFICATION_GROUP
 }

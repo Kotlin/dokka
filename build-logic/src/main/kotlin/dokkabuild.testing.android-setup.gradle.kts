@@ -50,5 +50,5 @@ abstract class CreateAndroidLocalPropertiesFiles : DefaultTask() {
 }
 
 val createAndroidLocalPropertiesFiles by tasks.registering(CreateAndroidLocalPropertiesFiles::class) {
-    description = "updates the local.properties file in each template Android project"
+    description = "Updates the local.properties file in each template Android project"
 }
