@@ -27,4 +27,6 @@ val integrationTestPreparation by tasks.registering {
     description =
         "Lifecycle task for preparing the project for integration tests (for example, publishing to the test Maven repo)"
     group = VERIFICATION_GROUP
+    // Note: there is no dependency between integrationTest and integrationTestPreparation tasks because
+    // integrationTest will be replaced by Java Test Suite tasks in upcoming PRs.
 }

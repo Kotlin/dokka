@@ -44,6 +44,8 @@ val integrationTestRuntimeOnly: Configuration by configurations.getting {
 abstract class NonCacheableIntegrationTest : Test()
 
 val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
+    // Note: integrationTest task will be replaced by Java Test Suite tasks in upcoming PRs.
+
     maxHeapSize = "2G"
     description = "Runs integration tests."
     group = "verification"
@@ -66,7 +68,7 @@ val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
             ?: System.getenv("DOKKA_INTEGRATION_TEST_IS_EXHAUSTIVE")?.toBoolean()
             ?: false.toString()
     )
-    
+
     testLogging {
         exceptionFormat = TestExceptionFormat.FULL
         events(TestLogEvent.SKIPPED, TestLogEvent.FAILED)
