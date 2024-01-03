@@ -15,10 +15,13 @@ plugins {
  * Create an `local.properties` file so that Android projects will automatically work in integration tests.
  */
 abstract class CreateAndroidLocalPropertiesFiles : DefaultTask() {
+
     @get:OutputFiles
-    val localPropertiesFilesDestinations: List<File>
-        get() = androidProjectsDirectories.map { project ->
-            project.resolve("local.properties")
+    val localPropertiesFilesDestinations: Provider<Set<File>>
+        get() = androidProjectsDirectories.elements.map { androidProjectDirs ->
+            androidProjectDirs
+                .map { dir -> dir.asFile.resolve("local.properties") }
+                .toSet()
         }
 
     /**
@@ -42,7 +45,7 @@ abstract class CreateAndroidLocalPropertiesFiles : DefaultTask() {
           |
         """.trimMargin()
 
-        localPropertiesFilesDestinations.forEach { dst ->
+        localPropertiesFilesDestinations.orNull?.forEach { dst ->
             dst.createNewFile()
             dst.writeText(localPropertiesText)
         }
