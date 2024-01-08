@@ -925,7 +925,12 @@ internal class DokkaSymbolVisitor(
         //ExtraModifiers.JavaOnlyModifiers.Static.takeIf { isJvmStaticInObjectOrClassOrInterface() },
         //ExtraModifiers.KotlinOnlyModifiers.External.takeIf { isExternal },
         //ExtraModifiers.KotlinOnlyModifiers.Static.takeIf { isStatic },
-        ExtraModifiers.KotlinOnlyModifiers.Override.takeIf { isOverride }
+        ExtraModifiers.KotlinOnlyModifiers.Override.takeIf {
+            /**
+             * e.g. members implemented by delegation should have `override` keyword
+             */
+            isOverride || origin == KtSymbolOrigin.DELEGATED
+        }
     ).toSet().takeUnless { it.isEmpty() }
 
     private fun KtJavaFieldSymbol.additionalExtras() = listOfNotNull(
@@ -940,7 +945,12 @@ internal class DokkaSymbolVisitor(
 //ExtraModifiers.JavaOnlyModifiers.Static.takeIf { isJvmStaticInObjectOrClassOrInterface() },
         ExtraModifiers.KotlinOnlyModifiers.TailRec.takeIf { (psi as? KtNamedFunction)?.hasModifier(KtTokens.TAILREC_KEYWORD) == true },
         ExtraModifiers.KotlinOnlyModifiers.External.takeIf { isExternal },
-        ExtraModifiers.KotlinOnlyModifiers.Override.takeIf { isOverride }
+        ExtraModifiers.KotlinOnlyModifiers.Override.takeIf {
+            /**
+             * e.g. members implemented by delegation should have `override` keyword
+             */
+            isOverride || origin == KtSymbolOrigin.DELEGATED
+        }
     ).toSet().takeUnless { it.isEmpty() }
 
     private fun KtNamedClassOrObjectSymbol.additionalExtras() = listOfNotNull(
