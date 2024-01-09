@@ -17,7 +17,7 @@ public interface DokkaPluginsContainer : ExtensiblePolymorphicDomainObjectContai
     // TODO: naming
     public fun custom(configure: DokkaCustomPluginConfiguration.() -> Unit)
     public fun custom(
-        fqPluginName: String,
+        className: String,
         dependencyNotation: Any,
         configure: DokkaCustomPluginConfiguration.() -> Unit = {}
     )

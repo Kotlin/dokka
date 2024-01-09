@@ -6,21 +6,21 @@ package org.jetbrains.dokka.gradle.dsl
 
 import org.gradle.api.Named
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
-import org.gradle.api.provider.SetProperty
+import org.jetbrains.dokka.gradle.dsl.configuration.DokkaSourceSetConfiguration
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 @DokkaGradlePluginDsl
 public interface DokkaSourceSet : DokkaSourceSetConfiguration, Named {
     // TODO: is it fine to have provider? is it needed at all?
+    //  most likely it should be property to create custom sourceSets
     public val platform: Provider<KotlinPlatformType>
     public val languageVersion: Provider<KotlinVersion>
     public val apiVersion: Provider<KotlinVersion>
 
     // TODO: is those really needed
+    //  most likely we need it to create custom sourceSets
     public val classpath: ConfigurableFileCollection
     public val sourceFiles: ConfigurableFileCollection
 

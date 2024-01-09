@@ -2,12 +2,19 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.dokka.gradle.dsl
+package org.jetbrains.dokka.gradle.dsl.configuration
 
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
+import org.jetbrains.dokka.gradle.dsl.DokkaGradlePluginDsl
+
+@DokkaGradlePluginDsl
+public interface DokkaPerSourceSetConfiguration : DokkaSourceSetConfiguration {
+    // glob/regex
+    public val matching: Property<String>
+}
 
 @DokkaGradlePluginDsl
 public interface DokkaSourceSetConfiguration : DokkaSourceSetBasedConfiguration {
@@ -19,16 +26,14 @@ public interface DokkaSourceSetConfiguration : DokkaSourceSetBasedConfiguration 
 public interface DokkaSourceSetBasedConfiguration : DokkaPackageBasedConfiguration {
     public val includeEmptyPackages: Property<Boolean> // old skipEmptyPackages
 
-    public val perPackageConfigurations: SetProperty<DokkaPerPackageConfiguration>
-    public fun perPackageConfiguration(configure: DokkaPerPackageConfiguration.() -> Unit)
-    public fun perPackageConfiguration(matchingRegex: String, configure: DokkaPerPackageConfiguration.() -> Unit)
+    public val perPackages: SetProperty<DokkaPerPackageConfiguration>
+    public fun perPackage(configure: DokkaPerPackageConfiguration.() -> Unit)
+    public fun perPackage(matching: String, configure: DokkaPerPackageConfiguration.() -> Unit)
 
-    // sourceLink("https://www.github.com/owner/repository")
+    // sourceLink("https://www.github.com/owner/repository") - link to root of remote repository
     // TODO: ListProperty vs DomainObjectCollection
     public val sourceLinks: ListProperty<DokkaSourceLinkConfiguration>
     public fun sourceLink(configure: DokkaSourceLinkConfiguration.() -> Unit)
-
-    // link to root of remote repository
     public fun sourceLink(remoteUrl: String, configure: DokkaSourceLinkConfiguration.() -> Unit = {})
 
     //TODO: may be we need to add out of the box kotlinx.coroutines, serialization, etc?
@@ -65,10 +70,9 @@ public interface DokkaSourceSetBasedConfiguration : DokkaPackageBasedConfigurati
     // includedDocumentation/packageDocumentation are shared (in DokkaPerSourceSetConfiguration not in DokkaSourceSet)
     // because we can have in some sourceSet, f.e. jvm, additional packages to document
     // TODO: includedDocumentation is bad naming, `includes` is also bad naming
-    public val includedDocumentation: ConfigurableFileCollection
-
-    // for simple cases
+    // for simple cases `includeDocumentation(...)`
     // `path: Any` resolved as project.file(file)
+    public val includedDocumentation: ConfigurableFileCollection
     public fun includeDocumentation(text: String)
     public fun includeDocumentationFrom(path: Any)
     public fun packageDocumentation(packageName: String, text: String)

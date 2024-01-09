@@ -71,6 +71,16 @@ changing output dir is a frequent thing to do
 
 small amount of projects uses `sourceLink` or configured wrong (wrong paths)
 
+A lot of projects uses `perPackage` as `glob-like` (wildcards), not as regex.
+So instead of something like `com\\.example\\.internal` they just write `com.example.internal`,
+it works well (in all cases I think), as `.` in regex is just a match for any character.
+Though, if we start matching with `*` the behavior could be different:
+
+* `com.example.internal.*` - works acceptably the same for both glob and regex
+* `com.example.internal*` - works differently (glob - fine, regex - match `l` character multiple times)
+* `.*internal.*` - works fine in regex, will not work in glob (because of first symbol is `.`)
+* `*internal*` - incorrect regex, works fine with glob
+
 api poc:
 
 ```kotlin
@@ -167,6 +177,32 @@ kotlin {
 java {
     withJavadocJar()
     withSourceJar()
+}
+
+```
+
+```kotlin
+
+dokka { // DokkaProjectConfiguration
+    formats
+    plugins.html {
+
+    }
+
+    // for current module
+    generation { // DokkaGenerationConfiguration: DokkaModuleConfiguration
+        moduleName = ""
+        moduleVersion = "1.2.3"
+
+        formats
+
+    }
+
+    // for aggregate module
+    aggregation {
+
+        formats
+    }
 }
 
 ```
@@ -331,7 +367,6 @@ Sharing of configuration possibilities:
 
 TODO:
 
-* outputDirectory
 * jar generation
 
 Dokka Gradle Runner / Dokka Gradle Plugin
@@ -353,6 +388,7 @@ multiModule is plugin, but should not
 Gradle Plugin ids:
 
 * dokka
+* dokka.settings
 * dokka.base
 * dokka.configuration
 * dokka.generation

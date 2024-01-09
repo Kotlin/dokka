@@ -5,6 +5,7 @@
 package org.jetbrains.dokka.gradle.dsl.formats
 
 import org.gradle.api.Named
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.jetbrains.dokka.gradle.dsl.DokkaGradlePluginDsl
 
@@ -12,6 +13,8 @@ import org.jetbrains.dokka.gradle.dsl.DokkaGradlePluginDsl
 public interface DokkaFormatConfiguration : Named {
     // only html is enabled by default
     public val enabled: Property<Boolean>
+
+    public val outputDirectory: DirectoryProperty
 
 //    public fun generateJar(classifier: String?)
 //    public fun generateJavadocJar()

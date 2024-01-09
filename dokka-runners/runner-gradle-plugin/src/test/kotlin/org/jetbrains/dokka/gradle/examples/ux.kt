@@ -12,23 +12,10 @@ fun Project.task1() {
     plugins.apply("org.jetbrains.dokka")
 
     dokka {
-        multiModule.includeSubprojects {
+        aggregation.includeSubprojects {
             // with newer Gradle it will be `applyDokkaPlugin = true`
             applyDokkaPlugin.set(true)
         }
-    }
-}
-
-// 1. Generate API specification for the proposed project
-fun Project.task1_2() {
-    plugins.apply("org.jetbrains.dokka")
-
-    dokka {
-        multiModule.includeSubprojects()
-    }
-
-    subprojects {
-        plugins.apply("org.jetbrains.dokka")
     }
 }
 
@@ -37,9 +24,7 @@ fun Project.task2() {
     plugins.apply("org.jetbrains.dokka")
 
     dokka {
-        multiModule.includeSubprojects(
-            exclude = listOf("common-utils")
-        ) {
+        aggregation.includeSubprojects(exclude = listOf("common-utils")) {
             // with newer Gradle it will be `applyDokkaPlugin = true`
             applyDokkaPlugin.set(true)
         }
@@ -53,28 +38,12 @@ fun Project.task3() {
     dokka {
         documentedVisibilities.addAll(DokkaDeclarationVisibility.PROTECTED)
 
-        multiModule.includeSubprojects(
+        aggregation.includeSubprojects(
             exclude = listOf("common-utils")
         ) {
             // with newer Gradle it will be `applyDokkaPlugin = true`
             applyDokkaPlugin.set(true)
             inheritConfiguration.set(true)
-        }
-    }
-}
-
-// 3. Now you need to add a protected API to the generated documentation. Please change the setup so that the documentation contains protected APIs.
-fun Project.task3_2() {
-    plugins.apply("org.jetbrains.dokka")
-
-    dokka {
-        multiModule.includeSubprojects(exclude = listOf("common-utils"))
-    }
-
-    allprojects {
-        plugins.apply("org.jetbrains.dokka")
-        dokka {
-            documentedVisibilities.addAll(DokkaDeclarationVisibility.PROTECTED)
         }
     }
 }
@@ -87,11 +56,12 @@ fun Project.task4() {
         documentedVisibilities.addAll(DokkaDeclarationVisibility.PROTECTED)
         sourceLink("https://github.com/kotlin/dokka/tree/master")
 
-//        formats.html {
-//            homepageLink.set("https://github.com/kotlin/dokka")
-//        }
+        // additional
+        formats.html {
+            homepageLink.set("https://github.com/kotlin/dokka")
+        }
 
-        multiModule.includeSubprojects(
+        aggregation.includeSubprojects(
             exclude = listOf("common-utils")
         ) {
             // with newer Gradle it will be `applyDokkaPlugin = true`
@@ -111,7 +81,7 @@ fun Project.task5() {
         documentedVisibilities.addAll(DokkaDeclarationVisibility.PROTECTED)
         sourceLink("https://github.com/kotlin/dokka/tree/master")
 
-        multiModule.includeSubprojects(
+        aggregation.includeSubprojects(
             exclude = listOf("common-utils")
         ) {
             // with newer Gradle it will be `applyDokkaPlugin = true`
@@ -144,7 +114,7 @@ fun Project.task6() {
         documentedVisibilities.addAll(DokkaDeclarationVisibility.PROTECTED)
         sourceLink("https://github.com/kotlin/dokka/tree/master")
 
-        multiModule.includeSubprojects(
+        aggregation.includeSubprojects(
             exclude = listOf("common-utils")
         ) {
             // with newer Gradle it will be `applyDokkaPlugin = true`
