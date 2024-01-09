@@ -184,8 +184,7 @@ java {
 ```kotlin
 
 dokka { // DokkaProjectConfiguration
-    formats
-    plugins.html {
+    formats.html {
 
     }
 
@@ -195,7 +194,6 @@ dokka { // DokkaProjectConfiguration
         moduleVersion = "1.2.3"
 
         formats
-
     }
 
     // for aggregate module
@@ -267,19 +265,19 @@ dokka {
 tasks:
 
 * dokkaGenerate - will generate documentation for all formats / all aggregations
-* dokkaGenerateHtml
-* dokkaGenerateHtmlJar - is it needed???
+* dokkaGenerateHtml - will generate documentation for all HTML things
+* dokkaGenerateModuleHtml - will generate documentation for this module only
+* dokkaGenerateModulePartialHtml - will generate documentation for this module only, which will be used for aggregation
+* dokkaGenerateAggregatedHtml - will generate aggregated HTML from included projects
+* dokkaGenerateModuleHtmlJar - jar for module html
+* dokkaGenerateAggregatedHtmlJar - TODO is it needed?
+* replace `Html` with any other format name for other formats
+
 * dokkaGenerateJson —- machine compatible format
 * dokkaGenerateJavadoc — only for JVM projects / jvm target in KMP project (?)
 * dokkaGenerateJavadocJar — only for JVM projects
 * dokkaGenerate{FORMAT}
 * dokkaDumpConfiguration — could be useful for custom processing, tools, etc — may be not really needed.
-
-* dokkaGenerateHtml
-* dokkaGenerateMergedHtml
-* dokkaGenerateMultiModuleHtml
-* dokkaGenerateProjectHtml
-* dokkaGenerateModuleHtml
 
 javadoc frequent usage:
 
@@ -292,6 +290,15 @@ val javadocJar by tasks.registering(Jar::class) {
     dependsOn(tasks.named("dokkaJavadoc"))
     // or
     // from(tasks.named("dokkaJavadoc"))
+}
+```
+
+new dsl:
+
+```kotlin
+val javadocJar by tasks.registering(Jar::class) {
+    archiveClassifier.set("javadoc")
+    from(dokka.formats.html.outputDirectory) // TODO: will it work as dependency - most likely not?
 }
 ```
 
@@ -387,9 +394,6 @@ multiModule is plugin, but should not
 
 Gradle Plugin ids:
 
-* dokka
-* dokka.settings
-* dokka.base
-* dokka.configuration
-* dokka.generation
-* dokka.aggregation
+* dokka.base -> will not create any sourceSets based on Kotlin plugin, no tasks created, just configuration
+* dokka -> will create sourceSets based on Kotlin plugins
+* dokka.settings -> will create shared configuration + apply dokka plugin where kotlin plugin is applied
