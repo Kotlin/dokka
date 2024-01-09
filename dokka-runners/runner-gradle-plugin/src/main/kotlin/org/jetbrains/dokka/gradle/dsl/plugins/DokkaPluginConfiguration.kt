@@ -12,4 +12,3 @@ import org.jetbrains.dokka.gradle.dsl.DokkaGradlePluginDsl
 public interface DokkaPluginConfiguration : Named {
     public val enabled: Property<Boolean>
 }
-
