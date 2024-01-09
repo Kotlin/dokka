@@ -25,6 +25,8 @@ dependencies {
     compileOnly(gradleKotlinDsl())
     compileOnly(libs.gradlePlugin.kotlin)
     compileOnly(libs.gradlePlugin.android)
+
+    testImplementation(libs.gradlePlugin.kotlin)
 }
 
 @Suppress("UnstableApiUsage")

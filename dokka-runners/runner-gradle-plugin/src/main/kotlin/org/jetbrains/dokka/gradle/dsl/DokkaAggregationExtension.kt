@@ -4,18 +4,25 @@
 
 package org.jetbrains.dokka.gradle.dsl
 
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.Property
 import org.jetbrains.dokka.gradle.dsl.configuration.DokkaExtensibleConfiguration
 
 @DokkaGradlePluginDsl
 public interface DokkaAggregationExtension : DokkaExtensibleConfiguration {
+    public val includedDocumentation: ConfigurableFileCollection
+    public fun includeDocumentation(text: String)
+    public fun includeDocumentationFrom(path: Any)
+
     // TODO: this is rather adhoc, though, not a lot of use cases...
     public fun useMultiModule(fileLayout: DokkaMultiModuleFileLayout)
     public fun useCollector()
 
     // f.e. for included builds. maybe pick another name
+    // TODO: better naming
     public fun include(dependencyNotation: Any)
 
+    // the projects below are based on Gradle project paths (not names) ?
     public fun includeProjects(
         vararg projects: String,
         configure: DokkaAggregationProjectsConfiguration.() -> Unit = {}

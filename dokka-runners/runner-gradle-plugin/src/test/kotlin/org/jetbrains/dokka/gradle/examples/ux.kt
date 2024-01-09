@@ -6,6 +6,10 @@ package org.jetbrains.dokka.gradle.examples
 
 import org.gradle.api.Project
 import org.jetbrains.dokka.gradle.dsl.DokkaDeclarationVisibility
+import org.jetbrains.dokka.gradle.dsl.withDokkaJar
+import org.jetbrains.dokka.gradle.dsl.withDokkaJavadocJar
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 // 1. Generate API specification for the proposed project
 fun Project.task1() {
@@ -123,15 +127,15 @@ fun Project.task6() {
         }
     }
 
-// in subprojectA:
+    extensions.configure<KotlinMultiplatformExtension>("kotlin") {
+        it.withDokkaJar()
+        it.withSourcesJar(publish = true)
+    }
 
-    dokka {
-        // or from file (more complex way)
-        includeDocumentation(
-            """
-               This is the documentation for the module.
-               This text helps users of the API understand what is the purpose of the module, its structure, and usage samples.
-            """.trimIndent()
-        )
+    extensions.configure<KotlinJvmProjectExtension>("kotlin") {
+        it.target {
+            withSourcesJar()
+            withDokkaJavadocJar("html")
+        }
     }
 }

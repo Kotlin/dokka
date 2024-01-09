@@ -15,15 +15,4 @@ public interface DokkaFormatConfiguration : Named {
     public val enabled: Property<Boolean>
 
     public val outputDirectory: DirectoryProperty
-
-//    public fun generateJar(classifier: String?)
-//    public fun generateJavadocJar()
 }
-
-// html format
-// dokkaGenerateHtmlJar - no classifier
-// dokkaGenerateHtmlJavadocJar - `javadoc` classifier
-
-// javadoc format
-// dokkaGenerateJavadocJar - no classifier
-// dokkaGenerateJavadocJavadocJar - `javadoc` classifier
