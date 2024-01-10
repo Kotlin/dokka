@@ -33,8 +33,8 @@ public class DefaultExternalModuleLinkResolver(
     )
 
     private val elpFactory = context.plugin<DokkaBase>().query { externalLocationProviderFactory }
-    private val externalDocumentations by lazy(::setupExternalDocumentations)
     private val elps by lazy {
+        val externalDocumentations = setupExternalDocumentations()
         elpFactory.flatMap {
             externalDocumentations.mapNotNull { (mdl, ed) ->
                 it.getExternalLocationProvider(ed)?.let { ExternalLocationProviderWithModuleDescription(it, mdl) }
