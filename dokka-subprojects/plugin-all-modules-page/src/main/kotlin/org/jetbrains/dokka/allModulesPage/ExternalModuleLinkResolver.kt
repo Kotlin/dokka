@@ -89,13 +89,19 @@ public class DefaultExternalModuleLinkResolver(
             } else true
         }?.first ?: return null
 
-        val modulePath = context.configuration.outputDir.absolutePath
-        val modulePathParts = modulePath.split(File.separator)
+        // relativization [fileContext] path over output path (or `fileContext.relativeTo(outputPath)`)
+        //  e.g. outputPath = `/a/b/`
+        //  fileContext =  `/a/c/d/index.html`
+        //  will be transformed to `../../b`+ validLink
+        val outputPath = context.configuration.outputDir.absolutePath
+
+
+        val outputPathParts = outputPath.split(File.separator)
         val contextPathParts = fileContext.absolutePath.split(File.separator)
-        val commonPathElements = modulePathParts.zip(contextPathParts)
+        val commonPathElements = outputPathParts.zip(contextPathParts)
             .takeWhile { (a, b) -> a == b }.count()
 
-        return (List(contextPathParts.size - commonPathElements - 1) { ".." } + modulePathParts.drop(commonPathElements))
+        return (List(contextPathParts.size - commonPathElements - 1) { ".." } + outputPathParts.drop(commonPathElements))
             .joinToString("/") + validLink.removePrefix("file:")
     }
 

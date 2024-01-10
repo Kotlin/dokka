@@ -21,7 +21,7 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 /**
- * The test check the first case (short-term solution) of #3368:
+ * The test checks the first case (short-term solution) of #3368:
  * a situation where 2 (or more) local modules have the same package name.
  *
  * It does not check links for external modules, only for local ones.
