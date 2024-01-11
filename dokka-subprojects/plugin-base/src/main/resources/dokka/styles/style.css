@@ -714,7 +714,7 @@ code {
 
 code:not(.block) {
     display: inline-block;
-    vertical-align: middle;
+    vertical-align: bottom;
 }
 
 .symbol > a {
