@@ -1,9 +1,10 @@
 /*
- * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package content
 
+import org.jetbrains.dokka.analysis.kotlin.markdown.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.doc.*
 import kotlin.test.Test
@@ -33,7 +34,7 @@ class ContentInDescriptionTest : BaseAbstractTest() {
                 )
             ),
             params = emptyMap(),
-            name = "MARKDOWN_FILE"
+            name = MARKDOWN_ELEMENT_FILE_NAME
         )
     )
 
