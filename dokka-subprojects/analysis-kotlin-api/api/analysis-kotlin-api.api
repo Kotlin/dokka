@@ -59,10 +59,6 @@ public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/Kot
 	public abstract fun findAsJava (Lorg/jetbrains/dokka/links/DRI;)Lorg/jetbrains/dokka/links/DRI;
 }
 
-public final class org/jetbrains/dokka/analysis/kotlin/internal/MarkdownApiKt {
-	public static final field MARKDOWN_ELEMENT_FILE_NAME Ljava/lang/String;
-}
-
 public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/ModuleAndPackageDocumentationReader {
 	public abstract fun read (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaModuleDescription;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
 	public abstract fun read (Lorg/jetbrains/dokka/model/DModule;)Ljava/util/Map;
@@ -71,6 +67,10 @@ public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/Mod
 
 public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/SyntheticDocumentableDetector {
 	public abstract fun isSynthetic (Lorg/jetbrains/dokka/model/Documentable;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Z
+}
+
+public final class org/jetbrains/dokka/analysis/kotlin/markdown/MarkdownApiKt {
+	public static final field MARKDOWN_ELEMENT_FILE_NAME Ljava/lang/String;
 }
 
 public abstract interface class org/jetbrains/dokka/analysis/kotlin/sample/SampleAnalysisEnvironment {
