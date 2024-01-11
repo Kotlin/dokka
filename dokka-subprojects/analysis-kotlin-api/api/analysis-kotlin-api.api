@@ -69,6 +69,10 @@ public abstract interface class org/jetbrains/dokka/analysis/kotlin/internal/Syn
 	public abstract fun isSynthetic (Lorg/jetbrains/dokka/model/Documentable;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Z
 }
 
+public final class org/jetbrains/dokka/analysis/kotlin/markdown/MarkdownApiKt {
+	public static final field MARKDOWN_ELEMENT_FILE_NAME Ljava/lang/String;
+}
+
 public abstract interface class org/jetbrains/dokka/analysis/kotlin/sample/SampleAnalysisEnvironment {
 	public abstract fun resolveSample (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/lang/String;)Lorg/jetbrains/dokka/analysis/kotlin/sample/SampleSnippet;
 }

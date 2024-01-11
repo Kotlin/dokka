@@ -43,6 +43,7 @@ dependencies {
     }
     testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
     testImplementation(projects.dokkaSubprojects.coreTestApi)
+    testImplementation(projects.dokkaSubprojects.analysisKotlinApi)
 
     dokkaHtmlFrontendFiles(projects.dokkaSubprojects.pluginBaseFrontend) {
         because("fetch frontend files from subproject :plugin-base-frontend")
