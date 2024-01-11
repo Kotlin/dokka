@@ -77,7 +77,7 @@ public class NavigationPage(
 
     private fun FlowContent.nodeText(node: NavigationNode) {
         if (node.styles.contains(TextStyle.Strikethrough)) {
-            strike {
+            strike(classes = "strikethrough") {
                 buildBreakableText(node.name)
             }
         } else {
