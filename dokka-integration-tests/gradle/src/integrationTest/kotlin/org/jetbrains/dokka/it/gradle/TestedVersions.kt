@@ -14,7 +14,7 @@ internal open class AllSupportedTestedVersionsArgumentsProvider : TestedVersions
 
 internal object TestedVersions {
 
-    val LATEST = BuildVersions("7.6.2", "1.9.20")
+    val LATEST = BuildVersions("7.6.2", "1.9.22")
 
     /**
      * All supported Gradle/Kotlin versions, including [LATEST]
@@ -62,6 +62,7 @@ internal object TestedVersions {
         "1.9.0" to "18.2.0-pre.597",
         "1.9.10" to "18.2.0-pre.597",
         "1.9.20" to "18.2.0-pre.635",
+        "1.9.22" to "18.2.0-pre.682",
     )
 }
 
