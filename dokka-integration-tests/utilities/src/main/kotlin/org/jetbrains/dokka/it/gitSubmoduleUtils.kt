@@ -9,14 +9,14 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import java.io.File
 import java.nio.file.Path
 
-public fun AbstractIntegrationTest.copyAndApplyGitDiff(diffFile: File) {
+fun AbstractIntegrationTest.copyAndApplyGitDiff(diffFile: File) {
     copyGitDiffFileToParent(diffFile).let(::applyGitDiffFromFile)
 }
 
-public fun AbstractIntegrationTest.copyGitDiffFileToParent(originalDiffFile: File): File =
+private fun AbstractIntegrationTest.copyGitDiffFileToParent(originalDiffFile: File): File =
     originalDiffFile.copyTo(File(projectDir.parent, originalDiffFile.name))
 
-public fun AbstractIntegrationTest.applyGitDiffFromFile(diffFile: File) {
+private fun AbstractIntegrationTest.applyGitDiffFromFile(diffFile: File) {
     val projectGitFile = projectDir.resolve(".git")
     val git = if (projectGitFile.exists()) {
         if (projectGitFile.isFile) {

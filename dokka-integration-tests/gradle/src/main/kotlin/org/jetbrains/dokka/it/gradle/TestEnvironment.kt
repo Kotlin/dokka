@@ -6,19 +6,19 @@ package org.jetbrains.dokka.it.gradle
 
 import org.junit.jupiter.api.Tag
 
-public object TestEnvironment {
-    public const val TRY_K2: String = "org.jetbrains.dokka.experimental.tryK2"
+object TestEnvironment {
+    const val TRY_K2: String = "org.jetbrains.dokka.experimental.tryK2"
 
-    public val isExhaustive: Boolean = checkNotNull(System.getenv("isExhaustive")) {
+    val isExhaustive: Boolean = checkNotNull(System.getenv("isExhaustive")) {
         "Missing `isExhaustive` environment variable"
     }.toBoolean()
 
-    public val isEnabledDebug: Boolean = System.getenv("ENABLE_DEBUG").toBoolean()
+    val isEnabledDebug: Boolean = System.getenv("ENABLE_DEBUG").toBoolean()
 
     /**
      * By default, it is disabled
      */
-    public fun shouldUseK2(): Boolean = getBooleanProperty(TRY_K2)
+    fun shouldUseK2(): Boolean = getBooleanProperty(TRY_K2)
 
     private fun getBooleanProperty(propertyName: String): Boolean {
         return System.getProperty(propertyName) in setOf("1", "true")
@@ -28,7 +28,7 @@ public object TestEnvironment {
 /**
  * Will only return values if [TestEnvironment.isExhaustive] is set to true
  */
-public inline fun <reified T> ifExhaustive(vararg values: T): Array<out T> {
+inline fun <reified T> ifExhaustive(vararg values: T): Array<out T> {
     return if (TestEnvironment.isExhaustive) values else emptyArray()
 }
 
@@ -46,4 +46,4 @@ public inline fun <reified T> ifExhaustive(vararg values: T): Array<out T> {
     AnnotationRetention.RUNTIME
 )
 @Tag("onlyDescriptors")
-public annotation class OnlyDescriptors(val reason: String = "")
+annotation class OnlyDescriptors(val reason: String = "")

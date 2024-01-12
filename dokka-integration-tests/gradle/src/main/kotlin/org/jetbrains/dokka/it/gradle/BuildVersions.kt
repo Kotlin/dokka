@@ -6,12 +6,12 @@ package org.jetbrains.dokka.it.gradle
 
 import org.gradle.util.GradleVersion
 
-public data class BuildVersions(
+data class BuildVersions(
     val gradleVersion: GradleVersion,
     val kotlinVersion: String,
     val androidGradlePluginVersion: String? = null,
 ) {
-    public constructor(
+    constructor(
         gradleVersion: String,
         kotlinVersion: String,
         androidGradlePluginVersion: String? = null
@@ -30,8 +30,8 @@ public data class BuildVersions(
         }
     }
 
-    public companion object {
-        public fun permutations(
+    companion object {
+        fun permutations(
             gradleVersions: List<String>,
             kotlinVersions: List<String>,
             androidGradlePluginVersions: List<String?> = listOf(null)
