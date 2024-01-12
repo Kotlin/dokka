@@ -1470,11 +1470,12 @@ div.runnablesample {
 
 .footer--link {
     display: inline-flex;
-    align-items: center; ;
+    align-items: center;
     color: var(--breadcrumb-font-color);
 }
 
-.footer--external-link-icon {
+.footer--link_external:after {
+    content: '';
     width: 12px;
     height: 12px;
     margin-left: 4px;
