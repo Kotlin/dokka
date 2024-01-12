@@ -1,9 +1,10 @@
 /*
- * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package content.properties
 
+import org.jetbrains.dokka.analysis.kotlin.markdown.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.dfs
@@ -69,7 +70,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
                             )
                         )
                     ),
-                    emptyMap(), "MARKDOWN_FILE"
+                    emptyMap(), MARKDOWN_ELEMENT_FILE_NAME
                 )
             )
             val node = rootPage.dfs { it.name == "LoadInitialParams" } as ClasslikePageNode
@@ -92,7 +93,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
                             )
                         )
                     ),
-                    emptyMap(), "MARKDOWN_FILE"
+                    emptyMap(), MARKDOWN_ELEMENT_FILE_NAME
                 )
             )
             val node = rootPage.dfs { it.name == "LoadInitialParams" } as ClasslikePageNode
@@ -127,7 +128,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
                             )
                         )
                     ),
-                    emptyMap(), "MARKDOWN_FILE"
+                    emptyMap(), MARKDOWN_ELEMENT_FILE_NAME
                 )
             )
             val node = rootPage.dfs { it.name == "ItemKeyedDataSource" } as ClasslikePageNode
@@ -194,7 +195,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
                         Text("Defines whether placeholders are enabled, and whether the loaded total count will be ignored.")
                     )
                 )
-            ), emptyMap(), "MARKDOWN_FILE"
+            ), emptyMap(), MARKDOWN_ELEMENT_FILE_NAME
         ),
         name = "placeholdersEnabled"
     )
@@ -219,7 +220,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
                         Text("Note that this key is generally a hint, and may be ignored if you want to always load from the beginning.")
                     )
                 )
-            ), emptyMap(), "MARKDOWN_FILE"
+            ), emptyMap(), MARKDOWN_ELEMENT_FILE_NAME
         ),
         name = "requestedInitialKey"
     )
@@ -237,7 +238,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
                         Text("Note that this may be larger than available data.")
                     )
                 )
-            ), emptyMap(), "MARKDOWN_FILE"
+            ), emptyMap(), MARKDOWN_ELEMENT_FILE_NAME
         ),
         name = "requestedLoadSize"
     )
@@ -251,7 +252,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
                     )
                 )
             ),
-            emptyMap(), "MARKDOWN_FILE"
+            emptyMap(), MARKDOWN_ELEMENT_FILE_NAME
         )
     )
 
@@ -264,7 +265,7 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
                     )
                 )
             ),
-            emptyMap(), "MARKDOWN_FILE"
+            emptyMap(), MARKDOWN_ELEMENT_FILE_NAME
         ),
         name = "Key"
     )

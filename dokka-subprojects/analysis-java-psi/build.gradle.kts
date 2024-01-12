@@ -8,6 +8,7 @@ plugins {
 
 dependencies {
     compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.analysisKotlinApi)
 
     api(libs.intellij.java.psi.api)
 
