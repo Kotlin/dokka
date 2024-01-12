@@ -13,10 +13,6 @@ $secondary-font-color: hsla(0, 0%, 100%, 0.6);
   fill: #fff;
   fill: var(--dark-mode-and-search-icon-color);
 
-  &:focus {
-    outline: none;
-  }
-
   &:hover {
     background: var(--white-10);
   }
