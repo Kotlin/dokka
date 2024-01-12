@@ -22,7 +22,7 @@
     </div>
     <div class="navigation-controls">
         <#if homepageLink?has_content>
-            <div class="navigation-controls--btn navigation-controls--homepage" id="homepage-link" role="button"><a href="${homepageLink}"></a></div>
+            <a class="navigation-controls--btn navigation-controls--homepage" id="homepage-link" href="${homepageLink}"></a>
         </#if>
         <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
         <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
