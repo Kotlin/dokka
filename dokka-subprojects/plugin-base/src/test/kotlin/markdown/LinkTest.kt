@@ -190,6 +190,39 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("#3207")
+    fun `link to this keyword with receiver of DNN-type`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/main/kotlin/Test.kt
+            |package example
+            |
+            |/** 
+            |* Link to [this]
+            |*/
+            |fun <T> (T&Any).stop() {}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val fn = module.dfs { it.name == "stop" } as DFunction
+                val link = fn.documentation.values.single()
+                    .dfs { it is DocumentationLink } as DocumentationLink
+
+                assertEquals(fn.generics.first().dri, link.dri)
+            }
+        }
+    }
+
+    @Test
     fun `link with exclamation mark`() {
         val configuration = dokkaConfiguration {
             sourceSets {
