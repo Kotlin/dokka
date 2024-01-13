@@ -426,4 +426,69 @@ class LinkTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `link should lead to List class rather than function`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |
+            |/**
+            | * ref to [List] or [Set]
+            | */
+            |fun x(){}
+            |
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val functionDocs = module.packages.flatMap { it.functions }.first().documentation.values.first()
+                val expected = Description(
+                    root = CustomDocTag(
+                        children = listOf(
+                            P(
+                                children = listOf(
+                                    Text("ref to "),
+                                    DocumentationLink(
+                                        dri = DRI(
+                                            packageName = "kotlin.collections",
+                                            classNames = "List",
+                                            target = PointingToDeclaration
+                                        ),
+                                        children = listOf(
+                                            Text("List")
+                                        ),
+                                        params = mapOf("href" to "[List]")
+                                    ),
+                                    Text(" or "),
+                                    DocumentationLink(
+                                        dri = DRI(
+                                            packageName = "kotlin.collections",
+                                            classNames = "Set",
+                                            target = PointingToDeclaration
+                                        ),
+                                        children = listOf(
+                                            Text("Set")
+                                        ),
+                                        params = mapOf("href" to "[Set]")
+                                    ),
+                                )
+                            )
+                        ),
+                        name = "MARKDOWN_FILE"
+                    )
+                )
+                assertEquals(expected, functionDocs.children.first())
+            }
+        }
+    }
 }
