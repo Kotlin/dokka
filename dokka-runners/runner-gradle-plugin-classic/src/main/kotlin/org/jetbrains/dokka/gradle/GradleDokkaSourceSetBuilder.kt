@@ -16,6 +16,7 @@ import org.gradle.kotlin.dsl.property
 import org.gradle.kotlin.dsl.setProperty
 import org.jetbrains.dokka.*
 import java.io.File
+import java.net.URI
 import java.net.URL
 
 /**
@@ -462,7 +463,7 @@ open class GradleDokkaSourceSetBuilder(
      * Convenient override to **append** external documentation links to [externalDocumentationLinks].
      */
     fun externalDocumentationLink(url: String, packageListUrl: String? = null) {
-        externalDocumentationLink(URL(url), packageListUrl = packageListUrl?.let(::URL))
+        externalDocumentationLink(URI(url).toURL(), packageListUrl = packageListUrl?.let(::URI)?.toURL())
     }
 
     /**

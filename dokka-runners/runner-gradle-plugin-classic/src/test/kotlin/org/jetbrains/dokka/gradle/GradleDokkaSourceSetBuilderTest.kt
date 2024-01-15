@@ -10,7 +10,7 @@ import org.gradle.kotlin.dsl.closureOf
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.*
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
-import java.net.URL
+import java.net.URI
 import kotlin.test.*
 
 class GradleDokkaSourceSetBuilderTest {
@@ -222,19 +222,19 @@ class GradleDokkaSourceSetBuilderTest {
             GradleSourceLinkBuilder(project).apply {
                 this.remoteLineSuffix.set("ls1")
                 this.localDirectory.set(project.file("p1"))
-                this.remoteUrl.set(URL("https://u1"))
+                this.remoteUrl.set(URI("https://u1").toURL())
             })
 
         sourceSet.sourceLink {
             remoteLineSuffix.set("ls2")
             localDirectory.set(project.file("p2"))
-            remoteUrl.set(URL("https://u2"))
+            remoteUrl.set(URI("https://u2").toURL())
         }
 
         sourceSet.sourceLink(project.closureOf<GradleSourceLinkBuilder> {
             this.remoteLineSuffix.set("ls3")
             this.localDirectory.set(project.file("p3"))
-            this.remoteUrl.set(URL("https://u3"))
+            this.remoteUrl.set(URI("https://u3").toURL())
         })
 
         assertEquals(
@@ -242,17 +242,17 @@ class GradleDokkaSourceSetBuilderTest {
                 SourceLinkDefinitionImpl(
                     remoteLineSuffix = "ls1",
                     localDirectory = project.file("p1").absolutePath,
-                    remoteUrl = URL("https://u1")
+                    remoteUrl = URI("https://u1").toURL()
                 ),
                 SourceLinkDefinitionImpl(
                     remoteLineSuffix = "ls2",
                     localDirectory = project.file("p2").absolutePath,
-                    remoteUrl = URL("https://u2")
+                    remoteUrl = URI("https://u2").toURL()
                 ),
                 SourceLinkDefinitionImpl(
                     remoteLineSuffix = "ls3",
                     localDirectory = project.file("p3").absolutePath,
-                    remoteUrl = URL("https://u3")
+                    remoteUrl = URI("https://u3").toURL()
                 )
             ),
             sourceSet.build().sourceLinks,
@@ -306,29 +306,29 @@ class GradleDokkaSourceSetBuilderTest {
 
         sourceSet.externalDocumentationLinks.add(
             GradleExternalDocumentationLinkBuilder(project).apply {
-                this.url.set(URL("https://u1"))
-                this.packageListUrl.set(URL("https://pl1"))
+                this.url.set(URI("https://u1").toURL())
+                this.packageListUrl.set(URI("https://pl1").toURL())
             }
         )
 
         sourceSet.externalDocumentationLink {
-            url.set(URL("https://u2"))
+            url.set(URI("https://u2").toURL())
         }
 
         sourceSet.externalDocumentationLink(project.closureOf<GradleExternalDocumentationLinkBuilder> {
-            url.set(URL("https://u3"))
+            url.set(URI("https://u3").toURL())
         })
 
         sourceSet.externalDocumentationLink(url = "https://u4", packageListUrl = "https://pl4")
-        sourceSet.externalDocumentationLink(url = URL("https://u5"))
+        sourceSet.externalDocumentationLink(url = URI("https://u5").toURL())
 
         assertEquals(
             setOf(
-                ExternalDocumentationLinkImpl(URL("https://u1"), URL("https://pl1")),
-                ExternalDocumentationLinkImpl(URL("https://u2"), URL("https://u2/package-list")),
-                ExternalDocumentationLinkImpl(URL("https://u3"), URL("https://u3/package-list")),
-                ExternalDocumentationLinkImpl(URL("https://u4"), URL("https://pl4")),
-                ExternalDocumentationLinkImpl(URL("https://u5"), URL("https://u5/package-list"))
+                ExternalDocumentationLinkImpl(URI("https://u1").toURL(), URI("https://pl1").toURL()),
+                ExternalDocumentationLinkImpl(URI("https://u2").toURL(), URI("https://u2/package-list").toURL()),
+                ExternalDocumentationLinkImpl(URI("https://u3").toURL(), URI("https://u3/package-list").toURL()),
+                ExternalDocumentationLinkImpl(URI("https://u4").toURL(), URI("https://pl4").toURL()),
+                ExternalDocumentationLinkImpl(URI("https://u5").toURL(), URI("https://u5/package-list").toURL())
             ),
             sourceSet.build().externalDocumentationLinks,
             "Expected all external documentation links being present after build"

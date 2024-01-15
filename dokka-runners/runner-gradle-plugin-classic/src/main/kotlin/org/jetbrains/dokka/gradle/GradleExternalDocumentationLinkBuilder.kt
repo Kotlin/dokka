@@ -30,9 +30,9 @@ import java.net.URL
  *
  * ```kotlin
  * externalDocumentationLink {
- *     url.set(URL("https://kotlinlang.org/api/kotlinx.serialization/"))
+ *     url.set(URI("https://kotlinlang.org/api/kotlinx.serialization/").toURL())
  *     packageListUrl.set(
- *         rootProject.projectDir.resolve("serialization.package.list").toURL()
+ *         rootProject.projectDir.resolve("serialization.package.list").toURI().toURL()
  *     )
  * }
  * ```
@@ -53,13 +53,13 @@ class GradleExternalDocumentationLinkBuilder(
      * Example:
      *
      * ```kotlin
-     * java.net.URL("https://kotlinlang.org/api/kotlinx.serialization/")
+     * java.net.URI("https://kotlinlang.org/api/kotlinx.serialization/").toURL()
      * ```
      */
     @Internal
     val url: Property<URL> = project.objects.property()
 
-    @Input // URL is deprecated in gradle inputs
+    @Input // URL is deprecated in Gradle inputs
     internal fun getUrlString() = url.map(URL::toString)
 
     /**
@@ -69,13 +69,13 @@ class GradleExternalDocumentationLinkBuilder(
      * Example:
      *
      * ```kotlin
-     * rootProject.projectDir.resolve("serialization.package.list").toURL()
+     * rootProject.projectDir.resolve("serialization.package.list").toURI().toURL()
      * ```
      */
     @Internal
     val packageListUrl: Property<URL> = project.objects.property()
 
-    @Input // URL is deprecated in gradle inputs
+    @Input // URL is deprecated in Gradle inputs
     @Optional
     internal fun getPackageListUrlString() = packageListUrl.map(URL::toString)
 

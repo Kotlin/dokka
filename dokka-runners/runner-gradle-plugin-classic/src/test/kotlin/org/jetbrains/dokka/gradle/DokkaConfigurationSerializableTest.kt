@@ -15,7 +15,7 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import java.net.URL
+import java.net.URI
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -51,8 +51,8 @@ class DokkaConfigurationSerializableTest {
                 reportUndocumented.set(true)
 
                 externalDocumentationLink_ {
-                    packageListUrl.set(URL("http://some.url"))
-                    url.set(URL("http://some.other.url"))
+                    packageListUrl.set(URI("http://some.url").toURL())
+                    url.set(URI("http://some.other.url").toURL())
                 }
 
                 perPackageOption {

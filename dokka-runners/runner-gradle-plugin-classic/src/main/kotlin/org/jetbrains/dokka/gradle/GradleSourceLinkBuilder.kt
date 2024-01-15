@@ -26,7 +26,7 @@ import java.net.URL
  * ```kotlin
  * sourceLink {
  *     localDirectory.set(projectDir.resolve("src"))
- *     remoteUrl.set(URL("https://github.com/kotlin/dokka/tree/master/src"))
+ *     remoteUrl.set(URI("https://github.com/kotlin/dokka/tree/master/src").toURL())
  *     remoteLineSuffix.set("#L")
  * }
  * ```
@@ -68,13 +68,13 @@ class GradleSourceLinkBuilder(
      * Example:
      *
      * ```kotlin
-     * java.net.URL("https://github.com/username/projectname/tree/master/src"))
+     * java.net.URI("https://github.com/username/projectname/tree/master/src").toURL()
      * ```
      */
     @Internal
     val remoteUrl: Property<URL> = project.objects.property()
 
-    @Input // TODO: URL is deprecated in grapdle inputs
+    @Input // URL is deprecated in Gradle inputs
     internal fun getRemoteUrlString() = remoteUrl.map(URL::toString)
 
 
