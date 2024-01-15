@@ -1,6 +1,6 @@
 /*
- * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
- */
+* Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
 
 plugins {
     `maven-publish`
@@ -80,7 +80,10 @@ signing {
         System.getenv("DOKKA_SIGN_KEY_PASSPHRASE")?.takeIf(String::isNotBlank),
     )
     sign(publishing.publications)
-    setRequired(provider { !project.version.toString().endsWith("-SNAPSHOT") })
+    setRequired(provider {
+        val isPublishedToMavenLocal = gradle.taskGraph.allTasks.any { it.name == "publishToMavenLocal" }
+        !project.version.toString().endsWith("-SNAPSHOT") && !isPublishedToMavenLocal
+    })
 }
 
 // This is a hack for a Gradle 8 problem, see https://github.com/gradle/gradle/issues/26091
