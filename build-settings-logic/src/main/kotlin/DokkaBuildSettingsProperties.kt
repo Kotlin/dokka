@@ -22,7 +22,7 @@ abstract class DokkaBuildSettingsProperties @Inject constructor(
 
 
     //region Gradle Build Scan
-    val buildScanServer: Provider<String> =
+    val buildScanUrl: Provider<String> =
         dokkaProperty("build.scan.url")
     val buildScanUsername: Provider<String> =
         dokkaProperty("build.scan.username")

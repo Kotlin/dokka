@@ -16,7 +16,7 @@ plugins {
 
 val buildSettingsProps = dokkaBuildSettingsProperties
 
-val buildScanServer = buildSettingsProps.buildScanServer.orNull
+val buildScanServer = buildSettingsProps.buildScanUrl.orNull
 
 if (buildScanServer != null) {
     plugins.apply("com.gradle.common-custom-user-data-gradle-plugin")
