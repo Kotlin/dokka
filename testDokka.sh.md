@@ -18,13 +18,13 @@ By default it applied to the `./examples/gradle/dokka-gradle-example` project
 ### Specify test project path
 
 ```bash
-./testDokka.sh -d './examples/gradle/dokka-gradle-example'
+./testDokka.sh -d ./examples/gradle/dokka-gradle-example
 ```
 
 ### Specify Dokka version
 
 ```bash
-./testDokka.sh -v "1.9.20-SNAPSHOT"
+./testDokka.sh -v 1.9.20-my-fix-SNAPSHOT
 ```
 
 ### Specify port
@@ -36,7 +36,10 @@ By default it applied to the `./examples/gradle/dokka-gradle-example` project
 ### All together
 
 ```bash
-./testDokka.sh -d './examples/gradle/dokka-gradle-example' -v "1.9.20-SNAPSHOT" -p 8001
+./testDokka.sh -d ./examples/gradle/dokka-gradle-example -v 1.9.20-my-fix-SNAPSHOT -p 8001
 ```
 
+
+## Requirements
+To run the server you need to have Python 3 installed.
 

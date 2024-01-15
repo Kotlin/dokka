@@ -70,6 +70,8 @@ visit [Workflow](https://kotlin.github.io/dokka/1.9.10/developer_guide/workflow/
    repository (`mavenLocal()`)
 4. Update your Dokka dependency to the version you've just published:
 
+There is an automation script for this routine, see [testDokka.sh.md](./testDokka.sh.md) for details.
+
 ```kotlin
 plugins {
     id("org.jetbrains.dokka") version "1.9.10-my-fix-SNAPSHOT"

@@ -5,7 +5,7 @@
 #
 
 # New version to be published
-NEW_VERSION="1.9.20-SNAPSHOT"
+NEW_VERSION="1.9.20-my-fix-SNAPSHOT"
 
 # Path to test project
 TEST_PROJECT_PATH="./examples/gradle/dokka-gradle-example"
@@ -44,12 +44,12 @@ echo "Dokka path: $DOKKA_REPO_PATH"
 echo "Port: $PORT"
 
 # 1. Publish to local Maven repository
-cd $DOKKA_REPO_PATH
+cd "$DOKKA_REPO_PATH"
 ./gradlew publishToMavenLocal -Pversion=$NEW_VERSION
 
 # 2. Update Dokka version in test project
-cd $TEST_PROJECT_PATH
-sed -i "" "s/id(\"org.jetbrains.dokka\") version \"\(.*\)\"/id(\"org.jetbrains.dokka\") version \"$NEW_VERSION\"/"  build.gradle.kts
+cd "$TEST_PROJECT_PATH"
+sed -i "" "s/\(id(\"org\.jetbrains\.dokka\") version\) \".*\"/\1 \"$NEW_VERSION\"/"  build.gradle.kts
 
 # 3. Build and generate documentation
 ./gradlew clean && ./gradlew dokkaHTML
@@ -79,5 +79,3 @@ echo 'Start Python server in directory'
 echo "$TEST_PROJECT_PATH/build/dokka/html"
 
 python3 -m http.server $PORT
-
-
