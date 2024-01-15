@@ -25,9 +25,7 @@ abstract class DokkaBuildSettingsProperties @Inject constructor(
     val buildScanUrl: Provider<String> =
         dokkaProperty("build.scan.url")
     val buildScanUsername: Provider<String> =
-        dokkaProperty("build.scan.username")
-            .orElse(BUILD_SCAN_USERNAME_DEFAULT)
-            .map(String::trim)
+        dokkaProperty("build.scan.username").map(String::trim)
     //endregion
 
 

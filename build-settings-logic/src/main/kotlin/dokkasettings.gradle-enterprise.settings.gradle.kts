@@ -47,9 +47,9 @@ gradleEnterprise {
                 when {
                     buildSettingsProps.buildingOnTeamCity -> "TeamCity"
                     buildSettingsProps.buildingOnCi -> "CI"
-                    overriddenName.isNullOrBlank() -> "concealed"
+                    overriddenName.isNullOrBlank() -> overriddenName
                     overriddenName == BUILD_SCAN_USERNAME_DEFAULT -> originalUsername
-                    else -> overriddenName
+                    else -> "unknown"
                 }
             }
         }
