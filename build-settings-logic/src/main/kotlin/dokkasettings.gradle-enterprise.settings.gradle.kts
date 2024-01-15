@@ -4,9 +4,9 @@ import DokkaBuildSettingsProperties.Companion.dokkaBuildSettingsProperties
 /**
  * Gradle Enterprise conventions.
  *
- * See [KotlinBuildProperties] for properties.
+ * See [DokkaBuildSettingsProperties] for properties.
  *
- * Copied from https://github.com/JetBrains/kotlin/blob/19073b96a7ed53dbda61337465ca898c1482e090/repo/gradle-settings-conventions/gradle-enterprise/src/main/kotlin/gradle-enterprise.settings.gradle.kts
+ * Based on https://github.com/JetBrains/kotlin/blob/19073b96a7ed53dbda61337465ca898c1482e090/repo/gradle-settings-conventions/gradle-enterprise/src/main/kotlin/gradle-enterprise.settings.gradle.kts
  */
 
 plugins {

@@ -3,9 +3,9 @@ import DokkaBuildSettingsProperties.Companion.dokkaBuildSettingsProperties
 /**
  * Gradle Build Cache conventions.
  *
- * See [KotlinBuildProperties] for properties.
+ * See [DokkaBuildSettingsProperties] for properties.
  *
- * https://github.com/JetBrains/kotlin/blob/2675531624d42851af502a993bbefd65ee3e38ef/repo/gradle-settings-conventions/build-cache/src/main/kotlin/build-cache.settings.gradle.kts
+ * Based on https://github.com/JetBrains/kotlin/blob/2675531624d42851af502a993bbefd65ee3e38ef/repo/gradle-settings-conventions/build-cache/src/main/kotlin/build-cache.settings.gradle.kts
  */
 
 val buildSettingsProps = dokkaBuildSettingsProperties
