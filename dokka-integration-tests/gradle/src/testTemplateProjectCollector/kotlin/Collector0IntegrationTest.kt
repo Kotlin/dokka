@@ -80,4 +80,3 @@ class Collector0IntegrationTest : AbstractGradleIntegrationTest() {
         assertTrue(isDirectory, "Missing dokka gfmCollector output directory")
     }
 }
-

@@ -22,6 +22,9 @@ abstract class DokkaBuildProperties @Inject constructor(
     private val providers: ProviderFactory,
 ) {
 
+    val isCI: Provider<Boolean> =
+        providers.environmentVariable("CI").map(String::toBoolean).orElse(false)
+
     /**
      * The main version of Java that should be used to build Dokka source code.
      *

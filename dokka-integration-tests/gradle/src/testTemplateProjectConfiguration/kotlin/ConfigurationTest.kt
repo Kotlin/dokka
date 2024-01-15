@@ -43,7 +43,6 @@ class ConfigurationTest : AbstractGradleIntegrationTest() {
      */
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(LatestTestedVersionsArgumentsProvider::class)
-    @Suppress("FunctionName")
     fun `should fail with DokkaException and readable message if failOnWarning is triggered`(
         buildVersions: BuildVersions
     ) {
