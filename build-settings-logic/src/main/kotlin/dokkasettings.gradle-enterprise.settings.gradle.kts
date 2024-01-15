@@ -6,7 +6,17 @@ import DokkaBuildSettingsProperties.Companion.dokkaBuildSettingsProperties
  *
  * See [DokkaBuildSettingsProperties] for properties.
  *
+ * To use JetBrain's Gradle Enterprise set the URL
+ * https://ge.jetbrains.com/
+ * in `$GRADLE_USER_HOME/gradle.properties`†
+ *
+ * ```properties
+ * org.jetbrains.dokka.build.scan.url=https\://ge.jetbrains.com/
+ * ```
+ *
  * Based on https://github.com/JetBrains/kotlin/blob/19073b96a7ed53dbda61337465ca898c1482e090/repo/gradle-settings-conventions/gradle-enterprise/src/main/kotlin/gradle-enterprise.settings.gradle.kts
+ *
+ * † _See [`GRADLE_USER_HOME`](https://docs.gradle.org/8.5/userguide/directory_layout.html#dir:gradle_user_home)_
  */
 
 plugins {
@@ -16,7 +26,7 @@ plugins {
 
 val buildSettingsProps = dokkaBuildSettingsProperties
 
-val buildScanServer = buildSettingsProps.buildScanUrl.orNull
+val buildScanServer = buildSettingsProps.buildScanUrl.orNull?.ifBlank { null }
 
 if (buildScanServer != null) {
     plugins.apply("com.gradle.common-custom-user-data-gradle-plugin")
@@ -34,9 +44,6 @@ gradleEnterprise {
                 isBuildLogging = true
                 isUploadInBackground = true
             }
-        } else {
-            termsOfServiceUrl = "https://gradle.com/terms-of-service"
-            termsOfServiceAgree = "yes"
         }
 
         val overriddenName = buildSettingsProps.buildScanUsername.orNull
