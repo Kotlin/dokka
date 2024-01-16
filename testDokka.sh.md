@@ -43,3 +43,8 @@ By default it applied to the `./examples/gradle/dokka-gradle-example` project
 ## Requirements
 To run the server you need to have Python 3 installed.
 
+## Troubleshooting
+
+* If occurs `Could not resolve all files for configuration ':dokkaHtmlPlugin'` error,
+    * then make sure that `mavenLocal()` is added to the `repositories` section of the `build.gradle` file of the project you are testing against.
+    It is not automated and should be done manually.

@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 #
 # Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
 #
@@ -45,7 +45,7 @@ echo "Port: $PORT"
 
 # 1. Publish to local Maven repository
 cd "$DOKKA_REPO_PATH"
-./gradlew publishToMavenLocal -Pversion=$NEW_VERSION
+./gradlew publishToMavenLocal -Pversion="$NEW_VERSION"
 
 # 2. Update Dokka version in test project
 cd "$TEST_PROJECT_PATH"
@@ -58,7 +58,7 @@ wait
 
 # 4 Vacate port
 # Find PID of process listening on port
-PID=$(lsof -t -i :$PORT)
+PID=$(lsof -t -i :"$PORT" || true)
 
 # Check that PID is not empty
 if [ -n "$PID" ]; then
@@ -71,7 +71,6 @@ fi
 # 5.1 Echo link to documentation
 echo "Open http://localhost:$PORT in browser"
 
-
 # 5.2 Start Python server to view results
 cd "./build/dokka/html"
 
@@ -79,3 +78,5 @@ echo 'Start Python server in directory'
 echo "$TEST_PROJECT_PATH/build/dokka/html"
 
 python3 -m http.server $PORT
+
+echo "Done"
