@@ -106,8 +106,8 @@ private fun KtAnalysisSession.getDRIFromReceiverType(type: KtType): DRI {
         is KtDefinitelyNotNullType -> getDRIFromReceiverType(type.original)
         is KtTypeErrorType -> DRI(packageName = "", classNames = "$ERROR_CLASS_NAME $type")
         is KtClassErrorType -> DRI(packageName = "", classNames = "$ERROR_CLASS_NAME $type")
+        is KtDynamicType -> DRI(packageName = "", classNames = "$ERROR_CLASS_NAME $type") // prohibited by a compiler, but it's a possible input
 
-        is KtDynamicType -> throw IllegalStateException("Dynamic receiver is prohibited while creating DRI $type")
         is KtCapturedType -> throw IllegalStateException("Unexpected non-denotable type while creating DRI $type")
         is KtFlexibleType -> throw IllegalStateException("Unexpected non-denotable type while creating DRI $type")
         is KtIntegerLiteralType -> throw IllegalStateException("Unexpected non-denotable type while creating DRI $type")

@@ -124,7 +124,7 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("#3207")
+    @OnlySymbols("#3207 - In Dokka K1 [this] has an incorrect link that leads to a page of containing package")
     fun `link to this keyword with receiver to some class`() {
         val configuration = dokkaConfiguration {
             sourceSets {
@@ -157,7 +157,7 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("#3207")
+    @OnlySymbols("#3207 In Dokka K1 [this] has an incorrect link that leads to a page of containing package")
     fun `link to this keyword with receiver to type parameter`() {
         val configuration = dokkaConfiguration {
             sourceSets {
@@ -190,7 +190,40 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("#3207")
+    @OnlySymbols("#3207 In Dokka K1 [this] has an incorrect link that leads to a page of containing package")
+    fun `link to this keyword with receiver of dynamic that is prohibited by compiler`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/main/kotlin/Test.kt
+            |package example
+            |
+            |/** 
+            |* Link to [this]
+            |*/
+            |fun dynamic.stop() {}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val fn = module.dfs { it.name == "stop" } as DFunction
+                val link = fn.documentation.values.single()
+                    .dfs { it is DocumentationLink } as DocumentationLink
+
+                assertEquals(DRI(packageName = "", classNames = "<ERROR CLASS> dynamic"), link.dri)
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols("#3207 In Dokka K1 [this] has an incorrect link that leads to a page of containing package")
     fun `link to this keyword with receiver of DNN-type`() {
         val configuration = dokkaConfiguration {
             sourceSets {
