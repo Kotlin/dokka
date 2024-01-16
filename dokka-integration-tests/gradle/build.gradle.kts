@@ -81,6 +81,7 @@ tasks.withType<Test>().configureEach {
         showStackTraces = true
     }
 
+    // TODO remove this in https://github.com/Kotlin/dokka/pull/3433
     doNotTrackState("uses artifacts from Maven Local")
 }
 
