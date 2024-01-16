@@ -211,3 +211,7 @@ val testAllExternalProjects by tasks.registering {
     doNotTrackState("lifecycle task, should always run")
 }
 //endregion
+
+tasks.withType<Test>().configureEach {
+    environment("ANDROID_HOME", dokkaBuild.androidSdkDir.get().invariantSeparatorsPath)
+}

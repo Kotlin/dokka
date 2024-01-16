@@ -4,10 +4,12 @@
 
 package dokkabuild
 
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import java.io.File
 import javax.inject.Inject
 
 /**
@@ -20,6 +22,7 @@ import javax.inject.Inject
  */
 abstract class DokkaBuildProperties @Inject constructor(
     private val providers: ProviderFactory,
+    private val layout: ProjectLayout,
 ) {
 
     val isCI: Provider<Boolean> =
@@ -65,6 +68,20 @@ abstract class DokkaBuildProperties @Inject constructor(
         dokkaProperty("integration_test.useK2", String::toBoolean)
             .orElse(false)
 
+    val androidSdkDir: Provider<File> =
+        providers
+            // first try finding a local.properties file in any parent directory
+            .provider {
+                generateSequence(layout.projectDirectory.asFile, File::getParentFile)
+                    .mapNotNull { dir -> dir.resolve("local.properties").takeIf(File::exists) }
+                    .flatMap { file -> file.readLines().filter { it.startsWith("sdk.dir=") } }
+                    .firstOrNull()
+                    ?.substringAfter("sdk.dir=")
+            }
+            // else try getting pre-installed SDK (e.g. via GitHub step setup-android)
+            .orElse(providers.environmentVariable("ANDROID_SDK_ROOT"))
+            .orElse(providers.environmentVariable("ANDROID_HOME"))
+            .map(::File)
 
     private fun <T : Any> dokkaProperty(name: String, convert: (String) -> T) =
         providers.gradleProperty("org.jetbrains.dokka.$name").map(convert)
