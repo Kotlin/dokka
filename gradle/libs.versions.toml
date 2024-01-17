@@ -8,7 +8,6 @@ gradlePlugin-dokka = "1.9.10"
 gradlePlugin-gradle-customUserData = "1.12"
 gradlePlugin-gradle-enterprise = "3.14.1"
 
-kotlin-buildGradlePlugin = "0.0.40"
 kotlinx-coroutines = "1.7.3"
 kotlinx-collections-immutable = "0.3.6"
 kotlinx-serialization = "1.6.0"
@@ -65,10 +64,6 @@ kotest = "5.6.2"
 eclipse-jgit = "5.13.2.202306221912-r" # jgit 6.X requires Java 11 to run
 
 [libraries]
-
-
-#### Build tools ####
-kotlin-buildGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-build-gradle-plugin", version.ref = "kotlin-buildGradlePlugin" }
 
 #### Kotlin Libs ####
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
