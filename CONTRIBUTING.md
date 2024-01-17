@@ -157,7 +157,7 @@ Notable builds:
 ### Gradle Build Scans
 
 [Gradle Build Scans](https://scans.gradle.com/) can provide insights into a Dokka Build. 
-JetBrains runs a Gradle Build Scan server that can be used to automatically upload reports.
+JetBrains runs a Gradle Build Scan server https://ge.jetbrains.com/ that can be used to automatically upload reports.
 
 To automatically opt in add the following to `$GRADLE_USER_HOME/gradle.properties`. 
 
