@@ -15,7 +15,7 @@ fun Project.task1_2() {
     plugins.apply("org.jetbrains.dokka")
 
     dokka {
-        aggregation.includeSubprojects()
+        includeSubprojects()
     }
 
     allprojects {
@@ -30,7 +30,7 @@ fun Project.task2_2() {
     dokka {
         // this will exclude from generated multi-module documentation,
         // but there will be still dokka applied to `common-utils` - it's fine, I think
-        aggregation.includeSubprojects(exclude = listOf("common-utils"))
+        includeSubprojects(exclude = listOf("common-utils"))
     }
 
     allprojects {
@@ -43,7 +43,7 @@ fun Project.task3_2() {
     plugins.apply("org.jetbrains.dokka")
 
     dokka {
-        aggregation.includeSubprojects(exclude = listOf("common-utils"))
+        includeSubprojects(exclude = listOf("common-utils"))
     }
 
     allprojects {
@@ -59,7 +59,7 @@ fun Project.task4_2() {
     plugins.apply("org.jetbrains.dokka")
 
     dokka {
-        aggregation.includeSubprojects(exclude = listOf("common-utils"))
+        includeSubprojects(exclude = listOf("common-utils"))
     }
 
     allprojects {
@@ -84,7 +84,7 @@ fun Project.task5_2() {
 
 
     dokka {
-        aggregation.includeSubprojects(exclude = listOf("common-utils"))
+        includeSubprojects(exclude = listOf("common-utils"))
     }
 
     allprojects {

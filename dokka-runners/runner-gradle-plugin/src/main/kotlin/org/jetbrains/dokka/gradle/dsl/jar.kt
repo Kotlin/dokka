@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
 
-// save as for target
+// same as for target
 public fun KotlinMultiplatformExtension.withDokkaJar() {}
 
 public fun KotlinTarget.withDokkaJar(publish: Boolean) {

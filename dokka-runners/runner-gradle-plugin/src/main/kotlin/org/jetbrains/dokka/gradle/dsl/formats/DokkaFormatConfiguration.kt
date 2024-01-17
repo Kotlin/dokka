@@ -8,6 +8,7 @@ import org.gradle.api.Named
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.jetbrains.dokka.gradle.dsl.DokkaGradlePluginDsl
+import org.jetbrains.dokka.gradle.dsl.plugins.DokkaPluginsContainer
 
 @DokkaGradlePluginDsl
 public interface DokkaFormatConfiguration : Named {
@@ -15,4 +16,8 @@ public interface DokkaFormatConfiguration : Named {
     public val enabled: Property<Boolean>
 
     public val outputDirectory: DirectoryProperty
+
+    // not really sure if it's needed
+    public val plugins: DokkaPluginsContainer
+    public fun plugins(configure: DokkaPluginsContainer.() -> Unit)
 }

@@ -1,4 +1,4 @@
-# Gradle DSL 2.0
+# Dokka Gradle Plugin DSL 2.0 - RAW NOTES
 
 ## dokka usage on GitHub
 
@@ -397,3 +397,5 @@ Gradle Plugin ids:
 * dokka.base -> will not create any sourceSets based on Kotlin plugin, no tasks created, just configuration
 * dokka -> will create sourceSets based on Kotlin plugins
 * dokka.settings -> will create shared configuration + apply dokka plugin where kotlin plugin is applied
+
+mpp vs jvm projects

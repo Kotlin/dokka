@@ -6,6 +6,7 @@ package org.jetbrains.dokka.gradle.dsl
 
 import org.gradle.api.Named
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.jetbrains.dokka.gradle.dsl.configuration.DokkaSourceSetConfiguration
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -16,6 +17,8 @@ public interface DokkaSourceSet : DokkaSourceSetConfiguration, Named {
     // TODO: is it fine to have provider? is it needed at all?
     //  most likely it should be property to create custom sourceSets
     public val platform: Provider<KotlinPlatformType>
+
+    // TODO: do we need to move versions to root?
     public val languageVersion: Provider<KotlinVersion>
     public val apiVersion: Provider<KotlinVersion>
 
@@ -29,4 +32,12 @@ public interface DokkaSourceSet : DokkaSourceSetConfiguration, Named {
     // TODO: suppressGeneratedFiles - not sure that we need it
 
     public val samples: ConfigurableFileCollection
+}
+
+// TODO: API for custom sourceSets - don't know if we need separate API or merge with DokkaSourceSet
+@DokkaGradlePluginDsl
+public interface DokkaMutableSourceSet : DokkaSourceSet {
+    public override val platform: Property<KotlinPlatformType>
+    public override val languageVersion: Property<KotlinVersion>
+    public override val apiVersion: Property<KotlinVersion>
 }

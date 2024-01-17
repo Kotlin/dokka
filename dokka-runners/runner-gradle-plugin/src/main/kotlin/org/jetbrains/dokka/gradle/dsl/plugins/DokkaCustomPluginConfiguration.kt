@@ -5,20 +5,18 @@
 package org.jetbrains.dokka.gradle.dsl.plugins
 
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.jetbrains.dokka.gradle.dsl.DokkaGradlePluginDsl
+import org.jetbrains.dokka.gradle.dsl.properties.DokkaProperties
 
 @DokkaGradlePluginDsl
 public interface DokkaCustomPluginConfiguration : DokkaPluginConfiguration {
     public val pluginClassName: Property<String>
 
-    // TODO: add more type-safety (as in dokkatoo)
-    public val pluginProperties: MapProperty<String, String>
-    public fun pluginProperty(name: String, value: Boolean)
-    public fun pluginProperty(name: String, value: Int)
-    public fun pluginProperty(name: String, value: String)
-
+    // not really a good API - I think
     public val dependencies: Configuration
     public fun dependency(dependencyNotation: Any)
+
+    public val properties: DokkaProperties
+    public fun properties(block: DokkaProperties.() -> Unit)
 }

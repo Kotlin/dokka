@@ -45,6 +45,7 @@ fun Project.configureSomething() {
         }
 
         aggregation.includeSubprojects()
+        includeSubprojects()
 
         includeDocumentation("")
     }
@@ -60,12 +61,16 @@ fun Project.customPlugin() {
             "org.example.customplugin.DokkaHtmlMermaidPlugin",
             "com.example.customplugin:dokka-mermaid-plugin:1.2.0"
         ) {
-            pluginProperty("ligthTheme", true)
+            properties {
+                booleanProperty("ligthTheme", true)
+            }
         }
         plugins.custom {
-            dependency("com.example.customplugin:dokka-mermaid-plugin:1.2.0")
             pluginClassName.set("org.example.customplugin.DokkaHtmlMermaidPlugin")
-            pluginProperty("ligthTheme", true)
+            dependency("com.example.customplugin:dokka-mermaid-plugin:1.2.0")
+            properties {
+                booleanProperty("ligthTheme", true)
+            }
         }
     }
 }
