@@ -19,7 +19,6 @@ pluginManagement {
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.7.0"
     id("dokkasettings.gradle-enterprise")
-    id("dokkasettings.build-cache")
 }
 
 dependencyResolutionManagement {

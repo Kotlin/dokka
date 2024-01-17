@@ -5,6 +5,9 @@ import DokkaBuildSettingsProperties.Companion.dokkaBuildSettingsProperties
  *
  * See [DokkaBuildSettingsProperties] for properties.
  *
+ * Because Dokka uses Composite Builds, Build Cache should only be configured on the root `settings.gradle.kts`.
+ * See https://docs.gradle.org/8.4/userguide/build_cache.html#sec:build_cache_composite.
+ *
  * Based on https://github.com/JetBrains/kotlin/blob/2675531624d42851af502a993bbefd65ee3e38ef/repo/gradle-settings-conventions/build-cache/src/main/kotlin/build-cache.settings.gradle.kts
  */
 
