@@ -39,6 +39,12 @@ By default it applied to the `./examples/gradle/dokka-gradle-example` project
 ./testDokka.sh -d ./examples/gradle/dokka-gradle-example -v 1.9.20-my-fix-SNAPSHOT -p 8001
 ```
 
+### Apply to a multi-module project
+
+```bash
+./testDokka.sh -m
+```
+
 
 ## Requirements
 To run the server you need to have Python 3 installed.
@@ -48,3 +54,6 @@ To run the server you need to have Python 3 installed.
 * If occurs `Could not resolve all files for configuration ':dokkaHtmlPlugin'` error,
     * then make sure that `mavenLocal()` is added to the `repositories` section of the `build.gradle` file of the project you are testing against.
     It is not automated and should be done manually.
+
+* if occurs `Failed to write org.jetbrains.dokka.base.renderers.FileWriter@628cef4a. Parent job is Cancelling`
+  * then try to change the dokka version specified by `-v` parameter (e.g. `-v 1.9.20-my-fix1-SNAPSHOT`)
