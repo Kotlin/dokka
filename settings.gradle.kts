@@ -4,7 +4,6 @@
 
 @file:Suppress("UnstableApiUsage")
 
-
 rootProject.name = "dokka"
 
 pluginManagement {
