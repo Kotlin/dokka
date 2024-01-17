@@ -22,8 +22,12 @@ abstract class DokkaBuildSettingsProperties @Inject constructor(
 
 
     //region Gradle Build Scan
+    // NOTE: build scan properties are documented in CONTRIBUTING.md
+    /** If unset, the user has not opted in to publish Build Scans. */
     val buildScanUrl: Provider<String> =
         dokkaProperty("build.scan.url")
+
+    /** Optionally override the default name attached to a Build Scan. */
     val buildScanUsername: Provider<String> =
         dokkaProperty("build.scan.username")
             .orElse(BUILD_SCAN_USERNAME_DEFAULT)
