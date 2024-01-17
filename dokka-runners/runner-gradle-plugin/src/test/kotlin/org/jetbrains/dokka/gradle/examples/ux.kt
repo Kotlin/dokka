@@ -98,7 +98,7 @@ fun Project.task5() {
 
     dokka {
         // or from file (more complex way)
-        includeDocumentation(
+        moduleDocumentation(
             """
                This is the documentation for the module.
                This text helps users of the API understand what is the purpose of the module, its structure, and usage samples.

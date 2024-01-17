@@ -12,8 +12,8 @@ import org.jetbrains.dokka.gradle.dsl.plugins.DokkaPluginsContainer
 @DokkaGradlePluginDsl
 public interface DokkaAggregationExtension {
     public val includedDocumentation: ConfigurableFileCollection
-    public fun includeDocumentation(text: String)
-    public fun includeDocumentationFrom(path: Any)
+    public fun moduleDocumentation(text: String)
+    public fun moduleDocumentationFrom(path: Any)
 
     // TODO: this is rather adhoc, though, not a lot of use cases...
     //   need better naming
