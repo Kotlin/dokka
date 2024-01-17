@@ -47,7 +47,7 @@ fun Project.configureSomething() {
         aggregation.includeSubprojects()
         includeSubprojects()
 
-        includeDocumentation("")
+        moduleDocumentation("")
     }
 }
 
