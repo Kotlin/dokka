@@ -45,7 +45,6 @@ class SerializationGradleIntegrationTest : AbstractGradleIntegrationTest(), Test
         copyAndApplyGitDiff(File("projects", "serialization/serialization.diff"))
     }
 
-    @OnlyDescriptors // failed due to https://github.com/Kotlin/dokka/issues/3207
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(SerializationBuildVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
