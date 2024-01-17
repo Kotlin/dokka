@@ -30,7 +30,7 @@ public interface DokkaSourceSetBasedConfiguration : DokkaPackageBasedConfigurati
     public fun perPackage(configure: DokkaPerPackageConfiguration.() -> Unit)
     public fun perPackage(matching: String, configure: DokkaPerPackageConfiguration.() -> Unit)
 
-    // sourceLink("https://www.github.com/owner/repository") - link to root of remote repository
+    // sourceLink("https://www.github.com/owner/repository/tree/main") - link to root of remote repository
     // TODO: ListProperty vs DomainObjectCollection
     public val sourceLinks: ListProperty<DokkaSourceLinkConfiguration>
     public fun sourceLink(configure: DokkaSourceLinkConfiguration.() -> Unit)
@@ -73,8 +73,8 @@ public interface DokkaSourceSetBasedConfiguration : DokkaPackageBasedConfigurati
     // for simple cases `includeDocumentation(...)`
     // `path: Any` resolved as project.file(file)
     public val includedDocumentation: ConfigurableFileCollection
-    public fun includeDocumentation(text: String)
-    public fun includeDocumentationFrom(path: Any)
+    public fun moduleDocumentation(text: String) // TODO: module naming here looks strange
+    public fun moduleDocumentationFrom(path: Any)
     public fun packageDocumentation(packageName: String, text: String)
     public fun packageDocumentationFrom(packageName: String, path: Any)
 }

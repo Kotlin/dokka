@@ -10,9 +10,9 @@ import org.jetbrains.dokka.gradle.dsl.DokkaGradlePluginDsl
 // same idea as with DokkaFormatsContainer
 @DokkaGradlePluginDsl
 public interface DokkaPluginsContainer : ExtensiblePolymorphicDomainObjectContainer<DokkaPluginConfiguration> {
-    public fun mathjax(configure: DokkaMathjaxPluginConfiguration.() -> Unit)
-    public fun kotlinAsJava(configure: DokkaKotlinAsJavaPluginConfiguration.() -> Unit)
-    public fun versioning(configure: DokkaVersioningPluginConfiguration.() -> Unit)
+    public fun mathjax(enabled: Boolean = true, configure: DokkaMathjaxPluginConfiguration.() -> Unit)
+    public fun kotlinAsJava(enabled: Boolean = true, configure: DokkaKotlinAsJavaPluginConfiguration.() -> Unit)
+    public fun versioning(enabled: Boolean = true, configure: DokkaVersioningPluginConfiguration.() -> Unit)
 
     // TODO: naming
     public fun custom(configure: DokkaCustomPluginConfiguration.() -> Unit)

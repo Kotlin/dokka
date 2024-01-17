@@ -8,6 +8,7 @@ import org.gradle.api.provider.Property
 import org.jetbrains.dokka.gradle.dsl.DokkaGradlePluginDsl
 import java.net.URI
 
+// TODO: packageList should be downloaded via Gradle and not inside Dokka
 @DokkaGradlePluginDsl
 public interface DokkaExternalDocumentationLinkConfiguration {
     public val url: Property<String>

@@ -6,15 +6,17 @@ package org.jetbrains.dokka.gradle.dsl
 
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.Property
-import org.jetbrains.dokka.gradle.dsl.configuration.DokkaExtensibleConfiguration
+import org.jetbrains.dokka.gradle.dsl.formats.DokkaFormatsContainer
+import org.jetbrains.dokka.gradle.dsl.plugins.DokkaPluginsContainer
 
 @DokkaGradlePluginDsl
-public interface DokkaAggregationExtension : DokkaExtensibleConfiguration {
+public interface DokkaAggregationExtension {
     public val includedDocumentation: ConfigurableFileCollection
     public fun includeDocumentation(text: String)
     public fun includeDocumentationFrom(path: Any)
 
     // TODO: this is rather adhoc, though, not a lot of use cases...
+    //   need better naming
     public fun useMultiModule(fileLayout: DokkaMultiModuleFileLayout)
     public fun useCollector()
 
@@ -43,6 +45,12 @@ public interface DokkaAggregationExtension : DokkaExtensibleConfiguration {
         exclude: List<String> = emptyList(),
         configure: DokkaAggregationProjectsConfiguration.() -> Unit = {}
     )
+
+    public val formats: DokkaFormatsContainer
+    public fun formats(configure: DokkaFormatsContainer.() -> Unit)
+
+    public val plugins: DokkaPluginsContainer
+    public fun plugins(configure: DokkaPluginsContainer.() -> Unit)
 }
 
 // TODO: I DON" LIKE THIS

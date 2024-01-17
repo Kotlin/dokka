@@ -28,6 +28,6 @@ public interface DokkaPerPackageConfiguration : DokkaPackageBasedConfiguration {
 public interface DokkaPackageBasedConfiguration {
     // only public by default
     public val documentedVisibilities: SetProperty<DokkaDeclarationVisibility>
-    public val reportUndocumented: Property<Boolean> // or warnOnUndocumented
+    public val warnOnUndocumented: Property<Boolean> // or reportUndocumented
     public val includeDeprecated: Property<Boolean> // old skipDeprecated
 }

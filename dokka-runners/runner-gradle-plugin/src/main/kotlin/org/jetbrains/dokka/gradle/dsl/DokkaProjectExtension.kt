@@ -4,8 +4,6 @@
 
 package org.jetbrains.dokka.gradle.dsl
 
-import org.jetbrains.dokka.gradle.dsl.configuration.DokkaRootConfiguration
-
 // TODO:
 //  Action vs lambda with extension receiver
 //  - Action works fine with Groovy
@@ -13,7 +11,7 @@ import org.jetbrains.dokka.gradle.dsl.configuration.DokkaRootConfiguration
 //  path: Any - is bad, but useful - can be "../docs", can be file(""), can be provider from other task
 //   may be it's possible to allow only just String, File, Provider<File>, RegularFile, etc
 @DokkaGradlePluginDsl
-public interface DokkaExtension : DokkaRootConfiguration {
+public interface DokkaProjectExtension : DokkaBaseExecution, DokkaGenerationExtension, DokkaAggregationExtension {
 // TODO: placement - per format, aggregation, etc
 //   public val outputDirectory: DirectoryProperty
 

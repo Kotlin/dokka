@@ -14,3 +14,9 @@ public annotation class GradleIsolatedProjectsRestrictions(val reason: String)
 
 @DslMarker
 public annotation class DokkaGradlePluginDsl
+
+@RequiresOptIn(
+    message = "TODO",
+    level = RequiresOptIn.Level.WARNING
+)
+public annotation class DokkaDelicateApi

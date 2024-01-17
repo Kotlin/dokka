@@ -11,6 +11,9 @@ import org.jetbrains.dokka.gradle.dsl.DokkaGradlePluginDsl
 @DokkaGradlePluginDsl
 public interface DokkaSourceLinkConfiguration {
     public val localDirectory: DirectoryProperty
-    public val remoteUrl: Property<String>
+
+    // TODO: `null` overrides any other sourceLink to suppress generation of source buttons
+    //  f.e if sources are generated or in private repository, or correct `localDirectory`
+    public val remoteUrl: Property<String?>
     public val remoteLineSuffix: Property<String>
 }

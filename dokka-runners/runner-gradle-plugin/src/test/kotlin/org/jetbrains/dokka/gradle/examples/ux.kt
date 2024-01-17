@@ -16,7 +16,7 @@ fun Project.task1() {
     plugins.apply("org.jetbrains.dokka")
 
     dokka {
-        aggregation.includeSubprojects {
+        includeSubprojects {
             // with newer Gradle it will be `applyDokkaPlugin = true`
             applyDokkaPlugin.set(true)
         }
@@ -28,7 +28,7 @@ fun Project.task2() {
     plugins.apply("org.jetbrains.dokka")
 
     dokka {
-        aggregation.includeSubprojects(exclude = listOf("common-utils")) {
+        includeSubprojects(exclude = listOf("common-utils")) {
             // with newer Gradle it will be `applyDokkaPlugin = true`
             applyDokkaPlugin.set(true)
         }
@@ -42,7 +42,7 @@ fun Project.task3() {
     dokka {
         documentedVisibilities.addAll(DokkaDeclarationVisibility.PROTECTED)
 
-        aggregation.includeSubprojects(
+        includeSubprojects(
             exclude = listOf("common-utils")
         ) {
             // with newer Gradle it will be `applyDokkaPlugin = true`
@@ -65,7 +65,7 @@ fun Project.task4() {
             homepageLink.set("https://github.com/kotlin/dokka")
         }
 
-        aggregation.includeSubprojects(
+        includeSubprojects(
             exclude = listOf("common-utils")
         ) {
             // with newer Gradle it will be `applyDokkaPlugin = true`
@@ -85,7 +85,7 @@ fun Project.task5() {
         documentedVisibilities.addAll(DokkaDeclarationVisibility.PROTECTED)
         sourceLink("https://github.com/kotlin/dokka/tree/master")
 
-        aggregation.includeSubprojects(
+        includeSubprojects(
             exclude = listOf("common-utils")
         ) {
             // with newer Gradle it will be `applyDokkaPlugin = true`
@@ -118,7 +118,7 @@ fun Project.task6() {
         documentedVisibilities.addAll(DokkaDeclarationVisibility.PROTECTED)
         sourceLink("https://github.com/kotlin/dokka/tree/master")
 
-        aggregation.includeSubprojects(
+        includeSubprojects(
             exclude = listOf("common-utils")
         ) {
             // with newer Gradle it will be `applyDokkaPlugin = true`
