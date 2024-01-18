@@ -241,7 +241,7 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `link should lead to class rather than constructor`() {
+    fun `link should be resolved in @constructor section`() {
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
