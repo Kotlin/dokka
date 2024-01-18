@@ -15,6 +15,7 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.MemberPageNode
+import utils.OnlyDescriptors
 import utils.OnlySymbols
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -740,6 +741,154 @@ class LinkTest : BaseAbstractTest() {
                                             Text("example")
                                         ),
                                         params = mapOf("href" to "[example]")
+                                    ),
+                                )
+                            )
+                        ),
+                        name = "MARKDOWN_FILE"
+                    )
+                )
+                assertEquals(expected, propDocs.children.first())
+            }
+        }
+    }
+
+    @Test
+    fun `link should be stable for overloads`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |
+            |/**
+            | * refs to the overload [f] and [f2]
+            | */
+            |val x = 0
+            |
+            |fun f(i: Int) {}
+            |fun f(s: String) {}
+            |
+            |fun f2(i: String) {}
+            |fun f2(s: Int) {}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val propDocs =
+                    module.packages.flatMap { it.properties }.first { it.name == "x" }.documentation.values.first()
+
+
+                val expected = Description(
+                    root = CustomDocTag(
+                        children = listOf(
+                            P(
+                                children = listOf(
+                                    Text("refs to the overload "),
+                                    DocumentationLink(
+                                        dri = DRI(
+                                            packageName = "example",
+                                            classNames = null,
+                                            target = PointingToDeclaration,
+                                            callable = Callable(
+                                                "f",
+                                                params = listOf(TypeConstructor("kotlin.Int", emptyList()))
+                                            )
+                                        ),
+                                        children = listOf(
+                                            Text("f")
+                                        ),
+                                        params = mapOf("href" to "[f]")
+                                    ),
+
+                                    Text(" and "),
+                                    DocumentationLink(
+                                        dri = DRI(
+                                            packageName = "example",
+                                            classNames = null,
+                                            target = PointingToDeclaration,
+                                            callable = Callable(
+                                                "f2",
+                                                params = listOf(TypeConstructor("kotlin.String", emptyList()))
+                                            )
+                                        ),
+                                        children = listOf(
+                                            Text("f2")
+                                        ),
+                                        params = mapOf("href" to "[f2]")
+                                    ),
+                                )
+                            )
+                        ),
+                        name = "MARKDOWN_FILE"
+                    )
+                )
+                assertEquals(expected, propDocs.children.first())
+            }
+        }
+    }
+    @Test
+    @OnlyDescriptors("due to #3250 a result DRI is unstable")
+    fun `K1 - link should be stable for overloads in different files`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |
+            |/**
+            | * refs to the overload [f]
+            | */
+            |val x = 0
+            |
+            |fun f(i: String) {}
+            |
+            |/src/main/kotlin/Testing2.kt
+            |package example
+            |
+            |fun f(s: Int) {}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val propDocs =
+                    module.packages.flatMap { it.properties }.first { it.name == "x" }.documentation.values.first()
+
+
+                val expected = Description(
+                    root = CustomDocTag(
+                        children = listOf(
+                            P(
+                                children = listOf(
+                                    Text("refs to the overload "),
+                                    DocumentationLink(
+                                        dri = DRI(
+                                            packageName = "example",
+                                            classNames = null,
+                                            target = PointingToDeclaration,
+                                            callable = Callable(
+                                                "f",
+                                                params = listOf(TypeConstructor("kotlin.String", emptyList()))
+                                            )
+                                        ),
+                                        children = listOf(
+                                            Text("f")
+                                        ),
+                                        params = mapOf("href" to "[f]")
                                     ),
                                 )
                             )
