@@ -14,7 +14,7 @@ import org.jetbrains.dokka.gradle.utils.externalDocumentationLink_
 import org.jetbrains.dokka.gradle.utils.withDependencies_
 import org.jetbrains.dokka.toCompactJsonString
 import java.io.File
-import java.net.URL
+import java.net.URI
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -50,8 +50,8 @@ class DokkaConfigurationJsonTest {
                 reportUndocumented.set(true)
 
                 externalDocumentationLink_ {
-                    packageListUrl.set(URL("http://some.url"))
-                    url.set(URL("http://some.other.url"))
+                    packageListUrl.set(URI("http://some.url").toURL())
+                    url.set(URI("http://some.other.url").toURL())
                 }
                 perPackageOption {
                     includeNonPublic.set(true)
