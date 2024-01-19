@@ -14,5 +14,5 @@ public interface DokkaBaseExecution {
     public val dokkaEngineVersion: Property<String>
 
     public val offlineMode: Property<Boolean>
-    public val failOnWarning: Property<Boolean>
+    public val failOnWarning: Property<Boolean> // warningsAsErrors
 }

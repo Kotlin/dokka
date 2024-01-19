@@ -567,6 +567,8 @@ dokka {
 
 ## Javadoc / Maven Central
 
+javadoc.io
+
 Javadoc(and not) jar generation use-cases:
 
 * generate `jar` with `javadoc` classifier:

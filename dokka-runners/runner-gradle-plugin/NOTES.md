@@ -2,6 +2,8 @@
 
 ## dokka usage on GitHub
 
+RECHECK PROJECTS
+
 | Project                                             | Short description                                                                                                                                    | Dokka version | Category          | Formats | Single/Multi module | Platform(s)    |
 |-----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|-------------------|---------|---------------------|----------------|
 | https://github.com/spring-projects/spring-framework | minimal config, a lot of external docs(remote package-lists), custom output dirs, shared script with configuration                                   | 1.8.20        | Server, Framework | HTML    | Multi               | JVM            |
@@ -399,3 +401,17 @@ Gradle Plugin ids:
 * dokka.settings -> will create shared configuration + apply dokka plugin where kotlin plugin is applied
 
 mpp vs jvm projects
+
+Axis of configurations:
+
+* Platform: Android vs JVM vs KMP
+* Modules : Single-module vs Multi-module-separated vs Multi-module-aggregated
+* Formats : HTML vs Javadoc vs GFM
+* Phases  : Generation vs Aggregation
+
+Ideal dokka/kdoc:
+
+* execution is integrated into compiler (?)
+* Gradle part leaves in KGP
+* Execution inside Gradle will only produce KDoc
+* Formats are versioned outside of Kotlin release schedule
