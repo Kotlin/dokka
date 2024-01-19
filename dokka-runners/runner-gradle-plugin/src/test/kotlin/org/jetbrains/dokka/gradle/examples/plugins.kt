@@ -9,6 +9,48 @@ import org.jetbrains.dokka.gradle.dsl.DokkaMultiModuleFileLayout
 
 fun Project.configureSomething() {
     dokka {
+
+        this.documentedVisibilities
+
+        this.includeDeprecated
+
+        this.moduleName // top level
+
+        this.sourceLinks // source set
+
+        this.suppressInheritedMembers // top level
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         formats.html {
             // TODO: this will set the same directory for `module` and for `aggregate`
             //  though, it's not really an issue, as to fall into this there is a requirement:
