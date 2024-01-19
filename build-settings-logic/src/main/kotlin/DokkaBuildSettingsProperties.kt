@@ -38,7 +38,6 @@ abstract class DokkaBuildSettingsProperties @Inject constructor(
     val buildCacheLocalEnabled: Provider<Boolean> =
         dokkaProperty("build.cache.local.enabled", String::toBoolean)
             .orElse(!buildingOnCi)
-            .orElse(true)
     val buildCacheLocalDirectory: Provider<String> =
         dokkaProperty("build.cache.local.directory")
     val buildCacheUrl: Provider<String> =
@@ -46,7 +45,6 @@ abstract class DokkaBuildSettingsProperties @Inject constructor(
     val buildCachePushEnabled: Provider<Boolean> =
         dokkaProperty("build.cache.push", String::toBoolean)
             .orElse(buildingOnTeamCity)
-            .orElse(false)
     val buildCacheUser: Provider<String> =
         dokkaProperty("build.cache.user")
     val buildCachePassword: Provider<String> =
