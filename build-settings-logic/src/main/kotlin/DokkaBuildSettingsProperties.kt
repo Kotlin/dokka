@@ -1,7 +1,6 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-
 import org.gradle.api.initialization.Settings
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
