@@ -1,7 +1,8 @@
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
+
 /*
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-
 
 plugins {
     id("dokkabuild.test-integration")
@@ -19,13 +20,14 @@ dependencies {
     implementation(libs.jsoup)
 }
 
+kotlin {
+    // this project only contains test utils and isn't published, so it doesn't matter about explicit API
+    explicitApi = ExplicitApiMode.Disabled
+}
+
 val aggregatingProject = gradle.includedBuild("dokka")
 
 tasks.integrationTest {
-    // pass the property to a test fork
-    project.findProperty("org.jetbrains.dokka.experimental.tryK2")
-        ?.let { systemProperty("org.jetbrains.dokka.experimental.tryK2", it) }
-
     dependsOn(aggregatingProject.task(":publishToMavenLocal"))
 
     environment("DOKKA_VERSION", project.version)

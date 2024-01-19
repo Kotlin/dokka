@@ -9,12 +9,12 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlin.concurrent.thread
 
-public class ProcessResult(
-    public val exitCode: Int,
-    public val output: String
+class ProcessResult(
+    val exitCode: Int,
+    val output: String
 )
 
-public fun Process.awaitProcessResult(): ProcessResult = runBlocking {
+fun Process.awaitProcessResult(): ProcessResult = runBlocking {
     val exitCode = async { awaitExitCode() }
     val output = async { awaitOutput() }
     ProcessResult(

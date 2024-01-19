@@ -51,21 +51,16 @@ val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
     classpath = integrationTestSourceSet.runtimeClasspath
 
     useJUnitPlatform {
-        val useK2 = (project.properties["org.jetbrains.dokka.experimental.tryK2"] as? String)?.toBoolean() ?: false
-        if (useK2) excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
+        if (dokkaBuild.integrationTestUseK2.get()) excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
     }
 
-    setForkEvery(1)
-    project.properties["dokka_integration_test_parallelism"]?.toString()?.toIntOrNull()?.let { parallelism ->
+    systemProperty("org.jetbrains.dokka.experimental.tryK2", dokkaBuild.integrationTestUseK2.get())
+
+    dokkaBuild.integrationTestParallelism.orNull?.let { parallelism ->
         maxParallelForks = parallelism
     }
 
-    environment(
-        "isExhaustive",
-        project.properties["dokka_integration_test_is_exhaustive"]?.toString()?.toBoolean()
-            ?: System.getenv("DOKKA_INTEGRATION_TEST_IS_EXHAUSTIVE")?.toBoolean()
-            ?: false.toString()
-    )
+    environment("isExhaustive", dokkaBuild.integrationTestExhaustive.get())
     
     testLogging {
         exceptionFormat = TestExceptionFormat.FULL
