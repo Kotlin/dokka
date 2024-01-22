@@ -27,7 +27,6 @@ abstract class DokkaBuildSettingsProperties @Inject constructor(
         dokkaProperty("build.scan.enabled", String::toBoolean)
             .orElse(buildingOnCi)
 
-    /** If unset, the user has not opted in to publish Build Scans. */
     val buildScanUrl: Provider<String> =
         dokkaProperty("build.scan.url")
 
