@@ -44,7 +44,6 @@ gradleEnterprise {
             capture {
                 isTaskInputFiles = true
                 isBuildLogging = true
-                isBuildLogging = true
                 isUploadInBackground = true
             }
         }
