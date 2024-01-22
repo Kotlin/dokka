@@ -12,13 +12,11 @@ plugins {
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.dokka:dokka-base:${System.getenv("DOKKA_VERSION")}")
+        classpath("org.jetbrains.dokka:dokka-base:+")
     }
 }
 
 version = "2.0.0-SNAPSHOT"
-
-apply(from = "../template.root.gradle.kts")
 
 tasks.withType<DokkaTask> {
     moduleName.set("Configuration Test Project")

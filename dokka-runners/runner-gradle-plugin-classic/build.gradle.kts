@@ -67,3 +67,7 @@ fun Configuration.excludeGradleCommonDependencies() {
             exclude(group = "org.jetbrains.kotlin", module = "kotlin-script-runtime")
         }
 }
+
+tasks.integrationTestPreparation {
+    dependsOn(tasks.updateDevRepo)
+}

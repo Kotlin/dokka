@@ -8,28 +8,11 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.*
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class BasicGradleIntegrationTest : AbstractGradleIntegrationTest() {
-
-    @BeforeTest
-    fun prepareProjectFiles() {
-        val templateProjectDir = File("projects", "it-basic")
-
-        templateProjectDir.listFiles().orEmpty()
-            .filter { it.isFile }
-            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
-
-        File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
-        val customResourcesDir = File(templateProjectDir, "customResources")
-
-        if (customResourcesDir.exists() && customResourcesDir.isDirectory) {
-            val destination = File(projectDir.parentFile, "customResources")
-            destination.mkdirs()
-            destination.deleteRecursively()
-            customResourcesDir.copyRecursively(destination)
-        }
-    }
 
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)

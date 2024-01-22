@@ -6,51 +6,57 @@ package org.jetbrains.dokka.it.gradle
 
 import org.gradle.util.GradleVersion
 import java.io.File
+import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.test.assertTrue
 
 abstract class AbstractGradleCachingIntegrationTest : AbstractGradleIntegrationTest() {
 
-    fun setupProject(buildVersions: BuildVersions, project: File) {
-        val templateProjectDir = File("projects", "it-basic")
-        project.mkdirs()
-        templateProjectDir.listFiles().orEmpty()
-            .filter { it.isFile }
-            .forEach { topLevelFile -> topLevelFile.copyTo(File(project, topLevelFile.name)) }
+    /**
+     * Create a duplicate [AbstractGradleIntegrationTest.templateProjectDir] in [destination], for Gradle Build Cache
+     * testing.
+     */
+    fun duplicateTemplateProject(buildVersions: BuildVersions, destination: File) {
+        prepareProjectFiles(destination = destination)
 
-        File(templateProjectDir, "src").copyRecursively(File(project, "src"))
-        val customResourcesDir = File(templateProjectDir, "customResources")
-        if(customResourcesDir.exists() && customResourcesDir.isDirectory) {
-            val destination = File(project.parentFile, "customResources")
-            destination.mkdirs()
-            destination.deleteRecursively()
-            customResourcesDir.copyRecursively(destination)
+        updateCustomResourcesPath(destination)
+
+        updateBuildCacheConfig(buildVersions, destination)
+    }
+
+    private fun updateCustomResourcesPath(destination: File) {
+        // share the same customResources in all projects, because Dokka requires the absolute path of custom resources.
+        // (So... Dokka build cache isn't technically relocatable! https://github.com/Kotlin/dokka/issues/2978)
+        destination.resolve("customResources").deleteRecursively()
+        val originalCustomResources = templateProjectDir.resolve("customResources").invariantSeparatorsPathString
+
+        destination.resolve("build.gradle.kts").apply {
+            writeText(
+                readText().replace(
+                    "val customResourcesDir = layout.projectDirectory.dir(\"customResources\")",
+                    "val customResourcesDir = layout.projectDirectory.dir(\"$originalCustomResources\")"
+                )
+            )
         }
+    }
 
-        // clean local cache for each test
-        if (buildVersions.gradleVersion >= GradleVersion.version("7.0")) {
-            //Gradle 7.0 removed the old syntax
-            project.toPath().resolve("settings.gradle.kts").toFile().appendText(
-                """
+    private fun updateBuildCacheConfig(buildVersions: BuildVersions, destination: File) {
+        // share the same build cache in all projects
+        val buildCacheDir = tempFolder.resolve("build-cache")
+
+        //Gradle 7.0 removed the old syntax
+        val buildCacheLocal =
+            if (buildVersions.gradleVersion >= GradleVersion.version("7.0")) "local" else "local<DirectoryBuildCache>"
+
+        destination.resolve("settings.gradle.kts").appendText(
+            """
                 buildCache {
-                    local {
+                    $buildCacheLocal {
                         // Set local build cache directory.
-                        directory = File("${projectDir.invariantSeparatorsPath}", "build-cache")
+                        directory = File("${buildCacheDir.invariantSeparatorsPath}")
                     }
                 }
             """.trimIndent()
-            )
-        } else {
-            project.toPath().resolve("settings.gradle.kts").toFile().appendText(
-                """
-                buildCache {
-                    local<DirectoryBuildCache> {
-                        // Set local build cache directory.
-                        directory = File("${projectDir.invariantSeparatorsPath}", "build-cache")
-                    }
-                }
-            """.trimIndent()
-            )
-        }
+        )
     }
 
     fun File.assertHtmlOutputDir() {
@@ -135,7 +141,10 @@ abstract class AbstractGradleCachingIntegrationTest : AbstractGradleIntegrationT
         assertTrue(stylesDir.resolve("custom-style-to-add.css").isFile)
         assertTrue(stylesDir.resolve("custom-style-to-add.css").readText().contains("/* custom stylesheet */"))
         allHtmlFiles().forEach { file ->
-            if(file.name != "navigation.html") assertTrue("custom-style-to-add.css" in file.readText(), "custom styles not added to html file ${file.name}")
+            if (file.name != "navigation.html") assertTrue(
+                "custom-style-to-add.css" in file.readText(),
+                "custom styles not added to html file ${file.name}"
+            )
         }
         assertTrue(imagesDir.resolve("custom-resource.svg").isFile)
     }

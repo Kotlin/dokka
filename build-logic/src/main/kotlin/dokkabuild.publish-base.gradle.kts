@@ -3,8 +3,10 @@
  */
 
 plugins {
+    id("dokkabuild.base")
     `maven-publish`
     signing
+    id("dev.adamko.dev-publish")
 }
 
 publishing {
@@ -32,13 +34,6 @@ publishing {
                 username = System.getenv("DOKKA_SPACE_PACKAGES_USER")
                 password = System.getenv("DOKKA_SPACE_PACKAGES_SECRET")
             }
-        }
-        // Publish to a project-local Maven directory, for verification. To test, run:
-        // ./gradlew publishAllPublicationsToProjectLocalRepository
-        // and check $rootDir/build/maven-project-local
-        maven {
-            name = "projectLocal"
-            url = uri(rootProject.layout.buildDirectory.dir("maven-project-local"))
         }
     }
 

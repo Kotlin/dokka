@@ -61,7 +61,7 @@ val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
     }
 
     environment("isExhaustive", dokkaBuild.integrationTestExhaustive.get())
-    
+
     testLogging {
         exceptionFormat = TestExceptionFormat.FULL
         events(TestLogEvent.SKIPPED, TestLogEvent.FAILED)
@@ -69,4 +69,8 @@ val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
         showCauses = true
         showStackTraces = true
     }
+}
+
+tasks.check {
+    dependsOn(integrationTest)
 }

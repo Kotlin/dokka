@@ -9,19 +9,31 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.it.AbstractIntegrationTest
+import org.jetbrains.dokka.it.systemProperty
 import org.jetbrains.dokka.it.withJvmArguments
 import java.io.File
 import java.net.URI
+import java.nio.file.Path
+import java.nio.file.Paths
+import kotlin.io.path.copyTo
+import kotlin.io.path.copyToRecursively
+import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.test.BeforeTest
 
 abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
 
     @BeforeTest
-    fun copyTemplates() {
-        File("projects").listFiles().orEmpty()
-            .filter { it.isFile }
-            .filter { it.name.startsWith("template.") }
-            .forEach { file -> file.copyTo(File(tempFolder, file.name)) }
+    open fun beforeEachTest() {
+        prepareProjectFiles()
+    }
+
+    fun prepareProjectFiles(
+        templateProjectDir: Path = AbstractGradleIntegrationTest.templateProjectDir,
+        destination: File = projectDir,
+    ) {
+        templateProjectDir.copyToRecursively(destination.toPath(), followLinks = false, overwrite = true)
+        templateSettingsGradleKts.copyTo(destination.resolve("template.settings.gradle.kts").toPath(), overwrite = true)
+        destination.updateProjectLocalMavenDir()
     }
 
     fun createGradleRunner(
@@ -64,6 +76,52 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
 
             }
             throw e
+        }
+    }
+
+    companion object {
+        /**
+         * Location of the template project that will be copied into [AbstractIntegrationTest.projectDir].
+         *
+         * The contents of this directory _must not_ be modified.
+         *
+         * The value is provided by the Gradle Test task.
+         */
+        val templateProjectDir: Path by systemProperty(Paths::get)
+
+        /**
+         * Location of the `template.settings.gradle.kts` file used to provide common Gradle Settings configuration for template projects.
+         *
+         * This value is provided by the Gradle Test task.
+         */
+        val templateSettingsGradleKts: Path by systemProperty(Paths::get)
+
+        /** file-based Maven repositories that contains the Dokka dependencies */
+        val projectLocalMavenDirs: List<Path> by systemProperty { it.split(":").map(Paths::get) }
+
+        fun File.updateProjectLocalMavenDir() {
+
+            val repositories =
+                projectLocalMavenDirs.joinToString(", ") { "maven(\"${it.invariantSeparatorsPathString}\")" }
+
+            walk().filter { it.isFile }.forEach { file ->
+                file.writeText(
+                    file.readText()
+                        .replace(
+                            "/* %{PROJECT_LOCAL_MAVEN_DIR}% */",
+                            /*language=TEXT*/
+                            """
+                                |exclusiveContent {
+                                |    forRepositories($repositories)
+                                |    filter {
+                                |        includeGroup("org.jetbrains.dokka")
+                                |    }
+                                |}
+                                |
+                            """.trimMargin()
+                        )
+                )
+            }
         }
     }
 }

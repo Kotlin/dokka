@@ -4,6 +4,40 @@
 
 plugins {
     id("dokkabuild.base")
+    alias(libs.plugins.devPublish)
+}
+
+dependencies {
+    devPublication(projects.dokkaSubprojects.analysisKotlinApi)
+    devPublication(projects.dokkaSubprojects.analysisKotlinDescriptors)
+    devPublication(projects.dokkaSubprojects.analysisKotlinSymbols)
+    devPublication(projects.dokkaSubprojects.analysisMarkdownJb)
+    devPublication(projects.dokkaSubprojects.dokkaCore)
+    devPublication(projects.dokkaSubprojects.pluginAllModulesPage)
+    devPublication(projects.dokkaSubprojects.pluginAndroidDocumentation)
+    devPublication(projects.dokkaSubprojects.pluginBase)
+    devPublication(projects.dokkaSubprojects.pluginBaseTestUtils)
+    devPublication(projects.dokkaSubprojects.pluginGfm)
+    devPublication(projects.dokkaSubprojects.pluginGfmTemplateProcessing)
+    devPublication(projects.dokkaSubprojects.pluginJavadoc)
+    devPublication(projects.dokkaSubprojects.pluginJekyll)
+    devPublication(projects.dokkaSubprojects.pluginJekyllTemplateProcessing)
+    devPublication(projects.dokkaSubprojects.pluginKotlinAsJava)
+    devPublication(projects.dokkaSubprojects.pluginMathjax)
+    devPublication(projects.dokkaSubprojects.pluginTemplating)
+    devPublication(projects.dokkaSubprojects.pluginVersioning)
+}
+
+tasks.integrationTestPreparation {
+    dependsOn(tasks.updateDevRepo)
+}
+
+tasks.check {
+    dependsOn(
+        gradle.includedBuild("dokka-integration-tests").task(":gradle:check"),
+        gradle.includedBuild("dokka-integration-tests").task(":maven:check"),
+        gradle.includedBuild("dokka-integration-tests").task(":cli:check"),
+    )
 }
 
 tasks.check {

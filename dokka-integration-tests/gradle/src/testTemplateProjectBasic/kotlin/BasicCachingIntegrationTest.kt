@@ -17,9 +17,7 @@ class BasicCachingIntegrationTest : AbstractGradleCachingIntegrationTest() {
 
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
-    fun execute(buildVersions: BuildVersions) {
-        setupProject(buildVersions, projectDir)
-
+    fun `when task is repeated, expect FROM_CACHE outcome`(buildVersions: BuildVersions) {
         runAndAssertOutcomeAndContents(buildVersions, TaskOutcome.SUCCESS)
         runAndAssertOutcomeAndContents(buildVersions, TaskOutcome.FROM_CACHE)
     }
@@ -27,17 +25,22 @@ class BasicCachingIntegrationTest : AbstractGradleCachingIntegrationTest() {
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
     fun localDirectoryPointingToRoot(buildVersions: BuildVersions) {
-        setupProject(buildVersions, projectDir)
-
         fun String.findAndReplace(oldValue: String, newValue: String): String {
             assertTrue(oldValue in this, "Expected to replace '$oldValue'")
             return replace(oldValue, newValue)
         }
+
         val projectKts = projectDir.resolve("build.gradle.kts")
 
         projectKts.readText()
-            .findAndReplace("localDirectory.set(file(\"src/main\"))", "localDirectory.set(projectDir)")
-            .findAndReplace("integration-tests/gradle/projects/it-basic/src/main", "integration-tests/gradle/projects/it-basic")
+            .findAndReplace(
+                "localDirectory.set(file(\"src/main\"))",
+                "localDirectory.set(projectDir)",
+            )
+            .findAndReplace(
+                "integration-tests/gradle/projects/it-basic/src/main",
+                "integration-tests/gradle/projects/it-basic",
+            )
             .also { projectKts.writeText(it) }
 
         runAndAssertOutcomeAndContents(buildVersions, TaskOutcome.SUCCESS)

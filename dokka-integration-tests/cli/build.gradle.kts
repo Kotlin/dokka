@@ -3,6 +3,10 @@
  */
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.api.attributes.Bundling.BUNDLING_ATTRIBUTE
+import org.gradle.api.attributes.Bundling.SHADOWED
+import org.gradle.api.attributes.Usage.JAVA_RUNTIME
+import org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE
 
 plugins {
     id("dokkabuild.test-integration")
@@ -15,36 +19,40 @@ dependencies {
     implementation(projects.utilities)
 }
 
-/* Create a fat base plugin jar for cli tests */
 val basePluginShadow: Configuration by configurations.creating {
+    description = "Create a fat base plugin jar for cli tests"
+    isCanBeResolved = true
+    isCanBeConsumed = false
     attributes {
-        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, "java-runtime"))
+        attribute(USAGE_ATTRIBUTE, objects.named(JAVA_RUNTIME))
     }
 }
 
-val cliConfiguration: Configuration by configurations.creating {
+val dokkaCliResolver: Configuration by configurations.creating {
+    isCanBeResolved = true
+    isCanBeConsumed = false
     attributes {
-        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, Usage.JAVA_RUNTIME))
-        attribute(Bundling.BUNDLING_ATTRIBUTE, project.objects.named(Bundling::class.java, Bundling.SHADOWED))
+        attribute(USAGE_ATTRIBUTE, objects.named(JAVA_RUNTIME))
+        attribute(BUNDLING_ATTRIBUTE, objects.named(SHADOWED))
     }
     // we should have single artifact here
     isTransitive = false
 }
 
 dependencies {
-    cliConfiguration("org.jetbrains.dokka:runner-cli")
+    dokkaCliResolver("org.jetbrains.dokka:runner-cli")
 
     basePluginShadow("org.jetbrains.dokka:plugin-base")
 
     // TODO [beresnev] analysis switcher
     basePluginShadow("org.jetbrains.dokka:analysis-kotlin-descriptors") {
         attributes {
-            attribute(Bundling.BUNDLING_ATTRIBUTE, project.objects.named(Bundling::class.java, Bundling.SHADOWED))
+            attribute(BUNDLING_ATTRIBUTE, objects.named(SHADOWED))
         }
     }
 }
 
-val basePluginShadowJar by tasks.register("basePluginShadowJar", ShadowJar::class) {
+val basePluginShadowJar by tasks.registering(ShadowJar::class) {
     configurations = listOf(basePluginShadow)
     archiveFileName.set("fat-base-plugin-${project.version}.jar")
     archiveClassifier.set("")
@@ -55,10 +63,16 @@ val basePluginShadowJar by tasks.register("basePluginShadowJar", ShadowJar::clas
 }
 
 tasks.integrationTest {
-    dependsOn(cliConfiguration)
-    dependsOn(basePluginShadowJar)
-
     inputs.dir(file("projects"))
-    environment("CLI_JAR_PATH", cliConfiguration.singleFile)
-    environment("BASE_PLUGIN_JAR_PATH", basePluginShadowJar.archiveFile.get())
+
+    val basePluginShadowJar = basePluginShadowJar.flatMap { it.archiveFile }
+    inputs.file(basePluginShadowJar).withPropertyName("basePluginShadowJar")
+
+    val dokkaCli = dokkaCliResolver.incoming.artifacts.resolvedArtifacts.map { it.first().file }
+    inputs.file(dokkaCli).withPropertyName("dokkaCli")
+
+    doFirst("workaround for https://github.com/gradle/gradle/issues/24267") {
+        environment("CLI_JAR_PATH", dokkaCli.get().invariantSeparatorsPath)
+        environment("BASE_PLUGIN_JAR_PATH", basePluginShadowJar.get().asFile.invariantSeparatorsPath)
+    }
 }
