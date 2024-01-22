@@ -30,16 +30,17 @@ plugins {
 val buildSettingsProps = dokkaBuildSettingsProperties
 
 val buildScanServer = buildSettingsProps.buildScanUrl.orNull?.ifBlank { null }
+val buildScanEnabled = buildSettingsProps.buildScanEnabled.get() && buildScanServer != null
 
-if (buildScanServer != null) {
+if (buildScanEnabled) {
     plugins.apply("com.gradle.common-custom-user-data-gradle-plugin")
 }
 
 gradleEnterprise {
     buildScan {
-        if (buildScanServer != null) {
+        if (buildScanEnabled) {
             server = buildScanServer
-            publishAlways()
+            publishAlwaysIf(buildScanEnabled)
 
             capture {
                 isTaskInputFiles = true

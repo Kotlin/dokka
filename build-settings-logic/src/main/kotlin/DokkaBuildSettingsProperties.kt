@@ -22,6 +22,10 @@ abstract class DokkaBuildSettingsProperties @Inject constructor(
 
     //region Gradle Build Scan
     // NOTE: build scan properties are documented in CONTRIBUTING.md
+    val buildScanEnabled: Provider<Boolean> =
+        dokkaProperty("build.scan.enabled", String::toBoolean)
+            .orElse(buildingOnCi)
+
     /** If unset, the user has not opted in to publish Build Scans. */
     val buildScanUrl: Provider<String> =
         dokkaProperty("build.scan.url")
