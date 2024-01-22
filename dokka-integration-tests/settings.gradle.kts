@@ -8,15 +8,17 @@ rootProject.name = "dokka-integration-tests"
 
 pluginManagement {
     includeBuild("../build-logic")
+    includeBuild("../build-settings-logic")
 
     repositories {
-        gradlePluginPortal()
         mavenCentral()
+        gradlePluginPortal()
     }
 }
 
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.7.0"
+    id("dokkasettings.gradle-enterprise")
 }
 
 dependencyResolutionManagement {
