@@ -6,7 +6,6 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
 import org.gradle.language.base.plugins.LifecycleBasePlugin.VERIFICATION_GROUP
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Disabled
-import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
 plugins {
     id("dokkabuild.kotlin-jvm")
@@ -27,6 +26,7 @@ dependencies {
 }
 
 kotlin {
+    // this project only contains test utils and isn't published, so it doesn't matter about explicit API
     explicitApi = Disabled
 
     compilerOptions {
@@ -35,28 +35,22 @@ kotlin {
     }
 }
 
-kotlin {
-    // this project only contains test utils and isn't published, so it doesn't matter about explicit API
-    explicitApi = Disabled
-}
-
-kotlin {
-    // this project only contains test utils and isn't published, so it doesn't matter about explicit API
-    explicitApi = ExplicitApiMode.Disabled
-}
-
 val aggregatingProject = gradle.includedBuild("dokka")
+val templateProjectsDir = layout.projectDirectory.dir("projects")
 
 tasks.integrationTestPreparation {
+    // TODO remove this in https://github.com/Kotlin/dokka/pull/3433
     dependsOn(aggregatingProject.task(":publishToMavenLocal"))
 }
 
 tasks.withType<Test>().configureEach {
     dependsOn(tasks.integrationTestPreparation)
 
-    environment("DOKKA_VERSION", project.version)
-
+    setForkEvery(1)
     maxHeapSize = "2G"
+    dokkaBuild.integrationTestParallelism.orNull?.let { parallelism ->
+        maxParallelForks = parallelism
+    }
 
     val useK2 = dokkaBuild.integrationTestUseK2.get()
 
@@ -65,19 +59,15 @@ tasks.withType<Test>().configureEach {
     }
 
     systemProperty("org.jetbrains.dokka.experimental.tryK2", useK2)
-
-    setForkEvery(1)
-    dokkaBuild.integrationTestParallelism.orNull?.let {
-        maxParallelForks = it
-    }
-
-    environment("isExhaustive", dokkaBuild.integrationTestExhaustive)
-
     // allow inspecting projects in temporary dirs after a test fails
     systemProperty(
         "junit.jupiter.tempdir.cleanup.mode.default",
         dokkaBuild.isCI.map { isCi -> if (isCi) "ALWAYS" else "ON_SUCCESS" }.get(),
     )
+
+    environment("DOKKA_VERSION", project.version)
+    environment("isExhaustive", dokkaBuild.integrationTestExhaustive)
+    environment("ANDROID_HOME", dokkaBuild.androidSdkDir.get().invariantSeparatorsPath)
 
     testLogging {
         exceptionFormat = FULL
@@ -90,8 +80,6 @@ tasks.withType<Test>().configureEach {
     // TODO remove this in https://github.com/Kotlin/dokka/pull/3433
     doNotTrackState("uses artifacts from Maven Local")
 }
-
-val templateProjectsDir = layout.projectDirectory.dir("projects")
 
 @Suppress("UnstableApiUsage")
 testing {
@@ -106,7 +94,7 @@ testing {
             targets.configureEach {
                 testTask.configure {
                     doFirst {
-                        logger.lifecycle("running $path with javaLauncher:${javaLauncher.orNull?.metadata?.javaRuntimeVersion}")
+                        logger.info("running $path with javaLauncher:${javaLauncher.orNull?.metadata?.javaRuntimeVersion}")
                     }
                 }
             }
@@ -143,7 +131,7 @@ testing {
             }
         }
 
-        // register a separate test suite for each template project, to help with Gradle caching
+        // register a separate test suite for each 'template' project
         registerTestProjectSuite(
             "testTemplateProjectAndroid",
             "it-android-0",
@@ -220,5 +208,4 @@ val testAllExternalProjects by tasks.registering {
 //endregion
 
 tasks.withType<Test>().configureEach {
-    environment("ANDROID_HOME", dokkaBuild.androidSdkDir.get().invariantSeparatorsPath)
 }
