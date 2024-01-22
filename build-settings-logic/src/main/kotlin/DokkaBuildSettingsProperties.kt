@@ -17,7 +17,8 @@ abstract class DokkaBuildSettingsProperties @Inject constructor(
     private val providers: ProviderFactory
 ) {
     val buildingOnTeamCity: Boolean = System.getenv("TEAMCITY_VERSION") != null
-    val buildingOnCi: Boolean = System.getenv("CI") != null || buildingOnTeamCity
+    val buildingOnGitHub: Boolean = System.getenv("GITHUB_ACTION") != null
+    val buildingOnCi: Boolean = System.getenv("CI") != null || buildingOnTeamCity || buildingOnGitHub
 
 
     //region Gradle Build Scan
