@@ -6,6 +6,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
 import org.gradle.language.base.plugins.LifecycleBasePlugin.VERIFICATION_GROUP
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Disabled
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
 plugins {
     id("dokkabuild.kotlin-jvm")
@@ -37,6 +38,11 @@ kotlin {
 kotlin {
     // this project only contains test utils and isn't published, so it doesn't matter about explicit API
     explicitApi = Disabled
+}
+
+kotlin {
+    // this project only contains test utils and isn't published, so it doesn't matter about explicit API
+    explicitApi = ExplicitApiMode.Disabled
 }
 
 val aggregatingProject = gradle.includedBuild("dokka")

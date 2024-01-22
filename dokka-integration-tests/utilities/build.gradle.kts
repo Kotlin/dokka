@@ -24,3 +24,8 @@ kotlin {
     // this project only contains test utils and isn't published, so it doesn't matter about explicit API
     explicitApi = Disabled
 }
+
+kotlin {
+    // this project only contains test utils and isn't published, so it doesn't matter about explicit API
+    explicitApi = Disabled
+}
