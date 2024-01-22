@@ -44,7 +44,7 @@ val integrationTestRuntimeOnly: Configuration by configurations.getting {
 abstract class NonCacheableIntegrationTest : Test()
 
 val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
-    maxHeapSize = "2G"
+//    maxHeapSize = "2G"
     description = "Runs integration tests."
     group = "verification"
     testClassesDirs = integrationTestSourceSet.output.classesDirs
@@ -56,9 +56,9 @@ val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
 
     systemProperty("org.jetbrains.dokka.experimental.tryK2", dokkaBuild.integrationTestUseK2.get())
 
-    dokkaBuild.integrationTestParallelism.orNull?.let { parallelism ->
-        maxParallelForks = parallelism
-    }
+//    dokkaBuild.integrationTestParallelism.orNull?.let { parallelism ->
+//        maxParallelForks = parallelism
+//    }
 
     environment("isExhaustive", dokkaBuild.integrationTestExhaustive.get())
     
