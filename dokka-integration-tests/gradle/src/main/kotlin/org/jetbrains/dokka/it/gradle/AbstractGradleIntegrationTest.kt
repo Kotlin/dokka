@@ -57,9 +57,10 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             build()
         } catch (e: Throwable) {
             val gradleConnectionException = e.withAllCauses().find { it is GradleConnectionException }
-            println("Gradle Connection error!")
-            gradleConnectionException?.printStackTrace()
-//            if (gradleConnectionException != null) {
+            if (gradleConnectionException != null) {
+                println("Gradle Connection error!")
+                gradleConnectionException.printStackTrace()
+            }
 //                gradleConnectionException.printStackTrace()
 //                throw IllegalStateException("Assumed Gradle connection", e)
 //            }
@@ -68,15 +69,12 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
     }
 }
 
-private fun GradleRunner.withJetBrainsCachedGradleVersion(version: GradleVersion): GradleRunner {
-    return withGradleDistribution(
+private fun GradleRunner.withJetBrainsCachedGradleVersion(version: GradleVersion): GradleRunner =
+    withGradleDistribution(
         URI.create(
-            "https://cache-redirector.jetbrains.com/" +
-                    "services.gradle.org/distributions/" +
-                    "gradle-${version.version}-bin.zip"
+            "https://cache-redirector.jetbrains.com/services.gradle.org/distributions/gradle-${version.version}-bin.zip"
         )
     )
-}
 
 private fun Throwable.withAllCauses(): Sequence<Throwable> {
     val root = this
