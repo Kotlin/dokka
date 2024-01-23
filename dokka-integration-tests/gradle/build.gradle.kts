@@ -173,6 +173,14 @@ fun TestingExtension.registerTestProjectSuite(
                 if (jvm != null) {
                     javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
                 }
+
+                // For validation on CI the output is uploaded. This requires the test task is not skipped, and
+                // so Gradle must be told about the output dir.
+                val testOutputPath = System.getenv("DOKKA_TEST_OUTPUT_PATH")
+                inputs.property("testOutputPath", testOutputPath)
+                if (testOutputPath != null) {
+                    outputs.dir(testOutputPath).withPropertyName("testOutput")
+                }
             }
         }
         configure()
