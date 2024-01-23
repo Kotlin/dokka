@@ -35,6 +35,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             .withDebug(TestEnvironment.isEnabledDebug)
             .withArguments(
                 listOfNotNull(
+                    "-Porg.gradle.workers.max=1", // try to keep Gradle memory under control to prevent Metaspace OOMs (I'm not sure if this is effective!)
                     "-Pdokka_it_dokka_version=${System.getenv("DOKKA_VERSION")}",
                     "-Pdokka_it_kotlin_version=${buildVersions.kotlinVersion}",
                     buildVersions.androidGradlePluginVersion?.let { androidVersion ->
