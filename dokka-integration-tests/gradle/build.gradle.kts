@@ -115,6 +115,7 @@ testing {
         registerTestProjectSuite("testTemplateProjectMultimodule0", "it-multimodule-0")
         registerTestProjectSuite("testTemplateProjectMultimodule1", "it-multimodule-1")
         registerTestProjectSuite("testTemplateProjectMultimoduleVersioning", "it-multimodule-versioning-0")
+        registerTestProjectSuite("testTemplateProjectMultimoduleInterModuleLinks", "multimodule-inter-module-links")
         registerTestProjectSuite("testTemplateProjectMultiplatform", "it-multiplatform-0")
         registerTestProjectSuite("testTemplateProjectTasksExecutionStress", "it-sequential-tasks-execution-stress")
         registerTestProjectSuite("testTemplateProjectWasmBasic", "it-wasm-basic")
