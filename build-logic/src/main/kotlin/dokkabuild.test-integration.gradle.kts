@@ -44,6 +44,11 @@ val integrationTestRuntimeOnly: Configuration by configurations.getting {
 abstract class NonCacheableIntegrationTest : Test()
 
 val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
+
+    minHeapSize = "2g"
+    maxHeapSize = "4g"
+    jvmArgs = listOf("-XX:MaxPermSize=2g")
+
     description = "Runs integration tests."
     group = "verification"
     testClassesDirs = integrationTestSourceSet.output.classesDirs
