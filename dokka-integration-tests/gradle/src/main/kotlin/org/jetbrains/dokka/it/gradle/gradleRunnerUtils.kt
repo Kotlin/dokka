@@ -1,7 +1,7 @@
 /*
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-package org.jetbrains.dokka.it
+package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.BuildTask

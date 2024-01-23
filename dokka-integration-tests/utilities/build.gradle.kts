@@ -16,8 +16,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.jsoup)
     implementation(libs.eclipse.jgit)
-
-    implementation(gradleTestKit())
 }
 
 kotlin {
