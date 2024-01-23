@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Disabled
 
 plugins {
     id("dokkabuild.kotlin-jvm")
-    `test-suite-base`
+    `jvm-test-suite`
     `java-test-fixtures`
 }
 
