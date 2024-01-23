@@ -23,6 +23,12 @@ tasks.withType<Test>().configureEach {
     javaLauncher.set(javaToolchains.launcherFor {
         languageVersion.set(dokkaBuild.testJavaLauncherVersion)
     })
+
+    maxParallelForks = if (System.getenv("CI") != null) {
+        Runtime.getRuntime().availableProcessors()
+    } else {
+        (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+    }
 }
 
 dependencies {
