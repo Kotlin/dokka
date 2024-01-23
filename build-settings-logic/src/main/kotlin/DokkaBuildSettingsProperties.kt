@@ -17,12 +17,16 @@ abstract class DokkaBuildSettingsProperties @Inject constructor(
     private val providers: ProviderFactory
 ) {
     val buildingOnTeamCity: Boolean = System.getenv("TEAMCITY_VERSION") != null
-    val buildingOnCi: Boolean = System.getenv("CI") != null || buildingOnTeamCity
+    val buildingOnGitHub: Boolean = System.getenv("GITHUB_ACTION") != null
+    val buildingOnCi: Boolean = System.getenv("CI") != null || buildingOnTeamCity || buildingOnGitHub
 
 
     //region Gradle Build Scan
     // NOTE: build scan properties are documented in CONTRIBUTING.md
-    /** If unset, the user has not opted in to publish Build Scans. */
+    val buildScanEnabled: Provider<Boolean> =
+        dokkaProperty("build.scan.enabled", String::toBoolean)
+            .orElse(buildingOnCi)
+
     val buildScanUrl: Provider<String> =
         dokkaProperty("build.scan.url")
 

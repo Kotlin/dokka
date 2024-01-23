@@ -30,16 +30,17 @@ plugins {
 val buildSettingsProps = dokkaBuildSettingsProperties
 
 val buildScanServer = buildSettingsProps.buildScanUrl.orNull?.ifBlank { null }
+val buildScanEnabled = buildSettingsProps.buildScanEnabled.get() && buildScanServer != null
 
-if (buildScanServer != null) {
+if (buildScanEnabled) {
     plugins.apply("com.gradle.common-custom-user-data-gradle-plugin")
 }
 
 gradleEnterprise {
     buildScan {
-        if (buildScanServer != null) {
+        if (buildScanEnabled) {
             server = buildScanServer
-            publishAlways()
+            publishAlwaysIf(buildScanEnabled)
 
             capture {
                 isTaskInputFiles = true
@@ -55,8 +56,9 @@ gradleEnterprise {
             username { originalUsername ->
                 when {
                     buildSettingsProps.buildingOnTeamCity -> "TeamCity"
+                    buildSettingsProps.buildingOnGitHub -> "GitHub"
                     buildSettingsProps.buildingOnCi -> "CI"
-                    overriddenName.isNullOrBlank() -> overriddenName
+                    !overriddenName.isNullOrBlank() -> overriddenName
                     overriddenName == BUILD_SCAN_USERNAME_DEFAULT -> originalUsername
                     else -> "unknown"
                 }
