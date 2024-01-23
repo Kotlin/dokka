@@ -6,7 +6,6 @@ package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.internal.DefaultGradleRunner
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.it.AbstractIntegrationTest
@@ -57,11 +56,12 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             build()
         } catch (e: Throwable) {
             val gradleConnectionException = e.withAllCauses().find { it is GradleConnectionException }
-            if (gradleConnectionException != null) {
-                gradleConnectionException.printStackTrace()
-                throw IllegalStateException("Assumed Gradle connection", gradleConnectionException)
-
-            }
+            println("Gradle Connection error!")
+            gradleConnectionException?.printStackTrace()
+//            if (gradleConnectionException != null) {
+//                gradleConnectionException.printStackTrace()
+//                throw IllegalStateException("Assumed Gradle connection", e)
+//            }
             throw e
         }
     }
