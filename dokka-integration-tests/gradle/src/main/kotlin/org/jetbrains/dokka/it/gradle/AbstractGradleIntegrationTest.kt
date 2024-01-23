@@ -30,7 +30,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
     ): GradleRunner {
         return GradleRunner.create()
             .withProjectDir(projectDir)
-            .forwardOutput()
+//            .forwardOutput()
             .withJetBrainsCachedGradleVersion(buildVersions.gradleVersion)
             .withTestKitDir(File("build", "gradle-test-kit").absoluteFile)
             .withDebug(TestEnvironment.isEnabledDebug)

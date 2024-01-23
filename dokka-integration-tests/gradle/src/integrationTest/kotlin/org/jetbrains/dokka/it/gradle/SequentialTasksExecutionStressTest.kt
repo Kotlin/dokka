@@ -37,7 +37,7 @@ class SequentialTasksExecutionStressTest : AbstractGradleIntegrationTest() {
         val result = createGradleRunner(
             buildVersions,
             "runTasks",
-            "--info",
+//            "--info",
             "--stacktrace",
             "-Ptask_number=100",
         ).buildRelaxed()
