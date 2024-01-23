@@ -1,3 +1,4 @@
+@file:Suppress("UnstableApiUsage")
 /*
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
@@ -81,7 +82,6 @@ tasks.withType<Test>().configureEach {
     doNotTrackState("uses artifacts from Maven Local")
 }
 
-@Suppress("UnstableApiUsage")
 testing {
     suites {
         withType<JvmTestSuite>().configureEach {
@@ -97,37 +97,6 @@ testing {
                         logger.info("running $path with javaLauncher:${javaLauncher.orNull?.metadata?.javaRuntimeVersion}")
                     }
                 }
-            }
-        }
-
-        /**
-         * Create a new [JvmTestSuite] for a Gradle project.
-         *
-         * @param[projectPath] path to the Gradle project that will be tested by this suite, relative to [templateProjectsDir].
-         * The directory will be passed as a system property, `templateProjectDir`.
-         */
-        fun registerTestProjectSuite(
-            name: String,
-            projectPath: String,
-            jvm: JavaLanguageVersion? = null,
-            configure: JvmTestSuite.() -> Unit = {},
-        ) {
-            val templateProjectDir = templateProjectsDir.dir(projectPath)
-
-            register<JvmTestSuite>(name) {
-                targets.configureEach {
-                    testTask.configure {
-                        // Register the project dir as a specific input, so changes in other projects don't affect the caching of this test
-                        inputs.dir(templateProjectDir)
-                        // Pass the template dir in as a property, it is accessible in tests.
-                        systemProperty("templateProjectDir", templateProjectDir.asFile.invariantSeparatorsPath)
-
-                        if (jvm != null) {
-                            javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
-                        }
-                    }
-                }
-                configure()
             }
         }
 
@@ -173,6 +142,38 @@ testing {
     }
     tasks.check {
         dependsOn(suites)
+    }
+}
+
+
+/**
+ * Create a new [JvmTestSuite] for a Gradle project.
+ *
+ * @param[projectPath] path to the Gradle project that will be tested by this suite, relative to [templateProjectsDir].
+ * The directory will be passed as a system property, `templateProjectDir`.
+ */
+fun TestingExtension.registerTestProjectSuite(
+    name: String,
+    projectPath: String,
+    jvm: JavaLanguageVersion? = null,
+    configure: JvmTestSuite.() -> Unit = {},
+) {
+    val templateProjectDir = templateProjectsDir.dir(projectPath)
+
+    suites.register<JvmTestSuite>(name) {
+        targets.configureEach {
+            testTask.configure {
+                // Register the project dir as a specific input, so changes in other projects don't affect the caching of this test
+                inputs.dir(templateProjectDir)
+                // Pass the template dir in as a property, it is accessible in tests.
+                systemProperty("templateProjectDir", templateProjectDir.asFile.invariantSeparatorsPath)
+
+                if (jvm != null) {
+                    javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
+                }
+            }
+        }
+        configure()
     }
 }
 
