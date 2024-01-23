@@ -9,7 +9,6 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.it.AbstractIntegrationTest
-import org.jetbrains.dokka.it.withJvmArguments
 import java.io.File
 import java.net.URI
 import kotlin.test.BeforeTest
