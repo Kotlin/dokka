@@ -28,6 +28,11 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
         buildVersions: BuildVersions,
         vararg arguments: String,
     ): GradleRunner {
+//        return GradleRunner(
+//            projectDir = projectDir,
+//        ) {
+//            this.arguments += arguments
+//        }
         return GradleRunner.create()
             .withProjectDir(projectDir)
 //            .forwardOutput()
