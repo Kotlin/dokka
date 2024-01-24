@@ -1,0 +1,34 @@
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark, .section-tab {
+    background-color: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--inactive-tab-border-color);
+    color: var(--inactive-section-color);
+    cursor: pointer;
+    font-size: var(--default-font-size);
+    margin: 0 8px;
+    outline: none;
+    padding: 11px 3px
+}
+
+.section-tab:hover {
+    border-bottom: 2px solid var(--default-font-color);
+    color: red;
+}
+
+.section-tab[data-active=""] {
+    border-bottom: 2px solid var(--active-tab-border-color);
+    color: var(--active-section-color)
+}
+
+.tabs-section-body > div {
+    margin-top: 12px
+}
+
+.tabs-section-body .with-platform-tabs {
+    padding-bottom: 12px;
+    padding-top: 12px
+}
+
+.js .platform-hinted > .content:not([data-active]), .js .tabs-section-body [data-togglable]:not([data-active]), .main-content[data-page-type=package] .tabs-section-body h2 {
+    display: none
+}
