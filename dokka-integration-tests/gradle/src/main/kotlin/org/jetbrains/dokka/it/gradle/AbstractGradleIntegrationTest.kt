@@ -12,6 +12,7 @@ import org.jetbrains.dokka.it.AbstractIntegrationTest
 import java.io.File
 import java.net.URI
 import kotlin.test.BeforeTest
+import kotlin.time.Duration.Companion.seconds
 
 abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
 
@@ -41,6 +42,11 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                     buildVersions.androidGradlePluginVersion?.let { androidVersion ->
                         "-Pdokka_it_android_gradle_plugin_version=$androidVersion"
                     },
+
+                    // Decrease Gradle daemon idle timeout, to help with OOM on CI because agents have limited memory
+                    "-Dorg.gradle.daemon.idletimeout=" + 60.seconds.inWholeMilliseconds, // default is 3 hours!
+                    "-Pkotlin.daemon.options.autoshutdownIdleSeconds=60",
+
                     // property flag to use K2
                     if (TestEnvironment.shouldUseK2())
                         "-P${TestEnvironment.TRY_K2}=true"
