@@ -130,7 +130,9 @@ testing {
             targets.configureEach {
                 testTask.configure {
                     // register the whole directory as an input because it contains the git diff
-                    inputs.dir(templateProjectsDir.file("coroutines"))
+                    inputs
+                        .dir(templateProjectsDir.file("coroutines"))
+                        .withPropertyName("coroutinesProjectDir")
                 }
             }
         }
@@ -138,7 +140,9 @@ testing {
             targets.configureEach {
                 testTask.configure {
                     // register the whole directory as an input because it contains the git diff
-                    inputs.dir(templateProjectsDir.file("serialization"))
+                    inputs
+                        .dir(templateProjectsDir.file("serialization"))
+                        .withPropertyName("serializationProjectDir")
                 }
             }
         }
