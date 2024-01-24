@@ -136,7 +136,11 @@ testing {
                 }
             }
         }
-        registerTestProjectSuite("testExternalProjectKotlinxSerialization", "serialization/kotlinx-serialization") {
+        registerTestProjectSuite(
+            "testExternalProjectKotlinxSerialization",
+            "serialization/kotlinx-serialization",
+            jvm = JavaLanguageVersion.of(11) // https://github.com/Kotlin/kotlinx.serialization/blob/1116f5f13a957feecda47d5e08b0aa335fc010fa/gradle/configure-source-sets.gradle#L9
+        ) {
             targets.configureEach {
                 testTask.configure {
                     // register the whole directory as an input because it contains the git diff
