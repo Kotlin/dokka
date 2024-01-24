@@ -115,7 +115,7 @@ testing {
         registerTestProjectSuite("testTemplateProjectMultimodule0", "it-multimodule-0")
         registerTestProjectSuite("testTemplateProjectMultimodule1", "it-multimodule-1")
         registerTestProjectSuite("testTemplateProjectMultimoduleVersioning", "it-multimodule-versioning-0")
-        registerTestProjectSuite("testTemplateProjectMultimoduleInterModuleLinks", "multimodule-inter-module-links")
+        registerTestProjectSuite("testTemplateProjectMultimoduleInterModuleLinks", "it-multimodule-inter-module-links")
         registerTestProjectSuite("testTemplateProjectMultiplatform", "it-multiplatform-0")
         registerTestProjectSuite("testTemplateProjectTasksExecutionStress", "it-sequential-tasks-execution-stress")
         registerTestProjectSuite("testTemplateProjectWasmBasic", "it-wasm-basic")
@@ -166,7 +166,7 @@ fun TestingExtension.registerTestProjectSuite(
         targets.configureEach {
             testTask.configure {
                 // Register the project dir as a specific input, so changes in other projects don't affect the caching of this test
-                inputs.dir(templateProjectDir)
+                inputs.dir(templateProjectDir).withPropertyName("templateProjectDir")
                 // Pass the template dir in as a property, it is accessible in tests.
                 systemProperty("templateProjectDir", templateProjectDir.asFile.invariantSeparatorsPath)
 
@@ -174,8 +174,8 @@ fun TestingExtension.registerTestProjectSuite(
                     javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
                 }
 
-                // For validation on CI the output is uploaded. This requires the test task is not skipped, and
-                // so Gradle must be told about the output dir.
+                // For validation, on CI the generated output is uploaded, so the test must produce output in
+                // DOKKA_TEST_OUTPUT_PATH. For Gradle up-to-date checks the output dir must be specified.
                 val testOutputPath = System.getenv("DOKKA_TEST_OUTPUT_PATH")
                 inputs.property("testOutputPath", testOutputPath).optional(true)
                 if (testOutputPath != null) {
