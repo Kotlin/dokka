@@ -1,8 +1,8 @@
-import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
-
 /*
  * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:Suppress("UnstableApiUsage")
+
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Disabled
 
 plugins {
     id("dokkabuild.kotlin-jvm")
-    `test-suite-base`
+    `jvm-test-suite`
     `java-test-fixtures`
 }
 
@@ -91,13 +91,13 @@ tasks.withType<Test>().configureEach {
     }
 }
 
-@Suppress("UnstableApiUsage")
 testing {
     suites {
         withType<JvmTestSuite>().configureEach {
             useJUnitJupiter()
 
             dependencies {
+                // test suites are independent by default (unlike the test source set), and must manually depend on the project
                 implementation(project())
             }
 
@@ -122,37 +122,6 @@ testing {
             }
         }
 
-        /**
-         * Create a new [JvmTestSuite] for a Gradle project.
-         *
-         * @param[projectPath] path to the Gradle project that will be tested by this suite, relative to [templateProjectsDir].
-         * The directory will be passed as a system property, `templateProjectDir`.
-         */
-        fun registerTestProjectSuite(
-            name: String,
-            projectPath: String,
-            jvm: JavaLanguageVersion? = null,
-            configure: JvmTestSuite.() -> Unit = {},
-        ) {
-            val templateProjectDir = templateProjectsDir.dir(projectPath)
-
-            register<JvmTestSuite>(name) {
-                targets.configureEach {
-                    testTask.configure {
-                        // Register the project dir as a specific input, so changes in other projects don't affect the caching of this test
-                        inputs.dir(templateProjectDir)
-                        // Pass the template dir in as a property, it is accessible in tests.
-                        systemProperty("templateProjectDir", templateProjectDir.asFile.invariantSeparatorsPath)
-
-                        if (jvm != null) {
-                            javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
-                        }
-                    }
-                }
-                configure()
-            }
-        }
-
         // register a separate test suite for each 'template' project
         registerTestProjectSuite(
             "testTemplateProjectAndroid",
@@ -167,6 +136,7 @@ testing {
         registerTestProjectSuite("testTemplateProjectMultimodule0", "it-multimodule-0")
         registerTestProjectSuite("testTemplateProjectMultimodule1", "it-multimodule-1")
         registerTestProjectSuite("testTemplateProjectMultimoduleVersioning", "it-multimodule-versioning-0")
+        registerTestProjectSuite("testTemplateProjectMultimoduleInterModuleLinks", "it-multimodule-inter-module-links")
         registerTestProjectSuite("testTemplateProjectMultiplatform", "it-multiplatform-0")
         registerTestProjectSuite("testTemplateProjectTasksExecutionStress", "it-sequential-tasks-execution-stress")
         registerTestProjectSuite("testTemplateProjectWasmBasic", "it-wasm-basic")
@@ -180,21 +150,69 @@ testing {
             targets.configureEach {
                 testTask.configure {
                     // register the whole directory as an input because it contains the git diff
-                    inputs.dir(templateProjectsDir.file("coroutines"))
+                    inputs
+                        .dir(templateProjectsDir.file("coroutines"))
+                        .withPropertyName("coroutinesProjectDir")
                 }
             }
         }
-        registerTestProjectSuite("testExternalProjectKotlinxSerialization", "serialization/kotlinx-serialization") {
+        registerTestProjectSuite(
+            "testExternalProjectKotlinxSerialization",
+            "serialization/kotlinx-serialization",
+            jvm = JavaLanguageVersion.of(11) // https://github.com/Kotlin/kotlinx.serialization/blob/1116f5f13a957feecda47d5e08b0aa335fc010fa/gradle/configure-source-sets.gradle#L9
+        ) {
             targets.configureEach {
                 testTask.configure {
                     // register the whole directory as an input because it contains the git diff
-                    inputs.dir(templateProjectsDir.file("serialization"))
+                    inputs
+                        .dir(templateProjectsDir.file("serialization"))
+                        .withPropertyName("serializationProjectDir")
                 }
             }
         }
     }
     tasks.check {
         dependsOn(suites)
+    }
+}
+
+
+/**
+ * Create a new [JvmTestSuite] for a Gradle project.
+ *
+ * @param[projectPath] path to the Gradle project that will be tested by this suite, relative to [templateProjectsDir].
+ * The directory will be passed as a system property, `templateProjectDir`.
+ */
+fun TestingExtension.registerTestProjectSuite(
+    name: String,
+    projectPath: String,
+    jvm: JavaLanguageVersion? = null,
+    configure: JvmTestSuite.() -> Unit = {},
+) {
+    val templateProjectDir = templateProjectsDir.dir(projectPath)
+
+    suites.register<JvmTestSuite>(name) {
+        targets.configureEach {
+            testTask.configure {
+                // Register the project dir as a specific input, so changes in other projects don't affect the caching of this test
+                inputs.dir(templateProjectDir).withPropertyName("templateProjectDir")
+                // Pass the template dir in as a property, it is accessible in tests.
+                systemProperty("templateProjectDir", templateProjectDir.asFile.invariantSeparatorsPath)
+
+                if (jvm != null) {
+                    javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
+                }
+
+                // For validation, on CI the generated output is uploaded, so the test must produce output in
+                // DOKKA_TEST_OUTPUT_PATH. For Gradle up-to-date checks the output dir must be specified.
+                val testOutputPath = System.getenv("DOKKA_TEST_OUTPUT_PATH")
+                inputs.property("testOutputPath", testOutputPath).optional(true)
+                if (testOutputPath != null) {
+                    outputs.dir(testOutputPath).withPropertyName("testOutput")
+                }
+            }
+        }
+        configure()
     }
 }
 
@@ -226,5 +244,12 @@ val testAllExternalProjects by tasks.registering {
     shouldRunAfter(testAllTemplateProjects)
     dependsOn(testExternalProjectsTasks)
     doNotTrackState("lifecycle task, should always run")
+}
+
+val integrationTest by tasks.registering {
+    description = "Lifecycle task for running integration tests"
+    // TODO - Refactor Maven and CLI integration tests to use Test Suites
+    //      - Reimplement dokkabuild.test-integration.gradle.kts so that `integrationTest` is defined once there
+    dependsOn(tasks.withType<Test>()) // all tests in this project are integration tests
 }
 //endregion

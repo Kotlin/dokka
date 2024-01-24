@@ -154,6 +154,22 @@ Notable builds:
   runs Dokka's integration tests, which are designed to test compatibility with different Kotlin versions, with different
   multiplatform targets and with various user scenarios.
 
+### Gradle Build Scans
+
+[Gradle Build Scans](https://scans.gradle.com/) can provide insights into a Dokka Build. 
+JetBrains runs a [Gradle Develocity server](https://ge.jetbrains.com/scans?search.rootProjectNames=dokka).
+that can be used to automatically upload reports.
+
+To automatically opt in add the following to `$GRADLE_USER_HOME/gradle.properties`. 
+
+```properties
+org.jetbrains.dokka.build.scan.enabled=true
+# optionally provide a username that will be attached to each report
+org.jetbrains.dokka.build.scan.username=Hannah Clarke
+```
+
+A Build Scan may contain identifiable information. See the Terms of Use https://gradle.com/legal/terms-of-use/.
+
 ## Contacting maintainers
 
 * If something cannot be done, not convenient, or does not work &mdash; submit an [issue](#submitting-issues).

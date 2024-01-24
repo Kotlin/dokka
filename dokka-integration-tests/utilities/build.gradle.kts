@@ -16,13 +16,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.jsoup)
     implementation(libs.eclipse.jgit)
-
-    implementation(gradleTestKit())
-}
-
-kotlin {
-    // this project only contains test utils and isn't published, so it doesn't matter about explicit API
-    explicitApi = Disabled
 }
 
 kotlin {
