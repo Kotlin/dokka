@@ -27,10 +27,12 @@ import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransf
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.validity.PreGenerationChecker
 
-public class JavadocPlugin : DokkaPlugin() {
+public class JavadocPlugin : DokkaPlugin(), WithUnsafeExtensionSuppression {
 
     private val dokkaBasePlugin: DokkaBase by lazy { plugin<DokkaBase>() }
     private val kotinAsJavaPlugin: KotlinAsJavaPlugin by lazy { plugin<KotlinAsJavaPlugin>() }
+    // defaultSamplesTransformer knows nothing about Javadoc's content model
+    public override val extensionsSuppressed: List<Extension<*, *, *>> by lazy { listOf(dokkaBasePlugin.defaultSamplesTransformer) }
 
     public val locationProviderFactory: ExtensionPoint<LocationProviderFactory> by lazy { dokkaBasePlugin.locationProviderFactory }
     public val javadocPreprocessors: ExtensionPoint<PageTransformer> by extensionPoint<PageTransformer>()
