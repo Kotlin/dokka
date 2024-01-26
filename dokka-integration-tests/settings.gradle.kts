@@ -23,6 +23,12 @@ plugins {
 
 dependencyResolutionManagement {
     repositories {
+        maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide")
+        maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies")
+
+        maven("https://cache-redirector.jetbrains.com/intellij-repository/releases")
+        maven("https://cache-redirector.jetbrains.com/intellij-third-party-dependencies")
+
         mavenCentral()
     }
 
@@ -36,8 +42,7 @@ dependencyResolutionManagement {
 includeBuild("../dokka-runners/runner-gradle-plugin-classic")
 includeBuild("../dokka-runners/runner-maven-plugin")
 includeBuild("../dokka-runners/runner-cli")
-includeBuild("../.") // include the very root aggregating build so that we can depend on its tasks
-
+includeBuild("../.")
 include(
     ":cli",
     ":gradle",

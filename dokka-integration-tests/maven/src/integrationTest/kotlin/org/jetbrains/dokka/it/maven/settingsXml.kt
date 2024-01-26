@@ -13,31 +13,26 @@ import java.nio.file.Paths
 /** Create `settings.xml` file contents, with the custom dev Maven repos. */
 @Language("xml")
 fun createSettingsXml(): String {
-    /** file-based Maven repositories that contain Dokka dependencies */
-    val projectLocalMavenDirs: List<Path> by systemProperty { it.split(":").map(Paths::get) }
-
-    val repos = projectLocalMavenDirs.withIndex().joinToString("\n\n") {(i, path) ->
-        /* language=xml */ """
-            <pluginRepository>
-                <id>dev-repo-$i</id>
-                <url>${path.toUri().toASCIIString()}</url>
-            </pluginRepository>
-        """.trimIndent()
-    }
+    /** file-based Maven repository with Dokka dependencies */
+    val devMavenRepo: Path by systemProperty(Paths::get)
 
     return """
-        <settings>
-            <profiles>
-                <profile>
-                    <id>maven-dev</id>
-                    <pluginRepositories>
-                        $repos
-                    </pluginRepositories>
-                </profile>
-            </profiles>
-            <activeProfiles>
-                <activeProfile>maven-dev</activeProfile>
-            </activeProfiles>
-        </settings>
-    """.trimIndent()
+        |<settings>
+        |    <profiles>
+        |        <profile>
+        |            <id>maven-dev</id>
+        |            <pluginRepositories>
+        |                <pluginRepository>
+        |                    <id>devMavenRepo</id>
+        |                    <url>${devMavenRepo.toUri().toASCIIString()}</url>
+        |                </pluginRepository>
+        |            </pluginRepositories>
+        |        </profile>
+        |    </profiles>
+        |    <activeProfiles>
+        |        <activeProfile>maven-dev</activeProfile>
+        |    </activeProfiles>
+        |</settings>
+        |
+    """.trimMargin()
 }

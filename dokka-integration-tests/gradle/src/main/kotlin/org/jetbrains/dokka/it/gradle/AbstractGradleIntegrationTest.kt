@@ -96,29 +96,28 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
         val templateSettingsGradleKts: Path by systemProperty(Paths::get)
 
         /** file-based Maven repositories that contains the Dokka dependencies */
-        val projectLocalMavenDirs: List<Path> by systemProperty { it.split(":").map(Paths::get) }
+        private val devMavenRepo: Path by systemProperty(Paths::get)
 
         fun File.updateProjectLocalMavenDir() {
-
-            val repositories =
-                projectLocalMavenDirs.joinToString(", ") { "maven(\"${it.invariantSeparatorsPathString}\")" }
-
             walk().filter { it.isFile }.forEach { file ->
                 file.writeText(
-                    file.readText()
-                        .replace(
-                            "/* %{PROJECT_LOCAL_MAVEN_DIR}% */",
-                            /*language=TEXT*/
-                            """
-                                |exclusiveContent {
-                                |    forRepositories($repositories)
-                                |    filter {
-                                |        includeGroup("org.jetbrains.dokka")
-                                |    }
-                                |}
-                                |
-                            """.trimMargin()
-                        )
+                    file.readText().replace(
+                        "/* %{PROJECT_LOCAL_MAVEN_DIR}% */",
+                        /*language=TEXT*/
+                        """
+                        |exclusiveContent {
+                        |    forRepository{
+                        |        maven("${devMavenRepo.invariantSeparatorsPathString}") {
+                        |            name = "DevMavenRepo"
+                        |        }
+                        |    }
+                        |    filter {
+                        |        includeGroup("org.jetbrains.dokka")
+                        |    }
+                        |}
+                        |
+                        """.trimMargin()
+                    )
                 )
             }
         }
