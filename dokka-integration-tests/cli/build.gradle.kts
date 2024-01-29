@@ -15,14 +15,18 @@ dependencies {
     implementation(projects.utilities)
 }
 
-/* Create a fat base plugin jar for cli tests */
-val basePluginShadow: Configuration by configurations.creating {
+// Configuration for plugins/dependencies required to run CLI with base plugin
+val cliPluginsClasspath: Configuration by configurations.creating {
     attributes {
         attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, "java-runtime"))
     }
+
+    // we don't fetch transitive dependencies here to be able to control external dependencies explicitly
+    isTransitive = false
 }
 
-val cliConfiguration: Configuration by configurations.creating {
+// Configuration for CLI jar
+val cliClasspath: Configuration by configurations.creating {
     attributes {
         attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, Usage.JAVA_RUNTIME))
         attribute(Bundling.BUNDLING_ATTRIBUTE, project.objects.named(Bundling::class.java, Bundling.SHADOWED))
@@ -32,22 +36,33 @@ val cliConfiguration: Configuration by configurations.creating {
 }
 
 dependencies {
-    cliConfiguration("org.jetbrains.dokka:runner-cli")
+    cliClasspath("org.jetbrains.dokka:runner-cli")
 
-    basePluginShadow("org.jetbrains.dokka:plugin-base")
+    cliPluginsClasspath("org.jetbrains.dokka:plugin-base")
+    // required dependencies of `plugin-base`
+    cliPluginsClasspath(libs.freemarker)
+    cliPluginsClasspath(libs.kotlinx.html)
 
-    // TODO [beresnev] analysis switcher
-    basePluginShadow("org.jetbrains.dokka:analysis-kotlin-descriptors") {
+    val tryK2 = project.providers
+        .gradleProperty("org.jetbrains.dokka.experimental.tryK2")
+        .map(String::toBoolean)
+        .orNull ?: false
+
+    val analysisDependency = when {
+        tryK2 -> "org.jetbrains.dokka:analysis-kotlin-symbols"
+        else -> "org.jetbrains.dokka:analysis-kotlin-descriptors"
+    }
+
+    cliPluginsClasspath(analysisDependency) {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, project.objects.named(Bundling::class.java, Bundling.SHADOWED))
         }
     }
 }
 
-val basePluginShadowJar by tasks.register("basePluginShadowJar", ShadowJar::class) {
-    configurations = listOf(basePluginShadow)
-    archiveFileName.set("fat-base-plugin-${project.version}.jar")
-    archiveClassifier.set("")
+val cliPluginsShadowJar by tasks.registering(ShadowJar::class) {
+    archiveFileName.set("cli-plugins-${project.version}.jar")
+    configurations = listOf(cliPluginsClasspath)
 
     // service files are merged to make sure all Dokka plugins
     // from the dependencies are loaded, and not just a single one.
@@ -55,10 +70,10 @@ val basePluginShadowJar by tasks.register("basePluginShadowJar", ShadowJar::clas
 }
 
 tasks.integrationTest {
-    dependsOn(cliConfiguration)
-    dependsOn(basePluginShadowJar)
+    dependsOn(cliClasspath)
+    dependsOn(cliPluginsShadowJar)
 
     inputs.dir(file("projects"))
-    environment("CLI_JAR_PATH", cliConfiguration.singleFile)
-    environment("BASE_PLUGIN_JAR_PATH", basePluginShadowJar.archiveFile.get())
+    environment("CLI_JAR_PATH", cliClasspath.singleFile)
+    environment("BASE_PLUGIN_JAR_PATH", cliPluginsShadowJar.get().archiveFile.get())
 }
