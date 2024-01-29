@@ -15,21 +15,21 @@ dependencies {
     implementation(projects.utilities)
 }
 
-// Configuration for plugins/dependencies required to run CLI with base plugin
 val cliPluginsClasspath: Configuration by configurations.creating {
+    description = "plugins/dependencies required to run CLI with base plugin"
     attributes {
-        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, "java-runtime"))
+        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
     }
 
     // we don't fetch transitive dependencies here to be able to control external dependencies explicitly
     isTransitive = false
 }
 
-// Configuration for CLI jar
 val cliClasspath: Configuration by configurations.creating {
+    description = "dependency on CLI JAR"
     attributes {
-        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, Usage.JAVA_RUNTIME))
-        attribute(Bundling.BUNDLING_ATTRIBUTE, project.objects.named(Bundling::class.java, Bundling.SHADOWED))
+        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
+        attribute(Bundling.BUNDLING_ATTRIBUTE, project.objects.named(Bundling.SHADOWED))
     }
     // we should have single artifact here
     isTransitive = false
@@ -55,7 +55,7 @@ dependencies {
 
     cliPluginsClasspath(analysisDependency) {
         attributes {
-            attribute(Bundling.BUNDLING_ATTRIBUTE, project.objects.named(Bundling::class.java, Bundling.SHADOWED))
+            attribute(Bundling.BUNDLING_ATTRIBUTE, project.objects.named(Bundling.SHADOWED))
         }
     }
 }

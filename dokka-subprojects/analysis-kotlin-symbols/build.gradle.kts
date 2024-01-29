@@ -110,10 +110,10 @@ tasks.withType<ShadowJar>().configureEach {
  *
  */
 
-// configuration for dependencies which we need to replace with original ones because `kotlin-compiler` minimizes them
 val shadowOverride: Configuration by configurations.creating {
+    description = "dependencies which we need to replace with original ones because `kotlin-compiler` minimizes them"
     attributes {
-        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, "java-runtime"))
+        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
     }
 }
 
