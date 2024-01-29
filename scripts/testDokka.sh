@@ -1,17 +1,20 @@
 #!/bin/bash
+#
+# Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+#
 set -e
-#
-# Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
-#
 
-# New version to be published
-NEW_VERSION="1.9.20-my-fix-SNAPSHOT"
+# Get the path to the script itself
+SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Path to Dokka
+DOKKA_REPO_PATH="$SCRIPT_PATH/../"
 
 # Path to test project
 TEST_PROJECT_PATH="./examples/gradle/dokka-gradle-example"
 
-# Path to Dokka
-DOKKA_REPO_PATH="./"
+# New version to be published
+NEW_VERSION="1.9.20-my-fix-SNAPSHOT"
 
 # Port to view results
 PORT=8001
