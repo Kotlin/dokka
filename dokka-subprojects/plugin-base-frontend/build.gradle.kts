@@ -3,6 +3,7 @@
  */
 
 import com.github.gradle.node.npm.task.NpmTask
+import org.gradle.api.tasks.PathSensitivity.RELATIVE
 import org.jetbrains.kotlin.util.parseSpaceSeparatedArgs
 
 @Suppress("DSL_SCOPE_VIOLATION") // fixed in Gradle 8.1 https://github.com/gradle/gradle/pull/23639
@@ -21,18 +22,29 @@ node {
 
 val distributionDirectory = layout.projectDirectory.dir("dist")
 
+tasks.npmInstall {
+    outputs.cacheIf { true }
+}
+
 val npmRunBuild by tasks.registering(NpmTask::class) {
     dependsOn(tasks.npmInstall)
 
     npmCommand.set(parseSpaceSeparatedArgs("run build"))
 
     inputs.dir("src/main")
+        .withPropertyName("mainSources")
+        .withPathSensitivity(RELATIVE)
+
     inputs.files(
         "package.json",
         "webpack.config.js",
     )
+        .withPropertyName("javascriptConfigFiles")
+        .withPathSensitivity(RELATIVE)
 
     outputs.dir(distributionDirectory)
+        .withPropertyName("distributionDirectory")
+
     outputs.cacheIf { true }
 }
 

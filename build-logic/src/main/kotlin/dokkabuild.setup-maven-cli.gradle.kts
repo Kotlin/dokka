@@ -84,12 +84,12 @@ val installMavenBinary by tasks.registering(Sync::class) {
     val archives = serviceOf<ArchiveOperations>()
     from(
         mavenBinary.flatMap { conf ->
-            @Suppress("UnstableApiUsage")
-            val resolvedArtifacts = conf.incoming.artifacts.resolvedArtifacts
-
-            resolvedArtifacts.map { artifacts ->
-                artifacts.map { archives.zipTree(it.file) }
-            }
+            conf.incoming
+                .artifacts
+                .resolvedArtifacts
+                .map { artifacts ->
+                    artifacts.map { archives.zipTree(it.file) }
+                }
         }
     ) {
         eachFile {
@@ -99,4 +99,6 @@ val installMavenBinary by tasks.registering(Sync::class) {
         includeEmptyDirs = false
     }
     into(mavenCliSetupExtension.mavenInstallDir)
+
+    outputs.cacheIf { true }
 }

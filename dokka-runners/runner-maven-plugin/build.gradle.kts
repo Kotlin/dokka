@@ -47,6 +47,8 @@ val generatePom by tasks.registering(Sync::class) {
     }
 
     into(temporaryDir)
+
+    outputs.cacheIf { true }
 }
 
 val prepareHelpMojoDir by tasks.registering(Sync::class) {
@@ -55,6 +57,8 @@ val prepareHelpMojoDir by tasks.registering(Sync::class) {
 
     into(layout.buildDirectory.dir("maven-help-mojo"))
     from(generatePom)
+
+    outputs.cacheIf { true }
 }
 
 val helpMojo by tasks.registering(Exec::class) {
@@ -68,6 +72,9 @@ val helpMojo by tasks.registering(Exec::class) {
     args("-e", "-B", "org.apache.maven.plugins:maven-plugin-plugin:helpmojo")
 
     outputs.dir(workingDir)
+        .withPropertyName("outputDir")
+
+    outputs.cacheIf { true }
 }
 
 val helpMojoSources by tasks.registering(Sync::class) {
@@ -82,6 +89,8 @@ val helpMojoSources by tasks.registering(Sync::class) {
     includeEmptyDirs = false
     into(temporaryDir)
     include("**/*.java")
+
+    outputs.cacheIf { true }
 }
 
 val helpMojoResources by tasks.registering(Sync::class) {
@@ -91,6 +100,8 @@ val helpMojoResources by tasks.registering(Sync::class) {
     into(temporaryDir)
     include("**/**")
     exclude("**/*.java")
+
+    outputs.cacheIf { true }
 }
 
 sourceSets.main {
@@ -108,6 +119,8 @@ val preparePluginDescriptorDir by tasks.registering(Sync::class) {
     from(tasks.compileKotlin) { into("classes/java/main") }
     from(tasks.compileJava) { into("classes/java/main") }
     from(helpMojoResources)
+
+    outputs.cacheIf { true }
 }
 
 val pluginDescriptor by tasks.registering(Exec::class) {
@@ -121,6 +134,9 @@ val pluginDescriptor by tasks.registering(Exec::class) {
     args("-e", "-B", "org.apache.maven.plugins:maven-plugin-plugin:descriptor")
 
     outputs.dir("$workingDir/classes/java/main/META-INF/maven")
+        .withPropertyName("outputDir")
+
+    outputs.cacheIf { true }
 }
 
 tasks.jar {

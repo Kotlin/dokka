@@ -3,6 +3,7 @@
  */
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.api.tasks.PathSensitivity.RELATIVE
 
 plugins {
     id("dokkabuild.test-integration")
@@ -59,6 +60,8 @@ tasks.integrationTest {
     dependsOn(basePluginShadowJar)
 
     inputs.dir(file("projects"))
+        .withPropertyName("projectsDir")
+        .withPathSensitivity(RELATIVE)
     environment("CLI_JAR_PATH", cliConfiguration.singleFile)
     environment("BASE_PLUGIN_JAR_PATH", basePluginShadowJar.archiveFile.get())
 }

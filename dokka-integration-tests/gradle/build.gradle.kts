@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.PathSensitivity.RELATIVE
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
 /*
@@ -33,6 +34,8 @@ tasks.integrationTest {
     environment("DOKKA_VERSION", project.version)
 
     inputs.dir(file("projects"))
+        .withPropertyName("projectsDir")
+        .withPathSensitivity(RELATIVE)
 
     javaLauncher.set(javaToolchains.launcherFor {
         // kotlinx.coroutines requires Java 11+
