@@ -2,6 +2,7 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import dokkabuild.overridePublicationArtifactId
 
 plugins {
@@ -22,7 +23,7 @@ dependencies {
     implementation(projects.dokkaSubprojects.analysisKotlinDescriptorsIde)
 }
 
-tasks.shadowJar {
+tasks.withType<ShadowJar>().configureEach {
     // service files are merged to make sure all Dokka plugins
     // from the dependencies are loaded, and not just a single one.
     mergeServiceFiles()
@@ -34,9 +35,8 @@ tasks.shadowJar {
  * KT issue: https://youtrack.jetbrains.com/issue/KT-47150
  *
  * what is happening here?
- *   fastutil is removed from shadow-jar completely,
- *   instead we declare a maven RUNTIME dependency on fastutil;
- *   this dependency will be fetched by Gradle at build time (as any other dependency from maven-central)
+ * 1. we create intermediate `shadowDependenciesJar` with dependencies but without fastutil classes in it
+ * 2. then we create final `shadowJar` with full fastutil from maven and dependencies from `shadowDependenciesJar` instead of original dependencies
  *
  * why do we need this?
  *   because `kotlin-compiler` artifact includes unshaded (not-relocated) STRIPPED `fastutil` dependency,
@@ -47,5 +47,34 @@ tasks.shadowJar {
  *   and so such classes are not replaced afterward by `shadowJar` task - it visits every class once
  *
  */
-dependencies.shadow(libs.fastutil)
-tasks.shadowJar { exclude("it/unimi/dsi/fastutil/**") }
+
+val shadowOverride: Configuration by configurations.creating {
+    description = "dependencies which we need to replace with original ones because `kotlin-compiler` minimizes them"
+    attributes {
+        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
+    }
+}
+
+dependencies {
+    shadowOverride(libs.fastutil)
+}
+
+val shadowDependenciesJar by tasks.registering(ShadowJar::class) {
+    group = "shadow"
+    description = "Create a shadow jar from dependencies without fastutil"
+
+    archiveClassifier.set("dependencies")
+    destinationDirectory.set(project.layout.buildDirectory.dir("shadowDependenciesLibs"))
+
+    // we need to create JAR with dependencies, but without fastutil,
+    // so we include `runtimeClasspath` configuration (the same configuration which is used by default `shadowJar` task)
+    // and include `fastutil` from the result
+    configurations = listOf(project.configurations.runtimeClasspath.get())
+    exclude("it/unimi/dsi/fastutil/**")
+}
+
+tasks.shadowJar {
+    // override configurations to remove dependencies handled in `shadowJarDependencies`
+    configurations = emptyList()
+    from(shadowOverride, shadowDependenciesJar)
+}
