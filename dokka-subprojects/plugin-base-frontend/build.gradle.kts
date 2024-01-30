@@ -23,6 +23,9 @@ node {
 val distributionDirectory = layout.projectDirectory.dir("dist")
 
 tasks.npmInstall {
+    // enable caching - workaround for https://github.com/node-gradle/gradle-node-plugin/issues/81
+    outputs.file(layout.projectDirectory.file("node_modules/.package-lock.json"))
+        .withPropertyName("nodeModulesPackageLock")
     outputs.cacheIf { true }
 }
 
@@ -41,6 +44,10 @@ val npmRunBuild by tasks.registering(NpmTask::class) {
     )
         .withPropertyName("javascriptConfigFiles")
         .withPathSensitivity(RELATIVE)
+
+    inputs.dir(layout.projectDirectory.dir("node_modules"))
+        .withPathSensitivity(RELATIVE)
+        .withPropertyName("nodeModulesDir")
 
     outputs.dir(distributionDirectory)
         .withPropertyName("distributionDirectory")
