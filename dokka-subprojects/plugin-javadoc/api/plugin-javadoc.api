@@ -11,13 +11,12 @@ public class org/jetbrains/dokka/javadoc/JavadocPageCreator {
 	public final fun pageForPackage (Lorg/jetbrains/dokka/model/DPackage;)Lorg/jetbrains/dokka/javadoc/pages/JavadocPackagePageNode;
 }
 
-public final class org/jetbrains/dokka/javadoc/JavadocPlugin : org/jetbrains/dokka/plugability/DokkaPlugin, org/jetbrains/dokka/plugability/WithUnsafeExtensionSuppression {
+public final class org/jetbrains/dokka/javadoc/JavadocPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
 	public final fun getAllClassessPageInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDeprecatedPageCreator ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDocumentableSourceSetFilter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getDokkaJavadocPlugin ()Lorg/jetbrains/dokka/plugability/Extension;
-	public fun getExtensionsSuppressed ()Ljava/util/List;
 	public final fun getIndexGenerator ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getJavadocLocationProviderFactory ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getJavadocMultiplatformCheck ()Lorg/jetbrains/dokka/plugability/Extension;
