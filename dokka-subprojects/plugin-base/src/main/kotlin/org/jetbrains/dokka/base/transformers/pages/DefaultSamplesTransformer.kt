@@ -19,6 +19,9 @@ import org.jetbrains.dokka.analysis.kotlin.sample.SampleSnippet
 
 internal const val KOTLIN_PLAYGROUND_SCRIPT = "https://unpkg.com/kotlin-playground@1/dist/playground.min.js"
 
+/**
+ * It works ONLY with a content model from the base plugin.
+ */
 internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransformer {
 
     private val sampleAnalysisEnvironment: SampleAnalysisEnvironmentCreator =

@@ -94,6 +94,13 @@ public class JavadocPlugin : DokkaPlugin() {
         javadocPreprocessors with DeprecatedPageCreator order { before(rootCreator) }
     }
 
+    // defaultSamplesTransformer knows nothing about Javadoc's content model
+    internal val emptySampleTransformer: Extension<PageTransformer, *, *> by extending {
+        CoreExtensions.pageTransformer providing {
+            PageTransformer { it }
+        } override dokkaBasePlugin.defaultSamplesTransformer
+    }
+
     internal val alphaVersionNotifier by extending {
         CoreExtensions.postActions providing { ctx ->
             PostAction {
