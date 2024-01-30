@@ -2,6 +2,7 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+import dokkabuild.tasks.MvnExec
 import org.gradle.kotlin.dsl.support.serviceOf
 
 /**
@@ -33,6 +34,10 @@ abstract class MavenCliSetupExtension {
      * * Unix: `$mavenInstallDir/bin/mvn`
      */
     abstract val mvn: RegularFileProperty
+
+    companion object {
+        const val MAVEN_PLUGIN_GROUP = "maven plugin"
+    }
 }
 
 val mavenCliSetupExtension =
@@ -99,6 +104,13 @@ val installMavenBinary by tasks.registering(Sync::class) {
         includeEmptyDirs = false
     }
     into(mavenCliSetupExtension.mavenInstallDir)
+}
 
-    outputs.cacheIf { true }
+tasks.withType<MvnExec>().configureEach {
+    group = MavenCliSetupExtension.MAVEN_PLUGIN_GROUP
+    dependsOn(installMavenBinary)
+    mvnCli.convention(mavenCliSetupExtension.mvn)
+    workDirectory.convention(layout.dir(provider { temporaryDir }))
+    showErrors.convention(true)
+    batchMode.convention(true)
 }
