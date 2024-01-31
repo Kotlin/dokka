@@ -32,7 +32,6 @@ kotlin {
     explicitApi = Disabled
 
     compilerOptions {
-        allWarningsAsErrors = false
         optIn.add("kotlin.io.path.ExperimentalPathApi")
     }
 }
