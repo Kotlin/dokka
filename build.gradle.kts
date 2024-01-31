@@ -1,17 +1,9 @@
 /*
- * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 plugins {
     id("dokkabuild.base")
-}
-
-tasks.check {
-    dependsOn(
-        gradle.includedBuild("dokka-integration-tests").task(":gradle:check"),
-        gradle.includedBuild("dokka-integration-tests").task(":maven:check"),
-        gradle.includedBuild("dokka-integration-tests").task(":cli:check"),
-    )
 }
 
 val publishedIncludedBuilds = listOf("runner-cli", "runner-gradle-plugin-classic", "runner-maven-plugin")

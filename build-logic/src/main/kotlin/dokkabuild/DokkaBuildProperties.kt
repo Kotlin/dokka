@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package dokkabuild
@@ -25,8 +25,18 @@ abstract class DokkaBuildProperties @Inject constructor(
     private val layout: ProjectLayout,
 ) {
 
+    private val buildingOnTeamCity: Provider<Boolean> =
+        providers.environmentVariable("TEAMCITY_VERSION").map(String::isNotBlank)
+
+    private val buildingOnGitHub: Provider<Boolean> =
+        providers.environmentVariable("GITHUB_ACTION").map(String::isNotBlank)
+
     val isCI: Provider<Boolean> =
-        providers.environmentVariable("CI").map(String::toBoolean).orElse(false)
+        providers.environmentVariable("CI")
+            .map(String::isNotBlank)
+            .orElse(buildingOnTeamCity)
+            .orElse(buildingOnGitHub)
+            .orElse(false)
 
     /**
      * The main version of Java that should be used to build Dokka source code.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 @file:Suppress("UnstableApiUsage")
 
@@ -57,7 +57,6 @@ kotlin {
     explicitApi = Disabled
 
     compilerOptions {
-        allWarningsAsErrors = false
         optIn.add("kotlin.io.path.ExperimentalPathApi")
     }
 }
@@ -103,8 +102,14 @@ tasks.withType<Test>().configureEach {
     )
 
     environment("DOKKA_VERSION", project.version)
-    environment("isExhaustive", dokkaBuild.integrationTestExhaustive)
-    environment("ANDROID_HOME", dokkaBuild.androidSdkDir.get().invariantSeparatorsPath)
+
+    // environment() isn't Provider API compatible yet https://github.com/gradle/gradle/issues/11534
+    dokkaBuild.integrationTestExhaustive.orNull?.let { exhaustive ->
+        environment("isExhaustive", exhaustive)
+    }
+    dokkaBuild.androidSdkDir.orNull?.let { androidSdkDir ->
+        environment("ANDROID_HOME", androidSdkDir)
+    }
 
     testLogging {
         exceptionFormat = FULL
