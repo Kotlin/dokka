@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.dokka.javadoc
@@ -39,6 +39,32 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
             assertEquals("<p>Documentation for TestClass</p>", map["classlikeDocumentation"])
             assertEquals("Documentation for TestClass", map["subtitle"])
             assertEquals("public final class <a href=TestClass.html>TestClass</a>", map.signatureWithModifiers())
+        }
+    }
+
+    @Test
+    fun `single class should not render Kotlin sample`() {
+        dualTestTemplateMapInline(
+            kotlin =
+            """
+            /src/source0.kt
+            /**
+             * some doc
+             * @sample [sample]
+             */
+            class Test {
+            }
+            
+            fun sample(){
+                val a = 0
+            }
+            """
+        ) {
+            assertEquals(0, context.logger.errorsCount)
+            assertEquals(0, context.logger.warningsCount)
+            val map = allPagesOfType<JavadocClasslikePageNode>().first{ it.name == "Test" }.templateMap
+            assertEquals("Test", map["name"])
+            assertEquals("<p>some doc</p>", map["classlikeDocumentation"])
         }
     }
 

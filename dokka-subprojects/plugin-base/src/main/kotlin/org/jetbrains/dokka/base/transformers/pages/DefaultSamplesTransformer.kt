@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.dokka.base.transformers.pages
@@ -19,6 +19,9 @@ import org.jetbrains.dokka.analysis.kotlin.sample.SampleSnippet
 
 internal const val KOTLIN_PLAYGROUND_SCRIPT = "https://unpkg.com/kotlin-playground@1/dist/playground.min.js"
 
+/**
+ * It works ONLY with a content model from the base plugin.
+ */
 internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransformer {
 
     private val sampleAnalysisEnvironment: SampleAnalysisEnvironmentCreator =

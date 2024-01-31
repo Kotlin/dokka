@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.dokka.javadoc
@@ -92,6 +92,13 @@ public class JavadocPlugin : DokkaPlugin() {
 
     public val deprecatedPageCreator: Extension<PageTransformer, *, *> by extending {
         javadocPreprocessors with DeprecatedPageCreator order { before(rootCreator) }
+    }
+
+    // defaultSamplesTransformer knows nothing about Javadoc's content model
+    internal val emptySampleTransformer: Extension<PageTransformer, *, *> by extending {
+        CoreExtensions.pageTransformer providing {
+            PageTransformer { it }
+        } override dokkaBasePlugin.defaultSamplesTransformer
     }
 
     internal val alphaVersionNotifier by extending {

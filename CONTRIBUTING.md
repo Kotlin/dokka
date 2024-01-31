@@ -76,6 +76,8 @@ plugins {
 }
 ```
 
+There is an automation script for this routine, see [testDokka.sh.md](scripts/testDokka.sh.md) for details.
+
 ### Updating public API dump
 
 [Binary Compatibility Validator](https://github.com/Kotlin/binary-compatibility-validator/blob/master/README.md) 
@@ -163,7 +165,7 @@ that can be used to automatically upload reports.
 To automatically opt in add the following to `$GRADLE_USER_HOME/gradle.properties`. 
 
 ```properties
-org.jetbrains.dokka.build.scan.url=https\://ge.jetbrains.com/
+org.jetbrains.dokka.build.scan.enabled=true
 # optionally provide a username that will be attached to each report
 org.jetbrains.dokka.build.scan.username=Hannah Clarke
 ```
