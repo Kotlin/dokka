@@ -37,12 +37,8 @@ dependencies {
     devPublication("org.jetbrains.dokka:runner-maven-plugin:$dokkaVersion")
 }
 
-tasks.integrationTestPreparation {
-    dependsOn(tasks.updateDevRepo)
-}
-
 tasks.integrationTest {
-    dependsOn(tasks.integrationTestPreparation)
+    dependsOn(tasks.updateDevRepo)
 
     dependsOn(tasks.installMavenBinary)
     val mvn = mavenCliSetup.mvn

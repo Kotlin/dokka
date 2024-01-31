@@ -65,12 +65,8 @@ val aggregatingProject = gradle.includedBuild("dokka")
 val templateSettingsGradleKts = layout.projectDirectory.file("projects/template.settings.gradle.kts")
 val templateProjectsDir = layout.projectDirectory.dir("projects")
 
-tasks.integrationTestPreparation {
-    dependsOn(tasks.updateDevRepo)
-}
-
 tasks.withType<Test>().configureEach {
-    dependsOn(tasks.integrationTestPreparation)
+    dependsOn(tasks.updateDevRepo)
 
     setForkEvery(1)
     maxHeapSize = "2G"
@@ -110,10 +106,6 @@ tasks.withType<Test>().configureEach {
     }
 }
 
-tasks.integrationTestPreparation {
-    dependsOn(tasks.updateDevRepo)
-}
-
 testing {
     suites {
         withType<JvmTestSuite>().configureEach {
@@ -126,6 +118,8 @@ testing {
 
             targets.configureEach {
                 testTask.configure {
+                    dependsOn(tasks.updateDevRepo)
+
                     inputs.dir(devPublish.devMavenRepo).withPropertyName("devPublish.devMavenRepo")
                     systemProperty(
                         "devMavenRepo",

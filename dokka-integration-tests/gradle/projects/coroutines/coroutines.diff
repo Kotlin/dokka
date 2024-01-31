@@ -6,7 +6,6 @@ index e7d405e12..236310823 100644
      }
  
      dependencies {
-+        //def dokkaVersion = System.getenv('DOKKA_VERSION')
          classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 -        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
 +        classpath "org.jetbrains.dokka:dokka-gradle-plugin:+"

@@ -15,7 +15,7 @@ class GradleRelocatedCachingIntegrationTest : AbstractGradleCachingIntegrationTe
 
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
-    fun `verify build cache is relocatable`(buildVersions: BuildVersions) {
+    fun execute(buildVersions: BuildVersions) {
         duplicateTemplateProject(buildVersions, projectFolder(1))
         duplicateTemplateProject(buildVersions, projectFolder(2))
 

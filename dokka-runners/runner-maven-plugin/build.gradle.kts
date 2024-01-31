@@ -135,7 +135,3 @@ tasks.jar {
         })
     }
 }
-
-tasks.integrationTestPreparation {
-    dependsOn(tasks.updateDevRepo)
-}

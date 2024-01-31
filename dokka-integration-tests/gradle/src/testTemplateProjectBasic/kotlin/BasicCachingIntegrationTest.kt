@@ -17,7 +17,7 @@ class BasicCachingIntegrationTest : AbstractGradleCachingIntegrationTest() {
 
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
-    fun `when task is repeated, expect FROM_CACHE outcome`(buildVersions: BuildVersions) {
+    fun execute(buildVersions: BuildVersions) {
         runAndAssertOutcomeAndContents(buildVersions, TaskOutcome.SUCCESS)
         runAndAssertOutcomeAndContents(buildVersions, TaskOutcome.FROM_CACHE)
     }

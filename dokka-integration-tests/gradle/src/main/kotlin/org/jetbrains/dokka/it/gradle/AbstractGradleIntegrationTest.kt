@@ -103,7 +103,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                 file.writeText(
                     file.readText().replace(
                         "/* %{PROJECT_LOCAL_MAVEN_DIR}% */",
-                        /*language=TEXT*/
+                        /* language=kts */
                         """
                         |exclusiveContent {
                         |    forRepository{
