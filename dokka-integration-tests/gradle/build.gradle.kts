@@ -68,8 +68,14 @@ tasks.withType<Test>().configureEach {
     )
 
     environment("DOKKA_VERSION", project.version)
-    environment("isExhaustive", dokkaBuild.integrationTestExhaustive)
-    environment("ANDROID_HOME", dokkaBuild.androidSdkDir.get().invariantSeparatorsPath)
+
+    // environment() isn't Provider API compatible yet https://github.com/gradle/gradle/issues/11534
+    dokkaBuild.integrationTestExhaustive.orNull?.let { exhaustive ->
+        environment("isExhaustive", exhaustive)
+    }
+    dokkaBuild.androidSdkDir.orNull?.let { androidSdkDir ->
+        environment("ANDROID_HOME", androidSdkDir)
+    }
 
     testLogging {
         exceptionFormat = FULL
