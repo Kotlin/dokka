@@ -76,7 +76,7 @@ val prepareDokkaHtmlFrontendFiles by tasks.registering(Sync::class) {
 
     into(layout.buildDirectory.dir("generated/src/main/resources"))
 
-    outputs.cacheIf { true }
+    outputs.cacheIf("always cache: avoid fetching files from another subproject") { true }
 }
 
 sourceSets.main {
