@@ -31,9 +31,13 @@ val npmRunBuild by tasks.registering(NpmTask::class) {
         .withPathSensitivity(RELATIVE)
 
     inputs.files(
-        "package.json",
-        "tsconfig.json",
-        "*.config.js",
+        layout.projectDirectory.asFileTree.matching {
+            include(
+                "package.json",
+                "tsconfig.json",
+                "*.config.js",
+            )
+        }
     )
         .withPropertyName("javascriptConfigFiles")
         .withPathSensitivity(RELATIVE)
