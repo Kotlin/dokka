@@ -6,7 +6,6 @@ import com.github.gradle.node.npm.task.NpmTask
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
 import org.jetbrains.kotlin.util.parseSpaceSeparatedArgs
 
-@Suppress("DSL_SCOPE_VIOLATION") // fixed in Gradle 8.1 https://github.com/gradle/gradle/pull/23639
 plugins {
     id("dokkabuild.setup-html-frontend-files")
     alias(libs.plugins.gradleNode)
@@ -22,13 +21,6 @@ node {
 
 val distributionDirectory = layout.projectDirectory.dir("dist")
 
-tasks.npmInstall {
-    // enable caching - workaround for https://github.com/node-gradle/gradle-node-plugin/issues/81
-    outputs.file(layout.projectDirectory.file("node_modules/.package-lock.json"))
-        .withPropertyName("nodeModulesPackageLock")
-    outputs.cacheIf { true }
-}
-
 val npmRunBuild by tasks.registering(NpmTask::class) {
     dependsOn(tasks.npmInstall)
 
@@ -40,19 +32,16 @@ val npmRunBuild by tasks.registering(NpmTask::class) {
 
     inputs.files(
         "package.json",
-        "webpack.config.js",
+        "tsconfig.json",
+        "*.config.js",
     )
         .withPropertyName("javascriptConfigFiles")
         .withPathSensitivity(RELATIVE)
 
-    inputs.dir(layout.projectDirectory.dir("node_modules"))
-        .withPathSensitivity(RELATIVE)
-        .withPropertyName("nodeModulesDir")
+    outputs.cacheIf("always cache, because this task has a defined output directory") { true }
 
     outputs.dir(distributionDirectory)
         .withPropertyName("distributionDirectory")
-
-    outputs.cacheIf { true }
 }
 
 configurations.dokkaHtmlFrontendFilesElements.configure {
@@ -64,8 +53,5 @@ configurations.dokkaHtmlFrontendFilesElements.configure {
 }
 
 tasks.clean {
-    delete(
-        file("node_modules"),
-        file("dist"),
-    )
+    delete(distributionDirectory)
 }
