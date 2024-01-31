@@ -17,6 +17,9 @@ node {
     // https://github.com/node-gradle/gradle-node-plugin/blob/3.5.1/docs/faq.md#is-this-plugin-compatible-with-centralized-repositories-declaration
     download.set(true)
     distBaseUrl.set(null as String?) // Strange cast to avoid overload ambiguity
+
+    // Stop Gradle from monitoring node_modules dir; it will be managed by NPM. This helps performance and task-avoidance.
+    fastNpmInstall = true
 }
 
 val distributionDirectory = layout.projectDirectory.dir("dist")
