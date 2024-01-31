@@ -3,10 +3,6 @@
  */
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.gradle.api.attributes.Bundling.BUNDLING_ATTRIBUTE
-import org.gradle.api.attributes.Bundling.SHADOWED
-import org.gradle.api.attributes.Usage.JAVA_RUNTIME
-import org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE
 
 plugins {
     id("dokkabuild.test-integration")
@@ -19,43 +15,54 @@ dependencies {
     implementation(projects.utilities)
 }
 
-val basePluginShadow: Configuration by configurations.creating {
-    description = "Create a fat base plugin jar for cli tests"
-    isCanBeResolved = true
-    isCanBeConsumed = false
+val cliPluginsClasspath: Configuration by configurations.creating {
+    description = "plugins/dependencies required to run CLI with base plugin"
     attributes {
-        attribute(USAGE_ATTRIBUTE, objects.named(JAVA_RUNTIME))
+        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
     }
+
+    // we don't fetch transitive dependencies here to be able to control external dependencies explicitly
+    isTransitive = false
 }
 
-val dokkaCliResolver: Configuration by configurations.creating {
-    isCanBeResolved = true
-    isCanBeConsumed = false
+val cliClasspath: Configuration by configurations.creating {
+    description = "dependency on CLI JAR"
     attributes {
-        attribute(USAGE_ATTRIBUTE, objects.named(JAVA_RUNTIME))
-        attribute(BUNDLING_ATTRIBUTE, objects.named(SHADOWED))
+        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
+        attribute(Bundling.BUNDLING_ATTRIBUTE, project.objects.named(Bundling.SHADOWED))
     }
     // we should have single artifact here
     isTransitive = false
 }
 
 dependencies {
-    dokkaCliResolver("org.jetbrains.dokka:runner-cli")
+    cliClasspath("org.jetbrains.dokka:runner-cli")
 
-    basePluginShadow("org.jetbrains.dokka:plugin-base")
+    cliPluginsClasspath("org.jetbrains.dokka:plugin-base")
+    // required dependencies of `plugin-base`
+    cliPluginsClasspath(libs.freemarker)
+    cliPluginsClasspath(libs.kotlinx.html)
 
-    // TODO [beresnev] analysis switcher
-    basePluginShadow("org.jetbrains.dokka:analysis-kotlin-descriptors") {
+    val tryK2 = project.providers
+        .gradleProperty("org.jetbrains.dokka.experimental.tryK2")
+        .map(String::toBoolean)
+        .orNull ?: false
+
+    val analysisDependency = when {
+        tryK2 -> "org.jetbrains.dokka:analysis-kotlin-symbols"
+        else -> "org.jetbrains.dokka:analysis-kotlin-descriptors"
+    }
+
+    cliPluginsClasspath(analysisDependency) {
         attributes {
-            attribute(BUNDLING_ATTRIBUTE, objects.named(SHADOWED))
+            attribute(Bundling.BUNDLING_ATTRIBUTE, project.objects.named(Bundling.SHADOWED))
         }
     }
 }
 
-val basePluginShadowJar by tasks.registering(ShadowJar::class) {
-    configurations = listOf(basePluginShadow)
-    archiveFileName.set("fat-base-plugin-${project.version}.jar")
-    archiveClassifier.set("")
+val cliPluginsShadowJar by tasks.registering(ShadowJar::class) {
+    archiveFileName.set("cli-plugins-${project.version}.jar")
+    configurations = listOf(cliPluginsClasspath)
 
     // service files are merged to make sure all Dokka plugins
     // from the dependencies are loaded, and not just a single one.
@@ -63,16 +70,10 @@ val basePluginShadowJar by tasks.registering(ShadowJar::class) {
 }
 
 tasks.integrationTest {
+    dependsOn(cliClasspath)
+    dependsOn(cliPluginsShadowJar)
+
     inputs.dir(file("projects"))
-
-    val basePluginShadowJar = basePluginShadowJar.flatMap { it.archiveFile }
-    inputs.file(basePluginShadowJar).withPropertyName("basePluginShadowJar")
-
-    val dokkaCli = dokkaCliResolver.incoming.artifacts.resolvedArtifacts.map { it.first().file }
-    inputs.file(dokkaCli).withPropertyName("dokkaCli")
-
-    doFirst("workaround for https://github.com/gradle/gradle/issues/24267") {
-        environment("CLI_JAR_PATH", dokkaCli.get().invariantSeparatorsPath)
-        environment("BASE_PLUGIN_JAR_PATH", basePluginShadowJar.get().asFile.invariantSeparatorsPath)
-    }
+    environment("CLI_JAR_PATH", cliClasspath.singleFile)
+    environment("BASE_PLUGIN_JAR_PATH", cliPluginsShadowJar.get().archiveFile.get())
 }
