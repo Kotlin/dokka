@@ -2,6 +2,7 @@ public final class org/jetbrains/dokka/analysis/kotlin/KotlinAnalysisPlugin : or
 	public fun <init> ()V
 	public final fun getExternalDocumentableProvider ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getSampleAnalysisEnvironmentCreator ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getSampleRewriter ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 }
 
 public abstract interface class org/jetbrains/dokka/analysis/kotlin/documentable/ExternalDocumentableProvider {
@@ -73,12 +74,25 @@ public final class org/jetbrains/dokka/analysis/kotlin/markdown/MarkdownApiKt {
 	public static final field MARKDOWN_ELEMENT_FILE_NAME Ljava/lang/String;
 }
 
+public abstract interface class org/jetbrains/dokka/analysis/kotlin/sample/FunctionCallRewriter {
+	public abstract fun rewrite (Ljava/util/List;Ljava/util/List;)Ljava/lang/String;
+}
+
 public abstract interface class org/jetbrains/dokka/analysis/kotlin/sample/SampleAnalysisEnvironment {
 	public abstract fun resolveSample (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/lang/String;)Lorg/jetbrains/dokka/analysis/kotlin/sample/SampleSnippet;
 }
 
 public abstract interface class org/jetbrains/dokka/analysis/kotlin/sample/SampleAnalysisEnvironmentCreator {
 	public abstract fun use (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/kotlin/sample/SampleRewriter {
+	public abstract fun getFunctionCallRewriters ()Ljava/util/Map;
+	public abstract fun rewriteImportDirective (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/analysis/kotlin/sample/SampleRewriter$DefaultImpls {
+	public static fun rewriteImportDirective (Lorg/jetbrains/dokka/analysis/kotlin/sample/SampleRewriter;Ljava/lang/String;)Ljava/lang/String;
 }
 
 public final class org/jetbrains/dokka/analysis/kotlin/sample/SampleSnippet {
