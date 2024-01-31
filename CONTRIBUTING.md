@@ -76,6 +76,8 @@ plugins {
 }
 ```
 
+There is an automation script for this routine, see [testDokka.sh.md](scripts/testDokka.sh.md) for details.
+
 ### Updating public API dump
 
 [Binary Compatibility Validator](https://github.com/Kotlin/binary-compatibility-validator/blob/master/README.md) 
