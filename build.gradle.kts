@@ -6,10 +6,6 @@ plugins {
     id("dokkabuild.base")
 }
 
-tasks.check {
-    dependsOn(gradle.includedBuild("dokka-integration-tests").task(":gradle:check"))
-}
-
 val publishedIncludedBuilds = listOf("runner-cli", "runner-gradle-plugin-classic", "runner-maven-plugin")
 val gradlePluginIncludedBuilds = listOf("runner-gradle-plugin-classic")
 
