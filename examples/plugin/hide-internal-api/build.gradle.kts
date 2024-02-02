@@ -31,12 +31,13 @@ dependencies {
     testImplementation("org.jetbrains.dokka:dokka-base-test-utils:$dokkaVersion")
 }
 
+kotlin {
+    compilerOptions.jvmTarget.set(JvmTarget.JVM_1_8)
+}
+
 val dokkaOutputDir = "$buildDir/dokka"
 
 tasks {
-    withType<KotlinCompile>().configureEach {
-        compilerOptions.jvmTarget.set(JvmTarget.JVM_1_8)
-    }
     dokkaHtml {
         outputDirectory.set(file(dokkaOutputDir))
     }
