@@ -53,17 +53,17 @@ abstract class GitCheckoutTask @Inject constructor(
                 git.checkout()
                     .setName(commitId)
                     .call()
-
-                fs.sync {
-                    from(temporaryDir)
-                    into(destination)
-                    // exclude the .git dir:
-                    // - prevent the root git repo getting confused with a nested git repo
-                    // - improves Gradle caching
-                    exclude(".git/")
-                }
-
-                logger.lifecycle("initialized git repo $uri in ${destination.asFile.orNull}")
             }
+
+            fs.sync {
+                from(temporaryDir)
+                into(destination)
+                // exclude the .git dir:
+                // - prevent the root git repo getting confused with a nested git repo
+                // - improves Gradle caching
+                exclude(".git/")
+            }
+
+            logger.lifecycle("initialized git repo $uri in ${destination.asFile.orNull}")
     }
 }
