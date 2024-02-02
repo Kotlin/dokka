@@ -58,7 +58,7 @@ abstract class GitCheckoutTask @Inject constructor(
                 fs.sync {
                     from(temporaryDir)
                     into(destination)
-                    // exclude the .git dir to prevent the root Dokka repo getting confused with the nested subproject
+                    // exclude the .git dir to prevent the root git repo getting confused with a nested git repo
                     exclude(".git/")
                 }
 
