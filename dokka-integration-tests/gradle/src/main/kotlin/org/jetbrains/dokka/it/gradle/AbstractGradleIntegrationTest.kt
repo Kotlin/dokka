@@ -49,7 +49,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                     else
                         null,
 
-                    "-Porg.gradle.workers.max=1",
+                    "-Dorg.gradle.workers.max=1",
                     // Decrease Gradle daemon idle timeout to prevent old agents lingering on CI.
                     // A lower timeout means slower tests, which is preferred over OOMs and locked processes.
                     "-Dorg.gradle.daemon.idletimeout=" + 10.seconds.inWholeMilliseconds, // default is 3 hours!
