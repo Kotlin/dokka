@@ -20,7 +20,7 @@ import kotlin.test.*
 class SampleRewriterTest {
 
     /**
-     *  The same plugin rewriter should be used in stdlib.
+     *  The same plugin rewriter should be used in stdlib
      *
      * For StdLib, Dokka should have a possibility to
      * - rewrite `assertTrue(_)` to `println(_ is _ ${_}) \\ true`.
@@ -109,6 +109,15 @@ class SampleRewriterTest {
             PluginApiPreviewAcknowledgement
     }
 
+    private val sampleUtilsKT = """
+                    import kotlin.test.assertEquals
+
+                    typealias Sample = org.junit.Test
+                    typealias RunWith = org.junit.runner.RunWith
+                    typealias Enclosed = org.junit.experimental.runners.Enclosed
+                    
+                    fun assertPrints(expression: Any?, expectedOutput: String) = assertEquals(expectedOutput, expression.toString())
+                """
     @Test
     fun `should rewrite assertTrue and assertPrints`() {
         val testProject = kotlinJvmTestProject {
@@ -119,15 +128,7 @@ class SampleRewriterTest {
                 }
             }
             sampleFile("/samples/_sampleUtils.kt", fqPackageName = "samples") {
-                +"""
-                    import kotlin.test.assertEquals
-
-                    typealias Sample = org.junit.Test
-                    typealias RunWith = org.junit.runner.RunWith
-                    typealias Enclosed = org.junit.experimental.runners.Enclosed
-                    
-                    fun assertPrints(expression: Any?, expectedOutput: String) = assertEquals(expectedOutput, expression.toString())
-                """
+                +sampleUtilsKT
             }
             // the sample is from https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/is-not-empty.html
             sampleFile("/samples/collections/collections.kt", fqPackageName = "samples.collections") {
@@ -185,15 +186,7 @@ class SampleRewriterTest {
                 }
             }
             sampleFile("/samples/_sampleUtils.kt", fqPackageName = "samples") {
-                +"""
-                    import kotlin.test.assertEquals
-
-                    typealias Sample = org.junit.Test
-                    typealias RunWith = org.junit.runner.RunWith
-                    typealias Enclosed = org.junit.experimental.runners.Enclosed
-                    
-                    fun assertPrints(expression: Any?, expectedOutput: String) = assertEquals(expectedOutput, expression.toString())
-                """
+                +sampleUtilsKT
             }
             // the sample is from https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/indices.html
             sampleFile("/samples/collections/collections.kt", fqPackageName = "samples.collections") {
@@ -254,15 +247,7 @@ class SampleRewriterTest {
                 }
             }
             sampleFile("/samples/_sampleUtils.kt", fqPackageName = "samples") {
-                +"""
-                    import kotlin.test.assertEquals
-
-                    typealias Sample = org.junit.Test
-                    typealias RunWith = org.junit.runner.RunWith
-                    typealias Enclosed = org.junit.experimental.runners.Enclosed
-                    
-                    fun assertPrints(expression: Any?, expectedOutput: String) = assertEquals(expectedOutput, expression.toString())
-                """
+                +sampleUtilsKT
             }
             // the sample is from https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/last.html
             sampleFile("/samples/collections/collections.kt", fqPackageName = "samples.collections") {
@@ -332,15 +317,7 @@ class SampleRewriterTest {
                 }
             }
             sampleFile("/samples/_sampleUtils.kt", fqPackageName = "samples") {
-                +"""
-                    import kotlin.test.assertEquals
-
-                    typealias Sample = org.junit.Test
-                    typealias RunWith = org.junit.runner.RunWith
-                    typealias Enclosed = org.junit.experimental.runners.Enclosed
-                    
-                    fun assertPrints(expression: Any?, expectedOutput: String) = assertEquals(expectedOutput, expression.toString())
-                """
+                +sampleUtilsKT
             }
             // the sample is from https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/element-at.html
             sampleFile("/samples/collections/collections.kt", fqPackageName = "samples.collections") {
@@ -396,7 +373,6 @@ class SampleRewriterTest {
         }
     }
 
-
     @Test
     fun `should rewrite call of assertFalse with fully qualified name`() {
         val testProject = kotlinJvmTestProject {
@@ -436,6 +412,77 @@ class SampleRewriterTest {
             )
 
             val expectedBody = "kotlin.test.println(\"empty.isNotEmpty() is \${empty.isNotEmpty()}\") // false"
+
+            assertEquals(expectedImports, sample.imports)
+            assertEquals(expectedBody, sample.body)
+        }
+    }
+
+    class ConstructorSampleRewriterPlugin : DokkaPlugin() {
+        @Suppress("UNUSED_PARAMETER")
+        class ConstructorSampleRewriter(ctx: DokkaContext) : SampleRewriter {
+
+            override val functionCallRewriters: Map<ShortFunctionName, FunctionCallRewriter> = mapOf(
+                "IntArray" to object : FunctionCallRewriter {
+                    override fun rewrite(
+                        argumentList: List<String>,
+                        typeArgumentList: List<String>
+                    ): String {
+                        val argument = argumentList[0]
+                        return "arrayOf(${"0,".repeat(argument.toInt())})"
+                    }
+                }
+            )
+        }
+
+        private val kotlinAnalysisPlugin by lazy { plugin<KotlinAnalysisPlugin>() }
+
+        @Suppress("unused")
+        val stdLibKotlinAnalysis by extending {
+            kotlinAnalysisPlugin.sampleRewriter providing ::ConstructorSampleRewriter
+        }
+
+        @OptIn(DokkaPluginApiPreview::class)
+        override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement =
+            PluginApiPreviewAcknowledgement
+    }
+
+    @Test
+    fun `should rewrite call of constructor`() {
+        val testProject = kotlinJvmTestProject {
+            plugin(ConstructorSampleRewriterPlugin())
+            dokkaConfiguration {
+                kotlinSourceSet {
+                    samples = setOf("/samples/collections/collections.kt")
+                }
+            }
+
+            sampleFile("/samples/collections/collections.kt", fqPackageName = "samples.collections") {
+                +"""                    import kotlin.test.*
+
+                    class Collections {
+                            fun someSample() {
+                                IntArray(10)
+                            }
+                        }
+                    }
+                """
+            }
+        }
+        testProject.useServices { context ->
+            val sample = sampleAnalysisEnvironmentCreator.use {
+                resolveSample(
+                    sourceSet = context.singleSourceSet(),
+                    fullyQualifiedLink = "samples.collections.Collections.someSample"
+                )
+            }
+            assertNotNull(sample)
+
+            val expectedImports = listOf(
+                "kotlin.test.*"
+            )
+
+            val expectedBody = "arrayOf(0,0,0,0,0,0,0,0,0,0,)"
 
             assertEquals(expectedImports, sample.imports)
             assertEquals(expectedBody, sample.body)
