@@ -46,7 +46,6 @@ abstract class GitCheckoutTask @Inject constructor(
 
         Git.cloneRepository()
             .setURI(uri)
-            .setDepth(1) // only checkout a single commit, to aid speed and Gradle caching
             .setDirectory(temporaryDir)
             .call().use { git ->
                 git.pull().call()
@@ -58,7 +57,9 @@ abstract class GitCheckoutTask @Inject constructor(
                 fs.sync {
                     from(temporaryDir)
                     into(destination)
-                    // exclude the .git dir to prevent the root git repo getting confused with a nested git repo
+                    // exclude the .git dir:
+                    // - prevent the root git repo getting confused with a nested git repo
+                    // - improves Gradle caching
                     exclude(".git/")
                 }
 
