@@ -46,6 +46,7 @@ abstract class GitCheckoutTask @Inject constructor(
 
         Git.cloneRepository()
             .setURI(uri)
+            .setDepth(1) // only checkout a single commit, to aid speed and Gradle caching
             .setDirectory(temporaryDir)
             .call().use { git ->
                 git.pull().call()
@@ -53,7 +54,6 @@ abstract class GitCheckoutTask @Inject constructor(
                 git.checkout()
                     .setName(commitId)
                     .call()
-
 
                 fs.sync {
                     from(temporaryDir)
