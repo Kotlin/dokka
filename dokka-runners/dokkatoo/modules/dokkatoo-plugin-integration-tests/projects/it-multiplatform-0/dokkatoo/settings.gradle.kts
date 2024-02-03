@@ -2,8 +2,8 @@ rootProject.name = "it-multiplatform-0"
 
 pluginManagement {
   repositories {
-    gradlePluginPortal()
     mavenCentral()
+    gradlePluginPortal()
     maven(providers.gradleProperty("testMavenRepo"))
   }
 }

@@ -2,8 +2,8 @@ rootProject.name = "library-publishing-example"
 
 pluginManagement {
   repositories {
-    gradlePluginPortal()
     mavenCentral()
+    gradlePluginPortal()
     maven(providers.gradleProperty("testMavenRepo"))
   }
 }

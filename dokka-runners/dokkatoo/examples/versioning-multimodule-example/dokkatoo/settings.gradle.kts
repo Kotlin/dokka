@@ -2,8 +2,8 @@ rootProject.name = "versioning-multimodule-example"
 
 pluginManagement {
   repositories {
-    gradlePluginPortal()
     mavenCentral()
+    gradlePluginPortal()
     maven(providers.gradleProperty("testMavenRepo"))
   }
 }

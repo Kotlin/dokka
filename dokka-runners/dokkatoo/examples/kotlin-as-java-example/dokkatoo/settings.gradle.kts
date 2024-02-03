@@ -2,8 +2,8 @@ rootProject.name = "kotlin-as-java-example"
 
 pluginManagement {
   repositories {
-    gradlePluginPortal()
     mavenCentral()
+    gradlePluginPortal()
     maven(providers.gradleProperty("testMavenRepo"))
   }
 }

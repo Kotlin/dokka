@@ -2,8 +2,8 @@ rootProject.name = "dokka-multiplatform-example"
 
 pluginManagement {
   repositories {
-    gradlePluginPortal()
     mavenCentral()
+    gradlePluginPortal()
     maven(providers.gradleProperty("testMavenRepo"))
   }
 }
