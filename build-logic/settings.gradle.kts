@@ -6,8 +6,8 @@ rootProject.name = "build-logic"
 
 pluginManagement {
     repositories {
-        gradlePluginPortal()
         mavenCentral()
+        gradlePluginPortal()
     }
     includeBuild("../build-settings-logic")
 }
