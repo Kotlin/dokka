@@ -12,8 +12,8 @@ pluginManagement {
     includeBuild("../build-settings-logic")
 }
 
-@Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
+    @Suppress("UnstableApiUsage")
     repositories {
         mavenCentral()
         google()
