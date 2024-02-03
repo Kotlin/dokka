@@ -25,7 +25,7 @@ apply(from = "../template.root.gradle.kts")
 fun createTask(name: String) {
     tasks.register(name, org.jetbrains.dokka.gradle.DokkaTask::class) {
         dokkaSourceSets {
-            moduleName.set("Some example")
+            moduleName = "Some example"
             // create a new source set
             register("kotlin-stdlib-common") {
                 sourceRoots.from("src/common/java")

@@ -8,7 +8,7 @@ plugins {
 }
 
 tasks.validatePlugins {
-  enableStricterValidation.set(true)
+  enableStricterValidation = true
 }
 
 val createJavadocJarReadme by tasks.registering(Sync::class) {

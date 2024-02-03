@@ -17,9 +17,9 @@ java {
 
 tasks.shadowJar {
     // separate directory because otherwise Gradle complains about multiple tasks writing into the same file
-    destinationDirectory.set(project.layout.buildDirectory.dir("shadowLibs"))
+    destinationDirectory = project.layout.buildDirectory.dir("shadowLibs")
     // removes the `-all` classifier from the artifact name
-    archiveClassifier.set("")
+    archiveClassifier = ""
 }
 
 publishing.publications.register<MavenPublication>(PublicationName.JVM) {

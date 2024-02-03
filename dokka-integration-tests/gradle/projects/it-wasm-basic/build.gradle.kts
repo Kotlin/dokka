@@ -33,7 +33,7 @@ tasks.withType<DokkaTask>().configureEach {
     dokkaSourceSets {
         configureEach {
             externalDocumentationLink {
-                url.set(URL("https://kotlinlang.org/api/kotlinx.coroutines/"))
+                url = URL("https://kotlinlang.org/api/kotlinx.coroutines/")
             }
         }
     }

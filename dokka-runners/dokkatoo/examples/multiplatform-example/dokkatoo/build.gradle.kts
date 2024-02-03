@@ -25,8 +25,8 @@ kotlin {
 dokkatoo {
   // Create a custom source set not known to the Kotlin Gradle Plugin
   dokkatooSourceSets.register("customSourceSet") {
-    jdkVersion.set(9)
-    displayName.set("custom")
+    jdkVersion = 9
+    displayName = "custom"
     sourceRoots.from("src/customJdk9/kotlin")
   }
 }
@@ -34,6 +34,6 @@ dokkatoo {
 
 //region DON'T COPY - this is only needed for internal Dokkatoo integration tests
 dokkatoo {
-  sourceSetScopeDefault.set(":dokkaHtml")
+  sourceSetScopeDefault = ":dokkaHtml"
 }
 //endregion

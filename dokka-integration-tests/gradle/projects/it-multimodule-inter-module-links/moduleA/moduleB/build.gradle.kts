@@ -10,7 +10,7 @@ plugins {
 }
 
 tasks.withType<DokkaTask>().configureEach {
-    moduleName.set("!Module B!")
+    moduleName = "!Module B!"
     dokkaSourceSets.configureEach {
         includes.from("Module.md")
     }

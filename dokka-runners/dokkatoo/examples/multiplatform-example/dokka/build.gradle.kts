@@ -34,8 +34,8 @@ tasks.withType<DokkaTask>().configureEach {
     dokkaSourceSets {
         // Create a custom source set not known to the Kotlin Gradle Plugin
         register("customSourceSet") {
-            this.jdkVersion.set(9)
-            this.displayName.set("custom")
+            this.jdkVersion = 9
+            this.displayName = "custom"
             this.sourceRoots.from(file("src/customJdk9/kotlin"))
         }
     }

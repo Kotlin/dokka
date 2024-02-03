@@ -34,7 +34,7 @@ publishing {
 
       developers {
         developer {
-          email.set("adam@adamko.dev")
+          email = "adam@adamko.dev"
         }
       }
     }

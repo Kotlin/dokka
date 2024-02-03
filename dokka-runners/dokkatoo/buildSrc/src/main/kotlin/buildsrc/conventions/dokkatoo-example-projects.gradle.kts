@@ -64,7 +64,7 @@ fun createDokkatooExampleProjectsSettings(
       val destinationDir = it.parentFile
       val name = destinationDir.toRelativeString(projectDir.asFile).toAlphaNumericCamelCase()
       exampleProjects.register(name) {
-        this.exampleProjectDir.set(destinationDir)
+        this.exampleProjectDir = destinationDir
       }
     }
 

@@ -61,7 +61,7 @@ dependencies {
 }
 
 val cliPluginsShadowJar by tasks.registering(ShadowJar::class) {
-    archiveFileName.set("cli-plugins-${project.version}.jar")
+    archiveFileName = "cli-plugins-${project.version}.jar"
     configurations = listOf(cliPluginsClasspath)
 
     // service files are merged to make sure all Dokka plugins

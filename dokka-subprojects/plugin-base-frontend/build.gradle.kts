@@ -12,11 +12,11 @@ plugins {
 }
 
 node {
-    version.set(libs.versions.node)
+    version = libs.versions.node
 
     // https://github.com/node-gradle/gradle-node-plugin/blob/3.5.1/docs/faq.md#is-this-plugin-compatible-with-centralized-repositories-declaration
-    download.set(true)
-    distBaseUrl.set(null as String?) // Strange cast to avoid overload ambiguity
+    download = true
+    distBaseUrl = null as String? // Strange cast to avoid overload ambiguity
 }
 
 val distributionDirectory = layout.projectDirectory.dir("dist")
@@ -24,7 +24,7 @@ val distributionDirectory = layout.projectDirectory.dir("dist")
 val npmRunBuild by tasks.registering(NpmTask::class) {
     dependsOn(tasks.npmInstall)
 
-    npmCommand.set(parseSpaceSeparatedArgs("run build"))
+    npmCommand = parseSpaceSeparatedArgs("run build")
 
     inputs.dir("src/main")
     inputs.files(

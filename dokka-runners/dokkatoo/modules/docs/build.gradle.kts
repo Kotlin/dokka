@@ -12,7 +12,7 @@ dependencies {
 }
 
 dokkatoo {
-  moduleName.set("Dokkatoo Gradle Plugin")
+  moduleName = "Dokkatoo Gradle Plugin"
 
   pluginsConfiguration.named<DokkaHtmlPluginParameters>("html") {
     customStyleSheets.from(
