@@ -18,7 +18,7 @@ val symbolsTestConfiguration: Configuration by configurations.creating {
     extendsFrom(configurations.testImplementation.get())
 }
 
-val symbolsTest = tasks.register<Test>("symbolsTest") {
+val symbolsTest by tasks.registering(Test::class) {
     useJUnitPlatform {
         excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
     }
@@ -34,7 +34,7 @@ tasks.test {
     dependsOn(symbolsTest)
 }
 
-val descriptorsTest = tasks.register<Test>("descriptorsTest") {
+val descriptorsTest by tasks.registering(Test::class) {
     useJUnitPlatform {
         excludeTags("onlySymbols")
     }

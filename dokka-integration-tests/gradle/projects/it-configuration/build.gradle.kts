@@ -21,11 +21,11 @@ version = "2.0.0-SNAPSHOT"
 apply(from = "../template.root.gradle.kts")
 
 tasks.withType<DokkaTask> {
-    moduleName.set("Configuration Test Project")
+    moduleName = "Configuration Test Project"
     dokkaSourceSets {
         configureEach {
-            failOnWarning.set(project.getBooleanProperty("fail_on_warning"))
-            reportUndocumented.set(project.getBooleanProperty("report_undocumented"))
+            failOnWarning = project.getBooleanProperty("fail_on_warning")
+            reportUndocumented = project.getBooleanProperty("report_undocumented")
         }
     }
 }

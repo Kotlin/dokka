@@ -2,14 +2,14 @@ rootProject.name = "kotlin-as-java-example"
 
 pluginManagement {
   repositories {
-    gradlePluginPortal()
     mavenCentral()
+    gradlePluginPortal()
     maven(providers.gradleProperty("testMavenRepo"))
   }
 }
 
-@Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
+  @Suppress("UnstableApiUsage")
   repositories {
     mavenCentral()
     maven(providers.gradleProperty("testMavenRepo"))

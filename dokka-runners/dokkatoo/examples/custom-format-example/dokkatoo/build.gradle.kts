@@ -4,7 +4,7 @@ plugins {
 }
 
 dokkatoo {
-  moduleName.set("customFormat-example")
+  moduleName = "customFormat-example"
   pluginsConfiguration.html {
     // Dokka's stylesheets and assets with conflicting names will be overridden.
     // In this particular case, logo-styles.css will be overridden
@@ -13,6 +13,6 @@ dokkatoo {
     customAssets.from("ktor-logo.png")
 
     // Text used in the footer
-    footerMessage.set("(c) Custom Format Dokka example")
+    footerMessage = "(c) Custom Format Dokka example"
   }
 }

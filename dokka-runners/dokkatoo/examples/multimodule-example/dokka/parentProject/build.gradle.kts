@@ -14,18 +14,18 @@ subprojects {
 
     tasks.withType<DokkaTaskPartial>().configureEach {
         dokkaSourceSets.configureEach {
-            documentedVisibilities.set(setOf(
+            documentedVisibilities = setOf(
                 Visibility.PUBLIC,
                 Visibility.PROTECTED
-            ))
+            )
 
             // Read docs for more details: https://kotlinlang.org/docs/dokka-gradle.html#source-link-configuration
             sourceLink {
                 val exampleDir = "https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-multimodule-example"
 
-                localDirectory.set(rootProject.projectDir)
-                remoteUrl.set(URL("$exampleDir"))
-                remoteLineSuffix.set("#L")
+                localDirectory = rootProject.projectDir
+                remoteUrl = URL("$exampleDir")
+                remoteLineSuffix = "#L"
             }
         }
     }
@@ -34,5 +34,5 @@ subprojects {
 // Configures only the parent MultiModule task,
 // this will not affect subprojects
 tasks.dokkaHtmlMultiModule {
-    moduleName.set("Dokka MultiModule Example")
+    moduleName = "Dokka MultiModule Example"
 }

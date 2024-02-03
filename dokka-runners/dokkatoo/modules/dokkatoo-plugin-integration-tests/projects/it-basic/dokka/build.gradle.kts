@@ -25,31 +25,27 @@ dependencies {
 }
 
 tasks.withType<DokkaTask> {
-    moduleName.set("Basic Project")
+    moduleName = "Basic Project"
     dokkaSourceSets {
         configureEach {
-            documentedVisibilities.set(
+            documentedVisibilities =
                 setOf(DokkaConfiguration.Visibility.PUBLIC, DokkaConfiguration.Visibility.PROTECTED)
-            )
             suppressedFiles.from(file("src/main/kotlin/it/suppressedByPath"))
             perPackageOption {
-                matchingRegex.set("it.suppressedByPackage.*")
-                suppress.set(true)
+                matchingRegex = "it.suppressedByPackage.*"
+                suppress = true
             }
             perPackageOption {
-                matchingRegex.set("it.overriddenVisibility.*")
-                documentedVisibilities.set(
-                    setOf(DokkaConfiguration.Visibility.PRIVATE)
-                )
+                matchingRegex = "it.overriddenVisibility.*"
+                documentedVisibilities = setOf(DokkaConfiguration.Visibility.PRIVATE)
             }
             sourceLink {
-                localDirectory.set(file("src/main"))
-                remoteUrl.set(
+                localDirectory = file("src/main")
+                remoteUrl =
                     URL(
                         "https://github.com/Kotlin/dokka/tree/master/" +
                                 "integration-tests/gradle/projects/it-basic/src/main"
                     )
-                )
             }
         }
 
@@ -57,7 +53,7 @@ tasks.withType<DokkaTask> {
             kotlinSourceSet(kotlin.sourceSets["test"])
         }
     }
-    suppressObviousFunctions.set(false)
+    suppressObviousFunctions = false
 
-    pluginsMapConfiguration.set(mapOf(DokkaBase::class.qualifiedName to """{ "customStyleSheets": ["${file("../customResources/logo-styles.css").invariantSeparatorsPath}", "${file("../customResources/custom-style-to-add.css").invariantSeparatorsPath}"], "customAssets" : ["${file("../customResources/custom-resource.svg").invariantSeparatorsPath}"] }"""))
+    pluginsMapConfiguration = mapOf(DokkaBase::class.qualifiedName to """{ "customStyleSheets": ["${file("../customResources/logo-styles.css").invariantSeparatorsPath}", "${file("../customResources/custom-style-to-add.css").invariantSeparatorsPath}"], "customAssets" : ["${file("../customResources/custom-resource.svg").invariantSeparatorsPath}"] }""")
 }

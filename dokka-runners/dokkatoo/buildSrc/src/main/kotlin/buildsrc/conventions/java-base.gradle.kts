@@ -13,7 +13,7 @@ plugins {
 
 extensions.getByType<JavaPluginExtension>().apply {
   toolchain {
-    languageVersion.set(JavaLanguageVersion.of(11))
+    languageVersion = JavaLanguageVersion.of(11)
   }
   withSourcesJar()
 }

@@ -17,8 +17,8 @@ plugins {
 //       because `kotlin-dsl plugin` declares them on task level, and so top-level config is overridden
 tasks.withType<KotlinCompile>().configureEach {
     compilerOptions {
-        languageVersion.set(dokkaBuild.kotlinLanguageLevel)
-        apiVersion.set(dokkaBuild.kotlinLanguageLevel)
+        languageVersion = dokkaBuild.kotlinLanguageLevel
+        apiVersion = dokkaBuild.kotlinLanguageLevel
 
         freeCompilerArgs.addAll(
             // need 1.4 support, otherwise there might be problems
@@ -31,5 +31,5 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 tasks.validatePlugins {
-    enableStricterValidation.set(true)
+    enableStricterValidation = true
 }

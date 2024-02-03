@@ -2,8 +2,6 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:Suppress("UnstableApiUsage")
-
 rootProject.name = "runner-gradle-plugin-classic"
 
 pluginManagement {
@@ -22,6 +20,7 @@ plugins {
 }
 
 dependencyResolutionManagement {
+    @Suppress("UnstableApiUsage")
     repositories {
         mavenCentral()
         google()

@@ -17,7 +17,7 @@ kotlin {
 }
 
 dokkatoo {
-  moduleName.set("Basic Project")
+  moduleName = "Basic Project"
   dokkatooSourceSets.configureEach {
     documentedVisibilities(
       VisibilityModifier.PUBLIC,
@@ -25,17 +25,17 @@ dokkatoo {
     )
     suppressedFiles.from(file("src/main/kotlin/it/suppressedByPath"))
     perPackageOption {
-      matchingRegex.set("it.suppressedByPackage.*")
-      suppress.set(true)
+      matchingRegex = "it.suppressedByPackage.*"
+      suppress = true
     }
     perPackageOption {
-      matchingRegex.set("it.overriddenVisibility.*")
+      matchingRegex = "it.overriddenVisibility.*"
       documentedVisibilities(
         VisibilityModifier.PRIVATE,
       )
     }
     sourceLink {
-      localDirectory.set(file("src/main"))
+      localDirectory = file("src/main")
       remoteUrl(
         "https://github.com/Kotlin/dokka/tree/master/integration-tests/gradle/projects/it-basic/src/main"
       )
@@ -53,12 +53,12 @@ dokkatoo {
   }
 
   dokkatooPublications.configureEach {
-    suppressObviousFunctions.set(false)
+    suppressObviousFunctions = false
   }
 }
 
 tasks.withType<org.jetbrains.dokka.dokkatoo.tasks.DokkatooGenerateTask>().configureEach {
   generator.dokkaSourceSets.configureEach {
-    sourceSetScope.set(":dokkaHtml")
+    sourceSetScope = ":dokkaHtml"
   }
 }

@@ -80,8 +80,8 @@ gradlePlugin {
   registerDokkaPlugin("DokkatooJekyllPlugin", "Jekyll")
 
   plugins.configureEach {
-    website.set("https://github.com/adamko-dev/dokkatoo/")
-    vcsUrl.set("https://github.com/adamko-dev/dokkatoo.git")
+    website = "https://github.com/adamko-dev/dokkatoo/"
+    vcsUrl = "https://github.com/adamko-dev/dokkatoo.git"
     tags.addAll(
       "dokka",
       "dokkatoo",
@@ -159,7 +159,7 @@ testing.suites {
   /** Functional tests suite */
   val testFunctional by registering(JvmTestSuite::class) {
     description = "Tests that use Gradle TestKit to test functionality"
-    testType.set(TestSuiteType.FUNCTIONAL_TEST)
+    testType = TestSuiteType.FUNCTIONAL_TEST
 
     targets.all {
       testTask.configure {
@@ -175,7 +175,7 @@ skipTestFixturesPublications()
 
 val aggregateTestReports by tasks.registering(TestReport::class) {
   group = LifecycleBasePlugin.VERIFICATION_GROUP
-  destinationDirectory.set(layout.buildDirectory.dir("reports/tests/aggregated"))
+  destinationDirectory = layout.buildDirectory.dir("reports/tests/aggregated")
 
   dependsOn(tasks.withType<AbstractTestTask>())
 
@@ -246,7 +246,7 @@ dokkatoo {
       url("https://docs.gradle.org/${gradle.gradleVersion}/javadoc/")
     }
     sourceLink {
-      localDirectory.set(file("src/main/kotlin"))
+      localDirectory = file("src/main/kotlin")
       val relativeProjectPath = projectDir.relativeToOrNull(rootDir)?.invariantSeparatorsPath ?: ""
       remoteUrl("https://github.com/adamko-dev/dokkatoo/tree/main/$relativeProjectPath/src/main/kotlin")
     }

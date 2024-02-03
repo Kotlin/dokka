@@ -71,10 +71,10 @@ testing.suites {
 
     targets.configureEach {
       testTask.configure {
-        javaLauncher.set(javaToolchains.launcherFor {
+        javaLauncher = javaToolchains.launcherFor {
           // Android test project requires Java 17
-          languageVersion.set(JavaLanguageVersion.of(17))
-        })
+          languageVersion = JavaLanguageVersion.of(17)
+        }
 
         val projectTestTempDirPath = "$buildDir_/test-temp-dir"
         inputs.property("projectTestTempDir", projectTestTempDirPath)
@@ -266,7 +266,7 @@ tasks.withType<Test>().configureEach {
 }
 
 dokkaSourceDownload {
-  dokkaVersion.set(libs.versions.kotlin.dokka)
+  dokkaVersion = libs.versions.kotlin.dokka
 }
 
 tasks.updateAndroidLocalProperties {

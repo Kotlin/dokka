@@ -8,8 +8,8 @@ pluginManagement {
   }
 }
 
-@Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
+  @Suppress("UnstableApiUsage")
   repositories {
     mavenCentral()
     maven(providers.gradleProperty("testMavenRepo"))

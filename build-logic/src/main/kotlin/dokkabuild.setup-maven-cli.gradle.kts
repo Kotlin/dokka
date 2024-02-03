@@ -84,7 +84,6 @@ val installMavenBinary by tasks.registering(Sync::class) {
     val archives = serviceOf<ArchiveOperations>()
     from(
         mavenBinary.flatMap { conf ->
-            @Suppress("UnstableApiUsage")
             val resolvedArtifacts = conf.incoming.artifacts.resolvedArtifacts
 
             resolvedArtifacts.map { artifacts ->

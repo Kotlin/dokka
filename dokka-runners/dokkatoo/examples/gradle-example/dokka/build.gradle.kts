@@ -18,7 +18,7 @@ tasks.withType<DokkaTask>().configureEach {
     dokkaSourceSets {
         named("main") {
             // used as project name in the header
-            moduleName.set("Dokka Gradle Example")
+            moduleName = "Dokka Gradle Example"
 
             // contains descriptions for the module and the packages
             includes.from("Module.md")
@@ -26,11 +26,11 @@ tasks.withType<DokkaTask>().configureEach {
             // adds source links that lead to this repository, allowing readers
             // to easily find source code for inspected declarations
             sourceLink {
-                localDirectory.set(file("src/main/kotlin"))
-                remoteUrl.set(URL("https://github.com/Kotlin/dokka/tree/master/" +
+                localDirectory = file("src/main/kotlin")
+                remoteUrl = URL("https://github.com/Kotlin/dokka/tree/master/" +
                         "examples/gradle/dokka-gradle-example/src/main/kotlin"
-                ))
-                remoteLineSuffix.set("#L")
+                )
+                remoteLineSuffix = "#L"
             }
         }
     }

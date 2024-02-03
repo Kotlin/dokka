@@ -11,8 +11,8 @@ plugins {
 
 @Suppress("UnstableApiUsage")
 gradlePlugin {
-    website.set("https://kotl.in/dokka")
-    vcsUrl.set("https://github.com/kotlin/dokka.git")
+    website = "https://kotl.in/dokka"
+    vcsUrl = "https://github.com/kotlin/dokka.git"
 }
 
 // com.gradle.plugin-publish configures publication in afterEvaluate block
