@@ -71,17 +71,24 @@ abstract class GitCheckoutTask @Inject constructor(
     }
 
     /**
-     * Initialized [uri] in [localRepoDir], forcibly resetting it and deleting any untracked files or changes.
+     * Initialize [uri] in [localRepoDir].
+     *
+     * If a git repo already exists in [localRepoDir], try to re-use it.
+     *
+     * Any changes to tracked or untracked files will be forcibly removed.
      */
     private fun initializeRepo() {
         val uri = uri.get()
         val commitId = commitId.get()
 
+        // Check if the repo is already cloned. If yes, then we can re-use it to save time.
         val gitRepoInitialized = RepositoryCache.FileKey.isGitRepository(localRepoDir, FS.DETECTED)
 
         val repo = if (gitRepoInitialized) {
+            // re-use existing cloned repo
             Git.open(localRepoDir)
         } else {
+            // repo is either not cloned or is not recognizable, so delete it and make a fresh clone
             fs.delete { delete(localRepoDir) }
 
             Git.cloneRepository()
@@ -93,19 +100,20 @@ abstract class GitCheckoutTask @Inject constructor(
         }
 
         repo.use { git ->
+            // checkout the specific commitId specified in the task input
             git.checkout()
                 .setProgressMonitor(gitOperationsPrinter)
                 .setForced(true)
                 .setName(commitId)
                 .call()
 
-            // git reset --hard
+            // git reset --hard (wipe changes to tracked files, if any)
             git.reset()
                 .setProgressMonitor(gitOperationsPrinter)
                 .setMode(HARD)
                 .call()
 
-            // git clean -fdx
+            // git clean -fdx (remove any changes in untracked files)
             git.clean()
                 .setForce(true)
                 .setCleanDirectories(true)
