@@ -3,6 +3,7 @@
  */
 @file:Suppress("UnstableApiUsage")
 
+import dokkabuild.tasks.GitCheckoutTask
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
@@ -46,6 +47,12 @@ tasks.integrationTestPreparation {
 
 tasks.withType<Test>().configureEach {
     dependsOn(tasks.integrationTestPreparation)
+
+    // TODO move to specific test suites
+    dependsOn(
+        checkoutKotlinxCoroutines,
+        checkoutKotlinxSerialization,
+    )
 
     setForkEvery(1)
     maxHeapSize = "2G"
@@ -238,3 +245,15 @@ val integrationTest by tasks.registering {
     dependsOn(tasks.withType<Test>()) // all tests in this project are integration tests
 }
 //endregion
+
+val checkoutKotlinxCoroutines by tasks.registering(GitCheckoutTask::class) {
+    uri = "https://github.com/Kotlin/kotlinx.coroutines.git"
+    commitId = "b78bbf518bd8e90e9ed2133ebdacc36441210cd6"
+    destination = templateProjectsDir.dir("coroutines/kotlinx-coroutines")
+}
+
+val checkoutKotlinxSerialization by tasks.registering(GitCheckoutTask::class) {
+    uri = "https://github.com/Kotlin/kotlinx.serialization.git"
+    commitId = "ed1b05707ec27f8864c8b42235b299bdb5e0015c"
+    destination = templateProjectsDir.dir("serialization/kotlinx-serialization")
+}
