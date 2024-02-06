@@ -37,7 +37,12 @@ dependencies {
     testImplementation(libs.junit.jupiterParams)
 
     symbolsTestConfiguration(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
-    descriptorsTestConfiguration(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
+    descriptorsTestConfiguration(
+        project(
+            path = ":dokka-subprojects:analysis-kotlin-descriptors",
+            configuration = "shadow"
+        )
+    )
     testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils) {
         exclude(module = "analysis-kotlin-descriptors")
     }
@@ -56,7 +61,7 @@ val dokkaHtmlFrontendFiles: Provider<FileCollection> =
         frontendFiles.incoming.artifacts.artifactFiles
     }
 
-val preparedokkaHtmlFrontendFiles by tasks.registering(Sync::class) {
+val prepareDokkaHtmlFrontendFiles by tasks.registering(Sync::class) {
     description = "copy Dokka Base frontend files into the resources directory"
 
     from(dokkaHtmlFrontendFiles) {
@@ -70,10 +75,12 @@ val preparedokkaHtmlFrontendFiles by tasks.registering(Sync::class) {
     }
 
     into(layout.buildDirectory.dir("generated/src/main/resources"))
+
+    outputs.cacheIf("always cache: avoid fetching files from another subproject") { true }
 }
 
 sourceSets.main {
-    resources.srcDir(preparedokkaHtmlFrontendFiles.map { it.destinationDir })
+    resources.srcDir(prepareDokkaHtmlFrontendFiles.map { it.destinationDir })
 }
 
 tasks.test {
