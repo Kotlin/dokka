@@ -74,7 +74,7 @@ tasks.withType<Test>().configureEach {
         environment("isExhaustive", exhaustive)
     }
     dokkaBuild.androidSdkDir.orNull?.let { androidSdkDir ->
-        environment("ANDROID_HOME", androidSdkDir)
+        environment("ANDROID_HOME", androidSdkDir.invariantSeparatorsPath)
     }
 
     testLogging {
