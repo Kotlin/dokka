@@ -48,12 +48,6 @@ tasks.integrationTestPreparation {
 tasks.withType<Test>().configureEach {
     dependsOn(tasks.integrationTestPreparation)
 
-    // TODO move to specific test suites
-    dependsOn(
-        checkoutKotlinxCoroutines,
-        checkoutKotlinxSerialization,
-    )
-
     setForkEvery(1)
     maxHeapSize = "2G"
     dokkaBuild.integrationTestParallelism.orNull?.let { parallelism ->
@@ -141,6 +135,7 @@ testing {
         ) {
             targets.configureEach {
                 testTask.configure {
+                    dependsOn(checkoutKotlinxCoroutines)
                     // register the whole directory as an input because it contains the git diff
                     inputs
                         .dir(templateProjectsDir.file("coroutines"))
@@ -155,6 +150,7 @@ testing {
         ) {
             targets.configureEach {
                 testTask.configure {
+                    dependsOn(checkoutKotlinxSerialization)
                     // register the whole directory as an input because it contains the git diff
                     inputs
                         .dir(templateProjectsDir.file("serialization"))
