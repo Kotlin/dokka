@@ -11,12 +11,12 @@ import java.net.URL
 
 plugins {
     kotlin("jvm")
-    id("org.jetbrains.dokka") version "${System.getProperty("dokka_it_dokka_version")}"
+    id("org.jetbrains.dokka")
 }
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.dokka:dokka-base:${System.getenv("dokka_it_dokka_version")}")
+        classpath("org.jetbrains.dokka:dokka-base:${providers.gradleProperty("dokka_it_dokka_version").get()}")
     }
 }
 

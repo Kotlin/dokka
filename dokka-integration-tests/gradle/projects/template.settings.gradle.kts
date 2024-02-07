@@ -6,6 +6,7 @@
 
 pluginManagement {
     val dokka_it_kotlin_version: String by settings
+    val dokka_it_dokka_version: String by settings
     val dokka_it_android_gradle_plugin_version: String? by settings
 
     plugins {
@@ -13,13 +14,13 @@ pluginManagement {
         id("org.jetbrains.kotlin.jvm") version dokka_it_kotlin_version
         id("org.jetbrains.kotlin.android") version dokka_it_kotlin_version
         id("org.jetbrains.kotlin.multiplatform") version dokka_it_kotlin_version
-        id("org.jetbrains.dokka") version version dokka_it_kotlin_version
+        id("org.jetbrains.dokka") version dokka_it_dokka_version
     }
 
     resolutionStrategy {
         eachPlugin {
             if (requested.id.id == "org.jetbrains.dokka") {
-                useModule("org.jetbrains.dokka:dokka-gradle-plugin:$dokka_it_kotlin_version")
+                useModule("org.jetbrains.dokka:dokka-gradle-plugin:$dokka_it_dokka_version")
             }
 
             if (requested.id.id == "com.android.library") {
