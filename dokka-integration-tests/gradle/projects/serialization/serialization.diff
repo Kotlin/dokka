@@ -1,12 +1,13 @@
 diff --git a/build.gradle b/build.gradle
-index 73b566ae..4cbd59e3 100644
+index 73b566ae..d7c18353 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -57,14 +57,14 @@ buildscript {
+@@ -57,14 +57,15 @@ buildscript {
      }
 
      repositories {
 -        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
++        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
 +        //maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
          // kotlin-dev with space redirector
          maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
@@ -15,31 +16,34 @@ index 73b566ae..4cbd59e3 100644
          // For Dokka that depends on kotlinx-html
          maven { url "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven" }
 -        mavenLocal()
-+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++        //mavenLocal()
      }
 
      configurations.classpath {
-@@ -78,7 +78,7 @@ buildscript {
+@@ -78,7 +79,7 @@ buildscript {
      dependencies {
          classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
          classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
 -        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
-+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:+"
++        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}"
          classpath "org.jetbrains.kotlinx:kover:$kover_version"
          classpath "org.jetbrains.kotlinx:binary-compatibility-validator:$validator_version"
          classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
-@@ -133,7 +133,7 @@ allprojects {
+@@ -133,7 +134,8 @@ allprojects {
      if (build_snapshot_train) {
          // Snapshot-specific
          repositories {
 -            mavenLocal()
 +            /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++            //mavenLocal()
              maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
          }
      }
-@@ -155,13 +155,13 @@ allprojects {
+@@ -154,14 +156,15 @@ allprojects {
+     }
 
      repositories {
++        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
          mavenCentral()
 -        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
 +        //maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
@@ -49,64 +53,57 @@ index 73b566ae..4cbd59e3 100644
          maven { url "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven" }
          // For local development
 -        mavenLocal()
-+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++        //mavenLocal()
 
      }
  }
 diff --git a/buildSrc/build.gradle.kts b/buildSrc/build.gradle.kts
-index c999bcd2..a528a3f1 100644
+index c999bcd2..98afdae7 100644
 --- a/buildSrc/build.gradle.kts
 +++ b/buildSrc/build.gradle.kts
-@@ -11,7 +11,7 @@ plugins {
+@@ -10,8 +10,9 @@ plugins {
+ }
 
  repositories {
++    /* %{PROJECT_LOCAL_MAVEN_DIR}% */
      mavenCentral()
 -    mavenLocal()
-+    /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++    //mavenLocal()
      if (project.hasProperty("kotlin_repo_url")) {
          maven(project.properties["kotlin_repo_url"] as String)
      }
-@@ -41,4 +41,3 @@ val kotlinVersion = run {
+@@ -41,4 +42,3 @@ val kotlinVersion = run {
  dependencies {
      implementation(kotlin("gradle-plugin", kotlinVersion))
  }
 -
 diff --git a/integration-test/build.gradle b/integration-test/build.gradle
-index dda68347..2c43183b 100644
+index dda68347..31a92d68 100644
 --- a/integration-test/build.gradle
 +++ b/integration-test/build.gradle
-@@ -5,7 +5,7 @@ buildscript {
-     ext.serialization_version = mainLibVersion
-
-     repositories {
--        mavenLocal()
-+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
-         mavenCentral()
-         maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
-     }
-@@ -19,7 +19,7 @@ plugins {
+@@ -19,7 +19,8 @@ plugins {
  }
 
  repositories {
 -    mavenLocal()
 +    /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++    //mavenLocal()
      mavenCentral()
      maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
  }
-diff --git a/gradle/native-targets.gradle b/gradle/native-targets.gradle
-index 880b4b64..57b9076b 100644
---- a/gradle/native-targets.gradle
-+++ b/gradle/native-targets.gradle
-@@ -97,11 +97,7 @@ kotlin {
-     targets {
-         if (project.ext.nativeState == NativeState.DISABLED) return
+diff --git a/integration-test/settings.gradle b/integration-test/settings.gradle
+index f8cb2d87..beebf995 100644
+--- a/integration-test/settings.gradle
++++ b/integration-test/settings.gradle
+@@ -14,10 +14,11 @@ pluginManagement {
+     }
 
--        String[] versionComponents = (~/[.-]/).split(compilerVersion, 4)
--        String[] versionComponents1920 = ["1", "9", "20"]
--        def isAtLeast1920 = Arrays.compare(versionComponents, versionComponents1920) { lhs, rhs ->
--            (lhs as int) <=> (rhs as int)
--        } >= 0
-+        def isAtLeast1920 = true
-
-         if (project.ext.singleTargetMode) {
-             fromPreset(project.ext.ideaPreset, 'native')
+     repositories {
++        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
+         mavenCentral()
+         maven { url 'https://plugins.gradle.org/m2/' }
+         maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+-        mavenLocal()
++        //mavenLocal()
+     }
+ }

@@ -105,26 +105,34 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
         private val devMavenRepo: Path by systemProperty(Paths::get)
 
         fun File.updateProjectLocalMavenDir() {
+
+            val dokkaDevMavenRepoMarker = "/* %{PROJECT_LOCAL_MAVEN_DIR}% */"
+
+            // Exclusive repository containing local Dokka artifacts.
+            // Must be compatible with both Groovy and Kotlin DSL.
+            val dokkaDevMavenRepoSpec = /* language=kts */ """
+                |exclusiveContent {
+                |    forRepository{
+                |        maven {
+                |            setUrl("${devMavenRepo.invariantSeparatorsPathString}")
+                |            name = "DokkaDevMavenRepo"
+                |        }
+                |    }
+                |    filter {
+                |        includeGroup("org.jetbrains.dokka")
+                |    }
+                |}
+                |
+            """.trimMargin()
+
             walk().filter { it.isFile }.forEach { file ->
-                file.writeText(
-                    file.readText().replace(
-                        "/* %{PROJECT_LOCAL_MAVEN_DIR}% */",
-                        /* language=kts */
-                        """
-                        |exclusiveContent {
-                        |    forRepository{
-                        |        maven("${devMavenRepo.invariantSeparatorsPathString}") {
-                        |            name = "DevMavenRepo"
-                        |        }
-                        |    }
-                        |    filter {
-                        |        includeGroup("org.jetbrains.dokka")
-                        |    }
-                        |}
-                        |
-                        """.trimMargin()
+                val fileText = file.readText()
+
+                if (dokkaDevMavenRepoMarker in fileText) {
+                    file.writeText(
+                        fileText.replace(dokkaDevMavenRepoMarker, dokkaDevMavenRepoSpec)
                     )
-                )
+                }
             }
         }
     }

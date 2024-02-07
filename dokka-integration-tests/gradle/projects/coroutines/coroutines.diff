@@ -1,44 +1,73 @@
 diff --git a/build.gradle b/build.gradle
-index e7d405e12..236310823 100644
+index e7d405e12..e0b62770d 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -59,8 +59,9 @@ buildscript {
+@@ -52,15 +52,16 @@ buildscript {
      }
- 
+
+     repositories {
++        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
+         mavenCentral()
+         maven { url "https://plugins.gradle.org/m2/" }
+         CommunityProjectsBuild.addDevRepositoryIfEnabled(delegate, project)
+-        mavenLocal()
++        //mavenLocal()
+     }
+
      dependencies {
          classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 -        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
-+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:+"
++        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}"
          classpath "org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicfu_version"
          classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
          classpath "com.github.node-gradle:gradle-node-plugin:$gradle_node_version"
-@@ -107,6 +108,9 @@ allprojects {
-             mavenLocal()
-         }
+@@ -102,11 +103,11 @@ allprojects {
+         kotlin_version = rootProject.properties['kotlin_snapshot_version']
      }
-+    repositories {
-+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
-+    }
+
+-    if (using_snapshot_version) {
+-        repositories {
+-            mavenLocal()
+-        }
+-    }
++    //if (using_snapshot_version) {
++    //    repositories {
++    //        mavenLocal()
++    //    }
++    //}
 
      ext.unpublished = unpublished
 
-@@ -142,6 +146,7 @@ allprojects {
-         google()
-         mavenCentral()
-         CommunityProjectsBuild.addDevRepositoryIfEnabled(delegate, project)
-+        mavenLocal()
-     }
- }
-
+@@ -135,6 +136,7 @@ apiValidation {
+ // Configure repositories
+ allprojects {
+     repositories {
++        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
+         /*
+          * google should be first in the repository list because some of the play services
+          * transitive dependencies was removed from jcenter, thus breaking gradle dependency resolution
 diff --git a/buildSrc/build.gradle.kts b/buildSrc/build.gradle.kts
-index ae54ad0f6..786cff366 100644
+index ae54ad0f6..563a56c17 100644
 --- a/buildSrc/build.gradle.kts
 +++ b/buildSrc/build.gradle.kts
-@@ -25,6 +25,7 @@ repositories {
-     if (buildSnapshotTrain) {
-         mavenLocal()
-     }
+@@ -13,6 +13,7 @@ val buildSnapshotTrain = properties["build_snapshot_train"]?.toString()?.toBoole
+ val kotlinDevUrl = project.rootProject.properties["kotlin_repo_url"] as? String
+
+ repositories {
 +    /* %{PROJECT_LOCAL_MAVEN_DIR}% */
+     mavenCentral()
+     if (cacheRedirectorEnabled) {
+         maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2")
+@@ -22,9 +23,9 @@ repositories {
+     if (!kotlinDevUrl.isNullOrEmpty()) {
+         maven(kotlinDevUrl)
+     }
+-    if (buildSnapshotTrain) {
+-        mavenLocal()
+-    }
++    //if (buildSnapshotTrain) {
++    //    mavenLocal()
++    //}
  }
 
  val gradleProperties = Properties().apply {
@@ -47,25 +76,38 @@ index ae54ad0f6..786cff366 100644
       * thus we're excluding stdlib compiled with 1.6.0 from dependencies.
       */
 -    implementation("org.jetbrains.dokka:dokka-gradle-plugin:${version("dokka")}") {
-+    implementation("org.jetbrains.dokka:dokka-gradle-plugin:+") {
++    implementation("org.jetbrains.dokka:dokka-gradle-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}") {
          exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
          exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk7")
          exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
      }
 -    implementation("org.jetbrains.dokka:dokka-core:${version("dokka")}") {
-+    implementation("org.jetbrains.dokka:dokka-core:+") {
++    implementation("org.jetbrains.dokka:dokka-core:${providers.gradleProperty("dokka_it_dokka_version").get()}") {
          exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
          exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk7")
          exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
 diff --git a/buildSrc/settings.gradle.kts b/buildSrc/settings.gradle.kts
-index c2e859f65..43dc4f749 100644
+index c2e859f65..9cc749a1f 100644
 --- a/buildSrc/settings.gradle.kts
 +++ b/buildSrc/settings.gradle.kts
-@@ -14,5 +14,6 @@ pluginManagement {
-         if (build_snapshot_train?.toBoolean() == true) {
-             mavenLocal()
-         }
+@@ -4,6 +4,7 @@
+ pluginManagement {
+     val build_snapshot_train: String? by settings
+     repositories {
 +        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
+         val cacheRedirectorEnabled = System.getenv("CACHE_REDIRECTOR")?.toBoolean() == true
+         if (cacheRedirectorEnabled) {
+             println("Redirecting repositories for buildSrc buildscript")
+@@ -11,8 +12,8 @@ pluginManagement {
+         } else {
+             maven("https://plugins.gradle.org/m2")
+         }
+-        if (build_snapshot_train?.toBoolean() == true) {
+-            mavenLocal()
+-        }
++        //if (build_snapshot_train?.toBoolean() == true) {
++        //    mavenLocal()
++        //}
      }
  }
 diff --git a/gradle.properties b/gradle.properties
@@ -82,11 +124,16 @@ index 3d9431be0..9af01ef86 100644
  reactor_version=3.4.1
  reactive_streams_version=1.0.3
 diff --git a/settings.gradle b/settings.gradle
-index 151c087fd..e578bdb93 100644
+index 151c087fd..e4433c24f 100644
 --- a/settings.gradle
 +++ b/settings.gradle
-@@ -11,3 +11,4 @@ repositories {
-         maven { url "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/" }
-         gradlePluginPortal()
-+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
+@@ -9,7 +9,8 @@ pluginManagement {
      }
+
+     repositories {
+-        maven { url "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/" }
++        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++        //maven { url "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/" }
+         gradlePluginPortal()
+     }
+ }
