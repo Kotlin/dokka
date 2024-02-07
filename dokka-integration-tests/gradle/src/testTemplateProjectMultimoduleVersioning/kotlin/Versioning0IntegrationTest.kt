@@ -26,7 +26,7 @@ class Versioning0IntegrationTest : AbstractGradleIntegrationTest() {
     /**
      * This test runs versioning 3 times to simulate how users might use it in the real word
      *
-     * Each version has a separate task that has a different version number from 1.0 to 1.2 and is placed under `builDir/dokkas/<version>`
+     * Each version has a separate task that has a different version number from 1.0 to 1.2 and is placed under `buildDir/dokkas/<version>`
      *
      * Output is produced in a standard build directory under `build/dokka/htmlMultiModule`
      */

@@ -56,7 +56,7 @@ node = "16.13.0"
 ## Publishing
 gradlePlugin-shadow = "8.1.1"
 gradlePlugin-gradlePluginPublish = "1.2.1"
-gradlePlugin-gradleNode = "3.5.1"
+gradlePlugin-gradleNode = "7.0.1"
 
 ## Test
 junit = "5.9.3"
@@ -142,6 +142,8 @@ kotlinx-cli = { module = "org.jetbrains.kotlinx:kotlinx-cli-jvm", version.ref = 
 
 #### Test dependencies  ####
 eclipse-jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "eclipse-jgit" }
+
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "gradlePlugin-kotlin" }
 
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiterApi = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
