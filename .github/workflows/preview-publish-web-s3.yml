@@ -22,7 +22,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           gradle-home-cache-cleanup: true
-          arguments: :dokka-integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.CoroutinesGradleIntegrationTest --stacktrace "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=500m"
+          arguments: :dokka-integration-tests:gradle:testExternalProjectKotlinxCoroutines --stacktrace "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=500m"
         env:
           DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/coroutines
       - name: Configure AWS credentials for S3 access
@@ -36,7 +36,7 @@ jobs:
       - name: Print link
         run: echo https://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/coroutines/${GITHUB_SHA::7}/index.html
 
-  kotilnx-serialization:
+  kotlinx-serialization:
     runs-on: ubuntu-latest
     if: github.repository == 'Kotlin/dokka'
     steps:
@@ -51,7 +51,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           gradle-home-cache-cleanup: true
-          arguments: :dokka-integration-tests:gradle:integrationTest --tests org.jetbrains.dokka.it.gradle.kotlin.SerializationGradleIntegrationTest --stacktrace "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=500m"
+          arguments: :dokka-integration-tests:gradle:testExternalProjectKotlinxSerialization --stacktrace "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=500m"
         env:
           DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/serialization
       - name: Configure AWS credentials for S3 access

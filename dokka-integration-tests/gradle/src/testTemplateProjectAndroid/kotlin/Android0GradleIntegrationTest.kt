@@ -29,7 +29,7 @@ class Android0GradleIntegrationTest : AbstractGradleIntegrationTest() {
         fun assumeAndroidSdkInstalled() {
             if (isCI) return
             if (!isAndroidSdkInstalled) {
-                throw IllegalStateException("Expected Android SDK to be installed")
+                throw IllegalStateException("Expected Android SDK is installed")
             }
         }
     }

@@ -1,52 +1,246 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:Suppress("UnstableApiUsage")
+
 import dokkabuild.tasks.GitCheckoutTask
-import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
+import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
+import org.gradle.language.base.plugins.LifecycleBasePlugin.VERIFICATION_GROUP
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Disabled
 
 plugins {
-    id("dokkabuild.test-integration")
+    id("dokkabuild.kotlin-jvm")
+    `jvm-test-suite`
+    `java-test-fixtures`
 }
 
 dependencies {
-    implementation(projects.utilities)
+    api(projects.utilities)
 
-    implementation(kotlin("test-junit5"))
-    implementation(libs.junit.jupiterApi)
-    implementation(libs.junit.jupiterParams)
+    api(libs.jsoup)
 
-    implementation(gradleTestKit())
+    api(libs.kotlin.test)
+    api(libs.junit.jupiterApi)
+    api(libs.junit.jupiterParams)
 
-    implementation(libs.jsoup)
+    api(gradleTestKit())
 }
 
 kotlin {
     // this project only contains test utils and isn't published, so it doesn't matter about explicit API
-    explicitApi = ExplicitApiMode.Disabled
+    explicitApi = Disabled
+
+    compilerOptions {
+        optIn.add("kotlin.io.path.ExperimentalPathApi")
+    }
 }
 
+val aggregatingProject = gradle.includedBuild("dokka")
 val templateProjectsDir = layout.projectDirectory.dir("projects")
 
-val aggregatingProject = gradle.includedBuild("dokka")
-
-tasks.integrationTest {
+tasks.integrationTestPreparation {
+    // TODO remove this in https://github.com/Kotlin/dokka/pull/3433
     dependsOn(aggregatingProject.task(":publishToMavenLocal"))
-    dependsOn(
-        checkoutKotlinxCoroutines,
-        checkoutKotlinxSerialization,
+}
+
+tasks.withType<Test>().configureEach {
+    dependsOn(tasks.integrationTestPreparation)
+
+    setForkEvery(1)
+    maxHeapSize = "2G"
+    dokkaBuild.integrationTestParallelism.orNull?.let { parallelism ->
+        maxParallelForks = parallelism
+    }
+
+    val useK2 = dokkaBuild.integrationTestUseK2.get()
+
+    useJUnitPlatform {
+        if (useK2) excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
+    }
+
+    systemProperty("org.jetbrains.dokka.experimental.tryK2", useK2)
+    // allow inspecting projects in temporary dirs after a test fails
+    systemProperty(
+        "junit.jupiter.tempdir.cleanup.mode.default",
+        dokkaBuild.isCI.map { isCi -> if (isCi) "ALWAYS" else "ON_SUCCESS" }.get(),
     )
 
     environment("DOKKA_VERSION", project.version)
 
-    inputs.dir(templateProjectsDir)
+    // environment() isn't Provider API compatible yet https://github.com/gradle/gradle/issues/11534
+    dokkaBuild.integrationTestExhaustive.orNull?.let { exhaustive ->
+        environment("isExhaustive", exhaustive)
+    }
+    dokkaBuild.androidSdkDir.orNull?.let { androidSdkDir ->
+        environment("ANDROID_HOME", androidSdkDir.invariantSeparatorsPath)
+    }
 
-    javaLauncher.set(javaToolchains.launcherFor {
-        // kotlinx.coroutines requires Java 11+
-        languageVersion.set(dokkaBuild.testJavaLauncherVersion.map {
-            maxOf(it, JavaLanguageVersion.of(11))
-        })
-    })
+    testLogging {
+        exceptionFormat = FULL
+        events(SKIPPED, FAILED)
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+    }
+
+    // TODO remove this in https://github.com/Kotlin/dokka/pull/3433
+    doNotTrackState("uses artifacts from Maven Local")
 }
+
+testing {
+    suites {
+        withType<JvmTestSuite>().configureEach {
+            useJUnitJupiter()
+
+            dependencies {
+                // test suites are independent by default (unlike the test source set), and must manually depend on the project
+                implementation(project())
+            }
+
+            targets.configureEach {
+                testTask.configure {
+                    doFirst {
+                        logger.info("running $path with javaLauncher:${javaLauncher.orNull?.metadata?.javaRuntimeVersion}")
+                    }
+                }
+            }
+        }
+
+        // register a separate test suite for each 'template' project
+        registerTestProjectSuite(
+            "testTemplateProjectAndroid",
+            "it-android-0",
+            jvm = JavaLanguageVersion.of(11), // AGP requires JVM 11+
+        )
+        registerTestProjectSuite("testTemplateProjectBasic", "it-basic")
+        registerTestProjectSuite("testTemplateProjectBasicGroovy", "it-basic-groovy")
+        registerTestProjectSuite("testTemplateProjectCollector", "it-collector-0")
+        registerTestProjectSuite("testTemplateProjectConfiguration", "it-configuration")
+        registerTestProjectSuite("testTemplateProjectJsIr", "it-js-ir-0")
+        registerTestProjectSuite("testTemplateProjectMultimodule0", "it-multimodule-0")
+        registerTestProjectSuite("testTemplateProjectMultimodule1", "it-multimodule-1")
+        registerTestProjectSuite("testTemplateProjectMultimoduleVersioning", "it-multimodule-versioning-0")
+        registerTestProjectSuite("testTemplateProjectMultimoduleInterModuleLinks", "it-multimodule-inter-module-links")
+        registerTestProjectSuite("testTemplateProjectMultiplatform", "it-multiplatform-0")
+        registerTestProjectSuite("testTemplateProjectTasksExecutionStress", "it-sequential-tasks-execution-stress")
+        registerTestProjectSuite("testTemplateProjectWasmBasic", "it-wasm-basic")
+        registerTestProjectSuite("testTemplateProjectWasmJsWasiBasic", "it-wasm-js-wasi-basic")
+
+        registerTestProjectSuite(
+            "testExternalProjectKotlinxCoroutines",
+            "coroutines/kotlinx-coroutines",
+            jvm = JavaLanguageVersion.of(11) // kotlinx.coroutines requires JVM 11+ https://github.com/Kotlin/kotlinx.coroutines/issues/3665
+        ) {
+            targets.configureEach {
+                testTask.configure {
+                    dependsOn(checkoutKotlinxCoroutines)
+                    // register the whole directory as an input because it contains the git diff
+                    inputs
+                        .dir(templateProjectsDir.file("coroutines"))
+                        .withPropertyName("coroutinesProjectDir")
+                }
+            }
+        }
+        registerTestProjectSuite(
+            "testExternalProjectKotlinxSerialization",
+            "serialization/kotlinx-serialization",
+            jvm = JavaLanguageVersion.of(11) // https://github.com/Kotlin/kotlinx.serialization/blob/1116f5f13a957feecda47d5e08b0aa335fc010fa/gradle/configure-source-sets.gradle#L9
+        ) {
+            targets.configureEach {
+                testTask.configure {
+                    dependsOn(checkoutKotlinxSerialization)
+                    // register the whole directory as an input because it contains the git diff
+                    inputs
+                        .dir(templateProjectsDir.file("serialization"))
+                        .withPropertyName("serializationProjectDir")
+                }
+            }
+        }
+    }
+    tasks.check {
+        dependsOn(suites)
+    }
+}
+
+
+/**
+ * Create a new [JvmTestSuite] for a Gradle project.
+ *
+ * @param[projectPath] path to the Gradle project that will be tested by this suite, relative to [templateProjectsDir].
+ * The directory will be passed as a system property, `templateProjectDir`.
+ */
+fun TestingExtension.registerTestProjectSuite(
+    name: String,
+    projectPath: String,
+    jvm: JavaLanguageVersion? = null,
+    configure: JvmTestSuite.() -> Unit = {},
+) {
+    val templateProjectDir = templateProjectsDir.dir(projectPath)
+
+    suites.register<JvmTestSuite>(name) {
+        targets.configureEach {
+            testTask.configure {
+                // Register the project dir as a specific input, so changes in other projects don't affect the caching of this test
+                inputs.dir(templateProjectDir).withPropertyName("templateProjectDir")
+                // Pass the template dir in as a property, it is accessible in tests.
+                systemProperty("templateProjectDir", templateProjectDir.asFile.invariantSeparatorsPath)
+
+                if (jvm != null) {
+                    javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
+                }
+
+                // For validation, on CI the generated output is uploaded, so the test must produce output in
+                // DOKKA_TEST_OUTPUT_PATH. For Gradle up-to-date checks the output dir must be specified.
+                val testOutputPath = System.getenv("DOKKA_TEST_OUTPUT_PATH")
+                inputs.property("testOutputPath", testOutputPath).optional(true)
+                if (testOutputPath != null) {
+                    outputs.dir(testOutputPath).withPropertyName("testOutput")
+                }
+            }
+        }
+        configure()
+    }
+}
+
+//region project tests management
+
+// set up task ordering - template projects (which are generally faster) should be tested before external projects
+val testTemplateProjectsTasks = tasks.withType<Test>().matching { it.name.startsWith("testTemplateProject") }
+val testExternalProjectsTasks = tasks.withType<Test>().matching { it.name.startsWith("testExternalProject") }
+
+testTemplateProjectsTasks.configureEach {
+    shouldRunAfter(tasks.test)
+}
+testExternalProjectsTasks.configureEach {
+    shouldRunAfter(tasks.test)
+    shouldRunAfter(testTemplateProjectsTasks)
+}
+
+// define lifecycle tasks for project tests
+val testAllTemplateProjects by tasks.registering {
+    description = "Lifecycle task for running all template-project tests"
+    group = VERIFICATION_GROUP
+    dependsOn(testTemplateProjectsTasks)
+    doNotTrackState("lifecycle task, should always run")
+}
+
+val testAllExternalProjects by tasks.registering {
+    description = "Lifecycle task for running all external-project tests"
+    group = VERIFICATION_GROUP
+    shouldRunAfter(testAllTemplateProjects)
+    dependsOn(testExternalProjectsTasks)
+    doNotTrackState("lifecycle task, should always run")
+}
+
+val integrationTest by tasks.registering {
+    description = "Lifecycle task for running integration tests"
+    // TODO - Refactor Maven and CLI integration tests to use Test Suites
+    //      - Reimplement dokkabuild.test-integration.gradle.kts so that `integrationTest` is defined once there
+    dependsOn(tasks.withType<Test>()) // all tests in this project are integration tests
+}
+//endregion
 
 val checkoutKotlinxCoroutines by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx.coroutines.git"

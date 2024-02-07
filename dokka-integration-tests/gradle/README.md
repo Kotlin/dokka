@@ -14,7 +14,7 @@ Integration tests have fixed git revision number, with the diff patch applied fr
 
 In order to update:
 
-* Checkout the project with the requered revision
+* Checkout the project with the required revision
     - It's some state of the `master`
 * Manually write the diff (or apply the existing one and tweak) to have the project buildable against locally published Dokka of version `for-integration-tests-SNAPSHOT`
 * `git diff > $pathToProjectInDokka/project.diff`
@@ -26,4 +26,4 @@ In order to update:
 ### Run integration tests with K2 (symbols)
 
 To run integration tests with K2, the property `org.jetbrains.dokka.integration_test.useK2` should be set to `true`. 
-By default, the task `integrationTest` is run with K1 (descriptors).
+By default, the integration tests are run with K1 (descriptors).
