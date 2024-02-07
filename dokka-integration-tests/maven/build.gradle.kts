@@ -1,6 +1,7 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+import dokkabuild.tasks.GitCheckoutTask
 
 plugins {
     id("dokkabuild.test-integration")
@@ -15,6 +16,8 @@ dependencies {
     implementation(libs.junit.jupiterApi)
 
     val dokkaVersion = project.version.toString()
+    // We're using Gradle included-builds and dependency substitution, so we
+    // need to use the Gradle project name, *not* the published Maven artifact-id
     devPublication("org.jetbrains.dokka:plugin-all-modules-page:$dokkaVersion")
     devPublication("org.jetbrains.dokka:analysis-kotlin-api:$dokkaVersion")
     devPublication("org.jetbrains.dokka:analysis-kotlin-descriptors:$dokkaVersion")
@@ -37,8 +40,18 @@ dependencies {
     devPublication("org.jetbrains.dokka:runner-maven-plugin:$dokkaVersion")
 }
 
+val templateProjectsDir = layout.projectDirectory.dir("projects")
+
+val dokkaSubprojects = gradle.includedBuild("dokka")
+val mavenPlugin = gradle.includedBuild("runner-maven-plugin")
+
 tasks.integrationTest {
-    dependsOn(tasks.updateDevRepo)
+    dependsOn(
+        tasks.updateDevRepo,
+        dokkaSubprojects.task(":publishToMavenLocal"),
+        mavenPlugin.task(":publishToMavenLocal"),
+        checkoutBioJava,
+    )
 
     dependsOn(tasks.installMavenBinary)
     val mvn = mavenCliSetup.mvn
@@ -57,4 +70,10 @@ tasks.integrationTest {
         environment("DOKKA_VERSION", dokkaVersion.get())
         environment("MVN_BINARY_PATH", mvn.get().asFile.invariantSeparatorsPath)
     }
+}
+
+val checkoutBioJava by tasks.registering(GitCheckoutTask::class) {
+    uri = "https://github.com/biojava/biojava.git"
+    commitId = "059fbf1403d0704801df1427b0ec925102a645cd"
+    destination = templateProjectsDir.dir("biojava/biojava")
 }

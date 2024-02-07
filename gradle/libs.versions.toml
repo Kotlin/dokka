@@ -56,7 +56,7 @@ node = "16.13.0"
 ## Publishing
 gradlePlugin-shadow = "8.1.1"
 gradlePlugin-gradlePluginPublish = "1.2.1"
-gradlePlugin-gradleNode = "3.5.1"
+gradlePlugin-gradleNode = "7.0.1"
 gradlePlugin-devPublish = "0.2.0"
 
 ## Test
