@@ -13,13 +13,15 @@ pluginManagement {
         id("org.jetbrains.kotlin.jvm") version dokka_it_kotlin_version
         id("org.jetbrains.kotlin.android") version dokka_it_kotlin_version
         id("org.jetbrains.kotlin.multiplatform") version dokka_it_kotlin_version
-        // only one repository should provide Dokka, and that's a project-local directory,
-        // so just use the latest Dokka version
-        id("org.jetbrains.dokka") version "+"
+        id("org.jetbrains.dokka") version version dokka_it_kotlin_version
     }
 
     resolutionStrategy {
         eachPlugin {
+            if (requested.id.id == "org.jetbrains.dokka") {
+                useModule("org.jetbrains.dokka:dokka-gradle-plugin:$dokka_it_kotlin_version")
+            }
+
             if (requested.id.id == "com.android.library") {
                 useModule("com.android.tools.build:gradle:$dokka_it_android_gradle_plugin_version")
             }
