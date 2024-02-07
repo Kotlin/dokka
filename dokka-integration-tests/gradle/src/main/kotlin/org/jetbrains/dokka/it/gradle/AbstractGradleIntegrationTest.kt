@@ -6,7 +6,6 @@ package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.internal.DefaultGradleRunner
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.it.AbstractIntegrationTest
@@ -56,8 +55,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
 
                     * arguments
                 )
-            ).run { this as DefaultGradleRunner }
-            .withJvmArguments(jvmArgs)
+            ).withJvmArguments(jvmArgs)
     }
 
     fun GradleRunner.buildRelaxed(): BuildResult {

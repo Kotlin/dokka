@@ -18,6 +18,7 @@ abstract class AbstractIntegrationTest {
     @field:TempDir
     lateinit var tempFolder: File
 
+    /** Working directory of the test. Contains the project that should be tested. */
     val projectDir: File get() = File(tempFolder, "project")
 
     fun File.allDescendentsWithExtension(extension: String): Sequence<File> =

@@ -67,7 +67,7 @@ abstract class GitCheckoutTask @Inject constructor(
             exclude(".git/")
         }
 
-        logger.lifecycle("initialized git repo $uri in ${destination.asFile.orNull}")
+        logger.lifecycle("initialized git repo ${uri.get()} in ${destination.asFile.get()}")
     }
 
     /**
