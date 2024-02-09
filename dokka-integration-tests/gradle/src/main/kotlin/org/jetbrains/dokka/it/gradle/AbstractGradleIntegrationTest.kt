@@ -6,13 +6,13 @@ package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.internal.DefaultGradleRunner
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.it.AbstractIntegrationTest
 import java.io.File
 import java.net.URI
 import kotlin.test.BeforeTest
+import kotlin.time.Duration.Companion.seconds
 
 abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
 
@@ -48,10 +48,14 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                     else
                         null,
 
+                    // Decrease Gradle daemon idle timeout to prevent old agents lingering on CI.
+                    // A lower timeout means slower tests, which is preferred over OOMs and locked processes.
+                    "-Dorg.gradle.daemon.idletimeout=" + 10.seconds.inWholeMilliseconds, // default is 3 hours!
+                    "-Pkotlin.daemon.options.autoshutdownIdleSeconds=10",
+
                     * arguments
                 )
-            ).run { this as DefaultGradleRunner }
-            .withJvmArguments(jvmArgs)
+            ).withJvmArguments(jvmArgs)
     }
 
     fun GradleRunner.buildRelaxed(): BuildResult {
