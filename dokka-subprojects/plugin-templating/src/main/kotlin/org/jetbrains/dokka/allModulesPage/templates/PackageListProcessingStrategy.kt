@@ -38,7 +38,7 @@ public class PackageListProcessingStrategy(
             val linkFormat = fragments.first().linkFormat
 
             if (!fragments.all { it.linkFormat == linkFormat }) {
-                context.logger.error("Link format is inconsistent between modules: " + fragments.joinToString { it.linkFormat.formatName } )
+                context.logger.warn("Link format is inconsistent between modules: " + fragments.joinToString { it.linkFormat.formatName } )
             }
 
             val locations: Map<String, String> = fragments.map { it.locations }.fold(emptyMap()) { acc, el -> acc + el }

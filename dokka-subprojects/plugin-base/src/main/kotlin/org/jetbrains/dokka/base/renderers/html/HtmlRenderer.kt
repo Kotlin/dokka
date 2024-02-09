@@ -779,11 +779,11 @@ public open class HtmlRenderer(
         block: FlowContent.() -> Unit
     ) {
         locationProvider.resolve(to, platforms.toSet(), from)?.let { buildLink(it, block) }
-            ?: run { context.logger.error("Cannot resolve path for `$to` from `$from`"); block() }
+            ?: run { context.logger.warn("Cannot resolve path for `$to` from `$from`"); block() }
     }
 
     override fun buildError(node: ContentNode) {
-        context.logger.error("Unknown ContentNode type: $node")
+        context.logger.warn("Unknown ContentNode type: $node")
     }
 
     override fun FlowContent.buildLineBreak() {

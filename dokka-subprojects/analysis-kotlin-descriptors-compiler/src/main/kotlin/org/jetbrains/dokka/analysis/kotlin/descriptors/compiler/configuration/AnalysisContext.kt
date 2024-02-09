@@ -87,7 +87,7 @@ internal class DokkaMessageCollector(private val logger: DokkaLogger) : MessageC
         if (severity == CompilerMessageSeverity.ERROR) {
             seenErrors = true
         }
-        logger.info(MessageRenderer.PLAIN_FULL_PATHS.render(severity, message, location))
+        logger.debug(MessageRenderer.PLAIN_FULL_PATHS.render(severity, message, location))
     }
 
     override fun hasErrors() = seenErrors

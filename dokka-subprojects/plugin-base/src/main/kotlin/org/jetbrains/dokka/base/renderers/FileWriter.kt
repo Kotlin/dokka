@@ -39,7 +39,7 @@ public class FileWriter(
 
     private suspend fun checkFileCreated(path: String): Boolean = createdFilesMutex.withLock {
         if (createdFiles.contains(path)) {
-            context.logger.error("An attempt to write ${root}/$path several times!")
+            context.logger.warn("An attempt to write ${root}/$path several times!")
             return true
         }
         createdFiles.add(path)

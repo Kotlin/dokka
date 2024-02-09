@@ -56,7 +56,7 @@ internal class JavadocContentToHtmlTranslator(
             is ContentResolvedLink -> buildLinkFromNode(node, relative)
             is ContentCodeBlock -> "<pre><code>${node.children.joinToString("") { nodeToText(it, insidePre = true) }}</code></pre>"
             is ContentCodeInline -> "<code>${node.children.joinToString("") { nodeToText(it) }}</code>"
-            else -> run { context.logger.error("Cannot cast $node as ContentText!"); "" }
+            else -> run { context.logger.warn("Cannot cast $node as ContentText!"); "" }
         }
         return nodeToText(code)
     }

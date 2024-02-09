@@ -38,7 +38,7 @@ public class PackageListService(
             val contentPage = node as? ContentPage
             contentPage?.dri?.forEach { dri ->
                 val nodeLocation = locationProvider.resolve(node, context = module, skipExtension = true)
-                    ?: run { context.logger.error("Cannot resolve path for ${node.name}!"); null }
+                    ?: run { context.logger.warn("Cannot resolve path for ${node.name}!"); null }
 
                 if (dri != DRI.topLevel && locationProvider.expectedLocationForDri(dri) != nodeLocation) {
                     nonStandardLocations[dri.toString()] = "$nodeLocation.${format.linkExtension}"

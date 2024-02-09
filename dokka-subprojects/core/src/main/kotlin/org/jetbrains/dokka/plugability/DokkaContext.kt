@@ -217,9 +217,9 @@ private class DokkaContextConfigurationImpl(
                 "\t${it.key} by " + (it.value.singleOrNull() ?: it.value)
             }
 
-        logger.info("Loaded plugins: $pluginNames")
-        logger.info("Loaded: $loadedListForDebug")
-        logger.info("Suppressed: $suppressedList")
+        logger.debug("Loaded plugins: $pluginNames")
+        logger.debug("Loaded: $loadedListForDebug")
+        logger.debug("Suppressed: $suppressedList")
     }
 }
 

@@ -15,6 +15,7 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.templates.TemplatingPlugin
 import org.jetbrains.dokka.templates.TemplatingResult
 import org.jetbrains.dokka.transformers.pages.CreationContext
+import org.jetbrains.dokka.utilities.LoggingLevel
 
 public class AllModulesPageGeneration(private val context: DokkaContext) : Generation {
 
@@ -22,25 +23,25 @@ public class AllModulesPageGeneration(private val context: DokkaContext) : Gener
     private val templatingPlugin by lazy { context.plugin<TemplatingPlugin>() }
 
     override fun Timer.generate() {
-        report("Processing submodules")
+        report("Processing submodules", LoggingLevel.DEBUG)
         val generationContext = processSubmodules()
 
-        report("Creating all modules page")
+        report("Creating all modules page", LoggingLevel.DEBUG)
         val pages = createAllModulesPage(generationContext)
 
-        report("Transforming pages")
+        report("Transforming pages", LoggingLevel.DEBUG)
         val transformedPages = transformAllModulesPage(pages)
 
-        report("Rendering")
+        report("Rendering", LoggingLevel.DEBUG)
         render(transformedPages)
 
-        report("Processing multimodule")
+        report("Processing multimodule", LoggingLevel.DEBUG)
         processMultiModule(transformedPages)
 
-        report("Finish submodule processing")
+        report("Finish submodule processing", LoggingLevel.DEBUG)
         finishProcessingSubmodules()
 
-        report("Running post-actions")
+        report("Running post-actions", LoggingLevel.DEBUG)
         runPostActions()
     }
 

@@ -12,6 +12,7 @@ import org.jetbrains.dokka.generation.GracefulGenerationExit
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.dokka.utilities.LoggingLevel
 
 /**
  * DokkaGenerator is the main entry point for generating documentation
@@ -25,12 +26,12 @@ public class DokkaGenerator(
 
     public fun generate() {
         timed(logger) {
-            report("Initializing plugins")
+            report("Initializing plugins", LoggingLevel.DEBUG)
             val context = initializePlugins(configuration, logger)
 
             runCatching {
                 context.single(CoreExtensions.generation).run {
-                    logger.progress("Dokka is performing: $generationName")
+                    logger.debug("Dokka is performing: $generationName")
                     generate()
                 }
             }.exceptionOrNull()?.let { e ->
@@ -59,18 +60,29 @@ public class DokkaGenerator(
 public class Timer internal constructor(startTime: Long, private val logger: DokkaLogger?) {
     private val steps = mutableListOf("" to startTime)
 
-    public fun report(name: String) {
-        logger?.progress(name)
+//    public fun report(name: String) {
+//        logger?.progress(name)
+//        steps += (name to System.currentTimeMillis())
+//    }
+
+    public fun report(name: String, logLevel: LoggingLevel) {
+        when(logLevel) {
+            LoggingLevel.DEBUG -> logger?.debug(name)
+            LoggingLevel.PROGRESS -> logger?.progress(name)
+            LoggingLevel.INFO -> logger?.info(name)
+            LoggingLevel.WARN -> logger?.warn(name)
+            LoggingLevel.ERROR -> logger?.error(name)
+        }
         steps += (name to System.currentTimeMillis())
     }
 
     public fun dump(prefix: String = "") {
-        logger?.info(prefix)
+        logger?.debug(prefix)
         val namePad = steps.map { it.first.length }.maxOrNull() ?: 0
         val timePad = steps.windowed(2).map { (p1, p2) -> p2.second - p1.second }.maxOrNull()?.toString()?.length ?: 0
         steps.windowed(2).forEach { (p1, p2) ->
             if (p1.first.isNotBlank()) {
-                logger?.info("${p1.first.padStart(namePad)}: ${(p2.second - p1.second).toString().padStart(timePad)}")
+                logger?.debug("${p1.first.padStart(namePad)}: ${(p2.second - p1.second).toString().padStart(timePad)}")
             }
         }
     }
@@ -81,9 +93,9 @@ private fun timed(logger: DokkaLogger? = null, block: Timer.() -> Unit): Timer =
         try {
             block()
         } catch (exit: GracefulGenerationExit) {
-            report("Exiting Generation: ${exit.reason}")
+            report("Exiting Generation: ${exit.reason}", LoggingLevel.PROGRESS)
         } finally {
-            report("")
+            report("", LoggingLevel.PROGRESS)
         }
     }
 

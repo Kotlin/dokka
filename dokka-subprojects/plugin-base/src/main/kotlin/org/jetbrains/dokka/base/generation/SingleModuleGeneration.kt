@@ -18,41 +18,42 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.transformers.sources.AsyncSourceToDocumentableTranslator
+import org.jetbrains.dokka.utilities.LoggingLevel
 import org.jetbrains.dokka.utilities.parallelMap
 import org.jetbrains.dokka.utilities.report
 
 public class SingleModuleGeneration(private val context: DokkaContext) : Generation {
 
     override fun Timer.generate() {
-        report("Validity check")
+        report("Validity check", LoggingLevel.DEBUG)
         validityCheck(context)
 
         // Step 1: translate sources into documentables & transform documentables (change internally)
-        report("Creating documentation models")
+        report("Creating documentation models", LoggingLevel.DEBUG)
         val modulesFromPlatforms = createDocumentationModels()
 
-        report("Transforming documentation model before merging")
+        report("Transforming documentation model before merging", LoggingLevel.DEBUG)
         val transformedDocumentationBeforeMerge = transformDocumentationModelBeforeMerge(modulesFromPlatforms)
 
-        report("Merging documentation models")
+        report("Merging documentation models", LoggingLevel.DEBUG)
         val transformedDocumentationAfterMerge = mergeDocumentationModels(transformedDocumentationBeforeMerge)
             ?: exitGenerationGracefully("Nothing to document")
 
-        report("Transforming documentation model after merging")
+        report("Transforming documentation model after merging", LoggingLevel.DEBUG)
         val transformedDocumentation = transformDocumentationModelAfterMerge(transformedDocumentationAfterMerge)
 
         // Step 2: Generate pages & transform them (change internally)
-        report("Creating pages")
+        report("Creating pages", LoggingLevel.DEBUG)
         val pages = createPages(transformedDocumentation)
 
-        report("Transforming pages")
+        report("Transforming pages", LoggingLevel.DEBUG)
         val transformedPages = transformPages(pages)
 
         // Step 3: Rendering
-        report("Rendering")
+        report("Rendering", LoggingLevel.DEBUG)
         render(transformedPages)
 
-        report("Running post-actions")
+        report("Running post-actions", LoggingLevel.DEBUG)
         runPostActions()
 
         reportAfterRendering()
@@ -109,7 +110,7 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
 
     public fun reportAfterRendering() {
         context.unusedPoints.takeIf { it.isNotEmpty() }?.also {
-            context.logger.info("Unused extension points found: ${it.joinToString(", ")}")
+            context.logger.warn("Unused extension points found: ${it.joinToString(", ")}")
         }
 
         context.logger.report()

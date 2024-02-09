@@ -104,7 +104,7 @@ public open class DefaultPageCreator(
     public open fun pageForEnumEntries(documentables: List<DEnumEntry>): ClasslikePageNode {
         val dri = documentables.dri.also {
             if (it.size != 1) {
-                logger.error("Documentable dri should have the same one ${it.first()} inside the one page!")
+                logger.warn("Documentable dri should have the same one ${it.first()} inside the one page!")
             }
         }
 
@@ -132,7 +132,7 @@ public open class DefaultPageCreator(
     public open fun pageForClasslikes(documentables: List<Documentable>): ClasslikePageNode {
         val dri = documentables.dri.also {
             if (it.size != 1) {
-                logger.error("Documentable dri should have the same one ${it.first()} inside the one page!")
+                logger.warn("Documentable dri should have the same one ${it.first()} inside the one page!")
             }
         }
 
@@ -201,7 +201,7 @@ public open class DefaultPageCreator(
     public open fun pageForFunctions(fs: List<DFunction>): MemberPageNode {
         val dri = fs.dri.also {
             if (it.size != 1) {
-                logger.error("Function dri should have the same one ${it.first()} inside the one page!")
+                logger.warn("Function dri should have the same one ${it.first()} inside the one page!")
             }
         }
         return MemberPageNode(fs.first().nameAfterClash(), contentForMembers(fs), dri, fs)
@@ -213,7 +213,7 @@ public open class DefaultPageCreator(
     public open fun pageForProperties(ps: List<DProperty>): MemberPageNode {
         val dri = ps.dri.also {
             if (it.size != 1) {
-                logger.error("Property dri should have the same one ${it.first()} inside the one page!")
+                logger.warn("Property dri should have the same one ${it.first()} inside the one page!")
             }
         }
         return MemberPageNode(ps.first().nameAfterClash(), contentForMembers(ps), dri, ps)
