@@ -9,6 +9,11 @@ pluginManagement {
     val dokka_it_dokka_version: String by settings
     val dokka_it_android_gradle_plugin_version: String? by settings
 
+    logger.quiet("Gradle version: ${gradle.gradleVersion}")
+    logger.quiet("Kotlin version: $dokka_it_kotlin_version")
+    logger.quiet("Dokka version: $dokka_it_dokka_version")
+    logger.quiet("Android version: $dokka_it_android_gradle_plugin_version")
+
     plugins {
         id("org.jetbrains.kotlin.js") version dokka_it_kotlin_version
         id("org.jetbrains.kotlin.jvm") version dokka_it_kotlin_version
@@ -125,12 +130,3 @@ dependencyResolutionManagement {
         }
     }
 }
-
-val kotlinVersion = providers.gradleProperty("dokka_it_kotlin_version").orNull
-val dokkaVersion = providers.gradleProperty("dokka_it_dokka_version").orNull
-val androidVersion = providers.gradleProperty("dokka_it_android_gradle_plugin_version").orNull
-
-logger.quiet("Gradle version: ${gradle.gradleVersion}")
-logger.quiet("Kotlin version: $kotlinVersion")
-logger.quiet("Dokka version: $dokkaVersion")
-logger.quiet("Android version: $androidVersion")
