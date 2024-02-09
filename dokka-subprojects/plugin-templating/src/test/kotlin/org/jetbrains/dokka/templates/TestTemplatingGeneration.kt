@@ -10,16 +10,17 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.utilities.LoggingLevel
 
 class TestTemplatingGeneration(private val context: DokkaContext) : Generation {
 
     val templatingPlugin by lazy { context.plugin<TemplatingPlugin>() }
 
     override fun Timer.generate() {
-        report("Processing submodules")
+        report("Processing submodules", LoggingLevel.DEBUG)
         processSubmodules()
 
-        report("Finishing processing")
+        report("Finishing processing", LoggingLevel.PROGRESS)
         finishProcessing()
     }
 

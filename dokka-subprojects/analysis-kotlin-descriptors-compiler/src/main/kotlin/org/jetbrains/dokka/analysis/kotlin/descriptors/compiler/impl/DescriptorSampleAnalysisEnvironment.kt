@@ -73,7 +73,7 @@ internal class DescriptorSampleAnalysisEnvironment(
 
         val samplePsiElement = resolveSession.resolveSamplePsiElement(sourceSet, fullyQualifiedLink)
         if (samplePsiElement == null) {
-            dokkaLogger.debug("Cannot resolve sample element for: \"$fullyQualifiedLink\"")
+            dokkaLogger.warn("Cannot resolve sample element for: \"$fullyQualifiedLink\"")
             return null
         } else if (samplePsiElement.containingFile !is KtFile) {
             dokkaLogger.warn("Unable to resolve non-Kotlin @sample links: \"$fullyQualifiedLink\"")
@@ -92,7 +92,7 @@ internal class DescriptorSampleAnalysisEnvironment(
     ): PsiElement? {
         val packageDescriptor = resolveNearestPackageDescriptor(fqLink)
         if (packageDescriptor == null) {
-            dokkaLogger.debug(
+            dokkaLogger.warn(
                 "Unable to resolve package descriptor for @sample: \"$fqLink\";"
             )
             return null
@@ -154,7 +154,7 @@ internal class DescriptorSampleAnalysisEnvironment(
         if (packageDescriptor != null) {
             return packageDescriptor
         }
-        dokkaLogger.debug("Failed to resolve package \"$supposedPackageName\" for sample \"$fqLink\"")
+        dokkaLogger.warn("Failed to resolve package \"$supposedPackageName\" for sample \"$fqLink\"")
 
         if (isRootPackage) {
             // cannot go any deeper

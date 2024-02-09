@@ -164,7 +164,7 @@ internal fun topologicalSortByDependantSourceSets(
                     souceSet.dependentSourceSets.mapNotNull { dependentSourceSetId ->
                         sourceSets.find { it.sourceSetID == dependentSourceSetId }
                         // just skip
-                            ?: null.also { logger.error("Unknown source set Id $dependentSourceSetId in dependencies of ${souceSet.sourceSetID}") }
+                            ?: null.also { logger.warn("Unknown source set Id $dependentSourceSetId in dependencies of ${souceSet.sourceSetID}") }
                     }
                 verticesAssociatedWithState[souceSet] = State.VISITING
                 dependentSourceSets.forEach(::dfs)

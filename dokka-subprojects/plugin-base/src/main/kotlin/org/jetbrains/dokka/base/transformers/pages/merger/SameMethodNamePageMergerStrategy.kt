@@ -29,7 +29,7 @@ public class SameMethodNamePageMergerStrategy(
 
         val name = pages.first().name.also {
             if (pages.any { page -> page.name != it }) { // Is this even possible?
-                logger.error("Page names for $it do not match!")
+                logger.warn("Page names for $it do not match!")
             }
         }
         val dri = members.flatMap { it.dri }.toSet()

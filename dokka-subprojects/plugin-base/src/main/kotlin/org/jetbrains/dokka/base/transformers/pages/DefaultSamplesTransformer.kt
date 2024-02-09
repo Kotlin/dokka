@@ -120,7 +120,7 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
             is PlatformHintedContent -> copy(inner.dfs(fqName, node))
             is ContentText -> if (text == fqName) node else this
             is ContentBreakLine -> this
-            else -> this.also { context.logger.error("Could not recognize $this ContentNode in SamplesTransformer") }
+            else -> this.also { context.logger.warn("Could not recognize $this ContentNode in SamplesTransformer") }
         }
     }
 

@@ -128,7 +128,7 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `dokka javadocJar`() {
         val result = ProcessBuilder().directory(projectDir)
-            .command(mavenBinaryFile.absolutePath, "dokka:javadocJar", "-U", "-e").start().awaitProcessResult()
+            .command(mavenBinaryFile.absolutePath, "dokka:javadocJar", "-X", "-U", "-e").start().awaitProcessResult()
 
         diagnosticAsserts(result)
 

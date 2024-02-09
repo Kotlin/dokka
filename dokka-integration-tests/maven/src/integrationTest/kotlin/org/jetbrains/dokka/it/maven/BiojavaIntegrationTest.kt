@@ -31,7 +31,7 @@ class BiojavaIntegrationTest : AbstractIntegrationTest(), TestOutputCopier {
     @Test
     fun `dokka javadoc`() {
         val result = ProcessBuilder().directory(projectDir)
-            .command(mavenBinaryFile.absolutePath, "dokka:javadoc", "-pl", "biojava-core", "\"-Ddokka_version=$currentDokkaVersion\"", "-U", "-e").start().awaitProcessResult()
+            .command(mavenBinaryFile.absolutePath, "dokka:javadoc", "-pl", "biojava-core", "\"-Ddokka_version=$currentDokkaVersion\"", "-X", "-U", "-e").start().awaitProcessResult()
 
         diagnosticAsserts(result)
 

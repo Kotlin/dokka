@@ -44,7 +44,7 @@ public class KotlinAsJavaPlugin : DokkaPlugin() {
     internal val alphaVersionNotifier by extending {
         CoreExtensions.postActions providing { ctx ->
             PostAction {
-                ctx.logger.info("KotlinAsJava plugin is in Alpha version, use at your own risk, expect bugs and migration issues")
+                ctx.logger.progress("KotlinAsJava plugin is in Alpha version, use at your own risk, expect bugs and migration issues")
             }
         }
     }

@@ -40,7 +40,7 @@ public abstract class DefaultLocationProvider(
                 externalLocationProviderFactories
                     .mapNotNull { it.getExternalLocationProvider(extDocInfo) }
                     .firstOrNull()
-                    ?: run { dokkaContext.logger.error("No ExternalLocationProvider for '${extDocInfo.packageList.url}' found"); null }
+                    ?: run { dokkaContext.logger.warn("No ExternalLocationProvider for '${extDocInfo.packageList.url}' found"); null }
             }
 
     protected val packagesIndex: Map<String, ExternalLocationProvider?> =

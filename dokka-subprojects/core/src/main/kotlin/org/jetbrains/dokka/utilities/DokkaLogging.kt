@@ -108,14 +108,14 @@ public interface DokkaLogger {
 
 public fun DokkaLogger.report() {
     if (warningsCount > 0 || errorsCount > 0) {
-        info(
+        progress(
             "Generation completed with $warningsCount warning" +
                     (if (warningsCount == 1) "" else "s") +
                     " and $errorsCount error" +
                     if (errorsCount == 1) "" else "s"
         )
     } else {
-        info("Generation completed successfully")
+        progress("Generation completed successfully")
     }
 }
 

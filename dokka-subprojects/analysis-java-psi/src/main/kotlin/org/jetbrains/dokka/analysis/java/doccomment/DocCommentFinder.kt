@@ -47,7 +47,7 @@ public class DocCommentFinder(
             return superMethodDocumentation.single()
         }
 
-        logger.debug(
+        logger.warn(
             "Conflicting documentation for ${DRI.from(method)}" +
                     "${superMethods.map { DRI.from(it) }}"
         )

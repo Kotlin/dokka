@@ -446,7 +446,7 @@ public final class org/jetbrains/dokka/SourceLinkDefinitionImpl$Companion {
 public final class org/jetbrains/dokka/Timer {
 	public final fun dump (Ljava/lang/String;)V
 	public static synthetic fun dump$default (Lorg/jetbrains/dokka/Timer;Ljava/lang/String;ILjava/lang/Object;)V
-	public final fun report (Ljava/lang/String;)V
+	public final fun report (Ljava/lang/String;Lorg/jetbrains/dokka/utilities/LoggingLevel;)V
 }
 
 public abstract interface class org/jetbrains/dokka/generation/Generation {
