@@ -9,6 +9,8 @@ Note: Here and in other places, we describe two possibilities: with and without 
 Using settings plugin is an additional configuration which is based on project plugins, but have less restrictions
 regarding Isolated Projects.
 
+Note: the best default for aggregation will be to make it automatically include all projects in the multi-module result
+
 Requirements:
 
 * DGP of the same version should be applied to all modules to make it work correctly
@@ -570,3 +572,16 @@ Notes:
 * `html` here will be applied to all modules where dokka applied (aggregation including)
 * `rootDir` could be confusing here, as it point to a directory where `settings` located and not of a project where it's
   configured
+
+# 7. What if KGP apply dokka by default (or via some flag) everywhere if there is some `koltin` project
+
+* In this case we will need to apply dokka only to root project
+* If KGP will have settings plugin it will be able to apply Dokka even to root project
+* In this case we can assume that dokka exists everywhere and so we don't need to care about issues with configurations.
+  Because of it, we will not need to define projects which are included in aggregation but only exclusions
+*
+
+# 8. Assumptions for examples
+
+* we are able to include all projects with Dokka plugin in aggregation automatically
+  via `subprojects { dokkaAggregate(this) }` in a Gradle compatible way
