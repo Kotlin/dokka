@@ -3,8 +3,6 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
-apply from: '../template.root.gradle.kts'
-
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 }
@@ -52,4 +50,3 @@ dokkaGfm {
 dokkaJekyll {
     outputDirectory = new File(buildDir, "dokka/customJekyll")
 }
-

@@ -38,6 +38,7 @@ kotlin {
 }
 
 val aggregatingProject = gradle.includedBuild("dokka")
+val templateSettingsGradleKts = layout.projectDirectory.file("projects/template.settings.gradle.kts")
 val templateProjectsDir = layout.projectDirectory.dir("projects")
 
 tasks.integrationTestPreparation {
@@ -101,6 +102,13 @@ testing {
 
             targets.configureEach {
                 testTask.configure {
+
+                    inputs.file(templateSettingsGradleKts)
+                    systemProperty(
+                        "templateSettingsGradleKts",
+                        templateSettingsGradleKts.asFile.invariantSeparatorsPath,
+                    )
+
                     doFirst {
                         logger.info("running $path with javaLauncher:${javaLauncher.orNull?.metadata?.javaRuntimeVersion}")
                     }
