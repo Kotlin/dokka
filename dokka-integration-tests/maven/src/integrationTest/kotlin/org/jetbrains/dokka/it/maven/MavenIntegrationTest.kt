@@ -57,7 +57,7 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `dokka dokka`() {
         val result = ProcessBuilder().directory(projectDir)
-            .command(mavenBinaryFile.absolutePath, "dokka:dokka", "-U", "-e").start().awaitProcessResult()
+            .command(mavenBinaryFile.absolutePath, "dokka:dokka", "-X", "-U", "-e").start().awaitProcessResult()
 
         diagnosticAsserts(result)
 
@@ -106,7 +106,7 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `dokka javadoc`() {
         val result = ProcessBuilder().directory(projectDir)
-            .command(mavenBinaryFile.absolutePath, "dokka:javadoc", "-U", "-e").start().awaitProcessResult()
+            .command(mavenBinaryFile.absolutePath, "dokka:javadoc", "-X", "-U", "-e").start().awaitProcessResult()
 
         diagnosticAsserts(result)
 

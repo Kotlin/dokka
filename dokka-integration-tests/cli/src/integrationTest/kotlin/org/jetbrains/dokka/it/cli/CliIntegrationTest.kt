@@ -38,6 +38,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
             "-outputDir", dokkaOutputDir.path,
             "-pluginsClasspath", basePluginJarFile.path,
             "-moduleName", "Basic Project",
+            "-loggingLevel", "DEBUG",
             "-sourceSet",
             buildString {
                 append(" -sourceSetName cliMain")
