@@ -125,3 +125,12 @@ dependencyResolutionManagement {
         }
     }
 }
+
+val kotlinVersion = providers.gradleProperty("dokka_it_kotlin_version").orNull
+val dokkaVersion = providers.gradleProperty("dokka_it_dokka_version").orNull
+val androidVersion = providers.gradleProperty("dokka_it_android_gradle_plugin_version").orNull
+
+logger.quiet("Gradle version: ${gradle.gradleVersion}")
+logger.quiet("Kotlin version: $kotlinVersion")
+logger.quiet("Dokka version: $dokkaVersion")
+logger.quiet("Android version: $androidVersion")
