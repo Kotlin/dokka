@@ -38,7 +38,8 @@ class SerializationGradleIntegrationTest : AbstractGradleIntegrationTest(), Test
     override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/htmlMultiModule") }
 
     @BeforeTest
-    fun prepareSerializationProjectFiles() {
+    override fun beforeEachTest() {
+        prepareProjectFiles()
         copyAndApplyGitDiff(
             projectDir.toPath(),
             templateProjectDir.parent.resolve("serialization.diff"),
