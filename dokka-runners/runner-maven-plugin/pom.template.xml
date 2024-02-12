@@ -11,6 +11,7 @@
     <version>${dokka_version}</version>
     <packaging>maven-plugin</packaging>
     <properties>
+        <project.build.outputTimestamp>2024-01-01T00:00:00Z</project.build.outputTimestamp>
         <maven.version>${mavenVersion}</maven.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

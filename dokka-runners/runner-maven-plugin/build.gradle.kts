@@ -3,6 +3,7 @@
  */
 
 import dokkabuild.overridePublicationArtifactId
+import dokkabuild.tasks.MvnExec
 
 plugins {
     id("dokkabuild.kotlin-jvm")
@@ -49,46 +50,41 @@ val generatePom by tasks.registering(Sync::class) {
     into(temporaryDir)
 }
 
-val prepareHelpMojoDir by tasks.registering(Sync::class) {
-    description = "Prepare files for generating the Maven Plugin HelpMojo"
-    group = mavenPluginTaskGroup
-
-    into(layout.buildDirectory.dir("maven-help-mojo"))
-    from(generatePom)
-}
-
-val helpMojo by tasks.registering(Exec::class) {
+val generateHelpMojo by tasks.registering(MvnExec::class) {
     description = "Generate the Maven Plugin HelpMojo"
     group = mavenPluginTaskGroup
 
-    dependsOn(tasks.installMavenBinary, prepareHelpMojoDir)
-
-    workingDir(prepareHelpMojoDir.map { it.destinationDir })
-    executable(mavenCliSetup.mvn.get())
-    args("-e", "-B", "org.apache.maven.plugins:maven-plugin-plugin:helpmojo")
-
-    outputs.dir(workingDir)
+    inputFiles.from(generatePom)
+    arguments.addAll(
+        "org.apache.maven.plugins:maven-plugin-plugin:helpmojo"
+    )
 }
 
 val helpMojoSources by tasks.registering(Sync::class) {
     description = "Sync the HelpMojo source files into a SourceSet SrcDir"
     group = mavenPluginTaskGroup
-    from(helpMojo) {
+
+    from(generateHelpMojo) {
         eachFile {
             // drop 2 leading directories
             relativePath = RelativePath(true, *relativePath.segments.drop(2).toTypedArray())
         }
     }
     includeEmptyDirs = false
+
     into(temporaryDir)
+
     include("**/*.java")
 }
 
 val helpMojoResources by tasks.registering(Sync::class) {
     description = "Sync the HelpMojo resource files into a SourceSet SrcDir"
     group = mavenPluginTaskGroup
-    from(helpMojo)
+
+    from(generateHelpMojo)
+
     into(temporaryDir)
+
     include("**/**")
     exclude("**/*.java")
 }
@@ -103,29 +99,32 @@ val preparePluginDescriptorDir by tasks.registering(Sync::class) {
     description = "Prepare files for generating the Maven Plugin descriptor"
     group = mavenPluginTaskGroup
 
-    into(layout.buildDirectory.dir("maven-plugin-descriptor"))
-
     from(tasks.compileKotlin) { into("classes/java/main") }
     from(tasks.compileJava) { into("classes/java/main") }
     from(helpMojoResources)
+
+    into(temporaryDir)
 }
 
-val pluginDescriptor by tasks.registering(Exec::class) {
+val generatePluginDescriptor by tasks.registering(MvnExec::class) {
     description = "Generate the Maven Plugin descriptor"
     group = mavenPluginTaskGroup
 
-    dependsOn(tasks.installMavenBinary, preparePluginDescriptorDir)
+    inputFiles.from(preparePluginDescriptorDir)
 
-    workingDir(preparePluginDescriptorDir.map { it.destinationDir })
-    executable(mavenCliSetup.mvn.get())
-    args("-e", "-B", "org.apache.maven.plugins:maven-plugin-plugin:descriptor")
-
-    outputs.dir("$workingDir/classes/java/main/META-INF/maven")
+    arguments.addAll(
+        "org.apache.maven.plugins:maven-plugin-plugin:descriptor"
+    )
 }
+
+val pluginDescriptorMetaInf: Provider<RegularFile> =
+    generatePluginDescriptor.flatMap {
+        it.workDirectory.file("classes/java/main/META-INF/maven")
+    }
 
 tasks.jar {
     metaInf {
-        from(pluginDescriptor) {
+        from(pluginDescriptorMetaInf) {
             into("maven")
         }
     }
