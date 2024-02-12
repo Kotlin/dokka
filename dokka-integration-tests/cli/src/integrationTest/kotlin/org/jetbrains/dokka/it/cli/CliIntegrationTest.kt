@@ -280,7 +280,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         }
 
         val process = ProcessBuilder(
-            "java", "-jar", cliJarFile.path, jsonPath
+            "java", "-jar", cliJarFile.path, jsonPath, "-loggingLevel", "DEBUG"
         ).redirectErrorStream(true).start()
 
         val result = process.awaitProcessResult()
@@ -352,7 +352,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         }
 
         val process = ProcessBuilder(
-            "java", "-jar", cliJarFile.path, jsonPath
+            "java", "-jar", cliJarFile.path, jsonPath, "-loggingLevel", "DEBUG"
         ).redirectErrorStream(true).start()
 
         val result = process.awaitProcessResult()
