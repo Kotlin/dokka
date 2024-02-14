@@ -1,8 +1,8 @@
 diff --git a/build.gradle b/build.gradle
-index e7d405e12..dc2dac583 100644
+index e7d405e12..db5dcec66 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -52,15 +52,16 @@ buildscript {
+@@ -52,17 +52,27 @@ buildscript {
      }
 
      repositories {
@@ -19,9 +19,21 @@ index e7d405e12..dc2dac583 100644
 -        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
 +        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}"
          classpath "org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicfu_version"
-         classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
+-        classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
++        classpath("org.jetbrains.kotlinx:kotlinx-knit:$knit_version") {
++            exclude(group: "org.jetbrains.kotlinx", module: "dokka-pathsaver-plugin")
++        }
++        classpath("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version") {
++            exclude(group: "org.jetbrains.dokka", module: "templating-plugin")
++            exclude(group: "org.jetbrains.dokka", module: "dokka-base")
++        }
++        classpath("org.jetbrains.dokka:templating-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}")
++        classpath("org.jetbrains.dokka:dokka-base:${providers.gradleProperty("dokka_it_dokka_version").get()}")
++
          classpath "com.github.node-gradle:gradle-node-plugin:$gradle_node_version"
-@@ -102,11 +103,11 @@ allprojects {
+         classpath "org.jetbrains.kotlinx:binary-compatibility-validator:$binary_compatibility_validator_version"
+         classpath "ru.vyarus:gradle-animalsniffer-plugin:1.5.4" // Android API check
+@@ -102,11 +112,11 @@ allprojects {
          kotlin_version = rootProject.properties['kotlin_snapshot_version']
      }
 
@@ -38,7 +50,7 @@ index e7d405e12..dc2dac583 100644
 
      ext.unpublished = unpublished
 
-@@ -135,6 +136,7 @@ apiValidation {
+@@ -135,6 +145,7 @@ apiValidation {
  // Configure repositories
  allprojects {
      repositories {
@@ -46,14 +58,14 @@ index e7d405e12..dc2dac583 100644
          /*
           * google should be first in the repository list because some of the play services
           * transitive dependencies was removed from jcenter, thus breaking gradle dependency resolution
-@@ -323,7 +325,12 @@ knit {
+@@ -323,7 +334,12 @@ knit {
  knitPrepare.dependsOn getTasksByName("dokkaHtmlMultiModule", true)
 
  dependencies {
 -    dokkaHtmlMultiModulePlugin("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version")
 +    dokkaHtmlMultiModulePlugin("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version") {
-+        exclude(group = "org.jetbrains.dokka", module = "templating-plugin")
-+        exclude(group = "org.jetbrains.dokka", module = "dokka-base")
++        exclude(group: "org.jetbrains.dokka", module: "templating-plugin")
++        exclude(group: "org.jetbrains.dokka", module: "dokka-base")
 +    }
 +    dokkaHtmlMultiModulePlugin("org.jetbrains.dokka:templating-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}")
 +    dokkaHtmlMultiModulePlugin("org.jetbrains.dokka:dokka-base:${providers.gradleProperty("dokka_it_dokka_version").get()}")
@@ -137,6 +149,25 @@ index 3d9431be0..9af01ef86 100644
  byte_buddy_version=1.10.9
  reactor_version=3.4.1
  reactive_streams_version=1.0.3
+diff --git a/gradle/dokka.gradle.kts b/gradle/dokka.gradle.kts
+index ba6956aa8..4a5d27e1a 100644
+--- a/gradle/dokka.gradle.kts
++++ b/gradle/dokka.gradle.kts
+@@ -21,7 +21,13 @@ fun GradleDokkaSourceSetBuilder.makeLinkMapping(projectDir: File) {
+ val knit_version: String by project
+ tasks.withType(DokkaTaskPartial::class).configureEach {
+     dependencies {
+-        plugins("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version")
++        val knit_version: String by project
++        plugins("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version") {
++            exclude(group = "org.jetbrains.dokka", module = "templating-plugin")
++            exclude(group = "org.jetbrains.dokka", module = "dokka-base")
++        }
++        plugins("org.jetbrains.dokka:templating-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}")
++        plugins("org.jetbrains.dokka:dokka-base:${providers.gradleProperty("dokka_it_dokka_version").get()}")
+     }
+ }
+
 diff --git a/settings.gradle b/settings.gradle
 index 151c087fd..e4433c24f 100644
 --- a/settings.gradle
