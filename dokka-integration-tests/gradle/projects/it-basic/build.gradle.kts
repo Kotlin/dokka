@@ -61,6 +61,7 @@ tasks.withType<DokkaTask>().configureEach {
     }
     suppressObviousFunctions.set(false)
 
+    // register resources as inputs for Gradle up-to-date checks
     val customResourcesDir = layout.projectDirectory.dir("customResources")
     inputs.dir(customResourcesDir)
         .withPropertyName("customResourcesDir")
@@ -82,6 +83,5 @@ tasks.withType<DokkaTask>().configureEach {
                 ]
             }
         """.trimIndent()
-    )
-    )
+    ))
 }

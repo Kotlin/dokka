@@ -6,10 +6,11 @@ package org.jetbrains.dokka.it
 
 import kotlin.properties.ReadOnlyProperty
 
-
-internal fun systemProperty(): ReadOnlyProperty<Any?, String> =
-    systemProperty { it }
-
+/**
+ * Delegated accessor for a system property.
+ *
+ * @see System.getProperty
+ */
 fun <T> systemProperty(
     convert: (String) -> T
 ): ReadOnlyProperty<Any?, T> =

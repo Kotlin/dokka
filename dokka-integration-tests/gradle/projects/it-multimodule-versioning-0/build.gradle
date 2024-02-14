@@ -10,7 +10,6 @@ dependencies {
     dokkaPlugin "org.jetbrains.dokka:versioning-plugin:${System.getenv("dokka_it_dokka_version")}"
 }
 
-
 subprojects {
     apply plugin: 'org.jetbrains.kotlin.jvm'
     apply plugin: 'org.jetbrains.dokka'
