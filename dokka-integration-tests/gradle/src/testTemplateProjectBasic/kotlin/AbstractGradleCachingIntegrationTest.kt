@@ -141,10 +141,11 @@ abstract class AbstractGradleCachingIntegrationTest : AbstractGradleIntegrationT
         assertTrue(stylesDir.resolve("custom-style-to-add.css").isFile)
         assertTrue(stylesDir.resolve("custom-style-to-add.css").readText().contains("/* custom stylesheet */"))
         allHtmlFiles().forEach { file ->
-            if (file.name != "navigation.html") assertTrue(
-                "custom-style-to-add.css" in file.readText(),
-                "custom styles not added to html file ${file.name}"
-            )
+            if (file.name != "navigation.html")
+                assertTrue(
+                    "custom-style-to-add.css" in file.readText(),
+                    "custom styles not added to html file ${file.name}"
+                )
         }
         assertTrue(imagesDir.resolve("custom-resource.svg").isFile)
     }
