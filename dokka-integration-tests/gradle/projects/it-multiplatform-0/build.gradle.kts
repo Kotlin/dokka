@@ -10,8 +10,6 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
-apply(from = "../template.root.gradle.kts")
-
 kotlin {
     jvm()
     linuxX64("linux")

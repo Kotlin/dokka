@@ -16,14 +16,18 @@ class GradleRelocatedCachingIntegrationTest : AbstractGradleCachingIntegrationTe
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
-        setupProject(buildVersions, projectFolder(1))
-        setupProject(buildVersions, projectFolder(2))
+        duplicateTemplateProject(buildVersions, projectFolder(1))
+        duplicateTemplateProject(buildVersions, projectFolder(2))
 
         runAndAssertOutcomeAndContents(buildVersions, projectFolder(1), TaskOutcome.SUCCESS)
         runAndAssertOutcomeAndContents(buildVersions, projectFolder(2), TaskOutcome.FROM_CACHE)
     }
 
-    private fun runAndAssertOutcomeAndContents(buildVersions: BuildVersions, project: File, expectedOutcome: TaskOutcome) {
+    private fun runAndAssertOutcomeAndContents(
+        buildVersions: BuildVersions,
+        project: File,
+        expectedOutcome: TaskOutcome,
+    ) {
         val result = createGradleRunner(
             buildVersions,
             "clean", "dokkaHtml", "-i", "-s", "-Dorg.gradle.caching.debug=true", "--build-cache"
