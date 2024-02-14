@@ -87,7 +87,7 @@ tasks.withType<Test>().configureEach {
         dokkaBuild.isCI.map { isCi -> if (isCi) "ALWAYS" else "ON_SUCCESS" }.get(),
     )
 
-    environment("DOKKA_VERSION", project.version.toString())
+    environment("DOKKA_VERSION", project.version)
 
     // environment() isn't Provider API compatible yet https://github.com/gradle/gradle/issues/11534
     dokkaBuild.integrationTestExhaustive.orNull?.let { exhaustive ->
