@@ -28,19 +28,6 @@ internal class WasmTestedVersionsArgumentsProvider : AllSupportedTestedVersionsA
 
 class WasmGradleIntegrationTest : AbstractGradleIntegrationTest() {
 
-    @BeforeTest
-    fun prepareProjectFiles() {
-        val templateProjectDir = File("projects", "it-wasm-basic")
-
-        templateProjectDir.listFiles().orEmpty()
-            .filter { it.isFile }
-            .filterNot { it.name == "local.properties" }
-            .filterNot { it.name.startsWith("gradlew") }
-            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
-
-        File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
-    }
-
     @OnlyDescriptors
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(WasmTestedVersionsArgumentsProvider::class)

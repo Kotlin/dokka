@@ -19,13 +19,14 @@ class BiojavaIntegrationTest : AbstractIntegrationTest(), TestOutputCopier {
 
     @BeforeTest
     fun prepareProjectFiles() {
-        val templateProjectDir = File("projects", "biojava/biojava")
+        val bioJavaDir = File("projects", "biojava")
+        val templateProjectDir = bioJavaDir.resolve("biojava")
         templateProjectDir.copyRecursively(projectDir)
         val customResourcesDir = File(templateProjectDir, "custom Resources")
         if (customResourcesDir.exists() && customResourcesDir.isDirectory) {
             customResourcesDir.copyRecursively(File(projectDir, "customResources"), overwrite = true)
         }
-        copyAndApplyGitDiff(File("projects", "biojava/biojava.diff"))
+        copyAndApplyGitDiff(projectDir.toPath(), bioJavaDir.resolve("biojava.diff").toPath())
     }
 
     @Test

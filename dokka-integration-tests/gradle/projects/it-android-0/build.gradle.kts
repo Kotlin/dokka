@@ -8,8 +8,6 @@ plugins {
     kotlin("android")
 }
 
-apply(from = "../template.root.gradle.kts")
-
 android {
     defaultConfig {
         minSdkVersion(21)

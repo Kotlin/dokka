@@ -26,17 +26,6 @@ import kotlin.test.assertNotNull
  */
 class ConfigurationTest : AbstractGradleIntegrationTest() {
 
-    @BeforeTest
-    fun prepareProjectFiles() {
-        val templateProjectDir = File("projects", "it-configuration")
-
-        templateProjectDir.listFiles().orEmpty()
-            .filter { it.isFile }
-            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
-
-        File(templateProjectDir, "src").copyRecursively(File(projectDir, "src"))
-    }
-
     /**
      * The test project contains some undocumented declarations, so if both `reportUndocumented`
      * and `failOnWarning` are enabled - it should fail

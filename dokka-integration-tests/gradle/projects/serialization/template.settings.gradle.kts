@@ -1,1 +1,0 @@
-../template.settings.gradle.kts

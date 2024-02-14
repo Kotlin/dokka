@@ -7,8 +7,6 @@ plugins {
     kotlin("js")
 }
 
-apply(from = "../template.root.gradle.kts")
-
 kotlin {
     js(IR) {
         browser()

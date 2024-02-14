@@ -20,8 +20,6 @@ buildscript {
     }
 }
 
-apply(from = "../template.root.gradle.kts")
-
 fun createTask(name: String) {
     tasks.register(name, org.jetbrains.dokka.gradle.DokkaTask::class) {
         dokkaSourceSets {

@@ -38,12 +38,12 @@ class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOut
     override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/htmlMultiModule") }
 
     @BeforeTest
-    fun prepareProjectFiles() {
-        val templateProjectDir = File("projects", "coroutines/kotlinx-coroutines")
-        templateProjectDir.listFiles().orEmpty()
-            .forEach { topLevelFile -> topLevelFile.copyRecursively(File(projectDir, topLevelFile.name)) }
-
-        copyAndApplyGitDiff(File("projects", "coroutines/coroutines.diff"))
+    override fun beforeEachTest() {
+        prepareProjectFiles()
+        copyAndApplyGitDiff(
+            projectDir.toPath(),
+            templateProjectDir.parent.resolve("coroutines.diff"),
+        )
     }
 
     @OnlyDescriptors

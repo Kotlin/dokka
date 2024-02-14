@@ -13,16 +13,6 @@ import kotlin.test.*
 
 class Versioning0IntegrationTest : AbstractGradleIntegrationTest() {
 
-    @BeforeTest
-    fun prepareProjectFiles() {
-        val templateProjectDir = File("projects", "it-multimodule-versioning-0")
-        templateProjectDir.listFiles().orEmpty()
-            .filter { it.isFile }
-            .forEach { topLevelFile -> topLevelFile.copyTo(File(projectDir, topLevelFile.name)) }
-        File(templateProjectDir, "first").copyRecursively(File(projectDir, "first"))
-        File(templateProjectDir, "second").copyRecursively(File(projectDir, "second"))
-    }
-
     /**
      * This test runs versioning 3 times to simulate how users might use it in the real word
      *

@@ -38,11 +38,12 @@ class SerializationGradleIntegrationTest : AbstractGradleIntegrationTest(), Test
     override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/htmlMultiModule") }
 
     @BeforeTest
-    fun prepareProjectFiles() {
-        val templateProjectDir = File("projects", "serialization/kotlinx-serialization")
-        templateProjectDir.listFiles().orEmpty()
-            .forEach { topLevelFile -> topLevelFile.copyRecursively(File(projectDir, topLevelFile.name)) }
-        copyAndApplyGitDiff(File("projects", "serialization/serialization.diff"))
+    override fun beforeEachTest() {
+        prepareProjectFiles()
+        copyAndApplyGitDiff(
+            projectDir.toPath(),
+            templateProjectDir.parent.resolve("serialization.diff"),
+        )
     }
 
     @ParameterizedTest(name = "{0}")

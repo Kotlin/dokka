@@ -4,6 +4,7 @@
 @file:Suppress("UnstableApiUsage")
 
 import dokkabuild.tasks.GitCheckoutTask
+import org.gradle.api.tasks.PathSensitivity.RELATIVE
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
@@ -38,6 +39,7 @@ kotlin {
 }
 
 val aggregatingProject = gradle.includedBuild("dokka")
+val templateSettingsGradleKts = layout.projectDirectory.file("projects/template.settings.gradle.kts")
 val templateProjectsDir = layout.projectDirectory.dir("projects")
 
 tasks.integrationTestPreparation {
@@ -183,9 +185,20 @@ fun TestingExtension.registerTestProjectSuite(
         targets.configureEach {
             testTask.configure {
                 // Register the project dir as a specific input, so changes in other projects don't affect the caching of this test
-                inputs.dir(templateProjectDir).withPropertyName("templateProjectDir")
+                inputs.dir(templateProjectDir)
+                    .withPropertyName("templateProjectDir")
+                    .withPathSensitivity(RELATIVE)
+
                 // Pass the template dir in as a property, it is accessible in tests.
                 systemProperty("templateProjectDir", templateProjectDir.asFile.invariantSeparatorsPath)
+
+                inputs.file(templateSettingsGradleKts)
+                    .withPropertyName("templateSettingsGradleKts")
+                    .withPathSensitivity(RELATIVE)
+                systemProperty(
+                    "templateSettingsGradleKts",
+                    templateSettingsGradleKts.asFile.invariantSeparatorsPath,
+                )
 
                 if (jvm != null) {
                     javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
