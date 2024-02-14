@@ -1,5 +1,5 @@
 diff --git a/build.gradle b/build.gradle
-index e7d405e12..e0b62770d 100644
+index e7d405e12..dc2dac583 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -52,15 +52,16 @@ buildscript {
@@ -46,8 +46,22 @@ index e7d405e12..e0b62770d 100644
          /*
           * google should be first in the repository list because some of the play services
           * transitive dependencies was removed from jcenter, thus breaking gradle dependency resolution
+@@ -323,7 +325,12 @@ knit {
+ knitPrepare.dependsOn getTasksByName("dokkaHtmlMultiModule", true)
+
+ dependencies {
+-    dokkaHtmlMultiModulePlugin("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version")
++    dokkaHtmlMultiModulePlugin("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version") {
++        exclude(group = "org.jetbrains.dokka", module = "templating-plugin")
++        exclude(group = "org.jetbrains.dokka", module = "dokka-base")
++    }
++    dokkaHtmlMultiModulePlugin("org.jetbrains.dokka:templating-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}")
++    dokkaHtmlMultiModulePlugin("org.jetbrains.dokka:dokka-base:${providers.gradleProperty("dokka_it_dokka_version").get()}")
+ }
+
+ // Opt-in for build scan in order to troubleshoot Gradle on TC
 diff --git a/buildSrc/build.gradle.kts b/buildSrc/build.gradle.kts
-index ae54ad0f6..563a56c17 100644
+index ae54ad0f6..00963f5b2 100644
 --- a/buildSrc/build.gradle.kts
 +++ b/buildSrc/build.gradle.kts
 @@ -13,6 +13,7 @@ val buildSnapshotTrain = properties["build_snapshot_train"]?.toString()?.toBoole

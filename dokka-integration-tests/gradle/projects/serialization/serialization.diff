@@ -1,5 +1,5 @@
 diff --git a/build.gradle b/build.gradle
-index 73b566ae..d7c18353 100644
+index 73b566ae..e2af43bd 100644
 --- a/build.gradle
 +++ b/build.gradle
 @@ -57,14 +57,15 @@ buildscript {
@@ -20,7 +20,7 @@ index 73b566ae..d7c18353 100644
      }
 
      configurations.classpath {
-@@ -78,7 +79,7 @@ buildscript {
+@@ -78,10 +79,19 @@ buildscript {
      dependencies {
          classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
          classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
@@ -28,8 +28,35 @@ index 73b566ae..d7c18353 100644
 +        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}"
          classpath "org.jetbrains.kotlinx:kover:$kover_version"
          classpath "org.jetbrains.kotlinx:binary-compatibility-validator:$validator_version"
-         classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
-@@ -133,7 +134,8 @@ allprojects {
+-        classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
++        classpath("org.jetbrains.kotlinx:kotlinx-knit:$knit_version") {
++            exclude(group: "org.jetbrains.kotlinx", module: "dokka-pathsaver-plugin")
++        }
++        classpath("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version") {
++            exclude(group: "org.jetbrains.dokka", module: "templating-plugin")
++            exclude(group: "org.jetbrains.dokka", module: "dokka-base")
++        }
++        classpath("org.jetbrains.dokka:templating-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}")
++        classpath("org.jetbrains.dokka:dokka-base:${providers.gradleProperty("dokka_it_dokka_version").get()}")
++
+         classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.5.3' // Android API check
+
+         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.18'
+@@ -114,7 +124,12 @@ knitPrepare.dependsOn "dokka"
+
+ apply plugin: 'org.jetbrains.dokka'
+ dependencies {
+-    dokkaPlugin("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version")
++    dokkaPlugin("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version") {
++        exclude(group: "org.jetbrains.dokka", module: "templating-plugin")
++        exclude(group: "org.jetbrains.dokka", module: "dokka-base")
++    }
++    dokkaHtmlMultiModulePlugin("org.jetbrains.dokka:templating-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}")
++    dokkaHtmlMultiModulePlugin("org.jetbrains.dokka:dokka-base:${providers.gradleProperty("dokka_it_dokka_version").get()}")
+ }
+
+ allprojects {
+@@ -133,7 +148,8 @@ allprojects {
      if (build_snapshot_train) {
          // Snapshot-specific
          repositories {
@@ -39,7 +66,7 @@ index 73b566ae..d7c18353 100644
              maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
          }
      }
-@@ -154,14 +156,15 @@ allprojects {
+@@ -154,14 +170,15 @@ allprojects {
      }
 
      repositories {
@@ -77,11 +104,51 @@ index c999bcd2..98afdae7 100644
      implementation(kotlin("gradle-plugin", kotlinVersion))
  }
 -
+diff --git a/gradle.properties b/gradle.properties
+index 5ef66cd9..3ed7b073 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -13,7 +13,7 @@ kotlin.version.snapshot=1.9.255-SNAPSHOT
+
+ junit_version=4.12
+ jackson_version=2.10.0.pr1
+-dokka_version=1.8.10
++dokka_version=sanity-SNAPSHOT
+ native.deploy=
+ validator_version=0.13.2
+ knit_version=0.5.0-Beta
+diff --git a/gradle/dokka.gradle b/gradle/dokka.gradle
+index 58be66b2..88289394 100644
+--- a/gradle/dokka.gradle
++++ b/gradle/dokka.gradle
+@@ -17,6 +17,12 @@ subprojects {
+     apply plugin: 'org.jetbrains.dokka'
+     dependencies {
+         dokkaPlugin("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version")
++        dokkaPlugin("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version") {
++            exclude(group: "org.jetbrains.dokka", module: "templating-plugin")
++            exclude(group: "org.jetbrains.dokka", module: "dokka-base")
++        }
++        dokkaPlugin("org.jetbrains.dokka:templating-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}")
++        dokkaPlugin("org.jetbrains.dokka:dokka-base:${providers.gradleProperty("dokka_it_dokka_version").get()}")
+     }
+
+     tasks.named('dokkaHtmlPartial') {
 diff --git a/integration-test/build.gradle b/integration-test/build.gradle
-index dda68347..31a92d68 100644
+index dda68347..119c321a 100644
 --- a/integration-test/build.gradle
 +++ b/integration-test/build.gradle
-@@ -19,7 +19,8 @@ plugins {
+@@ -5,7 +5,8 @@ buildscript {
+     ext.serialization_version = mainLibVersion
+
+     repositories {
+-        mavenLocal()
++        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++        //mavenLocal()
+         mavenCentral()
+         maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+     }
+@@ -19,7 +20,8 @@ plugins {
  }
 
  repositories {
@@ -107,3 +174,5 @@ index f8cb2d87..beebf995 100644
 +        //mavenLocal()
      }
  }
+-
++
