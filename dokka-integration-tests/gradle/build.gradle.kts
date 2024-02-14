@@ -118,20 +118,6 @@ testing {
 
             targets.configureEach {
                 testTask.configure {
-                    dependsOn(tasks.updateDevRepo)
-
-                    inputs.dir(devPublish.devMavenRepo).withPropertyName("devPublish.devMavenRepo")
-                    systemProperty(
-                        "devMavenRepo",
-                        devPublish.devMavenRepo.get().asFile.invariantSeparatorsPath
-                    )
-
-                    inputs.file(templateSettingsGradleKts)
-                    systemProperty(
-                        "templateSettingsGradleKts",
-                        templateSettingsGradleKts.asFile.invariantSeparatorsPath,
-                    )
-
                     doFirst {
                         logger.info("running $path with javaLauncher:${javaLauncher.orNull?.metadata?.javaRuntimeVersion}")
                     }
@@ -227,6 +213,15 @@ fun TestingExtension.registerTestProjectSuite(
                 systemProperty(
                     "templateSettingsGradleKts",
                     templateSettingsGradleKts.asFile.invariantSeparatorsPath,
+                )
+
+                dependsOn(tasks.updateDevRepo)
+                inputs.dir(devPublish.devMavenRepo)
+                    .withPropertyName("devPublish.devMavenRepo")
+                    .withPathSensitivity(RELATIVE)
+                systemProperty(
+                    "devMavenRepo",
+                    devPublish.devMavenRepo.get().asFile.invariantSeparatorsPath
                 )
 
                 if (jvm != null) {
