@@ -57,7 +57,7 @@ node = "16.13.0"
 gradlePlugin-shadow = "8.1.1"
 gradlePlugin-gradlePluginPublish = "1.2.1"
 gradlePlugin-gradleNode = "7.0.1"
-gradlePlugin-devPublish = "0.2.0"
+gradlePlugin-devPublish = "0.3.0"
 
 ## Test
 junit = "5.9.3"
