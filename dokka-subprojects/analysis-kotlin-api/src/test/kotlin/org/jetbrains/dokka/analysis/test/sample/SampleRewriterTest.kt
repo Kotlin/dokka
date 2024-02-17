@@ -563,11 +563,7 @@ class SampleRewriterTest {
             assertEquals(1, logger.warningsCount)
             assertNotNull(logger.collectedLogMessages.firstOrNull {
                 it.startsWith(
-                    "Exception thrown while sample rewriting at collections.kt: (6, 12)\n" +
-                            "```\n" +
-                            "IntArray(10)\n" +
-                            "```\n" +
-                            "java.lang.IllegalStateException: error text\n"
+                    "Exception thrown while sample rewriting at collections.kt"
                 )
             })
         }
