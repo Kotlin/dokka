@@ -17,19 +17,19 @@ public typealias ShortFunctionName = String
 public interface FunctionCallRewriter{
     /**
      *
-     * A value argument and type arguments represents a string from source code in [argumentList] and [typeArgumentList]
+     * A value argument and type arguments represents a string from source code in [arguments] and [typeArguments]
      * E.g., `f(1, "s")` will be passed to [rewrite] as `"1"` and `"\"s\""`
      *
      * In the case of a [trailing lambda](https://kotlinlang.org/docs/lambdas.html#passing-trailing-lambdas),
-     * it will be passed as it in the last element of [argumentList]
+     * it will be passed as it in the last element of [arguments]
      * E.g., the snippet `f(0) { i++ }` will have `"0"` and `"{ i++ }"` arguments
      *
-     * @param argumentList a list of arguments represented as a string from source code
-     * @param typeArgumentList a list of type parameters represented as a string from source code
+     * @param arguments a list of arguments represented as a string from source code
+     * @param typeArguments a list of type parameters represented as a string from source code
      *
      * @return a string or `null` to delete the call expression
      */
-    public fun rewrite(argumentList: List<String>, typeArgumentList: List<String>): String?
+    public fun rewrite(arguments: List<String>, typeArguments: List<String>): String?
 }
 
 /**

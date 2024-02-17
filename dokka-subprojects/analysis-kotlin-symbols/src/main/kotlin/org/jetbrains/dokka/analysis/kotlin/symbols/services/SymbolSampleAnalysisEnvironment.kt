@@ -32,8 +32,6 @@ import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
-import java.io.PrintWriter
-import java.io.StringWriter
 
 internal class SymbolSampleAnalysisEnvironmentCreator(
     private val context: DokkaContext,
@@ -156,7 +154,7 @@ private class SymbolSampleAnalysisEnvironment(
         val bodyExpression = psiElement.bodyExpression
         val bodyExpressionText = bodyExpression!!.buildSampleText()
         return when (bodyExpression) {
-            is KtBlockExpression -> bodyExpressionText.removeSurrounding("{", "}")
+            is KtBlockExpression -> bodyExpressionText.removeSurrounding("{", "}") // without braces according to the documentation of [SampleSnippet.body]
             else -> bodyExpressionText
         }
     }
@@ -166,11 +164,9 @@ private class SymbolSampleAnalysisEnvironment(
         this.accept(sampleBuilder)
 
         sampleBuilder.errors.forEach {
-            val sw = StringWriter()
-            val pw = PrintWriter(sw)
-            it.e.printStackTrace(pw)
+            val st = it.e.stackTraceToString()
 
-            dokkaLogger.warn("${containingFile.name}: (${it.loc}): Exception thrown while converting \n```\n${it.text}\n```\n$sw")
+            dokkaLogger.warn("Exception thrown while sample rewriting at ${containingFile.name}: (${it.loc})\n```\n${it.text}\n```\n$st")
         }
         return sampleBuilder.text
     }
@@ -189,8 +185,8 @@ private class SampleBuilder(private val sampleRewriter: SampleRewriter?) : KtTre
         val callRewriter = sampleRewriter?.functionCallRewriters?.get(expression.calleeExpression?.text)
         if(callRewriter != null) {
             val rewritedResult = callRewriter.rewrite(
-                argumentList = expression.valueArguments.map { it.text ?: "" },
-                typeArgumentList = expression.typeArguments.map { it.text ?: "" }
+                arguments = expression.valueArguments.map { it.text ?: "" },
+                typeArguments = expression.typeArguments.map { it.text ?: "" }
             )
 
             if(rewritedResult != null) {
@@ -215,8 +211,10 @@ private class SampleBuilder(private val sampleRewriter: SampleRewriter?) : KtTre
     }
 
     override fun visitElement(element: PsiElement) {
-        if (element is LeafPsiElement)
+        if (element is LeafPsiElement) {
             builder.append(element.text)
+            return
+        }
 
         element.acceptChildren(object : PsiElementVisitor() {
             override fun visitElement(element: PsiElement) {
