@@ -10,6 +10,7 @@ import org.jetbrains.dokka.analysis.kotlin.sample.SampleRewriter
 import org.jetbrains.dokka.analysis.kotlin.sample.ShortFunctionName
 import org.jetbrains.dokka.analysis.test.api.kotlinJvmTestProject
 import org.jetbrains.dokka.analysis.test.api.useServices
+import org.jetbrains.dokka.analysis.test.api.util.CollectingDokkaConsoleLogger
 import org.jetbrains.dokka.analysis.test.api.util.singleSourceSet
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
@@ -38,54 +39,54 @@ class SampleRewriterTest {
             override val functionCallRewriters: Map<ShortFunctionName, FunctionCallRewriter> = mapOf(
                 "assertTrue" to object : FunctionCallRewriter {
                     override fun rewrite(
-                        argumentList: List<String>,
-                        typeArgumentList: List<String>
+                        arguments: List<String>,
+                        typeArguments: List<String>
                     ): String {
-                        val argument = argumentList[0]
+                        val argument = arguments[0]
                         return "println(\"$argument is \${$argument}\") // true"
                     }
                 },
                 "assertFalse" to object : FunctionCallRewriter {
                     override fun rewrite(
-                        argumentList: List<String>,
-                        typeArgumentList: List<String>
+                        arguments: List<String>,
+                        typeArguments: List<String>
                     ): String {
-                        val argument = argumentList[0]
+                        val argument = arguments[0]
                         return "println(\"$argument is \${$argument}\") // false"
                     }
                 },
                 "assertPrints" to object : FunctionCallRewriter {
                     override fun rewrite(
-                        argumentList: List<String>,
-                        typeArgumentList: List<String>
+                        arguments: List<String>,
+                        typeArguments: List<String>
                     ): String {
-                        val argument = argumentList[0]
-                        val expected = argumentList[1].removeSurrounding("\"")
+                        val argument = arguments[0]
+                        val expected = arguments[1].removeSurrounding("\"")
                         return "println($argument) // $expected"
                     }
                 },
                 "assertFails" to object : FunctionCallRewriter {
                     override fun rewrite(
-                        argumentList: List<String>,
-                        typeArgumentList: List<String>
+                        arguments: List<String>,
+                        typeArguments: List<String>
                     ): String {
                         val funcBody =
-                            (if (argumentList.size > 1) argumentList.last() else argumentList.first()).removeSurrounding(
+                            (if (arguments.size > 1) arguments.last() else arguments.first()).removeSurrounding(
                                 "{",
                                 "}"
                             ).trim()
                         val message =
-                            if (argumentList.size > 1) argumentList.first() + " will fail" else "will fail" // in current stdlib, there is no sample with a message, but it was in the old sample transform
+                            if (arguments.size > 1) arguments.first() + " will fail" else "will fail" // in current stdlib, there is no sample with a message, but it was in the old sample transform
                         return "// $funcBody // $message"
                     }
                 },
                 "assertFailsWith" to object : FunctionCallRewriter {
                     override fun rewrite(
-                        argumentList: List<String>,
-                        typeArgumentList: List<String>
+                        arguments: List<String>,
+                        typeArguments: List<String>
                     ): String {
-                        val funcBody = argumentList.first().removeSurrounding("{", "}").trim()
-                        val exceptionType = typeArgumentList.first()
+                        val funcBody = arguments.first().removeSurrounding("{", "}").trim()
+                        val exceptionType = typeArguments.first()
                         return "// $funcBody // will fail with $exceptionType"
                     }
                 }
@@ -425,10 +426,10 @@ class SampleRewriterTest {
             override val functionCallRewriters: Map<ShortFunctionName, FunctionCallRewriter> = mapOf(
                 "IntArray" to object : FunctionCallRewriter {
                     override fun rewrite(
-                        argumentList: List<String>,
-                        typeArgumentList: List<String>
+                        arguments: List<String>,
+                        typeArguments: List<String>
                     ): String {
-                        val argument = argumentList[0]
+                        val argument = arguments[0]
                         return "arrayOf(${"0,".repeat(argument.toInt())})"
                     }
                 }
@@ -486,6 +487,89 @@ class SampleRewriterTest {
 
             assertEquals(expectedImports, sample.imports)
             assertEquals(expectedBody, sample.body)
+        }
+    }
+
+
+
+    class ExceptionSampleRewriterPlugin : DokkaPlugin() {
+        @Suppress("UNUSED_PARAMETER")
+        class ConstructorSampleRewriter(ctx: DokkaContext) : SampleRewriter {
+
+            override val functionCallRewriters: Map<ShortFunctionName, FunctionCallRewriter> = mapOf(
+                "IntArray" to object : FunctionCallRewriter {
+                    override fun rewrite(
+                        arguments: List<String>,
+                        typeArguments: List<String>
+                    ): String {
+                        throw IllegalStateException("error text")
+                    }
+                }
+            )
+        }
+
+        private val kotlinAnalysisPlugin by lazy { plugin<KotlinAnalysisPlugin>() }
+
+        @Suppress("unused")
+        val stdLibKotlinAnalysis by extending {
+            kotlinAnalysisPlugin.sampleRewriter providing ::ConstructorSampleRewriter
+        }
+
+        @OptIn(DokkaPluginApiPreview::class)
+        override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement =
+            PluginApiPreviewAcknowledgement
+    }
+
+    @Test
+    fun `should print warning`() {
+        val testProject = kotlinJvmTestProject {
+            plugin(ExceptionSampleRewriterPlugin())
+            dokkaConfiguration {
+                kotlinSourceSet {
+                    samples = setOf("/samples/collections/collections.kt")
+                }
+            }
+
+            sampleFile("/samples/collections/collections.kt", fqPackageName = "samples.collections") {
+                +"""                    import kotlin.test.*
+
+                    class Collections {
+                            fun someSample() {
+                                IntArray(10)
+                            }
+                        }
+                    }
+                """
+            }
+        }
+        val logger = CollectingDokkaConsoleLogger()
+        testProject.useServices(logger) { context ->
+            val sample = sampleAnalysisEnvironmentCreator.use {
+                resolveSample(
+                    sourceSet = context.singleSourceSet(),
+                    fullyQualifiedLink = "samples.collections.Collections.someSample"
+                )
+            }
+            assertNotNull(sample)
+
+            val expectedImports = listOf(
+                "kotlin.test.*"
+            )
+
+            val expectedBody = "IntArray(10)"
+
+            assertEquals(expectedImports, sample.imports)
+            assertEquals(expectedBody, sample.body)
+            assertEquals(1, logger.warningsCount)
+            assertNotNull(logger.collectedLogMessages.firstOrNull {
+                it.startsWith(
+                    "Exception thrown while sample rewriting at collections.kt: (6, 12)\n" +
+                            "```\n" +
+                            "IntArray(10)\n" +
+                            "```\n" +
+                            "java.lang.IllegalStateException: error text\n"
+                )
+            })
         }
     }
 }
