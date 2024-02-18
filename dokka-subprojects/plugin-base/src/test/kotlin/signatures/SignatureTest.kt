@@ -1330,6 +1330,42 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    fun `should render actual keyword for constructor`() {
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+                |/src/main/kotlin/common/Test.kt
+                |package example
+                |
+                |expect class A()
+                |
+                |/src/main/kotlin/jvm/Test.kt
+                |package example
+                |
+                |actual class A{
+                |    actual constructor(){}
+                |}
+            """.trimMargin(),
+            mppConfiguration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val signatures = writerPlugin.writer.renderedContent("test/example/-a/-a.html").signature().toList()
+
+                signatures[0].match(
+                    "expect constructor()",
+                    ignoreSpanWithTokenStyle = true
+                )
+                signatures[1].match(
+                    "actual constructor()",
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
     private fun testRender(
         query: String,
         configuration: DokkaConfigurationImpl = this.configuration,
