@@ -7,10 +7,10 @@ It is built using the [gradle-mkdocs-plugin](https://github.com/xvik/gradle-mkdo
 
 ## Building
 
-You can build the documentation locally:
+You can build the documentation:
 
 ```Bash
-./gradlew :docs-developer:mkdocsBuild
+./gradlew :docs-developer:mkDocsBuild
 ```
 
 The output directory is `build/mkdocs`.
@@ -37,7 +37,7 @@ Dokka Developer Docs: http://localhost:63342/dokka/docs-developer/build/mkdocs/i
 To automatically rebuild the docs, run in continuous mode:
 
 ```Bash
-./gradlew :docs-developer:mkdocsBuild --continuous --quiet
+./gradlew :docs-developer:mkDocsBuild --continuous --quiet
 ```
 
 ## Publishing
