@@ -100,4 +100,5 @@ nav:
 extra_css:
   - dokka_colors.css
 
+# note that site_dir is also specified in the Gradle task mkDocsBuild
 site_dir: "build/mkdocs"
