@@ -13,8 +13,22 @@ import java.nio.file.Paths
 /** Create `settings.xml` file contents, with the custom dev Maven repos. */
 @Language("xml")
 fun createSettingsXml(): String {
-    /** file-based Maven repository with Dokka dependencies */
-    val devMavenRepo: Path by systemProperty(Paths::get)
+    /** file-based Maven repositories with Dokka dependencies */
+    val devMavenRepositories: List<Path> by systemProperty { repos ->
+        repos.split(",").map { Paths.get(it) }
+    }
+
+    val pluginRepos = devMavenRepositories
+        .withIndex()
+        .joinToString("\n") { (i, repoPath) ->
+            /* language=xml */
+            """
+                |<pluginRepository>
+                |    <id>devMavenRepo${i}</id>
+                |    <url>${repoPath.toUri().toASCIIString()}</url>
+                |</pluginRepository>
+            """.trimMargin()
+        }
 
     return """
         |<settings>
@@ -22,10 +36,7 @@ fun createSettingsXml(): String {
         |        <profile>
         |            <id>maven-dev</id>
         |            <pluginRepositories>
-        |                <pluginRepository>
-        |                    <id>devMavenRepo</id>
-        |                    <url>${devMavenRepo.toUri().toASCIIString()}</url>
-        |                </pluginRepository>
+        |${pluginRepos.prependIndent("                ")}
         |            </pluginRepositories>
         |        </profile>
         |    </profiles>

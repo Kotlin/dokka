@@ -101,8 +101,37 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
          */
         val templateSettingsGradleKts: Path by systemProperty(Paths::get)
 
-        /** file-based Maven repositories that contains the Dokka dependencies */
-        private val devMavenRepo: Path by systemProperty(Paths::get)
+        /** file-based Maven repositories with Dokka dependencies */
+        private val devMavenRepositories: String by systemProperty { repos ->
+            val repoPaths = repos.split(",").map { Paths.get(it) }
+
+            val reposSpecs = repoPaths
+                .withIndex()
+                .joinToString(",\n") { (i, repoPath) ->
+                    // Exclusive repository containing local Dokka artifacts.
+                    // Must be compatible with both Groovy and Kotlin DSL.
+                    /* language=kts */
+                    """
+                    |maven {
+                    |    setUrl("${repoPath.invariantSeparatorsPathString}")
+                    |    name = "DokkaDevMavenRepo${i}"
+                    |}
+                    """.trimMargin()
+                }
+
+            /* language=kts */
+            """
+            |exclusiveContent {
+            |    forRepositories(
+            |      $reposSpecs
+            |    )
+            |    filter {
+            |        includeGroup("org.jetbrains.dokka")
+            |    }
+            |}
+            |
+            """.trimMargin()
+        }
 
         fun File.updateProjectLocalMavenDir() {
 
@@ -110,27 +139,13 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
 
             // Exclusive repository containing local Dokka artifacts.
             // Must be compatible with both Groovy and Kotlin DSL.
-            val dokkaDevMavenRepoSpec = /* language=kts */ """
-                |exclusiveContent {
-                |    forRepository{
-                |        maven {
-                |            setUrl("${devMavenRepo.invariantSeparatorsPathString}")
-                |            name = "DokkaDevMavenRepo"
-                |        }
-                |    }
-                |    filter {
-                |        includeGroup("org.jetbrains.dokka")
-                |    }
-                |}
-                |
-            """.trimMargin()
 
             walk().filter { it.isFile }.forEach { file ->
                 val fileText = file.readText()
 
                 if (dokkaDevMavenRepoMarker in fileText) {
                     file.writeText(
-                        fileText.replace(dokkaDevMavenRepoMarker, dokkaDevMavenRepoSpec)
+                        fileText.replace(dokkaDevMavenRepoMarker, devMavenRepositories)
                     )
                 }
             }

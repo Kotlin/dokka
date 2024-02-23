@@ -2,11 +2,12 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 import dokkabuild.tasks.GitCheckoutTask
+import org.gradle.api.tasks.PathSensitivity.RELATIVE
 
 plugins {
     id("dokkabuild.test-integration")
     id("dokkabuild.setup-maven-cli")
-    id("dev.adamko.dev-publish")
+    id("dokkabuild.dev-maven-publish")
 }
 
 dependencies {
@@ -46,12 +47,7 @@ val dokkaSubprojects = gradle.includedBuild("dokka")
 val mavenPlugin = gradle.includedBuild("runner-maven-plugin")
 
 tasks.integrationTest {
-    dependsOn(
-        tasks.updateDevRepo,
-        dokkaSubprojects.task(":publishToMavenLocal"),
-        mavenPlugin.task(":publishToMavenLocal"),
-        checkoutBioJava,
-    )
+    dependsOn(checkoutBioJava)
 
     dependsOn(tasks.installMavenBinary)
     val mvn = mavenCliSetup.mvn
@@ -60,11 +56,23 @@ tasks.integrationTest {
     val dokkaVersion = provider { project.version.toString() }
     inputs.property("dokkaVersion", dokkaVersion)
 
-    inputs.dir(devPublish.devMavenRepo).withPropertyName("devPublish.devMavenRepo")
-    systemProperty(
-        "devMavenRepo",
-        devPublish.devMavenRepo.get().asFile.invariantSeparatorsPath
-    )
+    //region dev maven publish config
+
+    // Tell Gradle that the tests require 'publishToDevMavenRepo' tasks in the providing projects
+    dependsOn(configurations.devPublicationResolver)
+
+    val devMavenRepositories = devMavenPublish.devMavenRepositories
+    inputs.files(devMavenRepositories)
+        .withPropertyName("devMavenPublish.devMavenRepositories")
+        .withPathSensitivity(RELATIVE)
+
+    doFirst {
+        systemProperty(
+            "devMavenRepositories",
+            devMavenRepositories.get().joinToString(",") { it.canonicalFile.invariantSeparatorsPath }
+        )
+    }
+    //endregion
 
     doFirst("workaround for https://github.com/gradle/gradle/issues/24267") {
         environment("DOKKA_VERSION", dokkaVersion.get())

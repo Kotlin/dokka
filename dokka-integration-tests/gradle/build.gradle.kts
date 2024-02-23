@@ -13,9 +13,9 @@ import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Disabled
 
 plugins {
     id("dokkabuild.kotlin-jvm")
+    id("dokkabuild.dev-maven-publish")
     `jvm-test-suite`
     `java-test-fixtures`
-    id("dev.adamko.dev-publish")
 }
 
 dependencies {
@@ -215,14 +215,23 @@ fun TestingExtension.registerTestProjectSuite(
                     templateSettingsGradleKts.asFile.invariantSeparatorsPath,
                 )
 
-                dependsOn(tasks.updateDevRepo)
-                inputs.dir(devPublish.devMavenRepo)
-                    .withPropertyName("devPublish.devMavenRepo")
+                //region dev maven publish config
+
+                // Tell Gradle that the tests require 'publishToDevMavenRepo' tasks in the providing projects
+                dependsOn(configurations.devPublicationResolver)
+
+                val devMavenRepositories = devMavenPublish.devMavenRepositories
+                inputs.files(devMavenRepositories)
+                    .withPropertyName("devMavenPublish.devMavenRepositories")
                     .withPathSensitivity(RELATIVE)
-                systemProperty(
-                    "devMavenRepo",
-                    devPublish.devMavenRepo.get().asFile.invariantSeparatorsPath
-                )
+
+                doFirst("workaround https://github.com/gradle/gradle/issues/12247") {
+                    systemProperty(
+                        "devMavenRepositories",
+                        devMavenRepositories.get().joinToString(",") { it.invariantSeparatorsPath }
+                    )
+                }
+                //endregion
 
                 if (jvm != null) {
                     javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }

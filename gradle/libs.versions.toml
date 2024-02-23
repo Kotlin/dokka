@@ -57,7 +57,6 @@ node = "16.13.0"
 gradlePlugin-shadow = "8.1.1"
 gradlePlugin-gradlePluginPublish = "1.2.1"
 gradlePlugin-gradleNode = "7.0.1"
-gradlePlugin-devPublish = "0.3.0"
 
 ## Test
 junit = "5.9.3"
@@ -90,7 +89,6 @@ gradlePlugin-shadow = { module = "com.github.johnrengelman:shadow", version.ref 
 gradlePlugin-gradlePublish = { module = "com.gradle.publish:plugin-publish-plugin", version.ref = "gradlePlugin-gradlePluginPublish" }
 gradlePlugin-gradle-customUserData = { module = "com.gradle:common-custom-user-data-gradle-plugin", version.ref = "gradlePlugin-gradle-customUserData" }
 gradlePlugin-gradle-enterprise = { module = "com.gradle:gradle-enterprise-gradle-plugin", version.ref = "gradlePlugin-gradle-enterprise" }
-gradlePlugin-devPublish= { module = "dev.adamko.gradle:dev-publish-plugin", version.ref = "gradlePlugin-devPublish" }
 
 #### Kotlin analysis ####
 kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin-compiler" }
@@ -164,4 +162,3 @@ kotest-assertionsJson = { module = "io.kotest:kotest-assertions-json" }
 kotlinx-binaryCompatibilityValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "kotlinx-bcv" }
 gradleNode = { id = "com.github.node-gradle.node", version.ref = "gradlePlugin-gradleNode" }
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "gradlePlugin-shadow" }
-devPublish = { id = "dev.adamko.dev-publish", version.ref = "gradlePlugin-devPublish" }

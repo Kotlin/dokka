@@ -6,7 +6,7 @@ plugins {
     id("dokkabuild.base")
     `maven-publish`
     signing
-    id("dev.adamko.dev-publish")
+    id("dokkabuild.dev-maven-publish")
 }
 
 publishing {
