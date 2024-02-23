@@ -1,11 +1,11 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+import dokkabuild.DevMavenPublishExtension
+import dokkabuild.DevMavenPublishExtension.Companion.DEV_MAVEN_PUBLISH_EXTENSION_NAME
 import dokkabuild.internal.consumable
 import dokkabuild.internal.declarable
 import dokkabuild.internal.resolvable
-import dokkabuild.DevMavenPublishExtension
-import dokkabuild.DevMavenPublishExtension.Companion.DEV_MAVEN_PUBLISH_EXTENSION_NAME
 import org.gradle.kotlin.dsl.support.uppercaseFirstChar
 
 /**
@@ -118,7 +118,5 @@ val devPublicationConsumable: Configuration by configurations.creating {
 val devMavenPublishExtension = extensions.create<DevMavenPublishExtension>(
     DEV_MAVEN_PUBLISH_EXTENSION_NAME,
     // fetch Dev Maven Repos from the dependencies
-    devPublicationResolver.incoming.artifacts.resolvedArtifacts.map { incoming ->
-        incoming.map { it.file }
-    }
+    provider { devPublicationResolver.incoming.files },
 )
