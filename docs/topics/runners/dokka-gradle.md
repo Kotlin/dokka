@@ -367,11 +367,11 @@ plugins {
 }
 
 tasks.dokkaHtml {
-    outputDirectory.set(buildDir.resolve("documentation/html"))
+    outputDirectory.set(layout.buildDirectory.dir("documentation/html"))
 }
 
 tasks.dokkaGfm {
-    outputDirectory.set(buildDir.resolve("documentation/markdown"))
+    outputDirectory.set(layout.buildDirectory.dir("documentation/markdown"))
 }
 ```
 
@@ -543,7 +543,7 @@ subprojects {
 
     // configure only the HTML task
     tasks.dokkaHtmlPartial {
-        outputDirectory.set(buildDir.resolve("docs/partial"))
+        outputDirectory.set(layout.buildDirectory.dir("docs/partial"))
     }
 
     // configure all format tasks at once
@@ -602,7 +602,7 @@ apply(plugin = "org.jetbrains.dokka")
 
 // configuration for subproject-A only.
 tasks.dokkaHtmlPartial {
-    outputDirectory.set(buildDir.resolve("docs/partial"))
+    outputDirectory.set(layout.buildDirectory.dir("docs/partial"))
 }
 ```
 
@@ -690,7 +690,7 @@ import org.jetbrains.dokka.gradle.DokkaTask
 tasks.withType<DokkaTask>().configureEach {
     moduleName.set(project.name)
     moduleVersion.set(project.version.toString())
-    outputDirectory.set(buildDir.resolve("dokka/$name"))
+    outputDirectory.set(layout.buildDirectory.dir("dokka/$name"))
     failOnWarning.set(false)
     suppressObviousFunctions.set(true)
     suppressInheritedMembers.set(false)
@@ -1400,7 +1400,7 @@ import java.net.URL
 tasks.withType<DokkaTask>().configureEach {
     moduleName.set(project.name)
     moduleVersion.set(project.version.toString())
-    outputDirectory.set(buildDir.resolve("dokka/$name"))
+    outputDirectory.set(layout.buildDirectory.dir("dokka/$name"))
     failOnWarning.set(false)
     suppressObviousFunctions.set(true)
     suppressInheritedMembers.set(false)

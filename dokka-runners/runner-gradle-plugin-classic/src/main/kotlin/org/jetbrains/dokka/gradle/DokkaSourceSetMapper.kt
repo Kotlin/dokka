@@ -63,7 +63,7 @@ private fun GradleDokkaSourceSetBuilder.externalDocumentationLinksWithDefaults()
 
 private fun GradleDokkaSourceSetBuilder.suppressedFilesWithDefaults(): Set<File> {
     val suppressedGeneratedFiles = if (suppressGeneratedFiles.get()) {
-        val generatedRoot = project.buildDir.resolve("generated").absoluteFile
+        val generatedRoot = project.layout.buildDirectory.dir("generated").get().asFile
         sourceRoots
             .filter { it.startsWith(generatedRoot) }
             .flatMap { it.walk().toList() }
