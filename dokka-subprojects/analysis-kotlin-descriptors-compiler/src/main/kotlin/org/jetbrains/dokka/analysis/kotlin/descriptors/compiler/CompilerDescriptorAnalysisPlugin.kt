@@ -146,6 +146,10 @@ public class CompilerDescriptorAnalysisPlugin : DokkaPlugin() {
         CoreExtensions.postActions with PostAction { querySingle { kotlinAnalysis }.close() }
     }
 
+    internal val sourceRootIndependentChecker by extending {
+        CoreExtensions.preGenerationCheck providing ::K1SourceRootIndependentChecker
+    }
+
     @OptIn(DokkaPluginApiPreview::class)
     override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement = PluginApiPreviewAcknowledgement
 }
