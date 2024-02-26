@@ -9,10 +9,7 @@ import org.jetbrains.dokka.base.resolvers.external.javadoc.JavadocExternalLocati
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.DRIExtraContainer
-import org.jetbrains.dokka.links.EnumEntryDRIExtra
-import org.jetbrains.dokka.links.PointingToDeclaration
+import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import java.net.URL
 import kotlin.test.Test
@@ -79,6 +76,25 @@ class JavadocExternalLocationProviderTest : BaseAbstractTest() {
 
         assertEquals(
             "https://docs.oracle.com/javase/8/docs/api/java/rmi/activation/ActivationGroupDesc.CommandEnvironment.html",
+            locationProvider.resolve(dri)
+        )
+    }
+
+    @Test
+    fun `link to function with nullable parameter`() {
+        val locationProvider = getTestLocationProvider()
+        val dri = DRI(
+            packageName = "java.applet",
+            classNames = "AppletContext",
+            callable = Callable(
+                name = "showDocument",
+                params = listOf(Nullable(TypeConstructor("java.net.URL", emptyList())))
+            ),
+            target = PointingToDeclaration
+        )
+
+        assertEquals(
+            "https://docs.oracle.com/javase/8/docs/api/java/applet/AppletContext.html#showDocument-java.net.URL-",
             locationProvider.resolve(dri)
         )
     }
