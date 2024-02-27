@@ -27,11 +27,12 @@ fun Project.configureGradleKotlinCompatibility() {
     extensions.configure<KotlinJvmProjectExtension>("kotlin") {
         val btaCompilerVersion = libs.versions.bta.kotlin.compiler
         val btaLanguageVersion = libs.versions.bta.kotlin.language.map(KotlinVersion::fromVersion)
+        val btaApiVersion = libs.versions.bta.kotlin.api.map(KotlinVersion::fromVersion)
         compilerVersion.set(btaCompilerVersion)
         coreLibrariesVersion = btaCompilerVersion.get()
         compilerOptions {
             languageVersion.set(btaLanguageVersion)
-            apiVersion.set(btaLanguageVersion)
+            apiVersion.set(btaApiVersion)
             freeCompilerArgs.addAll(
                 "-Xsuppress-version-warnings",
                 // we need this flag to be able to use newer Analysis API versions
