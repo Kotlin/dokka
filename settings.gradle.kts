@@ -16,6 +16,9 @@ pluginManagement {
         maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2") {
             name = "GradlePluginPortal-JBCache"
         }
+
+        val kotlin_repo: String? by settings
+        kotlin_repo?.let { maven(it) }
     }
 }
 
@@ -33,6 +36,9 @@ dependencyResolutionManagement {
         maven("https://cache-redirector.jetbrains.com/intellij-dependencies") {
             name = "IjDependencies-JBCache"
         }
+
+        val kotlin_repo: String? by settings
+        kotlin_repo?.let { maven(it) }
 
         //region Declare the Node.js & Yarn download repositories
         // Required by Gradle Node plugin: https://github.com/node-gradle/gradle-node-plugin/blob/3.5.1/docs/faq.md#is-this-plugin-compatible-with-centralized-repositories-declaration
@@ -119,6 +125,23 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
+            val kotlin_version: String? = providers.gradleProperty("kotlin_version").orNull
+            val kotlin_api_version: String? = providers.gradleProperty("kotlin_api_version").orNull ?: providers.gradleProperty("org.jetbrains.dokka.kotlinLanguageLevel").orNull
+            val kotlin_language_version: String? = providers.gradleProperty("kotlin_language_version").orNull ?: providers.gradleProperty("org.jetbrains.dokka.kotlinLanguageLevel").orNull
+            if (kotlin_version != null) {
+                version("gradlePlugin-kotlin", kotlin_version)
+                version("bta-kotlin-compiler", kotlin_version)
+            }
+            if (kotlin_language_version != null) {
+                println("Configured LanguageVersion $kotlin_language_version")
+                version("bta-kotlin-language", kotlin_language_version)
+            }
+
+            if (kotlin_api_version != null) {
+                println("Configured ApiVersion $kotlin_api_version")
+                version("bta-kotlin-api", kotlin_api_version)
+            }
+
             val kotlinCompilerK2Version = providers.gradleProperty(
                 "org.jetbrains.dokka.build.overrideAnalysisAPIVersion"
             ).orNull

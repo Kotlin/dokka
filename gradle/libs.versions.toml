@@ -6,6 +6,7 @@
 # The logic lives in build-logic/src/main/kotlin/dokkabuild/utils/gradleKotlinCompatibility.kt
 bta-kotlin-compiler = "2.0.21"
 bta-kotlin-language = "1.4"
+bta-kotlin-api = "1.4"
 
 gradlePlugin-kotlin = "2.3.0"
 # See: https://kotlinlang.org/docs/gradle-configure-project.html#apply-the-plugin
