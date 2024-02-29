@@ -49,6 +49,17 @@ internal class SymbolSampleAnalysisEnvironmentCreator(
             }
         }
     }
+
+    override fun create(): SampleAnalysisEnvironment {
+        return SymbolSampleAnalysisEnvironment(
+            samplesKotlinAnalysis = SamplesKotlinAnalysis(
+                sourceSets = context.configuration.sourceSets,
+                context = context
+            ),
+            projectKotlinAnalysis = projectKotlinAnalysis,
+            dokkaLogger = context.logger
+        )
+    }
 }
 
 private class SymbolSampleAnalysisEnvironment(
@@ -142,5 +153,10 @@ private class SymbolSampleAnalysisEnvironment(
 
             else -> sampleElement.text
         }
+    }
+
+    override fun close() {
+        samplesKotlinAnalysis.close()
+        projectKotlinAnalysis.close()
     }
 }

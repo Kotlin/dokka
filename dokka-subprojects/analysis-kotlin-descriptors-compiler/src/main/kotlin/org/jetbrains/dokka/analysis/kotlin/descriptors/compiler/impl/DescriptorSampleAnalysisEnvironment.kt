@@ -30,6 +30,7 @@ import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyPackageDescriptor
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
+import java.io.Closeable
 
 internal class DescriptorSampleAnalysisEnvironmentCreator(
     private val context: DokkaContext,
@@ -57,13 +58,26 @@ internal class DescriptorSampleAnalysisEnvironmentCreator(
             }
         }
     }
+
+    override fun create(): SampleAnalysisEnvironment {
+        @OptIn(DokkaPluginApiPreview::class)
+        return DescriptorSampleAnalysisEnvironment(
+            kdocFinder = descriptorAnalysisPlugin.querySingle { kdocFinder },
+            kotlinAnalysis = SamplesKotlinAnalysis(
+                sourceSets = context.configuration.sourceSets,
+                context = context,
+                projectKotlinAnalysis = descriptorAnalysisPlugin.querySingle { kotlinAnalysis }
+            ),
+            dokkaLogger = context.logger
+        )
+    }
 }
 
 internal class DescriptorSampleAnalysisEnvironment(
     private val kdocFinder: KDocFinder,
     private val kotlinAnalysis: KotlinAnalysis,
     private val dokkaLogger: DokkaLogger,
-) : SampleAnalysisEnvironment {
+) : SampleAnalysisEnvironment, Closeable {
 
     override fun resolveSample(
         sourceSet: DokkaConfiguration.DokkaSourceSet,
@@ -191,5 +205,9 @@ internal class DescriptorSampleAnalysisEnvironment(
 
             else -> sampleElement.text
         }
+    }
+
+    override fun close() {
+        kotlinAnalysis.close()
     }
 }
