@@ -61,6 +61,18 @@ internal class SymbolSampleAnalysisEnvironmentCreator(
             }
         }
     }
+
+    override fun create(): SampleAnalysisEnvironment {
+        return SymbolSampleAnalysisEnvironment(
+            samplesKotlinAnalysis = SamplesKotlinAnalysis(
+                sourceSets = context.configuration.sourceSets,
+                context = context
+            ),
+            projectKotlinAnalysis = projectKotlinAnalysis,
+            sampleRewriter = sampleRewriter,
+            dokkaLogger = context.logger
+        )
+    }
 }
 
 private class SymbolSampleAnalysisEnvironment(
@@ -173,6 +185,11 @@ private class SymbolSampleAnalysisEnvironment(
             dokkaLogger.warn("Exception thrown while sample rewriting at ${containingFile.name}: (${it.loc})\n```\n${it.text}\n```\n$st")
         }
         return textBuilder.toString()
+    }
+
+    override fun close() {
+        samplesKotlinAnalysis.close()
+        projectKotlinAnalysis.close()
     }
 }
 

@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyPackageDescriptor
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
+import java.io.Closeable
 
 internal class DescriptorSampleAnalysisEnvironmentCreator(
     private val context: DokkaContext,
@@ -65,6 +66,20 @@ internal class DescriptorSampleAnalysisEnvironmentCreator(
             }
         }
     }
+
+    override fun create(): SampleAnalysisEnvironment {
+        @OptIn(DokkaPluginApiPreview::class)
+        return DescriptorSampleAnalysisEnvironment(
+            kdocFinder = descriptorAnalysisPlugin.querySingle { kdocFinder },
+            kotlinAnalysis = SamplesKotlinAnalysis(
+                sourceSets = context.configuration.sourceSets,
+                context = context,
+                projectKotlinAnalysis = descriptorAnalysisPlugin.querySingle { kotlinAnalysis }
+            ),
+            sampleRewriter = sampleRewriter,
+            dokkaLogger = context.logger
+        )
+    }
 }
 
 internal class DescriptorSampleAnalysisEnvironment(
@@ -72,7 +87,7 @@ internal class DescriptorSampleAnalysisEnvironment(
     private val kotlinAnalysis: KotlinAnalysis,
     private val sampleRewriter: SampleRewriter?,
     private val dokkaLogger: DokkaLogger,
-) : SampleAnalysisEnvironment {
+) : SampleAnalysisEnvironment, Closeable {
 
     override fun resolveSample(
         sourceSet: DokkaConfiguration.DokkaSourceSet,
@@ -220,6 +235,10 @@ internal class DescriptorSampleAnalysisEnvironment(
             dokkaLogger.warn("Exception thrown while sample rewriting at ${containingFile.name}: (${it.loc})\n```\n${it.text}\n```\n$st")
         }
         return textBuilder.toString()
+    }
+
+    override fun close() {
+        kotlinAnalysis.close()
     }
 }
 

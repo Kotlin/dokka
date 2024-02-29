@@ -35,4 +35,6 @@ public interface SampleAnalysisEnvironmentCreator {
      * ```
      */
     public fun <T> use(block: SampleAnalysisEnvironment.() -> T): T
+
+    public fun create(): SampleAnalysisEnvironment
 }
