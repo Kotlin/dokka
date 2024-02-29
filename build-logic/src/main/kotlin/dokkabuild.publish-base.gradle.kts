@@ -1,3 +1,5 @@
+import java.net.URI
+
 /*
 * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
 */
@@ -11,7 +13,7 @@ publishing {
     repositories {
         maven {
             name = "mavenCentral"
-            url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            url = mavenCentralRepositoryUri()
             credentials {
                 username = System.getenv("DOKKA_SONATYPE_USER")
                 password = System.getenv("DOKKA_SONATYPE_PASSWORD")
@@ -70,6 +72,20 @@ publishing {
                 url.convention("https://github.com/Kotlin/dokka")
             }
         }
+    }
+}
+
+/**
+ * Due to Gradle running publishing tasks in parallel, multiple staging repositories
+ * can be created within a couple of seconds with artifact files scattered throughout.
+ * The safest and most stable option is to publish to a pre-defined staging repository.
+ */
+fun mavenCentralRepositoryUri(): URI {
+    val repositoryId: String? = System.getenv("DOKKA_MVN_CENTRAL_REPOSITORY_ID")
+    return if (repositoryId == null) {
+        URI("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+    } else {
+        URI("https://oss.sonatype.org/service/local/staging/deployByRepositoryId/$repositoryId")
     }
 }
 
