@@ -1,0 +1,9 @@
+[versions]
+
+kotlin = "1.9.22"
+dokka = "2.0.0-dev-318"
+
+[libraries]
+
+gradlePlugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+gradlePlugin-dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
