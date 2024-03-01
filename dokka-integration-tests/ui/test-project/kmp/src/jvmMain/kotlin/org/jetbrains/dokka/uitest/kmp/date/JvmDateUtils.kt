@@ -1,4 +1,4 @@
-package org.kotlintestmpp.date
+package org.jetbrains.dokka.uitest.kmp.date
 
 /**
  * JVM actual implementation for `getCurrentDate`

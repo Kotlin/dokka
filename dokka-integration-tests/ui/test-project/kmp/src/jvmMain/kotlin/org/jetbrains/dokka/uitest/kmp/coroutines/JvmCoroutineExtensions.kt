@@ -1,4 +1,4 @@
-package org.kotlintestmpp.coroutines
+package org.jetbrains.dokka.uitest.kmp.coroutines
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred

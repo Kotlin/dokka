@@ -1,4 +1,4 @@
-package org.kotlintestmpp;
+package org.jetbrains.dokka.uitest.kmp;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

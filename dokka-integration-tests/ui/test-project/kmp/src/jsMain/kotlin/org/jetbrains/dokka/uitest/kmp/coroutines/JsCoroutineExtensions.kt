@@ -1,10 +1,10 @@
-package org.kotlintestmpp.coroutines
+package org.jetbrains.dokka.uitest.kmp.coroutines
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 
 /**
- * Linux actual implementation for `asyncWithDelay`
+ * JS actual implementation for `asyncWithDelay`
  */
 actual fun <T> CoroutineScope.asyncWithDealy(delay: Long, block: suspend () -> T): Deferred<T> {
     TODO("Not yet implemented")
