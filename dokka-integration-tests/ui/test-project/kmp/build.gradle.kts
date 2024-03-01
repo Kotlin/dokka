@@ -16,3 +16,9 @@ kotlin {
         }
     }
 }
+
+tasks.dokkaHtmlPartial {
+    dokkaSourceSets.configureEach {
+        includes.setFrom("description.md")
+    }
+}
