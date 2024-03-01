@@ -1,9 +1,9 @@
-package org.kotlintestmpp
+package org.jetbrains.dokka.uitest.kmp
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.kotlintestmpp.common.Foo
+import org.jetbrains.dokka.uitest.kmp.common.Foo
 
 /**
  * Function declared in JVM source set

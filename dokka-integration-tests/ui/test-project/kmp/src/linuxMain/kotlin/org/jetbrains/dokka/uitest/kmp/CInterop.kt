@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package org.kotlintestmpp
+package org.jetbrains.dokka.uitest.kmp
 
 import kotlinx.cinterop.CPointed
 import kotlinx.cinterop.CPointer

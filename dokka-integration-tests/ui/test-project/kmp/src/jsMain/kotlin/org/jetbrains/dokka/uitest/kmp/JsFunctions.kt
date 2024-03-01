@@ -1,4 +1,4 @@
-package org.kotlintestmpp
+package org.jetbrains.dokka.uitest.kmp
 
 /**
  * Function declares in JS source set
