@@ -6,8 +6,8 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import java.net.URL
 
 plugins {
-    kotlin("jvm") version "1.9.10"
-    id("org.jetbrains.dokka") version "1.9.10"
+    kotlin("jvm") version "1.9.22"
+    id("org.jetbrains.dokka") version "1.9.20"
 }
 
 repositories {
