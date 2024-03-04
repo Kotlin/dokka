@@ -74,7 +74,7 @@ class DokkaMultiModuleTaskTest {
         multiModuleTask.apply {
             moduleVersion.set("1.5.0")
             moduleName.set("custom Module Name")
-            outputDirectory.set(project.buildDir.resolve("customOutputDirectory"))
+            outputDirectory.set(project.layout.buildDirectory.dir("customOutputDirectory"))
             cacheRoot.set(File("customCacheRoot"))
             pluginsConfiguration.add(
                 PluginConfigurationImpl(
@@ -93,8 +93,8 @@ class DokkaMultiModuleTaskTest {
             DokkaConfigurationImpl(
                 moduleName = "custom Module Name",
                 moduleVersion = "1.5.0",
-                outputDir = multiModuleTask.project.buildDir.resolve("customOutputDirectory"),
-                cacheRoot = multiModuleTask.project.projectDir.resolve("customCacheRoot"),
+                outputDir = multiModuleTask.project.layout.buildDirectory.dir("customOutputDirectory").get().asFile,
+                cacheRoot = multiModuleTask.project.layout.projectDirectory.dir("customCacheRoot").asFile,
                 pluginsConfiguration = mutableListOf(
                     PluginConfigurationImpl(
                         "pluginA",
@@ -236,7 +236,7 @@ class DokkaMultiModuleTaskTest {
         })
 
         assertEquals(
-            listOf(parent.project.buildDir.resolve("child")),
+            listOf(parent.project.layout.buildDirectory.dir("child").get().asFile),
             parentTask.targetChildOutputDirectories.get().map { it.asFile },
             "Expected child target output directory being present"
         )
