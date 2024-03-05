@@ -197,7 +197,7 @@ It's also possible to override Dokka's default stylesheets by providing files wi
 | `prism.css`          | Styles for [PrismJS](https://prismjs.com/) syntax highlighter      |
 
 The source code for all of Dokka's stylesheets is
-[available on GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/base/src/main/resources/dokka/styles).
+[available on GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-base/src/main/resources/dokka/styles).
 
 ### Customize assets
 
@@ -210,7 +210,7 @@ It's possible to override Dokka's images and icons by providing files with the s
 useful and relevant one being `logo-icon.svg`, which is the image that's used in the header. The rest is mostly icons.
 
 You can find all images used by Dokka on 
-[GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/base/src/main/resources/dokka/images).
+[GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-base/src/main/resources/dokka/images).
 
 ### Change the logo
 
@@ -244,7 +244,7 @@ Dokka uses the following templates:
 | `includes/source_set_selector.ftl` | [The source set](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) selector in the header. |
 
 The base template is `base.ftl` and it includes all of the remaining listed templates. You can find the source code for all of Dokka's templates
-[on GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/base/src/main/resources/dokka/templates).
+[on GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-base/src/main/resources/dokka/templates).
 
 You can override any template by using the `templatesDir` [configuration option](#configuration). Dokka searches
 for the exact template names within the given directory. If it fails to find user-defined templates, it uses the
@@ -275,8 +275,8 @@ context and thus they need to be resolved at later stages by the [MultiModule](d
 
 You can also use the following Dokka-defined [directives](https://freemarker.apache.org/docs/ref_directive_userDefined.html):
 
-| **Variable**    | **Description**                                                                                                                                                                                      |
-|-----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `<@content/>`   | The main page content.                                                                                                                                                                               |
-| `<@resources/>` | Resources such as scripts and stylesheets.                                                                                                                                                           |
-| `<@version/>`   | The module version taken from configuration. If the [versioning plugin](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/versioning) is applied, it is replaced with a version navigator. |
+| **Variable**    | **Description**                                                                                                                                                                                                       |
+|-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `<@content/>`   | The main page content.                                                                                                                                                                                                |
+| `<@resources/>` | Resources such as scripts and stylesheets.                                                                                                                                                                            |
+| `<@version/>`   | The module version taken from configuration. If the [versioning plugin](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-versioning) is applied, it is replaced with a version navigator. |
