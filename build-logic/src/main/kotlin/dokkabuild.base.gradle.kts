@@ -27,3 +27,19 @@ val integrationTestPreparation by tasks.registering {
         "lifecycle task for preparing the project for integration tests (for example, publishing to the test Maven repo)"
     group = VERIFICATION_GROUP
 }
+
+
+//region jvmArgs logging
+// jvmArgs seem to change on CI, which causes Build Cache misses, hampering build performance
+// The easiest way to investigate them is to log them on CI.
+if (dokkaBuild.isCI.get()) {
+    tasks
+        .matching { it is JavaForkOptions }
+        .configureEach {
+            val task = this as? JavaForkOptions? ?: return@configureEach
+            doFirst("log jvmArgs") {
+                logger.lifecycle("[$path] jvmArgs: ${task.jvmArgs}")
+            }
+        }
+}
+//endregion
