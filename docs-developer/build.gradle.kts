@@ -92,7 +92,6 @@ val generateMkDocsSiteIndexHtml by tasks.registering(Sync::class) {
     group = project.name
 
     val dokkaVersion = dokkaVersion
-    val isDokkaSnapshotVersion = isDokkaSnapshotVersion
     inputs.property("dokkaVersion", dokkaVersion)
 
     val indexHtml = layout.projectDirectory.file("index.html")
@@ -101,10 +100,7 @@ val generateMkDocsSiteIndexHtml by tasks.registering(Sync::class) {
         .withPathSensitivity(RELATIVE)
         .normalizeLineEndings()
 
-    // only generate a root index.html on non-snapshot versions
-    if (!isDokkaSnapshotVersion.get()) {
-        from(indexHtml)
-    }
+    from(indexHtml)
 
     filter<ReplaceTokens>("tokens" to mapOf("dokkaVersion" to dokkaVersion.get()))
 
@@ -119,7 +115,10 @@ val buildMkDocsSite by tasks.registering(Sync::class) {
     val dokkaVersion = dokkaVersion
     inputs.property("dokkaVersion", dokkaVersion)
 
-    from(generateMkDocsSiteIndexHtml)
+// only generate a root index.html on non-snapshot versions
+    if (!isDokkaSnapshotVersion.get()) {
+        from(generateMkDocsSiteIndexHtml)
+    }
     from(mkDocsBuild) {
         eachFile {
             relativePath = relativePath.prepend(dokkaVersion.get())
