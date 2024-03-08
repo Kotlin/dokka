@@ -11,6 +11,8 @@
  *
  * See https://docs.gradle.org/8.4/userguide/build_cache.html#sec:build_cache_composite.
  *
+ * ⚠️ This file _must_ be applicable as a script plugin and so _must not_ depend on other source files.
+ *
  * Based on https://github.com/JetBrains/kotlin/blob/2675531624d42851af502a993bbefd65ee3e38ef/repo/gradle-settings-conventions/build-cache/src/main/kotlin/build-cache.settings.gradle.kts
  */
 
