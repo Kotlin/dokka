@@ -1,5 +1,8 @@
 site_name: Dokka
 
+# note that site_dir is also specified in the Gradle task mkDocsBuild
+site_dir: "build/mkdocs-current"
+
 # Meta tags (placed in header)
 site_description: Dokka is an API documentation engine for Kotlin, performing the same function as the Javadoc tool for Java
 site_author: JetBrains
@@ -99,6 +102,3 @@ nav:
 
 extra_css:
   - dokka_colors.css
-
-# note that site_dir is also specified in the Gradle task mkDocsBuild
-site_dir: "build/mkdocs"
