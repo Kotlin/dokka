@@ -149,7 +149,7 @@ val logMkDocsLink: TaskProvider<Task> by tasks.registering {
 
     doLast {
         val indexHtml = if (isDokkaSnapshotVersion.get()) {
-            mkDocsDir.get().resolve("$dokkaVersion/index.html")
+            mkDocsDir.get().resolve("${dokkaVersion.get()}/index.html")
         } else {
             mkDocsDir.get().resolve("index.html")
         }
