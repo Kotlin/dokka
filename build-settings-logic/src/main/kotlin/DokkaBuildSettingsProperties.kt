@@ -27,9 +27,6 @@ abstract class DokkaBuildSettingsProperties @Inject constructor(
         dokkaProperty("build.scan.enabled", String::toBoolean)
             .orElse(buildingOnCi)
 
-    val buildScanUrl: Provider<String> =
-        dokkaProperty("build.scan.url")
-
     /** Optionally override the default name attached to a Build Scan. */
     val buildScanUsername: Provider<String> =
         dokkaProperty("build.scan.username")
