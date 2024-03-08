@@ -9,6 +9,11 @@ pluginManagement {
     val dokka_it_dokka_version: String by settings
     val dokka_it_android_gradle_plugin_version: String? by settings
 
+    logger.quiet("Gradle version: ${gradle.gradleVersion}")
+    logger.quiet("Kotlin version: $dokka_it_kotlin_version")
+    logger.quiet("Dokka version: $dokka_it_dokka_version")
+    logger.quiet("Android version: $dokka_it_android_gradle_plugin_version")
+
     plugins {
         id("org.jetbrains.kotlin.js") version dokka_it_kotlin_version
         id("org.jetbrains.kotlin.jvm") version dokka_it_kotlin_version
@@ -20,7 +25,7 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             if (requested.id.id == "org.jetbrains.dokka") {
-                useModule("org.jetbrains.dokka:dokka-gradle-plugin:${System.getenv("DOKKA_VERSION")}")
+                useModule("org.jetbrains.dokka:dokka-gradle-plugin:$dokka_it_dokka_version")
             }
 
             if (requested.id.id == "com.android.library") {
@@ -41,5 +46,87 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
         google()
+    }
+}
+
+@Suppress("UnstableApiUsage")
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+
+        // only use MavenLocal to find Dokka artifacts
+        exclusiveContent {
+            forRepository {
+                mavenLocal()
+            }
+            filter {
+                includeGroup("org.jetbrains.dokka")
+            }
+        }
+
+        mavenCentral()
+        google()
+        maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
+            content {
+                includeGroup("org.jetbrains.kotlinx")
+            }
+        }
+        // Remove when Kotlin/Wasm is published into public Maven repository
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
+
+        // Declare the Node.js & Yarn download repositories - workaround for https://youtrack.jetbrains.com/issue/KT-51379
+        exclusiveContent {
+            forRepository {
+                ivy("https://nodejs.org/dist/") {
+                    name = "Node Distributions at $url"
+                    patternLayout { artifact("v[revision]/[artifact](-v[revision]-[classifier]).[ext]") }
+                    metadataSources { artifact() }
+                    content { includeModule("org.nodejs", "node") }
+                }
+            }
+            filter { includeGroup("org.nodejs") }
+        }
+
+        exclusiveContent {
+            forRepository {
+                ivy("https://github.com/yarnpkg/yarn/releases/download") {
+                    name = "Yarn Distributions at $url"
+                    patternLayout { artifact("v[revision]/[artifact](-v[revision]).[ext]") }
+                    metadataSources { artifact() }
+                    content { includeModule("com.yarnpkg", "yarn") }
+                }
+            }
+            filter { includeGroup("com.yarnpkg") }
+        }
+
+        // Declare Kotlin/Native dependencies - workaround for https://youtrack.jetbrains.com/issue/KT-51379
+        exclusiveContent {
+            forRepository {
+                ivy("https://download.jetbrains.com/kotlin/native/builds") {
+                    name = "Kotlin Native"
+                    patternLayout {
+
+                        // example download URLs:
+                        // https://download.jetbrains.com/kotlin/native/builds/releases/1.7.20/linux-x86_64/kotlin-native-prebuilt-linux-x86_64-1.7.20.tar.gz
+                        // https://download.jetbrains.com/kotlin/native/builds/releases/1.7.20/windows-x86_64/kotlin-native-prebuilt-windows-x86_64-1.7.20.zip
+                        // https://download.jetbrains.com/kotlin/native/builds/releases/1.7.20/macos-x86_64/kotlin-native-prebuilt-macos-x86_64-1.7.20.tar.gz
+                        listOf(
+                            "macos-x86_64",
+                            "macos-aarch64",
+                            "osx-x86_64",
+                            "osx-aarch64",
+                            "linux-x86_64",
+                            "windows-x86_64"
+                        ).forEach { os ->
+                            listOf("dev", "releases").forEach { stage ->
+                                artifact("$stage/[revision]/$os/[artifact]-[revision].[ext]")
+                            }
+                        }
+                    }
+                    metadataSources { artifact() }
+                }
+            }
+            filter { includeModuleByRegex(".*", ".*kotlin-native-prebuilt.*") }
+        }
     }
 }

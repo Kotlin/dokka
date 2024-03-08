@@ -5,13 +5,10 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
-apply from: '../template.root.gradle.kts'
-
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     dokkaPlugin "org.jetbrains.dokka:versioning-plugin:${System.getenv("DOKKA_VERSION")}"
 }
-
 
 subprojects {
     apply plugin: 'org.jetbrains.kotlin.jvm'

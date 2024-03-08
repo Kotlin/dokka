@@ -90,7 +90,7 @@ For more information, see the CLI runner's documentation for [Other output forma
 </tab>
 </tabs>
 
-You can find the source code [on GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/gfm).
+You can find the source code [on GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-gfm).
 
 ## Jekyll
 
@@ -170,4 +170,4 @@ For more information, see the CLI runner's documentation for [Other output forma
 </tab>
 </tabs>
 
-You can find the source code on [GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/plugins/jekyll).
+You can find the source code on [GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-jekyll).

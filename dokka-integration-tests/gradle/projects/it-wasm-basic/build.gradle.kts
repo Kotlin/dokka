@@ -10,13 +10,6 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
-apply(from = "../template.root.gradle.kts")
-
-repositories {
-    // Remove it when wasm target will be published into public maven repository
-    maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
-}
-
 kotlin {
     wasm()
     sourceSets {
