@@ -33,6 +33,7 @@ tasks.withType<Test>().configureEach {
 
 dependencies {
     testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.platformLauncher)
 }
 
 tasks.processResources {
