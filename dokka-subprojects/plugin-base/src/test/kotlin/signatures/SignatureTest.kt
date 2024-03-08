@@ -1366,6 +1366,63 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("#3354")
+    @Test
+    fun `should not render constructor for Any from Wasm sources`() = testRender(
+        """
+            |/src/main/kotlin/Any.kt
+            |package kotlin
+            |annotation class WasmPrimitiveConstructor
+            |open class Any @WasmPrimitiveConstructor constructor()
+        """.trimMargin(),
+    ) {
+        renderedContent("root/kotlin/-any/index.html").firstSignature().matchIgnoringSpans(
+            "open class", A("Any")
+        )
+    }
+
+    @Test
+    fun `should not render parameterless constructor with annotation without mustBeDocumented annotation`() = testRender(
+        """
+            |/src/main/kotlin/SomeClass.kt
+            |package example
+            |annotation class SomeAnnotation
+            |class SomeClass @SomeAnnotation constructor()
+        """.trimMargin(),
+    ) {
+        renderedContent("root/example/-some-class/index.html").firstSignature().matchIgnoringSpans(
+            "class", A("SomeClass")
+        )
+    }
+
+    @Test
+    fun `should not render parameterless constructor with ignored annotation`() = testRender(
+        """
+            |/src/main/kotlin/SomeClass.kt
+            |package example
+            |class SomeClass @Deprecated("reason") constructor()
+        """.trimMargin(),
+    ) {
+        renderedContent("root/example/-some-class/index.html").firstSignature().matchIgnoringSpans(
+            "class", A("SomeClass")
+        )
+    }
+
+    @Test
+    fun `should render parameterless constructor with annotation with mustBeDocumented annotation`() = testRender(
+        """
+            |/src/main/kotlin/SomeClass.kt
+            |package example
+            |@MustBeDocumented
+            |annotation class SomeAnnotation
+            |class SomeClass @SomeAnnotation constructor()
+        """.trimMargin(),
+    ) {
+        renderedContent("root/example/-some-class/index.html").firstSignature().matchIgnoringSpans(
+            "class", A("SomeClass"), Span("@", A("SomeAnnotation")), "constructor"
+        )
+    }
+
     private fun testRender(
         query: String,
         configuration: DokkaConfigurationImpl = this.configuration,
