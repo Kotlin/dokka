@@ -81,7 +81,8 @@ plugins.withType<MavenPublishPlugin>().all {
                 dependsOn(installTask)
             }
 
-            tasks.check {
+//            tasks.check {
+            tasks.named("check").configure {
                 mustRunAfter(installTask)
             }
         }
@@ -118,5 +119,5 @@ val devPublicationConsumable: Configuration by configurations.creating {
 val devMavenPublishExtension = extensions.create<DevMavenPublishExtension>(
     DEV_MAVEN_PUBLISH_EXTENSION_NAME,
     // fetch Dev Maven Repos from the dependencies
-    provider { devPublicationResolver.incoming.files },
+    devPublicationResolver.incoming.files,
 )

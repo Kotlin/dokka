@@ -87,7 +87,11 @@ tasks.withType<Test>().configureEach {
         dokkaBuild.isCI.map { isCi -> if (isCi) "ALWAYS" else "ON_SUCCESS" }.get(),
     )
 
-    environment("DOKKA_VERSION", project.version)
+    val dokkaVersion = provider { project.version.toString() }
+    inputs.property("dokkaVersion", dokkaVersion)
+    doFirst("set DOKKA_VERSION environment variable (workaround for https://github.com/gradle/gradle/issues/24267)") {
+        environment("DOKKA_VERSION", dokkaVersion.get())
+    }
 
     // environment() isn't Provider API compatible yet https://github.com/gradle/gradle/issues/11534
     dokkaBuild.integrationTestExhaustive.orNull?.let { exhaustive ->
@@ -104,6 +108,10 @@ tasks.withType<Test>().configureEach {
         showCauses = true
         showStackTraces = true
     }
+
+    // The tests produce report data and generated Dokka output.
+    // Always cache them so Gradle can skip running integration tests if nothing has changed.
+    outputs.cacheIf("always cache") { true }
 }
 
 testing {
@@ -215,23 +223,7 @@ fun TestingExtension.registerTestProjectSuite(
                     templateSettingsGradleKts.asFile.invariantSeparatorsPath,
                 )
 
-                //region dev maven publish config
-
-                // Tell Gradle that the tests require 'publishToDevMavenRepo' tasks in the providing projects
-                dependsOn(configurations.devPublicationResolver)
-
-                val devMavenRepositories = devMavenPublish.devMavenRepositories
-                inputs.files(devMavenRepositories)
-                    .withPropertyName("devMavenPublish.devMavenRepositories")
-                    .withPathSensitivity(RELATIVE)
-
-                doFirst("workaround https://github.com/gradle/gradle/issues/12247") {
-                    systemProperty(
-                        "devMavenRepositories",
-                        devMavenRepositories.get().joinToString(",") { it.invariantSeparatorsPath }
-                    )
-                }
-                //endregion
+                devMavenPublish.configureTask(this)
 
                 if (jvm != null) {
                     javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }

@@ -56,28 +56,12 @@ tasks.integrationTest {
     val dokkaVersion = provider { project.version.toString() }
     inputs.property("dokkaVersion", dokkaVersion)
 
-    //region dev maven publish config
-
-    // Tell Gradle that the tests require 'publishToDevMavenRepo' tasks in the providing projects
-    dependsOn(configurations.devPublicationResolver)
-
-    val devMavenRepositories = devMavenPublish.devMavenRepositories
-    inputs.files(devMavenRepositories)
-        .withPropertyName("devMavenPublish.devMavenRepositories")
-        .withPathSensitivity(RELATIVE)
-
-    doFirst {
-        systemProperty(
-            "devMavenRepositories",
-            devMavenRepositories.get().joinToString(",") { it.canonicalFile.invariantSeparatorsPath }
-        )
-    }
-    //endregion
-
     doFirst("workaround for https://github.com/gradle/gradle/issues/24267") {
         environment("DOKKA_VERSION", dokkaVersion.get())
         environment("MVN_BINARY_PATH", mvn.get().asFile.invariantSeparatorsPath)
     }
+
+    devMavenPublish.configureTask(this)
 }
 
 val checkoutBioJava by tasks.registering(GitCheckoutTask::class) {
