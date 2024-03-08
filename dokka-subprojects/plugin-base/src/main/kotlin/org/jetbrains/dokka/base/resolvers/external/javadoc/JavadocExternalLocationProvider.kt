@@ -6,10 +6,7 @@ package org.jetbrains.dokka.base.resolvers.external.javadoc
 
 import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
-import org.jetbrains.dokka.links.Callable
-import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.DRIExtraContainer
-import org.jetbrains.dokka.links.EnumEntryDRIExtra
+import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.utilities.htmlEscape
 
@@ -56,7 +53,21 @@ public open class JavadocExternalLocationProvider(
     protected open fun anchorPart(callable: Callable): String {
         return callable.name +
                 "${brackets.first()}" +
-                callable.params.joinToString(separator) +
+                callable.params.joinToString(separator) { it.toJavadocURL() } +
                 "${brackets.last()}"
+    }
+
+    private fun TypeReference.toJavadocURL(): String {
+        return when (this) {
+            is JavaClassReference -> name
+            is Nullable -> wrapped.toJavadocURL() // just ignore
+            is StarProjection -> "?"
+
+            // TODO #3502
+            is TypeConstructor -> fullyQualifiedName +
+                    (if (params.isNotEmpty()) "[${params.joinToString(",") { it.toJavadocURL() }}]" else "")
+            is TypeParam -> toString()
+            is RecursiveType -> "^".repeat(rank + 1)
+        }
     }
 }
