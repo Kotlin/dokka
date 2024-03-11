@@ -16,6 +16,7 @@ dependencies {
     implementation(projects.dokkaSubprojects.analysisJavaPsi)
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.junit.platformLauncher)
     testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
     testImplementation(projects.dokkaSubprojects.coreTestApi)
     testImplementation(projects.dokkaSubprojects.analysisKotlinApi)

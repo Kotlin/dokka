@@ -20,6 +20,7 @@ dependencies {
     implementation(kotlin("reflect"))
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.junit.platformLauncher)
     testImplementation(libs.jsoup)
     testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
     testImplementation(projects.dokkaSubprojects.coreTestApi)

@@ -22,6 +22,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.junit.platformLauncher)
     testImplementation(libs.junit.jupiterParams)
 
     testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)

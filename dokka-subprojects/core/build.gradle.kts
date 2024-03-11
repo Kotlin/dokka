@@ -23,6 +23,7 @@ dependencies {
     }
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.junit.platformLauncher)
     testImplementation(projects.dokkaSubprojects.coreTestApi)
 }
 

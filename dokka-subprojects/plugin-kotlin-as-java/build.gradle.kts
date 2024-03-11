@@ -21,6 +21,7 @@ dependencies {
     implementation(kotlin("reflect"))
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.junit.platformLauncher)
     testImplementation(libs.jsoup)
     testImplementation(projects.dokkaSubprojects.pluginBase)
     symbolsTestConfiguration(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))

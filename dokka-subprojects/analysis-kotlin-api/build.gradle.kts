@@ -19,9 +19,12 @@ dependencies {
     testFixturesApi(projects.dokkaSubprojects.dokkaCore)
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.junit.platformLauncher)
 
     symbolsTestConfiguration(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
+    symbolsTestConfiguration(libs.junit.platformLauncher)
     descriptorsTestConfiguration(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
+    descriptorsTestConfiguration(libs.junit.platformLauncher)
 }
 
 disableTestFixturesPublishing()

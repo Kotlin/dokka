@@ -28,5 +28,6 @@ dependencies {
     implementation(projects.dokkaSubprojects.coreTestApi)
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.junit.platformLauncher)
     testImplementation(projects.dokkaSubprojects.coreTestApi)
 }

@@ -11,4 +11,5 @@ dependencies {
 
     implementation(kotlin("reflect"))
     implementation(kotlin("test"))
+    testImplementation(libs.junit.platformLauncher)
 }

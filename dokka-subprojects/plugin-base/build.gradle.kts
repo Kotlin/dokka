@@ -34,6 +34,7 @@ dependencies {
 
     // Test only
     testImplementation(kotlin("test"))
+    testImplementation(libs.junit.platformLauncher)
     testImplementation(libs.junit.jupiterParams)
 
     symbolsTestConfiguration(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))

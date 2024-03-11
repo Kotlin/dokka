@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.kotlinx.cli)
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.junit.platformLauncher)
 }
 
 tasks.shadowJar {

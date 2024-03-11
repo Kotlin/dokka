@@ -25,5 +25,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.junit.platformLauncher)
     testImplementation(projects.dokkaSubprojects.coreTestApi)
 }

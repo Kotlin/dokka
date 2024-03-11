@@ -21,6 +21,7 @@ dependencies {
     compileOnly(libs.gradlePlugin.android)
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.junit.platformLauncher)
     testImplementation(libs.gradlePlugin.kotlin)
     testImplementation(libs.gradlePlugin.kotlin.klibCommonizerApi)
     testImplementation(libs.gradlePlugin.android)
