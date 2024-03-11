@@ -44,10 +44,24 @@ testing {
     suites {
         val test by suites.getting(JvmTestSuite::class) {
 
+            val descriptorTags = listOf("onlyDescriptors", "onlyDescriptorsMPP")
+            val symbolsTags = listOf("onlySymbols")
+
             targets.named("test") {
                 testTask.configure {
+                    description = "Runs tests (excluding descriptor and symbols tags: ${descriptorTags + symbolsTags})"
                     useJUnitPlatform {
-                        excludeTags("onlySymbols")
+                        excludeTags.addAll(descriptorTags + symbolsTags)
+                    }
+                    classpath += descriptorsTestImplementationResolver.incoming.files
+                }
+            }
+
+            targets.register("descriptorsTest") {
+                testTask.configure {
+                    description = "Runs all descriptor tests (tags: ${descriptorTags})"
+                    useJUnitPlatform {
+                        includeTags.addAll(descriptorTags)
                     }
                     classpath += descriptorsTestImplementationResolver.incoming.files
                 }
@@ -55,19 +69,11 @@ testing {
 
             targets.register("symbolsTest") {
                 testTask.configure {
+                    description = "Runs all symbols tests (tags: ${symbolsTags})"
                     useJUnitPlatform {
-                        excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
+                        includeTags.addAll(symbolsTags)
                     }
                     classpath += symbolsTestImplementationResolver.incoming.files
-                }
-            }
-
-            targets.register("descriptorsTest") {
-                testTask.configure {
-                    useJUnitPlatform {
-                        excludeTags("onlySymbols")
-                    }
-                    classpath += descriptorsTestImplementationResolver.incoming.files
                 }
             }
         }
