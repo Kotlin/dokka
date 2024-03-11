@@ -48,7 +48,7 @@ testing {
             val descriptorTags = listOf("onlyDescriptors", "onlyDescriptorsMPP")
             val symbolsTags = listOf("onlySymbols")
 
-            // configure the regular 'test' target
+            // Configure the regular 'test' target
             val testTarget = targets.named("test") {
                 testTask.configure {
                     description = "Runs tests (excluding descriptor and symbols tags: ${descriptorTags + symbolsTags})"
@@ -81,7 +81,7 @@ testing {
                 }
             }
 
-            // For convenience, when running :test, also run :descriptorsTest and :symbolsTest
+            // For convenience and completeness, when running :test, also run :descriptorsTest and :symbolsTest
             testTarget.configure {
                 testTask.configure {
                     finalizedBy(descriptorsTestTarget.map { it.testTask })
