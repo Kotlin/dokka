@@ -44,10 +44,12 @@ testing {
     suites {
         val test by suites.getting(JvmTestSuite::class) {
 
+            // JUnit tags for descriptors and symbols are defined with annotations in test classes.
             val descriptorTags = listOf("onlyDescriptors", "onlyDescriptorsMPP")
             val symbolsTags = listOf("onlySymbols")
 
-            targets.named("test") {
+            // configure the regular 'test' target
+            val testTarget = targets.named("test") {
                 testTask.configure {
                     description = "Runs tests (excluding descriptor and symbols tags: ${descriptorTags + symbolsTags})"
                     useJUnitPlatform {
@@ -57,7 +59,8 @@ testing {
                 }
             }
 
-            targets.register("descriptorsTest") {
+            // Create a new target for _only_ running descriptor tests
+            val descriptorsTestTarget = targets.register("descriptorsTest") {
                 testTask.configure {
                     description = "Runs all descriptor tests (tags: ${descriptorTags})"
                     useJUnitPlatform {
@@ -67,13 +70,22 @@ testing {
                 }
             }
 
-            targets.register("symbolsTest") {
+            // Create a new target for _only_ running symbols tests
+            val symbolsTestTarget = targets.register("symbolsTest") {
                 testTask.configure {
                     description = "Runs all symbols tests (tags: ${symbolsTags})"
                     useJUnitPlatform {
                         includeTags.addAll(symbolsTags)
                     }
                     classpath += symbolsTestImplementationResolver.incoming.files
+                }
+            }
+
+            // For convenience, when running :test, also run :descriptorsTest and :symbolsTest
+            testTarget.configure {
+                testTask.configure {
+                    finalizedBy(descriptorsTestTarget.map { it.testTask })
+                    finalizedBy(symbolsTestTarget.map { it.testTask })
                 }
             }
         }
