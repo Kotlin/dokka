@@ -62,15 +62,14 @@ testing {
                 }
             }
 
-            // isn't this just the same as the default Test target?
-//            targets.register("descriptorsTest") {
-//                testTask.configure {
-//                    useJUnitPlatform {
-//                        excludeTags("onlySymbols")
-//                    }
-//                    classpath += descriptorsTestImplementationResolver.incoming.files
-//                }
-//            }
+            targets.register("descriptorsTest") {
+                testTask.configure {
+                    useJUnitPlatform {
+                        excludeTags("onlySymbols")
+                    }
+                    classpath += descriptorsTestImplementationResolver.incoming.files
+                }
+            }
         }
     }
 }
