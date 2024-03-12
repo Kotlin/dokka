@@ -27,32 +27,11 @@ abstract class DokkaBuildSettingsProperties @Inject constructor(
         dokkaProperty("build.scan.enabled", String::toBoolean)
             .orElse(buildingOnCi)
 
-    val buildScanUrl: Provider<String> =
-        dokkaProperty("build.scan.url")
-
     /** Optionally override the default name attached to a Build Scan. */
     val buildScanUsername: Provider<String> =
         dokkaProperty("build.scan.username")
             .orElse(BUILD_SCAN_USERNAME_DEFAULT)
             .map(String::trim)
-    //endregion
-
-
-    //region Gradle Build Cache
-    val buildCacheLocalEnabled: Provider<Boolean> =
-        dokkaProperty("build.cache.local.enabled", String::toBoolean)
-            .orElse(!buildingOnCi)
-    val buildCacheLocalDirectory: Provider<String> =
-        dokkaProperty("build.cache.local.directory")
-    val buildCacheUrl: Provider<String> =
-        dokkaProperty("build.cache.url").map(String::trim)
-    val buildCachePushEnabled: Provider<Boolean> =
-        dokkaProperty("build.cache.push", String::toBoolean)
-            .orElse(buildingOnTeamCity)
-    val buildCacheUser: Provider<String> =
-        dokkaProperty("build.cache.user")
-    val buildCachePassword: Provider<String> =
-        dokkaProperty("build.cache.password")
     //endregion
 
 
