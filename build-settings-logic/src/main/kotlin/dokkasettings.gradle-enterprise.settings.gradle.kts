@@ -29,8 +29,7 @@ plugins {
 
 val buildSettingsProps = dokkaBuildSettingsProperties
 
-val buildScanServer = buildSettingsProps.buildScanUrl.orNull?.ifBlank { null }
-val buildScanEnabled = buildSettingsProps.buildScanEnabled.get() && buildScanServer != null
+val buildScanEnabled = buildSettingsProps.buildScanEnabled.get()
 
 if (buildScanEnabled) {
     plugins.apply("com.gradle.common-custom-user-data-gradle-plugin")
@@ -39,7 +38,7 @@ if (buildScanEnabled) {
 gradleEnterprise {
     buildScan {
         if (buildScanEnabled) {
-            server = buildScanServer
+            server = "https://ge.jetbrains.com/"
             publishAlwaysIf(buildScanEnabled)
 
             capture {
