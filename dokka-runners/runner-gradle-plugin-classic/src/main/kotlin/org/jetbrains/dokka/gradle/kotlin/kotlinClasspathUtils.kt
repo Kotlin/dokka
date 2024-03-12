@@ -53,9 +53,12 @@ private fun KotlinCompilation.newCompileClasspathOf(project: Project): FileColle
     // Since Kotlin 2.0 native distributiuon dependencies will be included to compileDependencyFiles
     if (kgpVersion != null && kgpVersion <= KotlinGradlePluginVersion(1, 9, 255)) {
         if (this is AbstractKotlinNativeCompilation) {
-            val kotlinNativeDistributionAccessor = KotlinNativeDistributionAccessor(project)
-            result.from(kotlinNativeDistributionAccessor.stdlibDir)
-            result.from(kotlinNativeDistributionAccessor.platformDependencies(konanTarget))
+            val excludePlatformFiles = project.classpathProperty("excludeKonanPlatformDependencyFiles", default = false)
+            if (!excludePlatformFiles) {
+                val kotlinNativeDistributionAccessor = KotlinNativeDistributionAccessor(project)
+                result.from(kotlinNativeDistributionAccessor.stdlibDir)
+                result.from(kotlinNativeDistributionAccessor.platformDependencies(konanTarget))
+            }
         }
     }
 
