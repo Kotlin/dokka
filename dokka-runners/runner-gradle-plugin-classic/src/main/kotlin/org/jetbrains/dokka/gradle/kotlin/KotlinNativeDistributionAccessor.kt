@@ -27,6 +27,8 @@ internal class KotlinNativeDistributionAccessor(
   project: Project
 ) {
   private val konanDistribution = KonanDistribution(
+      // see this comment for the explanation of what's happening:
+      // https://github.com/Kotlin/dokka/pull/3516#issuecomment-1992141380
       Class.forName("org.jetbrains.kotlin.compilerRunner.NativeToolRunnersKt")
           .declaredMethods
           .find { it.name == "getKonanHome" && it.returnType.simpleName == "String" }
@@ -35,12 +37,12 @@ internal class KotlinNativeDistributionAccessor(
           ?: error("Unable to find the Kotlin Native home")
   )
 
+  val stdlibDir: File = konanDistribution.stdlib
+
   private fun Project.alternativeKonanHome(): String? {
       val nativeHome = this.findProperty("org.jetbrains.kotlin.native.home") as? String ?: return null
       return File(nativeHome).absolutePath ?: NativeCompilerDownloader(project).compilerDirectory.absolutePath
   }
-
-  val stdlibDir: File = konanDistribution.stdlib
 
   fun platformDependencies(target: KonanTarget): List<File> = konanDistribution
     .platformLibsDir
