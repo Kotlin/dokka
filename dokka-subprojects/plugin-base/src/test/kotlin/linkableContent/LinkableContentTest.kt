@@ -5,9 +5,11 @@
 package linkableContent
 
 import org.jetbrains.dokka.SourceLinkDefinitionImpl
+import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProvider
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.base.transformers.pages.DefaultSamplesTransformer
 import org.jetbrains.dokka.base.transformers.pages.sourcelinks.SourceLinksTransformer
+import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.model.WithGenerics
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.Text
@@ -415,6 +417,43 @@ class LinkableContentTest : BaseAbstractTest() {
                     Jsoup.parse(writerPlugin.writer.contents.getValue("root/[root]/-b/index.html"))
                 val link = page.select(".paragraph a").single()
                 assertEquals("../-a/index.html", link.attr("href"))
+            }
+        }
+    }
+
+    @Test
+    fun `should have a correct url to an external inherited member #2879`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    classpath = listOfNotNull(jvmStdlibPath)
+                }
+            }
+        }
+
+        testInline(
+            """
+            /src/kotlin/main.kt
+            open interface C : Collection<C>
+            interface A : C()
+            interface B : C()
+            """.trimIndent()
+            ,
+            pluginOverrides = listOf(writerPlugin),
+            configuration = configuration
+        ) {
+            renderingStage = { rootPage, ctx ->
+                val location = DokkaLocationProvider(rootPage, ctx, ".html")
+                val classA = rootPage.dfs { it is ClasslikePageNode && it.name == "A" }
+                val classB = rootPage.dfs { it is ClasslikePageNode && it.name == "B" }
+                val classC = rootPage.dfs { it is ClasslikePageNode && it.name == "C" }
+                val sourceSet = (classA as ClasslikePageNode).content.sourceSets
+                val dri = org.jetbrains.dokka.links.DRI("kotlin.collections", "Collection", Callable(name="isEmpty", receiver=null, params=emptyList()))
+                assertEquals("../-b/index.html#-719293276%2FFunctions%2F-1617659094", location.resolve(dri, sourceSet, classA))
+                assertEquals("index.html#-719293276%2FFunctions%2F-1617659094", location.resolve(dri, sourceSet, classB))
+                assertEquals("../-b/index.html#-719293276%2FFunctions%2F-1617659094", location.resolve(dri, sourceSet, classC))
             }
         }
     }
