@@ -26,15 +26,14 @@ dependencies {
     testImplementation(projects.dokkaSubprojects.coreTestApi)
 }
 
-tasks {
-    processResources {
-        inputs.property("dokkaVersion", project.version)
-        eachFile {
-            if (name == "dokka-version.properties") {
-                filter { line ->
-                    line.replace("<dokka-version>", project.version.toString())
-                }
-            }
+tasks.processResources {
+    val dokkaVersion = provider { project.version.toString() }
+    inputs.property("dokkaVersion", dokkaVersion)
+    eachFile {
+        if (name == "dokka-version.properties") {
+            expand(
+                "dokkaVersion" to dokkaVersion.get()
+            )
         }
     }
 }
