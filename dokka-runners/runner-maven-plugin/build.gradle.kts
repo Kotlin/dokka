@@ -94,8 +94,8 @@ val helpMojoResources by tasks.registering(Sync::class) {
     include("**/**")
     // this is a _resources_ task, so don't include source files
     exclude("**/*.java")
-    // `maven-plugin-help.properties` contains an absolute path, destinationDirectory.
-    // Exclude it, so that this task is reproducible and can be Build Cached.
+    // `maven-plugin-help.properties` contains an absolute path: destinationDirectory.
+    // Exclude it, so that Build Cache is relocatable.
     exclude("**/maven-plugin-help.properties")
 
     includeEmptyDirs = false
