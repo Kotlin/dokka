@@ -10,6 +10,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitivity.NONE
+import org.gradle.api.tasks.PathSensitivity.RELATIVE
 import org.gradle.process.ExecOperations
 import org.gradle.work.NormalizeLineEndings
 import java.util.*
@@ -46,7 +47,7 @@ constructor(
 
     /** Input resource files - will be synced to [workDirectory]. */
     @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:PathSensitive(RELATIVE)
     @get:NormalizeLineEndings
     abstract val resources: ConfigurableFileCollection
 
