@@ -17,6 +17,7 @@ kotlin {
     compilerOptions {
         languageVersion = KotlinVersion.KOTLIN_1_4
         apiVersion = KotlinVersion.KOTLIN_1_4
+        freeCompilerArgs.addAll("-Xsuppress-version-warnings")
     }
 }
 
@@ -33,8 +34,8 @@ dependencies {
 gradlePlugin {
     plugins {
         create("dokka") {
-            id = "org.jetbrains.dokka2"
-            implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
+            id = "org.jetbrains.dokka"
+            implementationClass = "org.jetbrains.dokka.gradle.DokkaGradlePlugin"
 
             displayName = "Dokka plugin"
             description = "Dokka is an API documentation engine for Kotlin"

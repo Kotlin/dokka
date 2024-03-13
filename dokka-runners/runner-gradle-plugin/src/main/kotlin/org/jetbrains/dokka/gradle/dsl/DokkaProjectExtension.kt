@@ -4,20 +4,23 @@
 
 package org.jetbrains.dokka.gradle.dsl
 
-// TODO:
-//  Action vs lambda with extension receiver
-//  - Action works fine with Groovy
-//  - lambda can have default parameters
-//  path: Any - is bad, but useful - can be "../docs", can be file(""), can be provider from other task
-//   may be it's possible to allow only just String, File, Provider<File>, RegularFile, etc
+import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.Property
+
 @DokkaGradlePluginDsl
-public interface DokkaProjectExtension : DokkaBaseExecution, DokkaGenerationExtension, DokkaAggregationExtension {
-// TODO: placement - per format, aggregation, etc
-//   public val outputDirectory: DirectoryProperty
+public interface DokkaProjectExtension : DokkaVariantBasedConfiguration {
+    @DokkaGradlePluginExperimentalApi
+    @DokkaGradlePluginDelicateApi
+    public val variants: NamedDomainObjectContainer<DokkaVariant>
+}
 
-    public val generation: DokkaGenerationExtension
-    public fun generation(configure: DokkaGenerationExtension.() -> Unit)
+@DokkaGradlePluginDsl
+public interface DokkaCurrentProjectConfiguration : DokkaModuleBasedConfiguration {
+    public val moduleName: Property<String>
+    public val moduleVersion: Property<String>
+    public val outputDirectory: DirectoryProperty
 
-    public val aggregation: DokkaAggregationExtension
-    public fun aggregation(configure: DokkaAggregationExtension.() -> Unit)
+    @DokkaGradlePluginDelicateApi
+    public val sourceSets: NamedDomainObjectContainer<DokkaSourceSet>
 }
