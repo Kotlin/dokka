@@ -229,7 +229,6 @@ private class SampleBuilder(
     val errors: MutableList<ConvertError>
 ) : KtTreeVisitorVoid() {
 
-
     data class ConvertError(val e: Exception, val text: String, val loc: String)
 
     override fun visitCallExpression(expression: KtCallExpression) {

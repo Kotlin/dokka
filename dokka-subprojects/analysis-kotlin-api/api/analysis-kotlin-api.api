@@ -87,7 +87,7 @@ public abstract interface class org/jetbrains/dokka/analysis/kotlin/sample/Sampl
 }
 
 public abstract interface class org/jetbrains/dokka/analysis/kotlin/sample/SampleRewriter {
-	public abstract fun getFunctionCallRewriters ()Ljava/util/Map;
+	public abstract fun getFunctionCallRewriter (Ljava/lang/String;)Lorg/jetbrains/dokka/analysis/kotlin/sample/FunctionCallRewriter;
 	public abstract fun rewriteImportDirective (Ljava/lang/String;)Ljava/lang/String;
 }
 
