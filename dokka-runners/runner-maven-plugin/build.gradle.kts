@@ -70,7 +70,8 @@ val helpMojoSources by tasks.registering(Sync::class) {
 
     from(generateHelpMojo) {
         eachFile {
-            // drop 2 leading directories
+            // Maven generates sources into `generated-sources/plugin/`,
+            // so drop 2 leading directories:
             relativePath = RelativePath(true, *relativePath.segments.drop(2).toTypedArray())
         }
     }
@@ -78,6 +79,7 @@ val helpMojoSources by tasks.registering(Sync::class) {
 
     into(temporaryDir)
 
+    // this is a _sources_ task, so only include source files
     include("**/*.java")
 }
 
@@ -90,7 +92,13 @@ val helpMojoResources by tasks.registering(Sync::class) {
     into(temporaryDir)
 
     include("**/**")
+    // this is a _resources_ task, so don't include source files
     exclude("**/*.java")
+    // `maven-plugin-help.properties` contains an absolute path, destinationDirectory.
+    // Exclude it, so that this task is reproducible and can be Build Cached.
+    exclude("**/maven-plugin-help.properties")
+
+    includeEmptyDirs = false
 }
 
 sourceSets.main {
