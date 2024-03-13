@@ -207,38 +207,40 @@ internal class DescriptorSampleAnalysisEnvironment(
     }
 
     private fun PsiElement.buildSampleText(): String {
-        val sampleBuilder = SampleBuilder(sampleRewriter)
-        this.accept(sampleBuilder)
+        if (sampleRewriter == null) return this.text
 
-        sampleBuilder.errors.forEach {
+        val textBuilder = StringBuilder()
+        val errors = mutableListOf<SampleBuilder.ConvertError>()
+
+        this.accept(SampleBuilder(sampleRewriter, textBuilder, errors))
+
+        errors.forEach {
             val st = it.e.stackTraceToString()
 
             dokkaLogger.warn("Exception thrown while sample rewriting at ${containingFile.name}: (${it.loc})\n```\n${it.text}\n```\n$st")
         }
-        return sampleBuilder.text
+        return textBuilder.toString()
     }
 }
 
-private class SampleBuilder(private val sampleRewriter: SampleRewriter?) : KtTreeVisitorVoid() {
-    val builder = StringBuilder()
-    val text: String
-        get() = builder.toString()
+private class SampleBuilder(
+    private val sampleRewriter: SampleRewriter,
+    val textBuilder: StringBuilder,
+    val errors: MutableList<ConvertError>
+) : KtTreeVisitorVoid() {
 
-    val errors = mutableListOf<ConvertError>()
 
     data class ConvertError(val e: Exception, val text: String, val loc: String)
 
     override fun visitCallExpression(expression: KtCallExpression) {
-        val callRewriter = sampleRewriter?.functionCallRewriters?.get(expression.calleeExpression?.text)
+        val callRewriter = expression.calleeExpression?.text?.let { sampleRewriter.getFunctionCallRewriter(it) }
         if(callRewriter != null) {
-            val rewritedResult = callRewriter.rewrite(
-                arguments = expression.valueArguments.map { it.text ?: "" },
-                typeArguments = expression.typeArguments.map { it.text ?: "" }
+            val rewrittenResult = callRewriter.rewrite(
+                arguments = expression.valueArguments.map { it.text ?: "" }, // expect not nullable ASTDelegatePsiElement.text
+                typeArguments = expression.typeArguments.map { it.text ?: "" } // expect not nullable ASTDelegatePsiElement.text
             )
 
-            if(rewritedResult != null) {
-                builder.append(rewritedResult)
-            } // else just ignore
+            textBuilder.append(rewrittenResult)
         } else {
             super.visitCallExpression(expression)
         }
@@ -259,7 +261,7 @@ private class SampleBuilder(private val sampleRewriter: SampleRewriter?) : KtTre
 
     override fun visitElement(element: PsiElement) {
         if (element is LeafPsiElement) {
-            builder.append(element.text)
+            textBuilder.append(element.text)
             return
         }
 
@@ -271,7 +273,7 @@ private class SampleBuilder(private val sampleRewriter: SampleRewriter?) : KtTre
                     try {
                         reportProblemConvertingElement(element, e)
                     } finally {
-                        builder.append(element.text) //recover
+                        textBuilder.append(element.text) //recover
                     }
                 }
             }

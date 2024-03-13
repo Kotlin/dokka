@@ -36,7 +36,7 @@ class SampleRewriterTest {
         class DefaultSampleRewriter(ctx: DokkaContext) : SampleRewriter {
             private val importsToIgnore = arrayOf("samples.*", "samples.Sample")
 
-            override val functionCallRewriters: Map<ShortFunctionName, FunctionCallRewriter> = mapOf(
+            private val functionCallRewriters: Map<ShortFunctionName, FunctionCallRewriter> = mapOf(
                 "assertTrue" to object : FunctionCallRewriter {
                     override fun rewrite(
                         arguments: List<String>,
@@ -96,6 +96,9 @@ class SampleRewriterTest {
                 return if (importPath in importsToIgnore) null else importPath
             }
 
+            override fun getFunctionCallRewriter(name: String): FunctionCallRewriter? {
+                return functionCallRewriters[name]
+            }
         }
 
         private val kotlinAnalysisPlugin by lazy { plugin<KotlinAnalysisPlugin>() }
@@ -423,7 +426,7 @@ class SampleRewriterTest {
         @Suppress("UNUSED_PARAMETER")
         class ConstructorSampleRewriter(ctx: DokkaContext) : SampleRewriter {
 
-            override val functionCallRewriters: Map<ShortFunctionName, FunctionCallRewriter> = mapOf(
+            private val functionCallRewriters: Map<ShortFunctionName, FunctionCallRewriter> = mapOf(
                 "IntArray" to object : FunctionCallRewriter {
                     override fun rewrite(
                         arguments: List<String>,
@@ -434,6 +437,10 @@ class SampleRewriterTest {
                     }
                 }
             )
+
+            override fun getFunctionCallRewriter(name: String): FunctionCallRewriter? {
+                return functionCallRewriters[name]
+            }
         }
 
         private val kotlinAnalysisPlugin by lazy { plugin<KotlinAnalysisPlugin>() }
@@ -496,7 +503,7 @@ class SampleRewriterTest {
         @Suppress("UNUSED_PARAMETER")
         class ConstructorSampleRewriter(ctx: DokkaContext) : SampleRewriter {
 
-            override val functionCallRewriters: Map<ShortFunctionName, FunctionCallRewriter> = mapOf(
+            private val functionCallRewriters: Map<ShortFunctionName, FunctionCallRewriter> = mapOf(
                 "IntArray" to object : FunctionCallRewriter {
                     override fun rewrite(
                         arguments: List<String>,
@@ -506,6 +513,10 @@ class SampleRewriterTest {
                     }
                 }
             )
+
+            override fun getFunctionCallRewriter(name: String): FunctionCallRewriter? {
+                return functionCallRewriters[name]
+            }
         }
 
         private val kotlinAnalysisPlugin by lazy { plugin<KotlinAnalysisPlugin>() }

@@ -12,7 +12,7 @@ public typealias ShortFunctionName = String
 /**
  * Rewrites an expression of function call to an arbitrary string
  *
- * @see rewrite
+ * @see FunctionCallRewriter.rewrite
  */
 public interface FunctionCallRewriter{
     /**
@@ -25,11 +25,13 @@ public interface FunctionCallRewriter{
      * E.g., the snippet `f(0) { i++ }` will have `"0"` and `"{ i++ }"` arguments
      *
      * @param arguments a list of arguments represented as a string from source code
+     *        _Note:_ en empty string is possible, e.g. for `fun f(,,,)`
      * @param typeArguments a list of type parameters represented as a string from source code
+     *        _Note:_ en empty string is possible
      *
-     * @return a string or `null` to delete the call expression
+     * @return a string or an empty string to delete the call expression
      */
-    public fun rewrite(arguments: List<String>, typeArguments: List<String>): String?
+    public fun rewrite(arguments: List<String>, typeArguments: List<String>): String
 }
 
 /**
@@ -60,8 +62,8 @@ public interface SampleRewriter {
      * Allows to rewrite a function call expressions
      * It also includes calls of constructors
      *
-     * The remain call expressions of functions that are not in this map will be left unchanged
+     * @return [FunctionCallRewriter] or null if a call should be left unchanged
      */
-    public val functionCallRewriters: Map<ShortFunctionName, FunctionCallRewriter>
+    public fun getFunctionCallRewriter(name: String): FunctionCallRewriter?
 }
 
