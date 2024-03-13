@@ -63,6 +63,25 @@ plugins {
 
 includeBuild("dokka-integration-tests")
 includeBuild("dokka-runners/runner-gradle-plugin")
+//examples for new DGP 2.0
+listOf(
+    "single-module",
+    "multi-format",
+    "plugins",
+    "javadoc-jar",
+    "like-coroutines",
+    "like-apollo",
+    "like-ktor",
+    "versioning",
+    "interview",
+    "html",
+    "custom-sourceset"
+).forEach {
+    includeBuild("dokka-runners/runner-gradle-plugin/playground/$it") {
+        name = "runner-gradle-plugin-playground-$it"
+    }
+}
+
 includeBuild("dokka-runners/runner-gradle-plugin-classic")
 includeBuild("dokka-runners/runner-maven-plugin")
 includeBuild("dokka-runners/runner-cli")
