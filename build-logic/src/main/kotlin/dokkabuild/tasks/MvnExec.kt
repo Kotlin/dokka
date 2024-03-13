@@ -11,6 +11,7 @@ import org.gradle.api.tasks.*
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitivity.NONE
 import org.gradle.process.ExecOperations
+import org.gradle.work.NormalizeLineEndings
 import java.util.*
 import javax.inject.Inject
 
@@ -43,8 +44,10 @@ constructor(
     protected val filteredClasses: FileCollection
         get() = classes.asFileTree.matching { include("**/*.class") }
 
-    /** Resource files - will be synced to [workDirectory]. */
-    @get:Internal
+    /** Input resource files - will be synced to [workDirectory]. */
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:NormalizeLineEndings
     abstract val resources: ConfigurableFileCollection
 
     @get:InputFile
