@@ -55,7 +55,7 @@ val generateHelpMojo by tasks.registering(MvnExec::class) {
     description = "Generate the Maven Plugin HelpMojo"
     group = mavenPluginTaskGroup
 
-    inputFiles.from(generatePom)
+    resources.from(generatePom)
     arguments.addAll(
         "org.apache.maven.plugins:maven-plugin-plugin:helpmojo"
     )
@@ -96,22 +96,14 @@ sourceSets.main {
     resources.srcDirs(helpMojoResources)
 }
 
-val preparePluginDescriptorDir by tasks.registering(Sync::class) {
-    description = "Prepare files for generating the Maven Plugin descriptor"
-    group = mavenPluginTaskGroup
-
-    from(tasks.compileKotlin) { into("classes/java/main") }
-    from(tasks.compileJava) { into("classes/java/main") }
-    from(helpMojoResources)
-
-    into(temporaryDir)
-}
-
 val generatePluginDescriptor by tasks.registering(MvnExec::class) {
     description = "Generate the Maven Plugin descriptor"
     group = mavenPluginTaskGroup
 
-    inputFiles.from(preparePluginDescriptorDir)
+    classes.from(tasks.compileKotlin)
+    classes.from(tasks.compileJava)
+
+    resources.from(helpMojoResources)
 
     arguments.addAll(
         "org.apache.maven.plugins:maven-plugin-plugin:descriptor"
