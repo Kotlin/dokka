@@ -4,14 +4,9 @@
 
 package org.jetbrains.dokka.gradle.tasks
 
-import org.gradle.api.Task
+import org.gradle.api.DefaultTask
 
-// task name: dokkaGenerate
-//  will run all other `DokkaGenerateTask`
-public interface DokkaGenerateAllTask : Task
+// TODO: which tasks do we need
 
-// dokkaGenerate{Classifier}
-//  classifier can be:
-//  - any format: html, javadoc, etc (dokkaGenerateHtml)
-//  - when aggregation is enabled, will be MultiModule{format}/Collected{format} (dokkaGenerateMultiModuleHtml)
-public interface DokkaGenerateTask : Task
+// main task to run Dokka Engine (for any reason)
+public abstract class DokkaBuildTask : DefaultTask()

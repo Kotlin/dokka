@@ -4,47 +4,45 @@
 
 package org.jetbrains.dokka.gradle.dsl
 
-import org.jetbrains.dokka.gradle.dsl.formats.DokkaFormatConfiguration
+import org.gradle.api.tasks.TaskProvider
+import org.gradle.jvm.tasks.Jar
+import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.support.uppercaseFirstChar
+import org.jetbrains.dokka.gradle.internal.DefaultDokkaProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
+// just for the creation of a task
+@DokkaGradlePluginExperimentalApi
+public fun DokkaProjectExtension.registerDokkaJarTask(
+    classifier: String = "javadoc",
+    variant: String = "main",
+    configure: Jar.() -> Unit = {}
+): TaskProvider<Jar> = (this as DefaultDokkaProjectExtension).project.tasks
+    .register<Jar>("dokka${classifier.uppercaseFirstChar()}Jar", configure)
 
-// same as for target
-public fun KotlinMultiplatformExtension.withDokkaJar() {}
-
-public fun KotlinTarget.withDokkaJar(publish: Boolean) {
+// if we want auto-wiring to Kotlin publications
+@DokkaGradlePluginExperimentalApi
+public fun KotlinMultiplatformExtension.withDokkaJar(
+    classifier: String = "javadoc",
+    variant: String = "main",
+    configure: Jar.() -> Unit = {}
+) {
 }
 
-public fun KotlinTarget.withDokkaJavadocJar(publish: Boolean) {
+@DokkaGradlePluginExperimentalApi
+public fun KotlinJvmProjectExtension.withDokkaJar(
+    classifier: String = "javadoc",
+    variant: String = "main",
+    configure: Jar.() -> Unit = {}
+) {
 }
 
-public fun KotlinTarget.withDokkaJar(format: String, classifier: String) {
+@DokkaGradlePluginExperimentalApi
+public fun KotlinTarget.withDokkaJar(
+    classifier: String = "javadoc",
+    variant: String = "main",
+    configure: Jar.() -> Unit = {}
+) {
 }
-
-public fun KotlinTarget.withDokkaJar(format: DokkaFormatConfiguration, classifier: String) {
-}
-
-public fun KotlinTarget.withDokkaJavadocJar(format: String) {
-}
-
-public fun KotlinTarget.withDokkaJavadocJar(format: DokkaFormatConfiguration) {
-}
-
-// low-level API
-//public fun Project.registerDokkaJarTask(
-//    format: String, // dokka.formats.html.name or just `html`
-//    classifier: String?
-//): TaskProvider<Jar> = TODO()
-//
-//public fun Project.registerDokkaJarTask(
-//    format: DokkaFormatConfiguration,
-//    classifier: String?
-//): TaskProvider<Jar> = registerDokkaJarTask(format.name, classifier)
-//
-//public fun Project.registerDokkaJavadocJarTask(
-//    format: String, // dokka.formats.html
-//): TaskProvider<Jar> = registerDokkaJarTask(format, "javadoc")
-//
-//public fun Project.registerDokkaJavadocJarTask(
-//    format: DokkaFormatConfiguration,
-//): TaskProvider<Jar> = registerDokkaJarTask(format, "javadoc")

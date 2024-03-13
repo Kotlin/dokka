@@ -6,17 +6,19 @@
 
 package org.jetbrains.dokka.gradle.dsl
 
-@RequiresOptIn(
-    message = "Most likely it doesn't support Gradle Isolated Projects",
-    level = RequiresOptIn.Level.WARNING
-)
-public annotation class GradleIsolatedProjectsRestrictions(val reason: String)
-
 @DslMarker
 public annotation class DokkaGradlePluginDsl
 
+// should not be used for simple cases
 @RequiresOptIn(
-    message = "TODO",
+    message = "API for advanced use cases",
+    level = RequiresOptIn.Level.ERROR
+)
+public annotation class DokkaGradlePluginDelicateApi
+
+// maybe we don't need to provide this
+@RequiresOptIn(
+    message = "experimental API, may be dropped in future",
     level = RequiresOptIn.Level.WARNING
 )
-public annotation class DokkaDelicateApi
+public annotation class DokkaGradlePluginExperimentalApi
