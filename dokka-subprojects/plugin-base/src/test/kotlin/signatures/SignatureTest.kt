@@ -1368,7 +1368,7 @@ class SignatureTest : BaseAbstractTest() {
 
     @OnlyDescriptors("#3354")
     @Test
-    fun `should not render constructor for Any from Wasm sources`() = testRender(
+    fun `should not render parameterless constructor with annotation without mustBeDocumented annotation - for kotlin Any `() = testRender(
         """
             |/src/main/kotlin/Any.kt
             |package kotlin
