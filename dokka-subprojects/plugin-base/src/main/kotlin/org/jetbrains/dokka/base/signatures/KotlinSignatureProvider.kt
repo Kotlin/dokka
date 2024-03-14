@@ -196,7 +196,11 @@ public class KotlinSignatureProvider(
             if (c is WithConstructors) {
                 val pConstructor = c.constructors.singleOrNull { it.extra[PrimaryConstructorExtra] != null }
                 if (pConstructor?.sourceSets?.contains(sourceSet) == true) {
-                    if (pConstructor.annotations().values.any { it.isNotEmpty() }) {
+                    // `constructor` keyword should present only when there are annotations that should be rendered
+                    val needConstructorKeyword = pConstructor.annotations().values.any { annotations ->
+                        annotations.any { it.mustBeDocumented && !it.isIgnored() }
+                    }
+                    if (needConstructorKeyword) {
                         text(nbsp.toString())
                         annotationsInline(pConstructor)
                         keyword("constructor")
