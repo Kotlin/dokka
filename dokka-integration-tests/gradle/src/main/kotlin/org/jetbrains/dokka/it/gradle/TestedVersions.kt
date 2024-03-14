@@ -42,7 +42,7 @@ object TestedVersions {
         BuildVersions.permutations(
             gradleVersions = listOf("8.4"),
             kotlinVersions = listOf("2.0.0-Beta4"),
-            androidGradlePluginVersions = listOf("8.3")
+            androidGradlePluginVersions = listOf("8.3.0")
         ) + BuildVersions.permutations(
             gradleVersions = listOf("7.4.2", *ifExhaustive("7.0")),
             kotlinVersions = listOf("1.7.20", "1.6.21", "1.5.31", "1.4.32"),
@@ -65,8 +65,7 @@ object TestedVersions {
         "1.8.20" to "18.2.0-pre.546",
         "1.9.0" to "18.2.0-pre.597",
         "1.9.10" to "18.2.0-pre.597",
-        "1.9.20" to "18.2.0-pre.635",
-        "1.9.22" to "18.2.0-pre.682",
+        "1.9.23" to "18.2.0-pre.682",
         "2.0.0-Beta4" to "18.2.0-pre.713",
     )
 }
