@@ -48,27 +48,27 @@ Please [contact maintainers](#contacting-maintainers) in advance to coordinate a
 
 ### Build Dokka locally
 
-Building Dokka is pretty straightforward, with one small caveat: when you run `./gradlew build`, it will run integration
-tests as well, which might take some time and will consume a lot of RAM (~20-30 GB), so you would usually want to exclude 
-integration tests when building locally:
+Building Dokka is pretty straightforward:
 
 ```Bash
-./gradlew build -x integrationTest
+./gradlew build
 ```
 
-Unit tests which are run as part of `build` should not take much time, but you can also skip it with `-x test`.
+This will build all subprojects and trigger `build` in all composite builds. If you are working on a 
+[runner](dokka-runners), you can build it independently.
+
+Checks that are performed as part of `build` do not require any special configuration or environment, and should 
+not take much time (~2-5 minutes), so please make sure they pass before submitting a pull request.
 
 ### Use/test locally built Dokka
 
 Below you will find a bare-bones instruction on how to use and test locally built Dokka. For more details and examples, 
 visit [Workflow](https://kotlin.github.io/dokka/1.9.20/developer_guide/workflow/) topic.
 
-1. Change `dokka_version` in `gradle.properties` to something that you will use later on as the dependency version.
-   For instance, you can set it to something like `1.9.20-my-fix-SNAPSHOT`.
-2. Publish it to Maven Local (`./gradlew publishToMavenLocal`)
-3. In the project for which you want to generate documentation add Maven Local as a buildscript/dependency
+1. Publish a custom version of Dokka to Maven Local: `./gradlew publishToMavenLocal -Pversion=1.9.20-my-fix-SNAPSHOT`
+2. In the project for which you want to generate documentation add Maven Local as a buildscript/dependency
    repository (`mavenLocal()`)
-4. Update your Dokka dependency to the version you've just published:
+3. Update your Dokka dependency to the version you've just published:
 
 ```kotlin
 plugins {
@@ -85,6 +85,25 @@ is used to keep track of public API changes.
 
 Run `./gradlew apiDump` to update API index files after introducing new or changing old public API. Commit updated 
 API indexes together with other changes.
+
+### Run integration tests
+
+Dokka's [integration tests](dokka-integration-tests) help check compatibility with various versions of Kotlin, Android, 
+Gradle and Java. They apply Dokka to real user-like projects and invoke Gradle / Maven / CLI tasks to generate the 
+documentation.
+
+Integration tests require a significant amount of available RAM (~20-30GB), take 1+ hour and may require additional 
+environment configuration to run. For these reasons, it's not expected that you run all integration tests locally 
+as part of the everyday development process, they will be run on CI once you submit a PR.
+
+However, if you need to run all integration tests locally, you can use the `integrationTest` task:
+
+```bash
+./gradlew integrationTest
+```
+
+If you need to run a specific test locally, you can run it from your IDE or by calling the corresponding Gradle
+task (for example, `:dokka-integration-tests:gradle:testExternalProjectKotlinxCoroutines`).
 
 ## Infrastructure
 
