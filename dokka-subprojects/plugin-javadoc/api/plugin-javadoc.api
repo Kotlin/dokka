@@ -641,6 +641,7 @@ public final class org/jetbrains/dokka/javadoc/signatures/JavadocSignatureProvid
 	public fun annotationsBlockWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
 	public fun annotationsInline (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;)V
 	public fun annotationsInlineWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
+	public fun isIgnored (Lorg/jetbrains/dokka/model/Annotations$Annotation;)Z
 	public fun modifiers (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
 	public fun parametersBlock (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/DFunction;Lkotlin/jvm/functions/Function2;)V
 	public fun plus (Ljava/util/Map;Ljava/util/Map;)Ljava/util/Map;
