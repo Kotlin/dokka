@@ -16,24 +16,24 @@ plugins {
 }
 
 val symbolsTestImplementation: Configuration by configurations.creating {
-    description = "Dependencies for symbols tests"
+    description = "Dependencies for symbols tests (K2)"
     declarable()
 }
 
 val symbolsTestImplementationResolver: Configuration by configurations.creating {
-    description = "Resolve dependencies for symbols tests"
+    description = "Resolve dependencies for symbols tests (K2)"
     resolvable()
     extendsFrom(symbolsTestImplementation)
     attributes { jvmJar(objects) }
 }
 
 val descriptorsTestImplementation: Configuration by configurations.creating {
-    description = "Dependencies for descriptors tests"
+    description = "Dependencies for descriptors tests (K1)"
     declarable()
 }
 
 val descriptorsTestImplementationResolver: Configuration by configurations.creating {
-    description = "Resolve dependencies for descriptors tests"
+    description = "Resolve dependencies for descriptors tests (K1)"
     resolvable()
     extendsFrom(descriptorsTestImplementation)
     attributes { jvmJar(objects) }
@@ -44,49 +44,48 @@ testing {
     suites {
         val test by suites.getting(JvmTestSuite::class) {
 
-            // JUnit tags for descriptors and symbols are defined with annotations in test classes.
-            val descriptorTags = listOf("onlyDescriptors", "onlyDescriptorsMPP")
-            val symbolsTags = listOf("onlySymbols")
+            // JUnit tags for descriptors (K1) and symbols (K2) are defined with annotations in test classes.
+            val onlyDescriptorTags = listOf("onlyDescriptors", "onlyDescriptorsMPP")
+            val onlySymbolsTags = listOf("onlySymbols")
 
-            // Configure the regular 'test' target
-            val testTarget = targets.named("test") {
+            // Modify the regular :test target to exclude symbols (K2) tests.
+            targets.named("test") {
                 testTask.configure {
-                    description = "Runs tests (excluding descriptor and symbols tags: ${descriptorTags + symbolsTags})"
+                    description = "Runs tests using descriptors-analysis (K1) (excluding tags: $onlySymbolsTags)"
                     useJUnitPlatform {
-                        excludeTags.addAll(descriptorTags + symbolsTags)
+                        excludeTags.addAll(onlySymbolsTags)
                     }
                     classpath += descriptorsTestImplementationResolver.incoming.files
                 }
             }
 
-            // Create a new target for _only_ running descriptor tests
-            val descriptorsTestTarget = targets.register("descriptorsTest") {
+            // Create a new target for _only_ running descriptor (K1) tests.
+            targets.register("descriptorsTest") {
                 testTask.configure {
-                    description = "Runs all descriptor tests (tags: ${descriptorTags})"
+                    description = "Runs tests using descriptors-analysis (K1) (excluding tags: ${onlySymbolsTags})"
                     useJUnitPlatform {
-                        includeTags.addAll(descriptorTags)
+                        excludeTags.addAll(onlySymbolsTags)
                     }
                     classpath += descriptorsTestImplementationResolver.incoming.files
                 }
             }
 
-            // Create a new target for _only_ running symbols tests
+            // Create a new target for _only_ running symbols (K2) tests.
             val symbolsTestTarget = targets.register("symbolsTest") {
                 testTask.configure {
-                    description = "Runs all symbols tests (tags: ${symbolsTags})"
+                    description =
+                        "Runs tests using symbols-analysis (K2) (excluding tags: ${onlyDescriptorTags})"
                     useJUnitPlatform {
-                        includeTags.addAll(symbolsTags)
+                        excludeTags.addAll(onlyDescriptorTags)
                     }
                     classpath += symbolsTestImplementationResolver.incoming.files
                 }
             }
 
-            // For convenience and completeness, when running :test, also run :descriptorsTest and :symbolsTest
-            testTarget.configure {
-                testTask.configure {
-                    finalizedBy(descriptorsTestTarget.map { it.testTask })
-                    finalizedBy(symbolsTestTarget.map { it.testTask })
-                }
+            // So that both K1 and K2 are tested, when running :check, also run :symbolsTest
+            // (Running :descriptorsTest isn't required, because it has the same tags/dependencies as :test)
+            tasks.check {
+                dependsOn(symbolsTestTarget.map { it.testTask })
             }
         }
     }
