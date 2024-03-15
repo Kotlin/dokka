@@ -33,10 +33,10 @@ val generatePom by tasks.registering(Sync::class) {
     val dokkaVersion = provider { project.version.toString() }
     inputs.property("dokkaVersion", dokkaVersion)
 
-    val mavenVersion = mavenCliSetup.mavenVersion.orNull
+    val mavenVersion = mavenCliSetup.mavenVersion
     inputs.property("mavenVersion", mavenVersion)
 
-    val mavenPluginToolsVersion = mavenCliSetup.mavenPluginToolsVersion.orNull
+    val mavenPluginToolsVersion = mavenCliSetup.mavenPluginToolsVersion
     inputs.property("mavenPluginToolsVersion", mavenPluginToolsVersion)
 
     val pomTemplateFile = layout.projectDirectory.file("pom.template.xml")
@@ -45,9 +45,9 @@ val generatePom by tasks.registering(Sync::class) {
         rename { it.replace(".template.xml", ".xml") }
 
         expand(
-            "mavenVersion" to mavenVersion,
+            "mavenVersion" to mavenVersion.get(),
             "dokka_version" to dokkaVersion.get(),
-            "mavenPluginToolsVersion" to mavenPluginToolsVersion,
+            "mavenPluginToolsVersion" to mavenPluginToolsVersion.get(),
         )
     }
 
