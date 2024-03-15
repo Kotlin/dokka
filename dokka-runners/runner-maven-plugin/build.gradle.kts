@@ -79,7 +79,7 @@ val helpMojoSources by tasks.registering(Sync::class) {
 
     into(temporaryDir)
 
-    // this is a _sources_ task, so only include source files
+    // this task prepares generated helpmojo _sources_, so only include source files
     include("**/*.java")
 }
 
@@ -91,9 +91,9 @@ val helpMojoResources by tasks.registering(Sync::class) {
 
     into(temporaryDir)
 
-    include("**/**")
-    // this is a _resources_ task, so don't include source files
-    exclude("**/*.java")
+    // this task prepares generated helpmojo _resources_, so...
+    include("**/**")       // include everything by default
+    exclude("**/*.java")   // don't include source files
     // `maven-plugin-help.properties` contains an absolute path: destinationDirectory.
     // Exclude it, so that Build Cache is relocatable.
     exclude("**/maven-plugin-help.properties")
@@ -102,7 +102,7 @@ val helpMojoResources by tasks.registering(Sync::class) {
 }
 
 sourceSets.main {
-    // use the generated HelpMojo as compilation input, so Gradle will automatically generate the mojo
+    // use the generated HelpMojo tasks as compilation input: Gradle will automatically trigger the tasks when required
     java.srcDirs(helpMojoSources)
     resources.srcDirs(helpMojoResources)
 }
