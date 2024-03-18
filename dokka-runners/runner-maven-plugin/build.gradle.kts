@@ -33,18 +33,21 @@ val generatePom by tasks.registering(Sync::class) {
     val dokkaVersion = provider { project.version.toString() }
     inputs.property("dokkaVersion", dokkaVersion)
 
-    val pomTemplateFile = layout.projectDirectory.file("pom.template.xml")
+    val mavenVersion = mavenCliSetup.mavenVersion
+    inputs.property("mavenVersion", mavenVersion)
 
-    val mavenVersion = mavenCliSetup.mavenVersion.orNull
-    val mavenPluginToolsVersion = mavenCliSetup.mavenPluginToolsVersion.orNull
+    val mavenPluginToolsVersion = mavenCliSetup.mavenPluginToolsVersion
+    inputs.property("mavenPluginToolsVersion", mavenPluginToolsVersion)
+
+    val pomTemplateFile = layout.projectDirectory.file("pom.template.xml")
 
     from(pomTemplateFile) {
         rename { it.replace(".template.xml", ".xml") }
 
         expand(
-            "mavenVersion" to mavenVersion,
+            "mavenVersion" to mavenVersion.get(),
             "dokka_version" to dokkaVersion.get(),
-            "mavenPluginToolsVersion" to mavenPluginToolsVersion,
+            "mavenPluginToolsVersion" to mavenPluginToolsVersion.get(),
         )
     }
 
@@ -55,7 +58,7 @@ val generateHelpMojo by tasks.registering(MvnExec::class) {
     description = "Generate the Maven Plugin HelpMojo"
     group = mavenPluginTaskGroup
 
-    inputFiles.from(generatePom)
+    resources.from(generatePom)
     arguments.addAll(
         "org.apache.maven.plugins:maven-plugin-plugin:helpmojo"
     )
@@ -67,7 +70,8 @@ val helpMojoSources by tasks.registering(Sync::class) {
 
     from(generateHelpMojo) {
         eachFile {
-            // drop 2 leading directories
+            // Maven generates sources into `generated-sources/plugin/`,
+            // so drop 2 leading directories:
             relativePath = RelativePath(true, *relativePath.segments.drop(2).toTypedArray())
         }
     }
@@ -75,6 +79,7 @@ val helpMojoSources by tasks.registering(Sync::class) {
 
     into(temporaryDir)
 
+    // this task prepares generated helpmojo _sources_, so only include source files
     include("**/*.java")
 }
 
@@ -86,32 +91,30 @@ val helpMojoResources by tasks.registering(Sync::class) {
 
     into(temporaryDir)
 
-    include("**/**")
-    exclude("**/*.java")
+    // this task prepares generated helpmojo _resources_, so...
+    include("**/**")       // include everything by default
+    exclude("**/*.java")   // don't include source files
+    // `maven-plugin-help.properties` contains an absolute path: destinationDirectory.
+    // Exclude it, so that Build Cache is relocatable.
+    exclude("**/maven-plugin-help.properties")
+
+    includeEmptyDirs = false
 }
 
 sourceSets.main {
-    // use the generated HelpMojo as compilation input, so Gradle will automatically generate the mojo
+    // use the generated HelpMojo tasks as compilation input: Gradle will automatically trigger the tasks when required
     java.srcDirs(helpMojoSources)
     resources.srcDirs(helpMojoResources)
-}
-
-val preparePluginDescriptorDir by tasks.registering(Sync::class) {
-    description = "Prepare files for generating the Maven Plugin descriptor"
-    group = mavenPluginTaskGroup
-
-    from(tasks.compileKotlin) { into("classes/java/main") }
-    from(tasks.compileJava) { into("classes/java/main") }
-    from(helpMojoResources)
-
-    into(temporaryDir)
 }
 
 val generatePluginDescriptor by tasks.registering(MvnExec::class) {
     description = "Generate the Maven Plugin descriptor"
     group = mavenPluginTaskGroup
 
-    inputFiles.from(preparePluginDescriptorDir)
+    classes.from(tasks.compileKotlin)
+    classes.from(tasks.compileJava)
+
+    resources.from(helpMojoResources)
 
     arguments.addAll(
         "org.apache.maven.plugins:maven-plugin-plugin:descriptor"

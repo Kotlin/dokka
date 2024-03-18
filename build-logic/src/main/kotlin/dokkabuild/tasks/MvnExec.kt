@@ -4,10 +4,7 @@
 package dokkabuild.tasks
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.FileSystemOperations
-import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.file.*
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
@@ -35,16 +32,24 @@ constructor(
     /**
      * Work directory.
      *
-     * Be aware that any existing content will be replaced by [inputFiles].
+     * Be aware that any existing content will be replaced by [filteredClasses] and [resources].
      */
     @get:OutputDirectory
     abstract val workDirectory: DirectoryProperty
 
-    /** Input files - will be synced to [workDirectory]. */
+    /** Input classes - will be synced to [workDirectory]. */
+    @get:Internal
+    abstract val classes: ConfigurableFileCollection
+
+    @get:Classpath
+    protected val filteredClasses: FileCollection
+        get() = classes.asFileTree.matching { include("**/*.class") }
+
+    /** Input resource files - will be synced to [workDirectory]. */
     @get:InputFiles
     @get:PathSensitive(RELATIVE)
     @get:NormalizeLineEndings
-    abstract val inputFiles: ConfigurableFileCollection
+    abstract val resources: ConfigurableFileCollection
 
     @get:InputFile
     @get:PathSensitive(NONE)
@@ -66,7 +71,10 @@ constructor(
     @TaskAction
     fun exec() {
         fs.sync {
-            from(inputFiles)
+            from(filteredClasses) {
+                into("classes/java/main")
+            }
+            from(resources)
             into(workDirectory)
         }
 
