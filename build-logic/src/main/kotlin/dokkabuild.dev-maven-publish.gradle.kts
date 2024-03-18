@@ -81,8 +81,7 @@ plugins.withType<MavenPublishPlugin>().all {
                 dependsOn(installTask)
             }
 
-//            tasks.check {
-            tasks.named("check").configure {
+            tasks.check {
                 mustRunAfter(installTask)
             }
         }
