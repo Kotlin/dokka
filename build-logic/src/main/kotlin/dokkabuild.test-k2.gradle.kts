@@ -86,7 +86,7 @@ testing {
             // (Running :descriptorsTest isn't required, because it has the same tags/dependencies as :test)
             testTarget.configure {
                 testTask.configure {
-                    dependsOn(testSymbolsTarget.map { it.testTask })
+                    finalizedBy(testSymbolsTarget.map { it.testTask })
                 }
             }
         }
