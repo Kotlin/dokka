@@ -49,7 +49,7 @@ testing {
             val onlySymbolsTags = listOf("onlySymbols")
 
             // Modify the regular :test target to exclude symbols (K2) tests.
-            targets.named("test") {
+            val testTarget = targets.named("test") {
                 testTask.configure {
                     description = "Runs tests using descriptors-analysis (K1) (excluding tags: $onlySymbolsTags)"
                     useJUnitPlatform {
@@ -82,10 +82,12 @@ testing {
                 }
             }
 
-            // So that both K1 and K2 are tested, when running :check, also run :symbolsTest
+            // So that both K1 and K2 are tested, when running :test, also run :testSymbols
             // (Running :descriptorsTest isn't required, because it has the same tags/dependencies as :test)
-            tasks.check {
-                dependsOn(testSymbolsTarget.map { it.testTask })
+            testTarget.configure {
+                testTask.configure {
+                    dependsOn(testSymbolsTarget.map { it.testTask })
+                }
             }
         }
     }
