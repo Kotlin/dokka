@@ -59,8 +59,9 @@ testing {
                 }
             }
 
-            // Create a new target for _only_ running descriptor (K1) tests.
-            targets.register("descriptorsTest") {
+            // Create a new target for _only_ running test compatible with descriptor-analysis (K1).
+            // Note: this target is the same as the regular test target, it is only created to provide a more descriptive name.
+            targets.register("testDescriptors") {
                 testTask.configure {
                     description = "Runs tests using descriptors-analysis (K1) (excluding tags: ${onlySymbolsTags})"
                     useJUnitPlatform {
@@ -70,11 +71,10 @@ testing {
                 }
             }
 
-            // Create a new target for _only_ running symbols (K2) tests.
-            val symbolsTestTarget = targets.register("symbolsTest") {
+            // Create a new target for _only_ running test compatible with symbols-analysis (K2).
+            val testSymbolsTarget = targets.register("testSymbols") {
                 testTask.configure {
-                    description =
-                        "Runs tests using symbols-analysis (K2) (excluding tags: ${onlyDescriptorTags})"
+                    description = "Runs tests using symbols-analysis (K2) (excluding tags: ${onlyDescriptorTags})"
                     useJUnitPlatform {
                         excludeTags.addAll(onlyDescriptorTags)
                     }
@@ -85,7 +85,7 @@ testing {
             // So that both K1 and K2 are tested, when running :check, also run :symbolsTest
             // (Running :descriptorsTest isn't required, because it has the same tags/dependencies as :test)
             tasks.check {
-                dependsOn(symbolsTestTarget.map { it.testTask })
+                dependsOn(testSymbolsTarget.map { it.testTask })
             }
         }
     }
