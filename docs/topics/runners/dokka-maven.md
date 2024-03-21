@@ -586,7 +586,7 @@ Below you can see all the possible configuration options applied at the same tim
         <suppressInheritedMembers>false</suppressInheritedMembers>
         <offlineMode>false</offlineMode>
         <sourceDirectories>
-            <dir>src</dir>
+            <dir>${project.basedir}/src</dir>
         </sourceDirectories>
         <documentedVisibilities>
             <visibility>PUBLIC</visibility>
@@ -617,7 +617,7 @@ Below you can see all the possible configuration options applied at the same tim
         </samples>
         <sourceLinks>
             <link>
-                <path>${project.basedir}/src</path>
+                <path>src</path>
                 <url>https://github.com/kotlin/dokka/tree/master/src</url>
                 <lineSuffix>#L</lineSuffix>
             </link>
