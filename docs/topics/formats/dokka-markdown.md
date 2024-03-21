@@ -54,13 +54,13 @@ dependency:
 
 After configuring this, running the `dokka:dokka` goal produces documentation in GFM format.
 
-For more information, see the Mavin plugin documentation for [Other output formats](dokka-maven.md#other-output-formats).
+For more information, see the Maven plugin documentation for [Other output formats](dokka-maven.md#other-output-formats).
 
 </tab>
 <tab title="CLI" group-key="cli">
 
 Since GFM format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to 
-[download the JAR file]((https://repo1.maven.org/maven2/org/jetbrains/dokka/gfm-plugin/%dokkaVersion%/gfm-plugin-%dokkaVersion%.jar))
+[download the JAR file](https://repo1.maven.org/maven2/org/jetbrains/dokka/gfm-plugin/%dokkaVersion%/gfm-plugin-%dokkaVersion%.jar)
 and pass it to `pluginsClasspath`.
 
 Via [command line options](dokka-cli.md#run-with-command-line-options):
