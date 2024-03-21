@@ -277,6 +277,185 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `extension function`() {
+        val source = source("fun String.capitalizeAll(): String = toUpperCase()")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/capitalize-all.html").firstSignature().matchIgnoringSpans(
+                    "fun", A("String"), ".", A("capitalizeAll"), "():",
+                    A("String")
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `extension function with a param`() {
+        val source = source("fun Int.addOneInt(a: Int): Int = this + a")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/add-one-int.html").firstSignature().matchIgnoringSpans(
+                    "fun ", A("Int"), ".", A("addOneInt"), "(", Parameters(
+                        Parameter("a: ", A("Int")),
+                    ), "): ", A("Int")
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `extension function with vararg`() {
+        val source = source("fun Int.addAll(vararg ts: Int): Int = this + ts.sum()")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/add-all.html").firstSignature().matchIgnoringSpans(
+                    "fun ", A("Int"), ".", A("addAll"), "(", Parameters(
+                        Parameter("vararg ts: ", A("Int"))
+                    ), "): ", A("Int")
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `extension function with generics`() {
+        val source = source("fun <T> T.toList(vararg ts: T): List<T> = ts.asList()")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/to-list.html").firstSignature().matchIgnoringSpans(
+                    "fun <", A("T"), "> ", A("T"), ".", A("toList"), "(",
+                    Parameters(
+                        Parameter("vararg ts: ", A("T"))
+                    ), "): ", A("List"), "<", A("T"), ">"
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `infix function`() {
+        val source = source("infix fun Int.eq(a: Int): Boolean = this==a")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/eq.html").firstSignature().matchIgnoringSpans(
+                    "infix fun ", A("Int"), ".", A("eq"), "(", Parameters(
+                        Parameter("a: ", A("Int"))
+                    ), "): ", A("Boolean")
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `extension function with nullables`() {
+        val source = source("fun String?.onDefault(default: String): String = this ?: default")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/on-default.html").firstSignature().matchIgnoringSpans(
+                    "fun ", A("String"), "?.", A("onDefault"), "(", Parameters(
+                        Parameter("default: ", A("String"))
+                    ), "): ", A("String")
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `extension function with default args`() {
+        val source = source("fun String.truncate(length: Int = 10): String = if (this.length > length) this.substring(0, length) else this")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/truncate.html").firstSignature().matchIgnoringSpans(
+                    "fun ", A("String"), ".", A("truncate"), "(", Parameters(
+                        Parameter("length: ", A("Int"), " = 10")
+                    ), "): ", A("String")
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `extension function with lambda param`() {
+        val source = source("fun <T> Iterable<T>.customForEach(action: (T) -> Unit) {for (element in this) action(element)}")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/custom-for-each.html").firstSignature().matchIgnoringSpans(
+                    "fun <", A("T"), ">", A("Iterable"), "<", A("T"), ">.", A("customForEach"),
+                    "(", Parameters(
+                        Parameter("action: (", A("T"), ") -> ", A("Unit"))
+                    ), ")"
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `property extension with nullables`() {
+        val source = source("val String?.customLength: Int get() = this?.length ?: 0")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/custom-length.html").firstSignature().matchIgnoringSpans(
+                    "val ", A("String"), "?.", A("customLength"), ": ", A("Int")
+                )
+            }
+        }
+    }
+
+    @Test
     fun `fun with vararg`() {
         val source = source("fun simpleFun(vararg params: Int): Unit")
         val writerPlugin = TestOutputWriterPlugin()
