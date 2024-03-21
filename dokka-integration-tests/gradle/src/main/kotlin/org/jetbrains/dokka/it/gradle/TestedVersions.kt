@@ -14,7 +14,7 @@ open class AllSupportedTestedVersionsArgumentsProvider : TestedVersionsArguments
 
 object TestedVersions {
 
-    val LATEST = BuildVersions("8.5", "2.0.0-Beta4")
+    val LATEST = BuildVersions("8.6", "2.0.0-Beta4")
 
     /**
      * All supported Gradle/Kotlin versions, including [LATEST]

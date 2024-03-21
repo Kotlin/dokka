@@ -10,13 +10,13 @@ import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.dokka.gradle.utils.isAgpRunnable
 import kotlin.test.*
 
 class AndroidAutoConfigurationTest {
 
-    // Lazy because it throws an error if an Android test is run under Java 8
-    private val project by lazy {
-        ProjectBuilder.builder().build().also { project ->
+    private val project = ProjectBuilder.builder().build().also { project ->
+        if (isAgpRunnable()) {
             project.plugins.apply("com.android.library")
             project.plugins.apply("org.jetbrains.kotlin.android")
             project.plugins.apply("org.jetbrains.dokka")
@@ -27,15 +27,17 @@ class AndroidAutoConfigurationTest {
     }
 
     @Test
-    @Ignore("Current version of AGP requiers Java 11. TODO: if expected, disable this test for Java 8")
     fun `at least one dokka task created`() {
+        if (!isAgpRunnable()) return
+
         val dokkaTasks = project.tasks.withType<DokkaTask>().toList()
         assertTrue(dokkaTasks.isNotEmpty(), "Expected at least one dokka task")
     }
 
     @Test
-    @Ignore("Current version of AGP requiers Java 11. TODO: if expected, disable this test for Java 8")
     fun `all default source sets are present in dokka`() {
+        if (!isAgpRunnable()) return
+
         val dokkaTasks = project.tasks.withType<DokkaTask>().toList()
         dokkaTasks.forEach { task ->
             val sourceSets = task.dokkaSourceSets.toList()
@@ -54,8 +56,8 @@ class AndroidAutoConfigurationTest {
     @Test
     fun `test source sets are suppressed`() {
         val dokkaTasks = project.tasks.withType<DokkaTask>().toList()
-        val projectInternal = (project as ProjectInternal)
-        projectInternal.evaluate()
+        project as ProjectInternal
+        project.evaluate()
         dokkaTasks.flatMap { it.dokkaSourceSets }.forEach { sourceSet ->
             if ("test" in sourceSet.name.toLowerCase()) {
                 assertTrue(
@@ -75,8 +77,8 @@ class AndroidAutoConfigurationTest {
     @Test
     fun `source sets have non-empty classpath`() {
         val dokkaTasks = project.tasks.withType<DokkaTask>().toList()
-        val projectInternal = (project as ProjectInternal)
-        projectInternal.evaluate()
+        project as ProjectInternal
+        project.evaluate()
 
         dokkaTasks.flatMap { it.dokkaSourceSets }
             .filterNot { it.name == "androidTestRelease" && it.suppress.get() } // androidTestRelease has empty classpath, but it makes no sense for suppressed source set

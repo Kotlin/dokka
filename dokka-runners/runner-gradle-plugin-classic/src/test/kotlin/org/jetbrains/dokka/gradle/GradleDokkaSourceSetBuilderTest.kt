@@ -9,6 +9,7 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.gradle.utils.isAgpRunnable
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
 import java.net.URI
 import kotlin.test.*
@@ -397,8 +398,9 @@ class GradleDokkaSourceSetBuilderTest {
 
 
     @Test
-    @Ignore("Current version of AGP requiers Java 11. TODO: if expected, disable this test for Java 8")
     fun noAndroidSdkLink() {
+        if (!isAgpRunnable()) return
+
         val sourceSet = GradleDokkaSourceSetBuilder("", project)
         assertFalse(sourceSet.noAndroidSdkLink.get(), "Expected 'noAndroidSdkLink' to be set to false by default")
 
