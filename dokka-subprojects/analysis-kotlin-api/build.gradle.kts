@@ -20,8 +20,10 @@ dependencies {
 
     testImplementation(kotlin("test"))
 
-    symbolsTestConfiguration(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
-    descriptorsTestConfiguration(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
+    symbolsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestImplementation(
+        project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow")
+    )
 }
 
 disableTestFixturesPublishing()
