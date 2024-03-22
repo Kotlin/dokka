@@ -41,6 +41,24 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
         vararg arguments: String,
         jvmArgs: List<String> = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=1G")
     ): GradleRunner {
+
+        // TODO quick hack to add `android { namespace }` on AGP 7+ (it's mandatory in 8+).
+        //      This hack could be made prettier, or only test AGP 7+
+        val androidMajorVersion = buildVersions.androidGradlePluginVersion
+            ?.substringBefore(".")
+            ?.toIntOrNull() ?: 0
+        if (androidMajorVersion >= 7) {
+            projectDir.resolve("build.gradle.kts").appendText(
+                """
+                |
+                |android {
+                |    namespace = "org.jetbrains.dokka.it.android"
+                |}
+                |
+            """.trimMargin()
+            )
+        }
+
         return GradleRunner.create()
             .withProjectDir(projectDir)
             .forwardOutput()
