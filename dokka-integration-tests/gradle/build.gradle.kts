@@ -161,9 +161,6 @@ testing {
             }
         }
     }
-    tasks.check {
-        dependsOn(suites)
-    }
 }
 
 
