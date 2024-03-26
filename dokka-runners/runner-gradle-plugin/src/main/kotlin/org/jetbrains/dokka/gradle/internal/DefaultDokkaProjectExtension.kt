@@ -12,6 +12,10 @@ import org.gradle.kotlin.dsl.newInstance
 import org.jetbrains.dokka.gradle.dsl.*
 import javax.inject.Inject
 
+internal abstract class DefaultDokkaSettingsExtension @Inject constructor(
+    objects: ObjectFactory
+) : DokkaSettingsExtension, DefaultDokkaModuleBasedConfiguration(objects)
+
 internal abstract class DefaultDokkaProjectExtension @Inject constructor(
     internal val project: Project,
     objects: ObjectFactory

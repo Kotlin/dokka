@@ -4,23 +4,26 @@
 
 package org.jetbrains.dokka.gradle.dsl
 
+import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.Property
 
 @DokkaGradlePluginDsl
-public interface DokkaProjectExtension : DokkaVariantBasedConfiguration {
+public interface DokkaProjectExtension : DokkaProjectVariantConfiguration {
     @DokkaGradlePluginExperimentalApi
     @DokkaGradlePluginDelicateApi
-    public val variants: NamedDomainObjectContainer<DokkaVariant>
+    public val variants: NamedDomainObjectContainer<DokkaProjectVariant>
 }
 
+@DokkaGradlePluginExperimentalApi
+@DokkaGradlePluginDelicateApi
 @DokkaGradlePluginDsl
-public interface DokkaCurrentProjectConfiguration : DokkaModuleBasedConfiguration {
-    public val moduleName: Property<String>
-    public val moduleVersion: Property<String>
-    public val outputDirectory: DirectoryProperty
+public interface DokkaProjectVariant : Named, DokkaProjectVariantConfiguration
 
-    @DokkaGradlePluginDelicateApi
-    public val sourceSets: NamedDomainObjectContainer<DokkaSourceSet>
+@DokkaGradlePluginDsl
+public interface DokkaProjectVariantConfiguration : DokkaModuleBasedConfiguration {
+    public val currentProject: DokkaCurrentProjectConfiguration
+    public fun currentProject(configure: DokkaCurrentProjectConfiguration.() -> Unit) {}
+
+    public val aggregation: DokkaAggregationConfiguration
+    public fun aggregation(configure: DokkaAggregationConfiguration.() -> Unit) {}
 }
