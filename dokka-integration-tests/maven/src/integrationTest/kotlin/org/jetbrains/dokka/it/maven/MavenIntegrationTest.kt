@@ -4,7 +4,6 @@
 
 package org.jetbrains.dokka.it.maven
 
-import org.intellij.lang.annotations.Language
 import org.jetbrains.dokka.it.AbstractIntegrationTest
 import org.jetbrains.dokka.it.ProcessResult
 import org.jetbrains.dokka.it.awaitProcessResult
@@ -16,6 +15,12 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
     private val currentDokkaVersion: String = checkNotNull(System.getenv("DOKKA_VERSION"))
 
     private val mavenBinaryFile: File = File(checkNotNull(System.getenv("MVN_BINARY_PATH")))
+
+    private val localSettingsXml: File by lazy {
+        projectDir.resolve("local-settings.xml").apply {
+            writeText(createSettingsXml())
+        }
+    }
 
     @BeforeTest
     fun prepareProjectFiles() {
@@ -35,7 +40,13 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `dokka help`() {
         val result = ProcessBuilder().directory(projectDir)
-            .command(mavenBinaryFile.absolutePath, "dokka:help", "-U", "-e")
+            .command(
+                mavenBinaryFile.absolutePath,
+                "dokka:help",
+                "-U",
+                "-e",
+                "--settings", localSettingsXml.invariantSeparatorsPath,
+            )
             .start()
             .awaitProcessResult()
 
@@ -57,7 +68,13 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `dokka dokka`() {
         val result = ProcessBuilder().directory(projectDir)
-            .command(mavenBinaryFile.absolutePath, "dokka:dokka", "-U", "-e").start().awaitProcessResult()
+            .command(
+                mavenBinaryFile.absolutePath,
+                "dokka:dokka",
+                "-U",
+                "-e",
+                "--settings", localSettingsXml.invariantSeparatorsPath,
+            ).start().awaitProcessResult()
 
         diagnosticAsserts(result)
 
@@ -106,7 +123,13 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `dokka javadoc`() {
         val result = ProcessBuilder().directory(projectDir)
-            .command(mavenBinaryFile.absolutePath, "dokka:javadoc", "-U", "-e").start().awaitProcessResult()
+            .command(
+                mavenBinaryFile.absolutePath,
+                "dokka:javadoc",
+                "-U",
+                "-e",
+                "--settings", localSettingsXml.invariantSeparatorsPath,
+            ).start().awaitProcessResult()
 
         diagnosticAsserts(result)
 
@@ -128,7 +151,13 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `dokka javadocJar`() {
         val result = ProcessBuilder().directory(projectDir)
-            .command(mavenBinaryFile.absolutePath, "dokka:javadocJar", "-U", "-e").start().awaitProcessResult()
+            .command(
+                mavenBinaryFile.absolutePath,
+                "dokka:javadocJar",
+                "-U",
+                "-e",
+                "--settings", localSettingsXml.invariantSeparatorsPath,
+            ).start().awaitProcessResult()
 
         diagnosticAsserts(result)
 
@@ -199,21 +228,5 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
                 Regex("it\\.overriddenVisibility/-visible-private-class/private-val\\.html"),
             )
         )
-    }
-
-    companion object {
-        /*
-         * TODO replace with kotlin.test.assertContains after migrating to Kotlin language version 1.5+
-         */
-        fun assertContains(
-            charSequence: CharSequence,
-            @Language("TEXT") other: CharSequence,
-            ignoreCase: Boolean = false
-        ) {
-            asserter.assertTrue(
-                { "Expected the char sequence to contain the substring.\nCharSequence <$charSequence>, substring <$other>, ignoreCase <$ignoreCase>." },
-                charSequence.contains(other, ignoreCase)
-            )
-        }
     }
 }

@@ -17,6 +17,12 @@ class BiojavaIntegrationTest : AbstractIntegrationTest(), TestOutputCopier {
     private val mavenBinaryFile: File = File(checkNotNull(System.getenv("MVN_BINARY_PATH")))
     override val projectOutputLocation: File by lazy { File(projectDir, "biojava-core/target/dokkaJavadoc") }
 
+    private val localSettingsXml: File by lazy {
+        projectDir.resolve("local-settings.xml").apply {
+            writeText(createSettingsXml())
+        }
+    }
+
     @BeforeTest
     fun prepareProjectFiles() {
         val bioJavaDir = File("projects", "biojava")
@@ -27,12 +33,22 @@ class BiojavaIntegrationTest : AbstractIntegrationTest(), TestOutputCopier {
             customResourcesDir.copyRecursively(File(projectDir, "customResources"), overwrite = true)
         }
         copyAndApplyGitDiff(projectDir.toPath(), bioJavaDir.resolve("biojava.diff").toPath())
+        projectDir.resolve("local-settings.xml").writeText(createSettingsXml())
     }
 
     @Test
     fun `dokka javadoc`() {
         val result = ProcessBuilder().directory(projectDir)
-            .command(mavenBinaryFile.absolutePath, "dokka:javadoc", "-pl", "biojava-core", "\"-Ddokka_version=$currentDokkaVersion\"", "-U", "-e").start().awaitProcessResult()
+            .command(
+                mavenBinaryFile.absolutePath,
+                "dokka:javadoc",
+                "--settings", localSettingsXml.invariantSeparatorsPath,
+                "-pl",
+                "biojava-core",
+                "\"-Ddokka_version=$currentDokkaVersion\"",
+                "-U",
+                "-e"
+            ).start().awaitProcessResult()
 
         diagnosticAsserts(result)
 

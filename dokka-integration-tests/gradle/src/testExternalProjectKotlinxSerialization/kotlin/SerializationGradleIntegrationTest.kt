@@ -44,6 +44,7 @@ class SerializationGradleIntegrationTest : AbstractGradleIntegrationTest(), Test
             projectDir.toPath(),
             templateProjectDir.parent.resolve("serialization.diff"),
         )
+        projectDir.updateProjectLocalMavenDir()
     }
 
     @ParameterizedTest(name = "{0}")
