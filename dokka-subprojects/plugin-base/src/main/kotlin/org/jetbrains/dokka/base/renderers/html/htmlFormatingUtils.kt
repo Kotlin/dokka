@@ -24,7 +24,18 @@ public fun FlowContent.buildTextBreakableAfterCapitalLetters(name: String, hasLa
 }
 
 /**
- * Makes [name] breakable after each occurrence of [breakableChar].
+ * Makes [name] breakable by inserting `<wbr>` element after each occurrence of `.`.
+ */
+@Deprecated(
+    "`buildBreakableCharSeparatedHtml` should be used instead with `.` as `breakableChar`",
+    ReplaceWith("buildBreakableCharSeparatedHtml(name, '.')")
+)
+public fun FlowContent.buildBreakableDotSeparatedHtml(name: String) {
+    buildBreakableCharSeparatedHtml(name, '.')
+}
+
+/**
+ * Makes [name] breakable by inserting `<wbr>` element after each occurrence of [breakableChar].
  */
 public fun FlowContent.buildBreakableCharSeparatedHtml(name: String, breakableChar: Char) {
     val phrases = name.split(breakableChar)
