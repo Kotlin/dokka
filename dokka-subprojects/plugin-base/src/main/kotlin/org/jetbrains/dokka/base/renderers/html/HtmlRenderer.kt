@@ -899,8 +899,7 @@ public open class HtmlRenderer(
                     buildText(textNode, unappliedStyles - styleToApply)
                 }
             }
-            textNode.hasStyle(ContentStyle.RowTitle) || textNode.hasStyle(TextStyle.Cover) ||
-                    textNode.hasStyle(TextStyle.Monospace) ->
+            textNode.hasStyle(ContentStyle.RowTitle) || textNode.hasStyle(TextStyle.Cover) ->
                 buildBreakableText(textNode.text)
             else -> text(textNode.text)
         }
