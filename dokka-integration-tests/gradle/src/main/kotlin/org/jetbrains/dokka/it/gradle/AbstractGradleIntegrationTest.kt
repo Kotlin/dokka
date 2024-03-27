@@ -16,6 +16,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.copyTo
 import kotlin.io.path.copyToRecursively
+import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.test.BeforeTest
 import kotlin.time.Duration.Companion.seconds
 
@@ -32,6 +33,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
     ) {
         templateProjectDir.copyToRecursively(destination.toPath(), followLinks = false, overwrite = true)
         templateSettingsGradleKts.copyTo(destination.resolve("template.settings.gradle.kts").toPath(), overwrite = true)
+        destination.updateProjectLocalMavenDir()
     }
 
     fun createGradleRunner(
@@ -98,6 +100,56 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
          * This value is provided by the Gradle Test task.
          */
         val templateSettingsGradleKts: Path by systemProperty(Paths::get)
+
+        /** file-based Maven repositories with Dokka dependencies */
+        private val devMavenRepositories: String by systemProperty { repos ->
+            val repoPaths = repos.split(",").map { Paths.get(it) }
+
+            val reposSpecs = repoPaths
+                .withIndex()
+                .joinToString(",\n") { (i, repoPath) ->
+                    // Exclusive repository containing local Dokka artifacts.
+                    // Must be compatible with both Groovy and Kotlin DSL.
+                    /* language=kts */
+                    """
+                    |maven {
+                    |    setUrl("${repoPath.invariantSeparatorsPathString}")
+                    |    name = "DokkaDevMavenRepo${i}"
+                    |}
+                    """.trimMargin()
+                }
+
+            /* language=kts */
+            """
+            |exclusiveContent {
+            |    forRepositories(
+            |      $reposSpecs
+            |    )
+            |    filter {
+            |        includeGroup("org.jetbrains.dokka")
+            |    }
+            |}
+            |
+            """.trimMargin()
+        }
+
+        fun File.updateProjectLocalMavenDir() {
+
+            val dokkaDevMavenRepoMarker = "/* %{PROJECT_LOCAL_MAVEN_DIR}% */"
+
+            // Exclusive repository containing local Dokka artifacts.
+            // Must be compatible with both Groovy and Kotlin DSL.
+
+            walk().filter { it.isFile }.forEach { file ->
+                val fileText = file.readText()
+
+                if (dokkaDevMavenRepoMarker in fileText) {
+                    file.writeText(
+                        fileText.replace(dokkaDevMavenRepoMarker, devMavenRepositories)
+                    )
+                }
+            }
+        }
     }
 }
 
