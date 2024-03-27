@@ -24,11 +24,10 @@ abstract class DevMavenPublishExtension(
     private val devMavenRepositoriesInputFiles: FileTree = devMavenRepositories
         .asFileTree
         .matching {
-            // Exclude Maven Metadata files because they contain timestamps,
-            // meaning tasks that use devMavenRepositories as an input will
-            // never be up-to-date.
+            // Exclude Maven Metadata files because they contain timestamps, meaning tasks that use
+            // devMavenRepositories as an input will never be up-to-date.
             // The Gradle Module Metadata contains the same information (and more),
-            // so no issues are expected.
+            // so the Maven metadata is redundant.
             exclude("**/maven-metadata*.xml")
         }
 
