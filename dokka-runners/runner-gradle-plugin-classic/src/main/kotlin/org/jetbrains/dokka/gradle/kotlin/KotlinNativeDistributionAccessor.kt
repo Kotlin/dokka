@@ -5,13 +5,13 @@
 @file:Suppress("INVISIBLE_REFERENCE")
 package org.jetbrains.dokka.gradle.kotlin
 
-import java.io.File
 import org.gradle.api.Project
 import org.jetbrains.kotlin.commonizer.KonanDistribution
 import org.jetbrains.kotlin.commonizer.platformLibsDir
 import org.jetbrains.kotlin.commonizer.stdlib
-import org.jetbrains.kotlin.compilerRunner.konanHome
+import org.jetbrains.kotlin.gradle.utils.NativeCompilerDownloader
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import java.io.File
 
 /**
  * Provides access to the Kotlin/Native distribution components:
@@ -27,11 +27,22 @@ internal class KotlinNativeDistributionAccessor(
   project: Project
 ) {
   private val konanDistribution = KonanDistribution(
-    @Suppress("INVISIBLE_MEMBER")
-    project.konanHome
+      // see this comment for the explanation of what's happening:
+      // https://github.com/Kotlin/dokka/pull/3516#issuecomment-1992141380
+      Class.forName("org.jetbrains.kotlin.compilerRunner.NativeToolRunnersKt")
+          .declaredMethods
+          .find { it.name == "getKonanHome" && it.returnType.simpleName == "String" }
+          ?.invoke(null, project) as? String
+          ?: project.alternativeKonanHome()
+          ?: error("Unable to find the Kotlin Native home")
   )
 
   val stdlibDir: File = konanDistribution.stdlib
+
+  private fun Project.alternativeKonanHome(): String? {
+      val nativeHome = this.findProperty("org.jetbrains.kotlin.native.home") as? String ?: return null
+      return File(nativeHome).absolutePath ?: NativeCompilerDownloader(project).compilerDirectory.absolutePath
+  }
 
   fun platformDependencies(target: KonanTarget): List<File> = konanDistribution
     .platformLibsDir
