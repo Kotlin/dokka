@@ -83,6 +83,5 @@ tasks.withType<DokkaTask>().configureEach {
                 ]
             }
         """.trimIndent()
-    )
-    )
+    ))
 }

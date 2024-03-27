@@ -7,6 +7,7 @@ import dokkabuild.overridePublicationArtifactId
 
 plugins {
     id("dokkabuild.gradle-plugin")
+    id("dokkabuild.dev-maven-publish")
     alias(libs.plugins.kotlinx.binaryCompatibilityValidator)
 }
 

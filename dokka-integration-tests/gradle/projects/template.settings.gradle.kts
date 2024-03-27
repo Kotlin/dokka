@@ -38,11 +38,7 @@ pluginManagement {
         }
     }
     repositories {
-        mavenLocal {
-            content {
-                includeGroup("org.jetbrains.dokka")
-            }
-        }
+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
         mavenCentral()
         gradlePluginPortal()
         google()
@@ -53,17 +49,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
-
-        // only use MavenLocal to find Dokka artifacts
-        exclusiveContent {
-            forRepository {
-                mavenLocal()
-            }
-            filter {
-                includeGroup("org.jetbrains.dokka")
-            }
-        }
-
+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
         mavenCentral()
         google()
         maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {

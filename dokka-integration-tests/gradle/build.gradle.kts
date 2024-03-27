@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Disabled
 
 plugins {
     id("dokkabuild.kotlin-jvm")
+    id("dokkabuild.dev-maven-publish")
     `jvm-test-suite`
     `java-test-fixtures`
 }
@@ -27,6 +28,30 @@ dependencies {
     api(libs.junit.jupiterParams)
 
     api(gradleTestKit())
+
+    val dokkaVersion = project.version.toString()
+    // We're using Gradle included-builds and dependency substitution, so we
+    // need to use the Gradle project name, *not* the published Maven artifact-id
+    devPublication("org.jetbrains.dokka:plugin-all-modules-page:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:analysis-kotlin-api:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:analysis-kotlin-descriptors:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:analysis-kotlin-symbols:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:analysis-markdown-jb:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:plugin-android-documentation:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:plugin-base:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:plugin-base-test-utils:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:dokka-core:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:plugin-gfm:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:plugin-gfm-template-processing:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:plugin-javadoc:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:plugin-jekyll:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:plugin-jekyll-template-processing:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:plugin-kotlin-as-java:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:plugin-mathjax:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:plugin-templating:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:plugin-versioning:$dokkaVersion")
+
+    devPublication("org.jetbrains.dokka:runner-gradle-plugin-classic:$dokkaVersion")
 }
 
 kotlin {
@@ -42,14 +67,7 @@ val aggregatingProject = gradle.includedBuild("dokka")
 val templateSettingsGradleKts = layout.projectDirectory.file("projects/template.settings.gradle.kts")
 val templateProjectsDir = layout.projectDirectory.dir("projects")
 
-tasks.integrationTestPreparation {
-    // TODO remove this in https://github.com/Kotlin/dokka/pull/3433
-    dependsOn(aggregatingProject.task(":publishToMavenLocal"))
-}
-
 tasks.withType<Test>().configureEach {
-    dependsOn(tasks.integrationTestPreparation)
-
     setForkEvery(1)
     maxHeapSize = "2G"
     dokkaBuild.integrationTestParallelism.orNull?.let { parallelism ->
@@ -69,7 +87,11 @@ tasks.withType<Test>().configureEach {
         dokkaBuild.isCI.map { isCi -> if (isCi) "ALWAYS" else "ON_SUCCESS" }.get(),
     )
 
-    environment("DOKKA_VERSION", project.version)
+    val dokkaVersion = provider { project.version.toString() }
+    inputs.property("dokkaVersion", dokkaVersion)
+    doFirst("set DOKKA_VERSION environment variable (workaround for https://github.com/gradle/gradle/issues/24267)") {
+        environment("DOKKA_VERSION", dokkaVersion.get())
+    }
 
     // environment() isn't Provider API compatible yet https://github.com/gradle/gradle/issues/11534
     dokkaBuild.integrationTestExhaustive.orNull?.let { exhaustive ->
@@ -87,8 +109,9 @@ tasks.withType<Test>().configureEach {
         showStackTraces = true
     }
 
-    // TODO remove this in https://github.com/Kotlin/dokka/pull/3433
-    doNotTrackState("uses artifacts from Maven Local")
+    // The tests produce report data and generated Dokka output.
+    // Always cache them so Gradle can skip running integration tests if nothing has changed.
+    outputs.cacheIf("always cache") { true }
 }
 
 testing {
@@ -199,6 +222,8 @@ fun TestingExtension.registerTestProjectSuite(
                     "templateSettingsGradleKts",
                     templateSettingsGradleKts.asFile.invariantSeparatorsPath,
                 )
+
+                devMavenPublish.configureTask(this)
 
                 if (jvm != null) {
                     javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
