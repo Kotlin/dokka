@@ -30,7 +30,7 @@ val generatePom by tasks.registering(Sync::class) {
     description = "Generate pom.xml for Maven Plugin Plugin"
     group = mavenPluginTaskGroup
 
-    val dokkaVersion = provider { project.version.toString() }
+    val dokkaVersion = dokkaBuild.projectVersion
     inputs.property("dokkaVersion", dokkaVersion)
 
     val mavenVersion = mavenCliSetup.mavenVersion
