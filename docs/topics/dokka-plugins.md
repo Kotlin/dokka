@@ -272,7 +272,7 @@ Here are some notable Dokka plugins that you might find useful:
 | [Versioning plugin](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-versioning)                       | Adds version selector and helps to organize documentation for different versions of your application/library |
 | [MermaidJS HTML plugin](https://github.com/glureau/dokka-mermaid)                                                                  | Renders [MermaidJS](https://mermaid-js.github.io/mermaid/#/) diagrams and visualizations found in KDocs      |
 | [Mathjax HTML plugin](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-mathjax)                        | Pretty prints mathematics found in KDocs                                                                     |
-| [Kotlin as Java plugin](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugins-kotlin-as-java)              | Renders Kotlin signatures as seen from Java's perspective                                                    |
+| [Kotlin as Java plugin](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-kotlin-as-java)              | Renders Kotlin signatures as seen from Java's perspective                                                    |
 
 If you are a Dokka plugin author and would like to add your plugin to this list, get in touch with maintainers
 via [Slack](dokka-introduction.md#community) or [GitHub](https://github.com/Kotlin/dokka/).

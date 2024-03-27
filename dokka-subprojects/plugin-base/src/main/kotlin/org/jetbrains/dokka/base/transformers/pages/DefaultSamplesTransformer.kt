@@ -50,8 +50,6 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
             }
         }
     }
-
-
     private fun ContentNode.addSample(
         contentPage: ContentPage,
         fqLink: String,
