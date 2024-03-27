@@ -3,9 +3,9 @@
  */
 import dokkabuild.DevMavenPublishExtension
 import dokkabuild.DevMavenPublishExtension.Companion.DEV_MAVEN_PUBLISH_EXTENSION_NAME
-import dokkabuild.internal.consumable
-import dokkabuild.internal.declarable
-import dokkabuild.internal.resolvable
+import dokkabuild.utils.consumable
+import dokkabuild.utils.declarable
+import dokkabuild.utils.resolvable
 import org.gradle.kotlin.dsl.support.uppercaseFirstChar
 
 /**
