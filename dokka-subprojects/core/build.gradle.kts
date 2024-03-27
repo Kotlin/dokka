@@ -27,8 +27,9 @@ dependencies {
 }
 
 tasks.processResources {
-    val dokkaVersion = provider { project.version.toString() }
+    val dokkaVersion = dokkaBuild.projectVersion
     inputs.property("dokkaVersion", dokkaVersion)
+
     eachFile {
         if (name == "dokka-version.properties") {
             expand(
