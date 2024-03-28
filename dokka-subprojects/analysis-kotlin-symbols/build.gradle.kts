@@ -140,3 +140,16 @@ tasks.shadowJar {
     configurations = emptyList()
     from(shadowOverride, shadowDependenciesJar)
 }
+
+// for testing with the latest version of Analysis API
+if (dokkaBuild.useTheLatestAnalysisAPI.get()) {
+    project.logger.lifecycle("Using the latest version of Analysis API")
+    configurations.all {
+        resolutionStrategy.eachDependency {
+            if (requested.version == libs.versions.kotlin.compiler.k2.get()) {
+                useVersion(libs.versions.kotlin.compiler.latest.get())
+                because("unit testing can use the latest version of Analysis API")
+            }
+        }
+    }
+}

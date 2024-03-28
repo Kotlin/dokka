@@ -16,3 +16,8 @@ The `.jar` produced by this project shadows all dependencies. There are several 
 2. There are many intertwining transitive dependencies of different versions, as well as direct copy-paste,
    that can lead to runtime errors due to classpath conflicts, so it's best to let Gradle take care of
    dependency resolution, and then pack everything into a single jar in a single place that can be tuned.
+
+## Testing with the latest version of Analysis API
+
+To build it with the latest version of Analysis API, the property 
+`org.jetbrains.dokka.build.useTheLatestAnalysisAPI=true` should be added to the project.

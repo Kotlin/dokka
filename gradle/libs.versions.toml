@@ -16,6 +16,9 @@ kotlinx-bcv = "0.13.2"
 ## Analysis
 kotlin-compiler = "1.9.22"
 kotlin-compiler-k2 = "2.0.20-dev-7"
+# to run testing against the latest dev build of Analysis API
+# it is used in the build script of symbol analysis
+kotlin-compiler-latest = "2.0.20-dev-+"
 
 # MUST match the version of the intellij platform used in the kotlin compiler,
 # otherwise this will lead to different versions of psi API and implementations
