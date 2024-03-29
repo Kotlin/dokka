@@ -57,7 +57,7 @@ echo "TestDokka: Port: $PORT"
 # 1. Publish to local Maven repository
 cd "$DOKKA_REPO_PATH"
 echo "TestDokka: Publish to local Maven repository"
-./gradlew publishToMavenLocal -Pversion="$NEW_VERSION"
+./gradlew clean && ./gradlew publishToMavenLocal -Pversion="$NEW_VERSION" --rerun-tasks --no-build-cache
 
 # 2. Update Dokka version in test project
 cd "$TEST_PROJECT_PATH"
@@ -78,7 +78,7 @@ if [ "$IS_MULTIMODULE" -eq 1 ]; then
     ./gradlew clean && ./gradlew dokkaHtmlMultiModule
 else
     echo "TestDokka: Build single module project"
-    ./gradlew clean && ./gradlew dokkaHTML
+    ./gradlew clean && ./gradlew dokkaHTML --rerun-tasks --no-build-cache
 fi
 
 wait
