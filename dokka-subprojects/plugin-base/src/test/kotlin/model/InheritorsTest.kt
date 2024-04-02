@@ -441,12 +441,6 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
             |/src/main/kotlin/sample/ParentInKotlin.kt
             |package sample
             |class Child: JavaParent()
-            |class KotlinChild: KotlinParent() 
-            |open class KotlinParent {
-            | class NestedKotlinParent
-            | inner class InnerClass
-            |}
-            |
             |
             |/src/main/kotlin/sample/ChildInJava.java
             |package sample;

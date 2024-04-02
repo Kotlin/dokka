@@ -402,6 +402,7 @@ internal class DokkaSymbolVisitor(
         dri: DRI,
         includeStaticScope: Boolean = true
     ): DokkaScope {
+        // getCombinedMemberScope additionally includes a static scope, see [getCombinedMemberScope]
         // e.g. getStaticMemberScope contains `valueOf`, `values` and `entries` members for Enum
         val scope = if(includeStaticScope) namedClassOrObjectSymbol.getCombinedMemberScope() else namedClassOrObjectSymbol.getMemberScope()
         val constructors = scope.getConstructors().map { visitConstructorSymbol(it) }.toList()
