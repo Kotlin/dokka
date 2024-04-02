@@ -21,7 +21,7 @@ class AndroidAutoConfigurationTest {
             project.plugins.apply("org.jetbrains.kotlin.android")
             project.plugins.apply("org.jetbrains.dokka")
             project.extensions.configure<LibraryExtension> {
-                compileSdkVersion(28)
+                compileSdk = 28
             }
         }
     }
