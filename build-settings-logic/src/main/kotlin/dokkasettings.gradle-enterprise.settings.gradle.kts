@@ -27,15 +27,15 @@ plugins {
     id("com.gradle.common-custom-user-data-gradle-plugin") apply false
 }
 
-val buildSettingsProps = dokkaBuildSettingsProperties
-
-val buildScanEnabled = buildSettingsProps.buildScanEnabled.get()
-
-if (buildScanEnabled) {
-    plugins.apply("com.gradle.common-custom-user-data-gradle-plugin")
-}
-
 gradleEnterprise {
+    val buildSettingsProps = dokkaBuildSettingsProperties
+
+    val buildScanEnabled = buildSettingsProps.buildScanEnabled.get()
+
+    if (buildScanEnabled) {
+        plugins.apply("com.gradle.common-custom-user-data-gradle-plugin")
+    }
+
     buildScan {
         if (buildScanEnabled) {
             server = "https://ge.jetbrains.com/"
