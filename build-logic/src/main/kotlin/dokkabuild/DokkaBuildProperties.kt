@@ -25,13 +25,6 @@ abstract class DokkaBuildProperties @Inject constructor(
     private val layout: ProjectLayout,
 ) {
 
-    /**
-     * The latest version of Analysis API (`kotlin-compiler-latest` from the toml file) should be used to build the Dokka
-     */
-    val useTheLatestAnalysisAPI: Provider<Boolean> =
-        dokkaProperty("build.useTheLatestAnalysisAPI", String::toBoolean)
-            .orElse(false)
-
     private val buildingOnTeamCity: Provider<Boolean> =
         providers.environmentVariable("TEAMCITY_VERSION").map(String::isNotBlank)
 
