@@ -14,15 +14,17 @@ but you can apply the same principles and run/test/debug with CLI/Maven runners 
 
 ## Build Dokka
 
-Building Dokka is pretty straightforward, with one small caveat: when you run `./gradlew build`, it will run
-integration tests as well, which might take some time and will consume a lot of RAM, so you would usually want
-to exclude integration tests when building locally.
+Building Dokka is pretty straightforward:
 
 ```shell
-./gradlew build -x integrationTest
+./gradlew build
 ```
 
-Unit tests which are run as part of `build` should not take much time, but you can also skip it with `-x test`.
+This will build all subprojects and trigger `build` in all composite builds. If you are working on a
+[runner](https://github.com/Kotlin/dokka/tree/master/dokka-runners), you can build it independently.
+
+Checks that are performed as part of `build` do not require any special configuration or environment, and should
+not take much time (~2-5 minutes), so please make sure they pass before submitting a pull request.
 
 ### Troubleshooting build
 
@@ -41,18 +43,17 @@ will review API changes thoroughly, so please make sure it's intentional and rat
 Having built Dokka locally, you can publish it to `mavenLocal()`. This will allow you to test your changes in another
 project as well as debug code remotely.
 
-1. Change `dokka_version` in `gradle.properties` to something that you will use later on as the dependency version.
-   For instance, you can set it to something like `1.9.20-my-fix-SNAPSHOT`. This version will be propagated to plugins
-   that reside inside Dokka's project (such as `mathjax`, `kotlin-as-java`, etc).
-2. Publish it to Maven Local (`./gradlew publishToMavenLocal`). Corresponding artifacts should appear in `~/.m2`
-3. In the project you want to generate documentation for or debug on, add maven local as a plugin/dependency
+1. Publish a custom version of Dokka to Maven Local: `./gradlew publishToMavenLocal -Pversion=1.9.20-my-fix-SNAPSHOT`. 
+   This version will be propagated to plugins that reside inside Dokka's project (`mathjax`, `kotlin-as-java`, etc),
+   and its artifacts should appear in `~/.m2`
+2. In the project you want to generate documentation for or debug on, add maven local as a plugin/dependency
    repository:
 ```kotlin
 repositories {
    mavenLocal()
 }
 ```
-4. Update your Dokka dependency to the version you've just published:
+3. Update your Dokka dependency to the version you've just published:
 ```kotlin
 plugins {
     id("org.jetbrains.dokka") version "1.9.20-my-fix-SNAPSHOT"
@@ -98,3 +99,23 @@ wish to debug a Dokka plugin.
 
 In case you need to debug some other part of the build - consult the official Gradle
 tutorials on [Troubleshooting Builds](https://docs.gradle.org/current/userguide/troubleshooting.html).
+
+
+## Run integration tests
+
+Dokka's [integration tests](https://github.com/Kotlin/dokka/tree/master/dokka-integration-tests) help check 
+compatibility with various versions of Kotlin, Android, Gradle and Java. They apply Dokka to real user-like projects 
+and invoke Gradle / Maven / CLI tasks to generate the documentation.
+
+Integration tests require a significant amount of available RAM (~20-30GB), take 1+ hour and may require additional
+environment configuration to run. For these reasons, it's not expected that you run all integration tests locally
+as part of the everyday development process, they will be run on CI once you submit a PR.
+
+However, if you need to run all integration tests locally, you can use the `integrationTest` task:
+
+```shell
+./gradlew integrationTest
+```
+
+If you need to run a specific test locally, you can run it from your IDE or by calling the corresponding Gradle
+task (for example, `:dokka-integration-tests:gradle:testExternalProjectKotlinxCoroutines`).
