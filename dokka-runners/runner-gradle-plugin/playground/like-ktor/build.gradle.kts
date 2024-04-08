@@ -15,10 +15,9 @@ plugins {
 val dokkaOutputDir = "../versions"
 
 dokka {
-    documentationLinks {
-        linkToKotlinxCoroutines()
-        linkToKotlinxSerialization()
-    }
+    // TODO: recheck links
+    externalLink("https://kotlinlang.org/api/kotlinx.coroutines/")
+    externalLink("https://kotlinlang.org/api/kotlinx.serialization/")
 
     currentProject {
         outputDirectory = projectDir.resolve(dokkaOutputDir).resolve(project.version.toString())

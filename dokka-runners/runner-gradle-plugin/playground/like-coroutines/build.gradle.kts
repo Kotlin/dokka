@@ -26,15 +26,13 @@ dokka {
         templatesDirectory = rootDir.resolve("dokka-templates")
     }
 
-    documentationLinks {
-        linkToJdk(jdkVersion = 11)
-        linkToKotlinStdlib(enabled = false)
-        externalLink("https://kotlinlang.org/api/latest/jvm/stdlib/") {
-            packageListFile(rootDir.resolve("site/stdlib.package.list"))
-        }
-        externalLink("https://kotlinlang.org/api/kotlinx.coroutines/$coreModule/") {
-            packageListFile(rootDir.resolve("kotlinx-coroutines-core/build/dokka/htmlPartial/package-list"))
-        }
+    externalLinkToJdk(jdkVersion = 11)
+    externalLinkToKotlinStdlib(enabled = false)
+    externalLink("https://kotlinlang.org/api/latest/jvm/stdlib/") {
+        packageListLocation = rootDir.resolve("site/stdlib.package.list").toURI()
+    }
+    externalLink("https://kotlinlang.org/api/kotlinx.coroutines/$coreModule/") {
+        packageListLocation = rootDir.resolve("kotlinx-coroutines-core/build/dokka/htmlPartial/package-list").toURI()
     }
 
     aggregation {

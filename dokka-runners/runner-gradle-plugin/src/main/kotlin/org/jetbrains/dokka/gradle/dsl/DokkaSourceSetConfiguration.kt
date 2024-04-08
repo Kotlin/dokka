@@ -32,8 +32,14 @@ public interface DokkaSourceSetBasedConfiguration : DokkaPackageBasedConfigurati
     public fun sourceLink(configure: DokkaSourceLinkConfiguration.() -> Unit) {}
     public fun sourceLink(remoteUrl: String, configure: DokkaSourceLinkConfiguration.() -> Unit = {}) {}
 
-    public val documentationLinks: DokkaExternalDocumentationLinksConfiguration
-    public fun documentationLinks(configure: DokkaExternalDocumentationLinksConfiguration.() -> Unit) {}
+    public val externalLinks: ListProperty<DokkaExternalLinkConfiguration>
+    public fun externalLink(configure: DokkaExternalLinkConfiguration.() -> Unit) {}
+    public fun externalLink(remoteUrl: String, configure: DokkaExternalLinkConfiguration.() -> Unit = {}) {}
+
+    // predefined links
+    public fun externalLinkToJdk(jdkVersion: Int = 8, enabled: Boolean = true) {}
+    public fun externalLinkToAndroidSdk(enabled: Boolean = true) {}
+    public fun externalLinkToKotlinStdlib(enabled: Boolean = true) {}
 }
 
 @DokkaGradlePluginDelicateApi

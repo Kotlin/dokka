@@ -30,7 +30,6 @@ internal abstract class DefaultDokkaModuleBasedConfiguration @Inject constructor
 ) : DokkaModuleBasedConfiguration {
     override val html: DokkaHtmlConfiguration = objects.newInstance()
     override val versioning: DokkaVersioningConfiguration = objects.newInstance()
-    override val documentationLinks: DefaultDokkaExternalDocumentationLinksConfiguration = objects.newInstance()
 }
 
 internal abstract class DefaultDokkaCurrentProjectConfiguration @Inject constructor(
@@ -39,6 +38,3 @@ internal abstract class DefaultDokkaCurrentProjectConfiguration @Inject construc
 
 internal abstract class DefaultDokkaAggregationConfiguration :
     DokkaAggregationConfiguration
-
-internal abstract class DefaultDokkaExternalDocumentationLinksConfiguration :
-    DokkaExternalDocumentationLinksConfiguration
