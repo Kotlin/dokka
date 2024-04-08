@@ -740,6 +740,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#run-integration-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run integration tests
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1345,6 +1354,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#run-integration-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run integration tests
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1375,12 +1393,13 @@ you need to know how to do:</p>
 <p>Examples below will be specific to Gradle and <a href="https://docs.gradle.org/current/userguide/kotlin_dsl.html">Gradle’s Kotlin DSL</a>,
 but you can apply the same principles and run/test/debug with CLI/Maven runners and build configurations if you wish.</p>
 <h2 id="build-dokka">Build Dokka<a class="headerlink" href="#build-dokka" title="Permanent link">&para;</a></h2>
-<p>Building Dokka is pretty straightforward, with one small caveat: when you run <code>./gradlew build</code>, it will run
-integration tests as well, which might take some time and will consume a lot of RAM, so you would usually want
-to exclude integration tests when building locally.</p>
-<div class="highlight"><pre><span></span><code>./gradlew<span class="w"> </span>build<span class="w"> </span>-x<span class="w"> </span>integrationTest
+<p>Building Dokka is pretty straightforward:</p>
+<div class="highlight"><pre><span></span><code>./gradlew<span class="w"> </span>build
 </code></pre></div>
-<p>Unit tests which are run as part of <code>build</code> should not take much time, but you can also skip it with <code>-x test</code>.</p>
+<p>This will build all subprojects and trigger <code>build</code> in all composite builds. If you are working on a
+<a href="https://github.com/Kotlin/dokka/tree/master/dokka-runners">runner</a>, you can build it independently.</p>
+<p>Checks that are performed as part of <code>build</code> do not require any special configuration or environment, and should
+not take much time (~2-5 minutes), so please make sure they pass before submitting a pull request.</p>
 <h3 id="troubleshooting-build">Troubleshooting build<a class="headerlink" href="#troubleshooting-build" title="Permanent link">&para;</a></h3>
 <h4 id="api-check-failed-for-project">API check failed for project ..<a class="headerlink" href="#api-check-failed-for-project" title="Permanent link">&para;</a></h4>
 <p>If you see a message like <code>API check failed for project ..</code> during the <code>build</code> phase, it indicates that the
@@ -1393,10 +1412,9 @@ will review API changes thoroughly, so please make sure it's intentional and rat
 <p>Having built Dokka locally, you can publish it to <code>mavenLocal()</code>. This will allow you to test your changes in another
 project as well as debug code remotely.</p>
 <ol>
-<li>Change <code>dokka_version</code> in <code>gradle.properties</code> to something that you will use later on as the dependency version.
-   For instance, you can set it to something like <code>1.9.20-my-fix-SNAPSHOT</code>. This version will be propagated to plugins
-   that reside inside Dokka's project (such as <code>mathjax</code>, <code>kotlin-as-java</code>, etc).</li>
-<li>Publish it to Maven Local (<code>./gradlew publishToMavenLocal</code>). Corresponding artifacts should appear in <code>~/.m2</code></li>
+<li>Publish a custom version of Dokka to Maven Local: <code>./gradlew publishToMavenLocal -Pversion=1.9.20-my-fix-SNAPSHOT</code>. 
+   This version will be propagated to plugins that reside inside Dokka's project (<code>mathjax</code>, <code>kotlin-as-java</code>, etc),
+   and its artifacts should appear in <code>~/.m2</code></li>
 <li>In the project you want to generate documentation for or debug on, add maven local as a plugin/dependency
    repository:
 <div class="highlight"><pre><span></span><code><span class="n">repositories</span><span class="w"> </span><span class="p">{</span>
@@ -1450,6 +1468,18 @@ gradle daemons. For instance, via <code>pkill -f gradle.*daemon</code></p>
 </div>
 <p>In case you need to debug some other part of the build - consult the official Gradle
 tutorials on <a href="https://docs.gradle.org/current/userguide/troubleshooting.html">Troubleshooting Builds</a>.</p>
+<h2 id="run-integration-tests">Run integration tests<a class="headerlink" href="#run-integration-tests" title="Permanent link">&para;</a></h2>
+<p>Dokka's <a href="https://github.com/Kotlin/dokka/tree/master/dokka-integration-tests">integration tests</a> help check 
+compatibility with various versions of Kotlin, Android, Gradle and Java. They apply Dokka to real user-like projects 
+and invoke Gradle / Maven / CLI tasks to generate the documentation.</p>
+<p>Integration tests require a significant amount of available RAM (~20-30GB), take 1+ hour and may require additional
+environment configuration to run. For these reasons, it's not expected that you run all integration tests locally
+as part of the everyday development process, they will be run on CI once you submit a PR.</p>
+<p>However, if you need to run all integration tests locally, you can use the <code>integrationTest</code> task:</p>
+<div class="highlight"><pre><span></span><code>./gradlew<span class="w"> </span>integrationTest
+</code></pre></div>
+<p>If you need to run a specific test locally, you can run it from your IDE or by calling the corresponding Gradle
+task (for example, <code>:dokka-integration-tests:gradle:testExternalProjectKotlinxCoroutines</code>).</p>
 
 
 
