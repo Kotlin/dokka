@@ -169,8 +169,7 @@
                                     </tr>
                                     {% for entry in entries %}
                                     <tr class="{{ rowColor(loop.index0) }}">
-                                        <th class="colFirst" scope="row"><code><span class="memberNameLink"><a
-                                                href="TODO">{{ entry.signature.signatureWithoutModifiers|raw }}</a></span></code></th>
+                                        <th class="colFirst" scope="row"><code><span class="memberNameLink">{{ entry.signature.signatureWithoutModifiers|raw }}</span></code></th>
                                         <td class="colLast">{{ entry.brief|raw }}</td>
                                     </tr>
                                     {% endfor %}
