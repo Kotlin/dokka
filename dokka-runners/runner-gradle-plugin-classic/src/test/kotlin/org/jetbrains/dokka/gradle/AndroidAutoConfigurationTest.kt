@@ -40,13 +40,15 @@ class AndroidAutoConfigurationTest {
 
         val dokkaTasks = project.tasks.withType<DokkaTask>().toList()
         dokkaTasks.forEach { task ->
-            val sourceSets = task.dokkaSourceSets.toList()
+            val sourceSets = task.dokkaSourceSets.map { it.name }.toSet()
             assertEquals(
-                listOf(
-                    "androidTest", "androidTestDebug", "debug", "main",
-                    "release", "test", "testDebug", "testRelease", "androidTestRelease"
-                ).sorted(),
-                sourceSets.map { it.name }.sorted(),
+                setOf(
+                    "main", "debug", "release",
+                    "test", "testDebug", "testRelease",
+                    "androidTest", "androidTestDebug", "androidTestRelease",
+                    "testFixtures", "testFixturesDebug", "testFixturesRelease"
+                ),
+                sourceSets,
                 "Expected all default source sets being registered"
             )
         }
