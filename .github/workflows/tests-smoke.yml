@@ -25,16 +25,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v3
         with:
           gradle-home-cache-cleanup: true
-      - name: Run tests under Windows
-        if: matrix.os == 'windows-latest'
-        # Running tests with the Gradle daemon on windows agents leads to some very strange
-        # JVM crashes for some reason. Most likely a problem of Gradle/GitHub/Windows server
+      - name: Run tests
         run: >
-          ./gradlew test --stacktrace --no-daemon --no-parallel 
-          "-Dorg.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=500m"
-          "-Porg.jetbrains.dokka.javaToolchain.testLauncher=${{ env.JAVA_TEST_VERSION }}"
-      - name: Run tests under Ubuntu
-        if: matrix.os != 'windows-latest'
-        run: >
-          ./gradlew test --stacktrace 
+          ./gradlew test --stacktrace --continue 
           "-Porg.jetbrains.dokka.javaToolchain.testLauncher=${{ env.JAVA_TEST_VERSION }}"
