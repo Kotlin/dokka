@@ -4,10 +4,6 @@
 
 import org.jetbrains.dokka.gradle.dsl.DokkaGradlePluginExperimentalApi
 
-/*
- * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
- */
-
 plugins {
     id("org.jetbrains.dokka")
 }
@@ -24,13 +20,12 @@ dokka {
         )
     }
 
+    // in case of apollo it's done in the convention plugin
+    // but for this example, we do it here
     aggregation {
-        // in case of apollo it's done in the convention plugin
-        // but for this example, we do it here
-        applyPluginToIncludedProjects = true
-        includeAllProjects {
-            // some excludes if needed
-        }
+        includeAllProjects()
+        // some excludes if needed
+        excludeProjects("some-project-name")
     }
 
     @OptIn(DokkaGradlePluginExperimentalApi::class)
@@ -52,4 +47,8 @@ dokka {
          */
         outputDirectory = layout.buildDirectory.dir("dokka/html/kdoc")
     }
+}
+
+subprojects {
+    plugins.apply("org.jetbrains.dokka")
 }

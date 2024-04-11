@@ -5,7 +5,6 @@
 package org.jetbrains.dokka.gradle.dsl
 
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.SetProperty
 
 public enum class DokkaAggregationLayout {
     NoCopy,
@@ -14,32 +13,15 @@ public enum class DokkaAggregationLayout {
 
 @DokkaGradlePluginDsl
 public interface DokkaAggregationConfiguration {
-    public val applyPluginToIncludedProjects: Property<Boolean>
-
     public val aggregationLayout: Property<DokkaAggregationLayout>
 
-    public val includedProjects: SetProperty<String>
+    public fun includeProjects(vararg patterns: String) {}
+    public fun includeProjects(patterns: Iterable<String>) {}
 
-    public fun includeProjects(
-        vararg patterns: String,
-        configure: DokkaAggregationProjectsConfiguration.() -> Unit = {}
-    ) {
-    }
+    public fun excludeProjects(vararg patterns: String) {}
+    public fun excludeProjects(patterns: Iterable<String>) {}
 
-    public fun includeProjects(
-        patterns: Iterable<String>,
-        configure: DokkaAggregationProjectsConfiguration.() -> Unit = {}
-    ) {
-    }
-
-    public fun includeAllProjects(configure: DokkaAggregationProjectsConfiguration.() -> Unit = {}) {}
-    public fun includeSubprojects(configure: DokkaAggregationProjectsConfiguration.() -> Unit = {}) {}
-}
-
-@DokkaGradlePluginDsl
-public interface DokkaAggregationProjectsConfiguration {
-    public val excludedPatterns: SetProperty<String>
-
-    public fun exclude(vararg patterns: String) {}
-    public fun exclude(patterns: Iterable<String>) {}
+    // shortcuts
+    public fun includeAllProjects() {}
+    public fun includeSubprojects() {}
 }

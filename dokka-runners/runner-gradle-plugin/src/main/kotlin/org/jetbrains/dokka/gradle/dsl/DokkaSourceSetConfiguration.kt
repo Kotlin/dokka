@@ -37,7 +37,7 @@ public interface DokkaSourceSetBasedConfiguration : DokkaPackageBasedConfigurati
     public fun externalLink(remoteUrl: String, configure: DokkaExternalLinkConfiguration.() -> Unit = {}) {}
 
     // predefined links
-    public fun externalLinkToJdk(jdkVersion: Int = 8, enabled: Boolean = true) {}
+    public fun externalLinkToJdk(enabled: Boolean = true, jdkVersion: Int = 8) {}
     public fun externalLinkToAndroidSdk(enabled: Boolean = true) {}
     public fun externalLinkToKotlinStdlib(enabled: Boolean = true) {}
 }

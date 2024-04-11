@@ -6,64 +6,115 @@
 * DE = Dokka Engine (analysis)
 * DEP = Dokka Engine Plugin (analysis plugins)
 
+## Context of Dokka execution
+
+Dokka Engine can run in three different modes.
+
+* Compiling a single subproject into a single, final document
+    * it can be used for building documentation for single-module projects
+      or publishing a Dokka execution result (HTML/Javadoc) to Maven Central
+* Compiling a single subproject into a single, partial document.
+    * the result is used internally to support building documentation for multi-module projects
+* Aggregating multiple partial-documents into a single, final document.
+
+When Dokka Engine runs, it needs some components:
+
+* Dokka Engine (runtime classpath + transitive dependencies)
+    * (When not aggregating) The subproject's source code, compile-time dependencies, configuration properties, samples
+      classpath, etc.
+    * (When aggregating) The partial-documents from subprojects, additional configuration
+* Dokka Engine Plugins (plugin classpath, transitive dependencies, optional configuration).
+    * plugins could be added/configured per Dokka execution, and in the case of multi-module,
+      configuration of those plugins could be both required to be the same (in the case of properties of HTML plugin)
+      or different per modules (in the case of versioning plugin, where additional properties should be configured for
+      aggregate, but not needed in submodules)
+
+There are some requirements to consider when aggregating projects:
+
+* It must be possible to set the default configuration in one, obvious place.
+  This should be as easy for users as possible.
+* The subprojects must be able to override the default configuration.
+* In multi-module projects, most of the time, most of the configuration is the same between projects, and so it should
+  be easily configurable/shareable.
+  Still, some options are project-specific (like `samples` or `classpath` folders or
+  optionally `includedDocumentation`).
+* DSL configuration for both single-module and multi-module projects should be compatible.
+  So that if a user wants to configure some property (f.e `sourceLink`), it should be possible to do it in the same
+  way for single and multi-module projects.
+  So samples in documentation could be rather copy paste-able and work for both kinds of projects.
+* There should be a way to automatically aggregate all subprojects, without explicit dependencies.
+* Custom plugins and formats are not used frequently (at least from out stats), and so DSL for them could be less
+  user-friendly compared to other configurations.
+
+## 0\. Dokka Gradle Plugin ID
+
+Current DGP id is `org.jetbrains.dokka`.
+If we are willing to implement new DGP in Kotlin repository (and so sync the version with KGP), we most likely should
+change plugin id to `org.jetbrains.kotlin.dokka`.
+So it could be added to Gradle project like this:
+
+```kotlin
+// build.gradle.kts
+plugins {
+    id("org.jetbrains.kotlin.dokka")
+    // or via Gradle shortcut
+    kotln("dokka")
+}
+```
+
+For consistency and simplicity all other examples will use old ID: `org.jetbrains.dokka`.
+
 ## 1\. Apply Dokka to a single-module project
 
 ```kotlin
 // build.gradle.kts
 plugins {
     id("org.jetbrains.dokka")
-    // or if DGP will be near KGP we can change ID to `org.jetbrains.kotlin.dokka` and so use gradle shortcuts:
-    kotlin("dokka")
 }
 ```
 
 ## 2\. Apply Dokka to a multi-module project
 
+There are two main ways to apply Dokka in multi-module projects:
+
+1. Using future (not implemented yet) Kotlin Gradle Settings Plugin.
+2. Using Gradle-native way (in the same way how `kotlin` is applied right now):
+    1. explicitly in every needed project + root project (for aggregation setup)
+    2. via convention plugins + root project (for aggregation setup)
+    3. via `subprojects`/`allprojects`
+        * **NOTE** This is a bad practice and is not compatible with Isolated Projects
+    4. via some new shiny Gradle way (https://github.com/gradle/gradle/issues/22514), could be implemented in Gradle 8.8
+
+Using Kotlin Gradle Settings Plugin looks like a best-fit solution for Dokka.
+
 As Gradle provides multiple ways to do it, it will be possible to do it in different ways:
 
 1. explicitly in projects or via convention plugins (recommended for advanced users)
 2. via `subprojects` or via custom DSL from Dokka (recommended for simple cases)
-    * could be not compatible with Isolated Projects
-    * could be not needed if KGP can apply Dokka by default in some way (f.e via flag in KGP settings plugin)
+    * it could be not compatible with Isolated Projects
+    * it could be not needed if KGP can apply Dokka by default in some way (f.e via a flag in KGP settings plugin)
 
 ### Using KGP integration in settings.gradle.kts
 
-If KGP will have settings plugin we can add property there to apply DGP to all projects with Kotlin plugin + `rootProject` for aggregation.
+If KGP have settings plugin we can add property there to apply DGP to all projects with Kotlin
+plugin + `rootProject` for aggregation.
 
 ```kotlin
 // settings.gradle.kts
 plugins {
-  // KGP for settings possible name
-  kotlin("settings")
+    // KGP for settings possible name
+    kotlin("settings")
 }
 
 kotlin {
-  // will cause applying Dokka to all projects with `kotlin` plugins (jvm, android, multiplatform)
-  applyDokka.set(true)
+    // will cause applying Dokka to all projects with `kotlin` plugins (jvm, android, multiplatform) + root project.
+    applyDokka.set(true)
 }
 ```
 
-### Use DGP DSL
+More deep integration is documented at the end of the document: Point 9, Possible future features, Settings Plugin.
 
-```kotlin
-// ROOT build.gradle.kts
-plugins {
-    id("org.jetbrains.dokka")
-}
-
-dokka {
-    aggregation {
-        applyPluginToIncludedProjects.set(true)
-    }
-}
-```
-
-`applyPluginToIncludedProjects` is just a boolean, as there is no need for other customizations,
-it will cause applying Dokka plugin to all included in aggregation projects.
-It's fine if it will be added to projects without KGP, as for such cases we will just skip all the logic of DGP
-(no tasks will be available)
-
-### Using out-of-the-box functionality (advanced cases)
+### Using out-of-the-box functionality
 
 Applying explicitly or in convention plugins works in the same as with single-module projects:
 
@@ -74,7 +125,7 @@ plugins {
 }
 ```
 
-Applying via `subprojects` is still possible, but not recommended, better to use DGP DSL:
+Applying via `subprojects` is still possible, but not recommended:
 
 ```kotlin
 // ROOT build.gradle.kts
@@ -83,7 +134,7 @@ plugins {
 }
 
 subprojects {
-    plugins.apply(id = "org.jetbrains.dokka")
+    plugins.apply("org.jetbrains.dokka")
 }
 ```
 
@@ -99,10 +150,8 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
-dokka {
-    aggregation {
-        applyPluginToIncludedProjects.set(true)
-    }
+subprojects {
+    plugins.apply("org.jetbrains.dokka")
 }
 ```
 
@@ -116,24 +165,22 @@ plugins {
 }
 
 dokka {
+    // all projects are included by default for root project
     aggregation {
-        // allprojects is enabled by default if applied in root project  
-        includeAllprojects {
-            // via project name
-            exclude("subproject-name")
-            // or via project path
-            exclude(":subproject:name")
-            // both variants supports wildcards
-            // so this should be possible
-            exclude(":tests:*")
-            // vararg and lists shoud be supported
-            exclude("name1", "name2")
-        }
+        // via project name
+        excludeProjects("subproject-name")
+        // or via project path
+        excludeProjects(":subproject:name")
+        // both variants supports wildcards
+        // so this should be possible
+        excludeProjects(":tests:*")
+        // vararg and lists shoud be supported
+        excludeProjects("name1", "name2")
     }
 }
 ```
 
-Advanced: if aggregation is needed to set up in a separate project, aggregated projects should be specified explicitly:
+If aggregation is needed to set up in a separate project, aggregated projects should be specified explicitly:
 
 ```kotlin
 // documentation/build.gradle.kts - NOT IN ROOT
@@ -145,19 +192,39 @@ dokka {
     aggregation {
         includeAllprojects()
         // or
-        includeSubprojects {
-            // optional exclusions, same as in above example
-            exclude("name")
-            // or
-            exclude(":subproject:path")
-        }
-        // or names/paths
+        includeSubprojects()
+        // or just names/paths
         includeProjects("subproject-name", ":subproject:path")
+        // optional exclusions
+        excludeProjects("name", ":subproject:path")
     }
 }
 ```
 
-Advanced++: under the hood we will still use Gradle configurations, so something like this will be still possible:
+If for some reason support both `name` and `path` via single function is not possible, or could be inconvenient for
+users, we can introduce separate functions:
+
+```kotlin
+// build.gradle.kts
+plugins {
+    id("org.jetbrains.dokka")
+}
+
+dokka {
+    aggregation {
+        // by name
+        includeProjects("name1", "name2")
+        excludeProjects("something", "nam*e")
+
+        // by path
+        includeProjectsByPath(":name1", ":name2")
+        excludeProjectsByPath(":something", ":name:*:test")
+    }
+}
+```
+
+Advanced: under the hood, we will still use Gradle configurations, so something like this will still be possible and
+could be useful for aggregation with included builds:
 
 ```kotlin
 // ROOT build.gradle.kts
@@ -168,6 +235,10 @@ plugins {
 dependencides {
     dokkaAggregation(project(":subproject:a"))
     dokkaAggregation(project(":subproject-b"))
+
+    // for included builds it will look something like this
+    // where `group:module-name` is produced by some `included build`
+    dokkaAggregation("group:module-name")
 }
 ```
 
@@ -176,7 +247,7 @@ dependencides {
 If DGP is applied in the root project, it can mean two things:
 
 1. if there is KGP applied -\> it's a single-module project, aggregation is not configured
-2. if there is no KGP applied -\> it's a multi-module project, and so we need to automatically configure default
+2. if there is no KGP applied -\> it's a multi-module project, and so we need to automatically configure the default
    aggregation which will include all subprojects by default.
 
 ## 4\. Execute Dokka tasks
@@ -192,9 +263,9 @@ If `dokkaBuild` task will have the same name for both single-module and multi-mo
 then calling just `dokkaBuild` in Gradle will call `dokkaBuild` in both root and submodules.
 Calling `:dokkaBuild` (prefixed with `:`) is what will call only the aggregated task.
 Calling `:dokkaBuild` (prefixed with `:`) in single-module projects will also work.
-The main issue here is that to build aggregated(multi-module) result we can't reuse results of `dokkaBuild` from
-submodules because `dokka` needs different kind of artifact built with `delayTemplateSubstitution=true`.
-And so when calling just `dokkaBuild` in multi-module tasks will cause to run following tasks
+The main issue here is that to build an aggregated (multi-module) result, we can't reuse results of `dokkaBuild` from
+submodules because `dokka` needs different kind of artefact built with `delayTemplateSubstitution=true`.
+And so when calling just `dokkaBuild` in multi-module tasks will cause to run the following tasks
 (task names are subject to change):
 
 * `:submodule1:prepareDokkaModule` - used by root `dokkaBuild` task
@@ -241,7 +312,7 @@ dokka {
 
 In the case of a multi-module project, all those properties will be shared to all projects included in aggregation
 and current project itself.
-In case it's applied in ROOT project with default configuration, configuration will be shared to all subprojects.
+In case it's applied in ROOT project with default configuration, the configuration will be shared to all subprojects.
 Still, there are some properties which affect generation of HTML in a current project only,
 and so they should be configured only for a specific project.
 
@@ -278,7 +349,7 @@ dokka {
 ```
 
 SourceSet configuration is shared in the same way as ordinary properties.
-If there is a need to create custom sourceSets, change classpath or change some other project-specific property,
+If there is a need to create custom sourceSets, change classpath, or change some other project-specific property,
 it's possible to access `sourceSets` as `DomainObjectCollection` inside `currentProject`:
 
 ```kotlin
@@ -291,7 +362,6 @@ dokka {
             // those will be set by DGP from information retrieved from KGP
             displayName.set(name)
             platform.set(KotlinPlatformType.jvm)
-            jdkVersion.set(8) // TODO: only used for jvm and android - may be it's not needed at all  
             languageVersion.set(KotlinVersion.KOTLIN_2_1) // or just string?
             apiVersion.set(KotlinVersion.KOTLIN_2_1)
 
@@ -383,44 +453,29 @@ at least for known VCS (GitHub, etc.) so that it at least points to something lo
 
 ```kotlin
 dokka {
-    documentationLinks {
-        // the simplest case when no package-list url provided, and it's inferred from url
-        externalLink("https://kotlinlang.org/api/kotlinx.coroutines")
-        // remote package list url is specified explicitly
-        externalLink("https://kotlinlang.org/api/kotlinx.coroutines") {
-            packageListUrl("https://kotlinlang.org/api/kotlinx.coroutines/somewhere/package-list")
-        }
-        // local package list file
-        externalDocumentationLinkFrom("https://kotlinlang.org/api/kotlinx.coroutines") {
-            packageListFile("build/downloaded/package-list")
-        }
-
-        // some predefined useful links, can be enabled or disabled (enabled by default)
-        linkToKotlinStdlib(enabled = false)
-
-        // this could be useful also (disabled by default)
-        linkToKotlinxCoroutines()
-
-        // if, for some reason, some of the link becomes outdated it can be fixed by lambda
-        linkToKotlinxSerialization {
-            // via remote url
-            packageListUrl("kotlinlang.org/api/kotlinx.serialization/somewhere-new/package-list")
-            // or via local file
-            packageListFile(file("build/downloaded/package-list"))
-        }
-
-        // fully custom
-        externalLink {
-            removeUrl = "kotlinlang.org/api/kotlinx.coroutines"
-            packageListUrl("kotlinlang.org/api/kotlinx.serialization/somewhere-new/package-list")
-            // or
-            packageListFile("build/downloaded/package-list")
-            // or
-            packageListLocation = "kotlinlang.org/api/kotlinx.serialization/somewhere-new/package-list".toURI()
-            // or
-            packageListLocation = file("build/downloaded/package-list").toURI()
-        }
+    // the simplest case when no package-list url provided, and it's inferred from url
+    externalLink("https://kotlinlang.org/api/kotlinx.coroutines")
+    // or if package list location is specified explicitly
+    externalLink("https://kotlinlang.org/api/kotlinx.coroutines") {
+        packageListLocation.set(uri("https://kotlinlang.org/api/kotlinx.coroutines/somewhere/package-list"))
+        // or for local package list file
+        packageListLocation.set(file("build/downloaded/package-list").toURI())
     }
+    // or without shortcut
+    externalLink {
+        removeUrl.set("https://kotlinlang.org/api/kotlinx.coroutines")
+        packageListLocation.set(uri("kotlinlang.org/api/kotlinx.serialization/somewhere-new/package-list"))
+    }
+
+    // some predefined useful links, can be enabled or disabled
+    // kotlin stdlib and JDK(8) are enabled by default
+    externalLinkToKotlinStdlib()
+    externalLinkToJdk(11) // same as externalLinkToJdk(11, enabled = true)
+    externalLinkToAndroidSdk()
+    // or with explicit argument, or when disabling
+    externalLinkToAndroidSdk(enabled = true)
+    externalLinkToJdk(enabled = false)
+    externalLinkToKotlinStdlib(enabled = false)
 }
 ```
 
@@ -486,11 +541,11 @@ dokka {
 
 ## 7\. Dokka Engine Plugins
 
-Different Dokka Engine Plugins may or may not have configuration so both cases should be considered.
-Here are how different options will work for both cases.
+Different Dokka Engine Plugins may or may not have configuration, so both cases should be considered.
+Here is how different options will work for both cases.
 We should support adding plugin via `group:artifact:version` String notation and via Gradle Version Catalogs.
 
-To just add plugin without configuration:
+To just add the plugin without configuration:
 
 ```kotlin
 dokka {
@@ -502,7 +557,7 @@ dokka {
 
 Note: both official plugins (like kotlinAsJava) and external ones are applied in the same way.
 
-To add a plugin and configure it, we need to provide the class name of plugin and its configuration
+To add a plugin and configure it, we need to provide the class name of the plugin and its configuration
 
 ```kotlin
 dokka {
@@ -555,9 +610,9 @@ replacement could be:
 * `intProperty`/`longProperty`/etc.
 * `parameter`/`param`
 
-Applying plugins works in the same way as with other configuration options, so decclared in root will be shared to
+Applying plugins works in the same way as with other configuration options, so declared in root will be shared to
 included subprojects.
-To configure only current project same DSL in `currentProject` is available:
+To configure only a current project same DSL in `currentProject` is available:
 
 ```kotlin
 dokka {
@@ -572,7 +627,7 @@ dokka {
 This API should be used only by advanced users and so should be annotated with some OptIn annotation with ERROR.
 
 Dokka Formats are just Dokka Engine Plugins.
-So there is a requirement to build javadoc instead of html, just applying plugin will be enough:
+So there is a requirement to build javadoc instead of html, just applying the plugin will be enough:
 
 ```kotlin
 dokka {
@@ -583,10 +638,11 @@ dokka {
 If there is a requirement to build documentation in several formats, it's possible to create a new variant for this.
 Creating new variants not only allows overriding the format (like replacing html with javadoc).
 It also allows building separate HTML outputs, f.e with different branding or other configurations
-(like one with only public declarations, another with internal declarations and may be another one excluding sourceSet).
+(like one with only public declarations, another with internal declarations,
+and may be another one excluding sourceSet).
 This will also allow building documentation for multiple Android flavours (f.e paid and free).
 
-Here is an example for javadoc:
+Here is an example of Javadoc:
 
 ```kotlin
 dokka {
@@ -637,7 +693,7 @@ Theoretically, we can expose two DGP ids:
 
 This could also simplify the overall internal structure of the plugin.
 
-## 9\. Future work/improvements (not required for initial release)
+## 9\. Future work/improvements (not required for initial release?)
 
 These are optional things which could or could not improve the experience usage of Dokka Gradle Plugin.
 
@@ -732,23 +788,23 @@ dokka {
 }
 ```
 
-If/when KGP will provide settings plugin the combination of DGP and KGP could look strange:
+If/when KGP provides settings plugin, the combination of DGP and KGP could look strange:
 
 ```kotlin
 // settings.gradle.kts
 plugins {
-  kotlin("settings")
-  kotlin("dokka")
+    kotlin("settings")
+    kotlin("dokka")
 }
 
 kotlin {
-  // applying dokka goes here
-  // we could make this optional, but still, the property will be available
-  applyDokka.set(true)
+    // applying dokka goes here
+    // we could make this optional, but still, the property will be available
+    applyDokka.set(true)
 }
 
 dokka {
-  // shared configuration goes here
+    // shared configuration goes here
 }
 ```
 
@@ -756,16 +812,45 @@ In this case, we could more tightly integration DGP into KGP and so merge DSLs:
 
 ```kotlin
 plugins {
-  kotlin("settings")
+    kotlin("settings")
 }
 
 kotlin {
     // by default `enabled=true`
     dokka(enabled = true) {
-      // shared configuration
+        // shared configuration
     }
 }
 ```
+
+In the case, if Dokka Gradle Settings Plugin is implemented at the same time with ordinary DGP, we will have two options
+for configuration sharing:
+
+1. via aggregate project (root project by default)
+    * In this case, we will share configuration from `aggregate` project to all included in the aggregation.
+      Additionally, we will need to have possibility to configure `aggregate` project itself with some additional
+      settings (like f.e versioning plugin needs additional properties there) via `currentProject` DSL.
+    * This could be not ideal, as `currentProject` DSL makes overall DSL a bit strange for configuration
+      of `single-module`s.
+    * Also, it could be not that straightforward that the configuration from a root project is shared to subprojects,
+      because it's not the most idiomatic way from the Gradle perspective.
+2. via settings plugin
+    * In this case we should share configuration from `settings` to **ALL** projects in the build.
+      Additional aggregation configuration should be configured in `root project` (or other aggregate projects if
+      needed) and not in settings plugin.
+      `currentProject` could be removed and replaced with just properties in `root`.
+    * This will allow better distinguishing what is configured where:
+        * settings plugin: shared configuration
+        * aggregate project (root by default): aggregation configuration
+        * specific projects: project-specific configuration
+    * On the other side, this will cause configuration to spread from one place (just in `root project`) to all over the
+      project.
+      Is this a good or bad thing: I don't know.
+      This could also cause some complexities for users who new to `Dokka` as they could want a single place for it.
+      Introducing DSL like `perModule` in settings plugin could help with this, but could again easily become not
+      idiomatic and maintainable.
+
+In any case, the main problem will be (as it is now) is to find a right balance between simplicity and Gradle.
 
 ### Custom properties
 
@@ -832,3 +917,9 @@ Though, if we start matching with `*` the behavior could be different:
 * `com.example.internal*` - works differently (glob - fine, regex - match `l` character multiple times)
 * `.*internal.*` - works fine in regex, will not work in glob (because of first symbol is `.`)
 * `*internal*` - incorrect regex, works fine with glob
+
+## Migration from old DGP to new DGP
+
+After the implementation of DGP in Kotlin repository, we will need to somehow migrate users to it.
+I think that it would be good to have old DGP plugin in place with deprecated tasks which would ask users to migrate to
+new DGP with some links/docs/etc.

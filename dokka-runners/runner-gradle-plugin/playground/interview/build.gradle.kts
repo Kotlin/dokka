@@ -13,10 +13,10 @@ dokka {
     sourceLink("https://github.com/kotlin/dokka/tree/master")
 
     aggregation {
-        applyPluginToIncludedProjects = true
-
-        includeSubprojects {
-            exclude("common-utils")
-        }
+        excludeProjects("common-utils")
     }
+}
+
+subprojects {
+    plugins.apply("org.jetbrains.dokka")
 }

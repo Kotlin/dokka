@@ -36,15 +36,13 @@ dokka {
     }
 
     aggregation {
-        applyPluginToIncludedProjects = true
-        includeAllProjects {
-            exclude(projectsWithoutDokka)
-        }
+        excludeProjects(projectsWithoutDokka)
     }
 }
 
 // README.md is different in each module
 subprojects {
+    plugins.apply("org.jetbrains.dokka")
     dokka {
         includedDocumentation.from("README.md")
     }
