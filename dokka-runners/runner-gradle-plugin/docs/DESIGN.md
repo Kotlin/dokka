@@ -6,16 +6,18 @@
 * DE = Dokka Engine (analysis)
 * DEP = Dokka Engine Plugin (analysis plugins)
 
-## 1. Apply Dokka to a single-module project
+## 1\. Apply Dokka to a single-module project
 
 ```kotlin
 // build.gradle.kts
 plugins {
     id("org.jetbrains.dokka")
+    // or if DGP will be near KGP we can change ID to `org.jetbrains.kotlin.dokka` and so use gradle shortcuts:
+    kotlin("dokka")
 }
 ```
 
-## 2. Apply Dokka to a multi-module project
+## 2\. Apply Dokka to a multi-module project
 
 As Gradle provides multiple ways to do it, it will be possible to do it in different ways:
 
@@ -23,6 +25,23 @@ As Gradle provides multiple ways to do it, it will be possible to do it in diffe
 2. via `subprojects` or via custom DSL from Dokka (recommended for simple cases)
     * could be not compatible with Isolated Projects
     * could be not needed if KGP can apply Dokka by default in some way (f.e via flag in KGP settings plugin)
+
+### Using KGP integration in settings.gradle.kts
+
+If KGP will have settings plugin we can add property there to apply DGP to all projects with Kotlin plugin + `rootProject` for aggregation.
+
+```kotlin
+// settings.gradle.kts
+plugins {
+  // KGP for settings possible name
+  kotlin("settings")
+}
+
+kotlin {
+  // will cause applying Dokka to all projects with `kotlin` plugins (jvm, android, multiplatform)
+  applyDokka.set(true)
+}
+```
 
 ### Use DGP DSL
 
@@ -68,7 +87,7 @@ subprojects {
 }
 ```
 
-## 3. Aggregation in a multi-module project
+## 3\. Aggregation in a multi-module project
 
 By default, without additional configuration, if Dokka is applied in root projects,
 all subprojects with applied Dokka plugin will be included in the documentation,
@@ -156,11 +175,11 @@ dependencides {
 
 If DGP is applied in the root project, it can mean two things:
 
-1. if there is KGP applied -> it's a single-module project, aggregation is not configured
-2. if there is no KGP applied -> it's a multi-module project, and so we need to automatically configure default
+1. if there is KGP applied -\> it's a single-module project, aggregation is not configured
+2. if there is no KGP applied -\> it's a multi-module project, and so we need to automatically configure default
    aggregation which will include all subprojects by default.
 
-## 4. Execute Dokka tasks
+## 4\. Execute Dokka tasks
 
 Out-of-the-box without any additional configuration the task will build Dokka HTML documentation in `build/dokka`
 
@@ -192,7 +211,7 @@ if running `:dokkaBuild` (prefixed with `:`):
 
 So there are some technical limitations here, but they are not blocking, and may be there is a workaround.
 
-## 5. Dokka execution configuration
+## 5\. Dokka execution configuration
 
 All available properties in root of DGP DSL:
 
@@ -436,7 +455,7 @@ dokka {
 }
 ```
 
-## 6. Dokka HTML configuration
+## 6\. Dokka HTML configuration
 
 HTML format is single format enabled by default, HTML format configuration is accessible under `dokka.html` sub-DSL.
 Configuration options are coming from `DokkaBaseConfiguration`.
@@ -465,7 +484,7 @@ dokka {
 }
 ```
 
-## 7. Dokka Engine Plugins
+## 7\. Dokka Engine Plugins
 
 Different Dokka Engine Plugins may or may not have configuration so both cases should be considered.
 Here are how different options will work for both cases.
@@ -528,7 +547,7 @@ dokka {
         property("L") // will compile and resolve to `project.property("L")`
     }
 }
-  ```
+```
 
 replacement could be:
 
@@ -548,7 +567,7 @@ dokka {
 }
 ```
 
-## 8. Dokka Engine Formats (Variants)
+## 8\. Dokka Engine Formats (Variants)
 
 This API should be used only by advanced users and so should be annotated with some OptIn annotation with ERROR.
 
@@ -618,7 +637,7 @@ Theoretically, we can expose two DGP ids:
 
 This could also simplify the overall internal structure of the plugin.
 
-## 9. Future work/improvements (not required for initial release)
+## 9\. Future work/improvements (not required for initial release)
 
 These are optional things which could or could not improve the experience usage of Dokka Gradle Plugin.
 
@@ -709,6 +728,41 @@ dokka {
         // the same dsl as for project plugin
         // `includeAllProjects` is applied by default
         includeAllProjects()
+    }
+}
+```
+
+If/when KGP will provide settings plugin the combination of DGP and KGP could look strange:
+
+```kotlin
+// settings.gradle.kts
+plugins {
+  kotlin("settings")
+  kotlin("dokka")
+}
+
+kotlin {
+  // applying dokka goes here
+  // we could make this optional, but still, the property will be available
+  applyDokka.set(true)
+}
+
+dokka {
+  // shared configuration goes here
+}
+```
+
+In this case, we could more tightly integration DGP into KGP and so merge DSLs:
+
+```kotlin
+plugins {
+  kotlin("settings")
+}
+
+kotlin {
+    // by default `enabled=true`
+    dokka(enabled = true) {
+      // shared configuration
     }
 }
 ```
