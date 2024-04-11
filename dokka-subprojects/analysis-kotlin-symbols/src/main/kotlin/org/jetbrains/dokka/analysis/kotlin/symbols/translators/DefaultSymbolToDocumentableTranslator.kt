@@ -851,7 +851,7 @@ internal class DokkaSymbolVisitor(
          *      - delegating members
          */
         val isDeclaration = callableSymbol.origin == KtSymbolOrigin.SOURCE || callableSymbol.origin == KtSymbolOrigin.LIBRARY
-        if (!isDeclaration) {
+        if (isDeclaration) {
             return DRIWithOverridden(getDRIFromSymbol(callableSymbol), wasOverriddenBy)
 
         } else { // fake, synthetic, delegating
