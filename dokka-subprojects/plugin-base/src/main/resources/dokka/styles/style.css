@@ -580,7 +580,7 @@ td:first-child {
     border-bottom: 2px solid var(--active-tab-border-color);
 }
 
-.section-tab:focus, .section-tab:active {
+.section-tab:focus-visible {
     outline: 2px solid var(--active-tab-border-color);
 }
 
