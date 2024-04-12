@@ -1024,7 +1024,7 @@ h1.cover {
     font-size: inherit;
     line-height: inherit;
     transition: color .1s, border-color .1s;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .main-content a:hover {
