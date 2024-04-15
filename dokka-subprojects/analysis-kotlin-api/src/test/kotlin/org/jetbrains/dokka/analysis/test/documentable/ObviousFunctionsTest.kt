@@ -5,6 +5,7 @@
 package org.jetbrains.dokka.analysis.test.documentable
 
 import org.jetbrains.dokka.analysis.test.OnlyDescriptors
+import org.jetbrains.dokka.analysis.test.OnlySymbols
 import org.jetbrains.dokka.analysis.test.api.kotlinJvmTestProject
 import org.jetbrains.dokka.analysis.test.api.parse
 import org.jetbrains.dokka.analysis.test.api.useServices
@@ -103,8 +104,9 @@ class ObviousFunctionsTest {
         )
     }
 
+    @OnlyDescriptors("In K2 there is finalize method with the Deprecated annotation.  In K1 it is unavailable")
     @Test
-    fun `kotlin_Enum should not have obvious members via external documentable provider`() {
+    fun `K1 - kotlin_Enum should not have obvious members via external documentable provider`() {
         val project = kotlinJvmTestProject {
             ktFile("SomeClass.kt") {
                 +"class SomeClass"
@@ -126,8 +128,50 @@ class ObviousFunctionsTest {
 
             // inherited from java enum
             val jdkEnumInheritedFunctions = when {
-                // starting from JDK 18, 'finalize' is not available (finalization is deprecated in JDK 18)
+                // starting from JDK 18,
+                // In K1 'finalize' is not available, but in K2 it is deprecated (finalization is deprecated in JDK 18)
                 javaVersion >= 18 -> setOf("clone", "getDeclaringClass", "describeConstable")
+                // starting from JDK 12, there is a new member in enum 'describeConstable'
+                javaVersion >= 12 -> setOf("clone", "getDeclaringClass", "describeConstable", "finalize")
+                else -> setOf("clone", "getDeclaringClass", "finalize")
+            }
+
+            assertObviousFunctions(
+                expectedObviousFunctions = emptySet(),
+                expectedNonObviousFunctions = setOf("compareTo", "equals", "hashCode", "toString") +
+                        jdkEnumInheritedFunctions,
+                actualFunctions = enum.functions
+            )
+        }
+    }
+
+    @OnlySymbols("In K2 there is finalize method with the Deprecated annotation.  In K1 it is unavailable")
+    @Test
+    fun `K2 - kotlin_Enum should not have obvious members via external documentable provider`() {
+        val project = kotlinJvmTestProject {
+            ktFile("SomeClass.kt") {
+                +"class SomeClass"
+            }
+        }
+
+        project.useServices {
+            val enum = externalDocumentableProvider.getClasslike(
+                DRI("kotlin", "Enum"),
+                it.context.configuration.sourceSets.single()
+            )
+            assertNotNull(enum)
+            assertEquals("Enum", enum.name)
+
+            val javaVersion = when (val specVersion = System.getProperty("java.specification.version")) {
+                "1.8" -> 8
+                else -> specVersion.toInt()
+            }
+
+            // inherited from java enum
+            val jdkEnumInheritedFunctions = when {
+                // starting from JDK 18,
+                // In K1 'finalize' is not available, but in K2 it is deprecated (finalization is deprecated in JDK 18)
+                javaVersion >= 18 -> setOf("clone", "getDeclaringClass", "describeConstable", "finalize")
                 // starting from JDK 12, there is a new member in enum 'describeConstable'
                 javaVersion >= 12 -> setOf("clone", "getDeclaringClass", "describeConstable", "finalize")
                 else -> setOf("clone", "getDeclaringClass", "finalize")
