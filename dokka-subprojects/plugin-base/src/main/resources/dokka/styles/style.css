@@ -802,6 +802,7 @@ code:not(.block) {
     top: 8px;
     right: 8px;
     overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .sideMenuPart > .overview {
