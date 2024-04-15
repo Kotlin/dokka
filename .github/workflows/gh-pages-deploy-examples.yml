@@ -21,19 +21,18 @@ jobs:
           dokka-customFormat-example
         ]
     steps:
-      - uses: actions/checkout@v3
-      - uses: dorny/paths-filter@v2
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
             examples_changed:
               - 'examples/gradle/${{ matrix.projects }}/**'
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: 17
-          cache: 'maven'
-      - uses: gradle/gradle-build-action@v2
+      - uses: gradle/actions/setup-gradle@v3
         with:
           gradle-home-cache-cleanup: true
       - name: Build html
@@ -41,7 +40,7 @@ jobs:
         working-directory: examples/gradle/${{ matrix.projects }}
         if: steps.filter.outputs.examples_changed == 'true'
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: steps.filter.outputs.examples_changed == 'true'
         with:
           name: ${{ matrix.projects }}
@@ -57,19 +56,19 @@ jobs:
           dokka-multimodule-example
         ]
     steps:
-      - uses: actions/checkout@v3
-      - uses: dorny/paths-filter@v2
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
             examples_changed:
               - 'examples/gradle/${{ matrix.projects }}/**'
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: 17
           cache: 'maven'
-      - uses: gradle/gradle-build-action@v2
+      - uses: gradle/actions/setup-gradle@v3
         with:
           gradle-home-cache-cleanup: true
       - name: Build html
@@ -77,7 +76,7 @@ jobs:
         working-directory: examples/gradle/${{ matrix.projects }}
         if: steps.filter.outputs.examples_changed == 'true'
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: steps.filter.outputs.examples_changed == 'true'
         with:
           name: ${{ matrix.projects }}
@@ -87,7 +86,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ build-examples, build-multimodule-examples ]
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           path: public/examples
       - name: Deploy
