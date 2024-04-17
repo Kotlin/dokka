@@ -47,7 +47,7 @@ dependencies {
         exclude(module = "analysis-kotlin-descriptors")
     }
     testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
-    testImplementation(projects.dokkaSubprojects.coreTestApi)
+    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
     testImplementation(projects.dokkaSubprojects.analysisKotlinApi)
 
     dokkaHtmlFrontendFiles(projects.dokkaSubprojects.pluginBaseFrontend) {

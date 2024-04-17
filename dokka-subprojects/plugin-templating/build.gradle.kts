@@ -25,6 +25,6 @@ dependencies {
     testImplementation(libs.junit.jupiterParams)
 
     testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)
-    testImplementation(projects.dokkaSubprojects.coreTestApi)
+    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
     testImplementation(libs.kotlinx.html)
 }

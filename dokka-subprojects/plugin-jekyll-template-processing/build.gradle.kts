@@ -25,5 +25,5 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.dokkaSubprojects.coreTestApi)
+    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
 }

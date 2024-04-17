@@ -27,5 +27,5 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(projects.dokkaSubprojects.pluginBase)
     testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)
-    testImplementation(projects.dokkaSubprojects.coreTestApi)
+    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
 }

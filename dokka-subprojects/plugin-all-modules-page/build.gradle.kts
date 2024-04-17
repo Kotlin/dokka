@@ -28,5 +28,5 @@ dependencies {
     testImplementation(projects.dokkaSubprojects.pluginGfm)
     testImplementation(projects.dokkaSubprojects.pluginGfmTemplateProcessing)
     testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
-    testImplementation(projects.dokkaSubprojects.coreTestApi)
+    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
 }
