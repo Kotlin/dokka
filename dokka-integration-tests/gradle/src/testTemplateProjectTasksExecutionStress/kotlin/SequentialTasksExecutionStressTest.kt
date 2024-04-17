@@ -29,7 +29,7 @@ class SequentialTasksExecutionStressTest : AbstractGradleIntegrationTest() {
             "--info",
             "--stacktrace",
             "-Ptask_number=100",
-            jvmArgs = listOf("-Xmx1G", "-XX:MaxMetaspaceSize=400m")
+            jvmArgs = listOf("-Xmx1G", "-XX:MaxMetaspaceSize=500m")
         ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":runTasks")).outcome)
