@@ -25,6 +25,7 @@ dependencies {
     testImplementation(libs.gradlePlugin.kotlin)
     testImplementation(libs.gradlePlugin.kotlin.klibCommonizerApi)
     testImplementation(libs.gradlePlugin.android)
+    testImplementation("org.jetbrains.dokka:dokka-test-api:$version")
 }
 
 @Suppress("UnstableApiUsage")

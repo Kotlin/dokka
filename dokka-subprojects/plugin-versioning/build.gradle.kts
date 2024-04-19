@@ -29,5 +29,5 @@ dependencies {
     }
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.dokkaSubprojects.coreTestApi)
+    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
 }

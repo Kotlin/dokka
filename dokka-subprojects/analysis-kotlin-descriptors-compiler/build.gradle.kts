@@ -17,7 +17,7 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
-    testImplementation(projects.dokkaSubprojects.coreTestApi)
+    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
     testImplementation(projects.dokkaSubprojects.analysisKotlinApi)
 
     // TODO [beresnev] get rid of it

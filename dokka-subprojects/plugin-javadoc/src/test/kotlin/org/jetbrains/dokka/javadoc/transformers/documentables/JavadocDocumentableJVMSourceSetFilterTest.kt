@@ -9,7 +9,7 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class JavadocDocumentableJVMSourceSetFilterTest: BaseAbstractTest() {
+class JavadocDocumentableJVMSourceSetFilterTest : BaseAbstractTest() {
 
     private val config = dokkaConfiguration {
         format = "javadoc"
@@ -19,11 +19,6 @@ class JavadocDocumentableJVMSourceSetFilterTest: BaseAbstractTest() {
                 analysisPlatform = "jvm"
                 name = "jvm"
                 dependentSourceSets = setOf(DokkaSourceSetID("root", "common"))
-            }
-            sourceSet {
-                sourceRoots = listOf("jsSrc/")
-                analysisPlatform = "js"
-                name = "js"
             }
             sourceSet {
                 sourceRoots = listOf("commonSrc/")
@@ -88,6 +83,15 @@ class JavadocDocumentableJVMSourceSetFilterTest: BaseAbstractTest() {
         testInline(query, config) {
             preMergeDocumentablesTransformationStage = { modules ->
                 assertEquals(2, modules.size)
+                modules.forEach { assertEquals(1, it.sourceSets.size) }
+                assertEquals(
+                    setOf(
+                        // otherCommon is not included
+                        DokkaSourceSetID("root", "common"),
+                        DokkaSourceSetID("root", "jvm"),
+                    ),
+                    modules.flatMap { it.sourceSets }.map { it.sourceSetID }.toSet()
+                )
             }
         }
     }

@@ -30,6 +30,6 @@ dependencies {
     testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils) {
         exclude(module = "analysis-kotlin-descriptors")
     }
-    testImplementation(projects.dokkaSubprojects.coreTestApi)
+    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
     testImplementation(libs.jsoup)
 }
