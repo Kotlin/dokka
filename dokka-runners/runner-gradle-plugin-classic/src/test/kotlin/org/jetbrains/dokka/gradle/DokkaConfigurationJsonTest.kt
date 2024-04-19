@@ -12,6 +12,7 @@ import org.jetbrains.dokka.PluginConfigurationImpl
 import org.jetbrains.dokka.gradle.utils.create_
 import org.jetbrains.dokka.gradle.utils.externalDocumentationLink_
 import org.jetbrains.dokka.gradle.utils.withDependencies_
+import org.jetbrains.dokka.testApi.assertDokkaConfigurationEquals
 import org.jetbrains.dokka.toCompactJsonString
 import java.io.File
 import java.net.URI
@@ -66,7 +67,7 @@ class DokkaConfigurationJsonTest {
         val configurationJson = sourceConfiguration.toCompactJsonString()
         val parsedConfiguration = DokkaConfigurationImpl(configurationJson)
 
-        assertEquals(sourceConfiguration, parsedConfiguration)
+        assertDokkaConfigurationEquals(sourceConfiguration, parsedConfiguration)
         println(parsedConfiguration)
     }
 }

@@ -18,6 +18,7 @@ class MultiplatformConfiguredCheckerTest : BaseAbstractTest() {
         format = "javadoc"
         sourceSets {
             sourceSet {
+                name = "jvm"
                 sourceRoots = listOf("src/jvm")
                 analysisPlatform = "jvm"
                 externalDocumentationLinks = listOf(
@@ -26,6 +27,7 @@ class MultiplatformConfiguredCheckerTest : BaseAbstractTest() {
                 )
             }
             sourceSet {
+                name = "js"
                 sourceRoots = listOf("src/js")
                 analysisPlatform = "js"
                 externalDocumentationLinks = listOf(

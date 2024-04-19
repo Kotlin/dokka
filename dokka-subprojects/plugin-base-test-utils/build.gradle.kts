@@ -25,8 +25,8 @@ dependencies {
     implementation(libs.jsoup)
 
     implementation(kotlin("test"))
-    implementation(projects.dokkaSubprojects.coreTestApi)
+    implementation(projects.dokkaSubprojects.dokkaTestApi)
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.dokkaSubprojects.coreTestApi)
+    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
 }

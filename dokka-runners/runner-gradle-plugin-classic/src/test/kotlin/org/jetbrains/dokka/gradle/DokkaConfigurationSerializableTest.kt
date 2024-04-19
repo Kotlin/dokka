@@ -11,6 +11,7 @@ import org.jetbrains.dokka.PluginConfigurationImpl
 import org.jetbrains.dokka.gradle.utils.create_
 import org.jetbrains.dokka.gradle.utils.externalDocumentationLink_
 import org.jetbrains.dokka.gradle.utils.withDependencies_
+import org.jetbrains.dokka.testApi.assertDokkaConfigurationEquals
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.io.ObjectInputStream
@@ -73,6 +74,6 @@ class DokkaConfigurationSerializableTest {
             stream.readObject() as DokkaConfiguration
         }
 
-        assertEquals(sourceConfiguration, parsedConfiguration)
+        assertDokkaConfigurationEquals(sourceConfiguration, parsedConfiguration)
     }
 }

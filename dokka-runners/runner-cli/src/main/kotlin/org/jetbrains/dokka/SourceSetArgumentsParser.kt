@@ -161,5 +161,13 @@ internal fun parseSourceSet(moduleName: String, args: Array<String>): DokkaConfi
         override val suppressedFiles = suppressedFiles.toMutableSet()
         override val documentedVisibilities: Set<DokkaConfiguration.Visibility> = documentedVisibilities.toSet()
             .ifEmpty { DokkaDefaults.documentedVisibilities }
+
+        override fun equals(other: Any?): Boolean {
+            return sourceSetID == (other as? DokkaConfiguration.DokkaSourceSet)?.sourceSetID
+        }
+
+        override fun hashCode(): Int {
+            return sourceSetID.hashCode()
+        }
     }
 }

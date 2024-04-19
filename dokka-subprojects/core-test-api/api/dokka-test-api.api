@@ -1,3 +1,8 @@
+public final class org/jetbrains/dokka/testApi/ConfigurationKt {
+	public static final fun assertDokkaConfigurationEquals (Lorg/jetbrains/dokka/DokkaConfiguration;Lorg/jetbrains/dokka/DokkaConfiguration;)V
+	public static final fun assertDokkaSourceSetEquals (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)V
+}
+
 public final class org/jetbrains/dokka/testApi/context/MockContext : org/jetbrains/dokka/plugability/DokkaContext {
 	public fun <init> ([Lkotlin/Pair;Lorg/jetbrains/dokka/DokkaConfiguration;Ljava/util/List;)V
 	public synthetic fun <init> ([Lkotlin/Pair;Lorg/jetbrains/dokka/DokkaConfiguration;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V

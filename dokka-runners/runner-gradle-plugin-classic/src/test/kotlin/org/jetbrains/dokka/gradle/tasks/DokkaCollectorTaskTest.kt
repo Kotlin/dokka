@@ -16,6 +16,7 @@ import org.jetbrains.dokka.gradle.utils.all_
 import org.jetbrains.dokka.gradle.utils.allprojects_
 import org.jetbrains.dokka.gradle.utils.configureEach_
 import org.jetbrains.dokka.gradle.utils.withDependencies_
+import org.jetbrains.dokka.testApi.assertDokkaConfigurationEquals
 import java.io.File
 import kotlin.test.*
 
@@ -52,7 +53,7 @@ class DokkaCollectorTaskTest {
 
         collectorTasks.forEach { task ->
             val dokkaConfiguration = task.buildDokkaConfiguration()
-            assertEquals(
+            assertDokkaConfigurationEquals(
                 DokkaConfigurationImpl(
                     moduleName = "custom Module Name",
                     outputDir = rootProject.projectDir.resolve("customOutputDirectory"),
