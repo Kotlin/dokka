@@ -10,36 +10,45 @@ import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.dokka.gradle.utils.isAgpRunnable
 import kotlin.test.*
 
 class AndroidAutoConfigurationTest {
 
     private val project = ProjectBuilder.builder().build().also { project ->
-        project.plugins.apply("com.android.library")
-        project.plugins.apply("org.jetbrains.kotlin.android")
-        project.plugins.apply("org.jetbrains.dokka")
-        project.extensions.configure<LibraryExtension> {
-            compileSdkVersion(28)
+        if (isAgpRunnable()) {
+            project.plugins.apply("com.android.library")
+            project.plugins.apply("org.jetbrains.kotlin.android")
+            project.plugins.apply("org.jetbrains.dokka")
+            project.extensions.configure<LibraryExtension> {
+                compileSdk = 28
+            }
         }
     }
 
     @Test
     fun `at least one dokka task created`() {
+        if (!isAgpRunnable()) return
+
         val dokkaTasks = project.tasks.withType<DokkaTask>().toList()
         assertTrue(dokkaTasks.isNotEmpty(), "Expected at least one dokka task")
     }
 
     @Test
     fun `all default source sets are present in dokka`() {
+        if (!isAgpRunnable()) return
+
         val dokkaTasks = project.tasks.withType<DokkaTask>().toList()
         dokkaTasks.forEach { task ->
-            val sourceSets = task.dokkaSourceSets.toList()
+            val sourceSets = task.dokkaSourceSets.map { it.name }.toSet()
             assertEquals(
-                listOf(
-                    "androidTest", "androidTestDebug", "debug", "main",
-                    "release", "test", "testDebug", "testRelease", "androidTestRelease"
-                ).sorted(),
-                sourceSets.map { it.name }.sorted(),
+                setOf(
+                    "main", "debug", "release",
+                    "test", "testDebug", "testRelease",
+                    "androidTest", "androidTestDebug", "androidTestRelease",
+                    "testFixtures", "testFixturesDebug", "testFixturesRelease"
+                ),
+                sourceSets,
                 "Expected all default source sets being registered"
             )
         }
