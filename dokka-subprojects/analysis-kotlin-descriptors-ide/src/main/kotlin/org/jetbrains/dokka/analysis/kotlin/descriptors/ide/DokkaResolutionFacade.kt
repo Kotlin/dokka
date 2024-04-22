@@ -87,6 +87,10 @@ internal class DokkaResolutionFacade(
                     }
                 }
 
+                override fun getProject(): Project? {
+                    throw UnsupportedOperationException()
+                }
+
                 override fun getDiagnostics(): Diagnostics {
                     throw UnsupportedOperationException()
                 }

@@ -137,7 +137,7 @@ testing {
         registerTestProjectSuite(
             "testTemplateProjectAndroid",
             "it-android-0",
-            jvm = JavaLanguageVersion.of(11), // AGP requires JVM 11+
+            jvm = JavaLanguageVersion.of(17), // AGP requires JVM 17+
         )
         registerTestProjectSuite("testTemplateProjectBasic", "it-basic")
         registerTestProjectSuite("testTemplateProjectBasicGroovy", "it-basic-groovy")
