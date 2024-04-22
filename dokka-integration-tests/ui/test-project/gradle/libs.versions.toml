@@ -1,0 +1,13 @@
+[versions]
+
+kotlin = "1.9.22"
+dokka = "2.0.0-dev-318"
+
+coroutines = "1.8.0"
+
+[libraries]
+
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+
+gradlePlugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+gradlePlugin-dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
