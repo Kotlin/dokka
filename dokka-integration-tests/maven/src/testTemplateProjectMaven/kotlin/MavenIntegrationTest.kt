@@ -7,6 +7,7 @@ package org.jetbrains.dokka.it.maven
 import org.jetbrains.dokka.it.AbstractIntegrationTest
 import org.jetbrains.dokka.it.ProcessResult
 import org.jetbrains.dokka.it.awaitProcessResult
+import org.jetbrains.dokka.it.systemProperty
 import java.io.File
 import kotlin.test.*
 
@@ -14,7 +15,7 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
 
     private val currentDokkaVersion: String = checkNotNull(System.getenv("DOKKA_VERSION"))
 
-    private val mavenBinaryFile: File = File(checkNotNull(System.getenv("MVN_BINARY_PATH")))
+    private val mavenBinaryFile: File by systemProperty { File(it) }
 
     private val localSettingsXml: File by lazy {
         projectDir.resolve("local-settings.xml").apply {

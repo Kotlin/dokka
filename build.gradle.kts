@@ -82,3 +82,8 @@ fun includedBuildTasks(taskName: String, filter: (IncludedBuild) -> Boolean = { 
         .filter { it.name != "build-logic" }
         .filter(filter)
         .mapNotNull { it.task(":$taskName") }
+
+
+tasks.check {
+    gradle.includedBuilds.forEach { dependsOn(it.task(":check")) }
+}

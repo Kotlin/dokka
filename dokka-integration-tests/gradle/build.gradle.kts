@@ -15,7 +15,6 @@ plugins {
     id("dokkabuild.kotlin-jvm")
     id("dokkabuild.dev-maven-publish")
     `jvm-test-suite`
-    `java-test-fixtures`
 }
 
 dependencies {
