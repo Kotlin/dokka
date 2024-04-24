@@ -19,6 +19,7 @@ dependencies {
 
     dokkaCli("org.jetbrains.dokka:runner-cli")
 
+    //region required dependencies of plugin-base
     dokkaPluginsClasspath("org.jetbrains.dokka:plugin-base")
     dokkaPluginsClasspath(libs.kotlinx.html)
     dokkaPluginsClasspath(libs.freemarker)
@@ -35,6 +36,7 @@ dependencies {
             attribute(BUNDLING_ATTRIBUTE, project.objects.named(SHADOWED))
         }
     }
+    //endregion
 }
 
 /**
