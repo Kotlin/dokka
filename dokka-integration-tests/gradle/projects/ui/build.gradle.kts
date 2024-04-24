@@ -3,6 +3,5 @@
  */
 
 plugins {
-    id("uitest.base")
     id("uitest.dokka")
 }

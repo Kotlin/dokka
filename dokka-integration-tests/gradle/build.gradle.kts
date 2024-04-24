@@ -183,6 +183,7 @@ testing {
                 }
             }
         }
+        registerTestProjectSuite("testUiProject", "ui")
     }
 }
 
