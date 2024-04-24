@@ -1,6 +1,6 @@
- /*
- * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
- */
+/*
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
 import dokkabuild.utils.declarable
 import dokkabuild.utils.resolvable
 import org.gradle.api.attributes.Bundling.BUNDLING_ATTRIBUTE
@@ -33,10 +33,13 @@ val dokkaPluginsClasspath: Configuration by configurations.creating {
 }
 
 val dokkaPluginsClasspathResolver: Configuration by configurations.creating {
-    description = "Resolve Dokka CLI runtime dependencies required to run Dokka CLI, and its plugins."
+    description = "Resolve Dokka CLI runtime dependencies required to run Dokka CLI, and its plugins. " +
+            "Transitive dependencies are excluded, and so must be defined explicitly."
     resolvable()
     extendsFrom(dokkaPluginsClasspath)
     attributes {
         attribute(USAGE_ATTRIBUTE, objects.named(JAVA_RUNTIME))
     }
+    // we don't fetch transitive dependencies here to be able to control external dependencies explicitly
+    isTransitive = false
 }
