@@ -271,7 +271,7 @@ val testAllExternalProjects by tasks.registering {
 
 val integrationTest by tasks.registering {
     description = "Lifecycle task for running integration tests"
-    // TODO - Refactor Maven and CLI integration tests to use Test Suites
+    // TODO KT-64200 - Refactor Maven and CLI integration tests to use Test Suites
     //      - Reimplement dokkabuild.test-integration.gradle.kts so that `integrationTest` is defined once there
     dependsOn(tasks.withType<Test>()) // all tests in this project are integration tests
 }
