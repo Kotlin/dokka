@@ -840,15 +840,18 @@ private class DokkaDescriptorVisitor(
     private suspend fun visitTypeAliasDescriptor(descriptor: TypeAliasDescriptor) =
         with(descriptor) {
             coroutineScope {
+                val defaultType = runCatching { defaultType }.getOrNull() // `defaultType` can throw an exception for a recursive typealias A = A
                 val generics = async { descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter() } }
-                val info = buildAncestryInformation(defaultType).copy(
-                    superclass = buildAncestryInformation(underlyingType),
-                    interfaces = emptyList()
-                )
+                val info = defaultType?.let {
+                    buildAncestryInformation(it).copy(
+                        superclass = buildAncestryInformation(underlyingType),
+                        interfaces = emptyList()
+                    )
+                }
                 DTypeAlias(
                     dri = DRI.from(this@with),
                     name = name.asString(),
-                    type = defaultType.toBound(),
+                    type = defaultType?.toBound() ?: UnresolvedBound(name.asString()),
                     expectPresentInSet = null,
                     underlyingType = underlyingType.toBound().toSourceSetDependent(),
                     visibility = visibility.toDokkaVisibility().toSourceSetDependent(),
@@ -858,7 +861,7 @@ private class DokkaDescriptorVisitor(
                     sources = descriptor.createSources(),
                     extra = PropertyContainer.withAll(
                         descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),
-                        info.exceptionInSupertypesOrNull(),
+                        info?.exceptionInSupertypesOrNull(),
                     )
                 )
             }
