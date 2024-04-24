@@ -42,13 +42,16 @@ dependencies {
  */
 abstract class DokkaCliClasspathProvider : CommandLineArgumentProvider {
     @get:Classpath
-    abstract val dokkaCli: RegularFileProperty
+    abstract val dokkaCli: ConfigurableFileCollection
 
     @get:Classpath
     abstract val dokkaPluginsClasspath: ConfigurableFileCollection
 
     override fun asArguments(): Iterable<String> = buildList {
-        add("-D" + "dokkaCliJarPath=" + dokkaCli.asFile.get().absolutePath)
+        require(dokkaCli.count() == 1) {
+            "Expected a single Dokka CLI JAR, but got ${dokkaCli.count()}"
+        }
+        add("-D" + "dokkaCliJarPath=" + dokkaCli.singleFile.absolutePath)
         add("-D" + "dokkaPluginsClasspath=" + dokkaPluginsClasspath.joinToString(";") { it.absolutePath })
     }
 }
@@ -69,7 +72,7 @@ testing {
                 testTask.configure {
                     jvmArgumentProviders.add(
                         objects.newInstance<DokkaCliClasspathProvider>().apply {
-                            dokkaCli = configurations.dokkaCliResolver.map { it.singleFile }
+                            dokkaCli.from(configurations.dokkaCliResolver)
                             dokkaPluginsClasspath.from(configurations.dokkaPluginsClasspathResolver)
                         }
                     )
