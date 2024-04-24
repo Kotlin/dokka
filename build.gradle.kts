@@ -11,43 +11,35 @@ val gradlePluginIncludedBuilds = listOf("runner-gradle-plugin-classic")
 
 addDependencyOnSameTasksOfIncludedBuilds("assemble", "build", "clean", "check")
 
-registerParentGroupTasks(
-    "publishing", taskNames = listOf(
-        "publishAllPublicationsToMavenCentralRepository",
-        "publishAllPublicationsToProjectLocalRepository",
-        "publishAllPublicationsToSnapshotRepository",
-        "publishAllPublicationsToSpaceDevRepository",
-        "publishAllPublicationsToSpaceTestRepository",
-        "publishToMavenLocal"
-    )
-) {
+registerParentGroupTasks("publishing", taskNames = listOf(
+    "publishAllPublicationsToMavenCentralRepository",
+    "publishAllPublicationsToProjectLocalRepository",
+    "publishAllPublicationsToSnapshotRepository",
+    "publishAllPublicationsToSpaceDevRepository",
+    "publishAllPublicationsToSpaceTestRepository",
+    "publishToMavenLocal"
+)) {
     it.name in publishedIncludedBuilds
 }
 
-registerParentGroupTasks(
-    "gradle plugin", taskNames = listOf(
-        "publishPlugins",
-        "validatePlugins"
-    )
-) {
+registerParentGroupTasks("gradle plugin", taskNames = listOf(
+    "publishPlugins",
+    "validatePlugins"
+)) {
     it.name in gradlePluginIncludedBuilds
 }
 
-registerParentGroupTasks(
-    "bcv", taskNames = listOf(
-        "apiDump",
-        "apiCheck",
-        "apiBuild"
-    )
-) {
+registerParentGroupTasks("bcv", taskNames = listOf(
+    "apiDump",
+    "apiCheck",
+    "apiBuild"
+)) {
     it.name in publishedIncludedBuilds
 }
 
-registerParentGroupTasks(
-    "verification", taskNames = listOf(
-        "test"
-    )
-)
+registerParentGroupTasks("verification", taskNames = listOf(
+    "test"
+))
 
 tasks.register("integrationTest") {
     group = "verification"
