@@ -278,22 +278,21 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
     fun `should accept json as input configuration`() {
         val dokkaOutputDir = File(projectDir, "output")
         assertTrue(dokkaOutputDir.mkdirs())
-        val resourcePath =
-            javaClass.getResource("/my-file.json")?.toURI() ?: throw IllegalStateException("No JSON found!")
-        val jsonPath = File(resourcePath)
-        jsonPath.writeText(
-            jsonBuilder(
-                outputPath = dokkaOutputDir.invariantSeparatorsPath,
-                pluginsClasspath = dokkaPluginsClasspath,
-                projectPath = File(projectDir, "src").invariantSeparatorsPath,
-                reportUndocumented = true
+        val configJson = projectDir.resolve("dokka-config.json").apply {
+            writeText(
+                jsonBuilder(
+                    outputPath = dokkaOutputDir.invariantSeparatorsPath,
+                    pluginsClasspath = dokkaPluginsClasspath,
+                    projectPath = File(projectDir, "src").invariantSeparatorsPath,
+                    reportUndocumented = true
+                )
             )
-        )
+        }
 
         val process = ProcessBuilder(
             "java",
             "-jar", dokkaCliJarPath,
-            jsonPath.absolutePath,
+            configJson.absolutePath,
         ).redirectErrorStream(true).start()
 
         val result = process.awaitProcessResult()
@@ -325,47 +324,47 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
     fun `global settings should overwrite package options in configuration`() {
         val dokkaOutputDir = File(projectDir, "output")
         assertTrue(dokkaOutputDir.mkdirs())
-        val resourcePath =
-            javaClass.getResource("/my-file.json")?.toURI() ?: throw IllegalStateException("No JSON found!")
-        val jsonPath = File(resourcePath)
-        jsonPath.writeText(
-            jsonBuilder(
-                outputPath = dokkaOutputDir.invariantSeparatorsPath,
-                pluginsClasspath = dokkaPluginsClasspath,
-                projectPath = File(projectDir, "src").invariantSeparatorsPath,
-                globalSourceLinks = """
-                        {
-                          "localDirectory": "/home/Vadim.Mishenev/dokka/examples/cli/src/main/kotlin",
-                          "remoteUrl": "https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-gradle-example/src/main/kotlin",
-                          "remoteLineSuffix": "#L"
-                        }
-                    """.trimIndent(),
-                globalExternalDocumentationLinks = """
-                        {
-                          "url": "https://docs.oracle.com/javase/8/docs/api/",
-                          "packageListUrl": "https://docs.oracle.com/javase/8/docs/api/package-list"
-                        },
-                        {
-                          "url": "https://kotlinlang.org/api/latest/jvm/stdlib/",
-                          "packageListUrl": "https://kotlinlang.org/api/latest/jvm/stdlib/package-list"
-                        }
+
+        val configJson = projectDir.resolve("dokka-config.json").apply {
+            writeText(
+                jsonBuilder(
+                    outputPath = dokkaOutputDir.invariantSeparatorsPath,
+                    pluginsClasspath = dokkaPluginsClasspath,
+                    projectPath = File(projectDir, "src").invariantSeparatorsPath,
+                    globalSourceLinks = """
+                            {
+                              "localDirectory": "/home/Vadim.Mishenev/dokka/examples/cli/src/main/kotlin",
+                              "remoteUrl": "https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-gradle-example/src/main/kotlin",
+                              "remoteLineSuffix": "#L"
+                            }
                         """.trimIndent(),
-                globalPerPackageOptions = """
-                        {
-                          "matchingRegex": ".*",
-                          "skipDeprecated": "true",
-                          "reportUndocumented": "true", 
-                          "documentedVisibilities": ["PUBLIC", "PRIVATE", "PROTECTED", "INTERNAL", "PACKAGE"]
-                        }
-                    """.trimIndent(),
-                reportUndocumented = false
-            ),
-        )
+                    globalExternalDocumentationLinks = """
+                            {
+                              "url": "https://docs.oracle.com/javase/8/docs/api/",
+                              "packageListUrl": "https://docs.oracle.com/javase/8/docs/api/package-list"
+                            },
+                            {
+                              "url": "https://kotlinlang.org/api/latest/jvm/stdlib/",
+                              "packageListUrl": "https://kotlinlang.org/api/latest/jvm/stdlib/package-list"
+                            }
+                            """.trimIndent(),
+                    globalPerPackageOptions = """
+                            {
+                              "matchingRegex": ".*",
+                              "skipDeprecated": "true",
+                              "reportUndocumented": "true", 
+                              "documentedVisibilities": ["PUBLIC", "PRIVATE", "PROTECTED", "INTERNAL", "PACKAGE"]
+                            }
+                        """.trimIndent(),
+                    reportUndocumented = false
+                )
+            )
+        }
 
         val process = ProcessBuilder(
             "java",
             "-jar", dokkaCliJarPath,
-            jsonPath.absolutePath,
+            configJson.absolutePath,
         )
             .redirectErrorStream(true)
             .start()
@@ -393,24 +392,23 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
 
     @Test
     fun `relative paths in configuration should work`() {
-        val resourcePath =
-            javaClass.getResource("/my-file.json")?.toURI() ?: throw IllegalStateException("No JSON found!")
-        val jsonPath = File(resourcePath)
-
         val dokkaOutputDir = File(projectDir, "output-relative")
         assertTrue(dokkaOutputDir.mkdirs())
-        jsonPath.writeText(
-            jsonBuilder(
-                outputPath = dokkaOutputDir.invariantSeparatorsPath,
-                pluginsClasspath = dokkaPluginsClasspath,
-                projectPath = "src", // relative path
+
+        val configJson = projectDir.resolve("dokka-config.json").apply {
+            writeText(
+                jsonBuilder(
+                    outputPath = dokkaOutputDir.invariantSeparatorsPath,
+                    pluginsClasspath = dokkaPluginsClasspath,
+                    projectPath = "src", // relative path
+                )
             )
-        )
+        }
 
         ProcessBuilder(
             "java",
             "-jar", dokkaCliJarPath,
-            jsonPath.absolutePath
+            configJson.absolutePath
         ).directory(projectDir).redirectErrorStream(true).start().also { process ->
             val result = process.awaitProcessResult()
             assertEquals(0, result.exitCode, "Expected exitCode 0 (Success)")
