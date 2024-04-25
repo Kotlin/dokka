@@ -1066,6 +1066,7 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("In K2 KDoc references to java synthetic properties are resolved, but in K1 - no")
     fun `KDoc link should lead to java synthetic properties`() {
         testInline(
             """
@@ -1081,7 +1082,7 @@ class LinkTest : BaseAbstractTest() {
             |/src/example/Storage.java
             |package example;
             |class Storage {
-            |    void prop() {}
+            |    void setProp(String value) {}
             |    void setValue(String value) {}
             |    String getProp() { return null; }
             |}
@@ -1092,7 +1093,41 @@ class LinkTest : BaseAbstractTest() {
                 assertEquals(
                     listOf(
                         "Storage.setValue" to DRI("example", "Storage", Callable("setValue", null, listOf(TypeConstructor("kotlin.String", emptyList())))),
-                        "Storage.prop" to DRI("example", "Storage", Callable("prop", null, emptyList()))
+                        "Storage.prop" to DRI("example", "Storage", Callable("getProp", null, emptyList()))
+                    ),
+                    module.getAllLinkDRIFrom("usage"))
+            }
+        }
+    }
+
+    @Test
+    @OnlyDescriptors("In K2 KDoc references to java synthetic properties are resolved, but in K1 - no")
+    fun `KDoc link should not lead to java synthetic properties`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |
+            |/**
+            | * value: [Storage.value] is unresolved
+            | * setValue: [Storage.setValue]
+            | * prop: [Storage.prop]
+            | */
+            |val usage = 0            
+            |/src/example/Storage.java
+            |package example;
+            |class Storage {
+            |    void setProp(String value) {}
+            |    void setValue(String value) {}
+            |    String getProp() { return null; }
+            |}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                assertEquals(
+                    listOf(
+                        "Storage.setValue" to DRI("example", "Storage", Callable("setValue", null, listOf(TypeConstructor("kotlin.String", emptyList())))),
                     ),
                     module.getAllLinkDRIFrom("usage"))
             }
