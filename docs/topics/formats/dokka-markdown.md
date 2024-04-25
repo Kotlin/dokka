@@ -8,7 +8,7 @@
 Dokka is able to generate documentation in [GitHub Flavored](#gfm) and [Jekyll](#jekyll) compatible Markdown.
 
 These formats give you more freedom in terms of hosting documentation as the output can be embedded right into your 
-documentation website. For example, see [OkHttp's API reference](https://square.github.io/okhttp/4.x/okhttp/okhttp3/)
+documentation website. For example, see [OkHttp's API reference](https://square.github.io/okhttp/5.x/okhttp/okhttp3/)
 pages.
 
 Markdown output formats are implemented as [Dokka plugins](dokka-plugins.md), maintained by the Dokka team, and 
