@@ -840,7 +840,9 @@ private class DokkaDescriptorVisitor(
     private suspend fun visitTypeAliasDescriptor(descriptor: TypeAliasDescriptor) =
         with(descriptor) {
             coroutineScope {
-                val defaultType = runCatching { defaultType }.getOrNull() // `defaultType` can throw an exception for a recursive typealias A = A
+                // `defaultType` can throw an exception for a recursive typealias A = A
+                // for more details see https://github.com/Kotlin/dokka/issues/3565
+                val defaultType = runCatching { defaultType }.getOrNull()
                 val generics = async { descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter() } }
                 val info = defaultType?.let {
                     buildAncestryInformation(it).copy(
