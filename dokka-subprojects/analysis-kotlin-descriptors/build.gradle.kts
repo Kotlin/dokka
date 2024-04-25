@@ -63,8 +63,8 @@ val shadowDependenciesJar by tasks.registering(ShadowJar::class) {
     group = "shadow"
     description = "Create a shadow jar from dependencies without fastutil"
 
-    archiveClassifier.set("dependencies")
-    destinationDirectory.set(project.layout.buildDirectory.dir("shadowDependenciesLibs"))
+    archiveClassifier = "dependencies"
+    destinationDirectory = project.layout.buildDirectory.dir("shadowDependenciesLibs")
 
     // we need to create JAR with dependencies, but without fastutil,
     // so we include `runtimeClasspath` configuration (the same configuration which is used by default `shadowJar` task)

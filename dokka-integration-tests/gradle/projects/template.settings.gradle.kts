@@ -2,8 +2,6 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:Suppress("LocalVariableName", "UnstableApiUsage")
-
 pluginManagement {
     val dokka_it_kotlin_version: String by settings
     val dokka_it_dokka_version: String by settings
