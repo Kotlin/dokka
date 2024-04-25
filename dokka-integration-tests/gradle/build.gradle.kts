@@ -183,7 +183,7 @@ testing {
                 }
             }
         }
-        registerTestProjectSuite("testUiProject", "ui")
+        registerTestProjectSuite("testUiShowcaseProject", "ui-showcase")
     }
 }
 

@@ -8,6 +8,6 @@ we can compare the outputs between different versions of Dokka and make sure we 
 ### Run from root of the project
 
 ```bash
-export DOKKA_TEST_OUTPUT_PATH="build/uiproject"
-./gradlew :dokka-integration-tests:gradle:testUiProject
+export DOKKA_TEST_OUTPUT_PATH="build/ui-showcase-result"
+./gradlew :dokka-integration-tests:gradle:testUiShowcaseProject
 ```

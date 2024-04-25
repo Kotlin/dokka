@@ -8,6 +8,6 @@ pluginManagement {
     includeBuild("build-logic")
 }
 
-rootProject.name = "dokka-ui-test-project"
+rootProject.name = "ui-showcase"
 include(":jvm")
 include(":kmp")
