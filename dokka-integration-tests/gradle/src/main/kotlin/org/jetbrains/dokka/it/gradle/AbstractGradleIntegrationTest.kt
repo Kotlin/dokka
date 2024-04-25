@@ -67,7 +67,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             .withDebug(TestEnvironment.isEnabledDebug)
             .withArguments(
                 listOfNotNull(
-                    "-Pdokka_it_dokka_version=${System.getenv("DOKKA_VERSION")}",
+                    "-Pdokka_it_dokka_version=${dokkaVersion}",
                     "-Pdokka_it_kotlin_version=${buildVersions.kotlinVersion}",
                     buildVersions.androidGradlePluginVersion?.let { androidVersion ->
                         "-Pdokka_it_android_gradle_plugin_version=$androidVersion"
@@ -103,6 +103,9 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
     }
 
     companion object {
+        private val dokkaVersionOverride: String? = System.getenv("DOKKA_VERSION_OVERRIDE")
+        private val dokkaVersion: String = dokkaVersionOverride ?: System.getenv("DOKKA_VERSION")
+
         /**
          * Location of the template project that will be copied into [AbstractIntegrationTest.projectDir].
          *
@@ -120,12 +123,39 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
         val templateSettingsGradleKts: Path by systemProperty(Paths::get)
 
         /** file-based Maven repositories with Dokka dependencies */
-        private val devMavenRepositories: String by systemProperty { repos ->
-            val repoPaths = repos.split(",").map { Paths.get(it) }
+        private val devMavenRepositories: List<Path> by systemProperty { repos ->
+            repos.split(",").map { Paths.get(it) }
+        }
 
-            val reposSpecs = repoPaths
-                .withIndex()
-                .joinToString(",\n") { (i, repoPath) ->
+        private val mavenRepositories: String by lazy {
+            val reposSpecs = if (dokkaVersionOverride != null) {
+                // if `DOKKA_VERSION_OVERRIDE` environment variable is provided,
+                //  we allow running tests on a custom Dokka version from specific repositories
+                when {
+                    // release version like `2.0.0`
+                    !dokkaVersion.contains("-") -> "mavenCentral()"
+                    // locally published version for testing some bug like `2.0.0-local-reproducing-bug`
+                    dokkaVersion.contains("-local-") -> "mavenLocal()"
+                    // dev version like `2.0.0-dev-329`
+                    dokkaVersion.contains("-dev-") -> "maven(\"https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev\")"
+                    // test version like `2.0.0-test-49477c44dfc58e2702f4c145ff41190b39d117fb`
+                    dokkaVersion.contains("-test-") -> "maven(\"https://maven.pkg.jetbrains.space/kotlin/p/dokka/test\")"
+                    else -> error(
+                        """
+                        Provided Dokka version override is not supported: $dokkaVersion.
+                        Supported versions are:
+                        - release versions like '2.0.0'
+                        - dev versions like `2.0.0-dev-329`
+                        - test versions like `2.0.0-test-49477c44dfc58e2702f4c145ff41190b39d117fb`
+                        - locally published (to mavenLocal) versions with `-local-` suffix like `2.0.0-local-reproducing-bug`
+                        """.trimIndent()
+                    )
+                }.also { repository ->
+                    println("Dokka version overridden with ${dokkaVersionOverride}. Using $repository for resolving Dokka")
+                }
+            } else {
+                // otherwise - use locally published versions via `devMavenPublish`
+                devMavenRepositories.withIndex().joinToString(",\n") { (i, repoPath) ->
                     // Exclusive repository containing local Dokka artifacts.
                     // Must be compatible with both Groovy and Kotlin DSL.
                     /* language=kts */
@@ -136,6 +166,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                     |}
                     """.trimMargin()
                 }
+            }
 
             /* language=kts */
             """
@@ -153,7 +184,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
 
         fun File.updateProjectLocalMavenDir() {
 
-            val dokkaDevMavenRepoMarker = "/* %{PROJECT_LOCAL_MAVEN_DIR}% */"
+            val dokkaMavenRepoMarker = "/* %{PROJECT_LOCAL_MAVEN_DIR}% */"
 
             // Exclusive repository containing local Dokka artifacts.
             // Must be compatible with both Groovy and Kotlin DSL.
@@ -161,9 +192,9 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             walk().filter { it.isFile }.forEach { file ->
                 val fileText = file.readText()
 
-                if (dokkaDevMavenRepoMarker in fileText) {
+                if (dokkaMavenRepoMarker in fileText) {
                     file.writeText(
-                        fileText.replace(dokkaDevMavenRepoMarker, devMavenRepositories)
+                        fileText.replace(dokkaMavenRepoMarker, mavenRepositories)
                     )
                 }
             }

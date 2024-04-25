@@ -94,6 +94,9 @@ tasks.withType<Test>().configureEach {
     }
 
     // environment() isn't Provider API compatible yet https://github.com/gradle/gradle/issues/11534
+    dokkaBuild.integrationTestDokkaVersionOverride.orNull?.let { versionOverride ->
+        environment("DOKKA_VERSION_OVERRIDE", versionOverride)
+    }
     dokkaBuild.integrationTestExhaustive.orNull?.let { exhaustive ->
         environment("isExhaustive", exhaustive)
     }
