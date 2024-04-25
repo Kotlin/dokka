@@ -93,7 +93,9 @@ signing {
         System.getenv("DOKKA_SIGN_KEY_PASSPHRASE")?.takeIf(String::isNotBlank),
     )
     sign(publishing.publications)
-    setRequired(provider { !project.version.toString().endsWith("-SNAPSHOT") })
+    // no signing should be required for locally published artifacts,
+    // as they are used for manual testing and running integration tests only
+    setRequired(provider { gradle.taskGraph.allTasks.any { it is PublishToMavenRepository } })
 }
 
 // This is a hack for a Gradle 8 problem, see https://github.com/gradle/gradle/issues/26091
