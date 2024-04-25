@@ -1,8 +1,8 @@
-import java.net.URI
-
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+
+import java.net.URI
 
 plugins {
     id("dokkabuild.base")
@@ -105,11 +105,4 @@ signing {
 tasks.withType<AbstractPublishToMaven>().configureEach {
     val signingTasks = tasks.withType<Sign>()
     mustRunAfter(signingTasks)
-}
-
-tasks.withType<PublishToMavenRepository>().configureEach {
-    // Configuration Cache allows tasks to run in parallel. Maven repositories (especially Maven Central)
-    // can't cope with parallel uploads, and might drop or split publications.
-    // As a workaround, disable Configuration Cache whenever publishing to remote Maven repos.
-    notCompatibleWithConfigurationCache("Prevent parallel publishing tasks")
 }
