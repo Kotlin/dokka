@@ -50,20 +50,7 @@ internal class DescriptorSampleAnalysisEnvironmentCreator(
         // avoid memory leaks through the compiler's ThreadLocals.
         // Might not be relevant if the project stops using coroutines.
         return runBlocking(Dispatchers.Default) {
-            @OptIn(DokkaPluginApiPreview::class)
-            SamplesKotlinAnalysis(
-                sourceSets = context.configuration.sourceSets,
-                context = context,
-                projectKotlinAnalysis = descriptorAnalysisPlugin.querySingle { kotlinAnalysis }
-            ).use { kotlinAnalysis ->
-                val sampleAnalysis = DescriptorSampleAnalysisEnvironment(
-                    kdocFinder = descriptorAnalysisPlugin.querySingle { kdocFinder },
-                    kotlinAnalysis = kotlinAnalysis,
-                    sampleRewriter = sampleRewriter,
-                    dokkaLogger = context.logger
-                )
-                block(sampleAnalysis)
-            }
+            create().use(block)
         }
     }
 
@@ -87,7 +74,7 @@ internal class DescriptorSampleAnalysisEnvironment(
     private val kotlinAnalysis: KotlinAnalysis,
     private val sampleRewriter: SampleRewriter?,
     private val dokkaLogger: DokkaLogger,
-) : SampleAnalysisEnvironment, Closeable {
+) : SampleAnalysisEnvironment {
 
     override fun resolveSample(
         sourceSet: DokkaConfiguration.DokkaSourceSet,

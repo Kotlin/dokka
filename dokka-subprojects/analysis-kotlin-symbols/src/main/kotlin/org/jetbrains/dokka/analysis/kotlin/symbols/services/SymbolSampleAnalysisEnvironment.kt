@@ -44,21 +44,9 @@ internal class SymbolSampleAnalysisEnvironmentCreator(
         rewriters.singleOrNull()
     }
 
-
     override fun <T> use(block: SampleAnalysisEnvironment.() -> T): T {
         return runBlocking(Dispatchers.Default) {
-            SamplesKotlinAnalysis(
-                sourceSets = context.configuration.sourceSets,
-                context = context
-            ).use { samplesKotlinAnalysis ->
-                val sampleAnalysisEnvironment = SymbolSampleAnalysisEnvironment(
-                    samplesKotlinAnalysis = samplesKotlinAnalysis,
-                    projectKotlinAnalysis = projectKotlinAnalysis,
-                    sampleRewriter = sampleRewriter,
-                    dokkaLogger = context.logger
-                )
-                block(sampleAnalysisEnvironment)
-            }
+            create().use(block)
         }
     }
 
@@ -189,7 +177,6 @@ private class SymbolSampleAnalysisEnvironment(
 
     override fun close() {
         samplesKotlinAnalysis.close()
-        projectKotlinAnalysis.close()
     }
 }
 
