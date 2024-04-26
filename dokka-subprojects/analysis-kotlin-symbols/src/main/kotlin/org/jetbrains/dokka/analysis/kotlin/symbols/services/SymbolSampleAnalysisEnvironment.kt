@@ -10,6 +10,7 @@ import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.dokka.DelicateDokkaApi
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.kotlin.KotlinAnalysisPlugin
 import org.jetbrains.dokka.analysis.kotlin.sample.SampleAnalysisEnvironment
@@ -50,6 +51,7 @@ internal class SymbolSampleAnalysisEnvironmentCreator(
         }
     }
 
+    @OptIn(DelicateDokkaApi::class)
     override fun create(): SampleAnalysisEnvironment {
         return SymbolSampleAnalysisEnvironment(
             samplesKotlinAnalysis = SamplesKotlinAnalysis(

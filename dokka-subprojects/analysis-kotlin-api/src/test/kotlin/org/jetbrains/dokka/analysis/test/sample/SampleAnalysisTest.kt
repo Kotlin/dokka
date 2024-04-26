@@ -4,6 +4,7 @@
 
 package org.jetbrains.dokka.analysis.test.sample
 
+import org.jetbrains.dokka.DelicateDokkaApi
 import org.jetbrains.dokka.analysis.kotlin.sample.SampleSnippet
 import org.jetbrains.dokka.analysis.test.api.kotlinJvmTestProject
 import org.jetbrains.dokka.analysis.test.api.mixedJvmTestProject
@@ -14,6 +15,7 @@ import kotlin.test.*
 
 class SampleAnalysisTest {
 
+    @OptIn(DelicateDokkaApi::class)
     @Test
     fun `should resolve a valid sample if the environment is created manually`() {
         val testProject = kotlinJvmTestProject {
@@ -76,6 +78,7 @@ class SampleAnalysisTest {
         }
     }
 
+    @OptIn(DelicateDokkaApi::class)
     @Test
     fun `should resolve the same sample by multiple environments`() {
         val testProject = kotlinJvmTestProject {

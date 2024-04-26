@@ -4,6 +4,7 @@
 
 package org.jetbrains.dokka.analysis.kotlin.sample
 
+import org.jetbrains.dokka.DelicateDokkaApi
 import org.jetbrains.dokka.analysis.kotlin.KotlinAnalysisPlugin
 
 /**
@@ -49,5 +50,6 @@ public interface SampleAnalysisEnvironmentCreator {
      *
      * @return a new instance of [SampleAnalysisEnvironment]
      */
+    @DelicateDokkaApi
     public fun create(): SampleAnalysisEnvironment
 }

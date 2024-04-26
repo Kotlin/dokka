@@ -10,6 +10,7 @@ import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.dokka.DelicateDokkaApi
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.analysis.kotlin.KotlinAnalysisPlugin
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.CompilerDescriptorAnalysisPlugin
@@ -32,7 +33,6 @@ import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyPackageDescriptor
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
-import java.io.Closeable
 
 internal class DescriptorSampleAnalysisEnvironmentCreator(
     private val context: DokkaContext,
@@ -54,8 +54,8 @@ internal class DescriptorSampleAnalysisEnvironmentCreator(
         }
     }
 
+    @OptIn(DokkaPluginApiPreview::class, DelicateDokkaApi::class)
     override fun create(): SampleAnalysisEnvironment {
-        @OptIn(DokkaPluginApiPreview::class)
         return DescriptorSampleAnalysisEnvironment(
             kdocFinder = descriptorAnalysisPlugin.querySingle { kdocFinder },
             kotlinAnalysis = SamplesKotlinAnalysis(
