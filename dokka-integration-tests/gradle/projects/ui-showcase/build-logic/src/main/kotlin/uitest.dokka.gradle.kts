@@ -1,11 +1,13 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.intellij.lang.annotations.Language
 import org.jetbrains.dokka.gradle.AbstractDokkaTask
 
 plugins {
-    id("uitest.base")
     id("org.jetbrains.dokka")
 }
-
 
 tasks.withType<AbstractDokkaTask>().configureEach {
     @Language("JSON")
