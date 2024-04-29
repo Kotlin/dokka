@@ -1,6 +1,35 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+/** When Dokka is viewed via iframe, local storage could be inaccessible (see https://github.com/Kotlin/dokka/issues/3323)
+ * This is a wrapper around local storage to prevent errors in such cases
+ * */
+const safeLocalStorage = (() => {
+    let isLocalStorageAvailable = false;
+    try {
+        const testKey = '__testLocalStorageKey__';
+        localStorage.setItem(testKey, testKey);
+        localStorage.removeItem(testKey);
+        isLocalStorageAvailable = true;
+    } catch (e) {
+        console.error('Local storage is not available', e);
+    }
+
+    return {
+        getItem: (key) => {
+            if (!isLocalStorageAvailable) {
+                return null;
+            }
+            return localStorage.getItem(key);
+        },
+        setItem: (key, value) => {
+            if (!isLocalStorageAvailable) {
+                return;
+            }
+            localStorage.setItem(key, value);
+        }
+    };
+})();
 
 filteringContext = {
     dependencies: {},
@@ -32,7 +61,7 @@ window.addEventListener('load', () => {
 
 const darkModeSwitch = () => {
     const localStorageKey = "dokka-dark-mode"
-    const storage = localStorage.getItem(localStorageKey)
+    const storage = safeLocalStorage.getItem(localStorageKey)
     const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
     const darkModeEnabled = storage ? JSON.parse(storage) : osDarkSchemePreferred
     const element = document.getElementById("theme-toggle-button")
@@ -49,7 +78,7 @@ const darkModeSwitch = () => {
         } else {
             initPlayground(samplesLightThemeName)
         }
-        localStorage.setItem(localStorageKey, JSON.stringify(darkModeEnabled))
+        safeLocalStorage.setItem(localStorageKey, JSON.stringify(darkModeEnabled))
     })
 }
 
@@ -185,12 +214,12 @@ function initTabs() {
             const togglable = target ? target.getAttribute("data-togglable") : null;
             if (!togglable) return;
 
-            localStorage.setItem(localStorageKey, JSON.stringify(togglable));
+            safeLocalStorage.setItem(localStorageKey, JSON.stringify(togglable));
             toggleSections(target);
         });
     });
 
-    const cached = localStorage.getItem(localStorageKey);
+    const cached = safeLocalStorage.getItem(localStorageKey);
     if (!cached) return;
 
     const tab = document.querySelector(
@@ -227,7 +256,7 @@ function initializeFiltering() {
         filteringContext.dependencies[p] = filteringContext.dependencies[p]
             .filter(q => -1 !== filteringContext.restrictedDependencies.indexOf(q))
     })
-    let cached = window.localStorage.getItem('inactive-filters')
+    let cached = safeLocalStorage.getItem('inactive-filters')
     if (cached) {
         let parsed = JSON.parse(cached)
         filteringContext.activeFilters = filteringContext.restrictedDependencies
@@ -258,20 +287,20 @@ function unfilterSourceset(sourceset) {
 }
 
 function addSourcesetFilterToCache(sourceset) {
-    let cached = localStorage.getItem('inactive-filters')
+    let cached = safeLocalStorage.getItem('inactive-filters')
     if (cached) {
         let parsed = JSON.parse(cached)
-        localStorage.setItem('inactive-filters', JSON.stringify(parsed.concat([sourceset])))
+        safeLocalStorage.setItem('inactive-filters', JSON.stringify(parsed.concat([sourceset])))
     } else {
-        localStorage.setItem('inactive-filters', JSON.stringify([sourceset]))
+        safeLocalStorage.setItem('inactive-filters', JSON.stringify([sourceset]))
     }
 }
 
 function removeSourcesetFilterFromCache(sourceset) {
-    let cached = localStorage.getItem('inactive-filters')
+    let cached = safeLocalStorage.getItem('inactive-filters')
     if (cached) {
         let parsed = JSON.parse(cached)
-        localStorage.setItem('inactive-filters', JSON.stringify(parsed.filter(p => p != sourceset)))
+        safeLocalStorage.setItem('inactive-filters', JSON.stringify(parsed.filter(p => p != sourceset)))
     }
 }
 
