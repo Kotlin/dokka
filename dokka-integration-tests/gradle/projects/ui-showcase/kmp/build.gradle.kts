@@ -1,3 +1,7 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 plugins {
     id("uitest.dokka")
 
@@ -8,11 +12,13 @@ kotlin {
     jvm()
     linuxX64()
     macosX64()
-    js()
+    js {
+        nodejs()
+    }
 
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.kotlinx.coroutines)
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
         }
     }
 }
