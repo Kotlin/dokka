@@ -24,9 +24,7 @@ To build it with an override version of Analysis API, the property
 
 ### Entry point
 
-The implementation of Dokka Analysis for K2 is in the [`:dokka-subprojects:analysis-kotlin-symbols` subproject](https://github.com/Kotlin/dokka/tree/master/dokka-subprojects/analysis-kotlin-symbols)
-
-The main entry point is `DefaultSymbolToDocumentableTranslator` (this is an extension for [the extension point](https://kotlin.github.io/dokka/1.8.20/developer_guide/architecture/extension_points/core_extensions/#sourcetodocumentabletranslator) ), that is used by the Dokka core to build Documentable model by a source set.
+The main entry point is `DefaultSymbolToDocumentableTranslator` (this is an extension for [the extension point](https://kotlin.github.io/dokka/1.9.20/developer_guide/architecture/extension_points/core_extensions/#sourcetodocumentabletranslator) ), that is used by the Dokka core to build Documentable model by a source set.
 
 Across running Dokka we keep `StandaloneAnalysisAPISession` and `KtSourceModule` instances from Analysis API into `KotlinAnalysis`.
 `KotlinAnalysis` is used in `DefaultSymbolToDocumentableTranslator` and other services that need an additional analysis.
@@ -50,5 +48,7 @@ By default, we run unit tests on TeamCity against the latest Analysis API by a s
 
 ### How to build/publish Dokka locally?
 
-- You can use the `gradle :publishToMavenLocal` task to publish Dokka locally. The published version is taken from `gradle.properties`.
+- You can use the `gradle :publishToMavenLocal` task to publish Dokka locally.
 - To build Dokka without running testing, using the `gradle assemble` task is recommended since the tests are time-consuming.
+
+See the detailed guide [here](https://kotlin.github.io/dokka/1.9.20/developer_guide/workflow/).
