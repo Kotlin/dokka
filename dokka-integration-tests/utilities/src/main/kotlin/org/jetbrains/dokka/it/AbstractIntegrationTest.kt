@@ -36,7 +36,7 @@ abstract class AbstractIntegrationTest {
         )
     }
 
-    protected fun assertNoEmptyLinks(file: File) {
+    protected open fun assertNoEmptyLinks(file: File) {
         val regex = Regex("[\"']#[\"']")
         val fileText = file.readText()
         assertFalse(

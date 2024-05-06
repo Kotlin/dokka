@@ -3,7 +3,7 @@
  */
 
 plugins {
-    id("uitest.dokka")
+    id("uitest.dokka-kmp")
 
     kotlin("multiplatform")
 }

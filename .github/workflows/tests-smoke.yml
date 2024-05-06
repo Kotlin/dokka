@@ -17,6 +17,11 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Set longpaths support for Windows
+        if: matrix.os == 'windows-latest'
+        # Avoid failing tests on Windows with "cannot create directory at X. Filename too long"
+        # This command will fail if run on a Linux build agent with "could not lock config file: Permission denied"
+        run: git config --system core.longpaths true
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:

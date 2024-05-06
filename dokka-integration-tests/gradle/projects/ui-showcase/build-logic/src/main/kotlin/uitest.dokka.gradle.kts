@@ -10,17 +10,25 @@ plugins {
 }
 
 tasks.withType<AbstractDokkaTask>().configureEach {
+    moduleVersion.set("1.0")
+
     @Language("JSON")
-    val dokkaBaseConfiguration = """
+    val versioningPluginConfiguration = """
     {
-      "footerMessage": "(c) 2024 My footer message",
-      "homepageLink": "https://github.com/Kotlin/dokka/tree/master/dokka-integration-tests/ui/test-project"
+      "version": "1.0",
+      "olderVersionsDir": "${project.rootProject.projectDir.resolve("previousDocVersions").invariantSeparatorsPath}"
     }
     """.trimIndent()
+
     pluginsMapConfiguration.set(
         mapOf(
             // fully qualified plugin name to json configuration
-            "org.jetbrains.dokka.base.DokkaBase" to dokkaBaseConfiguration
+            "org.jetbrains.dokka.versioning.VersioningPlugin" to versioningPluginConfiguration
         )
     )
+}
+
+val dokka_it_dokka_version: String by project
+dependencies {
+    dokkaPlugin("org.jetbrains.dokka:versioning-plugin:$dokka_it_dokka_version")
 }
