@@ -27,7 +27,7 @@ fun additionalInfo(): String = "foo"
  *
  * @sample org.jetbrains.dokka.uitest.internal.functionToBeUsedAsSample
  */
-fun sample() {}
+fun withSample() {}
 
 /**
  * Describes a function with a parameter

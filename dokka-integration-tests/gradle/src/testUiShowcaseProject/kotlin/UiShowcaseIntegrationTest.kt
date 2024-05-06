@@ -41,4 +41,14 @@ class UiShowcaseIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCop
             assertNoEmptySpans(file)
         }
     }
+
+    override fun assertNoEmptyLinks(file: File) {
+        // the versioning plugin's js script splits by '#', but it's not an empty link.
+        // the page itself doesn't have any links, so it's fine to skip this file
+        if (file.name.endsWith("not-found-version.html")) {
+            return
+        } else {
+            super.assertNoEmptyLinks(file)
+        }
+    }
 }
