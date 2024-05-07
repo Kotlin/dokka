@@ -4,21 +4,27 @@
 
 package org.jetbrains.dokka.it.cli
 
-fun jsonBuilder(
+import org.intellij.lang.annotations.Language
+
+@Language("JSON")
+public fun jsonBuilder(
     outputPath: String,
     pluginsClasspath: String,
     projectPath: String,
+    @Language("JSON", prefix = "[", suffix = "]")
     globalSourceLinks: String = "",
+    @Language("JSON", prefix = "[", suffix = "]")
     globalExternalDocumentationLinks: String = "",
+    @Language("JSON", prefix = "[", suffix = "]")
     globalPerPackageOptions: String = "",
-    reportUndocumented: Boolean = false
-
+    reportUndocumented: Boolean = false,
 ): String {
-   return """{
+    return """
+{
   "moduleName": "Dokka Example",
   "moduleVersion": null,
   "outputDir": "$outputPath",
-  "pluginsClasspath": ["$pluginsClasspath"],
+  "pluginsClasspath": [${pluginsClasspath.split(";").joinToString(",") { "\"$it\"" }}],
   "cacheRoot": null,
   "offlineMode": false,
   "sourceLinks": [$globalSourceLinks],

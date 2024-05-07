@@ -1,13 +1,10 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-
 package org.jetbrains.dokka.it.cli
 
 import org.jetbrains.dokka.it.awaitProcessResult
 import java.io.File
-import java.io.PrintWriter
-import java.lang.IllegalStateException
 import kotlin.test.*
 
 class CliIntegrationTest : AbstractCliIntegrationTest() {
@@ -20,7 +17,11 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
 
     @Test
     fun runHelp() {
-        val process = ProcessBuilder("java", "-jar", cliJarFile.path, "-h")
+        val process = ProcessBuilder(
+            "java",
+            "-jar", dokkaCliJarPath,
+            "-h",
+        )
             .redirectErrorStream(true)
             .start()
 
@@ -34,9 +35,10 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         val dokkaOutputDir = File(projectDir, "output")
         assertTrue(dokkaOutputDir.mkdirs())
         val process = ProcessBuilder(
-            "java", "-jar", cliJarFile.path,
+            "java",
+            "-jar", dokkaCliJarPath,
             "-outputDir", dokkaOutputDir.path,
-            "-pluginsClasspath", basePluginJarFile.path,
+            "-pluginsClasspath", dokkaPluginsClasspath,
             "-moduleName", "Basic Project",
             "-sourceSet",
             buildString {
@@ -48,6 +50,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
                 append(" -skipDeprecated")
             }
         )
+            .directory(projectDir)
             .redirectErrorStream(true)
             .start()
 
@@ -109,9 +112,10 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         val dokkaOutputDir = File(projectDir, "output")
         assertTrue(dokkaOutputDir.mkdirs())
         val process = ProcessBuilder(
-            "java", "-jar", cliJarFile.path,
+            "java",
+            "-jar", dokkaCliJarPath,
             "-outputDir", dokkaOutputDir.path,
-            "-pluginsClasspath", basePluginJarFile.path,
+            "-pluginsClasspath", dokkaPluginsClasspath,
             "-moduleName", "Basic Project",
             "-failOnWarning",
             "-sourceSet",
@@ -137,9 +141,10 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         val dokkaOutputDir = File(projectDir, "output")
         assertTrue(dokkaOutputDir.mkdirs())
         val process = ProcessBuilder(
-            "java", "-jar", cliJarFile.path,
+            "java",
+            "-jar", dokkaCliJarPath,
             "-outputDir", dokkaOutputDir.path,
-            "-pluginsClasspath", basePluginJarFile.path,
+            "-pluginsClasspath", dokkaPluginsClasspath,
             "-moduleName", "Basic Project",
             "-sourceSet",
             buildString {
@@ -167,10 +172,11 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         val dokkaOutputDir = File(projectDir, "output")
         assertTrue(dokkaOutputDir.mkdirs())
         val process = ProcessBuilder(
-            "java", "-jar", cliJarFile.path,
+            "java",
+            "-jar", dokkaCliJarPath,
             "-outputDir", dokkaOutputDir.path,
             "-loggingLevel", "DEBUG",
-            "-pluginsClasspath", basePluginJarFile.path,
+            "-pluginsClasspath", dokkaPluginsClasspath,
             "-sourceSet",
             buildString {
                 append(" -src ${File(projectDir, "src").path}")
@@ -203,10 +209,11 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         val dokkaOutputDir = File(projectDir, "output")
         assertTrue(dokkaOutputDir.mkdirs())
         val process = ProcessBuilder(
-            "java", "-jar", cliJarFile.path,
+            "java",
+            "-jar", dokkaCliJarPath,
             "-outputDir", dokkaOutputDir.path,
             "-loggingLevel", "WARN",
-            "-pluginsClasspath", basePluginJarFile.path,
+            "-pluginsClasspath", dokkaPluginsClasspath,
             "-sourceSet",
             buildString {
                 append(" -src ${File(projectDir, "src").path}")
@@ -225,9 +232,10 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         val dokkaOutputDir = File(projectDir, "output")
         assertTrue(dokkaOutputDir.mkdirs())
         val process = ProcessBuilder(
-            "java", "-jar", cliJarFile.path,
+            "java",
+            "-jar", dokkaCliJarPath,
             "-outputDir", dokkaOutputDir.path,
-            "-pluginsClasspath", basePluginJarFile.path,
+            "-pluginsClasspath", dokkaPluginsClasspath,
             "-moduleName", "Basic Project",
             "-sourceSet",
             buildString {
@@ -266,20 +274,25 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         )
     }
 
-
     @Test
     fun `should accept json as input configuration`() {
         val dokkaOutputDir = File(projectDir, "output")
         assertTrue(dokkaOutputDir.mkdirs())
-        val resourcePath = javaClass.getResource("/my-file.json")?.toURI() ?: throw IllegalStateException("No JSON found!")
-        val jsonPath = File(resourcePath).absolutePath
-        PrintWriter(jsonPath).run {
-            write(jsonBuilder(dokkaOutputDir.invariantSeparatorsPath, basePluginJarFile.invariantSeparatorsPath, File(projectDir, "src").invariantSeparatorsPath, reportUndocumented = true))
-            close()
+        val configJson = projectDir.resolve("dokka-config.json").apply {
+            writeText(
+                jsonBuilder(
+                    outputPath = dokkaOutputDir.invariantSeparatorsPath,
+                    pluginsClasspath = dokkaPluginsClasspath,
+                    projectPath = File(projectDir, "src").invariantSeparatorsPath,
+                    reportUndocumented = true
+                )
+            )
         }
 
         val process = ProcessBuilder(
-            "java", "-jar", cliJarFile.path, jsonPath
+            "java",
+            "-jar", dokkaCliJarPath,
+            configJson.absolutePath,
         ).redirectErrorStream(true).start()
 
         val result = process.awaitProcessResult()
@@ -304,55 +317,57 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
     }
 
     /**
-     * This test disables global `reportUndocumneted` property and set `reportUndocumented` via perPackageOptions to
+     * This test disables global `reportUndocumented` property and set `reportUndocumented` via `perPackageOptions` to
      * make sure that global settings apply to dokka context.
      */
     @Test
     fun `global settings should overwrite package options in configuration`() {
         val dokkaOutputDir = File(projectDir, "output")
         assertTrue(dokkaOutputDir.mkdirs())
-        val resourcePath = javaClass.getResource("/my-file.json")?.toURI() ?: throw IllegalStateException("No JSON found!")
-        val jsonPath = File(resourcePath).absolutePath
-        PrintWriter(jsonPath).run {
-            write(
+
+        val configJson = projectDir.resolve("dokka-config.json").apply {
+            writeText(
                 jsonBuilder(
                     outputPath = dokkaOutputDir.invariantSeparatorsPath,
-                    pluginsClasspath = basePluginJarFile.invariantSeparatorsPath,
+                    pluginsClasspath = dokkaPluginsClasspath,
                     projectPath = File(projectDir, "src").invariantSeparatorsPath,
                     globalSourceLinks = """
-                        {
-                          "localDirectory": "/home/Vadim.Mishenev/dokka/examples/cli/src/main/kotlin",
-                          "remoteUrl": "https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-gradle-example/src/main/kotlin",
-                          "remoteLineSuffix": "#L"
-                        }
-                    """.trimIndent(),
-                    globalExternalDocumentationLinks = """
-                        {
-                          "url": "https://docs.oracle.com/javase/8/docs/api/",
-                          "packageListUrl": "https://docs.oracle.com/javase/8/docs/api/package-list"
-                        },
-                        {
-                          "url": "https://kotlinlang.org/api/latest/jvm/stdlib/",
-                          "packageListUrl": "https://kotlinlang.org/api/latest/jvm/stdlib/package-list"
-                        }
+                            {
+                              "localDirectory": "/home/Vadim.Mishenev/dokka/examples/cli/src/main/kotlin",
+                              "remoteUrl": "https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-gradle-example/src/main/kotlin",
+                              "remoteLineSuffix": "#L"
+                            }
                         """.trimIndent(),
+                    globalExternalDocumentationLinks = """
+                            {
+                              "url": "https://docs.oracle.com/javase/8/docs/api/",
+                              "packageListUrl": "https://docs.oracle.com/javase/8/docs/api/package-list"
+                            },
+                            {
+                              "url": "https://kotlinlang.org/api/latest/jvm/stdlib/",
+                              "packageListUrl": "https://kotlinlang.org/api/latest/jvm/stdlib/package-list"
+                            }
+                            """.trimIndent(),
                     globalPerPackageOptions = """
-                        {
-                          "matchingRegex": ".*",
-                          "skipDeprecated": "true",
-                          "reportUndocumented": "true", 
-                          "documentedVisibilities": ["PUBLIC", "PRIVATE", "PROTECTED", "INTERNAL", "PACKAGE"]
-                        }
-                    """.trimIndent(),
+                            {
+                              "matchingRegex": ".*",
+                              "skipDeprecated": "true",
+                              "reportUndocumented": "true", 
+                              "documentedVisibilities": ["PUBLIC", "PRIVATE", "PROTECTED", "INTERNAL", "PACKAGE"]
+                            }
+                        """.trimIndent(),
                     reportUndocumented = false
-                ),
+                )
             )
-            close()
         }
 
         val process = ProcessBuilder(
-            "java", "-jar", cliJarFile.path, jsonPath
-        ).redirectErrorStream(true).start()
+            "java",
+            "-jar", dokkaCliJarPath,
+            configJson.absolutePath,
+        )
+            .redirectErrorStream(true)
+            .start()
 
         val result = process.awaitProcessResult()
         assertEquals(0, result.exitCode, "Expected exitCode 0 (Success)")
@@ -376,23 +391,24 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
     }
 
     @Test
-    fun `relative paths in configuraiton should work`() {
-        val resourcePath =
-            javaClass.getResource("/my-file.json")?.toURI() ?: throw IllegalStateException("No JSON found!")
-        val jsonPath = File(resourcePath)
-
+    fun `relative paths in configuration should work`() {
         val dokkaOutputDir = File(projectDir, "output-relative")
         assertTrue(dokkaOutputDir.mkdirs())
-        jsonPath.writeText(
-            jsonBuilder(
-                outputPath = dokkaOutputDir.invariantSeparatorsPath,
-                pluginsClasspath = basePluginJarFile.absoluteFile.invariantSeparatorsPath,
-                projectPath = "src", // relative path
+
+        val configJson = projectDir.resolve("dokka-config.json").apply {
+            writeText(
+                jsonBuilder(
+                    outputPath = dokkaOutputDir.invariantSeparatorsPath,
+                    pluginsClasspath = dokkaPluginsClasspath,
+                    projectPath = "src", // relative path
+                )
             )
-        )
+        }
 
         ProcessBuilder(
-            "java", "-jar", cliJarFile.absolutePath, jsonPath.absolutePath
+            "java",
+            "-jar", dokkaCliJarPath,
+            configJson.absolutePath
         ).directory(projectDir).redirectErrorStream(true).start().also { process ->
             val result = process.awaitProcessResult()
             assertEquals(0, result.exitCode, "Expected exitCode 0 (Success)")

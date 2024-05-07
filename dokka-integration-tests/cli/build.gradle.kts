@@ -1,79 +1,89 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:Suppress("UnstableApiUsage")
 
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.api.attributes.Bundling.BUNDLING_ATTRIBUTE
+import org.gradle.api.attributes.Bundling.SHADOWED
 
 plugins {
-    id("dokkabuild.test-integration")
-    id("com.github.johnrengelman.shadow")
+    id("dokkabuild.kotlin-jvm")
+    id("dokkabuild.test-cli-dependencies")
+    `jvm-test-suite`
 }
 
 dependencies {
-    implementation(kotlin("test-junit5"))
-    implementation(libs.junit.jupiterApi)
-    implementation(projects.utilities)
-}
+    api(kotlin("test-junit5"))
+    api(libs.junit.jupiterApi)
+    api(projects.utilities)
 
-val cliPluginsClasspath: Configuration by configurations.creating {
-    description = "plugins/dependencies required to run CLI with base plugin"
-    attributes {
-        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
+    dokkaCli("org.jetbrains.dokka:runner-cli")
+
+    //region required dependencies of plugin-base
+    dokkaPluginsClasspath("org.jetbrains.dokka:plugin-base")
+    dokkaPluginsClasspath(libs.kotlinx.html)
+    dokkaPluginsClasspath(libs.freemarker)
+
+    val analysisDependency = dokkaBuild.integrationTestUseK2.map { useK2 ->
+        if (useK2) {
+            "org.jetbrains.dokka:analysis-kotlin-symbols"
+        } else {
+            "org.jetbrains.dokka:analysis-kotlin-descriptors"
+        }
     }
-
-    // we don't fetch transitive dependencies here to be able to control external dependencies explicitly
-    isTransitive = false
-}
-
-val cliClasspath: Configuration by configurations.creating {
-    description = "dependency on CLI JAR"
-    attributes {
-        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
-        attribute(Bundling.BUNDLING_ATTRIBUTE, project.objects.named(Bundling.SHADOWED))
-    }
-    // we should have single artifact here
-    isTransitive = false
-}
-
-dependencies {
-    cliClasspath("org.jetbrains.dokka:runner-cli")
-
-    cliPluginsClasspath("org.jetbrains.dokka:plugin-base")
-    // required dependencies of `plugin-base`
-    cliPluginsClasspath(libs.freemarker)
-    cliPluginsClasspath(libs.kotlinx.html)
-
-    val tryK2 = project.providers
-        .gradleProperty("org.jetbrains.dokka.experimental.tryK2")
-        .map(String::toBoolean)
-        .orNull ?: false
-
-    val analysisDependency = when {
-        tryK2 -> "org.jetbrains.dokka:analysis-kotlin-symbols"
-        else -> "org.jetbrains.dokka:analysis-kotlin-descriptors"
-    }
-
-    cliPluginsClasspath(analysisDependency) {
+    dokkaPluginsClasspath(analysisDependency) {
         attributes {
-            attribute(Bundling.BUNDLING_ATTRIBUTE, project.objects.named(Bundling.SHADOWED))
+            attribute(BUNDLING_ATTRIBUTE, project.objects.named(SHADOWED))
+        }
+    }
+    //endregion
+}
+
+/**
+ * Provide files required for running Dokka CLI in a build cache friendly way.
+ */
+abstract class DokkaCliClasspathProvider : CommandLineArgumentProvider {
+    @get:Classpath
+    abstract val dokkaCli: ConfigurableFileCollection
+
+    @get:Classpath
+    abstract val dokkaPluginsClasspath: ConfigurableFileCollection
+
+    override fun asArguments(): Iterable<String> = buildList {
+        require(dokkaCli.count() == 1) {
+            "Expected a single Dokka CLI JAR, but got ${dokkaCli.count()}"
+        }
+        add("-D" + "dokkaCliJarPath=" + dokkaCli.singleFile.absolutePath)
+        add("-D" + "dokkaPluginsClasspath=" + dokkaPluginsClasspath.joinToString(";") { it.absolutePath })
+    }
+}
+
+
+testing {
+    suites {
+        withType<JvmTestSuite>().configureEach {
+            useJUnitJupiter()
+        }
+
+        register<JvmTestSuite>("integrationTest") {
+            dependencies {
+                implementation(project())
+            }
+
+            targets.configureEach {
+                testTask.configure {
+                    jvmArgumentProviders.add(
+                        objects.newInstance<DokkaCliClasspathProvider>().apply {
+                            dokkaCli.from(configurations.dokkaCliResolver)
+                            dokkaPluginsClasspath.from(configurations.dokkaPluginsClasspathResolver)
+                        }
+                    )
+                }
+            }
         }
     }
 }
 
-val cliPluginsShadowJar by tasks.registering(ShadowJar::class) {
-    archiveFileName.set("cli-plugins-${project.version}.jar")
-    configurations = listOf(cliPluginsClasspath)
-
-    // service files are merged to make sure all Dokka plugins
-    // from the dependencies are loaded, and not just a single one.
-    mergeServiceFiles()
-}
-
-tasks.integrationTest {
-    dependsOn(cliClasspath)
-    dependsOn(cliPluginsShadowJar)
-
-    inputs.dir(file("projects"))
-    environment("CLI_JAR_PATH", cliClasspath.singleFile)
-    environment("BASE_PLUGIN_JAR_PATH", cliPluginsShadowJar.get().archiveFile.get())
+tasks.check {
+    dependsOn(testing.suites)
 }
