@@ -13,7 +13,6 @@ dependencies {
     // thus these dependencies are needed. Ideally, they should be removed.
     implementation(kotlin("test-junit5"))
 
-    implementation(libs.kotlinx.coroutines.core)
     implementation(libs.jsoup)
     implementation(libs.eclipse.jgit)
 }
