@@ -55,11 +55,11 @@ dependencies {
     }
 }
 
-    // access the frontend files via the dependency on :plugins:base:frontend
-    val dokkaHtmlFrontendFiles: Provider<FileCollection> =
+// access the frontend files via the dependency on :plugins:base:frontend
+val dokkaHtmlFrontendFiles: Provider<FileCollection> =
     configurations.dokkaHtmlFrontendFiles.map { frontendFiles ->
-            frontendFiles.incoming.artifacts.artifactFiles
-        }
+        frontendFiles.incoming.artifacts.artifactFiles
+    }
 
 val prepareDokkaHtmlFrontendFiles by tasks.registering(Sync::class) {
     description = "copy Dokka Base frontend files into the resources directory"
