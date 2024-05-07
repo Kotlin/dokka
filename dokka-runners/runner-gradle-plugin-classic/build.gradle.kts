@@ -28,7 +28,6 @@ dependencies {
     testImplementation("org.jetbrains.dokka:dokka-test-api:$version")
 }
 
-@Suppress("UnstableApiUsage")
 gradlePlugin {
     plugins {
         create("dokka") {
@@ -37,6 +36,7 @@ gradlePlugin {
 
             displayName = "Dokka plugin"
             description = "Dokka is an API documentation engine for Kotlin"
+            @Suppress("UnstableApiUsage")
             tags.addAll("dokka", "kotlin", "kdoc", "android", "documentation", "api")
         }
     }

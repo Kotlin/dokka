@@ -1,8 +1,8 @@
-import java.net.URI
-
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+
+import java.net.URI
 
 plugins {
     id("dokkabuild.base")
@@ -93,7 +93,9 @@ signing {
         System.getenv("DOKKA_SIGN_KEY_PASSPHRASE")?.takeIf(String::isNotBlank),
     )
     sign(publishing.publications)
-    setRequired(provider { !project.version.toString().endsWith("-SNAPSHOT") })
+    // no signing should be required for locally published artifacts,
+    // as they are used for manual testing and running integration tests only
+    setRequired(provider { gradle.taskGraph.allTasks.any { it is PublishToMavenRepository } })
 }
 
 // This is a hack for a Gradle 8 problem, see https://github.com/gradle/gradle/issues/26091
@@ -105,11 +107,4 @@ signing {
 tasks.withType<AbstractPublishToMaven>().configureEach {
     val signingTasks = tasks.withType<Sign>()
     mustRunAfter(signingTasks)
-}
-
-tasks.withType<PublishToMavenRepository>().configureEach {
-    // Configuration Cache allows tasks to run in parallel. Maven repositories (especially Maven Central)
-    // can't cope with parallel uploads, and might drop or split publications.
-    // As a workaround, disable Configuration Cache whenever publishing to remote Maven repos.
-    notCompatibleWithConfigurationCache("Prevent parallel publishing tasks")
 }
