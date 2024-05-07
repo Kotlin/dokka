@@ -78,11 +78,12 @@ public abstract interface class org/jetbrains/dokka/analysis/kotlin/sample/Funct
 	public abstract fun rewrite (Ljava/util/List;Ljava/util/List;)Ljava/lang/String;
 }
 
-public abstract interface class org/jetbrains/dokka/analysis/kotlin/sample/SampleAnalysisEnvironment {
+public abstract interface class org/jetbrains/dokka/analysis/kotlin/sample/SampleAnalysisEnvironment : java/io/Closeable {
 	public abstract fun resolveSample (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/lang/String;)Lorg/jetbrains/dokka/analysis/kotlin/sample/SampleSnippet;
 }
 
 public abstract interface class org/jetbrains/dokka/analysis/kotlin/sample/SampleAnalysisEnvironmentCreator {
+	public abstract fun create ()Lorg/jetbrains/dokka/analysis/kotlin/sample/SampleAnalysisEnvironment;
 	public abstract fun use (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 }
 

@@ -38,6 +38,9 @@ public final class org/jetbrains/dokka/DefaultExternalLinksKt {
 	public static final fun kotlinStdlib (Lorg/jetbrains/dokka/DokkaConfiguration$ExternalDocumentationLink$Companion;)Lorg/jetbrains/dokka/ExternalDocumentationLinkImpl;
 }
 
+public abstract interface annotation class org/jetbrains/dokka/DelicateDokkaApi : java/lang/annotation/Annotation {
+}
+
 public abstract interface class org/jetbrains/dokka/DokkaBootstrap {
 	public abstract fun configure (Ljava/lang/String;Ljava/util/function/BiConsumer;)V
 	public abstract fun generate ()V
