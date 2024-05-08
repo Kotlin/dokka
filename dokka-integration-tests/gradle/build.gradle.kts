@@ -95,7 +95,7 @@ tasks.withType<Test>().configureEach {
 
     // environment() isn't Provider API compatible yet https://github.com/gradle/gradle/issues/11534
     fun environmentProvider(name: String, provider: Provider<out Any>) {
-        inputs.property(name, provider)
+        inputs.property(name, provider).optional(true)
         provider.orNull?.let { environment(name, it) }
     }
 
