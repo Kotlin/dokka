@@ -105,18 +105,17 @@ internal class AnnotationTranslator {
 
             is KtArrayAnnotationValue -> ArrayValue(annotationValue.values.map { toDokkaAnnotationValue(it) })
             is KtAnnotationApplicationValue -> AnnotationValue(toDokkaAnnotation(annotationValue.annotationValue))
-            is KtKClassAnnotationValue.KtNonLocalKClassAnnotationValue -> ClassValue(
-                annotationValue.classId.relativeClassName.asString(),
-                annotationValue.classId.createDRI()
-            )
-
-            is KtKClassAnnotationValue.KtLocalKClassAnnotationValue -> throw IllegalStateException("Unexpected a local class in annotation")
-            is KtKClassAnnotationValue.KtErrorClassAnnotationValue -> ClassValue(
-                annotationValue.unresolvedQualifierName ?: "",
+            is KtKClassAnnotationValue -> annotationValue.classId?.let { classId ->
+                ClassValue(
+                    classId.relativeClassName.asString(),
+                    classId.createDRI()
+                )
+            } ?: ClassValue(
+                annotationValue.type.asStringForDebugging(),
                 DRI(packageName = "", classNames = ERROR_CLASS_NAME)
             )
 
-            KtUnsupportedAnnotationValue -> ClassValue(
+            is KtUnsupportedAnnotationValue -> ClassValue(
                 "<Unsupported Annotation Value>",
                 DRI(packageName = "", classNames = ERROR_CLASS_NAME)
             )
