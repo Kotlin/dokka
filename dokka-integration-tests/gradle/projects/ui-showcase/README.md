@@ -16,8 +16,9 @@ export DOKKA_TEST_OUTPUT_PATH="build/ui-showcase-result"
 
 Dokka should be published in one of the following repositories:
 [MavenCentral](https://central.sonatype.com),
-[dev](https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev) or
-[test](https://maven.pkg.jetbrains.space/kotlin/p/dokka/test)
+[dev](https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev),
+[test](https://maven.pkg.jetbrains.space/kotlin/p/dokka/test) or
+`mavenLocal` (in this case the version should contain `-local-` suffix, f.e `2.0.0-local-reproducing-bug`)
 
 ```bash
 export DOKKA_TEST_OUTPUT_PATH="build/ui-showcase-result"

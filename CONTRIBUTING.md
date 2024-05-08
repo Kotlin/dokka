@@ -105,10 +105,11 @@ However, if you need to run all integration tests locally, you can use the `inte
 If you need to run a specific test locally, you can run it from your IDE or by calling the corresponding Gradle
 task (for example, `:dokka-integration-tests:gradle:testExternalProjectKotlinxCoroutines`).
 
-It's possible to run integration tests with a custom Dokka version published to 
+It's possible to run integration tests with a custom Dokka version published to
 [MavenCentral](https://central.sonatype.com),
-[dev](https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev) or
-[test](https://maven.pkg.jetbrains.space/kotlin/p/dokka/test) 
+[dev](https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev),
+[test](https://maven.pkg.jetbrains.space/kotlin/p/dokka/test) or
+`mavenLocal` (in this case the version should contain `-local-` suffix, f.e `2.0.0-local-reproducing-bug`) 
 via `org.jetbrains.dokka.integration_test.dokkaVersionOverride` Gradle property:
 
 ```bash
