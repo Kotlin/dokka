@@ -109,7 +109,7 @@ It's possible to run integration tests with a custom Dokka version published to
 [MavenCentral](https://central.sonatype.com),
 [dev](https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev),
 [test](https://maven.pkg.jetbrains.space/kotlin/p/dokka/test) or
-`mavenLocal` (in this case the version should contain `-local-` suffix, f.e `2.0.0-local-reproducing-bug`) 
+`mavenLocal` 
 via `org.jetbrains.dokka.integration_test.dokkaVersionOverride` Gradle property:
 
 ```bash

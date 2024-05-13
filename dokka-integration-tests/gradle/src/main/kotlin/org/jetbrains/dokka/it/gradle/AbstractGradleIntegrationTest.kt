@@ -129,30 +129,15 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
 
         private val mavenRepositories: String by lazy {
             val reposSpecs = if (dokkaVersionOverride != null) {
+                println("Dokka version overridden with $dokkaVersionOverride")
                 // if `DOKKA_VERSION_OVERRIDE` environment variable is provided,
                 //  we allow running tests on a custom Dokka version from specific repositories
-                when {
-                    // release version like `2.0.0`
-                    !dokkaVersion.contains("-") -> "mavenCentral()"
-                    // locally published version for testing some bug like `2.0.0-local-reproducing-bug`
-                    dokkaVersion.contains("-local-") -> "mavenLocal()"
-                    // dev version like `2.0.0-dev-329`
-                    dokkaVersion.contains("-dev-") -> "maven(\"https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev\")"
-                    // test version like `2.0.0-test-49477c44dfc58e2702f4c145ff41190b39d117fb`
-                    dokkaVersion.contains("-test-") -> "maven(\"https://maven.pkg.jetbrains.space/kotlin/p/dokka/test\")"
-                    else -> error(
-                        """
-                        Provided Dokka version override is not supported: $dokkaVersion.
-                        Supported versions are:
-                        - release versions like '2.0.0'
-                        - dev versions like `2.0.0-dev-329`
-                        - test versions like `2.0.0-test-49477c44dfc58e2702f4c145ff41190b39d117fb`
-                        - locally published (to mavenLocal) versions with `-local-` suffix like `2.0.0-local-reproducing-bug`
-                        """.trimIndent()
-                    )
-                }.also { repository ->
-                    println("Dokka version overridden with ${dokkaVersionOverride}. Using $repository for resolving Dokka")
-                }
+                """
+                maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/test"),
+                maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev"),
+                mavenCentral(),
+                mavenLocal()
+                """.trimIndent()
             } else {
                 // otherwise - use locally published versions via `devMavenPublish`
                 devMavenRepositories.withIndex().joinToString(",\n") { (i, repoPath) ->
