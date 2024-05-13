@@ -184,7 +184,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
 
         fun File.updateProjectLocalMavenDir() {
 
-            val dokkaMavenRepoMarker = "/* %{PROJECT_LOCAL_MAVEN_DIR}% */"
+            val dokkaMavenRepoMarker = "/* %{DOKKA_IT_MAVEN_REPO}% */"
 
             // Exclusive repository containing local Dokka artifacts.
             // Must be compatible with both Groovy and Kotlin DSL.
