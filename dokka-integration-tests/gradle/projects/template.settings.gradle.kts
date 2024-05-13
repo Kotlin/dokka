@@ -36,7 +36,7 @@ pluginManagement {
         }
     }
     repositories {
-        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
+        /* %{DOKKA_IT_MAVEN_REPO}% */
         mavenCentral()
         gradlePluginPortal()
         google()
@@ -47,7 +47,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
-        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
+        /* %{DOKKA_IT_MAVEN_REPO}% */
         mavenCentral()
         google()
         maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
