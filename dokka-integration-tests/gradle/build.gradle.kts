@@ -94,12 +94,14 @@ tasks.withType<Test>().configureEach {
     }
 
     // environment() isn't Provider API compatible yet https://github.com/gradle/gradle/issues/11534
-    dokkaBuild.integrationTestExhaustive.orNull?.let { exhaustive ->
-        environment("isExhaustive", exhaustive)
+    fun environmentProvider(name: String, provider: Provider<out Any>) {
+        inputs.property(name, provider).optional(true)
+        provider.orNull?.let { environment(name, it) }
     }
-    dokkaBuild.androidSdkDir.orNull?.let { androidSdkDir ->
-        environment("ANDROID_HOME", androidSdkDir.invariantSeparatorsPath)
-    }
+
+    environmentProvider("DOKKA_VERSION_OVERRIDE", dokkaBuild.integrationTestDokkaVersionOverride)
+    environmentProvider("isExhaustive", dokkaBuild.integrationTestExhaustive)
+    environmentProvider("ANDROID_HOME", dokkaBuild.androidSdkDir.map { it.invariantSeparatorsPath })
 
     testLogging {
         exceptionFormat = FULL
