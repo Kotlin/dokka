@@ -13,11 +13,14 @@ plugins {
 overridePublicationArtifactId("analysis-kotlin-descriptors")
 
 dependencies {
-    // to override some interfaces (JvmAnnotationEnumFieldValue, JvmAnnotationConstantValue) from compiler since thet are empty there
+    // to override some interfaces (JvmAnnotationEnumFieldValue, JvmAnnotationConstantValue)
+    // from `kotlin-compiler`, since they are empty there
+    // this is a `hack` to include classes from `intellij-java-psi-api` in shadowJar
     // should be `api` since we already have it in :analysis-java-psi
-    api(libs.intellij.java.psi.api) {
-        isTransitive = false
-    }
+    // it's harder to do it in the same as with `fastutil`
+    // as several intellij dependencies share the same packages like `org.intellij.core`
+    api(libs.intellij.java.psi.api) { isTransitive = false }
+
     implementation(projects.dokkaSubprojects.analysisKotlinApi)
     implementation(projects.dokkaSubprojects.analysisKotlinDescriptorsCompiler)
     implementation(projects.dokkaSubprojects.analysisKotlinDescriptorsIde)
