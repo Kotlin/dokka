@@ -7,7 +7,7 @@ index 73b566ae..e2af43bd 100644
 
      repositories {
 -        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
-+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++        /* %{DOKKA_IT_MAVEN_REPO}% */
 +        //maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
          // kotlin-dev with space redirector
          maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
@@ -61,7 +61,7 @@ index 73b566ae..e2af43bd 100644
          // Snapshot-specific
          repositories {
 -            mavenLocal()
-+            /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++            /* %{DOKKA_IT_MAVEN_REPO}% */
 +            //mavenLocal()
              maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
          }
@@ -70,7 +70,7 @@ index 73b566ae..e2af43bd 100644
      }
 
      repositories {
-+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++        /* %{DOKKA_IT_MAVEN_REPO}% */
          mavenCentral()
 -        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
 +        //maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev' }
@@ -92,7 +92,7 @@ index c999bcd2..98afdae7 100644
  }
 
  repositories {
-+    /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++    /* %{DOKKA_IT_MAVEN_REPO}% */
      mavenCentral()
 -    mavenLocal()
 +    //mavenLocal()
@@ -143,7 +143,7 @@ index dda68347..119c321a 100644
 
      repositories {
 -        mavenLocal()
-+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++        /* %{DOKKA_IT_MAVEN_REPO}% */
 +        //mavenLocal()
          mavenCentral()
          maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
@@ -153,7 +153,7 @@ index dda68347..119c321a 100644
 
  repositories {
 -    mavenLocal()
-+    /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++    /* %{DOKKA_IT_MAVEN_REPO}% */
 +    //mavenLocal()
      mavenCentral()
      maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
@@ -166,7 +166,7 @@ index f8cb2d87..beebf995 100644
      }
 
      repositories {
-+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++        /* %{DOKKA_IT_MAVEN_REPO}% */
          mavenCentral()
          maven { url 'https://plugins.gradle.org/m2/' }
          maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
