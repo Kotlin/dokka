@@ -109,9 +109,7 @@ internal class DefaultDescriptorToDocumentableTranslator(
 
         return DokkaDescriptorVisitor(sourceSet, kdocFinder, kotlinAnalysis[sourceSet], context.logger, javadocParser).run {
             packageFragments.parallelMap {
-                visitPackageFragmentDescriptor(
-                    it
-                )
+                visitPackageFragmentDescriptor(it)
             }
         }.let {
             DModule(
@@ -167,15 +165,16 @@ private class DokkaDescriptorVisitor(
 ) {
     private val syntheticDocProvider = SyntheticDescriptorDocumentationProvider(kDocFinder, sourceSet)
 
+    // in most cases it will contain just 1 element
+    private val sourceRoots = sourceSet.sourceRoots.map { it.toPath().toAbsolutePath().normalize() }
     private fun Collection<DeclarationDescriptor>.filterDescriptorsInSourceSet() = filter {
+        // the path returned from compiler is already absolute and normalized
         val pathString = it.toSourceElement.containingFile.toString()
         when {
             pathString.isBlank() -> false
             else -> {
-                val absolutePath = Paths.get(pathString).toRealPath()
-                sourceSet.sourceRoots.any { root ->
-                    absolutePath.startsWith(root.toPath().toRealPath())
-                }
+                val path = Paths.get(pathString)
+                sourceRoots.any { root -> path.startsWith(root) }
             }
         }
     }
