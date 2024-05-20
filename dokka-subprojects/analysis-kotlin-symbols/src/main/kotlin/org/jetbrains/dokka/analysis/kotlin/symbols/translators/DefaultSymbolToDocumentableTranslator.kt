@@ -40,11 +40,8 @@ import org.jetbrains.kotlin.analysis.api.types.*
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.descriptors.java.JavaVisibilities
-import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.hasActualModifier
-import org.jetbrains.kotlin.psi.psiUtil.hasExpectModifier
 
 internal class DefaultSymbolToDocumentableTranslator(context: DokkaContext) : AsyncSourceToDocumentableTranslator {
     private val kotlinAnalysis = context.plugin<SymbolsAnalysisPlugin>().querySingle { kotlinAnalysis }
@@ -92,12 +89,6 @@ internal class DokkaSymbolVisitor(
     private var typeTranslator = TypeTranslator(sourceSet, annotationTranslator)
 
     private fun <T> T.toSourceSetDependent() = if (this != null) mapOf(sourceSet to this) else emptyMap()
-
-    // KT-54846 will replace
-    private val KtDeclarationSymbol.isActual
-        get() = (psi as? KtModifierListOwner)?.hasActualModifier() == true
-    private val KtDeclarationSymbol.isExpect
-        get() = (psi as? KtModifierListOwner)?.hasExpectModifier() == true
 
     private fun <T : KtSymbol> List<T>.filterSymbolsInSourceSet(moduleFiles: Set<KtFile>): List<T> = filter {
         when (val file = it.psi?.containingFile) {
@@ -481,26 +472,18 @@ internal class DokkaSymbolVisitor(
         withExceptionCatcher(propertySymbol) {
             val dri = createDRIWithOverridden(propertySymbol).origin
             val inheritedFrom = dri.getInheritedFromDRI(parent)
-            val isExpect = propertySymbol.isExpect
-            val isActual = propertySymbol.isActual
-            val generics =
-                propertySymbol.typeParameters.mapIndexed { index, symbol ->
-                    visitVariantTypeParameter(
-                        index,
-                        symbol,
-                        dri
-                    )
-                }
+            val (isExpect, isActual) = when (propertySymbol) {
+                is KtKotlinPropertySymbol -> propertySymbol.isExpect to propertySymbol.isActual
+                is KtSyntheticJavaPropertySymbol -> false to false
+            }
+            val generics = propertySymbol.typeParameters.mapIndexed { index, symbol ->
+                visitVariantTypeParameter(index, symbol, dri)
+            }
 
             return DProperty(
                 dri = dri,
                 name = propertySymbol.name.asString(),
-                receiver = propertySymbol.receiverParameter?.let {
-                    visitReceiverParameter(
-                        it,
-                        dri
-                    )
-                },
+                receiver = propertySymbol.receiverParameter?.let { visitReceiverParameter(it, dri) },
                 sources = propertySymbol.getSource(),
                 getter = propertySymbol.getter?.let { visitPropertyAccessor(it, propertySymbol, dri) },
                 setter = propertySymbol.setter?.let { visitPropertyAccessor(it, propertySymbol, dri) },
@@ -592,8 +575,10 @@ internal class DokkaSymbolVisitor(
         // for SyntheticJavaProperty
         val inheritedFrom = if(propertyAccessorSymbol.origin == KtSymbolOrigin.JAVA_SYNTHETIC_PROPERTY) dri.copy(callable = null) else null
 
-        val isExpect = propertyAccessorSymbol.isExpect
-        val isActual = propertyAccessorSymbol.isActual
+        val (isExpect, isActual) = when (propertySymbol) {
+            is KtKotlinPropertySymbol -> propertySymbol.isExpect to propertySymbol.isActual
+            is KtSyntheticJavaPropertySymbol -> false to false
+        }
 
         val generics = propertyAccessorSymbol.typeParameters.mapIndexed { index, symbol ->
             visitVariantTypeParameter(
@@ -607,12 +592,7 @@ internal class DokkaSymbolVisitor(
             dri = dri,
             name = name,
             isConstructor = false,
-            receiver = propertyAccessorSymbol.receiverParameter?.let {
-                visitReceiverParameter(
-                    it,
-                    dri
-                )
-            },
+            receiver = propertyAccessorSymbol.receiverParameter?.let { visitReceiverParameter(it, dri) },
             parameters = propertyAccessorSymbol.valueParameters.mapIndexed { index, symbol ->
                 visitValueParameter(index, symbol, dri)
             },

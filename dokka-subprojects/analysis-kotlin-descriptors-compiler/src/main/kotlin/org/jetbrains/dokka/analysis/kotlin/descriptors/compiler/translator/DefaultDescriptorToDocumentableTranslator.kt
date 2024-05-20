@@ -740,8 +740,8 @@ private class DokkaDescriptorVisitor(
     ): DFunction {
         val dri = parent.copy(callable = Callable.from(descriptor))
         val isGetter = descriptor is PropertyGetterDescriptor
-        val isExpect = descriptor.isExpect
-        val isActual = descriptor.isActual
+        val isExpect = propertyDescriptor.isExpect
+        val isActual = propertyDescriptor.isActual
 
         suspend fun PropertyDescriptor.asParameter(parent: DRI) =
             DParameter(

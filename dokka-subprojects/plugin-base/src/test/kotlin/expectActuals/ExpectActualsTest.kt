@@ -9,10 +9,101 @@ import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 
 class ExpectActualsTest : BaseAbstractTest() {
+
+    private val multiplatformConfiguration = dokkaConfiguration {
+        sourceSets {
+            val commonId = sourceSet {
+                sourceRoots = listOf("src/common/")
+                analysisPlatform = "common"
+                name = "common"
+                displayName = "common"
+            }.value.sourceSetID
+            sourceSet {
+                sourceRoots = listOf("src/jvm/")
+                analysisPlatform = "jvm"
+                name = "jvm"
+                displayName = "jvm"
+                dependentSourceSets = setOf(commonId)
+            }
+            sourceSet {
+                sourceRoots = listOf("src/native/")
+                analysisPlatform = "native"
+                name = "native"
+                displayName = "native"
+                dependentSourceSets = setOf(commonId)
+            }
+        }
+    }
+    private val commonSourceSetId =
+        multiplatformConfiguration.sourceSets.single { it.displayName == "common" }.sourceSetID
+
+    @Test
+    fun `should recognize expect property in class`() = testInline(
+        """
+        /src/common/test.kt
+        expect class ExpectActualClass {
+          val property: String?
+        }
+        
+        /src/jvm/test.kt
+        actual class ExpectActualClass {
+          actual val property: String? = null
+        }
+        
+        /src/native/test.kt
+        actual class ExpectActualClass {
+          actual val property: String? = null
+        }
+        """.trimMargin(),
+        multiplatformConfiguration
+    ) {
+        documentablesTransformationStage = { module ->
+            val cls = module.packages.single().classlikes.single { it.name == "ExpectActualClass" }
+            assertTrue(cls.isExpectActual)
+            assertEquals(commonSourceSetId, cls.expectPresentInSet?.sourceSetID)
+            val property = cls.properties.single { it.name == "property" }
+            assertTrue(property.isExpectActual)
+            assertEquals(commonSourceSetId, property.expectPresentInSet?.sourceSetID)
+            val getter = assertNotNull(property.getter)
+            assertTrue(getter.isExpectActual)
+            assertEquals(commonSourceSetId, getter.expectPresentInSet?.sourceSetID)
+        }
+    }
+
+    @Test
+    fun `should recognize expect function in class`() = testInline(
+        """
+        /src/common/test.kt
+        expect class ExpectActualClass {
+          fun function(): String?
+        }
+        
+        /src/jvm/test.kt
+        actual class ExpectActualClass {
+          actual fun function(): String? = null
+        }
+        
+        /src/native/test.kt
+        actual class ExpectActualClass {
+          actual fun function(): String? = null
+        }
+        """.trimMargin(),
+        multiplatformConfiguration
+    ) {
+        documentablesTransformationStage = { module ->
+            val cls = module.packages.single().classlikes.single { it.name == "ExpectActualClass" }
+            assertTrue(cls.isExpectActual)
+            assertEquals(commonSourceSetId, cls.expectPresentInSet?.sourceSetID)
+            val property = cls.functions.single { it.name == "function" }
+            assertTrue(property.isExpectActual)
+            assertEquals(commonSourceSetId, property.expectPresentInSet?.sourceSetID)
+        }
+    }
 
     @Test
     fun `three same named expect actual classes`() {
