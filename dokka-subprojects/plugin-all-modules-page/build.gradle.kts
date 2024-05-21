@@ -7,6 +7,7 @@ import dokkabuild.overridePublicationArtifactId
 plugins {
     id("dokkabuild.kotlin-jvm")
     id("dokkabuild.publish-jvm")
+    id("dokkabuild.test-k2")
 }
 
 overridePublicationArtifactId("all-modules-page-plugin")
@@ -29,4 +30,7 @@ dependencies {
     testImplementation(projects.dokkaSubprojects.pluginGfmTemplateProcessing)
     testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
     testImplementation(projects.dokkaSubprojects.dokkaTestApi)
+
+    symbolsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
 }
