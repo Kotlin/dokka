@@ -740,8 +740,6 @@ private class DokkaDescriptorVisitor(
     ): DFunction {
         val dri = parent.copy(callable = Callable.from(descriptor))
         val isGetter = descriptor is PropertyGetterDescriptor
-        val isExpect = propertyDescriptor.isExpect
-        val isActual = propertyDescriptor.isActual
 
         suspend fun PropertyDescriptor.asParameter(parent: DRI) =
             DParameter(
@@ -798,7 +796,7 @@ private class DokkaDescriptorVisitor(
                 type = descriptor.returnType!!.toBound(),
                 generics = generics.await(),
                 modifier = descriptor.modifier().toSourceSetDependent(),
-                expectPresentInSet = sourceSet.takeIf { isExpect },
+                expectPresentInSet = null,
                 receiver = descriptor.extensionReceiverParameter?.let {
                     visitReceiverParameterDescriptor(
                         it,
@@ -807,7 +805,7 @@ private class DokkaDescriptorVisitor(
                 },
                 sources = descriptor.createSources(),
                 sourceSets = setOf(sourceSet),
-                isExpectActual = (isExpect || isActual),
+                isExpectActual = false,
                 extra = PropertyContainer.withAll(
                     descriptor.additionalExtras().toSourceSetDependent().toAdditionalModifiers(),
                     descriptor.getAnnotations().toSourceSetDependent().toAnnotations(),

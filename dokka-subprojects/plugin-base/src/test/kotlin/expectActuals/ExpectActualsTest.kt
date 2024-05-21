@@ -69,9 +69,6 @@ class ExpectActualsTest : BaseAbstractTest() {
             val property = cls.properties.single { it.name == "property" }
             assertTrue(property.isExpectActual)
             assertEquals(commonSourceSetId, property.expectPresentInSet?.sourceSetID)
-            val getter = assertNotNull(property.getter)
-            assertTrue(getter.isExpectActual)
-            assertEquals(commonSourceSetId, getter.expectPresentInSet?.sourceSetID)
         }
     }
 

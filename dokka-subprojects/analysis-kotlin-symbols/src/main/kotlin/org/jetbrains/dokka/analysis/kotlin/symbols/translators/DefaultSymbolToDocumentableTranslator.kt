@@ -476,14 +476,24 @@ internal class DokkaSymbolVisitor(
                 is KtKotlinPropertySymbol -> propertySymbol.isExpect to propertySymbol.isActual
                 is KtSyntheticJavaPropertySymbol -> false to false
             }
-            val generics = propertySymbol.typeParameters.mapIndexed { index, symbol ->
-                visitVariantTypeParameter(index, symbol, dri)
-            }
+            val generics =
+                propertySymbol.typeParameters.mapIndexed { index, symbol ->
+                    visitVariantTypeParameter(
+                        index,
+                        symbol,
+                        dri
+                    )
+                }
 
             return DProperty(
                 dri = dri,
                 name = propertySymbol.name.asString(),
-                receiver = propertySymbol.receiverParameter?.let { visitReceiverParameter(it, dri) },
+                receiver = propertySymbol.receiverParameter?.let {
+                    visitReceiverParameter(
+                        it,
+                        dri
+                    )
+                },
                 sources = propertySymbol.getSource(),
                 getter = propertySymbol.getter?.let { visitPropertyAccessor(it, propertySymbol, dri) },
                 setter = propertySymbol.setter?.let { visitPropertyAccessor(it, propertySymbol, dri) },
@@ -575,11 +585,6 @@ internal class DokkaSymbolVisitor(
         // for SyntheticJavaProperty
         val inheritedFrom = if(propertyAccessorSymbol.origin == KtSymbolOrigin.JAVA_SYNTHETIC_PROPERTY) dri.copy(callable = null) else null
 
-        val (isExpect, isActual) = when (propertySymbol) {
-            is KtKotlinPropertySymbol -> propertySymbol.isExpect to propertySymbol.isActual
-            is KtSyntheticJavaPropertySymbol -> false to false
-        }
-
         val generics = propertyAccessorSymbol.typeParameters.mapIndexed { index, symbol ->
             visitVariantTypeParameter(
                 index,
@@ -592,11 +597,16 @@ internal class DokkaSymbolVisitor(
             dri = dri,
             name = name,
             isConstructor = false,
-            receiver = propertyAccessorSymbol.receiverParameter?.let { visitReceiverParameter(it, dri) },
+            receiver = propertyAccessorSymbol.receiverParameter?.let {
+                visitReceiverParameter(
+                    it,
+                    dri
+                )
+            },
             parameters = propertyAccessorSymbol.valueParameters.mapIndexed { index, symbol ->
                 visitValueParameter(index, symbol, dri)
             },
-            expectPresentInSet = sourceSet.takeIf { isExpect },
+            expectPresentInSet = null,
             sources = propertyAccessorSymbol.getSource(),
             visibility = propertyAccessorSymbol.visibility.toDokkaVisibility().toSourceSetDependent(),
             generics = generics,
@@ -604,7 +614,7 @@ internal class DokkaSymbolVisitor(
             modifier = propertyAccessorSymbol.getDokkaModality().toSourceSetDependent(),
             type = toBoundFrom(propertyAccessorSymbol.returnType),
             sourceSets = setOf(sourceSet),
-            isExpectActual = (isExpect || isActual),
+            isExpectActual = false,
             extra = PropertyContainer.withAll(
                 propertyAccessorSymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
                 inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
