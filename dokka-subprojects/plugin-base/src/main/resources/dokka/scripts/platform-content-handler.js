@@ -109,8 +109,7 @@ const samplesAreEnabled = () => {
             // Due to possible interaction with other js scripts KotlinPlayground may not be accessible directly from `window`, so we need an additional check
             KotlinPlayground = exports.KotlinPlayground;
         }
-        KotlinPlayground
-        return true
+        return typeof KotlinPlayground === 'function';
     } catch (e) {
         return false
     }
