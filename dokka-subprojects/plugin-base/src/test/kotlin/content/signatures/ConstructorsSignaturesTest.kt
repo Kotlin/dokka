@@ -6,10 +6,12 @@ package content.signatures
 
 import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.pages.BasicTabbedContentType
 import org.jetbrains.dokka.pages.ContentPage
 import kotlin.test.Test
 import utils.OnlyDescriptors
+import kotlin.test.assertEquals
 
 class ConstructorsSignaturesTest : BaseAbstractTest() {
     private val testConfiguration = dokkaConfiguration {
@@ -17,6 +19,24 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
             sourceSet {
                 sourceRoots = listOf("src/")
                 analysisPlatform = "jvm"
+            }
+        }
+    }
+
+    private val multiplatformConfiguration = dokkaConfiguration {
+        sourceSets {
+            val commonId = sourceSet {
+                sourceRoots = listOf("src/common/")
+                analysisPlatform = "common"
+                name = "common"
+                displayName = "common"
+            }.value.sourceSetID
+            sourceSet {
+                sourceRoots = listOf("src/jvm/")
+                analysisPlatform = "jvm"
+                name = "jvm"
+                displayName = "jvm"
+                dependentSourceSets = setOf(commonId)
             }
         }
     }
@@ -461,6 +481,247 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `expect class without constructor should have only primary constructor`() {
+        testInline(
+            """
+            |/src/common/test.kt
+            |expect class ExpectActualClass
+            |/src/jvm/test.kt
+            |actual class ExpectActualClass
+        """.trimIndent(), multiplatformConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page =
+                    module.children.single { it.name == "[root]" }
+                        .children.single { it.name == "ExpectActualClass" } as ContentPage
+                page.content.assertNode {
+                    group {
+                        header(1) { +"ExpectActualClass" }
+                        platformHinted {
+                            check {
+                                assertEquals(setOf("common", "jvm"), sourceSets.map(DisplaySourceSet::name).toSet())
+                            }
+                            group {
+                                check {
+                                    assertEquals("common", this.sourceSets.single().name)
+                                }
+                                +"expect class "
+                                link { +"ExpectActualClass" }
+                            }
+                            group {
+                                check {
+                                    assertEquals("jvm", this.sourceSets.single().name)
+                                }
+                                +"actual class "
+                                link { +"ExpectActualClass" }
+                            }
+                        }
+                    }
+                    group {
+                        group {
+                            group {
+                                header(2) { +"Constructors" }
+                                table {
+                                    group {
+                                        link { +"ExpectActualClass" }
+                                        platformHinted {
+                                            check {
+                                                // constructor should exist only for jvm source set
+                                                assertEquals(
+                                                    setOf("jvm"),
+                                                    sourceSets.map(DisplaySourceSet::name).toSet()
+                                                )
+                                            }
+                                            group {
+                                                check { assertEquals("jvm", this.sourceSets.single().name) }
+                                                // no actual modifier
+                                                +"constructor()"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        skipAllNotMatching()
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `expect class with empty constructor should have only both expect and actual constructor`() {
+        testInline(
+            """
+            |/src/common/test.kt
+            |expect class ExpectActualClass()
+            |/src/jvm/test.kt
+            |actual class ExpectActualClass actual constructor()
+        """.trimIndent(), multiplatformConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page =
+                    module.children.single { it.name == "[root]" }
+                        .children.single { it.name == "ExpectActualClass" } as ContentPage
+                page.content.assertNode {
+                    group {
+                        header(1) { +"ExpectActualClass" }
+                        platformHinted {
+                            check {
+                                assertEquals(
+                                    setOf("common", "jvm"),
+                                    sourceSets.map(DisplaySourceSet::name).toSet()
+                                )
+                            }
+                            group {
+                                check {
+                                    assertEquals("common", this.sourceSets.single().name)
+                                }
+                                +"expect class "
+                                link { +"ExpectActualClass" }
+                            }
+                            group {
+                                check {
+                                    assertEquals("jvm", this.sourceSets.single().name)
+                                }
+                                +"actual class "
+                                link { +"ExpectActualClass" }
+                            }
+                        }
+                    }
+                    group {
+                        group {
+                            group {
+                                header(2) { +"Constructors" }
+                                table {
+                                    group {
+                                        link { +"ExpectActualClass" }
+                                        platformHinted {
+                                            check {
+                                                assertEquals(
+                                                    setOf("common", "jvm"),
+                                                    sourceSets.map(DisplaySourceSet::name).toSet()
+                                                )
+                                            }
+                                            group {
+                                                check { assertEquals("common", this.sourceSets.single().name) }
+                                                +"expect constructor()"
+                                            }
+                                            group {
+                                                check { assertEquals("jvm", this.sourceSets.single().name) }
+                                                +"actual constructor()"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        skipAllNotMatching()
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `expect class with constructor with parameter`() {
+        testInline(
+            """
+            |/src/common/test.kt
+            |expect class ExpectActualClass(a: String)
+            |/src/jvm/test.kt
+            |actual class ExpectActualClass actual constructor(a: String)
+        """.trimIndent(), multiplatformConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page =
+                    module.children.single { it.name == "[root]" }
+                        .children.single { it.name == "ExpectActualClass" } as ContentPage
+                page.content.assertNode {
+                    group {
+                        header(1) { +"ExpectActualClass" }
+                        platformHinted {
+                            check {
+                                assertEquals(setOf("common", "jvm"), sourceSets.map(DisplaySourceSet::name).toSet())
+                            }
+                            group {
+                                check {
+                                    assertEquals("common", this.sourceSets.single().name)
+                                }
+                                +"expect class "
+                                link { +"ExpectActualClass" }
+                                +"("
+                                group {
+                                    group {
+                                        +"a: "
+                                        group { link { +"String" } }
+                                    }
+                                }
+                                +")"
+                            }
+                            group {
+                                check {
+                                    assertEquals("jvm", this.sourceSets.single().name)
+                                }
+                                +"actual class "
+                                link { +"ExpectActualClass" }
+                                +"("
+                                group {
+                                    group {
+                                        +"a: "
+                                        group { link { +"String" } }
+                                    }
+                                }
+                                +")"
+                            }
+                        }
+                    }
+                    group {
+                        group {
+                            group {
+                                header(2) { +"Constructors" }
+                                table {
+                                    group {
+                                        link { +"ExpectActualClass" }
+                                        platformHinted {
+                                            check {
+                                                println(this)
+                                            }
+                                            group {
+                                                check { assertEquals("common", this.sourceSets.single().name) }
+                                                +"expect constructor("
+                                                group {
+                                                    group {
+                                                        +"a: "
+                                                        group { link { +"String" } }
+                                                    }
+                                                }
+                                                +")"
+                                            }
+                                            group {
+                                                check { assertEquals("jvm", this.sourceSets.single().name) }
+                                                +"actual constructor("
+                                                group {
+                                                    group {
+                                                        +"a: "
+                                                        group { link { +"String" } }
+                                                    }
+                                                }
+                                                +")"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        skipAllNotMatching()
                     }
                 }
             }
