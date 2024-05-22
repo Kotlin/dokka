@@ -94,12 +94,14 @@ tasks.withType<Test>().configureEach {
     }
 
     // environment() isn't Provider API compatible yet https://github.com/gradle/gradle/issues/11534
-    dokkaBuild.integrationTestExhaustive.orNull?.let { exhaustive ->
-        environment("isExhaustive", exhaustive)
+    fun environmentProvider(name: String, provider: Provider<out Any>) {
+        inputs.property(name, provider).optional(true)
+        provider.orNull?.let { environment(name, it) }
     }
-    dokkaBuild.androidSdkDir.orNull?.let { androidSdkDir ->
-        environment("ANDROID_HOME", androidSdkDir.invariantSeparatorsPath)
-    }
+
+    environmentProvider("DOKKA_VERSION_OVERRIDE", dokkaBuild.integrationTestDokkaVersionOverride)
+    environmentProvider("isExhaustive", dokkaBuild.integrationTestExhaustive)
+    environmentProvider("ANDROID_HOME", dokkaBuild.androidSdkDir.map { it.invariantSeparatorsPath })
 
     testLogging {
         exceptionFormat = FULL
@@ -272,7 +274,7 @@ val testAllExternalProjects by tasks.registering {
 
 val integrationTest by tasks.registering {
     description = "Lifecycle task for running integration tests"
-    // TODO - Refactor Maven and CLI integration tests to use Test Suites
+    // TODO KT-64200 - Refactor Maven and CLI integration tests to use Test Suites
     //      - Reimplement dokkabuild.test-integration.gradle.kts so that `integrationTest` is defined once there
     dependsOn(tasks.withType<Test>()) // all tests in this project are integration tests
 }

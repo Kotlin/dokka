@@ -10,6 +10,7 @@ import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.dokka.DelicateDokkaApi
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.analysis.kotlin.KotlinAnalysisPlugin
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.CompilerDescriptorAnalysisPlugin
@@ -49,21 +50,22 @@ internal class DescriptorSampleAnalysisEnvironmentCreator(
         // avoid memory leaks through the compiler's ThreadLocals.
         // Might not be relevant if the project stops using coroutines.
         return runBlocking(Dispatchers.Default) {
-            @OptIn(DokkaPluginApiPreview::class)
-            SamplesKotlinAnalysis(
+            create().use(block)
+        }
+    }
+
+    @OptIn(DokkaPluginApiPreview::class, DelicateDokkaApi::class)
+    override fun create(): SampleAnalysisEnvironment {
+        return DescriptorSampleAnalysisEnvironment(
+            kdocFinder = descriptorAnalysisPlugin.querySingle { kdocFinder },
+            kotlinAnalysis = SamplesKotlinAnalysis(
                 sourceSets = context.configuration.sourceSets,
                 context = context,
                 projectKotlinAnalysis = descriptorAnalysisPlugin.querySingle { kotlinAnalysis }
-            ).use { kotlinAnalysis ->
-                val sampleAnalysis = DescriptorSampleAnalysisEnvironment(
-                    kdocFinder = descriptorAnalysisPlugin.querySingle { kdocFinder },
-                    kotlinAnalysis = kotlinAnalysis,
-                    sampleRewriter = sampleRewriter,
-                    dokkaLogger = context.logger
-                )
-                block(sampleAnalysis)
-            }
-        }
+            ),
+            sampleRewriter = sampleRewriter,
+            dokkaLogger = context.logger
+        )
     }
 }
 
@@ -220,6 +222,10 @@ internal class DescriptorSampleAnalysisEnvironment(
             dokkaLogger.warn("Exception thrown while sample rewriting at ${containingFile.name}: (${it.loc})\n```\n${it.text}\n```\n$st")
         }
         return textBuilder.toString()
+    }
+
+    override fun close() {
+        kotlinAnalysis.close()
     }
 }
 

@@ -9,7 +9,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class CliIntegrationTest {
+class CliTest {
 
     @Test
     fun `should apply global settings to all source sets`() {

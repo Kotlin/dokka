@@ -15,40 +15,16 @@ overridePublicationArtifactId("analysis-kotlin-symbols")
 dependencies {
     compileOnly(projects.dokkaSubprojects.dokkaCore)
 
+    // this is a `hack` to include classes `intellij-java-psi-api` in shadowJar
+    // which are not present in `kotlin-compiler`
+    // should be `api` since we already have it in :analysis-java-psi
+    // it's harder to do it in the same as with `fastutil`
+    // as several intellij dependencies share the same packages like `org.intellij.core`
+    api(libs.intellij.java.psi.api) { isTransitive = false }
+
     implementation(projects.dokkaSubprojects.analysisKotlinApi)
     implementation(projects.dokkaSubprojects.analysisMarkdownJb)
     implementation(projects.dokkaSubprojects.analysisJavaPsi)
-
-
-    // ----------- IDE dependencies ----------------------------------------------------------------------------
-
-    listOf(
-        libs.intellij.platform.util.rt,
-        libs.intellij.platform.util.api,
-        libs.intellij.java.psi.api,
-        libs.intellij.java.psi.impl
-    ).forEach {
-        runtimeOnly(it) { isTransitive = false }
-    }
-
-    implementation(libs.intellij.java.psi.api) { isTransitive = false }
-
-
-    // TODO move to toml
-    listOf(
-        "com.jetbrains.intellij.platform:util-class-loader",
-        "com.jetbrains.intellij.platform:util-text-matching",
-        "com.jetbrains.intellij.platform:util-base",
-        "com.jetbrains.intellij.platform:util-xml-dom",
-        "com.jetbrains.intellij.platform:core-impl",
-        "com.jetbrains.intellij.platform:extensions",
-    ).forEach {
-        runtimeOnly("$it:213.7172.25") { isTransitive = false }
-    }
-
-    implementation("com.jetbrains.intellij.platform:core:213.7172.25") {
-        isTransitive = false
-    } // for Standalone prototype
 
     // ----------- Analysis dependencies ----------------------------------------------------------------------------
 
