@@ -8,9 +8,7 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.model.DFunction
-import org.jetbrains.dokka.model.DefinitelyNonNullable
-import org.jetbrains.dokka.model.dfs
+import org.jetbrains.dokka.model.*
 import org.jsoup.nodes.Element
 import utils.*
 import kotlin.test.Test
@@ -1600,6 +1598,44 @@ class SignatureTest : BaseAbstractTest() {
         renderedContent("root/example/-some-class/index.html").firstSignature().matchIgnoringSpans(
             "class", A("SomeClass"), Span("@", A("SomeAnnotation")), "constructor"
         )
+    }
+
+    @Test
+    fun `fun and prop should have external modifier`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    name = "js"
+                    displayName = "js"
+                    analysisPlatform = "js"
+                    classpath = listOf(commonStdlibPath ?: throw IllegalStateException("Common stdlib is not found"))
+                    sourceRoots = listOf("src/main/kotlin/js/Test.kt")
+                    externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/main/kotlin/js/Test.kt
+            |package multiplatform
+            |
+            |external fun fn(): Unit
+            |external val x: String
+        """.trimMargin(), configuration = configuration, pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val signatures =
+                    writerPlugin.writer.renderedContent("root/multiplatform/index.html").signature().toList()
+                signatures[0].match(
+                    "external val ", A("x"), ": ", A("String"), ignoreSpanWithTokenStyle = true
+                )
+                signatures[1].match(
+                    "external fun", A("fn"), "()", ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
     }
 
     private fun testRender(
