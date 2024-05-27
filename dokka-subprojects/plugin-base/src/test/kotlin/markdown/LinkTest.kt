@@ -891,6 +891,41 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `full link should lead to a param of overriden`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |interface A {
+            |    fun foo(a: Int)
+            |}
+            |class B: A {
+            |
+            |    /**
+            |     * [a]
+            |     */
+            |    override fun foo(a: Int) {
+            |    }
+            |}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                assertEquals(
+                    DRI(
+                        "example", "B", callable = Callable(
+                            "foo", receiver = null, params = listOf(
+                                TypeConstructor("kotlin.Int", params = emptyList())
+                            )
+                        ),
+                        PointingToCallableParameters(0)
+                    ),
+                    module.getLinkDRIFrom("foo"))
+            }
+        }
+    }
+
+    @Test
     @OnlyDescriptors("#3555")
     fun `K1 full link should lead to an extension with type params`() {
         testInline(
@@ -1134,7 +1169,7 @@ class LinkTest : BaseAbstractTest() {
     }
 
     private fun DModule.getLinkDRIFrom(name: String): DRI? {
-        val link =  this.dfs { it.name == name }?.documentation?.values?.single()?.firstMemberOfTypeOrNull<DocumentationLink>()
+        val link =  this.dfs { it.name == name && it.documentation.isNotEmpty() }?.documentation?.values?.single()?.firstMemberOfTypeOrNull<DocumentationLink>()
         return link?.dri
     }
 
