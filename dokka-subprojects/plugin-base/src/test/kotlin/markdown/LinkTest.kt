@@ -855,6 +855,40 @@ class LinkTest : BaseAbstractTest() {
             }
         }
     }
+    /**
+     * [CharSequence.endsWith]
+    */
+    @Test
+    fun `full link should lead to an extension2`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |/**
+            | * [CharSequence.endsWith]
+            | */
+            |fun usage() {}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                assertEquals(
+                    DRI(
+                        "kotlin.text", null, callable = Callable(
+                            "endsWith", receiver = TypeConstructor(
+                                "kotlin.CharSequence", params = emptyList()
+                            ), params = listOf(
+                                TypeConstructor("kotlin.Char", params = emptyList()), TypeConstructor(
+                                    "kotlin.Boolean",
+                                    params = emptyList()
+                                )
+                            )
+                        )
+                    ),
+                    module.getLinkDRIFrom("usage"))
+            }
+        }
+    }
 
     @Test
     @OnlyDescriptors("#3555")
