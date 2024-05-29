@@ -6,7 +6,7 @@ index e7d405e12..db5dcec66 100644
      }
 
      repositories {
-+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++        /* %{DOKKA_IT_MAVEN_REPO}% */
          mavenCentral()
          maven { url "https://plugins.gradle.org/m2/" }
          CommunityProjectsBuild.addDevRepositoryIfEnabled(delegate, project)
@@ -54,7 +54,7 @@ index e7d405e12..db5dcec66 100644
  // Configure repositories
  allprojects {
      repositories {
-+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++        /* %{DOKKA_IT_MAVEN_REPO}% */
          /*
           * google should be first in the repository list because some of the play services
           * transitive dependencies was removed from jcenter, thus breaking gradle dependency resolution
@@ -80,7 +80,7 @@ index ae54ad0f6..00963f5b2 100644
  val kotlinDevUrl = project.rootProject.properties["kotlin_repo_url"] as? String
 
  repositories {
-+    /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++    /* %{DOKKA_IT_MAVEN_REPO}% */
      mavenCentral()
      if (cacheRedirectorEnabled) {
          maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2")
@@ -120,7 +120,7 @@ index c2e859f65..9cc749a1f 100644
  pluginManagement {
      val build_snapshot_train: String? by settings
      repositories {
-+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++        /* %{DOKKA_IT_MAVEN_REPO}% */
          val cacheRedirectorEnabled = System.getenv("CACHE_REDIRECTOR")?.toBoolean() == true
          if (cacheRedirectorEnabled) {
              println("Redirecting repositories for buildSrc buildscript")
@@ -177,7 +177,7 @@ index 151c087fd..e4433c24f 100644
 
      repositories {
 -        maven { url "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/" }
-+        /* %{PROJECT_LOCAL_MAVEN_DIR}% */
++        /* %{DOKKA_IT_MAVEN_REPO}% */
 +        //maven { url "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/" }
          gradlePluginPortal()
      }

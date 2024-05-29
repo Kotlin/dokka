@@ -40,11 +40,9 @@ import org.jetbrains.kotlin.analysis.api.types.*
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.descriptors.java.JavaVisibilities
-import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.hasActualModifier
-import org.jetbrains.kotlin.psi.psiUtil.hasExpectModifier
+import org.jetbrains.kotlin.lexer.KtTokens
 
 internal class DefaultSymbolToDocumentableTranslator(context: DokkaContext) : AsyncSourceToDocumentableTranslator {
     private val kotlinAnalysis = context.plugin<SymbolsAnalysisPlugin>().querySingle { kotlinAnalysis }
@@ -92,12 +90,6 @@ internal class DokkaSymbolVisitor(
     private var typeTranslator = TypeTranslator(sourceSet, annotationTranslator)
 
     private fun <T> T.toSourceSetDependent() = if (this != null) mapOf(sourceSet to this) else emptyMap()
-
-    // KT-54846 will replace
-    private val KtDeclarationSymbol.isActual
-        get() = (psi as? KtModifierListOwner)?.hasActualModifier() == true
-    private val KtDeclarationSymbol.isExpect
-        get() = (psi as? KtModifierListOwner)?.hasExpectModifier() == true
 
     private fun <T : KtSymbol> List<T>.filterSymbolsInSourceSet(moduleFiles: Set<KtFile>): List<T> = filter {
         when (val file = it.psi?.containingFile) {
@@ -481,8 +473,10 @@ internal class DokkaSymbolVisitor(
         withExceptionCatcher(propertySymbol) {
             val dri = createDRIWithOverridden(propertySymbol).origin
             val inheritedFrom = dri.getInheritedFromDRI(parent)
-            val isExpect = propertySymbol.isExpect
-            val isActual = propertySymbol.isActual
+            val (isExpect, isActual) = when (propertySymbol) {
+                is KtKotlinPropertySymbol -> propertySymbol.isExpect to propertySymbol.isActual
+                is KtSyntheticJavaPropertySymbol -> false to false
+            }
             val generics =
                 propertySymbol.typeParameters.mapIndexed { index, symbol ->
                     visitVariantTypeParameter(
@@ -592,9 +586,6 @@ internal class DokkaSymbolVisitor(
         // for SyntheticJavaProperty
         val inheritedFrom = if(propertyAccessorSymbol.origin == KtSymbolOrigin.JAVA_SYNTHETIC_PROPERTY) dri.copy(callable = null) else null
 
-        val isExpect = propertyAccessorSymbol.isExpect
-        val isActual = propertyAccessorSymbol.isActual
-
         val generics = propertyAccessorSymbol.typeParameters.mapIndexed { index, symbol ->
             visitVariantTypeParameter(
                 index,
@@ -616,7 +607,7 @@ internal class DokkaSymbolVisitor(
             parameters = propertyAccessorSymbol.valueParameters.mapIndexed { index, symbol ->
                 visitValueParameter(index, symbol, dri)
             },
-            expectPresentInSet = sourceSet.takeIf { isExpect },
+            expectPresentInSet = null,
             sources = propertyAccessorSymbol.getSource(),
             visibility = propertyAccessorSymbol.visibility.toDokkaVisibility().toSourceSetDependent(),
             generics = generics,
@@ -624,7 +615,7 @@ internal class DokkaSymbolVisitor(
             modifier = propertyAccessorSymbol.getDokkaModality().toSourceSetDependent(),
             type = toBoundFrom(propertyAccessorSymbol.returnType),
             sourceSets = setOf(sourceSet),
-            isExpectActual = (isExpect || isActual),
+            isExpectActual = false,
             extra = PropertyContainer.withAll(
                 propertyAccessorSymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
                 inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
@@ -926,7 +917,8 @@ internal class DokkaSymbolVisitor(
         ExtraModifiers.KotlinOnlyModifiers.Const.takeIf { (this as? KtKotlinPropertySymbol)?.isConst == true },
         ExtraModifiers.KotlinOnlyModifiers.LateInit.takeIf { (this as? KtKotlinPropertySymbol)?.isLateInit == true },
         //ExtraModifiers.JavaOnlyModifiers.Static.takeIf { isJvmStaticInObjectOrClassOrInterface() },
-        //ExtraModifiers.KotlinOnlyModifiers.External.takeIf { isExternal },
+        // TODO https://youtrack.jetbrains.com/issue/KT-68236/Analysis-API-add-isExternal-property-for-KtPropertySymbol
+        ExtraModifiers.KotlinOnlyModifiers.External.takeIf { (psi as? KtProperty)?.hasModifier(KtTokens.EXTERNAL_KEYWORD) == true },
         //ExtraModifiers.KotlinOnlyModifiers.Static.takeIf { isStatic },
         ExtraModifiers.KotlinOnlyModifiers.Override.takeIf { isOverride }
     ).toSet().takeUnless { it.isEmpty() }
@@ -941,7 +933,7 @@ internal class DokkaSymbolVisitor(
         ExtraModifiers.KotlinOnlyModifiers.Suspend.takeIf { isSuspend },
         ExtraModifiers.KotlinOnlyModifiers.Operator.takeIf { isOperator },
 //ExtraModifiers.JavaOnlyModifiers.Static.takeIf { isJvmStaticInObjectOrClassOrInterface() },
-        ExtraModifiers.KotlinOnlyModifiers.TailRec.takeIf { (psi as? KtNamedFunction)?.hasModifier(KtTokens.TAILREC_KEYWORD) == true },
+        ExtraModifiers.KotlinOnlyModifiers.TailRec.takeIf { isTailRec },
         ExtraModifiers.KotlinOnlyModifiers.External.takeIf { isExternal },
         ExtraModifiers.KotlinOnlyModifiers.Override.takeIf { isOverride }
     ).toSet().takeUnless { it.isEmpty() }

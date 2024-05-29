@@ -104,8 +104,12 @@ const initPlayground = (theme) => {
 // As an alternative we could extract this samples-specific script to new js file but then we would handle dark mode in 2 separate files which is not ideal
 const samplesAreEnabled = () => {
     try {
-        KotlinPlayground
-        return true
+        if (typeof KotlinPlayground === 'undefined') {
+            // KotlinPlayground is exported universally as a global variable or as a module
+            // Due to possible interaction with other js scripts KotlinPlayground may not be accessible directly from `window`, so we need an additional check
+            KotlinPlayground = exports.KotlinPlayground;
+        }
+        return typeof KotlinPlayground === 'function';
     } catch (e) {
         return false
     }

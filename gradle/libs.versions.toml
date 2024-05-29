@@ -1,6 +1,6 @@
 [versions]
 
-gradlePlugin-kotlin = "2.0.0-RC1"
+gradlePlugin-kotlin = "2.0.0"
 # See: https://kotlinlang.org/docs/gradle-configure-project.html#apply-the-plugin
 gradlePlugin-android = "7.1.3"
 gradlePlugin-dokka = "1.9.20"
@@ -11,8 +11,8 @@ kotlinx-serialization = "1.6.0"
 kotlinx-bcv = "0.13.2"
 
 ## Analysis
-kotlin-compiler = "2.0.0-RC1"
-kotlin-compiler-k2 = "2.0.20-dev-7"
+kotlin-compiler = "2.0.0"
+kotlin-compiler-k2 = "2.0.20-dev-3206"
 
 # MUST match the version of the intellij platform used in the kotlin compiler,
 # otherwise this will lead to different versions of psi API and implementations
@@ -101,8 +101,6 @@ kotlin-symbol-light-classes = { module = "org.jetbrains.kotlin:symbol-light-clas
 #### Java analysis ####
 intellij-java-psi-api = { module = "com.jetbrains.intellij.java:java-psi", version.ref = "intellij-platform" }
 intellij-java-psi-impl = { module = "com.jetbrains.intellij.java:java-psi-impl", version.ref = "intellij-platform" }
-intellij-platform-util-api = { module = "com.jetbrains.intellij.platform:util", version.ref = "intellij-platform" }
-intellij-platform-util-rt = { module = "com.jetbrains.intellij.platform:util-rt", version.ref = "intellij-platform" }
 
 #### HTML ####
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
