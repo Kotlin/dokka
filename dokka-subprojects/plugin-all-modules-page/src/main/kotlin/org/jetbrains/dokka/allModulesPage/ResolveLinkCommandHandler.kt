@@ -27,6 +27,7 @@ public class ResolveLinkCommandHandler(context: DokkaContext) : CommandHandler {
             val children = body.childNodes().toList()
             val attributes = Attributes().apply {
                 put("data-unresolved-link", command.dri.toString())
+                put("data-dri", command.dri.toString())
             }
             val el = Element(Tag.valueOf("span"), "", attributes).apply {
                 children.forEach { ch -> appendChild(ch) }
@@ -37,6 +38,7 @@ public class ResolveLinkCommandHandler(context: DokkaContext) : CommandHandler {
 
         val attributes = Attributes().apply {
             put("href", link)
+            put("data-dri", command.dri.toString())
         }
         val children = body.childNodes().toList()
         val el = Element(Tag.valueOf("a"), "", attributes).apply {

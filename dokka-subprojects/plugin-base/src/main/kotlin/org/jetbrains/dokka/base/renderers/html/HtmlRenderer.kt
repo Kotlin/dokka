@@ -808,6 +808,7 @@ public open class HtmlRenderer(
     ) {
         locationProvider.resolve(node.address, node.sourceSets, pageContext)?.let { address ->
             buildLink(address) {
+                attributes["data-dri"] = node.address.toString()
                 buildText(node.children, pageContext, sourceSetRestriction)
             }
         } ?: if (isPartial) {
@@ -816,6 +817,7 @@ public open class HtmlRenderer(
             }
         } else {
             span {
+                attributes["data-dri"] = node.address.toString()
                 attributes["data-unresolved-link"] = node.address.toString().htmlEscape()
                 buildText(node.children, pageContext, sourceSetRestriction)
             }
