@@ -17,10 +17,6 @@ dependencies {
 
     api(projects.dokkaSubprojects.analysisKotlinApi)
 
-    // TODO [beresnev] analysis switcher
-    //runtimeOnly(project(path = ":subprojects:analysis-kotlin-symbols", configuration = "shadow"))
-    runtimeOnly(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
-
     implementation(kotlin("reflect"))
     implementation(libs.jsoup)
 

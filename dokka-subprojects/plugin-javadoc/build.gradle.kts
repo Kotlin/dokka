@@ -27,9 +27,7 @@ dependencies {
     testImplementation(kotlin("test"))
     symbolsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
     descriptorsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
-    testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils) {
-        exclude(module = "analysis-kotlin-descriptors")
-    }
+    testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)
     testImplementation(projects.dokkaSubprojects.dokkaTestApi)
     testImplementation(libs.jsoup)
 }
