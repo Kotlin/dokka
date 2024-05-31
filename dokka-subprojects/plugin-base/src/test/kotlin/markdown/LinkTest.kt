@@ -897,13 +897,12 @@ class LinkTest : BaseAbstractTest() {
             |/src/main/kotlin/Testing.kt
             |package example
             |interface A {
-            |    fun foo(a: Int)
-            |}
-            |class B: A {
-            |
             |    /**
             |     * [a]
             |     */
+            |    fun foo(a: Int)
+            |}
+            |class B: A {
             |    override fun foo(a: Int) {
             |    }
             |}
@@ -913,14 +912,42 @@ class LinkTest : BaseAbstractTest() {
             documentablesMergingStage = { module ->
                 assertEquals(
                     DRI(
-                        "example", "B", callable = Callable(
-                            "foo", receiver = null, params = listOf(
-                                TypeConstructor("kotlin.Int", params = emptyList())
-                            )
+                        packageName = "example",
+                        classNames = "A",
+                        callable = Callable(
+                            name = "foo",
+                            receiver = null,
+                            params = listOf(TypeConstructor("kotlin.Int", params = emptyList()))
                         ),
-                        PointingToCallableParameters(0)
+                        target = PointingToCallableParameters(0)
                     ),
-                    module.getLinkDRIFrom("foo"))
+                    module
+                        .packages.single { it.name == "example" }
+                        .classlikes.single { it.name == "A" }
+                        .functions.single { it.name == "foo" }
+                        .documentation.values.single()
+                        .firstMemberOfTypeOrNull<DocumentationLink>()
+                        ?.dri
+                )
+                assertEquals(
+                    DRI(
+                        packageName = "example",
+                        classNames = "B",
+                        callable = Callable(
+                            name = "foo",
+                            receiver = null,
+                            params = listOf(TypeConstructor("kotlin.Int", params = emptyList()))
+                        ),
+                        target = PointingToCallableParameters(0)
+                    ),
+                    module
+                        .packages.single { it.name == "example" }
+                        .classlikes.single { it.name == "B" }
+                        .functions.single { it.name == "foo" }
+                        .documentation.values.single()
+                        .firstMemberOfTypeOrNull<DocumentationLink>()
+                        ?.dri
+                )
             }
         }
     }
