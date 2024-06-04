@@ -28,7 +28,6 @@ internal class WasmTestedVersionsArgumentsProvider : AllSupportedTestedVersionsA
 
 class WasmGradleIntegrationTest : AbstractGradleIntegrationTest() {
 
-    @OnlyDescriptors
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(WasmTestedVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
