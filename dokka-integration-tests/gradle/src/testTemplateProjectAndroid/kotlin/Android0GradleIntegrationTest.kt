@@ -6,8 +6,6 @@ package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
 import org.jetbrains.dokka.it.optionalSystemProperty
-import org.junit.jupiter.api.Assumptions.abort
-import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
@@ -26,9 +24,9 @@ class Android0GradleIntegrationTest : AbstractGradleIntegrationTest() {
     }
 
     private fun getAndroidSdkDir(): String {
-        // skip the test if androidSdkDir is not present
-        val androidSdkDir = androidSdkDir ?: abort("test requires androidSdkDir is present, but was null")
-        assumeTrue(Path(androidSdkDir).isDirectory(), "androidSdkDir must be a directory")
+        val androidSdkDir = androidSdkDir
+        assertNotNull(androidSdkDir, "androidSdkDir missing")
+        assertTrue(Path(androidSdkDir).isDirectory(), "androidSdkDir is not a directory")
         return androidSdkDir
     }
 
