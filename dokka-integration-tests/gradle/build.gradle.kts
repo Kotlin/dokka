@@ -80,13 +80,9 @@ registerTestProjectSuite(
 ) {
     targets.configureEach {
         testTask.configure {
-            // Just provide the Android SDK path as a system prop.
-            // Don't register it as a Task input, because the path is different on everyone's machine,
+            // Don't register ANDROID_HOME as a Task input, because the path is different on everyone's machine,
             // which means Gradle will never be able to cache the task.
-            jvmArgumentProviders.systemProperty(
-                "androidSdkDir",
-                dokkaBuild.androidSdkDir.map { it.invariantSeparatorsPath },
-            )
+            environment("ANDROID_HOME", dokkaBuild.androidSdkDir.get().invariantSeparatorsPath)
         }
     }
 }

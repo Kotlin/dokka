@@ -40,7 +40,6 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
     fun createGradleRunner(
         buildVersions: BuildVersions,
         vararg arguments: String,
-        environmentVariables: Map<String, String> = emptyMap(),
         jvmArgs: List<String> = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=1G"),
     ): GradleRunner {
 
@@ -67,7 +66,6 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             .withJetBrainsCachedGradleVersion(buildVersions.gradleVersion)
             .withTestKitDir(File("build", "gradle-test-kit").absoluteFile)
             .withDebug(TestEnvironment.isEnabledDebug)
-            .withEnvironment(environmentVariables)
             .withArguments(
                 listOfNotNull(
                     "-Pdokka_it_dokka_version=${dokkaVersion}",
