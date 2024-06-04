@@ -1,6 +1,5 @@
 @file:Suppress("unused")
 
-import org.w3c.dom.HTMLAnchorElement
 import kotlinx.coroutines.CoroutineScope
 
 /**
