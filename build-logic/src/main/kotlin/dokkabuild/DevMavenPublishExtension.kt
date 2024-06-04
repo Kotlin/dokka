@@ -25,7 +25,7 @@ abstract class DevMavenPublishExtension(
      */
     private val devMavenRepositoriesInputFiles: Provider<List<File>> =
         devMavenRepositories
-            // Convert to a FileTree, so we can filter out files.
+            // Convert to a FileTree, which converts directories to all files, so we can filter on specific files.
             .asFileTree
             // Exclude Maven Metadata files because they contain timestamps, meaning tasks that use
             // devMavenRepositories as an input will never be up-to-date.
@@ -51,9 +51,9 @@ abstract class DevMavenPublishExtension(
         if (task is JavaForkOptions) {
             task.jvmArgumentProviders.systemProperty(
                 "devMavenRepositories",
-                devMavenRepositoriesInputFiles.map { paths ->
-                    paths.joinToString(",") { it.absoluteFile.invariantSeparatorsPath }
-                },
+                devMavenRepositories.elements.map { paths ->
+                    paths.joinToString(",") { it.asFile.canonicalFile.invariantSeparatorsPath }
+                }
             )
         }
     }
