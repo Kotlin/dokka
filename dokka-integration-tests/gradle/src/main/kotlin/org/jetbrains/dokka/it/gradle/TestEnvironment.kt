@@ -4,14 +4,13 @@
 
 package org.jetbrains.dokka.it.gradle
 
+import org.jetbrains.dokka.it.systemProperty
 import org.junit.jupiter.api.Tag
 
 object TestEnvironment {
     const val TRY_K2: String = "org.jetbrains.dokka.experimental.tryK2"
 
-    val isExhaustive: Boolean = checkNotNull(System.getenv("isExhaustive")) {
-        "Missing `isExhaustive` environment variable"
-    }.toBoolean()
+    val isExhaustive: Boolean by systemProperty(String::toBoolean)
 
     val isEnabledDebug: Boolean = System.getenv("ENABLE_DEBUG").toBoolean()
 

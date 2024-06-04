@@ -5,10 +5,14 @@
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
+import org.jetbrains.dokka.it.optionalSystemProperty
+import org.junit.jupiter.api.Assumptions.abort
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.BeforeTest
+import kotlin.io.path.Path
+import kotlin.io.path.isDirectory
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -18,31 +22,26 @@ internal class AndroidTestedVersionsArgumentsProvider : TestedVersionsArgumentsP
 class Android0GradleIntegrationTest : AbstractGradleIntegrationTest() {
 
     companion object {
-        /**
-         * Indicating whether or not the current machine executing the test is a CI
-         */
-        private val isCI: Boolean get() = System.getenv("CI") == "true"
-
-        private val isAndroidSdkInstalled: Boolean = System.getenv("ANDROID_SDK_ROOT") != null ||
-                System.getenv("ANDROID_HOME") != null
-
-        fun assumeAndroidSdkInstalled() {
-            if (isCI) return
-            if (!isAndroidSdkInstalled) {
-                throw IllegalStateException("Expected Android SDK is installed")
-            }
-        }
+        private val androidSdkDir: String? by optionalSystemProperty()
     }
 
-    @BeforeTest
-    fun prepareAndroidProjectFiles() {
-        assumeAndroidSdkInstalled()
+    private fun getAndroidSdkDir(): String {
+        // skip the test if androidSdkDir is not present
+        val androidSdkDir = androidSdkDir ?: abort("test requires androidSdkDir is present, but was null")
+        assumeTrue(Path(androidSdkDir).isDirectory(), "androidSdkDir must be a directory")
+        return androidSdkDir
     }
 
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AndroidTestedVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
-        val result = createGradleRunner(buildVersions, "dokkaHtml", "-i", "-s").buildRelaxed()
+        val result = createGradleRunner(
+            buildVersions,
+            "dokkaHtml", "-i", "-s",
+            environmentVariables = mapOf(
+                "ANDROID_HOME" to getAndroidSdkDir()
+            ),
+        ).buildRelaxed()
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
 
         val htmlOutputDir = File(projectDir, "build/dokka/html")

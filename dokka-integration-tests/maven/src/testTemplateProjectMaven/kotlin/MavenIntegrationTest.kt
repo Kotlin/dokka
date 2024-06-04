@@ -13,7 +13,7 @@ import kotlin.test.*
 
 class MavenIntegrationTest : AbstractIntegrationTest() {
 
-    private val currentDokkaVersion: String = checkNotNull(System.getenv("DOKKA_VERSION"))
+    private val dokkaVersion: String by systemProperty()
 
     private val mavenBinaryFile: File by systemProperty { File(it) }
 
@@ -30,7 +30,7 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
         val pomXml = File(projectDir, "pom.xml")
         assertTrue(pomXml.isFile)
         pomXml.apply {
-            writeText(readText().replace("\$dokka_version", currentDokkaVersion))
+            writeText(readText().replace("\$dokka_version", dokkaVersion))
         }
         val customResourcesDir = File(templateProjectDir, "customResources")
         if (customResourcesDir.exists() && customResourcesDir.isDirectory) {

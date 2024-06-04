@@ -3,13 +3,14 @@
  */
 @file:Suppress("UnstableApiUsage")
 
+import dokkabuild.utils.systemProperty
 import org.gradle.api.attributes.Bundling.BUNDLING_ATTRIBUTE
 import org.gradle.api.attributes.Bundling.SHADOWED
 
 plugins {
     id("dokkabuild.kotlin-jvm")
+    id("dokkabuild.test-integration")
     id("dokkabuild.test-cli-dependencies")
-    `jvm-test-suite`
 }
 
 dependencies {
@@ -39,51 +40,35 @@ dependencies {
     //endregion
 }
 
-/**
- * Provide files required for running Dokka CLI in a build cache friendly way.
- */
-abstract class DokkaCliClasspathProvider : CommandLineArgumentProvider {
-    @get:Classpath
-    abstract val dokkaCli: ConfigurableFileCollection
-
-    @get:Classpath
-    abstract val dokkaPluginsClasspath: ConfigurableFileCollection
-
-    override fun asArguments(): Iterable<String> = buildList {
-        require(dokkaCli.count() == 1) {
-            "Expected a single Dokka CLI JAR, but got ${dokkaCli.count()}"
-        }
-        add("-D" + "dokkaCliJarPath=" + dokkaCli.singleFile.absolutePath)
-        add("-D" + "dokkaPluginsClasspath=" + dokkaPluginsClasspath.joinToString(";") { it.absolutePath })
-    }
-}
-
-
 testing {
     suites {
         withType<JvmTestSuite>().configureEach {
-            useJUnitJupiter()
-        }
-
-        register<JvmTestSuite>("integrationTest") {
             dependencies {
                 implementation(project())
             }
+        }
+
+        register<JvmTestSuite>("cliIntegrationTest") {
 
             targets.configureEach {
                 testTask.configure {
-                    jvmArgumentProviders.add(
-                        objects.newInstance<DokkaCliClasspathProvider>().apply {
-                            dokkaCli.from(configurations.dokkaCliResolver)
-                            dokkaPluginsClasspath.from(configurations.dokkaPluginsClasspathResolver)
+
+                    val dokkaCliJar = configurations.dokkaCliResolver
+                        .map { files ->
+                            requireNotNull(files.singleOrNull()) {
+                                "Expected a single Dokka CLI JAR, but got ${files.count()}"
+                            }
                         }
-                    )
+
+                    systemProperty
+                        .inputFile("dokkaCliJarPath", dokkaCliJar)
+                        .withNormalizer(ClasspathNormalizer::class)
+
+                    systemProperty
+                        .inputFiles("dokkaPluginsClasspath", configurations.dokkaPluginsClasspathResolver)
+                        .withNormalizer(ClasspathNormalizer::class)
                 }
             }
         }
     }
-}
-
-tasks.check {
-    dependsOn(testing.suites)
 }

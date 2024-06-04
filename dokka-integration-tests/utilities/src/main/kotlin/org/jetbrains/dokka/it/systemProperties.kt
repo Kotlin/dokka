@@ -28,3 +28,24 @@ fun <T> systemProperty(
         }
         convert(value)
     }
+
+/**
+ * Delegated accessor for a system property.
+ *
+ * @see System.getProperty
+ */
+fun optionalSystemProperty(): ReadOnlyProperty<Any?, String?> =
+    optionalSystemProperty { it }
+
+/**
+ * Delegated accessor for a system property.
+ *
+ * @see System.getProperty
+ */
+fun <T> optionalSystemProperty(
+    convert: (value: String?) -> T
+): ReadOnlyProperty<Any?, T> =
+    ReadOnlyProperty { _, property ->
+        val value: String? = System.getProperty(property.name)
+        convert(value)
+    }

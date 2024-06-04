@@ -13,7 +13,7 @@ import kotlin.test.assertTrue
 
 class BiojavaIntegrationTest : AbstractIntegrationTest(), TestOutputCopier {
 
-    private val currentDokkaVersion: String = checkNotNull(System.getenv("DOKKA_VERSION"))
+    private val dokkaVersion: String by systemProperty()
     private val mavenBinaryFile: File by systemProperty { File(it) }
     override val projectOutputLocation: File by lazy { File(projectDir, "biojava-core/target/dokkaJavadoc") }
 
@@ -45,7 +45,7 @@ class BiojavaIntegrationTest : AbstractIntegrationTest(), TestOutputCopier {
                 "--settings", localSettingsXml.invariantSeparatorsPath,
                 "-pl",
                 "biojava-core",
-                "\"-Ddokka_version=$currentDokkaVersion\"",
+                "\"-Ddokka_version=$dokkaVersion\"",
                 "-U",
                 "-e"
             ).start().awaitProcessResult()

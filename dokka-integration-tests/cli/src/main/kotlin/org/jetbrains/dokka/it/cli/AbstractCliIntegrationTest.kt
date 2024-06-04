@@ -5,11 +5,14 @@ package org.jetbrains.dokka.it.cli
 
 import org.jetbrains.dokka.it.AbstractIntegrationTest
 import org.jetbrains.dokka.it.systemProperty
+import java.io.File
 
 public abstract class AbstractCliIntegrationTest : AbstractIntegrationTest() {
     /** The Dokka CLI JAR. */
     protected val dokkaCliJarPath: String by systemProperty()
 
     /** Classpath required for running the Dokka CLI, delimited by `;`. */
-    protected val dokkaPluginsClasspath: String by systemProperty()
+    protected val dokkaPluginsClasspath: String by systemProperty {
+        it.replace(File.pathSeparatorChar, ';')
+    }
 }

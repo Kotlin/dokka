@@ -4,23 +4,23 @@
 @file:Suppress("UnstableApiUsage")
 
 import dokkabuild.tasks.GitCheckoutTask
+import dokkabuild.utils.systemProperty
+import org.gradle.api.tasks.PathSensitivity.NAME_ONLY
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
-import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
 import org.gradle.language.base.plugins.LifecycleBasePlugin.VERIFICATION_GROUP
 
 plugins {
     id("dokkabuild.kotlin-jvm")
     id("dokkabuild.dev-maven-publish")
     id("dokkabuild.setup-maven-cli")
+    id("dokkabuild.test-integration")
     `jvm-test-suite`
 }
 
 dependencies {
     api(projects.utilities)
 
-    api(kotlin("test-junit5"))
+    api(libs.kotlin.test)
     api(libs.junit.jupiterApi)
 
     val dokkaVersion = project.version.toString()
@@ -51,106 +51,31 @@ dependencies {
 val templateProjectsDir = layout.projectDirectory.dir("projects")
 
 
-/**
- * Provide files required for running Dokka CLI in a build cache friendly way.
- */
-abstract class MvnBinaryPathArgProvider : CommandLineArgumentProvider {
-    @get:Classpath
-    abstract val maven: RegularFileProperty
-
-    override fun asArguments(): Iterable<String> = buildList {
-        add("-D" + "mavenBinaryFile=" + maven.asFile.get().absolutePath)
-    }
-}
-
-
 tasks.withType<Test>().configureEach {
-    setForkEvery(1)
-    maxHeapSize = "2G"
-    dokkaBuild.integrationTestParallelism.orNull?.let { parallelism ->
-        maxParallelForks = parallelism
-    }
-
-    val useK2 = dokkaBuild.integrationTestUseK2.get()
-
-    useJUnitPlatform {
-        if (useK2) excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
-    }
-
-    systemProperty("org.jetbrains.dokka.experimental.tryK2", useK2)
-    // allow inspecting projects in temporary dirs after a test fails
-    systemProperty(
-        "junit.jupiter.tempdir.cleanup.mode.default",
-        if (dokkaBuild.isCI.get()) "ALWAYS" else "ON_SUCCESS",
-    )
-
-    val dokkaVersion = provider { project.version.toString() }
-    inputs.property("dokkaVersion", dokkaVersion)
-    doFirst("set DOKKA_VERSION environment variable (workaround for https://github.com/gradle/gradle/issues/24267)") {
-        environment("DOKKA_VERSION", dokkaVersion.get())
-    }
-
-    // environment() isn't Provider API compatible yet https://github.com/gradle/gradle/issues/11534
-    dokkaBuild.integrationTestExhaustive.orNull?.let { exhaustive ->
-        environment("isExhaustive", exhaustive)
-    }
-
     dependsOn(tasks.installMavenBinary)
-    jvmArgumentProviders.add(
-        objects.newInstance<MvnBinaryPathArgProvider>().apply {
-            maven = mavenCliSetup.mvn
-        }
-    )
-
-    testLogging {
-        exceptionFormat = FULL
-        events(SKIPPED, FAILED)
-        showExceptions = true
-        showCauses = true
-        showStackTraces = true
-    }
-
-    // The tests produce report data and generated Dokka output.
-    // Always cache them so Gradle can skip running integration tests if nothing has changed.
-    outputs.cacheIf("always cache") { true }
+    systemProperty.inputFile("mavenBinaryFile", mavenCliSetup.mvn)
+        .withPathSensitivity(NAME_ONLY)
 }
 
-testing {
-    suites {
-        withType<JvmTestSuite>().configureEach {
-            useJUnitJupiter()
-
-            dependencies {
-                // test suites are independent by default (unlike the test source set), and must manually depend on the project
-                implementation(project())
-            }
-
-            targets.configureEach {
-                testTask.configure {
-                    doFirst {
-                        logger.info("running $path with javaLauncher:${javaLauncher.orNull?.metadata?.javaRuntimeVersion}")
-                    }
-                }
-            }
-        }
-
-        registerTestProjectSuite("testTemplateProjectMaven", "it-maven")
-        registerTestProjectSuite("testExternalProjectBioJava", "biojava/biojava") {
-            targets.configureEach {
-                testTask.configure {
-                    dependsOn(checkoutBioJava)
-                    // register the whole directory as an input because it contains the git diff
-                    inputs
-                        .dir(templateProjectsDir.file("biojava"))
-                        .withPropertyName("biojavaProjectDir")
-                }
-            }
-        }
+testing.suites.withType<JvmTestSuite>().configureEach {
+    dependencies {
+        // test suites are independent by default (unlike the test source set), and must manually depend on the project
+        implementation(project())
     }
 }
 
-tasks.check {
-    dependsOn(testing.suites)
+registerTestProjectSuite("testTemplateProjectMaven", "it-maven")
+registerTestProjectSuite("testExternalProjectBioJava", "biojava/biojava") {
+    targets.configureEach {
+        testTask.configure {
+            dependsOn(checkoutBioJava)
+            // register the whole directory as an input because it contains the git diff
+            inputs
+                .dir(templateProjectsDir.file("biojava"))
+                .withPropertyName("biojavaProjectDir")
+                .withPathSensitivity(RELATIVE)
+        }
+    }
 }
 
 /**
@@ -159,7 +84,7 @@ tasks.check {
  * @param[projectPath] path to the Gradle project that will be tested by this suite, relative to [templateProjectsDir].
  * The directory will be passed as a system property, `templateProjectDir`.
  */
-fun TestingExtension.registerTestProjectSuite(
+fun registerTestProjectSuite(
     name: String,
     projectPath: String,
     jvm: JavaLanguageVersion? = null,
@@ -167,29 +92,18 @@ fun TestingExtension.registerTestProjectSuite(
 ) {
     val templateProjectDir = templateProjectsDir.dir(projectPath)
 
-    suites.register<JvmTestSuite>(name) {
+    testing.suites.register<JvmTestSuite>(name) {
         targets.configureEach {
             testTask.configure {
-                // Register the project dir as a specific input, so changes in other projects don't affect the caching of this test
-                inputs.dir(templateProjectDir)
-                    .withPropertyName("templateProjectDir")
-                    .withPathSensitivity(RELATIVE)
-
                 // Pass the template dir in as a property, it is accessible in tests.
-                systemProperty("templateProjectDir", templateProjectDir.asFile.invariantSeparatorsPath)
+                systemProperty
+                    .inputDirectory("templateProjectDir", templateProjectDir)
+                    .withPathSensitivity(RELATIVE)
 
                 devMavenPublish.configureTask(this)
 
                 if (jvm != null) {
                     javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
-                }
-
-                // For validation, on CI the generated output is uploaded, so the test must produce output in
-                // DOKKA_TEST_OUTPUT_PATH. For Gradle up-to-date checks the output dir must be specified.
-                val testOutputPath = System.getenv("DOKKA_TEST_OUTPUT_PATH")
-                inputs.property("testOutputPath", testOutputPath).optional(true)
-                if (testOutputPath != null) {
-                    outputs.dir(testOutputPath).withPropertyName("testOutput")
                 }
             }
         }
@@ -227,10 +141,7 @@ val testAllExternalProjects by tasks.registering {
     doNotTrackState("lifecycle task, should always run")
 }
 
-val integrationTest by tasks.registering {
-    description = "Lifecycle task for running integration tests"
-    // TODO - Refactor Maven and CLI integration tests to use Test Suites
-    //      - Reimplement dokkabuild.test-integration.gradle.kts so that `integrationTest` is defined once there
+tasks.integrationTest {
     dependsOn(tasks.withType<Test>()) // all tests in this project are integration tests
 }
 //endregion
