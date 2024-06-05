@@ -9,7 +9,11 @@ import java.io.File
 
 public abstract class AbstractCliIntegrationTest : AbstractIntegrationTest() {
     /** The Dokka CLI JAR. */
-    protected val dokkaCliJarPath: String by systemProperty()
+    protected val dokkaCliJarPath: String by systemProperty {
+        it.split(File.pathSeparatorChar)
+            .singleOrNull()
+            ?: error("Expected a single Dokka CLI JAR, but got $it")
+    }
 
     /** Classpath required for running the Dokka CLI, delimited by `;`. */
     protected val dokkaPluginsClasspath: String by systemProperty {

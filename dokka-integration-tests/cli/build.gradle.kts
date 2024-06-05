@@ -52,16 +52,8 @@ testing {
 
             targets.configureEach {
                 testTask.configure {
-
-                    val dokkaCliJar = configurations.dokkaCliResolver
-                        .map { files ->
-                            requireNotNull(files.singleOrNull()) {
-                                "Expected a single Dokka CLI JAR, but got ${files.count()}"
-                            }
-                        }
-
                     systemProperty
-                        .inputFile("dokkaCliJarPath", dokkaCliJar)
+                        .inputFiles("dokkaCliJarPath", configurations.dokkaCliResolver)
                         .withNormalizer(ClasspathNormalizer::class)
 
                     systemProperty
