@@ -99,7 +99,7 @@ public class AnalysisEnvironment(
     private val configuration = CompilerConfiguration()
 
     init {
-        configuration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
+        configuration.put(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
     }
 
     internal fun createCoreEnvironment(): KotlinCoreEnvironment {
@@ -319,7 +319,7 @@ public class AnalysisEnvironment(
                             )
                         }
                     } catch (e: Throwable) {
-                        configuration.getNotNull(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY)
+                        configuration.getNotNull(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY)
                             .report(CompilerMessageSeverity.WARNING, "Can not resolve KLIB. " + e.message)
                     }
                 }
