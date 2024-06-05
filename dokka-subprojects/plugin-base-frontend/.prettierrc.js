@@ -3,8 +3,9 @@
  */
 
 module.exports = {
-  extends: '@jetbrains/stylelint-config',
-  rules: {
-    'string-quotes': 'single',
-  }
+  semi: true,
+  trailingComma: 'es5',
+  singleQuote: true,
+  printWidth: 120,
+  tabWidth: 2,
 };

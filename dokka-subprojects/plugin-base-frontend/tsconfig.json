@@ -20,12 +20,13 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "typeRoots": [
       "src/main/types"
     ]
   },
   "include": [
-    "./node_modules/@types/node/globals.d.ts"
+    "./node_modules/@types/node/globals.d.ts",
+    "./src/**/*",
   ]
 }
