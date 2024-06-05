@@ -32,9 +32,3 @@ fun subprojectTasks(taskName: String): List<String> =
     subprojects
         .filter { it.getTasksByName(taskName, false).isNotEmpty() }
         .map { ":${it.name}:$taskName" }
-
-tasks.check {
-    subprojects.forEach {
-        it.tasks.findByName("check")?.let(Task::dependsOn)
-    }
-}
