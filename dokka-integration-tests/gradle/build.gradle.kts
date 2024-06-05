@@ -61,7 +61,12 @@ kotlin {
     }
 }
 
-val aggregatingProject = gradle.includedBuild("dokka")
+tasks.withType<Test>().configureEach {
+    val enableDebug = providers.environmentVariable("ENABLE_DEBUG")
+    inputs.property("enableDebug", enableDebug).optional(true)
+    environment("ENABLE_DEBUG", enableDebug.get())
+}
+
 val templateSettingsGradleKts = layout.projectDirectory.file("projects/template.settings.gradle.kts")
 val templateProjectsDir = layout.projectDirectory.dir("projects")
 
@@ -168,38 +173,6 @@ fun registerTestProjectSuite(
         configure()
     }
 }
-
-//region project tests management
-
-// set up task ordering - template projects (which are generally faster) should be tested before external projects
-val testTemplateProjectsTasks = tasks.withType<Test>().matching { it.name.startsWith("testTemplateProject") }
-val testExternalProjectsTasks = tasks.withType<Test>().matching { it.name.startsWith("testExternalProject") }
-
-testTemplateProjectsTasks.configureEach {
-    shouldRunAfter(tasks.test)
-}
-testExternalProjectsTasks.configureEach {
-    shouldRunAfter(tasks.test)
-    shouldRunAfter(testTemplateProjectsTasks)
-}
-
-// define lifecycle tasks for project tests
-val testAllTemplateProjects by tasks.registering {
-    description = "Lifecycle task for running all template-project tests"
-    group = VERIFICATION_GROUP
-    dependsOn(testTemplateProjectsTasks)
-    doNotTrackState("lifecycle task, should always run")
-}
-
-val testAllExternalProjects by tasks.registering {
-    description = "Lifecycle task for running all external-project tests"
-    group = VERIFICATION_GROUP
-    shouldRunAfter(testAllTemplateProjects)
-    dependsOn(testExternalProjectsTasks)
-    doNotTrackState("lifecycle task, should always run")
-}
-
-//endregion
 
 val checkoutKotlinxCoroutines by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx.coroutines.git"

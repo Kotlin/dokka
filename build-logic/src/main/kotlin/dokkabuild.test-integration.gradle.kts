@@ -7,6 +7,7 @@ import dokkabuild.utils.systemProperty
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
+import org.gradle.language.base.plugins.LifecycleBasePlugin.VERIFICATION_GROUP
 
 plugins {
     id("dokkabuild.base")
@@ -32,10 +33,10 @@ tasks.withType<Test>().configureEach {
     val useK2 = dokkaBuild.integrationTestUseK2
     systemProperty.inputProperty("org.jetbrains.dokka.experimental.tryK2", useK2)
         .optional(true)
-
     useJUnitPlatform {
         if (useK2.get()) excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
     }
+
     systemProperty.inputProperty("isExhaustive", dokkaBuild.integrationTestExhaustive)
 
     // allow inspecting projects in temporary dirs after a test fails
@@ -43,9 +44,6 @@ tasks.withType<Test>().configureEach {
         "junit.jupiter.tempdir.cleanup.mode.default",
         dokkaBuild.isCI.map { if (it) "ALWAYS" else "ON_SUCCESS" }
     )
-
-    inputs.property("ENABLE_DEBUG", providers.systemProperty("ENABLE_DEBUG"))
-        .optional(true)
 
     testLogging {
         exceptionFormat = FULL
@@ -91,3 +89,35 @@ integrationTest.configure {
 tasks.check {
     dependsOn(integrationTest)
 }
+
+//region project tests management
+
+// set up task ordering - template projects (which are generally faster) should be tested before external projects
+val jvmTestTask = tasks.withType<Test>().matching { it.name == "test" }
+val testTemplateProjectsTasks = tasks.withType<Test>().matching { it.name.startsWith("testTemplateProject") }
+val testExternalProjectsTasks = tasks.withType<Test>().matching { it.name.startsWith("testExternalProject") }
+
+testTemplateProjectsTasks.configureEach {
+    shouldRunAfter(jvmTestTask)
+}
+testExternalProjectsTasks.configureEach {
+    shouldRunAfter(jvmTestTask)
+    shouldRunAfter(testTemplateProjectsTasks)
+}
+
+// define lifecycle tasks for project tests
+val testAllTemplateProjects by tasks.registering {
+    description = "Lifecycle task for running all template-project tests"
+    group = VERIFICATION_GROUP
+    dependsOn(testTemplateProjectsTasks)
+    doNotTrackState("lifecycle task, should always run")
+}
+
+val testAllExternalProjects by tasks.registering {
+    description = "Lifecycle task for running all external-project tests"
+    group = VERIFICATION_GROUP
+    shouldRunAfter(testAllTemplateProjects)
+    dependsOn(testExternalProjectsTasks)
+    doNotTrackState("lifecycle task, should always run")
+}
+//endregion
