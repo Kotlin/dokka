@@ -28,7 +28,7 @@ class SequentialTasksExecutionStressTest : AbstractGradleIntegrationTest() {
             "runTasks",
             "--info",
             "--stacktrace",
-            "-Ptask_number=50",
+            "-Ptask_number=100",
             jvmArgs = listOf("-Xmx1G", "-XX:MaxMetaspaceSize=500m")
         ).buildRelaxed()
 

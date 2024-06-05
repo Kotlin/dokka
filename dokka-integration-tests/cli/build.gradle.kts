@@ -49,7 +49,6 @@ testing {
         }
 
         register<JvmTestSuite>("cliIntegrationTest") {
-
             targets.configureEach {
                 testTask.configure {
                     systemProperty
