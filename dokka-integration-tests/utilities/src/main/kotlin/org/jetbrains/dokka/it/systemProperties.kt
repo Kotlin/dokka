@@ -7,7 +7,7 @@ package org.jetbrains.dokka.it
 import kotlin.properties.ReadOnlyProperty
 
 /**
- * Delegated accessor for a system property.
+ * Delegated accessor for a system property with the same name as the property.
  *
  * @see System.getProperty
  */
@@ -15,7 +15,7 @@ fun systemProperty(): ReadOnlyProperty<Any?, String> =
     systemProperty { it }
 
 /**
- * Delegated accessor for a system property.
+ * Delegated accessor for a system property with the same name as the property.
  *
  * @see System.getProperty
  */
@@ -30,7 +30,7 @@ fun <T> systemProperty(
     }
 
 /**
- * Delegated accessor for a system property.
+ * Delegated accessor for an optional system property with the same name as the property.
  *
  * @see System.getProperty
  */
@@ -38,7 +38,7 @@ fun optionalSystemProperty(): ReadOnlyProperty<Any?, String?> =
     optionalSystemProperty { it }
 
 /**
- * Delegated accessor for a system property.
+ * Delegated accessor for an optional system property with the same name as the property.
  *
  * @see System.getProperty
  */
