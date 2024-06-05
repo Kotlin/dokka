@@ -7,7 +7,6 @@ import dokkabuild.tasks.GitCheckoutTask
 import dokkabuild.utils.systemProperty
 import org.gradle.api.tasks.PathSensitivity.NAME_ONLY
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
-import org.gradle.language.base.plugins.LifecycleBasePlugin.VERIFICATION_GROUP
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Disabled
 
 plugins {
@@ -64,7 +63,7 @@ kotlin {
 tasks.withType<Test>().configureEach {
     val enableDebug = providers.environmentVariable("ENABLE_DEBUG")
     inputs.property("enableDebug", enableDebug).optional(true)
-    environment("ENABLE_DEBUG", enableDebug.get())
+    environment("ENABLE_DEBUG", enableDebug.getOrElse("false"))
 }
 
 val templateSettingsGradleKts = layout.projectDirectory.file("projects/template.settings.gradle.kts")

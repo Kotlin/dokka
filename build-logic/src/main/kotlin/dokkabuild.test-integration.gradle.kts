@@ -16,7 +16,7 @@ plugins {
 
 val integrationTest by tasks.registering {
     description = "Lifecycle task for running all integration tests."
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    group = VERIFICATION_GROUP
 }
 
 tasks.withType<Test>().configureEach {
