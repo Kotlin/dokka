@@ -63,22 +63,16 @@ abstract class SystemPropertyAdder @Inject internal constructor(
 
     fun inputFile(
         key: String,
-        file: Provider<out File>,
+        file: Provider<out RegularFile>,
     ): TaskInputFilePropertyBuilder {
         task.jvmArgumentProviders.add(
             SystemPropertyArgumentProvider(key, file) {
-                it.orNull?.invariantSeparatorsPath
+                it.orNull?.asFile?.invariantSeparatorsPath
             }
         )
         return task.inputs.file(file)
             .withPropertyName("SystemProperty input file $key")
     }
-
-    @JvmName("inputRegularFile")
-    fun inputFile(
-        key: String,
-        file: Provider<out RegularFile>,
-    ): TaskInputFilePropertyBuilder = inputFile(key, file.map { it.asFile })
 
     fun inputFiles(
         key: String,
@@ -120,6 +114,16 @@ private class SystemPropertyArgumentProvider<T : Any>(
     }
 }
 
+/**
+ * Add a System Property (in the format `-D$key=$value`).
+ *
+ * [value] will _not_ be registered as a Gradle [org.gradle.api.Task] input.
+ * (Which might be beneficial in cases where the property is optional, or not reproducible,
+ * as such a property might disrupt task caching.)
+ *
+ * If you want to register the property as a Task input, use the
+ * [Test.systemProperty][dokkabuild.utils.systemProperty] above instead.
+ */
 fun MutableList<CommandLineArgumentProvider>.systemProperty(
     key: String,
     value: Provider<String>,
