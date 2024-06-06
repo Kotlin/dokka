@@ -13,7 +13,8 @@
     "lint:fix": "eslint --fix --ext src/**/*.{ts,tsx,css,scss}",
     "prettier": "prettier --write 'src/**/*.{ts,tsx,css,scss}'",
     "stylelint": "stylelint --ignore-path .gitignore ./src/main/**/*.scss",
-    "start": "webpack-dev-server -d --history-api-fallback --inline --hot --colors --port 9010"
+    "start": "webpack-dev-server -d --history-api-fallback --inline --hot --colors --port 9010",
+    "prepare": "husky"
   },
   "babel": {
     "presets": [
@@ -62,6 +63,8 @@
     "eslint-plugin-prettier": "^5.1.3",
     "eslint-plugin-react": "^7.34.2",
     "eslint-plugin-react-hooks": "^4.6.2",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.5",
     "mini-css-extract-plugin": "^2.4.5",
     "node-sass": "^9.0.0",
     "postcss-loader": "^8.1.1",
