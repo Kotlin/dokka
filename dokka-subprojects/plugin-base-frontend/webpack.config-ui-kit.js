@@ -6,9 +6,12 @@ const path = require('path');
 
 module.exports = {
   entry: {
-    entry: ['./src/main/ui-kit/index.js'],
+    entry: ['./src/main/ui-kit/index.ts'],
   },
   mode: 'production',
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js', '.svg'],
+  },
   output: {
     path: path.resolve(__dirname, '../plugin-base/src/main/resources/dokka/ui-kit/'),
     filename: 'ui-kit.js',
@@ -39,15 +42,27 @@ module.exports = {
         ],
       },
       {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env']
+        test: /\.tsx?$/,
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: true
+            }
           }
-        }
-      }
+        ],
+        exclude: /node_modules/,
+      },
+      // {
+      //   test: /\.js$/,
+      //   exclude: /node_modules/,
+      //   use: {
+      //     loader: 'babel-loader',
+      //     options: {
+      //       presets: ['@babel/preset-env']
+      //     }
+      //   }
+      // }
     ],
   },
   plugins: [

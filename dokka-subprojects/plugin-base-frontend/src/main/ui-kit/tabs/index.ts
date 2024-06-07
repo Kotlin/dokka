@@ -40,7 +40,7 @@ export function initTabs() {
   const localStorageKey = "active-tab-" + type;
   document.querySelectorAll('div[tabs-section]').forEach(element => {
     showCorrespondingTabBody(element);
-    element.addEventListener('click', ({ target }) => {
+    element.addEventListener('click', ({target}) => {
       const togglable = target ? target.getAttribute("data-togglable") : null;
       if (!togglable) return;
 
