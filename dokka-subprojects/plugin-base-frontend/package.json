@@ -7,7 +7,9 @@
     "dist": "./dist"
   },
   "scripts": {
-    "build:ui-kit": "webpack --config ./webpack.config-ui-kit.js",
+    "build:ui-kit": "npm run build:ui-kit:minified && npm run build:ui-kit:unminified",
+    "build:ui-kit:minified": "webpack --config ./webpack.config-ui-kit.js --env minify=true",
+    "build:ui-kit:unminified": "webpack --config ./webpack.config-ui-kit.js --env minify=false",
     "build": "webpack --mode=production --devtool source-map",
     "lint": "eslint . && npm run stylelint",
     "lint:fix": "eslint --fix --ext src/**/*.{ts,tsx,css,scss}",
