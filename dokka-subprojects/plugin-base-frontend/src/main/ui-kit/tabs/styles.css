@@ -23,7 +23,7 @@
   border-bottom: 2px solid var(--default-font-color);
 }
 
-.section-tab[data-active=""] {
+.section-tab[data-active=''] {
   color: var(--active-section-color);
   border-bottom: 2px solid var(--active-tab-border-color);
 }
@@ -46,6 +46,6 @@
 the hack to hide the headers inside tabs for a package page because each tab
 has only one header, and the header text is the same as the tab name, so no point in showing it
 */
-.main-content[data-page-type="package"] .tabs-section-body h2 {
+.main-content[data-page-type='package'] .tabs-section-body h2 {
   display: none;
 }

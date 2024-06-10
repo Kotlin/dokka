@@ -18,78 +18,86 @@ const safeLocalStorage = (() => {
   }
 
   return {
-    getItem: (key) => {
+    getItem: (key: string) => {
       if (!isLocalStorageAvailable) {
         return null;
       }
       return localStorage.getItem(key);
     },
-    setItem: (key, value) => {
+    setItem: (key: string, value: string) => {
       if (!isLocalStorageAvailable) {
         return;
       }
       localStorage.setItem(key, value);
-    }
+    },
   };
 })();
 
 export function initTabs() {
   // we could have only a single type of data - classlike or package
   const mainContent = document.querySelector('.main-content');
-  const type = mainContent ? mainContent.getAttribute("data-page-type") : null;
-  const localStorageKey = "active-tab-" + type;
-  document.querySelectorAll('div[tabs-section]').forEach(element => {
+  const type = mainContent ? mainContent.getAttribute('data-page-type') : null;
+  const localStorageKey = 'active-tab-' + type;
+  document.querySelectorAll('div[tabs-section]').forEach((element) => {
     showCorrespondingTabBody(element);
-    element.addEventListener('click', ({target}) => {
-      const togglable = target ? target.getAttribute("data-togglable") : null;
-      if (!togglable) return;
+    element.addEventListener('click', ({ target }) => {
+      const togglable = target ? (target as Element).getAttribute('data-togglable') : null;
+      if (!togglable) {
+        return;
+      }
 
       safeLocalStorage.setItem(localStorageKey, JSON.stringify(togglable));
-      toggleSections(target);
+      toggleSections(target as Element);
     });
   });
 
   const cached = safeLocalStorage.getItem(localStorageKey);
-  if (!cached) return;
+  if (!cached) {
+    return;
+  }
 
-  const tab = document.querySelector(
-    'div[tabs-section] > button[data-togglable="' + JSON.parse(cached) + '"]'
-  );
-  if (!tab) return;
+  const tab = document.querySelector('div[tabs-section] > button[data-togglable="' + JSON.parse(cached) + '"]');
+  if (!tab) {
+    return;
+  }
 
   toggleSections(tab);
 }
 
-function showCorrespondingTabBody(element) {
-  const buttonWithKey = element.querySelector("button[data-active]")
+function showCorrespondingTabBody(element: Element) {
+  const buttonWithKey = element.querySelector('button[data-active]');
   if (buttonWithKey) {
-    toggleSections(buttonWithKey)
+    toggleSections(buttonWithKey);
   }
 }
 
-function toggleSections(target) {
-  const activateTabs = (containerClass) => {
+function toggleSections(target: Element) {
+  const activateTabs = (containerClass: string) => {
     for (const element of document.getElementsByClassName(containerClass)) {
       for (const child of element.children) {
-        if (child.getAttribute("data-togglable") === target.getAttribute("data-togglable")) {
-          child.setAttribute("data-active", "")
+        if (child.getAttribute('data-togglable') === target.getAttribute('data-togglable')) {
+          child.setAttribute('data-active', '');
         } else {
-          child.removeAttribute("data-active")
+          child.removeAttribute('data-active');
         }
       }
     }
-  }
-  const toggleTargets = target.getAttribute("data-togglable").split(",")
-  const activateTabsBody = (containerClass) => {
-    document.querySelectorAll("." + containerClass + " *[data-togglable]")
-      .forEach(child => {
-        if (toggleTargets.includes(child.getAttribute("data-togglable"))) {
-          child.setAttribute("data-active", "")
-        } else if (!child.classList.contains("sourceset-dependent-content")) { // data-togglable is used to switch source set as well, ignore it
-          child.removeAttribute("data-active")
-        }
-      })
-  }
-  activateTabs("tabs-section")
-  activateTabsBody("tabs-section-body")
+  };
+  const toggleTargets = target.getAttribute('data-togglable')?.split(',');
+  const activateTabsBody = (containerClass: string) => {
+    document.querySelectorAll('.' + containerClass + ' *[data-togglable]').forEach((child) => {
+      const childTarget = child.getAttribute('data-togglable');
+      if (toggleTargets && childTarget && toggleTargets.includes(childTarget)) {
+        child.setAttribute('data-active', '');
+      } else if (!child.classList.contains('sourceset-dependent-content')) {
+        // data-togglable is used to switch sourceset as well, ignore it
+        child.removeAttribute('data-active');
+      }
+    });
+  };
+  activateTabs('tabs-section');
+  activateTabsBody('tabs-section-body');
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).initTabs = initTabs;

@@ -19,7 +19,11 @@ $secondary-font-color: hsla(0, 0%, 100%, 0.6);
 }
 
 .search {
-  &, [data-test="ring-select"], [data-test="ring-tooltip"], [data-test="ring-select_focus"], #pages-search {
+  &,
+  [data-test='ring-select'],
+  [data-test='ring-tooltip'],
+  [data-test='ring-select_focus'],
+  #pages-search {
     display: inline-block;
     padding: 0;
     margin: 0;
@@ -41,7 +45,7 @@ $secondary-font-color: hsla(0, 0%, 100%, 0.6);
   background-color: #27282c !important;
   color: $font-color;
 
-  [class^="filterWrapper"] {
+  [class^='filterWrapper'] {
     border-bottom: 1px solid hsla(0, 0%, 100%, 0.2);
   }
 
@@ -51,11 +55,11 @@ $secondary-font-color: hsla(0, 0%, 100%, 0.6);
     font-weight: normal !important;
   }
 
-  span[data-test-custom="ring-select-popup-filter-icon"] {
+  span[data-test-custom='ring-select-popup-filter-icon'] {
     color: #fff;
   }
 
-  button[data-test="ring-input-clear"] {
+  button[data-test='ring-input-clear'] {
     color: #fff !important;
   }
 }
@@ -106,10 +110,10 @@ $secondary-font-color: hsla(0, 0%, 100%, 0.6);
 }
 
 /* remove fade at the bottom */
-[class^="fade"] {
+[class^='fade'] {
   display: none;
 }
 
-[class*="hover"] {
+[class*='hover'] {
   background-color: hsla(0, 0%, 100%, 0.1) !important;
 }

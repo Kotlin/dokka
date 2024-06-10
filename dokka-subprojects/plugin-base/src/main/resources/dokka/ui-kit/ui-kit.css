@@ -1,34 +1,41 @@
-.platform-hinted > .platform-bookmarks-row > .platform-bookmark, .section-tab {
-    background-color: transparent;
-    border: 0;
-    border-bottom: 1px solid var(--inactive-tab-border-color);
-    color: var(--inactive-section-color);
-    cursor: pointer;
-    font-size: var(--default-font-size);
-    margin: 0 8px;
-    outline: none;
-    padding: 11px 3px
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+.section-tab, .platform-hinted > .platform-bookmarks-row > .platform-bookmark {
+  border: 0;
+  padding: 11px 3px;
+  margin: 0 8px;
+  cursor: pointer;
+  outline: none;
+  font-size: var(--default-font-size);
+  background-color: rgba(0, 0, 0, 0);
+  color: var(--inactive-section-color);
+  border-bottom: 1px solid var(--inactive-tab-border-color);
 }
 
 .section-tab:hover {
-    border-bottom: 2px solid var(--default-font-color);
-    color: red;
+  color: var(--default-font-color);
+  border-bottom: 2px solid var(--default-font-color);
 }
 
 .section-tab[data-active=""] {
-    border-bottom: 2px solid var(--active-tab-border-color);
-    color: var(--active-section-color)
+  color: var(--active-section-color);
+  border-bottom: 2px solid var(--active-tab-border-color);
 }
 
 .tabs-section-body > div {
-    margin-top: 12px
+  margin-top: 12px;
 }
 
 .tabs-section-body .with-platform-tabs {
-    padding-bottom: 12px;
-    padding-top: 12px
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
 
-.js .platform-hinted > .content:not([data-active]), .js .tabs-section-body [data-togglable]:not([data-active]), .main-content[data-page-type=package] .tabs-section-body h2 {
-    display: none
+.js .platform-hinted > .content:not([data-active]), .js .tabs-section-body *[data-togglable]:not([data-active]) {
+  display: none;
+}
+
+.main-content[data-page-type=package] .tabs-section-body h2 {
+  display: none;
 }
