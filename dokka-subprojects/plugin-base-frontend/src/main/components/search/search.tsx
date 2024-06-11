@@ -3,7 +3,7 @@
  */
 
 import List from '@jetbrains/ring-ui/components/list/list';
-import Select from '@jetbrains/ring-ui/components/select/select';
+import Select, { SelectItem } from '@jetbrains/ring-ui/components/select/select';
 import React, { useCallback, useEffect, useState } from 'react';
 import '@jetbrains/ring-ui/components/input-size/input-size.css';
 import './search.scss';
@@ -15,9 +15,13 @@ import { CustomAnchorProps, IWindow, Option, Props } from './types';
 const WithFuzzySearchFilterComponent: React.FC<Props> = ({ data }: Props) => {
   const [selected, onSelected] = useState<Option>(data[0]);
   const onChangeSelected = useCallback(
-    (option: Option) => {
-      window.location.replace(`${(window as IWindow).pathToRoot}${option.location}?query=${option.name}`);
-      onSelected(option);
+    (selectItem: SelectItem<unknown> | null) => {
+      if (!selectItem) {
+        return;
+      }
+      const maybeOption: Option = selectItem as Option;
+      window.location.replace(`${(window as IWindow).pathToRoot}${maybeOption.location}?query=${maybeOption.name}`);
+      onSelected(maybeOption);
     },
     [data]
   );

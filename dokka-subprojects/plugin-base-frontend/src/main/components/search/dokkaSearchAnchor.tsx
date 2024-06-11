@@ -4,6 +4,7 @@
 
 import Tooltip from '@jetbrains/ring-ui/components/tooltip/tooltip';
 import React from 'react';
+// @ts-expect-error import svg file
 import SearchIcon from 'react-svg-loader!../assets/searchIcon.svg';
 import { Hotkey } from '../utils/hotkey';
 import { CustomAnchorProps } from './types';
