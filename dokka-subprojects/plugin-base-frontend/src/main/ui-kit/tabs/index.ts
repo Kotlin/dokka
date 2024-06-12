@@ -71,7 +71,7 @@ function showCorrespondingTabBody(element: Element) {
   }
 }
 
-function toggleSections(target: Element) {
+export function toggleSections(target: Element) {
   const activateTabs = (containerClass: string) => {
     for (const element of document.getElementsByClassName(containerClass)) {
       for (const child of element.children) {
@@ -101,3 +101,5 @@ function toggleSections(target: Element) {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).initTabs = initTabs;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).toggleSections = toggleSections;
