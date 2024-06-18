@@ -4,7 +4,6 @@
 package dokkabuild
 
 import dokkabuild.utils.systemProperty
-import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
@@ -39,24 +38,21 @@ abstract class DevMavenPublishExtension(
             .map { files -> files.map { it.asFile }.sorted() }
 
     /**
-     * Configures [task] to register [devMavenRepositories] as a task input,
+     * Configures [Test] task to register [devMavenRepositories] as a task input,
      * and (if possible) adds `devMavenRepositories` as a [JavaForkOptions.systemProperty].
      */
-    fun configureTask(task: Task) {
+    fun configureTask(task: Test) {
         task.inputs.files(devMavenRepositoriesInputFiles)
             .withPropertyName("devMavenPublish.devMavenRepositoriesInputFiles")
             .withPathSensitivity(RELATIVE)
 
         task.dependsOn(devMavenRepositories)
-
-        if (task is Test) {
-            task.systemProperty.internalProperty(
-                "devMavenRepositories",
-                devMavenRepositories.elements.map { paths ->
-                    paths.joinToString(",") { it.asFile.canonicalFile.invariantSeparatorsPath }
-                }
-            )
-        }
+        task.systemProperty.internalProperty(
+            "devMavenRepositories",
+            devMavenRepositories.elements.map { paths ->
+                paths.joinToString(",") { it.asFile.canonicalFile.invariantSeparatorsPath }
+            }
+        )
     }
 
     companion object {
