@@ -69,13 +69,6 @@ tasks.withType<Test>().configureEach {
 val templateSettingsGradleKts = layout.projectDirectory.file("projects/template.settings.gradle.kts")
 val templateProjectsDir = layout.projectDirectory.dir("projects")
 
-testing.suites.withType<JvmTestSuite>().configureEach {
-    dependencies {
-        // test suites are independent by default (unlike the test source set), and must manually depend on the project
-        implementation(project())
-    }
-}
-
 // register a separate test suite for each 'template' project
 registerTestProjectSuite(
     "testTemplateProjectAndroid",

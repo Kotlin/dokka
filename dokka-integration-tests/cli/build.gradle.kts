@@ -42,12 +42,6 @@ dependencies {
 
 testing {
     suites {
-        withType<JvmTestSuite>().configureEach {
-            dependencies {
-                implementation(project())
-            }
-        }
-
         register<JvmTestSuite>("cliIntegrationTest") {
             targets.configureEach {
                 testTask.configure {

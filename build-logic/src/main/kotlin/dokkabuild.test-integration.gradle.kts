@@ -71,6 +71,11 @@ testing {
         withType<JvmTestSuite>().configureEach {
             useJUnitJupiter()
 
+            dependencies {
+                // test suites are independent by default (unlike the test source set), and must manually depend on the project
+                implementation(project())
+            }
+
             targets.configureEach {
                 testTask.configure {
                     doFirst {
