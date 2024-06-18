@@ -7,7 +7,7 @@ import org.jetbrains.dokka.it.AbstractIntegrationTest
 import org.jetbrains.dokka.it.systemProperty
 import java.io.File
 
-public abstract class AbstractCliIntegrationTest : AbstractIntegrationTest() {
+abstract class AbstractCliIntegrationTest : AbstractIntegrationTest() {
     /** The Dokka CLI JAR. */
     protected val dokkaCliJarPath: String by systemProperty {
         it.split(File.pathSeparatorChar)

@@ -7,7 +7,6 @@ import dokkabuild.tasks.GitCheckoutTask
 import dokkabuild.utils.systemProperty
 import org.gradle.api.tasks.PathSensitivity.NAME_ONLY
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
-import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Disabled
 
 plugins {
     id("dokkabuild.kotlin-jvm")
@@ -52,9 +51,6 @@ dependencies {
 }
 
 kotlin {
-    // this project only contains test utils and isn't published, so it doesn't matter about explicit API
-    explicitApi = Disabled
-
     compilerOptions {
         optIn.add("kotlin.io.path.ExperimentalPathApi")
     }

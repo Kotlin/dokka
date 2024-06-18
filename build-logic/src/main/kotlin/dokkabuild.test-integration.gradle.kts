@@ -8,6 +8,8 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
 import org.gradle.language.base.plugins.LifecycleBasePlugin.VERIFICATION_GROUP
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Disabled
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 
 plugins {
     id("dokkabuild.base")
@@ -126,3 +128,10 @@ val testAllExternalProjects by tasks.registering {
     doNotTrackState("lifecycle task, should always run")
 }
 //endregion
+
+pluginManager.withPlugin("dokkabuild.kotlin-jvm") {
+    extensions.configure<KotlinProjectExtension> {
+        // integration test projects only contains test utils, and aren't published, so it doesn't matter about explicit API
+        explicitApi = Disabled
+    }
+}
