@@ -74,7 +74,9 @@ internal class TypeTranslator(
     fun KaSession.toBoundFrom(type: KaType): Bound =
         when (type) {
             is KaUsualClassType -> {
-                if (type.symbol is KaTypeAliasSymbol) toBoundFromTypeAliased(type)
+                // after KT-66996, [type] is an expanded type
+                val abbreviatedType = type.abbreviatedType
+                if (abbreviatedType != null) toBoundFromTypeAliased(abbreviatedType)
                 else toTypeConstructorFrom(type)
             }
 
@@ -89,7 +91,9 @@ internal class TypeTranslator(
 
             is KaClassErrorType -> UnresolvedBound(type.toString())
             is KaFunctionalType -> {
-                if (type.symbol is KaTypeAliasSymbol) toBoundFromTypeAliased(type)
+                // after KT-66996, [type] is an expanded type
+                val abbreviatedType = type.abbreviatedType
+                if (abbreviatedType != null) toBoundFromTypeAliased(abbreviatedType)
                 else toFunctionalTypeConstructorFrom(type)
             }
             is KaDynamicType -> Dynamic
