@@ -14,7 +14,6 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.process.CommandLineArgumentProvider
-import java.io.File
 import javax.inject.Inject
 
 
@@ -100,8 +99,40 @@ abstract class SystemPropertyAdder @Inject internal constructor(
         key: String,
         value: Provider<out Boolean>,
     ): TaskInputPropertyBuilder = inputProperty(key, value.map { it.toString() })
+
+    /**
+     * Add a System Property (in the format `-D$key=$value`).
+     *
+     * [value] will be treated as if it were annotated with [org.gradle.api.tasks.Internal]
+     * and will _not_ be registered as a Gradle [org.gradle.api.Task] input.
+     * (Which is beneficial in cases where [value] is optional, or is not reproducible,
+     * because such a property might disrupt task caching.)
+     *
+     * If you want to register the property as a Task input, use the
+     * [Test.systemProperty][dokkabuild.utils.systemProperty] above instead.
+     *
+     * @see org.gradle.api.tasks.Internal
+     */
+    fun internalProperty(
+        key: String,
+        value: Provider<out String>,
+    ) {
+        task.jvmArgumentProviders.add(
+            SystemPropertyArgumentProvider(
+                key = key,
+                value = value,
+                transformer = { it.orNull },
+            )
+        )
+    }
 }
 
+/**
+ * Provide a Java system property.
+ *
+ * [value] is not registered as a Gradle Task input.
+ * The value must be registered as a task input, using the [SystemPropertyAdder] utils.
+ */
 private class SystemPropertyArgumentProvider<T : Any>(
     @get:Input
     val key: String,
@@ -112,27 +143,4 @@ private class SystemPropertyArgumentProvider<T : Any>(
         val value = transformer(value) ?: return emptyList()
         return listOf("-D$key=$value")
     }
-}
-
-/**
- * Add a System Property (in the format `-D$key=$value`).
- *
- * [value] will _not_ be registered as a Gradle [org.gradle.api.Task] input.
- * (Which might be beneficial in cases where the property is optional, or not reproducible,
- * as such a property might disrupt task caching.)
- *
- * If you want to register the property as a Task input, use the
- * [Test.systemProperty][dokkabuild.utils.systemProperty] above instead.
- */
-fun MutableList<CommandLineArgumentProvider>.systemProperty(
-    key: String,
-    value: Provider<String>,
-) {
-    add(
-        SystemPropertyArgumentProvider(
-            key = key,
-            value = value,
-            transformer = { it.orNull },
-        )
-    )
 }

@@ -8,6 +8,7 @@ import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
+import org.gradle.api.tasks.testing.Test
 import org.gradle.process.JavaForkOptions
 import java.io.File
 
@@ -48,8 +49,8 @@ abstract class DevMavenPublishExtension(
 
         task.dependsOn(devMavenRepositories)
 
-        if (task is JavaForkOptions) {
-            task.jvmArgumentProviders.systemProperty(
+        if (task is Test) {
+            task.systemProperty.internalProperty(
                 "devMavenRepositories",
                 devMavenRepositories.elements.map { paths ->
                     paths.joinToString(",") { it.asFile.canonicalFile.invariantSeparatorsPath }
