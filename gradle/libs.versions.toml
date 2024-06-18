@@ -93,7 +93,6 @@ kotlin-compiler-k2 = { module = "org.jetbrains.kotlin:kotlin-compiler", version.
 kotlin-high-level-api-api = { module = "org.jetbrains.kotlin:high-level-api-for-ide", version.ref = "kotlin-compiler-k2" }
 kotlin-high-level-api-impl = { module = "org.jetbrains.kotlin:high-level-api-impl-base-for-ide", version.ref = "kotlin-compiler-k2" }
 kotlin-high-level-api-fir = { module = "org.jetbrains.kotlin:high-level-api-fir-for-ide", version.ref = "kotlin-compiler-k2" }
-kotlin-high-level-api-fe10 = { module = "org.jetbrains.kotlin:high-level-api-fe10-for-ide", version.ref = "kotlin-compiler-k2" }
 kotlin-low-level-api-fir = { module = "org.jetbrains.kotlin:low-level-api-fir-for-ide", version.ref = "kotlin-compiler-k2" }
 kotlin-analysis-project-structure = { module = "org.jetbrains.kotlin:analysis-project-structure-for-ide", version.ref = "kotlin-compiler-k2" }
 kotlin-analysis-api-standalone = { module = "org.jetbrains.kotlin:analysis-api-standalone-for-ide", version.ref = "kotlin-compiler-k2" }
