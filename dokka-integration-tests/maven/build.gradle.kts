@@ -7,7 +7,6 @@ import dokkabuild.tasks.GitCheckoutTask
 import dokkabuild.utils.systemProperty
 import org.gradle.api.tasks.PathSensitivity.NAME_ONLY
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
-import org.gradle.language.base.plugins.LifecycleBasePlugin.VERIFICATION_GROUP
 
 plugins {
     id("dokkabuild.kotlin-jvm")
