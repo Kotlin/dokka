@@ -11,35 +11,43 @@ val gradlePluginIncludedBuilds = listOf("runner-gradle-plugin-classic")
 
 addDependencyOnSameTasksOfIncludedBuilds("assemble", "build", "clean", "check")
 
-registerParentGroupTasks("publishing", taskNames = listOf(
-    "publishAllPublicationsToMavenCentralRepository",
-    "publishAllPublicationsToProjectLocalRepository",
-    "publishAllPublicationsToSnapshotRepository",
-    "publishAllPublicationsToSpaceDevRepository",
-    "publishAllPublicationsToSpaceTestRepository",
-    "publishToMavenLocal"
-)) {
+registerParentGroupTasks(
+    "publishing", taskNames = listOf(
+        "publishAllPublicationsToMavenCentralRepository",
+        "publishAllPublicationsToProjectLocalRepository",
+        "publishAllPublicationsToSnapshotRepository",
+        "publishAllPublicationsToSpaceDevRepository",
+        "publishAllPublicationsToSpaceTestRepository",
+        "publishToMavenLocal"
+    )
+) {
     it.name in publishedIncludedBuilds
 }
 
-registerParentGroupTasks("gradle plugin", taskNames = listOf(
-    "publishPlugins",
-    "validatePlugins"
-)) {
+registerParentGroupTasks(
+    "gradle plugin", taskNames = listOf(
+        "publishPlugins",
+        "validatePlugins"
+    )
+) {
     it.name in gradlePluginIncludedBuilds
 }
 
-registerParentGroupTasks("bcv", taskNames = listOf(
-    "apiDump",
-    "apiCheck",
-    "apiBuild"
-)) {
+registerParentGroupTasks(
+    "bcv", taskNames = listOf(
+        "apiDump",
+        "apiCheck",
+        "apiBuild"
+    )
+) {
     it.name in publishedIncludedBuilds
 }
 
-registerParentGroupTasks("verification", taskNames = listOf(
-    "test"
-))
+registerParentGroupTasks(
+    "verification", taskNames = listOf(
+        "test"
+    )
+)
 
 tasks.register("integrationTest") {
     group = "verification"
@@ -87,5 +95,27 @@ fun includedBuildTasks(taskName: String, filter: (IncludedBuild) -> Boolean = { 
 tasks.check {
     gradle.includedBuilds.forEach { ib ->
         dependsOn(ib.task(":check"))
+    }
+}
+
+tasks.wrapper {
+    val gradleVersion = "8.7"
+    distributionUrl =
+        "https://cache-redirector.jetbrains.com/services.gradle.org/distributions/gradle-${gradleVersion}-bin.zip"
+    // Checksums are available here: https://gradle.org/release-checksums/
+    distributionSha256Sum = "544c35d6bd849ae8a5ed0bcea39ba677dc40f49df7d1835561582da2009b961d"
+    doLast {
+        propertiesFile.writeText(
+            buildString {
+                appendLine("# DO NOT MODIFY THIS FILE")
+                appendLine("#")
+                appendLine("# To change the Gradle version modify the wrapper task in the root build.gradle.kts")
+                appendLine("#")
+                appendLine("# Explanation:")
+                appendLine("# Normally the easiest way to update Gradle is to edit gradle-wrapper.properties and re-run `gradle wrapper`.")
+                appendLine("# However, the wrapper task will overwrite the JetBrains cached URL unless it is specified in the task.")
+                append(propertiesFile.readText())
+            }
+        )
     }
 }
