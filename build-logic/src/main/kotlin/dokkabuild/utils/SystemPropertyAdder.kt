@@ -108,8 +108,8 @@ abstract class SystemPropertyAdder @Inject internal constructor(
      * (Which is beneficial in cases where [value] is optional, or is not reproducible,
      * because such a property might disrupt task caching.)
      *
-     * If you want to register the property as a Task input, use the
-     * [Test.systemProperty][dokkabuild.utils.systemProperty] above instead.
+     * If you want to register the property as a Task input that can be normalized, use one of
+     * the typed inputs above.
      *
      * @see org.gradle.api.tasks.Internal
      */
