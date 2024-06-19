@@ -106,7 +106,7 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
       - name: Document biojava-core
-        run: ./gradlew :dokka-integration-tests:maven:integrationTest --tests org.jetbrains.dokka.it.maven.BiojavaIntegrationTest --stacktrace
+        run: ./gradlew :dokka-integration-tests:maven:testExternalProjectBioJava --stacktrace
         env:
           DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/biojava
       - name: Configure AWS credentials for S3 access

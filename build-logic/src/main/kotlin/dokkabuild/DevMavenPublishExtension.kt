@@ -3,11 +3,13 @@
  */
 package dokkabuild
 
-import org.gradle.api.Task
+import dokkabuild.utils.systemProperty
 import org.gradle.api.file.FileCollection
-import org.gradle.api.file.FileTree
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
+import org.gradle.api.tasks.testing.Test
 import org.gradle.process.JavaForkOptions
+import java.io.File
 
 abstract class DevMavenPublishExtension(
     /**
@@ -21,36 +23,36 @@ abstract class DevMavenPublishExtension(
     /**
      * Files suitable for registering as a task input (as in, the files are reproducible-build compatible).
      */
-    private val devMavenRepositoriesInputFiles: FileTree = devMavenRepositories
-        .asFileTree
-        .matching {
+    private val devMavenRepositoriesInputFiles: Provider<List<File>> =
+        devMavenRepositories
+            // Convert to a FileTree, which converts directories to all files, so we can filter on specific files.
+            .asFileTree
             // Exclude Maven Metadata files because they contain timestamps, meaning tasks that use
             // devMavenRepositories as an input will never be up-to-date.
             // The Gradle Module Metadata contains the same information (and more),
             // so the Maven metadata is redundant.
-            exclude("**/maven-metadata*.xml")
-        }
+            .matching { exclude("**/maven-metadata*.xml") }
+            // FileTrees have an unstable order (even on the same machine), which means Gradle up-to-date checks fail.
+            // So, manually sort the files so that Gradle can cache the task.
+            .elements
+            .map { files -> files.map { it.asFile }.sorted() }
 
     /**
-     * Configures [task] to register [devMavenRepositories] as a task input,
-     * and (if possible) adds `devMavenRepository` as a [JavaForkOptions.systemProperty].
+     * Configures [Test] task to register [devMavenRepositories] as a task input,
+     * and (if possible) adds `devMavenRepositories` as a [JavaForkOptions.systemProperty].
      */
-    fun configureTask(task: Task) {
+    fun configureTask(task: Test) {
         task.inputs.files(devMavenRepositoriesInputFiles)
             .withPropertyName("devMavenPublish.devMavenRepositoriesInputFiles")
             .withPathSensitivity(RELATIVE)
 
         task.dependsOn(devMavenRepositories)
-
-        if (task is JavaForkOptions) {
-            task.doFirst("devMavenRepositories systemProperty") {
-                // workaround https://github.com/gradle/gradle/issues/24267
-                task.systemProperty(
-                    "devMavenRepositories",
-                    devMavenRepositories.joinToString(",") { it.canonicalFile.invariantSeparatorsPath }
-                )
+        task.systemProperty.internalProperty(
+            "devMavenRepositories",
+            devMavenRepositories.elements.map { paths ->
+                paths.joinToString(",") { it.asFile.canonicalFile.invariantSeparatorsPath }
             }
-        }
+        )
     }
 
     companion object {

@@ -1,7 +1,6 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.dokka.gradle.kotlinSourceSet
 import org.jetbrains.dokka.base.DokkaBase
@@ -16,7 +15,8 @@ plugins {
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.dokka:dokka-base:${System.getenv("DOKKA_VERSION")}")
+        val dokka_it_dokka_version: String by project
+        classpath("org.jetbrains.dokka:dokka-base:$dokka_it_dokka_version")
     }
 }
 

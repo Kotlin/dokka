@@ -1,20 +1,26 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:Suppress("UnstableApiUsage")
+
 import dokkabuild.tasks.GitCheckoutTask
+import dokkabuild.utils.systemProperty
+import org.gradle.api.tasks.PathSensitivity.NAME_ONLY
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
 
 plugins {
-    id("dokkabuild.test-integration")
-    id("dokkabuild.setup-maven-cli")
+    id("dokkabuild.kotlin-jvm")
     id("dokkabuild.dev-maven-publish")
+    id("dokkabuild.setup-maven-cli")
+    id("dokkabuild.test-integration")
+    `jvm-test-suite`
 }
 
 dependencies {
-    implementation(projects.utilities)
+    api(projects.utilities)
 
-    implementation(kotlin("test-junit5"))
-    implementation(libs.junit.jupiterApi)
+    api(libs.kotlin.test)
+    api(libs.junit.jupiterApi)
 
     val dokkaVersion = project.version.toString()
     // We're using Gradle included-builds and dependency substitution, so we
@@ -43,25 +49,57 @@ dependencies {
 
 val templateProjectsDir = layout.projectDirectory.dir("projects")
 
-val dokkaSubprojects = gradle.includedBuild("dokka")
-val mavenPlugin = gradle.includedBuild("runner-maven-plugin")
-
-tasks.integrationTest {
-    dependsOn(checkoutBioJava)
-
+tasks.withType<Test>().configureEach {
     dependsOn(tasks.installMavenBinary)
-    val mvn = mavenCliSetup.mvn
-    inputs.file(mvn)
+    systemProperty.inputFile("mavenBinaryFile", mavenCliSetup.mvn)
+        .withPathSensitivity(NAME_ONLY)
+}
 
-    val dokkaVersion = provider { project.version.toString() }
-    inputs.property("dokkaVersion", dokkaVersion)
-
-    doFirst("workaround for https://github.com/gradle/gradle/issues/24267") {
-        environment("DOKKA_VERSION", dokkaVersion.get())
-        environment("MVN_BINARY_PATH", mvn.get().asFile.invariantSeparatorsPath)
+registerTestProjectSuite("testTemplateProjectMaven", "it-maven")
+registerTestProjectSuite("testExternalProjectBioJava", "biojava/biojava") {
+    targets.configureEach {
+        testTask.configure {
+            dependsOn(checkoutBioJava)
+            // register the whole directory as an input because it contains the git diff
+            inputs
+                .dir(templateProjectsDir.file("biojava"))
+                .withPropertyName("biojavaProjectDir")
+                .withPathSensitivity(RELATIVE)
+        }
     }
+}
 
-    devMavenPublish.configureTask(this)
+/**
+ * Create a new [JvmTestSuite] for a Gradle project.
+ *
+ * @param[projectPath] path to the Gradle project that will be tested by this suite, relative to [templateProjectsDir].
+ * The directory will be passed as a system property, `templateProjectDir`.
+ */
+fun registerTestProjectSuite(
+    name: String,
+    projectPath: String,
+    jvm: JavaLanguageVersion? = null,
+    configure: JvmTestSuite.() -> Unit = {},
+) {
+    val templateProjectDir = templateProjectsDir.dir(projectPath)
+
+    testing.suites.register<JvmTestSuite>(name) {
+        targets.configureEach {
+            testTask.configure {
+                // Pass the template dir in as a property, it is accessible in tests.
+                systemProperty
+                    .inputDirectory("templateProjectDir", templateProjectDir)
+                    .withPathSensitivity(RELATIVE)
+
+                devMavenPublish.configureTask(this)
+
+                if (jvm != null) {
+                    javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
+                }
+            }
+        }
+        configure()
+    }
 }
 
 val checkoutBioJava by tasks.registering(GitCheckoutTask::class) {

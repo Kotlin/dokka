@@ -9,6 +9,7 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.it.AbstractIntegrationTest
+import org.jetbrains.dokka.it.optionalSystemProperty
 import org.jetbrains.dokka.it.systemProperty
 import java.io.File
 import java.net.URI
@@ -39,7 +40,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
     fun createGradleRunner(
         buildVersions: BuildVersions,
         vararg arguments: String,
-        jvmArgs: List<String> = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=1G")
+        jvmArgs: List<String> = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=1G"),
     ): GradleRunner {
 
         // TODO quick hack to add `android { namespace }` on AGP 7+ (it's mandatory in 8+).
@@ -103,8 +104,8 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
     }
 
     companion object {
-        private val dokkaVersionOverride: String? = System.getenv("DOKKA_VERSION_OVERRIDE")
-        private val dokkaVersion: String = dokkaVersionOverride ?: System.getenv("DOKKA_VERSION")
+        private val dokkaVersionOverride: String? by optionalSystemProperty()
+        private val dokkaVersion: String by systemProperty { dokkaVersionOverride ?: it }
 
         /**
          * Location of the template project that will be copied into [AbstractIntegrationTest.projectDir].
