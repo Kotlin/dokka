@@ -38,13 +38,13 @@ pluginManagement {
     repositories {
         /* %{DOKKA_IT_MAVEN_REPO}% */
         maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2") {
-            name = "MavenCentral"
+            name = "MavenCentral-JBCache"
         }
         maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2") {
-            name = "GradlePluginPortal"
+            name = "GradlePluginPortal-JBCache"
         }
         maven("https://cache-redirector.jetbrains.com/dl.google.com.android.maven2") {
-            name = "Google"
+            name = "Google-JBCache"
         }
     }
 }
@@ -55,16 +55,18 @@ dependencyResolutionManagement {
     repositories {
         /* %{DOKKA_IT_MAVEN_REPO}% */
         maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2") {
-            name = "MavenCentral"
+            name = "MavenCentral-JBCache"
         }
         maven("https://cache-redirector.jetbrains.com/dl.google.com.android.maven2") {
-            name = "Google"
+            name = "Google-JBCache"
         }
         maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
             content { includeGroup("org.jetbrains.kotlinx") }
         }
         // Remove when Kotlin/Wasm is published into public Maven repository
-        maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental") {
+            name = "KotlinWasmExperimental-JBCache"
+        }
 
         // Declare the Node.js & Yarn download repositories - workaround for https://youtrack.jetbrains.com/issue/KT-51379
         exclusiveContent {
@@ -94,7 +96,7 @@ dependencyResolutionManagement {
         // Declare Kotlin/Native dependencies - workaround for https://youtrack.jetbrains.com/issue/KT-51379
         // Remove this repo when the only supported KGP version is above 2.0.0
         ivy("https://cache-redirector.jetbrains.com/download.jetbrains.com/kotlin/native/builds") {
-            name = "Kotlin Native"
+            name = "KotlinNative-JBCache"
             patternLayout {
 
                 // example download URLs:
