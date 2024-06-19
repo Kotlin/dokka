@@ -48,14 +48,9 @@ fun createSettingsXml(): String {
         |            </repositories>
         |        </profile>
         |    </profiles>
-        |      <mirrors>
-        |      <mirror>
-        |      <id>other-mirror</id>
-        |      <name>Other Mirror Repository</name>
-        |      <url>https://other-mirror.repo.other-company.com/maven2</url>
-        |      <mirrorOf>central</mirrorOf>
-        |      </mirror>
-        |      </mirrors>
+        |    <mirrors>
+        |${mavenCentralRepo.mirror(of = "central").prependIndent("        ")}
+        |    </mirrors>
         |    <activeProfiles>
         |        <activeProfile>maven-dev</activeProfile>
         |    </activeProfiles>
@@ -83,5 +78,14 @@ private data class Repository(
             <id>${id}</id>
             <url>${url}</url>
         </pluginRepository>
+    """.trimIndent()
+
+    @Language("XML")
+    fun mirror(of: String) = """
+        <mirror>
+            <id>${id}</id>
+            <url>${url}</url>
+            <mirrorOf>${of}</mirrorOf>
+        </mirror>
     """.trimIndent()
 }
