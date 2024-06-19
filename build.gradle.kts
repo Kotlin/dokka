@@ -92,12 +92,6 @@ fun includedBuildTasks(taskName: String, filter: (IncludedBuild) -> Boolean = { 
         .mapNotNull { it.task(":$taskName") }
 
 
-tasks.check {
-    gradle.includedBuilds.forEach { ib ->
-        dependsOn(ib.task(":check"))
-    }
-}
-
 tasks.wrapper {
     val gradleVersion = "8.7"
     distributionUrl =
