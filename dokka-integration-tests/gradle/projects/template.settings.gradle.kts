@@ -37,15 +37,9 @@ pluginManagement {
     }
     repositories {
         /* %{DOKKA_IT_MAVEN_REPO}% */
-        maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2") {
-            name = "MavenCentral-JBCache"
-        }
-        maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2") {
-            name = "GradlePluginPortal-JBCache"
-        }
-        maven("https://cache-redirector.jetbrains.com/dl.google.com.android.maven2") {
-            name = "Google-JBCache"
-        }
+        mavenCentral()
+        gradlePluginPortal()
+        google()
     }
 }
 
@@ -54,24 +48,20 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         /* %{DOKKA_IT_MAVEN_REPO}% */
-        maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2") {
-            name = "MavenCentral-JBCache"
-        }
-        maven("https://cache-redirector.jetbrains.com/dl.google.com.android.maven2") {
-            name = "Google-JBCache"
-        }
+        mavenCentral()
+        google()
         maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
-            content { includeGroup("org.jetbrains.kotlinx") }
+            content {
+                includeGroup("org.jetbrains.kotlinx")
+            }
         }
         // Remove when Kotlin/Wasm is published into public Maven repository
-        maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental") {
-            name = "KotlinWasmExperimental-JBCache"
-        }
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
 
         // Declare the Node.js & Yarn download repositories - workaround for https://youtrack.jetbrains.com/issue/KT-51379
         exclusiveContent {
             forRepository {
-                ivy("https://cache-redirector.jetbrains.com/nodejs.org/dist/") {
+                ivy("https://nodejs.org/dist/") {
                     name = "Node Distributions at $url"
                     patternLayout { artifact("v[revision]/[artifact](-v[revision]-[classifier]).[ext]") }
                     metadataSources { artifact() }
@@ -83,7 +73,7 @@ dependencyResolutionManagement {
 
         exclusiveContent {
             forRepository {
-                ivy("https://cache-redirector.jetbrains.com/github.com/yarnpkg/yarn/releases/download") {
+                ivy("https://github.com/yarnpkg/yarn/releases/download") {
                     name = "Yarn Distributions at $url"
                     patternLayout { artifact("v[revision]/[artifact](-v[revision]).[ext]") }
                     metadataSources { artifact() }
@@ -95,8 +85,8 @@ dependencyResolutionManagement {
 
         // Declare Kotlin/Native dependencies - workaround for https://youtrack.jetbrains.com/issue/KT-51379
         // Remove this repo when the only supported KGP version is above 2.0.0
-        ivy("https://cache-redirector.jetbrains.com/download.jetbrains.com/kotlin/native/builds") {
-            name = "KotlinNative-JBCache"
+        ivy("https://download.jetbrains.com/kotlin/native/builds") {
+            name = "Kotlin Native"
             patternLayout {
 
                 // example download URLs:
