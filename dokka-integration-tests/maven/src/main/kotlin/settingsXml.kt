@@ -48,6 +48,14 @@ fun createSettingsXml(): String {
         |            </repositories>
         |        </profile>
         |    </profiles>
+        |      <mirrors>
+        |      <mirror>
+        |      <id>other-mirror</id>
+        |      <name>Other Mirror Repository</name>
+        |      <url>https://other-mirror.repo.other-company.com/maven2</url>
+        |      <mirrorOf>central</mirrorOf>
+        |      </mirror>
+        |      </mirrors>
         |    <activeProfiles>
         |        <activeProfile>maven-dev</activeProfile>
         |    </activeProfiles>
