@@ -12,7 +12,7 @@ import java.nio.file.Paths
 
 /** Create `settings.xml` file contents, with the custom dev Maven repos. */
 @Language("xml")
-fun createSettingsXml(): String {
+public fun createSettingsXml(): String {
     /** file-based Maven repositories with Dokka dependencies */
     val devMavenRepositories: List<Path> by systemProperty { repos ->
         repos.split(",").map { Paths.get(it) }

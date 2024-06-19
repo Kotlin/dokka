@@ -7,14 +7,15 @@ package org.jetbrains.dokka.it.maven
 import org.jetbrains.dokka.it.AbstractIntegrationTest
 import org.jetbrains.dokka.it.ProcessResult
 import org.jetbrains.dokka.it.awaitProcessResult
+import org.jetbrains.dokka.it.systemProperty
 import java.io.File
 import kotlin.test.*
 
 class MavenIntegrationTest : AbstractIntegrationTest() {
 
-    private val currentDokkaVersion: String = checkNotNull(System.getenv("DOKKA_VERSION"))
+    private val dokkaVersion: String by systemProperty()
 
-    private val mavenBinaryFile: File = File(checkNotNull(System.getenv("MVN_BINARY_PATH")))
+    private val mavenBinaryFile: File by systemProperty { File(it) }
 
     private val localSettingsXml: File by lazy {
         projectDir.resolve("local-settings.xml").apply {
@@ -29,7 +30,7 @@ class MavenIntegrationTest : AbstractIntegrationTest() {
         val pomXml = File(projectDir, "pom.xml")
         assertTrue(pomXml.isFile)
         pomXml.apply {
-            writeText(readText().replace("\$dokka_version", currentDokkaVersion))
+            writeText(readText().replace("\$dokka_version", dokkaVersion))
         }
         val customResourcesDir = File(templateProjectDir, "customResources")
         if (customResourcesDir.exists() && customResourcesDir.isDirectory) {

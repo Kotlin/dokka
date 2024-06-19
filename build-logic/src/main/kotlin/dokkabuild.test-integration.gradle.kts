@@ -1,72 +1,137 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:Suppress("UnstableApiUsage")
 
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent
+import dokkabuild.utils.systemProperty
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
+import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
+import org.gradle.language.base.plugins.LifecycleBasePlugin.VERIFICATION_GROUP
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Disabled
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 
 plugins {
-    id("dokkabuild.kotlin-jvm")
+    id("dokkabuild.base")
+    `jvm-test-suite`
 }
 
-val integrationTestSourceSet: SourceSet = sourceSets.create("integrationTest") {
-    compileClasspath += sourceSets.main.get().output
-    runtimeClasspath += sourceSets.main.get().output
+val integrationTest by tasks.registering {
+    description = "Lifecycle task for running all integration tests."
+    group = VERIFICATION_GROUP
 }
 
-val integrationTestImplementation: Configuration by configurations.getting {
-    extendsFrom(configurations.implementation.get())
-}
-
-val integrationTestRuntimeOnly: Configuration by configurations.getting {
-    extendsFrom(configurations.runtimeOnly.get())
-}
-
-/**
- * Dokka's integration test task is not cacheable because the HTML outputs
- * it produces when running the tests are used for showcasing resulting documentation,
- * which does not work well with caching.
- *
- * At the moment there are two problems that do not allow to make it cacheable:
- *
- * 1. The task's inputs are such that changes in Dokka's code do not invalidate the cache,
- *    because it is run with the same version of Dokka (`"DOKKA_VERSION"`) on the same
- *    test project inputs.
- * 2. The tests generate HTML output which is then used to showcase documentation.
- *    The outputs are usually copied to a location from which it will be served.
- *    However, if the test is cacheable, it produces no outputs, so no documentation
- *    to showcase. It needs to be broken into two separate tasks: one cacheable for running
- *    the tests and producing HTML output, and another non-cacheable for copying the output.
- *
- * @see [org.jetbrains.dokka.it.TestOutputCopier] for more details on showcasing documentation
- */
-@DisableCachingByDefault(because = "Contains incorrect inputs/outputs configuration, see the KDoc for details")
-abstract class NonCacheableIntegrationTest : Test()
-
-val integrationTest by tasks.registering(NonCacheableIntegrationTest::class) {
+tasks.withType<Test>().configureEach {
+    setForkEvery(1)
     maxHeapSize = "2G"
-    description = "Runs integration tests."
-    group = "verification"
-    testClassesDirs = integrationTestSourceSet.output.classesDirs
-    classpath = integrationTestSourceSet.runtimeClasspath
-
-    useJUnitPlatform {
-        if (dokkaBuild.integrationTestUseK2.get()) excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
-    }
-
-    systemProperty("org.jetbrains.dokka.experimental.tryK2", dokkaBuild.integrationTestUseK2.get())
-
     dokkaBuild.integrationTestParallelism.orNull?.let { parallelism ->
         maxParallelForks = parallelism
     }
 
-    environment("isExhaustive", dokkaBuild.integrationTestExhaustive.get())
+    systemProperty.inputProperty("dokkaVersion", provider { project.version.toString() })
+    systemProperty.inputProperty("dokkaVersionOverride", dokkaBuild.integrationTestDokkaVersionOverride)
+        .optional(true)
+
+    val useK2 = dokkaBuild.integrationTestUseK2
+    systemProperty.inputProperty("org.jetbrains.dokka.experimental.tryK2", useK2)
+        .optional(true)
+    useJUnitPlatform {
+        if (useK2.get()) excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
+    }
+
+    systemProperty.inputProperty("isExhaustive", dokkaBuild.integrationTestExhaustive)
+
+    // allow inspecting projects in temporary dirs after a test fails
+    systemProperty.inputProperty(
+        "junit.jupiter.tempdir.cleanup.mode.default",
+        dokkaBuild.isCI.map { if (it) "ALWAYS" else "ON_SUCCESS" }
+    )
 
     testLogging {
-        exceptionFormat = TestExceptionFormat.FULL
-        events(TestLogEvent.SKIPPED, TestLogEvent.FAILED)
+        exceptionFormat = FULL
+        events(SKIPPED, FAILED)
         showExceptions = true
         showCauses = true
         showStackTraces = true
+    }
+
+    // For validation, on CI the generated output is uploaded, so the test must produce output in
+    // DOKKA_TEST_OUTPUT_PATH. For Gradle up-to-date checks the output dir must be specified.
+    val testOutputPath = System.getenv("DOKKA_TEST_OUTPUT_PATH")
+    inputs.property("testOutputPath", testOutputPath).optional(true)
+    if (testOutputPath != null) {
+        outputs.dir(testOutputPath).withPropertyName("testOutput")
+    }
+
+    // The tests produce report data and generated Dokka output.
+    // Always cache them so Gradle can skip running integration tests if nothing has changed.
+    outputs.cacheIf("always cache") { true }
+}
+
+testing {
+    suites {
+        withType<JvmTestSuite>().configureEach {
+            useJUnitJupiter()
+
+            dependencies {
+                // test suites are independent by default (unlike the test source set), and must manually depend on the project
+                implementation(project())
+            }
+
+            targets.configureEach {
+                testTask.configure {
+                    doFirst {
+                        logger.info("running $path with javaLauncher:${javaLauncher.orNull?.metadata?.javaRuntimeVersion}")
+                    }
+                }
+            }
+        }
+    }
+}
+
+integrationTest.configure {
+    dependsOn(testing.suites)
+}
+
+tasks.check {
+    dependsOn(integrationTest)
+}
+
+//region project tests management
+
+// set up task ordering - template projects (which are generally faster) should be tested before external projects
+val jvmTestTask = tasks.withType<Test>().matching { it.name == "test" }
+val testTemplateProjectsTasks = tasks.withType<Test>().matching { it.name.startsWith("testTemplateProject") }
+val testExternalProjectsTasks = tasks.withType<Test>().matching { it.name.startsWith("testExternalProject") }
+
+testTemplateProjectsTasks.configureEach {
+    shouldRunAfter(jvmTestTask)
+}
+testExternalProjectsTasks.configureEach {
+    shouldRunAfter(jvmTestTask)
+    shouldRunAfter(testTemplateProjectsTasks)
+}
+
+// define lifecycle tasks for project tests
+val testAllTemplateProjects by tasks.registering {
+    description = "Lifecycle task for running all template-project tests"
+    group = VERIFICATION_GROUP
+    dependsOn(testTemplateProjectsTasks)
+    doNotTrackState("lifecycle task, should always run")
+}
+
+val testAllExternalProjects by tasks.registering {
+    description = "Lifecycle task for running all external-project tests"
+    group = VERIFICATION_GROUP
+    shouldRunAfter(testAllTemplateProjects)
+    dependsOn(testExternalProjectsTasks)
+    doNotTrackState("lifecycle task, should always run")
+}
+//endregion
+
+pluginManager.withPlugin("dokkabuild.kotlin-jvm") {
+    extensions.configure<KotlinProjectExtension> {
+        // integration test projects only contains test utils, and aren't published, so it doesn't matter about explicit API
+        explicitApi = Disabled
     }
 }
