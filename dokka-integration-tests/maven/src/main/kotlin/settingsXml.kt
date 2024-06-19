@@ -12,23 +12,28 @@ import java.nio.file.Paths
 
 /** Create `settings.xml` file contents, with the custom dev Maven repos. */
 @Language("xml")
-public fun createSettingsXml(): String {
+fun createSettingsXml(): String {
     /** file-based Maven repositories with Dokka dependencies */
     val devMavenRepositories: List<Path> by systemProperty { repos ->
         repos.split(",").map { Paths.get(it) }
     }
 
-    val pluginRepos = devMavenRepositories
-        .withIndex()
-        .joinToString("\n") { (i, repoPath) ->
-            /* language=xml */
-            """
-                |<pluginRepository>
-                |    <id>devMavenRepo${i}</id>
-                |    <url>${repoPath.toUri().toASCIIString()}</url>
-                |</pluginRepository>
-            """.trimMargin()
-        }
+    val mavenCentralRepo = Repository(
+        id = "MavenCentral-JBCached",
+        url = "https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2",
+    )
+
+    val pluginRepos = buildList {
+        addAll(
+            devMavenRepositories.mapIndexed { i, repoPath ->
+                Repository(
+                    id = "devMavenRepo${i}",
+                    url = repoPath.toUri().toASCIIString()
+                )
+            }
+        )
+        add(mavenCentralRepo)
+    }.joinToString("\n") { it.pluginRepository() }
 
     return """
         |<settings>
@@ -38,6 +43,9 @@ public fun createSettingsXml(): String {
         |            <pluginRepositories>
         |${pluginRepos.prependIndent("                ")}
         |            </pluginRepositories>
+        |            <repositories>
+        |${mavenCentralRepo.repository().prependIndent("            ")}
+        |            </repositories>
         |        </profile>
         |    </profiles>
         |    <activeProfiles>
@@ -46,4 +54,26 @@ public fun createSettingsXml(): String {
         |</settings>
         |
     """.trimMargin()
+}
+
+private data class Repository(
+    val id: String,
+    @Language("http-url-reference")
+    val url: String,
+) {
+    @Language("XML")
+    fun repository() = """
+        <repository>
+            <id>${id}</id>
+            <url>${url}</url>
+        </repository>
+    """.trimIndent()
+
+    @Language("XML")
+    fun pluginRepository() = """
+        <pluginRepository>
+            <id>${id}</id>
+            <url>${url}</url>
+        </pluginRepository>
+    """.trimIndent()
 }
