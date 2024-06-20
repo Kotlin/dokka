@@ -16,7 +16,7 @@ module.exports = (env, args) => {
     },
     output: {
       path: path.resolve(__dirname, '../plugin-base/src/main/resources/dokka/ui-kit/'),
-      filename: isMinify ? 'ui-kit.min.js' : 'ui-kit.js',
+      filename:  'ui-kit.min.js',
     },
     module: {
       rules: [
