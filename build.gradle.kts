@@ -93,23 +93,18 @@ fun includedBuildTasks(taskName: String, filter: (IncludedBuild) -> Boolean = { 
 
 
 tasks.wrapper {
-    val gradleVersion = "8.7"
-    distributionUrl =
-        "https://cache-redirector.jetbrains.com/services.gradle.org/distributions/gradle-${gradleVersion}-bin.zip"
+    // Gradle requires that checksum is defined both in the wrapper task *and* in gradle-wrapper.properties
     // Checksums are available here: https://gradle.org/release-checksums/
     distributionSha256Sum = "544c35d6bd849ae8a5ed0bcea39ba677dc40f49df7d1835561582da2009b961d"
     doLast {
+        // Manually update the distribution URL to use cache-redirector.
+        // (Workaround for https://github.com/gradle/gradle/issues/17515)
         propertiesFile.writeText(
-            buildString {
-                appendLine("# DO NOT MODIFY THIS FILE")
-                appendLine("#")
-                appendLine("# To change the Gradle version modify the wrapper task in the root build.gradle.kts")
-                appendLine("#")
-                appendLine("# Explanation:")
-                appendLine("# Normally the easiest way to update Gradle is to edit gradle-wrapper.properties and re-run `gradle wrapper`.")
-                appendLine("# However, the wrapper task will overwrite the JetBrains cached URL unless it is specified in the task.")
-                append(propertiesFile.readText())
-            }
+            propertiesFile.readText()
+                .replace(
+                    "https\\://services.gradle.org/",
+                    "https\\://cache-redirector.jetbrains.com/services.gradle.org/",
+                )
         )
     }
 }

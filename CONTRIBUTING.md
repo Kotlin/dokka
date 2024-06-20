@@ -78,6 +78,40 @@ plugins {
 
 There is an automation script for this routine, see [testDokka.sh.md](scripts/testDokka.sh.md) for details.
 
+### Updating Gradle
+
+To update Gradle, follow these steps:
+
+1. Open https://gradle.org/release-checksums/ and copy the "Binary-only (-bin) ZIP"
+   checksum corresponding to the desired Gradle version.
+2. Update `distributionSha256Sum` in [`gradle-wrapper.properties`](gradle/wrapper/gradle-wrapper.properties).
+    ```diff
+    - distributionSha256Sum=<old checksum>
+    + distributionSha256Sum=<new checksum>
+    ```
+3. Update `distributionSha256Sum` in the wrapper task in [`build.gradle.kts`](build.gradle.kts).
+    ```diff
+      tasks.wrapper {
+    -     distributionSha256Sum = "<old checksum>"
+    +     distributionSha256Sum = "<new checksum>"
+      }
+    ```
+   (Why does `distributionSha256Sum` need to be updated in two places? Because
+   [the Wrapper task fails if `gradle-wrapper.properties` contains `distributionSha256Sum`, but the task configuration does not.](https://docs.gradle.org/current/userguide/gradle_wrapper.html#configuring_checksum_verification))
+4. Update Gradle
+
+   Run `./gradlew wrapper --gradle-version=x.y.z`
+5. ⚠️ Important ⚠️
+
+   **Run** `./gradlew wrapper` **again**!
+
+   (Yes, really run `wrapper` twice. [Otherwise, Gradle won't update its wrapper files.](https://github.com/gradle/gradle/issues/884))
+6. Commit the
+   [`gradle/wrapper/**`](./gradle/wrapper),
+   [`gradlew`](gradlew),
+   and [`gradlew.bat`](gradlew.bat),
+   files to git (if there are changes).
+
 ### Updating public API dump
 
 [Binary Compatibility Validator](https://github.com/Kotlin/binary-compatibility-validator/blob/master/README.md) 
