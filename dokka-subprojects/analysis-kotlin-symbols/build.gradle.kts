@@ -40,7 +40,6 @@ dependencies {
         libs.kotlin.high.level.api.impl,
         libs.kotlin.high.level.api.fir,
         libs.kotlin.low.level.api.fir,
-        libs.kotlin.analysis.project.structure,
         libs.kotlin.analysis.api.platform,
         libs.kotlin.symbol.light.classes,
     ).forEach {
