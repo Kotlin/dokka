@@ -91,7 +91,7 @@ internal class DokkaSymbolVisitor(
 
     private fun <T> T.toSourceSetDependent() = if (this != null) mapOf(sourceSet to this) else emptyMap()
 
-    private fun <T : KaSymbol> List<T>.filterSymbolsInSourceSet(moduleFiles: Set<KtFile>): List<T> = filter {
+    private fun <T : KaSymbol> Sequence<T>.filterSymbolsInSourceSet(moduleFiles: Set<KtFile>): Sequence<T> = filter {
         when (val file = it.psi?.containingFile) {
             is KtFile -> moduleFiles.contains(file)
             else -> false
@@ -129,8 +129,8 @@ internal class DokkaSymbolVisitor(
     ): DPackage {
         val dri = getDRIFromPackage(packageSymbol)
         val scope = packageSymbol.packageScope
-        val callables = scope.callables.toList().filterSymbolsInSourceSet(moduleFiles)
-        val classifiers = scope.classifiers.toList().filterSymbolsInSourceSet(moduleFiles)
+        val callables = scope.callables.filterSymbolsInSourceSet(moduleFiles).toList()
+        val classifiers = scope.classifiers.filterSymbolsInSourceSet(moduleFiles).toList()
 
         val functions = callables.filterIsInstance<KaNamedFunctionSymbol>().map { visitFunctionSymbol(it, dri) }
         val properties = callables.filterIsInstance<KaPropertySymbol>().map { visitPropertySymbol(it, dri) }

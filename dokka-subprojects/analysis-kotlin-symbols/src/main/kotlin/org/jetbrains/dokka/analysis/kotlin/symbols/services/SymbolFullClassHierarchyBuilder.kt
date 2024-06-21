@@ -42,13 +42,13 @@ internal class SymbolFullClassHierarchyBuilder(context: DokkaContext) : FullClas
     ) {
         val (dri, kotlinType) = driWithKType
         if (supersMap[dri] == null) {
-            val supertypes = kotlinType.directSupertypes(shouldApproximate = true).filterNot { it.isAnyType }
+            val supertypes = kotlinType.directSupertypes(shouldApproximate = true).filterNot { it.isAnyType }.toList()
             val supertypesDriWithKType = supertypes.mapNotNull { supertype ->
                 supertype.expandedSymbol?.let {
                     getDRIFromClassLike(it) to supertype
                 }
             }
-            supersMap[dri] = supertypesDriWithKType.map { it.first }.toList()
+            supersMap[dri] = supertypesDriWithKType.map { it.first }
             supertypesDriWithKType.forEach { collectSupertypesFromKtType(it, supersMap) }
         }
     }
@@ -133,7 +133,7 @@ internal class SymbolFullClassHierarchyBuilder(context: DokkaContext) : FullClas
         val (typeConstructorWithKind, kotlinType) = typeConstructorWithKindWithKType
 
         if (supersMap[typeConstructorWithKind.typeConstructor.dri] == null) {
-            val supertypes = kotlinType.directSupertypes(shouldApproximate = true).filterNot { it.isAnyType }
+            val supertypes = kotlinType.directSupertypes(shouldApproximate = true).filterNot { it.isAnyType }.toList()
 
             val supertypesDriWithKType = supertypes.map { supertype ->
                 with(typeTranslator) {
@@ -141,7 +141,7 @@ internal class SymbolFullClassHierarchyBuilder(context: DokkaContext) : FullClas
                 } to supertype
             }
             supersMap[typeConstructorWithKind.typeConstructor.dri] =
-                SuperclassesWithKind(typeConstructorWithKind, supertypesDriWithKType.map { it.first }.toList())
+                SuperclassesWithKind(typeConstructorWithKind, supertypesDriWithKType.map { it.first })
             supertypesDriWithKType.forEach { collectSupertypesWithKindFromKtType(typeTranslator, it, supersMap) }
         }
     }
