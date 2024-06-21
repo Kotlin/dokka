@@ -116,6 +116,9 @@ via `org.jetbrains.dokka.integration_test.dokkaVersionOverride` Gradle property:
 ./gradlew :dokka-integration-tests:gradle:testExternalProjectKotlinxCoroutines -Porg.jetbrains.dokka.integration_test.dokkaVersionOverride=2.0.0-dev-329
 ```
 
+Additionally, it's possible to open the Gradle integration test projects in IDEA.
+Instructions are located in [README.md of Gradle integration tests](dokka-integration-tests/gradle/projects/README.md). 
+
 ## Infrastructure
 
 ### Java version
