@@ -4,7 +4,8 @@
 
 module.exports = {
   extends: '@jetbrains/stylelint-config',
+  customSyntax: 'postcss-scss',
   rules: {
-    'string-quotes': 'single',
-  }
+    'selector-max-specificity': ['0,2,0', { severity: 'warning' }],
+  },
 };

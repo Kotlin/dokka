@@ -3,21 +3,24 @@
  */
 .tabs-section,
 .platform-hinted > .platform-bookmarks-row {
-  margin-left: -8px;
   margin-right: -8px;
+  margin-left: -8px;
 }
 
 .section-tab, /* regular tabs */
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark /* platform tabs but they look the same */ {
-  border: 0;
-  padding: 11px 3px;
   margin: 0 8px;
+  padding: 11px 3px;
+
   cursor: pointer;
-  outline: none;
-  font-size: var(--default-font-size);
-  background-color: transparent;
+
   color: var(--inactive-section-color);
+  border: 0;
   border-bottom: 1px solid var(--inactive-tab-border-color);
+  outline: none;
+  background-color: transparent;
+
+  font-size: var(--default-font-size);
 }
 
 .platform-hinted > .platform-bookmarks-row {
@@ -52,16 +55,18 @@
 }
 
 .platform-hinted {
-  flex: auto;
   display: block;
+  flex: auto;
 }
 
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark {
-  min-width: 64px;
-  background: inherit;
+  align-self: flex-start;
   flex: none;
   order: 5;
-  align-self: flex-start;
+
+  min-width: 64px;
+
+  background: inherit;
 }
 
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark:hover {
@@ -70,8 +75,8 @@
 }
 
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark[data-active=''] {
-  border-bottom: 2px solid var(--active-tab-border-color);
   color: var(--active-section-color);
+  border-bottom: 2px solid var(--active-tab-border-color);
 }
 
 .no-js .platform-bookmarks-row,
@@ -81,10 +86,6 @@
 
 .js .platform-hinted > .content:not([data-active]),
 .js .tabs-section-body *[data-togglable]:not([data-active]) {
-  display: none;
-}
-
-.main-content[data-page-type='package'] .tabs-section-body h2 {
   display: none;
 }
 
