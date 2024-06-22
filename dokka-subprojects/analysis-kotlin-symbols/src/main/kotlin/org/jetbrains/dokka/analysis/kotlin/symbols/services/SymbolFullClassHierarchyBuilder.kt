@@ -36,7 +36,7 @@ internal class SymbolFullClassHierarchyBuilder(context: DokkaContext) : FullClas
         return map
     }
 
-    private fun KaSession.collectSupertypesFromKtType(
+    private fun KaSession.collectSupertypesFromKotlinType(
         driWithKType: Pair<DRI, KaType>,
         supersMap: MutableMap<DRI, Supertypes>
     ) {
@@ -49,7 +49,7 @@ internal class SymbolFullClassHierarchyBuilder(context: DokkaContext) : FullClas
                 }
             }
             supersMap[dri] = supertypesDriWithKType.map { it.first }
-            supertypesDriWithKType.forEach { collectSupertypesFromKtType(it, supersMap) }
+            supertypesDriWithKType.forEach { collectSupertypesFromKotlinType(it, supersMap) }
         }
     }
 
@@ -83,7 +83,7 @@ internal class SymbolFullClassHierarchyBuilder(context: DokkaContext) : FullClas
                     (source.psi as? KtClassOrObject)?.let { psi ->
                         analyze(kotlinAnalysis.getModule(sourceSet)) {
                             val type = psi.namedClassSymbol?.defaultType ?: return@analyze
-                            hierarchy[sourceSet]?.let { collectSupertypesFromKtType(documentable.dri to type, it) }
+                            hierarchy[sourceSet]?.let { collectSupertypesFromKotlinType(documentable.dri to type, it) }
                         }
                     }
                 } else if (source is PsiDocumentableSource) {
@@ -115,7 +115,7 @@ internal class SymbolFullClassHierarchyBuilder(context: DokkaContext) : FullClas
                 if (source is KtPsiDocumentableSource) {
                     (source.psi as? KtClassOrObject)?.let { psi ->
                         val type = psi.namedClassSymbol?.defaultType ?: return@analyze
-                        collectSupertypesWithKindFromKtType(typeTranslator, with(typeTranslator) {
+                        collectSupertypesWithKindFromKotlinType(typeTranslator, with(typeTranslator) {
                             toTypeConstructorWithKindFrom(type)
                         } to type, hierarchy)
                     }
@@ -125,7 +125,7 @@ internal class SymbolFullClassHierarchyBuilder(context: DokkaContext) : FullClas
         return hierarchy
     }
 
-    private fun KaSession.collectSupertypesWithKindFromKtType(
+    private fun KaSession.collectSupertypesWithKindFromKotlinType(
         typeTranslator: TypeTranslator,
         typeConstructorWithKindWithKType: Pair<TypeConstructorWithKind, KaType>,
         supersMap: MutableMap<DRI, SuperclassesWithKind>
@@ -142,7 +142,7 @@ internal class SymbolFullClassHierarchyBuilder(context: DokkaContext) : FullClas
             }
             supersMap[typeConstructorWithKind.typeConstructor.dri] =
                 SuperclassesWithKind(typeConstructorWithKind, supertypesDriWithKType.map { it.first })
-            supertypesDriWithKType.forEach { collectSupertypesWithKindFromKtType(typeTranslator, it, supersMap) }
+            supertypesDriWithKType.forEach { collectSupertypesWithKindFromKotlinType(typeTranslator, it, supersMap) }
         }
     }
 }

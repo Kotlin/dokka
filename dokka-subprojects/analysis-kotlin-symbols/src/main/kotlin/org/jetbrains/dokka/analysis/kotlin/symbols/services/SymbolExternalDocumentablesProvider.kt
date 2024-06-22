@@ -41,7 +41,7 @@ internal class SymbolExternalDocumentablesProvider(val context: DokkaContext) : 
 
             val parentDRI = symbol.containingSymbol?.let { getDRIFromSymbol(it) } ?: /* top level */ DRI(dri.packageName)
             with(translator) {
-                return@analyze visitNamedClassOrObjectSymbol(symbol, parentDRI)
+                return@analyze visitClassSymbol(symbol, parentDRI)
             }
         }
     }

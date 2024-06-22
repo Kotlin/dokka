@@ -56,24 +56,24 @@ internal class AnnotationTranslator {
         else -> Annotations.AnnotationScope.DIRECT
     }
 
-    private fun KaSession.mustBeDocumented(annotationApplication: KaAnnotation): Boolean {
-        if (annotationApplication.isNoExistedInSource()) return false
-        val annotationClass = findClass(annotationApplication.classId ?: return false)
+    private fun KaSession.mustBeDocumented(annotation: KaAnnotation): Boolean {
+        if (annotation.isNoExistedInSource()) return false
+        val annotationClass = findClass(annotation.classId ?: return false)
         return annotationClass?.let { mustBeDocumentedAnnotation in it.annotations }
             ?: false
     }
 
-    private fun KaSession.toDokkaAnnotation(annotationApplication: KaAnnotation) =
+    private fun KaSession.toDokkaAnnotation(annotation: KaAnnotation) =
         Annotations.Annotation(
-            dri = annotationApplication.classId?.createDRI()
+            dri = annotation.classId?.createDRI()
                 ?: DRI(packageName = "", classNames = ERROR_CLASS_NAME), // classId might be null on a non-existing annotation call,
-            params = annotationApplication.arguments.associate {
+            params = annotation.arguments.associate {
                 it.name.asString() to toDokkaAnnotationValue(
                     it.expression
                 )
             },
-            mustBeDocumented = mustBeDocumented(annotationApplication),
-            scope = annotationApplication.useSiteTarget?.toDokkaAnnotationScope() ?: Annotations.AnnotationScope.DIRECT
+            mustBeDocumented = mustBeDocumented(annotation),
+            scope = annotation.useSiteTarget?.toDokkaAnnotationScope() ?: Annotations.AnnotationScope.DIRECT
         )
 
     @OptIn(ExperimentalUnsignedTypes::class)

@@ -39,7 +39,7 @@ internal class TypeTranslator(
         return if (classSymbol is KaTypeAliasSymbol)
             TypeAliased(
                 typeAlias = GenericTypeConstructor(
-                    dri = getDRIFromNonErrorClassType(classType),
+                    dri = getDRIFromClassType(classType),
                     projections = classType.typeArguments.map { toProjection(it) }),
                 inner = toBoundFrom(classType.fullyExpandedType),
                 extra = PropertyContainer.withAll(
@@ -51,7 +51,7 @@ internal class TypeTranslator(
 
     private fun KaSession.toTypeConstructorFrom(classType: KaClassType) =
         GenericTypeConstructor(
-            dri = getDRIFromNonErrorClassType(classType),
+            dri = getDRIFromClassType(classType),
             projections = classType.typeArguments.map { toProjection(it) },
             presentableName = classType.getPresentableName(),
             extra = PropertyContainer.withAll(
@@ -61,7 +61,7 @@ internal class TypeTranslator(
 
     private fun KaSession.toFunctionalTypeConstructorFrom(functionalType: KaFunctionType) =
         FunctionalTypeConstructor(
-            dri = getDRIFromNonErrorClassType(functionalType),
+            dri = getDRIFromClassType(functionalType),
             projections = functionalType.typeArguments.map { toProjection(it) },
             isExtensionFunction = functionalType.receiverType != null,
             isSuspendable = functionalType.isSuspend,

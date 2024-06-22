@@ -28,8 +28,8 @@ private fun CallableId.createDRI(receiver: TypeReference?, params: List<TypeRefe
     )
 )
 
-internal fun getDRIFromNonErrorClassType(nonErrorClassType: KaClassType): DRI =
-    nonErrorClassType.classId.createDRI()
+internal fun getDRIFromClassType(classType: KaClassType): DRI =
+    classType.classId.createDRI()
 
 // because of compatibility with Dokka K1, DRI of entry is kept as non-callable
 internal fun getDRIFromEnumEntry(symbol: KaEnumEntrySymbol): DRI {
@@ -61,13 +61,13 @@ internal fun KaSession.getDRIFromConstructor(symbol: KaConstructorSymbol): DRI {
     )
 }
 
-internal fun KaSession.getDRIFromVariableLike(symbol: KaVariableSymbol): DRI {
+internal fun KaSession.getDRIFromVariable(symbol: KaVariableSymbol): DRI {
     val callableId = symbol.callableId ?: throw IllegalStateException("Can not get callable Id due to it is local")
     val receiver = symbol.receiverType?.let(::getTypeReferenceFrom)
     return callableId.createDRI(receiver, emptyList())
 }
 
-internal fun KaSession.getDRIFromFunctionLike(symbol: KaFunctionSymbol): DRI {
+internal fun KaSession.getDRIFromFunction(symbol: KaFunctionSymbol): DRI {
     val params = symbol.valueParameters.map { getTypeReferenceFrom(it.returnType) }
     val receiver = symbol.receiverType?.let {
         getTypeReferenceFrom(it)
@@ -85,7 +85,7 @@ internal fun KaSession.getDRIFromValueParameter(symbol: KaValueParameterSymbol):
     val function = (symbol.containingSymbol as? KaFunctionSymbol)
         ?: throw IllegalStateException("Containing symbol is null for type parameter")
     val index = function.valueParameters.indexOfFirst { it.name == symbol.name }
-    val funDRI = getDRIFromFunctionLike(function)
+    val funDRI = getDRIFromFunction(function)
     return funDRI.copy(target = PointingToCallableParameters(index))
 }
 
@@ -97,7 +97,7 @@ internal fun KaSession.getDRIFromReceiverParameter(receiverParameterSymbol: KaRe
 
 private fun KaSession.getDRIFromReceiverType(type: KaType): DRI {
     return when(type) {
-        is KaClassType -> getDRIFromNonErrorClassType(type)
+        is KaClassType -> getDRIFromClassType(type)
         is KaTypeParameterType -> getDRIFromTypeParameter(type.symbol)
         is KaDefinitelyNotNullType -> getDRIFromReceiverType(type.original)
         is KaErrorType -> DRI(packageName = "", classNames = "$ERROR_CLASS_NAME $type")
@@ -115,8 +115,8 @@ internal fun KaSession.getDRIFromSymbol(symbol: KaSymbol): DRI =
         is KaTypeParameterSymbol -> getDRIFromTypeParameter(symbol)
         is KaConstructorSymbol -> getDRIFromConstructor(symbol)
         is KaValueParameterSymbol -> getDRIFromValueParameter(symbol)
-        is KaVariableSymbol -> getDRIFromVariableLike(symbol)
-        is KaFunctionSymbol -> getDRIFromFunctionLike(symbol)
+        is KaVariableSymbol -> getDRIFromVariable(symbol)
+        is KaFunctionSymbol -> getDRIFromFunction(symbol)
         is KaClassLikeSymbol -> getDRIFromClassLike(symbol)
         is KaPackageSymbol -> getDRIFromPackage(symbol)
         is KaReceiverParameterSymbol -> getDRIFromReceiverParameter(symbol)

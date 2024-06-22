@@ -136,7 +136,7 @@ internal class DokkaSymbolVisitor(
         val properties = callables.filterIsInstance<KaPropertySymbol>().map { visitPropertySymbol(it, dri) }
         val classlikes =
             classifiers.filterIsInstance<KaNamedClassSymbol>()
-                .map { visitNamedClassOrObjectSymbol(it, dri) }
+                .map { visitClassSymbol(it, dri) }
         val typealiases = classifiers.filterIsInstance<KaTypeAliasSymbol>().map { visitTypeAliasSymbol(it, dri) }
 
         return DPackage(
@@ -182,7 +182,7 @@ internal class DokkaSymbolVisitor(
         )
     }
 
-    fun KaSession.visitNamedClassOrObjectSymbol(
+    fun KaSession.visitClassSymbol(
         namedClassSymbol: KaNamedClassSymbol,
         parent: DRI
     ): DClasslike = withExceptionCatcher(namedClassSymbol) {
@@ -196,7 +196,7 @@ internal class DokkaSymbolVisitor(
         val (constructors, functions, properties, classlikesWithoutCompanion) = getDokkaScopeFrom(namedClassSymbol, dri)
 
         val companionObject = namedClassSymbol.companionObject?.let {
-            visitNamedClassOrObjectSymbol(
+            visitClassSymbol(
                 it,
                 dri
             )
@@ -353,7 +353,7 @@ internal class DokkaSymbolVisitor(
                     supertypes = supertypes,
                     documentation = documentation,
                     companion = namedClassSymbol.companionObject?.let {
-                        visitNamedClassOrObjectSymbol(
+                        visitClassSymbol(
                             it,
                             dri
                         )
@@ -441,7 +441,7 @@ internal class DokkaSymbolVisitor(
 
         val classlikes = classifiers.filterIsInstance<KaNamedClassSymbol>()
             .filterOutCompanion() // also, this is a hack to filter out companion for enum
-            .map { visitNamedClassOrObjectSymbol(it, dri) }
+            .map { visitClassSymbol(it, dri) }
 
         return DokkaScope(
             constructors = constructors,
@@ -582,7 +582,7 @@ internal class DokkaSymbolVisitor(
         // SyntheticJavaProperty has callableId, propertyAccessorSymbol.origin = JAVA_SYNTHETIC_PROPERTY
         // For Kotlin properties callableId=null
         val dri = if (propertyAccessorSymbol.callableId != null)
-            getDRIFromFunctionLike(propertyAccessorSymbol)
+            getDRIFromFunction(propertyAccessorSymbol)
         else
             propertyDRI.copy(
                 callable = Callable(name, null, propertyAccessorSymbol.valueParameters.map { getTypeReferenceFrom(it.returnType) })
