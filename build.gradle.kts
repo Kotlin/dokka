@@ -93,9 +93,6 @@ fun includedBuildTasks(taskName: String, filter: (IncludedBuild) -> Boolean = { 
 
 
 tasks.wrapper {
-    // Gradle requires that checksum is defined both in the wrapper task *and* in gradle-wrapper.properties
-    // Checksums are available here: https://gradle.org/release-checksums/
-    distributionSha256Sum = "544c35d6bd849ae8a5ed0bcea39ba677dc40f49df7d1835561582da2009b961d"
     doLast {
         // Manually update the distribution URL to use cache-redirector.
         // (Workaround for https://github.com/gradle/gradle/issues/17515)
