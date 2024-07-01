@@ -2,11 +2,12 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-$font-color: hsla(0, 0%, 100%, 0.8);
-$secondary-font-color: hsla(0, 0%, 100%, 0.6);
+$font-color: hsla(0deg, 0%, 100%, 0.8);
+$secondary-font-color: hsla(0deg, 0%, 100%, 0.6);
 
 #pages-search {
   cursor: pointer;
+
   border: none;
   border-radius: 50%;
   background: transparent;
@@ -19,30 +20,38 @@ $secondary-font-color: hsla(0, 0%, 100%, 0.6);
 }
 
 .search {
-  &, [data-test="ring-select"], [data-test="ring-tooltip"], [data-test="ring-select_focus"], #pages-search {
+  &,
+  [data-test='ring-select'],
+  [data-test='ring-tooltip'],
+  [data-test='ring-select_focus'],
+  #pages-search {
     display: inline-block;
-    padding: 0;
+
     margin: 0;
+    padding: 0;
+
     font-size: 0;
     line-height: 0;
   }
 }
 
 .search-hotkey-popup {
-  background-color: var(--background-color) !important;
   padding: 4px;
+
+  background-color: var(--background-color) !important;
 }
 
 .popup-wrapper {
   min-width: calc(100% - 322px) !important;
 
-  border: 1px solid hsla(0, 0%, 100%, 0.2) !important;
-
-  background-color: #27282c !important;
   color: $font-color;
 
-  [class^="filterWrapper"] {
-    border-bottom: 1px solid hsla(0, 0%, 100%, 0.2);
+  border: 1px solid hsla(0deg, 0%, 100%, 0.2) !important;
+
+  background-color: #27282c !important;
+
+  [class^='filterWrapper'] {
+    border-bottom: 1px solid hsla(0deg, 0%, 100%, 0.2);
   }
 
   input {
@@ -51,16 +60,16 @@ $secondary-font-color: hsla(0, 0%, 100%, 0.6);
     font-weight: normal !important;
   }
 
-  span[data-test-custom="ring-select-popup-filter-icon"] {
+  span[data-test-custom='ring-select-popup-filter-icon'] {
     color: #fff;
   }
 
-  button[data-test="ring-input-clear"] {
+  button[data-test='ring-input-clear'] {
     color: #fff !important;
   }
 }
 
-@media screen and (max-width: 759px) {
+@media screen and (width <= 759px) {
   .popup-wrapper {
     min-width: 100% !important;
   }
@@ -88,7 +97,7 @@ $secondary-font-color: hsla(0, 0%, 100%, 0.6);
   }
 }
 
-@media screen and (max-width: 759px) {
+@media screen and (width <= 759px) {
   .template-wrapper {
     display: flex;
     flex-direction: column;
@@ -106,10 +115,10 @@ $secondary-font-color: hsla(0, 0%, 100%, 0.6);
 }
 
 /* remove fade at the bottom */
-[class^="fade"] {
+[class^='fade'] {
   display: none;
 }
 
-[class*="hover"] {
-  background-color: hsla(0, 0%, 100%, 0.1) !important;
+[class*='hover'] {
+  background-color: hsla(0deg, 0%, 100%, 0.1) !important;
 }

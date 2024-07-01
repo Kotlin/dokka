@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+cd "$(dirname -- "$0")/../dokka-subprojects/plugin-base-frontend" || exit
+yarn run lint-staged

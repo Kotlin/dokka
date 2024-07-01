@@ -52,7 +52,7 @@ window.addEventListener('load', () => {
         filterSection.addEventListener('click', (event) => filterButtonHandler(event))
         initializeFiltering()
     }
-    initTabs()
+    initTabs() // initTabs comes from ui-kit/tabs
     handleAnchor()
     initHidingLeftNavigation()
     topNavbarOffset = document.getElementById('navigation-wrapper')
@@ -183,17 +183,17 @@ function handleAnchor() {
     }
 
     let anchor = window.location.hash
-    if (anchor != "") {
+    if (anchor !== "") {
         anchor = anchor.substring(1)
         let element = document.querySelector('a[data-name="' + anchor + '"]')
 
         if (element) {
             const content = element.nextElementSibling
             const contentStyle = window.getComputedStyle(content)
-            if(contentStyle.display == 'none') {
+            if(contentStyle.display === 'none') {
 		 let tab = findAnyTab(searchForContentTarget(content))
 		 if (tab) {
-		     toggleSections(tab)
+		     toggleSections(tab) // toggleSections comes from ui-kit/tabs
 		 }
             }
 
@@ -207,44 +207,10 @@ function handleAnchor() {
     }
 }
 
-function initTabs() {
-    // we could have only a single type of data - classlike or package
-    const mainContent = document.querySelector('.main-content');
-    const type = mainContent ? mainContent.getAttribute("data-page-type") : null;
-    const localStorageKey = "active-tab-" + type;
-    document.querySelectorAll('div[tabs-section]').forEach(element => {
-        showCorrespondingTabBody(element);
-        element.addEventListener('click', ({target}) => {
-            const togglable = target ? target.getAttribute("data-togglable") : null;
-            if (!togglable) return;
-
-            safeLocalStorage.setItem(localStorageKey, JSON.stringify(togglable));
-            toggleSections(target);
-        });
-    });
-
-    const cached = safeLocalStorage.getItem(localStorageKey);
-    if (!cached) return;
-
-    const tab = document.querySelector(
-        'div[tabs-section] > button[data-togglable="' + JSON.parse(cached) + '"]'
-    );
-    if (!tab) return;
-
-    toggleSections(tab);
-}
-
-function showCorrespondingTabBody(element) {
-    const buttonWithKey = element.querySelector("button[data-active]")
-    if (buttonWithKey) {
-        toggleSections(buttonWithKey)
-    }
-}
-
 function filterButtonHandler(event) {
-    if (event.target.tagName == "BUTTON" && event.target.hasAttribute("data-filter")) {
+    if (event.target.tagName === "BUTTON" && event.target.hasAttribute("data-filter")) {
         let sourceset = event.target.getAttribute("data-filter")
-        if (filteringContext.activeFilters.indexOf(sourceset) != -1) {
+        if (filteringContext.activeFilters.indexOf(sourceset) !== -1) {
             filterSourceset(sourceset)
         } else {
             unfilterSourceset(sourceset)
@@ -264,7 +230,7 @@ function initializeFiltering() {
     if (cached) {
         let parsed = JSON.parse(cached)
         filteringContext.activeFilters = filteringContext.restrictedDependencies
-            .filter(q => parsed.indexOf(q) == -1)
+            .filter(q => parsed.indexOf(q) === -1)
     } else {
         filteringContext.activeFilters = filteringContext.restrictedDependencies
     }
@@ -272,13 +238,13 @@ function initializeFiltering() {
 }
 
 function filterSourceset(sourceset) {
-    filteringContext.activeFilters = filteringContext.activeFilters.filter(p => p != sourceset)
+    filteringContext.activeFilters = filteringContext.activeFilters.filter(p => p !== sourceset)
     refreshFiltering()
     addSourcesetFilterToCache(sourceset)
 }
 
 function unfilterSourceset(sourceset) {
-    if (filteringContext.activeFilters.length == 0) {
+    if (filteringContext.activeFilters.length === 0) {
         filteringContext.activeFilters = filteringContext.dependencies[sourceset].concat([sourceset])
         refreshFiltering()
         filteringContext.dependencies[sourceset].concat([sourceset]).forEach(p => removeSourcesetFilterFromCache(p))
@@ -304,52 +270,25 @@ function removeSourcesetFilterFromCache(sourceset) {
     let cached = safeLocalStorage.getItem('inactive-filters')
     if (cached) {
         let parsed = JSON.parse(cached)
-        safeLocalStorage.setItem('inactive-filters', JSON.stringify(parsed.filter(p => p != sourceset)))
+        safeLocalStorage.setItem('inactive-filters', JSON.stringify(parsed.filter(p => p !== sourceset)))
     }
-}
-
-function toggleSections(target) {
-    const activateTabs = (containerClass) => {
-        for (const element of document.getElementsByClassName(containerClass)) {
-            for (const child of element.children) {
-                if (child.getAttribute("data-togglable") === target.getAttribute("data-togglable")) {
-                    child.setAttribute("data-active", "")
-                } else {
-                    child.removeAttribute("data-active")
-                }
-            }
-        }
-    }
-    const toggleTargets = target.getAttribute("data-togglable").split(",")
-    const activateTabsBody = (containerClass) => {
-        document.querySelectorAll("." + containerClass + " *[data-togglable]")
-            .forEach(child => {
-                    if (toggleTargets.includes(child.getAttribute("data-togglable"))) {
-                        child.setAttribute("data-active", "")
-                    } else if(!child.classList.contains("sourceset-dependent-content")) { // data-togglable is used to switch source set as well, ignore it
-                        child.removeAttribute("data-active")
-                    }
-            })
-    }
-    activateTabs("tabs-section")
-    activateTabsBody("tabs-section-body")
 }
 
 function togglePlatformDependent(e, container) {
     let target = e.target
-    if (target.tagName != 'BUTTON') return;
+    if (target.tagName !== 'BUTTON') return;
     let index = target.getAttribute('data-toggle')
 
     for (let child of container.children) {
         if (child.hasAttribute('data-toggle-list')) {
             for (let bm of child.children) {
-                if (bm == target) {
+                if (bm === target) {
                     bm.setAttribute('data-active', "")
-                } else if (bm != target) {
+                } else if (bm !== target) {
                     bm.removeAttribute('data-active')
                 }
             }
-        } else if (child.getAttribute('data-togglable') == index) {
+        } else if (child.getAttribute('data-togglable') === index) {
             child.setAttribute('data-active', "")
         } else {
             child.removeAttribute('data-active')
@@ -404,8 +343,8 @@ function refreshPlatformTabs() {
             let firstAvailable = null
             p.childNodes.forEach(
                 element => {
-                    if (element.getAttribute("data-filterable-current") != '') {
-                        if (firstAvailable == null) {
+                    if (element.getAttribute("data-filterable-current") !== '') {
+                        if (firstAvailable === null) {
                             firstAvailable = element
                         }
                         if (element.hasAttribute("data-active")) {
@@ -414,7 +353,7 @@ function refreshPlatformTabs() {
                     }
                 }
             )
-            if (active == false && firstAvailable) {
+            if (active === false && firstAvailable) {
                 firstAvailable.click()
             }
         }
@@ -424,7 +363,7 @@ function refreshPlatformTabs() {
 function refreshFilterButtons() {
     document.querySelectorAll("#filter-section > button")
         .forEach(f => {
-            if (filteringContext.activeFilters.indexOf(f.getAttribute("data-filter")) != -1) {
+            if (filteringContext.activeFilters.indexOf(f.getAttribute("data-filter")) !== -1) {
                 f.setAttribute("data-active", "")
             } else {
                 f.removeAttribute("data-active")

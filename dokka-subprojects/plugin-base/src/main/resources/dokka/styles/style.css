@@ -525,60 +525,6 @@ td:first-child {
 
 /* /--- Breadcrumbs styles --- */
 
-.tabs-section,
-.platform-hinted > .platform-bookmarks-row {
-    margin-left: -8px;
-    margin-right: -8px;
-}
-
-.section-tab,
-.platform-hinted > .platform-bookmarks-row > .platform-bookmark {
-    border: 0;
-    padding: 11px 3px;
-    margin: 0 8px;
-    cursor: pointer;
-    outline: none;
-    font-size: var(--default-font-size);
-    background-color: transparent;
-    color: var(--inactive-section-color);
-    border-bottom: 1px solid var(--inactive-tab-border-color);
-}
-
-.platform-hinted > .platform-bookmarks-row {
-    margin-bottom: 16px;
-}
-
-.no-js .platform-bookmarks-row + .sourceset-dependent-content {
-    margin-top: 8px;
-}
-
-.no-js .platform-bookmarks-row + .sourceset-dependent-content:last-of-type {
-    margin-top: 0;
-}
-
-.section-tab:hover {
-    color: var(--default-font-color);
-    border-bottom: 2px solid var(--default-font-color);
-}
-
-.section-tab[data-active=''] {
-    color: var(--active-section-color);
-    border-bottom: 2px solid var(--active-tab-border-color);
-}
-
-.section-tab:focus-visible, .platform-bookmark:focus-visible {
-    outline: 2px solid var(--active-tab-border-color);
-}
-
-.tabs-section-body > div {
-    margin-top: 12px;
-}
-
-.tabs-section-body .with-platform-tabs {
-    padding-top: 12px;
-    padding-bottom: 12px;
-}
-
 .cover > .platform-hinted {
     padding-bottom: 12px;
 }
@@ -1235,38 +1181,6 @@ td.content {
     display: inline-flex;
 }
 
-.platform-hinted {
-    flex: auto;
-    display: block;
-}
-
-.platform-hinted > .platform-bookmarks-row > .platform-bookmark {
-    min-width: 64px;
-    background: inherit;
-    flex: none;
-    order: 5;
-    align-self: flex-start;
-}
-
-.platform-hinted > .platform-bookmarks-row > .platform-bookmark:hover {
-    color: var(--default-font-color);
-    border-bottom: 2px solid var(--default-font-color);
-}
-
-.platform-hinted > .platform-bookmarks-row > .platform-bookmark[data-active=''] {
-    border-bottom: 2px solid var(--active-tab-border-color);
-    color: var(--active-section-color);
-}
-
-.no-js .platform-bookmarks-row, .no-js .tabs-section {
-    display: none;
-}
-
-.js .platform-hinted > .content:not([data-active]),
-.js .tabs-section-body *[data-togglable]:not([data-active]) {
-    display: none;
-}
-
 /* Work around an issue: https://github.com/JetBrains/kotlin-playground/issues/91
 Applies for main description blocks with platform tabs.
 Just in case of possible performance degradation it excluding tabs with briefs on classlike page */
@@ -1525,11 +1439,3 @@ div.runnablesample {
 }
 
 /* / Logo styles */
-
-/*
-the hack to hide the headers inside tabs for a package page because each tab
-has only one header, and the header text is the same as the tab name, so no point in showing it
-*/
-.main-content[data-page-type="package"] .tabs-section-body h2 {
-    display: none;
-}
