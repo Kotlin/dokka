@@ -1,0 +1,182 @@
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../tokens/index';
+
+.navigation {
+  z-index: 4;
+
+  display: flex;
+  justify-content: space-between;
+
+  height: var(--size-l1);
+  margin-right: 0;
+
+  /* Reset margin and use padding for border */
+
+  margin-left: 0;
+  padding: 10px var(--horizontal-spacing-for-content);
+
+  color: var(--color-text-white);
+  background-color: var(--color-nav-bar);
+}
+
+.navigation--inner {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.navigation--inner,
+.navigation-title {
+  min-height: 40px;
+}
+
+.navigation-title,
+.filter-section {
+  align-items: center;
+}
+
+.navigation-title {
+  display: flex;
+  align-items: center;
+}
+
+/* --- Navigation MENU --- */
+.menu-toggle {
+  z-index: 5;
+
+  margin-right: 16px;
+  padding: 0;
+
+  transition: margin 0.2s ease-out;
+  text-indent: -9999px;
+
+  color: var(--background-color);
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  font-size: 0;
+  line-height: 0;
+}
+
+@media (width >= 760px) {
+  .menu-toggle {
+    display: none;
+  }
+}
+
+.menu-toggle::before {
+  display: block;
+
+  width: 28px;
+  height: 28px;
+
+  content: '';
+
+  background: url('assets/burger.svg') no-repeat center;
+}
+
+/* /--- Navigation MENU --- */
+
+.library-version {
+  position: relative;
+  top: -4px;
+
+  margin-left: 3px;
+
+  color: rgba(255, 255, 255, 0.7);
+
+  font-size: 13px;
+  font-weight: normal;
+  line-height: 16px;
+}
+
+.filter-section {
+  z-index: 0;
+}
+
+.no-js .filter-section {
+  display: none;
+}
+
+@media (width >= 760px) {
+  .filter-section {
+    padding: 5px 0;
+  }
+}
+
+/* --- Navigation controls --- */
+.navigation-controls {
+  display: flex;
+
+  margin-left: 4px;
+}
+
+@media (width >= 760px) {
+  .navigation-controls {
+    align-items: center;
+  }
+}
+
+.no-js .navigation-controls {
+  display: none;
+}
+
+.navigation-controls--btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+  padding: 0;
+
+  cursor: pointer;
+  transition: background-color 200ms ease-in-out;
+
+  border: none;
+  border-radius: 50%;
+  background-color: inherit;
+  background-position: 50% 50%;
+
+  font-size: 0;
+  line-height: 0;
+  will-change: background-color;
+}
+
+.navigation-controls--btn:hover {
+  background-color: var(--white-10);
+}
+
+.navigation-controls--theme {
+  background-image: url('assets/theme-toggle.svg');
+  background-repeat: no-repeat;
+}
+
+@media (width <= 759px) {
+  .navigation-controls--theme {
+    display: none;
+  }
+}
+
+.navigation-controls--homepage {
+  background-image: url('assets/homepage.svg');
+  background-repeat: no-repeat;
+  background-size: 24px 24px;
+}
+
+@media (width <= 759px) {
+  .navigation-controls--homepage {
+    display: none;
+  }
+}
+
+.navigation .platform-selector:not([data-active]) {
+  color: #fff;
+}
+
+/* /--- Navigation controls --- */
