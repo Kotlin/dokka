@@ -305,4 +305,87 @@ class ExpectActualsTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `public actual function should be present when expect is internal`() = testInline(
+        """
+        /src/common/test.kt
+        internal expect fun function(): String?
+        
+        /src/jvm/test.kt
+        public actual fun function(): String? = null
+        
+        /src/native/test.kt
+        public actual fun function(): String? = null
+        """.trimMargin(),
+        multiplatformConfiguration
+    ) {
+        documentablesTransformationStage = { module ->
+            val functions = module.packages.single().functions.filter { it.name == "function" }
+            // no `expect` is present, just 2 `actual` functions with the same name
+            assertEquals(2, functions.size)
+            functions.forEach { function ->
+                assertTrue(function.isExpectActual)
+            }
+            assertEquals(
+                setOf("jvm", "native"),
+                functions.map { it.sourceSets.single().sourceSetID.sourceSetName }.toSet()
+            )
+        }
+    }
+
+    @Test
+    fun `public actual function should be present when expect is internal and other actual is internal`() = testInline(
+        """
+        /src/common/test.kt
+        internal expect fun function(): String?
+        
+        /src/jvm/test.kt
+        public actual fun function(): String? = null
+        
+        /src/native/test.kt
+        internal actual fun function(): String? = null
+        """.trimMargin(),
+        multiplatformConfiguration
+    ) {
+        documentablesTransformationStage = { module ->
+            val functions = module.packages.single().functions.filter { it.name == "function" }
+            assertEquals(1, functions.size)
+            functions.forEach { function ->
+                assertTrue(function.isExpectActual)
+            }
+            assertEquals(
+                setOf("jvm"),
+                functions.map { it.sourceSets.single().sourceSetID.sourceSetName }.toSet()
+            )
+        }
+    }
+
+    @Test
+    fun `public actual classe should be present when expect is internal`() = testInline(
+        """
+        /src/common/test.kt
+        internal expect class Class
+        
+        /src/jvm/test.kt
+        public actual class Class
+        
+        /src/native/test.kt
+        public actual class Class
+        """.trimMargin(),
+        multiplatformConfiguration
+    ) {
+        documentablesTransformationStage = { module ->
+            val classlikes = module.packages.single().classlikes.filter { it.name == "Class" }
+            // no `expect` is present, just 2 `actual` functions with the same name
+            assertEquals(2, classlikes.size)
+            classlikes.forEach { classlike ->
+                assertTrue(classlike.isExpectActual)
+            }
+            assertEquals(
+                setOf("jvm", "native"),
+                classlikes.map { it.sourceSets.single().sourceSetID.sourceSetName }.toSet()
+            )
+        }
+    }
 }
