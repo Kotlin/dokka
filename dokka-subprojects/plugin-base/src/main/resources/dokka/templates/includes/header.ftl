@@ -18,9 +18,9 @@
                 <@version/>
             </div>
         </div>
-        <@source_set_selector.display/>
     </div>
     <div class="navigation-controls">
+        <@source_set_selector.display/>
         <#if homepageLink?has_content>
             <a class="navigation-controls--btn navigation-controls--homepage" id="homepage-link" href="${homepageLink}"></a>
         </#if>
