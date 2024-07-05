@@ -294,4 +294,4 @@ Things to note and remember:
 ___
 
 Full source code of this tutorial can be found in Dokka's examples under
-[hide-internal-api](https://github.com/Kotlin/dokka/examples/plugin/hide-internal-api).
+[hide-internal-api](https://github.com/Kotlin/dokka/tree/master/examples/plugin/hide-internal-api).
