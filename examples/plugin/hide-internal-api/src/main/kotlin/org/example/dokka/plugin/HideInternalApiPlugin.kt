@@ -7,11 +7,16 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
+import org.jetbrains.dokka.plugability.DokkaPluginApiPreview
+import org.jetbrains.dokka.plugability.PluginApiPreviewAcknowledgement
 
 class HideInternalApiPlugin : DokkaPlugin() {
     val myFilterExtension by extending {
         plugin<DokkaBase>().preMergeDocumentableTransformer providing ::HideInternalApiTransformer
     }
+
+    @OptIn(DokkaPluginApiPreview::class)
+    override fun pluginApiPreviewAcknowledgement() = PluginApiPreviewAcknowledgement
 }
 
 class HideInternalApiTransformer(context: DokkaContext) : SuppressedByConditionDocumentableFilterTransformer(context) {
