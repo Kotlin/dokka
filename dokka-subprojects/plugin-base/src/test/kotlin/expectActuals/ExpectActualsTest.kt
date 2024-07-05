@@ -321,15 +321,12 @@ class ExpectActualsTest : BaseAbstractTest() {
         multiplatformConfiguration
     ) {
         documentablesTransformationStage = { module ->
-            val functions = module.packages.single().functions.filter { it.name == "function" }
-            // no `expect` is present, just 2 `actual` functions with the same name
-            assertEquals(2, functions.size)
-            functions.forEach { function ->
-                assertTrue(function.isExpectActual)
-            }
+            val function = module.packages.single().functions.single { it.name == "function" }
+            assertTrue(function.isExpectActual)
+            // no `common` is present
             assertEquals(
                 setOf("jvm", "native"),
-                functions.map { it.sourceSets.single().sourceSetID.sourceSetName }.toSet()
+                function.sourceSets.map { it.sourceSetID.sourceSetName }.toSet()
             )
         }
     }
@@ -349,14 +346,12 @@ class ExpectActualsTest : BaseAbstractTest() {
         multiplatformConfiguration
     ) {
         documentablesTransformationStage = { module ->
-            val functions = module.packages.single().functions.filter { it.name == "function" }
-            assertEquals(1, functions.size)
-            functions.forEach { function ->
-                assertTrue(function.isExpectActual)
-            }
+            val function = module.packages.single().functions.single { it.name == "function" }
+            assertTrue(function.isExpectActual)
+            // `common` - internal, `native` - internal, so only `jvm` is present
             assertEquals(
                 setOf("jvm"),
-                functions.map { it.sourceSets.single().sourceSetID.sourceSetName }.toSet()
+                function.sourceSets.map { it.sourceSetID.sourceSetName }.toSet()
             )
         }
     }
@@ -376,15 +371,12 @@ class ExpectActualsTest : BaseAbstractTest() {
         multiplatformConfiguration
     ) {
         documentablesTransformationStage = { module ->
-            val classlikes = module.packages.single().classlikes.filter { it.name == "Class" }
-            // no `expect` is present, just 2 `actual` functions with the same name
-            assertEquals(2, classlikes.size)
-            classlikes.forEach { classlike ->
-                assertTrue(classlike.isExpectActual)
-            }
+            val classlike = module.packages.single().classlikes.single { it.name == "Class" }
+            assertTrue(classlike.isExpectActual)
+            // no `common` is present
             assertEquals(
                 setOf("jvm", "native"),
-                classlikes.map { it.sourceSets.single().sourceSetID.sourceSetName }.toSet()
+                classlike.sourceSets.map { it.sourceSetID.sourceSetName }.toSet()
             )
         }
     }
