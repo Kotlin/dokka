@@ -20,6 +20,7 @@ jobs:
           examples/gradle/dokka-multimodule-example,
           examples/gradle/dokka-multiplatform-example,
           examples/gradle/dokka-customFormat-example
+          examples/plugin/hide-internal-api
         ]
     runs-on: ubuntu-latest
     steps:
