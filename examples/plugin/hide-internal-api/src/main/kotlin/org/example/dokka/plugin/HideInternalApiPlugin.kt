@@ -15,7 +15,7 @@ class HideInternalApiPlugin : DokkaPlugin() {
         plugin<DokkaBase>().preMergeDocumentableTransformer providing ::HideInternalApiTransformer
     }
 
-    @OptIn(DokkaPluginApiPreview::class)
+    @DokkaPluginApiPreview
     override fun pluginApiPreviewAcknowledgement() = PluginApiPreviewAcknowledgement
 }
 
