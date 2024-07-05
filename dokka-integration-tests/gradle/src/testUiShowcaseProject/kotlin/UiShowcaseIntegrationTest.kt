@@ -16,7 +16,6 @@ import kotlin.test.assertTrue
 class UiShowcaseIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopier {
     override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/htmlMultiModule") }
 
-    @OnlyDescriptors("CPointer is not resolved in K2")
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(LatestTestedVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
