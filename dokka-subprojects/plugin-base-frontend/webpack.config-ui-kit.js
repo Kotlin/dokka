@@ -3,10 +3,31 @@
  */
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
+const WebpackShellPluginNext = require('webpack-shell-plugin-next');
 
 module.exports = (env, args) => {
   const isMinify = env.minify === 'true';
   return {
+    watch: env.watch === 'true',
+    devServer: {
+      hot: true,
+      port: env.port || 8001,
+      open: true,
+      static: {
+        directory: '../../dokka-integration-tests/gradle/build/ui-showcase-result',
+      },
+      devMiddleware: {
+        writeToDisk: (filePath) => {
+          return !(/\.hot-update\.(js|json)$/.test(filePath) || /\.LICENSE\.txt$/.test(filePath));
+        },
+      },
+      watchFiles: {
+        paths: ['../../dokka-integration-tests/gradle/build/ui-showcase-result'],
+        options: {
+          ignored: ['../../dokka-integration-tests/gradle/build/ui-showcase-result/ui-kit']
+        }
+      }
+    },
     entry: {
       entry: ['./src/main/ui-kit/index.ts'],
     },
@@ -17,7 +38,7 @@ module.exports = (env, args) => {
     output: {
       path: path.resolve(__dirname, '../plugin-base/src/main/resources/dokka/ui-kit/'),
       filename: 'ui-kit.min.js',
-      assetModuleFilename: 'assets/[name][ext]'
+      assetModuleFilename: 'assets/[name][ext]',
     },
     module: {
       rules: [
@@ -69,13 +90,23 @@ module.exports = (env, args) => {
         },
         {
           test: /\.(png|jpe?g|gif|svg)$/i,
-          type: "asset/resource",
+          type: 'asset/resource',
         },
       ],
     },
     plugins: [
       new MiniCssExtractPlugin({
         filename: isMinify ? 'ui-kit.min.css' : 'ui-kit.css',
+      }),
+      new WebpackShellPluginNext({
+        onDoneWatch: {
+          scripts: [
+            'echo "Done rebuild, coping files to dokka-integration-tests"',
+            'cp -r ../plugin-base/src/main/resources/dokka/ui-kit ../../dokka-integration-tests/gradle/build/ui-showcase-result',
+          ],
+          blocking: false,
+          parallel: true,
+        },
       }),
     ],
   };

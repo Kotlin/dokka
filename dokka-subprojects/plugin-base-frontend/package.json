@@ -7,6 +7,8 @@
     "dist": "./dist"
   },
   "scripts": {
+    "start:ui-kit": "webpack serve --config ./webpack.config-ui-kit.js --env minify=true",
+    "build:ui-kit:watch": "webpack --config ./webpack.config-ui-kit.js --env watch=true --env minify=true",
     "build:ui-kit": "npm run build:ui-kit:minified && npm run build:ui-kit:unminified",
     "build:ui-kit:minified": "webpack --config ./webpack.config-ui-kit.js --env minify=true",
     "build:ui-kit:unminified": "webpack --config ./webpack.config-ui-kit.js --env minify=false",
@@ -47,8 +49,7 @@
     "ts-loader": "^9.2.6",
     "typescript": "^4.5.2",
     "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.6.0"
+    "webpack-cli": "^5.1.4"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.3",
@@ -77,7 +78,9 @@
     "style-loader": "^4.0.0",
     "stylelint": "^15.11.0",
     "svg-inline-loader": "^0.8.2",
-    "terser-webpack-plugin": "^5.2.5"
+    "terser-webpack-plugin": "^5.2.5",
+    "webpack-dev-server": "^5.0.4",
+    "webpack-shell-plugin-next": "^2.3.1"
   },
   "engines": {
     "node": ">=16.0.0"
