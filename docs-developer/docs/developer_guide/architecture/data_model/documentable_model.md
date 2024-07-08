@@ -11,7 +11,8 @@ By default, the documentables are created from:
 
 Code-wise, you can have a look at following classes:
 
-* `DefaultDescriptorToDocumentableTranslator` - responsible for Kotlin -> `Documentable` mapping
+* `DefaultDescriptorToDocumentableTranslator` - responsible for Kotlin's K1 -> `Documentable` mapping
+* `DefaultSymbolToDocumentableTranslator` - responsible for Kotlin's K2 -> `Documentable` mapping
 * `DefaultPsiToDocumentableTranslator` - responsible for Java -> `Documentable` mapping
 
 Upon creation, the documentable model represents a collection of trees, each with `DModule` as root.
