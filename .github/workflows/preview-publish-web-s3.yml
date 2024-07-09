@@ -23,7 +23,7 @@ jobs:
       - name: Document coroutines
         run: ./gradlew :dokka-integration-tests:gradle:testExternalProjectKotlinxCoroutines --stacktrace "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=500m"
         env:
-          DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/coroutines
+          DOKKA_TEST_OUTPUT_PATH: ${{ github.workspace }}/dokka/coroutines
       - name: Configure AWS credentials for S3 access
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -51,7 +51,7 @@ jobs:
       - name: Document serialization
         run: ./gradlew :dokka-integration-tests:gradle:testExternalProjectKotlinxSerialization --stacktrace "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=500m"
         env:
-          DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/serialization
+          DOKKA_TEST_OUTPUT_PATH: ${{ github.workspace }}/dokka/serialization
       - name: Configure AWS credentials for S3 access
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -79,7 +79,7 @@ jobs:
       - name: Generate ui-showcase documentation
         run: ./gradlew :dokka-integration-tests:gradle:testUiShowcaseProject
         env:
-          DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/ui-showcase
+          DOKKA_TEST_OUTPUT_PATH: ${{ github.workspace }}/dokka/ui-showcase
       - name: Configure AWS credentials for S3 access
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -108,7 +108,7 @@ jobs:
       - name: Document biojava-core
         run: ./gradlew :dokka-integration-tests:maven:testExternalProjectBioJava --stacktrace
         env:
-          DOKKA_TEST_OUTPUT_PATH: /home/runner/work/dokka/biojava
+          DOKKA_TEST_OUTPUT_PATH: ${{ github.workspace }}/dokka/biojava
       - name: Configure AWS credentials for S3 access
         uses: aws-actions/configure-aws-credentials@v4
         with:
