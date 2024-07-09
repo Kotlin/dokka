@@ -64,7 +64,7 @@ jobs:
         run: echo https://dokka-snapshots.s3.eu-central-1.amazonaws.com/${{ env.branch-name }}/serialization/${GITHUB_SHA::7}/index.html
 
   ui-showcase:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     if: github.repository == 'Kotlin/dokka'
     steps:
       - name: Checkout dokka
