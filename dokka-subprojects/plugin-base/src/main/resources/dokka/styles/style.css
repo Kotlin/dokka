@@ -1162,34 +1162,3 @@ div.runnablesample {
 }
 
 /* /--- footer --- */
-
-/* Logo styles */
-:root {
-    --dokka-logo-image-url: url('../images/logo-icon.svg');
-    --dokka-logo-height: 50px;
-    --dokka-logo-width: 50px;
-}
-
-.library-name--link {
-    display: flex;
-    align-items: center;
-    color: #fff;
-    font-weight: 530;
-}
-
-.library-name--link::before {
-    content: '';
-    background: var(--dokka-logo-image-url) center no-repeat;
-    background-size: var(--dokka-logo-height) var(--dokka-logo-width);
-    margin-right: 5px;
-    width: var(--dokka-logo-height);
-    height: var(--dokka-logo-width);
-}
-
-@media (max-width: 759px) {
-    .library-name--link::before {
-        display: none;
-    }
-}
-
-/* / Logo styles */

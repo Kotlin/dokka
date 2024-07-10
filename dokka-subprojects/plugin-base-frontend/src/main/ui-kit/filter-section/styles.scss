@@ -4,7 +4,20 @@
 @import '../tokens/index';
 
 .filter-section {
+  z-index: 0;
+
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 2px;
+}
+
+.no-js .filter-section {
+  display: none;
+}
+
+@media (width >= 760px) {
+  .filter-section {
+    padding: 5px 0;
+  }
 }
