@@ -12,6 +12,7 @@ public abstract interface class org/jetbrains/dokka/analysis/kotlin/documentable
 public final class org/jetbrains/dokka/analysis/kotlin/internal/DocumentableLanguage : java/lang/Enum {
 	public static final field JAVA Lorg/jetbrains/dokka/analysis/kotlin/internal/DocumentableLanguage;
 	public static final field KOTLIN Lorg/jetbrains/dokka/analysis/kotlin/internal/DocumentableLanguage;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/analysis/kotlin/internal/DocumentableLanguage;
 	public static fun values ()[Lorg/jetbrains/dokka/analysis/kotlin/internal/DocumentableLanguage;
 }
@@ -89,7 +90,7 @@ public abstract interface class org/jetbrains/dokka/analysis/kotlin/sample/Sampl
 
 public abstract interface class org/jetbrains/dokka/analysis/kotlin/sample/SampleRewriter {
 	public abstract fun getFunctionCallRewriter (Ljava/lang/String;)Lorg/jetbrains/dokka/analysis/kotlin/sample/FunctionCallRewriter;
-	public abstract fun rewriteImportDirective (Ljava/lang/String;)Ljava/lang/String;
+	public fun rewriteImportDirective (Ljava/lang/String;)Ljava/lang/String;
 }
 
 public final class org/jetbrains/dokka/analysis/kotlin/sample/SampleRewriter$DefaultImpls {

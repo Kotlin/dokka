@@ -30,7 +30,7 @@ public class ProvidedExtension<T: Any> internal constructor(
             OverrideKind.None, emptyList())
 }
 
-public data class ExtensionBuilder<T: Any> internal constructor(
+public data class ExtensionBuilder<T: Any> constructor(
     private val name: String,
     private val ext: ExtensionPoint<T>,
     private val action: LazyEvaluated<T>,

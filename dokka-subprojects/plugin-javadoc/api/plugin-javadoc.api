@@ -114,6 +114,7 @@ public final class org/jetbrains/dokka/javadoc/pages/DeprecatedPageSection : jav
 	public static final field DeprecatedMethods Lorg/jetbrains/dokka/javadoc/pages/DeprecatedPageSection;
 	public static final field DeprecatedModules Lorg/jetbrains/dokka/javadoc/pages/DeprecatedPageSection;
 	public final fun getCaption ()Ljava/lang/String;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public final fun getHeader ()Ljava/lang/String;
 	public final fun getId ()Ljava/lang/String;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/javadoc/pages/DeprecatedPageSection;
@@ -245,6 +246,7 @@ public final class org/jetbrains/dokka/javadoc/pages/JavadocContentKind : java/l
 	public static final field OverviewTree Lorg/jetbrains/dokka/javadoc/pages/JavadocContentKind;
 	public static final field PackageSummary Lorg/jetbrains/dokka/javadoc/pages/JavadocContentKind;
 	public static final field PackageTree Lorg/jetbrains/dokka/javadoc/pages/JavadocContentKind;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/javadoc/pages/JavadocContentKind;
 	public static fun values ()[Lorg/jetbrains/dokka/javadoc/pages/JavadocContentKind;
 }
@@ -609,7 +611,8 @@ public abstract interface class org/jetbrains/dokka/javadoc/pages/WithBrief {
 }
 
 public abstract interface class org/jetbrains/dokka/javadoc/pages/WithJavadocExtra : org/jetbrains/dokka/model/properties/WithExtraProperties {
-	public abstract fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/Documentable;
+	public synthetic fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Ljava/lang/Object;
+	public fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/Documentable;
 }
 
 public final class org/jetbrains/dokka/javadoc/pages/WithJavadocExtra$DefaultImpls {

@@ -343,6 +343,7 @@ public final class org/jetbrains/dokka/base/renderers/html/NavigationNodeIcon : 
 	public static final field TYPEALIAS_KT Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static final field VAL Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static final field VAR Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 	public static fun values ()[Lorg/jetbrains/dokka/base/renderers/html/NavigationNodeIcon;
 }
@@ -549,6 +550,7 @@ public final class org/jetbrains/dokka/base/renderers/html/innerTemplating/Defau
 
 public final class org/jetbrains/dokka/base/renderers/html/innerTemplating/DokkaTemplateTypes : java/lang/Enum {
 	public static final field BASE Lorg/jetbrains/dokka/base/renderers/html/innerTemplating/DokkaTemplateTypes;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public final fun getPath ()Ljava/lang/String;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/base/renderers/html/innerTemplating/DokkaTemplateTypes;
 	public static fun values ()[Lorg/jetbrains/dokka/base/renderers/html/innerTemplating/DokkaTemplateTypes;
@@ -719,10 +721,12 @@ public final class org/jetbrains/dokka/base/resolvers/local/DokkaLocationProvide
 
 public abstract interface class org/jetbrains/dokka/base/resolvers/local/LocationProvider {
 	public abstract fun ancestors (Lorg/jetbrains/dokka/pages/PageNode;)Ljava/util/List;
-	public abstract fun expectedLocationForDri (Lorg/jetbrains/dokka/links/DRI;)Ljava/lang/String;
+	public fun expectedLocationForDri (Lorg/jetbrains/dokka/links/DRI;)Ljava/lang/String;
 	public abstract fun pathToRoot (Lorg/jetbrains/dokka/pages/PageNode;)Ljava/lang/String;
 	public abstract fun resolve (Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Lorg/jetbrains/dokka/pages/PageNode;)Ljava/lang/String;
 	public abstract fun resolve (Lorg/jetbrains/dokka/pages/PageNode;Lorg/jetbrains/dokka/pages/PageNode;Z)Ljava/lang/String;
+	public static synthetic fun resolve$default (Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;Lorg/jetbrains/dokka/links/DRI;Ljava/util/Set;Lorg/jetbrains/dokka/pages/PageNode;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun resolve$default (Lorg/jetbrains/dokka/base/resolvers/local/LocationProvider;Lorg/jetbrains/dokka/pages/PageNode;Lorg/jetbrains/dokka/pages/PageNode;ZILjava/lang/Object;)Ljava/lang/String;
 }
 
 public final class org/jetbrains/dokka/base/resolvers/local/LocationProvider$DefaultImpls {
@@ -802,6 +806,7 @@ public final class org/jetbrains/dokka/base/resolvers/shared/RecognizedLinkForma
 	public static final field Javadoc8 Lorg/jetbrains/dokka/base/resolvers/shared/RecognizedLinkFormat;
 	public static final field KotlinWebsite Lorg/jetbrains/dokka/base/resolvers/shared/RecognizedLinkFormat;
 	public static final field KotlinWebsiteHtml Lorg/jetbrains/dokka/base/resolvers/shared/RecognizedLinkFormat;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public fun getFormatName ()Ljava/lang/String;
 	public fun getLinkExtension ()Ljava/lang/String;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/base/resolvers/shared/RecognizedLinkFormat;
@@ -820,22 +825,22 @@ public abstract class org/jetbrains/dokka/base/signatures/AtStrategy {
 }
 
 public abstract interface class org/jetbrains/dokka/base/signatures/JvmSignatureUtils {
-	public abstract fun annotations (Lorg/jetbrains/dokka/model/DProperty;)Ljava/util/Map;
-	public abstract fun annotations (Lorg/jetbrains/dokka/model/Documentable;)Ljava/util/Map;
-	public abstract fun annotations (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
+	public fun annotations (Lorg/jetbrains/dokka/model/DProperty;)Ljava/util/Map;
+	public fun annotations (Lorg/jetbrains/dokka/model/Documentable;)Ljava/util/Map;
+	public fun annotations (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
 	public abstract fun annotationsBlock (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;)V
-	public abstract fun annotationsBlockWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
+	public fun annotationsBlockWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
 	public abstract fun annotationsInline (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;)V
-	public abstract fun annotationsInlineWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
-	public abstract fun contextParametersBlock (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/Callable;Lkotlin/jvm/functions/Function2;)V
+	public fun annotationsInlineWithIgnored (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/AnnotationTarget;Ljava/util/Set;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
+	public fun contextParametersBlock (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/Callable;Lkotlin/jvm/functions/Function2;)V
 	public abstract fun isIgnored (Lorg/jetbrains/dokka/model/Annotations$Annotation;)Z
 	public abstract fun modifiers (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;)Ljava/util/Map;
-	public abstract fun parametersBlock (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/DFunction;Lkotlin/jvm/functions/Function2;)V
-	public abstract fun plus (Ljava/util/Map;Ljava/util/Map;)Ljava/util/Map;
-	public abstract fun stylesIfDeprecated (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Ljava/util/Set;
-	public abstract fun toSignatureString (Ljava/util/Collection;)Ljava/lang/String;
-	public abstract fun toSignatureString (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/Annotations$Annotation;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
-	public abstract fun uses (Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/model/DTypeParameter;)Z
+	public fun parametersBlock (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/DFunction;Lkotlin/jvm/functions/Function2;)V
+	public fun plus (Ljava/util/Map;Ljava/util/Map;)Ljava/util/Map;
+	public fun stylesIfDeprecated (Lorg/jetbrains/dokka/model/properties/WithExtraProperties;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Ljava/util/Set;
+	public fun toSignatureString (Ljava/util/Collection;)Ljava/lang/String;
+	public fun toSignatureString (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/model/Annotations$Annotation;Lorg/jetbrains/dokka/base/signatures/AtStrategy;Lkotlin/Pair;Ljava/lang/String;)V
+	public fun uses (Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/model/DTypeParameter;)Z
 }
 
 public final class org/jetbrains/dokka/base/signatures/JvmSignatureUtils$DefaultImpls {
@@ -1187,6 +1192,7 @@ public final class org/jetbrains/dokka/base/transformers/pages/annotations/Since
 
 public abstract interface class org/jetbrains/dokka/base/transformers/pages/comments/CommentsToContentConverter {
 	public abstract fun buildContent (Lorg/jetbrains/dokka/model/doc/DocTag;Lorg/jetbrains/dokka/pages/DCI;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Ljava/util/List;
+	public static synthetic fun buildContent$default (Lorg/jetbrains/dokka/base/transformers/pages/comments/CommentsToContentConverter;Lorg/jetbrains/dokka/model/doc/DocTag;Lorg/jetbrains/dokka/pages/DCI;Ljava/util/Set;Ljava/util/Set;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILjava/lang/Object;)Ljava/util/List;
 }
 
 public final class org/jetbrains/dokka/base/transformers/pages/comments/CommentsToContentConverter$DefaultImpls {
@@ -1248,8 +1254,8 @@ public final class org/jetbrains/dokka/base/transformers/pages/sourcelinks/Sourc
 }
 
 public abstract interface class org/jetbrains/dokka/base/transformers/pages/tags/CustomTagContentProvider {
-	public abstract fun contentForBrief (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/model/doc/CustomTagWrapper;)V
-	public abstract fun contentForDescription (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/model/doc/CustomTagWrapper;)V
+	public fun contentForBrief (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/model/doc/CustomTagWrapper;)V
+	public fun contentForDescription (Lorg/jetbrains/dokka/base/translators/documentables/PageContentBuilder$DocumentableContentBuilder;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/model/doc/CustomTagWrapper;)V
 	public abstract fun isApplicable (Lorg/jetbrains/dokka/model/doc/CustomTagWrapper;)Z
 }
 
