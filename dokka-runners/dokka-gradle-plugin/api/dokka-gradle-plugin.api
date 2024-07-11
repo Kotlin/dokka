@@ -319,6 +319,7 @@ public final class org/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform :
 	public static final field Wasm Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
 	public static final field WasmJs Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
 	public static final field WasmWasi Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
 	public static fun values ()[Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
 }
@@ -348,6 +349,7 @@ public final class org/jetbrains/dokka/gradle/engine/parameters/VisibilityModifi
 	public static final field Private Lorg/jetbrains/dokka/gradle/engine/parameters/VisibilityModifier;
 	public static final field Protected Lorg/jetbrains/dokka/gradle/engine/parameters/VisibilityModifier;
 	public static final field Public Lorg/jetbrains/dokka/gradle/engine/parameters/VisibilityModifier;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/gradle/engine/parameters/VisibilityModifier;
 	public static fun values ()[Lorg/jetbrains/dokka/gradle/engine/parameters/VisibilityModifier;
 }
