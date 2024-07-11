@@ -1,0 +1,32 @@
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+@import '../tokens/index';
+
+.menu-toggle {
+  padding: 0;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  font-size: 0;
+  line-height: 0;
+
+  &::before {
+    display: block;
+
+    width: 28px;
+    height: 28px;
+
+    content: '';
+
+    background: url('assets/burger.svg') no-repeat center;
+  }
+
+  @media (width >= $breakpoint-desktop-min) {
+    display: none;
+  }
+}

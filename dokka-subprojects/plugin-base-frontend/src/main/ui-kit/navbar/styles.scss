@@ -17,6 +17,7 @@
   background-color: var(--color-nav-bar);
 
   @media (width <= $breakpoint-desktop-min) {
+    height: 52px;
     padding: 12px;
   }
 }
@@ -24,111 +25,4 @@
 .navigation-title {
   display: flex;
   align-items: center;
-
-  min-height: 40px;
 }
-
-/* --- Navigation MENU --- */
-.menu-toggle {
-  z-index: 5;
-
-  margin-right: 16px;
-  padding: 0;
-
-  transition: margin 0.2s ease-out;
-  text-indent: -9999px;
-
-  color: var(--background-color);
-  border: none;
-  outline: none;
-
-  background: transparent;
-
-  font-size: 0;
-  line-height: 0;
-}
-
-@media (width >= 760px) {
-  .menu-toggle {
-    display: none;
-  }
-}
-
-.menu-toggle::before {
-  display: block;
-
-  width: 28px;
-  height: 28px;
-
-  content: '';
-
-  background: url('assets/burger.svg') no-repeat center;
-}
-
-/* /--- Navigation MENU --- */
-
-/* --- Navigation controls --- */
-.navigation-controls {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.no-js .navigation-controls {
-  display: none;
-}
-
-.navigation-controls--btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 40px;
-  height: 40px;
-  padding: 0;
-
-  cursor: pointer;
-  transition: background-color 200ms ease-in-out;
-
-  border: none;
-  border-radius: var(--size-s1);
-  background-color: inherit;
-  background-position: 50% 50%;
-
-  font-size: 0;
-  line-height: 0;
-  will-change: background-color;
-}
-
-.navigation-controls--btn:hover {
-  background-color: var(--color-w10);
-}
-
-.navigation-controls--theme {
-  background-image: url('assets/theme-toggle.svg');
-  background-repeat: no-repeat;
-}
-
-@media (width <= 759px) {
-  .navigation-controls--theme {
-    display: none;
-  }
-}
-
-.navigation-controls--homepage {
-  background-image: url('assets/homepage.svg');
-  background-repeat: no-repeat;
-  background-size: 24px 24px;
-}
-
-@media (width <= 759px) {
-  .navigation-controls--homepage {
-    display: none;
-  }
-}
-
-.navigation .platform-selector:not([data-active]) {
-  color: #fff;
-}
-
-/* /--- Navigation controls --- */

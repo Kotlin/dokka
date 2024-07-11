@@ -17,6 +17,8 @@
   color: var(--color-text-white);
 
   font: var(--font-h4);
+
+  white-space: nowrap;
 }
 
 .library-name--link::before {

@@ -2,7 +2,6 @@
 <#macro display>
 <nav class="navigation" id="navigation-wrapper">
     <div class="navigation-title">
-        <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
         <@template_cmd name="pathToRoot">
             <a class="library-name--link" href="${pathToRoot}index.html">
                 <@template_cmd name="projectName">
@@ -22,6 +21,7 @@
         </#if>
         <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
         <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+        <button class="menu-toggle navigation-controls--btn" id="menu-toggle" type="button">Toggle table of content</button>
     </div>
 </nav>
 </#macro>
