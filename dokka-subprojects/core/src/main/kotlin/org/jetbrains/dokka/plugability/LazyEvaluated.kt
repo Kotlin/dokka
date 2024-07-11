@@ -4,7 +4,7 @@
 
 package org.jetbrains.dokka.plugability
 
-internal class LazyEvaluated<T : Any> private constructor(private val recipe: ((DokkaContext) -> T)? = null, private var value: T? = null) {
+public class LazyEvaluated<T : Any> private constructor(private val recipe: ((DokkaContext) -> T)? = null, private var value: T? = null) {
 
     @Synchronized
     internal fun get(context: DokkaContext): T {
@@ -14,8 +14,8 @@ internal class LazyEvaluated<T : Any> private constructor(private val recipe: ((
         return value ?: throw AssertionError("Incorrect initialized LazyEvaluated instance")
     }
 
-    companion object {
-        fun <T : Any> fromInstance(value: T) = LazyEvaluated(value = value)
-        fun <T : Any> fromRecipe(recipe: (DokkaContext) -> T) = LazyEvaluated(recipe = recipe)
+    public companion object {
+        public fun <T : Any> fromInstance(value: T): LazyEvaluated<T> = LazyEvaluated(value = value)
+        public fun <T : Any> fromRecipe(recipe: (DokkaContext) -> T): LazyEvaluated<T> = LazyEvaluated(recipe = recipe)
     }
 }

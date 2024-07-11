@@ -144,6 +144,7 @@ public abstract interface class org/jetbrains/dokka/DokkaConfiguration$PluginCon
 public final class org/jetbrains/dokka/DokkaConfiguration$SerializationFormat : java/lang/Enum, java/io/Serializable {
 	public static final field JSON Lorg/jetbrains/dokka/DokkaConfiguration$SerializationFormat;
 	public static final field XML Lorg/jetbrains/dokka/DokkaConfiguration$SerializationFormat;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/DokkaConfiguration$SerializationFormat;
 	public static fun values ()[Lorg/jetbrains/dokka/DokkaConfiguration$SerializationFormat;
 }
@@ -161,6 +162,7 @@ public final class org/jetbrains/dokka/DokkaConfiguration$Visibility : java/lang
 	public static final field PRIVATE Lorg/jetbrains/dokka/DokkaConfiguration$Visibility;
 	public static final field PROTECTED Lorg/jetbrains/dokka/DokkaConfiguration$Visibility;
 	public static final field PUBLIC Lorg/jetbrains/dokka/DokkaConfiguration$Visibility;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/DokkaConfiguration$Visibility;
 	public static fun values ()[Lorg/jetbrains/dokka/DokkaConfiguration$Visibility;
 }
@@ -404,6 +406,7 @@ public final class org/jetbrains/dokka/Platform : java/lang/Enum {
 	public static final field jvm Lorg/jetbrains/dokka/Platform;
 	public static final field native Lorg/jetbrains/dokka/Platform;
 	public static final field wasm Lorg/jetbrains/dokka/Platform;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public final fun getKey ()Ljava/lang/String;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/Platform;
 	public static fun values ()[Lorg/jetbrains/dokka/Platform;
@@ -794,6 +797,7 @@ public final class org/jetbrains/dokka/model/Annotations$AnnotationScope : java/
 	public static final field FILE Lorg/jetbrains/dokka/model/Annotations$AnnotationScope;
 	public static final field GETTER Lorg/jetbrains/dokka/model/Annotations$AnnotationScope;
 	public static final field SETTER Lorg/jetbrains/dokka/model/Annotations$AnnotationScope;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/model/Annotations$AnnotationScope;
 	public static fun values ()[Lorg/jetbrains/dokka/model/Annotations$AnnotationScope;
 }
@@ -1882,6 +1886,7 @@ public final class org/jetbrains/dokka/model/JavaClassKindTypes : java/lang/Enum
 	public static final field ENUM_CLASS Lorg/jetbrains/dokka/model/JavaClassKindTypes;
 	public static final field ENUM_ENTRY Lorg/jetbrains/dokka/model/JavaClassKindTypes;
 	public static final field INTERFACE Lorg/jetbrains/dokka/model/JavaClassKindTypes;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/model/JavaClassKindTypes;
 	public static fun values ()[Lorg/jetbrains/dokka/model/JavaClassKindTypes;
 }
@@ -1956,6 +1961,7 @@ public final class org/jetbrains/dokka/model/KotlinClassKindTypes : java/lang/En
 	public static final field ENUM_ENTRY Lorg/jetbrains/dokka/model/KotlinClassKindTypes;
 	public static final field INTERFACE Lorg/jetbrains/dokka/model/KotlinClassKindTypes;
 	public static final field OBJECT Lorg/jetbrains/dokka/model/KotlinClassKindTypes;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/model/KotlinClassKindTypes;
 	public static fun values ()[Lorg/jetbrains/dokka/model/KotlinClassKindTypes;
 }
@@ -3528,7 +3534,7 @@ public abstract interface class org/jetbrains/dokka/model/properties/ExtraProper
 }
 
 public abstract interface class org/jetbrains/dokka/model/properties/ExtraProperty$Key {
-	public abstract fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+	public fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
 public final class org/jetbrains/dokka/model/properties/ExtraProperty$Key$DefaultImpls {
@@ -3559,6 +3565,7 @@ public final class org/jetbrains/dokka/model/properties/MergeStrategy$Replace : 
 
 public final class org/jetbrains/dokka/model/properties/PropertyContainer {
 	public static final field Companion Lorg/jetbrains/dokka/model/properties/PropertyContainer$Companion;
+	public fun <init> (Ljava/util/Map;)V
 	public final fun addAll (Ljava/util/Collection;)Lorg/jetbrains/dokka/model/properties/PropertyContainer;
 	public final fun copy (Ljava/util/Map;)Lorg/jetbrains/dokka/model/properties/PropertyContainer;
 	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/properties/PropertyContainer;Ljava/util/Map;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/properties/PropertyContainer;
@@ -3594,6 +3601,7 @@ public final class org/jetbrains/dokka/pages/BasicTabbedContentType : java/lang/
 	public static final field FUNCTION Lorg/jetbrains/dokka/pages/BasicTabbedContentType;
 	public static final field PROPERTY Lorg/jetbrains/dokka/pages/BasicTabbedContentType;
 	public static final field TYPE Lorg/jetbrains/dokka/pages/BasicTabbedContentType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/BasicTabbedContentType;
 	public static fun values ()[Lorg/jetbrains/dokka/pages/BasicTabbedContentType;
 }
@@ -3717,8 +3725,8 @@ public final class org/jetbrains/dokka/pages/ContentCodeInline : org/jetbrains/d
 
 public abstract interface class org/jetbrains/dokka/pages/ContentComposite : org/jetbrains/dokka/pages/ContentNode {
 	public abstract fun getChildren ()Ljava/util/List;
-	public abstract fun getSourceSets ()Ljava/util/Set;
-	public abstract fun hasAnyContent ()Z
+	public fun getSourceSets ()Ljava/util/Set;
+	public fun hasAnyContent ()Z
 	public abstract fun transformChildren (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/pages/ContentComposite;
 }
 
@@ -3940,6 +3948,7 @@ public final class org/jetbrains/dokka/pages/ContentKind : java/lang/Enum, org/j
 	public static final field SourceSetDependentHint Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field Symbol Lorg/jetbrains/dokka/pages/ContentKind;
 	public static final field TypeAliases Lorg/jetbrains/dokka/pages/ContentKind;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/ContentKind;
 	public static fun values ()[Lorg/jetbrains/dokka/pages/ContentKind;
 }
@@ -3986,7 +3995,7 @@ public final class org/jetbrains/dokka/pages/ContentList : org/jetbrains/dokka/p
 }
 
 public abstract interface class org/jetbrains/dokka/pages/ContentNode : org/jetbrains/dokka/model/WithChildren, org/jetbrains/dokka/model/properties/WithExtraProperties {
-	public abstract fun getChildren ()Ljava/util/List;
+	public fun getChildren ()Ljava/util/List;
 	public abstract fun getDci ()Lorg/jetbrains/dokka/pages/DCI;
 	public abstract fun getSourceSets ()Ljava/util/Set;
 	public abstract fun getStyle ()Ljava/util/Set;
@@ -4004,10 +4013,11 @@ public final class org/jetbrains/dokka/pages/ContentNodesKt {
 
 public abstract interface class org/jetbrains/dokka/pages/ContentPage : org/jetbrains/dokka/pages/PageNode {
 	public abstract fun getContent ()Lorg/jetbrains/dokka/pages/ContentNode;
-	public abstract fun getDocumentable ()Lorg/jetbrains/dokka/model/Documentable;
+	public fun getDocumentable ()Lorg/jetbrains/dokka/model/Documentable;
 	public abstract fun getDri ()Ljava/util/Set;
 	public abstract fun getEmbeddedResources ()Ljava/util/List;
 	public abstract fun modified (Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/pages/ContentPage;
+	public static synthetic fun modified$default (Lorg/jetbrains/dokka/pages/ContentPage;Ljava/lang/String;Lorg/jetbrains/dokka/pages/ContentNode;Ljava/util/Set;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/pages/ContentPage;
 }
 
 public final class org/jetbrains/dokka/pages/ContentPage$DefaultImpls {
@@ -4056,6 +4066,7 @@ public final class org/jetbrains/dokka/pages/ContentStyle : java/lang/Enum, org/
 	public static final field TableHeader Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field WithExtraAttributes Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static final field Wrapped Lorg/jetbrains/dokka/pages/ContentStyle;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/ContentStyle;
 	public static fun values ()[Lorg/jetbrains/dokka/pages/ContentStyle;
 }
@@ -4147,6 +4158,7 @@ public final class org/jetbrains/dokka/pages/ListStyle : java/lang/Enum, org/jet
 	public static final field DescriptionDetails Lorg/jetbrains/dokka/pages/ListStyle;
 	public static final field DescriptionList Lorg/jetbrains/dokka/pages/ListStyle;
 	public static final field DescriptionTerm Lorg/jetbrains/dokka/pages/ListStyle;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/ListStyle;
 	public static fun values ()[Lorg/jetbrains/dokka/pages/ListStyle;
 }
@@ -4250,6 +4262,7 @@ public abstract interface class org/jetbrains/dokka/pages/PageNode : org/jetbrai
 	public abstract fun getChildren ()Ljava/util/List;
 	public abstract fun getName ()Ljava/lang/String;
 	public abstract fun modified (Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/pages/PageNode;
+	public static synthetic fun modified$default (Lorg/jetbrains/dokka/pages/PageNode;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/pages/PageNode;
 }
 
 public final class org/jetbrains/dokka/pages/PageNode$DefaultImpls {
@@ -4403,6 +4416,7 @@ public abstract interface class org/jetbrains/dokka/pages/Style {
 public final class org/jetbrains/dokka/pages/SymbolContentKind : java/lang/Enum, org/jetbrains/dokka/pages/Kind {
 	public static final field Parameter Lorg/jetbrains/dokka/pages/SymbolContentKind;
 	public static final field Parameters Lorg/jetbrains/dokka/pages/SymbolContentKind;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/SymbolContentKind;
 	public static fun values ()[Lorg/jetbrains/dokka/pages/SymbolContentKind;
 }
@@ -4442,6 +4456,7 @@ public final class org/jetbrains/dokka/pages/TextStyle : java/lang/Enum, org/jet
 	public static final field UnderCoverText Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Underlined Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Var Lorg/jetbrains/dokka/pages/TextStyle;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/TextStyle;
 	public static fun values ()[Lorg/jetbrains/dokka/pages/TextStyle;
 }
@@ -4456,6 +4471,7 @@ public final class org/jetbrains/dokka/pages/TokenStyle : java/lang/Enum, org/je
 	public static final field Operator Lorg/jetbrains/dokka/pages/TokenStyle;
 	public static final field Punctuation Lorg/jetbrains/dokka/pages/TokenStyle;
 	public static final field String Lorg/jetbrains/dokka/pages/TokenStyle;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/pages/TokenStyle;
 	public static fun values ()[Lorg/jetbrains/dokka/pages/TokenStyle;
 }
@@ -4547,6 +4563,8 @@ public final class org/jetbrains/dokka/plugability/Extension {
 }
 
 public final class org/jetbrains/dokka/plugability/ExtensionBuilder {
+	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/plugability/ExtensionPoint;Lorg/jetbrains/dokka/plugability/LazyEvaluated;Ljava/util/List;Ljava/util/List;Lorg/jetbrains/dokka/plugability/OverrideKind;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/plugability/ExtensionPoint;Lorg/jetbrains/dokka/plugability/LazyEvaluated;Ljava/util/List;Ljava/util/List;Lorg/jetbrains/dokka/plugability/OverrideKind;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun addCondition (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/plugability/ExtensionBuilder;
 	public final fun after ([Lorg/jetbrains/dokka/plugability/Extension;)Lorg/jetbrains/dokka/plugability/ExtensionBuilder;
 	public final fun before ([Lorg/jetbrains/dokka/plugability/Extension;)Lorg/jetbrains/dokka/plugability/ExtensionBuilder;
@@ -4566,6 +4584,7 @@ public final class org/jetbrains/dokka/plugability/ExtensionBuilderStart {
 }
 
 public final class org/jetbrains/dokka/plugability/ExtensionPoint {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
 	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public static synthetic fun copy$default (Lorg/jetbrains/dokka/plugability/ExtensionPoint;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public fun equals (Ljava/lang/Object;)Z
@@ -4574,6 +4593,15 @@ public final class org/jetbrains/dokka/plugability/ExtensionPoint {
 }
 
 public abstract interface annotation class org/jetbrains/dokka/plugability/ExtensionsDsl : java/lang/annotation/Annotation {
+}
+
+public final class org/jetbrains/dokka/plugability/LazyEvaluated {
+	public static final field Companion Lorg/jetbrains/dokka/plugability/LazyEvaluated$Companion;
+}
+
+public final class org/jetbrains/dokka/plugability/LazyEvaluated$Companion {
+	public final fun fromInstance (Ljava/lang/Object;)Lorg/jetbrains/dokka/plugability/LazyEvaluated;
+	public final fun fromRecipe (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/plugability/LazyEvaluated;
 }
 
 public final class org/jetbrains/dokka/plugability/OrderDsl {
@@ -4699,7 +4727,7 @@ public final class org/jetbrains/dokka/transformers/pages/PageTransformerBuilder
 }
 
 public abstract interface class org/jetbrains/dokka/transformers/sources/AsyncSourceToDocumentableTranslator : org/jetbrains/dokka/transformers/sources/SourceToDocumentableTranslator {
-	public abstract fun invoke (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/model/DModule;
+	public fun invoke (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/model/DModule;
 	public abstract fun invokeSuspending (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
@@ -4763,6 +4791,7 @@ public final class org/jetbrains/dokka/utilities/LoggingLevel : java/lang/Enum {
 	public static final field INFO Lorg/jetbrains/dokka/utilities/LoggingLevel;
 	public static final field PROGRESS Lorg/jetbrains/dokka/utilities/LoggingLevel;
 	public static final field WARN Lorg/jetbrains/dokka/utilities/LoggingLevel;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public final fun getIndex ()I
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/utilities/LoggingLevel;
 	public static fun values ()[Lorg/jetbrains/dokka/utilities/LoggingLevel;
@@ -4783,11 +4812,13 @@ public final class org/jetbrains/dokka/utilities/ParallelCollectionOperationsKt 
 }
 
 public abstract interface class org/jetbrains/dokka/utilities/SelfRepresentingSingletonSet : java/util/Set, kotlin/jvm/internal/markers/KMappedMarker {
-	public abstract fun contains (Lorg/jetbrains/dokka/utilities/SelfRepresentingSingletonSet;)Z
-	public abstract fun containsAll (Ljava/util/Collection;)Z
-	public abstract fun getSize ()I
-	public abstract fun isEmpty ()Z
-	public abstract fun iterator ()Ljava/util/Iterator;
+	public fun contains (Ljava/lang/Object;)Z
+	public fun contains (Lorg/jetbrains/dokka/utilities/SelfRepresentingSingletonSet;)Z
+	public fun containsAll (Ljava/util/Collection;)Z
+	public fun getSize ()I
+	public fun isEmpty ()Z
+	public fun iterator ()Ljava/util/Iterator;
+	public fun size ()I
 }
 
 public final class org/jetbrains/dokka/utilities/SelfRepresentingSingletonSet$DefaultImpls {

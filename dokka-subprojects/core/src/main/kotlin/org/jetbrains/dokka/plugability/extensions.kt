@@ -6,7 +6,7 @@ package org.jetbrains.dokka.plugability
 
 import org.jetbrains.dokka.DokkaConfiguration
 
-public data class ExtensionPoint<T : Any> internal constructor(
+public data class ExtensionPoint<T : Any>(
     internal val pluginClass: String,
     internal val pointName: String
 ) {
