@@ -32,3 +32,11 @@ npm run start:ui-kit
 The dev server will watch for changes in the `plugin-base-frontend/` and rebuild the `ui-showcase` project automatically.
 However, for the changes in html structure produced by kotlin templates one needs to rerun `dokkabuild` manually while there is no need to restart the dev server.
 
+
+### How to create a new UI kit component:
+
+1. Run `npm run create-component -- <component-name-in-kebab-case>`
+
+    It will create all necessary files templates in `src/main/ui-kit/` directory and import them in `src/main/ui-kit/index.ts` and `src/main/ui-kit/index.scss` files.
+
+2. Export component manually from `src/main/ui-kit/index.ts` file to make in available for webpack
