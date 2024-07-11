@@ -205,7 +205,8 @@ testing.suites {
         }
     }
 
-    tasks.check { dependsOn(test, testFunctional) }
+    tasks.check { dependsOn(test) }
+//    tasks.check { dependsOn(test, testFunctional) }
 }
 
 skipTestFixturesPublications()

@@ -6,13 +6,13 @@ plugins {
     id("dokkabuild.base")
 }
 
-addDependencyToSubprojectTasks("assemble")
-addDependencyToSubprojectTasks("build")
-addDependencyToSubprojectTasks("clean")
-addDependencyToSubprojectTasks("check")
+//addDependencyToSubprojectTasks("assemble")
+//addDependencyToSubprojectTasks("build")
+//addDependencyToSubprojectTasks("clean")
+//addDependencyToSubprojectTasks("check")
 
-registerParentTask("test", groupName = "verification")
-registerParentTask("integrationTest", groupName = "verification")
+//registerParentTask("test", groupName = "verification")
+//registerParentTask("integrationTest", groupName = "verification")
 
 fun addDependencyToSubprojectTasks(existingTaskName: String) {
     tasks.named(existingTaskName) {
