@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.gradlePlugin.gradlePublish)
 
     implementation(libs.eclipse.jgit)
+    implementation("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.9.0")
 
     // workaround for accessing version-catalog in convention plugins
     // https://github.com/gradle/gradle/issues/15383#issuecomment-779893192
