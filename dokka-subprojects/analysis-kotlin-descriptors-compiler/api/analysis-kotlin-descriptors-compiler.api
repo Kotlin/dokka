@@ -29,8 +29,10 @@ public abstract interface class org/jetbrains/dokka/analysis/kotlin/descriptors/
 
 public abstract interface class org/jetbrains/dokka/analysis/kotlin/descriptors/compiler/KDocFinder {
 	public abstract fun find (Lorg/jetbrains/kotlin/descriptors/DeclarationDescriptor;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/kotlin/kdoc/psi/impl/KDocTag;
+	public static synthetic fun find$default (Lorg/jetbrains/dokka/analysis/kotlin/descriptors/compiler/KDocFinder;Lorg/jetbrains/kotlin/descriptors/DeclarationDescriptor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/kotlin/kdoc/psi/impl/KDocTag;
 	public abstract fun findKDoc (Lorg/jetbrains/kotlin/psi/KtElement;)Lorg/jetbrains/kotlin/kdoc/psi/impl/KDocTag;
 	public abstract fun resolveKDocLink (Lorg/jetbrains/kotlin/descriptors/DeclarationDescriptor;Ljava/lang/String;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Z)Ljava/util/Collection;
+	public static synthetic fun resolveKDocLink$default (Lorg/jetbrains/dokka/analysis/kotlin/descriptors/compiler/KDocFinder;Lorg/jetbrains/kotlin/descriptors/DeclarationDescriptor;Ljava/lang/String;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;ZILjava/lang/Object;)Ljava/util/Collection;
 }
 
 public final class org/jetbrains/dokka/analysis/kotlin/descriptors/compiler/KDocFinder$DefaultImpls {
