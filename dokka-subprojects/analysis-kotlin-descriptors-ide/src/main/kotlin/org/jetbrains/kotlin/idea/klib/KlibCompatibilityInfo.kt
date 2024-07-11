@@ -11,6 +11,8 @@ import org.jetbrains.kotlin.library.metadata.KlibMetadataVersion
 import org.jetbrains.kotlin.library.metadata.metadataVersion
 import java.io.IOException
 
+// File content is based on https://github.com/JetBrains/intellij-community/blob/76b51b233ad2e831c3e1fe8f7dcb0f7c77ad918a/plugins/kotlin/base/project-structure/src/org/jetbrains/kotlin/idea/base/projectStructure/moduleInfo/KlibCompatibilityInfo.kt
+
 /**
  * Whether a certain KLIB is compatible for the purposes of IDE: indexation, resolve, etc.
  */
@@ -24,6 +26,7 @@ internal fun <T> KotlinLibrary.safeRead(defaultValue: T, action: KotlinLibrary.(
 } catch (_: IOException) {
     defaultValue
 }
+
 internal val KotlinLibrary.compatibilityInfo: KlibCompatibilityInfo
     get() {
         val metadataVersion = safeRead(null) { this.metadataVersion }
