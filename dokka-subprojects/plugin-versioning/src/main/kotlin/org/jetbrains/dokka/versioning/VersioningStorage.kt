@@ -52,7 +52,13 @@ public class DefaultVersioningStorage(
 
     private fun getPreviousVersions(olderVersions: List<File>, output: File): Map<String, VersionDirs> =
         versionsFrom(olderVersions).associate { (key, srcDir) ->
-            key to VersionDirs(srcDir, output.resolve(VersioningConfiguration.OLDER_VERSIONS_DIR).resolve(key))
+            val olderVersionsDirName =
+                configuration?.olderVersionsDirName ?: VersioningConfiguration.defaultOlderVersionsDirName
+            val olderVersionsDir = when {
+                olderVersionsDirName.isBlank() -> output
+                else -> output.resolve(olderVersionsDirName)
+            }
+            key to VersionDirs(srcDir, olderVersionsDir.resolve(key))
         }
 
     private fun versionsFrom(olderVersions: List<File>) =
