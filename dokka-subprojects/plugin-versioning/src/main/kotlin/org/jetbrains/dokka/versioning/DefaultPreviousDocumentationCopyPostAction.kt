@@ -8,10 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.plugin
-import org.jetbrains.dokka.plugability.query
-import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.plugability.*
 import org.jetbrains.dokka.renderers.PostAction
 import org.jetbrains.dokka.templates.TemplateProcessingStrategy
 import org.jetbrains.dokka.templates.TemplatingPlugin
@@ -24,6 +21,8 @@ public class DefaultPreviousDocumentationCopyPostAction(
     private val processingStrategies: List<TemplateProcessingStrategy> =
         context.plugin<TemplatingPlugin>().query { templateProcessingStrategy }
 
+    private val configuration = configuration<VersioningPlugin, VersioningConfiguration>(context)
+
     override fun invoke() {
         versioningStorage.createVersionFile()
         versioningStorage.previousVersions.forEach { (_, dirs) -> copyVersion(dirs.src, dirs.dst) }
@@ -31,11 +30,17 @@ public class DefaultPreviousDocumentationCopyPostAction(
 
     private fun copyVersion(versionRoot: File, targetParent: File) {
         targetParent.apply { mkdirs() }
-        val ignoreDir = versionRoot.resolve(VersioningConfiguration.OLDER_VERSIONS_DIR)
+        val olderVersionsDirName =
+            configuration?.olderVersionsDirName ?: VersioningConfiguration.defaultOlderVersionsDirName
+        val ignoredDirs = when {
+            olderVersionsDirName.isBlank() -> versioningStorage.previousVersions.keys
+            else -> setOf(olderVersionsDirName)
+        }.map { versionRoot.resolve(it).absolutePath }
+
         runBlocking(Dispatchers.Default) {
             coroutineScope {
                 versionRoot.listFiles().orEmpty()
-                    .filter { it.absolutePath != ignoreDir.absolutePath }
+                    .filter { it.absolutePath !in ignoredDirs }
                     .forEach { versionRootContent ->
                         launch {
                             processRecursively(versionRootContent, targetParent)

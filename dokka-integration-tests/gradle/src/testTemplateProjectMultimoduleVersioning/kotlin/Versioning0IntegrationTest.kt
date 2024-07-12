@@ -74,4 +74,136 @@ class Versioning0IntegrationTest : AbstractGradleIntegrationTest() {
             links.map { it.text() to it.attr("href") }
         )
     }
+
+    @ParameterizedTest(name = "{0}")
+    @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
+    fun executeWithCustomOlderFolderName(buildVersions: BuildVersions) {
+        val olderVersionsDirName = "version"
+
+        val result = createGradleRunner(
+            buildVersions,
+            ":dokkaHtmlMultiModuleBaseVersion",
+            "-i", "-s",
+            "-PolderVersionsDirName=$olderVersionsDirName"
+        ).buildRelaxed()
+
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtmlMultiModuleBaseVersion")).outcome)
+        val outputDir = File(projectDir, "dokkas/1.0")
+        assertTrue(outputDir.isDirectory, "Missing dokka output directory")
+
+        val result2 = createGradleRunner(
+            buildVersions,
+            "clean",
+            ":dokkaHtmlMultiModuleNextVersion",
+            "-i", "-s",
+            "-PolderVersionsDirName=$olderVersionsDirName"
+        ).buildRelaxed()
+
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result2.task(":dokkaHtmlMultiModuleNextVersion")).outcome)
+        val outputDir2 = File(projectDir, "dokkas/1.1")
+        assertTrue(outputDir2.isDirectory, "Missing dokka output directory")
+
+        val result3 = createGradleRunner(
+            buildVersions,
+            "clean",
+            ":dokkaHtmlMultiModule",
+            "-i", "-s",
+            "-PolderVersionsDirName=$olderVersionsDirName"
+        ).buildRelaxed()
+
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result3.task(":dokkaHtmlMultiModule")).outcome)
+        val outputDirMultiModule = File(projectDir, "build/dokka/htmlMultiModule")
+        assertTrue(outputDirMultiModule.isDirectory, "Missing dokka output directory")
+
+        val version1_0 = outputDirMultiModule.resolve(olderVersionsDirName).resolve("1.0")
+        val version1_1 = outputDirMultiModule.resolve(olderVersionsDirName).resolve("1.1")
+
+        assertTrue(version1_0.isDirectory, "Assumed to have 1.0 version in older dir")
+        assertTrue(version1_1.isDirectory, "Assumed to have 1.1 version in older dir")
+
+        assertFalse(version1_0.resolve(olderVersionsDirName).exists(), "Subversions should not have older directory")
+        assertFalse(version1_1.resolve(olderVersionsDirName).exists(), "Subversions should not have older directory")
+
+        val parsedIndex = Jsoup.parse(outputDirMultiModule.resolve("index.html").readText())
+        val dropdown = parsedIndex.select("dokka-template-command").firstOrNull()
+        assertNotNull(dropdown)
+        val links = dropdown.select("a")
+        assertEquals(3, links.count(), "Expected 3 versions to be in dropdown: 1.0, 1.1 and 1.2")
+        assertEquals(
+            listOf(
+                "1.2" to "index.html",
+                "1.1" to "$olderVersionsDirName/1.1/index.html",
+                "1.0" to "$olderVersionsDirName/1.0/index.html"
+            ),
+            links.map { it.text() to it.attr("href") }
+        )
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
+    fun executeWithEmptyCustomOlderFolderName(buildVersions: BuildVersions) {
+        // will place versions without a separate dir, but directly inside root
+        val olderVersionsDirName = ""
+        val result = createGradleRunner(
+            buildVersions,
+            ":dokkaHtmlMultiModuleBaseVersion",
+            "-i", "-s",
+            "-PolderVersionsDirName=$olderVersionsDirName"
+        ).buildRelaxed()
+
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtmlMultiModuleBaseVersion")).outcome)
+        val outputDir = File(projectDir, "dokkas/1.0")
+        assertTrue(outputDir.isDirectory, "Missing dokka output directory")
+
+        val result2 = createGradleRunner(
+            buildVersions,
+            "clean",
+            ":dokkaHtmlMultiModuleNextVersion",
+            "-i", "-s",
+            "-PolderVersionsDirName=$olderVersionsDirName"
+        ).buildRelaxed()
+
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result2.task(":dokkaHtmlMultiModuleNextVersion")).outcome)
+        val outputDir2 = File(projectDir, "dokkas/1.1")
+        assertTrue(outputDir2.isDirectory, "Missing dokka output directory")
+
+        val result3 = createGradleRunner(
+            buildVersions,
+            "clean",
+            ":dokkaHtmlMultiModule",
+            "-i", "-s",
+            "-PolderVersionsDirName=$olderVersionsDirName"
+        ).buildRelaxed()
+
+        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result3.task(":dokkaHtmlMultiModule")).outcome)
+        val outputDirMultiModule = File(projectDir, "build/dokka/htmlMultiModule")
+        assertTrue(outputDirMultiModule.isDirectory, "Missing dokka output directory")
+
+        // NO SEPARATE FOLDER HERE
+        val version1_0 = outputDirMultiModule.resolve("1.0")
+        val version1_1 = outputDirMultiModule.resolve("1.1")
+
+        assertTrue(version1_0.isDirectory, "Assumed to have 1.0 version in older dir")
+        assertTrue(version1_1.isDirectory, "Assumed to have 1.1 version in older dir")
+
+        assertFalse(version1_0.resolve("1.0").exists(), "Subversions should not have older directory")
+        assertFalse(version1_0.resolve("1.1").exists(), "Subversions should not have older directory")
+
+        assertFalse(version1_1.resolve("1.0").exists(), "Subversions should not have older directory")
+        assertFalse(version1_1.resolve("1.1").exists(), "Subversions should not have older directory")
+
+        val parsedIndex = Jsoup.parse(outputDirMultiModule.resolve("index.html").readText())
+        val dropdown = parsedIndex.select("dokka-template-command").firstOrNull()
+        assertNotNull(dropdown)
+        val links = dropdown.select("a")
+        assertEquals(3, links.count(), "Expected 3 versions to be in dropdown: 1.0, 1.1 and 1.2")
+        assertEquals(
+            listOf(
+                "1.2" to "index.html",
+                "1.1" to "1.1/index.html",
+                "1.0" to "1.0/index.html"
+            ),
+            links.map { it.text() to it.attr("href") }
+        )
+    }
 }

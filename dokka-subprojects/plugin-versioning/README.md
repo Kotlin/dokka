@@ -109,6 +109,7 @@ The table below contains all the possible configuration options for the versioni
 | `olderVersionsDir`                   | An optional path to a parent folder that contains other documentation versions. It requires a specific directory structure. For more information, see [Directory structure](#directory-structure).     |
 | `olderVersions`                      | An optional list of paths to other documentation versions. It must point to Dokka's outputs directly. This is useful if different versions can't all be in the same directory.                         |
 | `renderVersionsNavigationOnAllPages` | An optional boolean value indicating whether to render the navigation dropdown on all pages. Set to true by default.                                                                                   |
+| `olderVersionsDirName`               | An optional folder name where other documentation versions output will be placed. In case of empty string root folder will be used instead. Set to `older` by default.                                 |
 
 #### Directory structure
 
@@ -264,7 +265,7 @@ plugin to match versions and generate version navigation. If your previously gen
 file, you will need to re-generate documentation for such versions. Just adding the file will not work.
 
 The versioning plugin also bundles all other documentation versions that have been passed through `olderVersionsDir`
-and `olderVersions` configuration options by putting them inside the `older` directory.
+and `olderVersions` configuration options by putting them inside the directory passed through `olderVersionsDirName`.
 
 ## Usage example
 
@@ -281,8 +282,11 @@ The main idea behind it is the following:
 4. Once new documentation has been generated, it needs to be **copied** to somewhere accessible by the user.
    For example, GitHub pages or nginx static directories. It needs to be **copied**, not moved because Dokka will still
    need this version for future builds, otherwise there will be a gap in the archive.
-5. Once it has been safely copied, you can remove the `older` directory from the newly generated and archived version.
-   This helps reduce the overhead of each version bundling all previous versions, as these files are effectively duplicates.
+5. Once it has been safely copied,
+   you can remove the directory specified in `olderVersionsDirName`(`older` by default)
+   from the newly generated and archived version.
+   This helps reduce the overhead of each version bundling all previous versions,
+   as these files are effectively duplicates.
 
 ```kotlin
 import org.jetbrains.dokka.versioning.VersioningPlugin

@@ -13,7 +13,8 @@ public data class VersioningConfiguration(
     var olderVersions: List<File>? = defaultOlderVersions,
     var versionsOrdering: List<String>? = defaultVersionsOrdering,
     var version: String? = defaultVersion,
-    var renderVersionsNavigationOnAllPages: Boolean? = defaultRenderVersionsNavigationOnAllPages
+    var renderVersionsNavigationOnAllPages: Boolean? = defaultRenderVersionsNavigationOnAllPages,
+    var olderVersionsDirName: String = defaultOlderVersionsDirName
 ) : ConfigurableBlock {
     internal fun versionFromConfigurationOrModule(dokkaContext: DokkaContext): String =
         version ?: dokkaContext.configuration.moduleVersion ?: "1.0"
@@ -31,7 +32,9 @@ public data class VersioningConfiguration(
         public val defaultVersionsOrdering: List<String>? = null
         public val defaultVersion: String? = null
         public val defaultRenderVersionsNavigationOnAllPages: Boolean = true
+        public val defaultOlderVersionsDirName: String = "older"
 
+        @Deprecated("Replaced with VersioningConfiguration.Companion.defaultOlderVersionsDirName and VersioningConfiguration.olderVersionsDirName")
         public const val OLDER_VERSIONS_DIR: String = "older"
         public const val VERSIONS_FILE: String = "version.json"
     }
