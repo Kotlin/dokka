@@ -14,7 +14,7 @@ open class AllSupportedTestedVersionsArgumentsProvider : TestedVersionsArguments
 
 object TestedVersions {
 
-    val LATEST = BuildVersions("8.7", "2.0.20-Beta1")
+    val LATEST = BuildVersions("8.7", "2.0.20-Beta2")
 
     /**
      * All supported Gradle/Kotlin versions, including [LATEST]
@@ -41,7 +41,7 @@ object TestedVersions {
     val ANDROID =
         BuildVersions.permutations(
             gradleVersions = listOf("8.4"),
-            kotlinVersions = listOf("2.0.20-Beta1"),
+            kotlinVersions = listOf("2.0.20-Beta2"),
             androidGradlePluginVersions = listOf("8.3.0")
         ) + BuildVersions.permutations(
             gradleVersions = listOf("7.4.2", *ifExhaustive("7.0")),
@@ -67,7 +67,7 @@ object TestedVersions {
         "1.9.10" to "18.2.0-pre.597",
         "1.9.23" to "18.2.0-pre.682",
         "2.0.0" to "18.2.0-pre.726",
-        "2.0.20-Beta1" to "18.3.1-pre.758",
+        "2.0.20-Beta2" to "18.3.1-pre.758",
     )
 }
 

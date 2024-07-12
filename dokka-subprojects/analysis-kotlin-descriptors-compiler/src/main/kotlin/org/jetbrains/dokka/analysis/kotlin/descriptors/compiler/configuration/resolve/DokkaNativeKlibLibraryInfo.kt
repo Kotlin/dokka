@@ -6,10 +6,10 @@ package org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration.r
 
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.descriptors.ModuleCapability
+import org.jetbrains.kotlin.library.KotlinLibrary
 import org.jetbrains.kotlin.library.metadata.DeserializedKlibModuleOrigin
 import org.jetbrains.kotlin.library.metadata.KlibModuleOrigin
-import org.jetbrains.kotlin.library.KotlinLibrary
-import org.jetbrains.kotlin.library.isInterop
+import org.jetbrains.kotlin.library.metadata.isCInteropLibrary
 import org.jetbrains.kotlin.library.shortName
 import org.jetbrains.kotlin.library.uniqueName
 import org.jetbrains.kotlin.name.Name
@@ -42,7 +42,7 @@ internal class DokkaNativeKlibLibraryInfo(
         get() {
             val capabilities = super.capabilities.toMutableMap()
             capabilities[KlibModuleOrigin.CAPABILITY] = DeserializedKlibModuleOrigin(kotlinLibrary)
-            capabilities[ImplicitIntegerCoercion.MODULE_CAPABILITY] = kotlinLibrary.safeRead(false) { isInterop }
+            capabilities[ImplicitIntegerCoercion.MODULE_CAPABILITY] = kotlinLibrary.safeRead(false) { isCInteropLibrary() }
             return capabilities
         }
 
