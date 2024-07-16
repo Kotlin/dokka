@@ -9,6 +9,7 @@ import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import org.gradle.kotlin.dsl.*
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
 
 class DokkaExternalDocumentationLinkSpecTest : FunSpec({
@@ -87,13 +88,13 @@ class DokkaExternalDocumentationLinkSpecTest : FunSpec({
 })
 
 private val project = ProjectBuilder.builder().build().also { project ->
+  project.extraProperties.set("enableDokkatoo", true)
   project.plugins.apply(type = DokkatooPlugin::class)
 }
 
 private fun createExternalDocLinkSpec(
   configure: DokkaExternalDocumentationLinkSpec.() -> Unit
 ): DokkaExternalDocumentationLinkSpec {
-
   val dssContainer = project.extensions.getByType<DokkatooExtension>().dokkatooSourceSets
 
   return dssContainer.create_("test" + dssContainer.size)

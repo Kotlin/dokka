@@ -38,7 +38,7 @@ dependencyResolutionManagement {
     }
 }
 
-includeBuild("../dokka-runners/runner-gradle-plugin-classic")
+includeBuild("../dokka-runners/dokka-gradle-plugin")
 includeBuild("../dokka-runners/runner-maven-plugin")
 includeBuild("../dokka-runners/runner-cli")
 includeBuild("../.") // depend on the root project, so integration-tests can depend on projects in `dokka-subprojects/*`

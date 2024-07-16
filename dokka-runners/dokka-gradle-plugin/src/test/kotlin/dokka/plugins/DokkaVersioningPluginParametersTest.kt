@@ -10,9 +10,11 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import org.gradle.kotlin.dsl.*
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
 class DokkaVersioningPluginParametersTest : FunSpec({
   val project = ProjectBuilder.builder().build().also { project ->
+    project.extraProperties.set("enableDokkatoo", true)
     project.plugins.apply(type = DokkatooPlugin::class)
   }
 

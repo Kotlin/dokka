@@ -13,17 +13,17 @@ plugins {
 overridePublicationArtifactId("android-documentation-plugin")
 
 dependencies {
-    compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.dokkaCore)
 
-    implementation(projects.dokkaSubprojects.pluginBase)
+    implementation(projects.pluginBase)
 
     implementation(kotlin("reflect"))
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.dokkaSubprojects.pluginBase)
-    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
+    testImplementation(projects.pluginBase)
+    testImplementation(projects.dokkaTestApi)
 
-    symbolsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
-    descriptorsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
-    testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)
+    symbolsTestImplementation(project(path = ":analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestImplementation(project(path = ":analysis-kotlin-descriptors", configuration = "shadow"))
+    testImplementation(projects.pluginBaseTestUtils)
 }

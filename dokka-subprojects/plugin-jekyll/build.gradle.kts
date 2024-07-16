@@ -12,13 +12,13 @@ plugins {
 overridePublicationArtifactId("jekyll-plugin")
 
 dependencies {
-    compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.dokkaCore)
 
-    implementation(projects.dokkaSubprojects.pluginBase)
-    implementation(projects.dokkaSubprojects.pluginGfm)
+    implementation(projects.pluginBase)
+    implementation(projects.pluginGfm)
 
     implementation(kotlin("reflect"))
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
+    testImplementation(projects.dokkaTestApi)
 }

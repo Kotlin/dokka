@@ -96,12 +96,16 @@ fun gradleKtsProjectTest(
         testProjectName = testProjectName,
         baseDir = baseDir,
     ) {
+        gradleProperties += """
+            enableDokkatoo=true
+        """
+
         settingsGradleKts = """
-      |rootProject.name = "test"
-      |
-      |${settingsRepositories()}
-      |
-    """.trimMargin()
+          |rootProject.name = "test"
+          |
+          |${settingsRepositories()}
+          |
+        """.trimMargin()
 
         build()
     }

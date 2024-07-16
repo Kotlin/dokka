@@ -6,8 +6,13 @@ plugins {
     id("dokkabuild.base")
 }
 
-val publishedIncludedBuilds = listOf("runner-cli", "runner-gradle-plugin-classic", "runner-maven-plugin")
-val gradlePluginIncludedBuilds = listOf("runner-gradle-plugin-classic")
+val publishedIncludedBuilds = listOf(
+    "runner-cli",
+    "dokka-gradle-plugin",
+    "runner-maven-plugin",
+    "dokka-subprojects",
+)
+//val gradlePluginIncludedBuilds = listOf("runner-gradle-plugin-classic")
 
 addDependencyOnSameTasksOfIncludedBuilds("assemble", "build", "clean", "check")
 
@@ -24,14 +29,14 @@ registerParentGroupTasks(
     it.name in publishedIncludedBuilds
 }
 
-registerParentGroupTasks(
-    "gradle plugin", taskNames = listOf(
-        "publishPlugins",
-        "validatePlugins"
-    )
-) {
-    it.name in gradlePluginIncludedBuilds
-}
+//registerParentGroupTasks(
+//    "gradle plugin", taskNames = listOf(
+//        "publishPlugins",
+//        "validatePlugins"
+//    )
+//) {
+//    it.name in gradlePluginIncludedBuilds
+//}
 
 registerParentGroupTasks(
     "bcv", taskNames = listOf(
@@ -115,5 +120,16 @@ listOf(
 ).forEach { taskName ->
     tasks.named(taskName) {
         dependsOn(gradle.includedBuild("dokka-gradle-plugin").task(":$taskName"))
+    }
+}
+
+
+listOf(
+    "check",
+).forEach { taskName ->
+    tasks.named(taskName) {
+        dependsOn(gradle.includedBuild("dokka-integration-tests").task(":cli:$taskName"))
+        dependsOn(gradle.includedBuild("dokka-integration-tests").task(":gradle:$taskName"))
+        dependsOn(gradle.includedBuild("dokka-integration-tests").task(":maven:$taskName"))
     }
 }

@@ -12,10 +12,10 @@ plugins {
 overridePublicationArtifactId("versioning-plugin")
 
 dependencies {
-    compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.dokkaCore)
 
-    implementation(projects.dokkaSubprojects.pluginBase)
-    implementation(projects.dokkaSubprojects.pluginTemplating)
+    implementation(projects.pluginBase)
+    implementation(projects.pluginTemplating)
 
     implementation(kotlin("reflect"))
     implementation(libs.kotlinx.coroutines.core)
@@ -29,5 +29,5 @@ dependencies {
     }
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
+    testImplementation(projects.dokkaTestApi)
 }

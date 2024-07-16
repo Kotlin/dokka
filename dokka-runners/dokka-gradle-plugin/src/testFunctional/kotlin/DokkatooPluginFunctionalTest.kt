@@ -10,6 +10,7 @@ import io.kotest.matchers.string.shouldContain
 
 class DokkatooPluginFunctionalTest : FunSpec({
   val testProject = gradleKtsProjectTest("DokkatooPluginFunctionalTest") {
+
     buildGradleKts = """
       |plugins {
       |  id("dev.adamko.dokkatoo") version "$DOKKATOO_VERSION"

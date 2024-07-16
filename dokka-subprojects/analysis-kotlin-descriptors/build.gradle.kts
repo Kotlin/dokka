@@ -21,9 +21,9 @@ dependencies {
     // as several intellij dependencies share the same packages like `org.intellij.core`
     api(libs.intellij.java.psi.api) { isTransitive = false }
 
-    implementation(projects.dokkaSubprojects.analysisKotlinApi)
-    implementation(projects.dokkaSubprojects.analysisKotlinDescriptorsCompiler)
-    implementation(projects.dokkaSubprojects.analysisKotlinDescriptorsIde)
+    implementation(projects.analysisKotlinApi)
+    implementation(projects.analysisKotlinDescriptorsCompiler)
+    implementation(projects.analysisKotlinDescriptorsIde)
 }
 
 tasks.shadowJar {

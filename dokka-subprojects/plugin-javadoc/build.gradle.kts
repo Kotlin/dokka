@@ -13,11 +13,11 @@ plugins {
 overridePublicationArtifactId("javadoc-plugin")
 
 dependencies {
-    compileOnly(projects.dokkaSubprojects.dokkaCore)
-    compileOnly(projects.dokkaSubprojects.analysisKotlinApi)
+    compileOnly(projects.dokkaCore)
+    compileOnly(projects.analysisKotlinApi)
 
-    implementation(projects.dokkaSubprojects.pluginBase)
-    implementation(projects.dokkaSubprojects.pluginKotlinAsJava)
+    implementation(projects.pluginBase)
+    implementation(projects.pluginKotlinAsJava)
 
     implementation(kotlin("reflect"))
     implementation(libs.korlibs.template)
@@ -25,9 +25,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(kotlin("test"))
-    symbolsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
-    descriptorsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
-    testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)
-    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
+    symbolsTestImplementation(project(path = ":analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestImplementation(project(path = ":analysis-kotlin-descriptors", configuration = "shadow"))
+    testImplementation(projects.pluginBaseTestUtils)
+    testImplementation(projects.dokkaTestApi)
     testImplementation(libs.jsoup)
 }

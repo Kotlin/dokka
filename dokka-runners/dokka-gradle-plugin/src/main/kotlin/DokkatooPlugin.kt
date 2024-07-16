@@ -7,7 +7,11 @@ import dev.adamko.dokkatoo.formats.DokkatooJekyllPlugin
 import dev.adamko.dokkatoo.internal.DokkatooInternalApi
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.*
+import org.gradle.api.provider.ProviderFactory
+import org.gradle.kotlin.dsl.apply
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
+import javax.inject.Inject
+import org.jetbrains.dokka.gradle.DokkaPlugin as ClassicDokkaPlugin
 
 /**
  * Dokkatoo Gradle Plugin.
@@ -15,18 +19,34 @@ import org.gradle.kotlin.dsl.*
  * Creates all necessary defaults to generate documentation for HTML, Jekyll, Markdown, and Javadoc formats.
  */
 abstract class DokkatooPlugin
+@Inject
 @DokkatooInternalApi
-constructor() : Plugin<Project> {
+constructor(
+    private val providers: ProviderFactory,
+) : Plugin<Project> {
 
-  override fun apply(target: Project) {
-    with(target.pluginManager) {
-      apply(type = DokkatooBasePlugin::class)
+    override fun apply(target: Project) {
+        if (isDokkatooEnabled(target)) {
+            with(target.pluginManager) {
+                apply(type = DokkatooBasePlugin::class)
 
-      // auto-apply the custom format plugins
-      apply(type = DokkatooGfmPlugin::class)
-      apply(type = DokkatooHtmlPlugin::class)
-      apply(type = DokkatooJavadocPlugin::class)
-      apply(type = DokkatooJekyllPlugin::class)
+                // auto-apply the custom format plugins
+                apply(type = DokkatooGfmPlugin::class)
+                apply(type = DokkatooHtmlPlugin::class)
+                apply(type = DokkatooJavadocPlugin::class)
+                apply(type = DokkatooJekyllPlugin::class)
+            }
+        } else {
+            target.pluginManager.apply(ClassicDokkaPlugin::class)
+        }
     }
-  }
+
+    private fun isDokkatooEnabled(project: Project): Boolean {
+        return providers.gradleProperty("enableDokkatoo").orNull.toBoolean()
+                || (
+                project.extraProperties.has("enableDokkatoo")
+                        &&
+                        project.extraProperties.get("enableDokkatoo")?.toString().toBoolean()
+                )
+    }
 }

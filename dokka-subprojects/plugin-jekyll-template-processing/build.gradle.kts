@@ -12,18 +12,18 @@ plugins {
 overridePublicationArtifactId("jekyll-template-processing-plugin")
 
 dependencies {
-    compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.dokkaCore)
 
-    implementation(projects.dokkaSubprojects.pluginBase)
-    implementation(projects.dokkaSubprojects.pluginJekyll)
-    implementation(projects.dokkaSubprojects.pluginAllModulesPage)
-    implementation(projects.dokkaSubprojects.pluginTemplating)
-    implementation(projects.dokkaSubprojects.pluginGfm)
-    implementation(projects.dokkaSubprojects.pluginGfmTemplateProcessing)
+    implementation(projects.pluginBase)
+    implementation(projects.pluginJekyll)
+    implementation(projects.pluginAllModulesPage)
+    implementation(projects.pluginTemplating)
+    implementation(projects.pluginGfm)
+    implementation(projects.pluginGfmTemplateProcessing)
 
     implementation(kotlin("reflect"))
     implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
+    testImplementation(projects.dokkaTestApi)
 }

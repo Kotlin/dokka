@@ -22,6 +22,7 @@ import org.gradle.api.file.Directory
 import org.gradle.api.internal.provider.MissingValueException
 import org.gradle.kotlin.dsl.*
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
 class DokkaSourceSetBuilderTest : FunSpec({
 
@@ -183,6 +184,7 @@ class DokkaSourceSetBuilderTest : FunSpec({
 
 private fun createProject(): Project {
   val project = ProjectBuilder.builder().build()
+  project.extraProperties.set("enableDokkatoo", true)
   project.plugins.apply(type = DokkatooPlugin::class)
   return project
 }

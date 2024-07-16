@@ -6,11 +6,13 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
 import org.gradle.kotlin.dsl.*
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
 class DokkatooPluginTest : FunSpec({
 
   test("expect plugin id can be applied to project successfully") {
     val project = ProjectBuilder.builder().build()
+    project.extraProperties.set("enableDokkatoo", true)
     project.plugins.apply("dev.adamko.dokkatoo")
     project.plugins.hasPlugin("dev.adamko.dokkatoo") shouldBe true
     project.plugins.hasPlugin(DokkatooPlugin::class) shouldBe true
@@ -18,6 +20,7 @@ class DokkatooPluginTest : FunSpec({
 
   test("expect plugin class can be applied to project successfully") {
     val project = ProjectBuilder.builder().build()
+    project.extraProperties.set("enableDokkatoo", true)
     project.plugins.apply(type = DokkatooPlugin::class)
     project.plugins.hasPlugin("dev.adamko.dokkatoo") shouldBe true
     project.plugins.hasPlugin(DokkatooPlugin::class) shouldBe true
@@ -25,6 +28,7 @@ class DokkatooPluginTest : FunSpec({
 
   context("Dokkatoo property conventions") {
     val project = ProjectBuilder.builder().build()
+    project.extraProperties.set("enableDokkatoo", true)
     project.plugins.apply("dev.adamko.dokkatoo")
 
     val extension = project.extensions.getByType<DokkatooExtension>()
