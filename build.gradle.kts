@@ -105,3 +105,15 @@ tasks.wrapper {
         )
     }
 }
+
+listOf(
+    "check",
+    "assemble",
+    "build",
+    "apiDump",
+    "apiCheck",
+).forEach { taskName ->
+    tasks.named(taskName) {
+        dependsOn(gradle.includedBuild("dokka-gradle-plugin").task(":$taskName"))
+    }
+}

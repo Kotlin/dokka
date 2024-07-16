@@ -4,10 +4,13 @@
 
 package dokkabuild.utils
 
+import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.*
 import org.gradle.api.attributes.java.TargetJvmEnvironment
+import org.gradle.api.component.AdhocComponentWithVariants
 import org.gradle.api.model.ObjectFactory
+import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.named
 
 
@@ -86,4 +89,15 @@ internal fun AttributeContainer.jvmJar(objects: ObjectFactory) {
     attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
     attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, objects.named(TargetJvmEnvironment.STANDARD_JVM))
     attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.JAR))
+}
+
+/**
+ * Disable publishing of test fixtures (which causes warnings when publishing).
+ *
+ * https://docs.gradle.org/current/userguide/java_testing.html#publishing_test_fixtures
+ */
+fun Project.skipTestFixturesPublications() {
+    val javaComponent = components["java"] as AdhocComponentWithVariants
+    javaComponent.withVariantsFromConfiguration(configurations["testFixturesApiElements"]) { skip() }
+    javaComponent.withVariantsFromConfiguration(configurations["testFixturesRuntimeElements"]) { skip() }
 }
