@@ -25,6 +25,23 @@ description = "Generates documentation for Kotlin projects (using Dokka)"
 
 kotlin {
     jvmToolchain(8)
+
+    sourceSets {
+        configureEach {
+            languageSettings {
+                optIn("dev.adamko.dokkatoo.internal.DokkatooInternalApi")
+                optIn("kotlin.io.path.ExperimentalPathApi")
+            }
+        }
+
+        main {
+            kotlin.srcDir("src/classicMain/kotlin")
+            kotlin.srcDir(generateDokkatooConstants)
+        }
+        test {
+            kotlin.srcDir("src/classicTest/kotlin")
+        }
+    }
 }
 
 dependencies {
@@ -146,24 +163,6 @@ gradlePlugin {
     }
 }
 
-
-kotlin {
-//    val classicMain by sourceSets.creating
-//    sourceSets.main { dependsOn(classicMain) }
-//
-//    val classicTest by sourceSets.creating {
-//        dependsOn(classicMain)
-//    }
-//    sourceSets.test { dependsOn(classicTest) }
-
-    sourceSets.configureEach {
-        languageSettings {
-            optIn("dev.adamko.dokkatoo.internal.DokkatooInternalApi")
-            optIn("kotlin.io.path.ExperimentalPathApi")
-        }
-    }
-}
-
 testing.suites {
     withType<JvmTestSuite>().configureEach {
         useJUnitJupiter()
@@ -254,18 +253,3 @@ val generateDokkatooConstants by tasks.registering(GenerateDokkatooConstants::cl
 //    includes.from("Module.md")
 //  }
 //}
-
-
-kotlin {
-    jvmToolchain(8)
-
-    sourceSets {
-        main {
-            kotlin.srcDir("src/classicMain/kotlin")
-            kotlin.srcDir(generateDokkatooConstants)
-        }
-        test {
-            kotlin.srcDir("src/classicTest/kotlin")
-        }
-    }
-}
