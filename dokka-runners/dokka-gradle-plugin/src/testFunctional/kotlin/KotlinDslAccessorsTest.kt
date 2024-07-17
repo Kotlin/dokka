@@ -50,7 +50,7 @@ private fun initProject(
           |}
           |
           |dependencies {
-          |  implementation("dev.adamko.dokkatoo:dokka-gradle-plugin:$DOKKATOO_VERSION")
+          |  implementation("org.jetbrains.dokka:dokka-gradle-plugin:$DOKKATOO_VERSION")
           |}
           |
           |kotlin {

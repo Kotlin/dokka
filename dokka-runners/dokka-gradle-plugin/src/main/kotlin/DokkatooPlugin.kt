@@ -4,7 +4,9 @@ import dev.adamko.dokkatoo.formats.DokkatooGfmPlugin
 import dev.adamko.dokkatoo.formats.DokkatooHtmlPlugin
 import dev.adamko.dokkatoo.formats.DokkatooJavadocPlugin
 import dev.adamko.dokkatoo.formats.DokkatooJekyllPlugin
+import dev.adamko.dokkatoo.internal.CurrentGradleVersion
 import dev.adamko.dokkatoo.internal.DokkatooInternalApi
+import dev.adamko.dokkatoo.internal.compareTo
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.ProviderFactory
@@ -42,7 +44,17 @@ constructor(
     }
 
     private fun isDokkatooEnabled(project: Project): Boolean {
-        return providers.gradleProperty("enableDokkatoo").orNull.toBoolean()
+        val enabledViaProperty =
+            providers.gradleProperty("enableDokkatoo").run {
+                if (CurrentGradleVersion < "7.0") {
+                    @Suppress("DEPRECATION")
+                    forUseAtConfigurationTime()
+                } else {
+                    this
+                }
+            }
+
+        return enabledViaProperty.orNull.toBoolean()
                 || (
                 project.extraProperties.has("enableDokkatoo")
                         &&
