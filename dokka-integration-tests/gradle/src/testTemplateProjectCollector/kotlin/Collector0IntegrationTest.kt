@@ -24,7 +24,7 @@ class Collector0IntegrationTest : AbstractGradleIntegrationTest() {
             ":moduleA:dokkaJavadocCollector",
             ":moduleA:dokkaGfmCollector",
             ":moduleA:dokkaJekyllCollector",
-            "-i", "-s"
+            /*"-i",*/ "-s"
         ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaHtmlCollector")).outcome)

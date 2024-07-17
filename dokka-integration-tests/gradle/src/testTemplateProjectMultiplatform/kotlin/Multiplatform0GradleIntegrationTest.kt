@@ -24,13 +24,13 @@ class Multiplatform0GradleIntegrationTest : AbstractGradleIntegrationTest() {
             createGradleRunner(
                 buildVersions,
                 "dokkaHtml",
-                "-i",
+                /*"-i",*/
                 "-s",
                 "-Pkotlin.mpp.enableGranularSourceSetsMetadata=true",
                 "-Pkotlin.native.enableDependencyPropagation=false"
             ).buildRelaxed()
         else
-            createGradleRunner(buildVersions, "dokkaHtml", "-i", "-s").buildRelaxed()
+            createGradleRunner(buildVersions, "dokkaHtml", /*"-i",*/ "-s").buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
 
