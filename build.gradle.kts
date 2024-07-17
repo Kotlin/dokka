@@ -1,100 +1,99 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+import dokkabuild.TaskPathCollector.Companion.dependsOnIncludedBuildTasks
+import org.gradle.api.publish.plugins.PublishingPlugin.PUBLISH_TASK_GROUP
+import org.gradle.language.base.plugins.LifecycleBasePlugin.VERIFICATION_GROUP
 
 plugins {
     id("dokkabuild.base")
 }
 
-val publishedIncludedBuilds = listOf(
-    "runner-cli",
-    "dokka-gradle-plugin",
-    "runner-maven-plugin",
-    "dokka-subprojects",
-)
-//val gradlePluginIncludedBuilds = listOf("runner-gradle-plugin-classic")
 
-addDependencyOnSameTasksOfIncludedBuilds("assemble", "build", "clean", "check")
+//region Workarounds for running all tasks in included builds
+// https://github.com/gradle/gradle/issues/22335
 
-registerParentGroupTasks(
-    "publishing", taskNames = listOf(
-        "publishAllPublicationsToMavenCentralRepository",
-        "publishAllPublicationsToProjectLocalRepository",
-        "publishAllPublicationsToSnapshotRepository",
-        "publishAllPublicationsToSpaceDevRepository",
-        "publishAllPublicationsToSpaceTestRepository",
-        "publishToMavenLocal"
-    )
-) {
-    it.name in publishedIncludedBuilds
+// Setup lifecycle tasks dependencies, so each is propagated to included builds.
+tasks.assemble {
+    dependsOnIncludedBuildTasks()
 }
 
-//registerParentGroupTasks(
-//    "gradle plugin", taskNames = listOf(
-//        "publishPlugins",
-//        "validatePlugins"
-//    )
-//) {
-//    it.name in gradlePluginIncludedBuilds
-//}
-
-registerParentGroupTasks(
-    "bcv", taskNames = listOf(
-        "apiDump",
-        "apiCheck",
-        "apiBuild"
-    )
-) {
-    it.name in publishedIncludedBuilds
+tasks.build {
+    dependsOnIncludedBuildTasks()
 }
 
-registerParentGroupTasks(
-    "verification", taskNames = listOf(
-        "test"
-    )
-)
+tasks.clean {
+    dependsOnIncludedBuildTasks()
+}
 
-tasks.register("integrationTest") {
-    group = "verification"
+tasks.check {
+    dependsOnIncludedBuildTasks()
+}
+
+val publishPlugins by tasks.registering {
+    group = "gradle plugin"
+    dependsOnIncludedBuildTasks()
+}
+
+val validatePlugins by tasks.registering {
+    group = "gradle plugin"
+    dependsOnIncludedBuildTasks()
+}
+
+val apiDump by tasks.registering {
+    group = "$VERIFICATION_GROUP bcv"
+    dependsOnIncludedBuildTasks()
+}
+
+val apiCheck by tasks.registering {
+    group = "$VERIFICATION_GROUP bcv"
+    dependsOnIncludedBuildTasks()
+}
+
+val test by tasks.registering {
+    group = VERIFICATION_GROUP
+    dependsOnIncludedBuildTasks()
+    dependsOn(apiCheck)
+}
+
+val integrationTest by tasks.registering {
+    group = VERIFICATION_GROUP
+    dependsOnIncludedBuildTasks()
     description = "Runs integration tests of this project. Might take a while and require additional setup."
-
-    dependsOn(includedBuildTasks("integrationTest") {
-        it.name == "dokka-integration-tests"
-    })
 }
 
-fun addDependencyOnSameTasksOfIncludedBuilds(vararg taskNames: String) {
-    taskNames.forEach { taskName ->
-        tasks.named(taskName) {
-            dependsOn(includedBuildTasks(taskName))
-        }
-    }
+val publishAllPublicationsToRemoteRepositories by tasks.registering {
+    group = PUBLISH_TASK_GROUP
+    dependsOnIncludedBuildTasks("publishAllPublicationsToMavenCentralRepository")
+    dependsOnIncludedBuildTasks("publishAllPublicationsToProjectLocalRepository")
+    dependsOnIncludedBuildTasks("publishAllPublicationsToSnapshotRepository")
+    dependsOnIncludedBuildTasks("publishAllPublicationsToSpaceDevRepository")
 }
-
-fun registerParentGroupTasks(
-    groupName: String,
-    taskNames: List<String>,
-    includedBuildFilter: (IncludedBuild) -> Boolean = { true }
-) = taskNames.forEach { taskName ->
-    tasks.register(taskName) {
-        group = groupName
-        description = "A parent task that calls tasks with the same name in all subprojects and included builds"
-
-        dependsOn(subprojectTasks(taskName), includedBuildTasks(taskName, includedBuildFilter))
-    }
+val publishAllPublicationsToMavenCentralRepository by tasks.registering {
+    group = PUBLISH_TASK_GROUP
+    dependsOnIncludedBuildTasks()
 }
-
-fun subprojectTasks(taskName: String): List<String> =
-    subprojects
-        .filter { it.getTasksByName(taskName, false).isNotEmpty() }
-        .map { ":${it.path}:$taskName" }
-
-
-fun includedBuildTasks(taskName: String, filter: (IncludedBuild) -> Boolean = { true }): List<TaskReference> =
-    gradle.includedBuilds
-        .filter { it.name != "build-logic" }
-        .filter(filter)
-        .mapNotNull { it.task(":$taskName") }
+val publishAllPublicationsToProjectLocalRepository by tasks.registering {
+    group = PUBLISH_TASK_GROUP
+    dependsOnIncludedBuildTasks()
+}
+val publishAllPublicationsToSnapshotRepository by tasks.registering {
+    group = PUBLISH_TASK_GROUP
+    dependsOnIncludedBuildTasks()
+}
+val publishAllPublicationsToSpaceDevRepository by tasks.registering {
+    group = PUBLISH_TASK_GROUP
+    dependsOnIncludedBuildTasks()
+}
+val publishAllPublicationsToSpaceTestRepository by tasks.registering {
+    group = PUBLISH_TASK_GROUP
+    dependsOnIncludedBuildTasks()
+}
+val publishToMavenLocal by tasks.registering {
+    group = PUBLISH_TASK_GROUP
+    dependsOnIncludedBuildTasks()
+}
+//endregion
 
 
 tasks.wrapper {
@@ -108,28 +107,5 @@ tasks.wrapper {
                     "https\\://cache-redirector.jetbrains.com/services.gradle.org/",
                 )
         )
-    }
-}
-
-listOf(
-    "check",
-    "assemble",
-    "build",
-    "apiDump",
-    "apiCheck",
-).forEach { taskName ->
-    tasks.named(taskName) {
-        dependsOn(gradle.includedBuild("dokka-gradle-plugin").task(":$taskName"))
-    }
-}
-
-
-listOf(
-    "check",
-).forEach { taskName ->
-    tasks.named(taskName) {
-        dependsOn(gradle.includedBuild("dokka-integration-tests").task(":cli:$taskName"))
-        dependsOn(gradle.includedBuild("dokka-integration-tests").task(":gradle:$taskName"))
-        dependsOn(gradle.includedBuild("dokka-integration-tests").task(":maven:$taskName"))
     }
 }
