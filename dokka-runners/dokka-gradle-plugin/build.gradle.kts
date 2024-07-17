@@ -105,7 +105,7 @@ dependencies {
     testImplementation(libs.gradlePlugin.kotlin)
     testImplementation(libs.gradlePlugin.kotlin.klibCommonizerApi)
     testImplementation(libs.gradlePlugin.android)
-    testImplementation("org.jetbrains.dokka:dokka-test-api:$version")
+    testImplementation("org.jetbrains.dokka:dokka-test-api:$dokkaVersion")
     //endregion
 }
 
@@ -114,15 +114,15 @@ gradlePlugin {
 
     plugins.register("dokkatoo") {
         id = "dev.adamko.dokkatoo"
-        displayName = "Dokkatoo"
-        description = "Generates documentation for Kotlin projects (using Dokka)"
+        displayName = "Dokka"
+        description = "Dokka is an API documentation engine for Kotlin"
         implementationClass = "dev.adamko.dokkatoo.DokkatooPlugin"
     }
 
     plugins.register("dokka") {
         id = "org.jetbrains.dokka"
-        displayName = "Dokkatoo"
-        description = "Generates documentation for Kotlin projects (using Dokka)"
+        displayName = "Dokka"
+        description = "Dokka is an API documentation engine for Kotlin"
         implementationClass = "dev.adamko.dokkatoo.DokkatooPlugin"
     }
 
@@ -154,10 +154,10 @@ gradlePlugin {
             "android",
             "api reference",
             "documentation",
-            "javadoc",
+//            "javadoc",
             "html",
-            "markdown",
-            "gfm",
+//            "markdown",
+//            "gfm",
             "website",
         )
     }
