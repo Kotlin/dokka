@@ -5,10 +5,9 @@
 package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
-import java.io.File
-import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -18,6 +17,7 @@ import kotlin.test.assertNotNull
  *  If the test passes, it's likely there are no noticeable memory leaks.
  *  If it fails, it's likely that memory is leaking somewhere.
  */
+@Disabled("this test is too slow, and should be converted to a performance test that doesn't need Gradle TestKit")
 class SequentialTasksExecutionStressTest : AbstractGradleIntegrationTest() {
 
     @ParameterizedTest(name = "{0}")
