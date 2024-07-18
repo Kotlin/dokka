@@ -44,7 +44,7 @@ abstract class GenerateDokkatooConstants @Inject constructor(
             parentFile.mkdirs()
             writeText(
                 """
-        |package dev.adamko.dokkatoo.internal
+        |package org.jetbrains.dokka.gradle.internal
         |
         |@DokkatooInternalApi
         |object DokkatooConstants {
@@ -58,7 +58,7 @@ abstract class GenerateDokkatooConstants @Inject constructor(
         // sync file to output dir
         fs.sync {
             from(temporaryDir) {
-                into("dev/adamko/dokkatoo/internal/")
+                into("org/jetbrains/dokka/gradle/internal/")
             }
             into(destinationDir)
         }

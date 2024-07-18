@@ -1,7 +1,7 @@
-package dev.adamko.dokkatoo.tasks
+package org.jetbrains.dokka.gradle.tasks
 
-import dev.adamko.dokkatoo.DokkatooBasePlugin
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.DokkatooBasePlugin
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.model.ObjectFactory

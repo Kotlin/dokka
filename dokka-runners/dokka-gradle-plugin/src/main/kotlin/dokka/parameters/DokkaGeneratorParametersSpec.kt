@@ -1,9 +1,9 @@
-package dev.adamko.dokkatoo.dokka.parameters
+package org.jetbrains.dokka.gradle.dokka.parameters
 
-import dev.adamko.dokkatoo.internal.DokkaPluginParametersContainer
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
-import dev.adamko.dokkatoo.internal.adding
-import dev.adamko.dokkatoo.internal.domainObjectContainer
+import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.adding
+import org.jetbrains.dokka.gradle.internal.domainObjectContainer
 import javax.inject.Inject
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.file.ConfigurableFileCollection
@@ -24,7 +24,7 @@ constructor(
   objects: ObjectFactory,
   /**
    * Configurations for Dokka Generator Plugins. Must be provided from
-   * [dev.adamko.dokkatoo.dokka.DokkaPublication.pluginsConfiguration].
+   * [org.jetbrains.dokka.gradle.dokka.DokkaPublication.pluginsConfiguration].
    */
   @get:Nested
   val pluginsConfiguration: DokkaPluginParametersContainer,
@@ -66,7 +66,7 @@ constructor(
   /**
    * Classpath that contains the Dokka Generator Plugins used to modify this publication.
    *
-   * The plugins should be configured in [dev.adamko.dokkatoo.dokka.DokkaPublication.pluginsConfiguration].
+   * The plugins should be configured in [org.jetbrains.dokka.gradle.dokka.DokkaPublication.pluginsConfiguration].
    */
   @get:InputFiles
   @get:Classpath

@@ -1,4 +1,4 @@
-package dev.adamko.dokkatoo.utils
+package org.jetbrains.dokka.gradle.utils
 
 import kotlin.properties.ReadOnlyProperty
 

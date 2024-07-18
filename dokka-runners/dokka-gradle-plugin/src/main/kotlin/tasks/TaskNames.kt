@@ -1,7 +1,7 @@
-package dev.adamko.dokkatoo.tasks
+package org.jetbrains.dokka.gradle.tasks
 
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
-import dev.adamko.dokkatoo.internal.HasFormatName
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.HasFormatName
 
 @DokkatooInternalApi
 class TaskNames(override val formatName: String) : HasFormatName() {

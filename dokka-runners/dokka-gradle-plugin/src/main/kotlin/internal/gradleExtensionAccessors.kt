@@ -1,6 +1,6 @@
-package dev.adamko.dokkatoo.internal
+package org.jetbrains.dokka.gradle.internal
 
-import dev.adamko.dokkatoo.DokkatooExtension
+import org.jetbrains.dokka.gradle.DokkatooExtension
 
 // When Dokkatoo is applied to a build script Gradle will auto-generate these accessors
 

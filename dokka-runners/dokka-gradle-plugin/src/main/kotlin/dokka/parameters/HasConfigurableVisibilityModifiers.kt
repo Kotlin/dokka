@@ -1,4 +1,4 @@
-package dev.adamko.dokkatoo.dokka.parameters
+package org.jetbrains.dokka.gradle.dokka.parameters
 
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input

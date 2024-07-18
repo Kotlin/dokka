@@ -1,4 +1,4 @@
-package dev.adamko.dokkatoo.internal
+package org.jetbrains.dokka.gradle.internal
 
 import org.gradle.api.logging.Logger
 

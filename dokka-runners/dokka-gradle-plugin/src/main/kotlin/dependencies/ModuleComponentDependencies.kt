@@ -1,8 +1,8 @@
-package dev.adamko.dokkatoo.dependencies
+package org.jetbrains.dokka.gradle.dependencies
 
-import dev.adamko.dokkatoo.dependencies.DokkatooAttribute.Companion.DokkatooFormatAttribute
-import dev.adamko.dokkatoo.dependencies.DokkatooAttribute.Companion.DokkatooModuleComponentAttribute
-import dev.adamko.dokkatoo.internal.*
+import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooFormatAttribute
+import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooModuleComponentAttribute
+import org.jetbrains.dokka.gradle.internal.*
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration

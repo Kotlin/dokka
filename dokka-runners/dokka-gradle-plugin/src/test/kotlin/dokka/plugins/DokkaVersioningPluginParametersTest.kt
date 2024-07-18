@@ -1,7 +1,7 @@
-package dev.adamko.dokkatoo.dokka.plugins
+package org.jetbrains.dokka.gradle.dokka.plugins
 
-import dev.adamko.dokkatoo.DokkatooExtension
-import dev.adamko.dokkatoo.DokkatooPlugin
+import org.jetbrains.dokka.gradle.DokkatooExtension
+import org.jetbrains.dokka.gradle.DokkatooPlugin
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestScope

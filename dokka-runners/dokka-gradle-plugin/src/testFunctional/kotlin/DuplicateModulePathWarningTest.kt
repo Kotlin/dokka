@@ -1,7 +1,7 @@
-package dev.adamko.dokkatoo
+package org.jetbrains.dokka.gradle
 
-import dev.adamko.dokkatoo.utils.*
-import dev.adamko.dokkatoo.utils.projects.initMultiModuleProject
+import org.jetbrains.dokka.gradle.utils.*
+import org.jetbrains.dokka.gradle.utils.projects.initMultiModuleProject
 import io.kotest.core.spec.style.FunSpec
 
 class DuplicateModulePathWarningTest : FunSpec({

@@ -1,15 +1,15 @@
-package dev.adamko.dokkatoo.formats
+package org.jetbrains.dokka.gradle.formats
 
-import dev.adamko.dokkatoo.DokkatooBasePlugin
-import dev.adamko.dokkatoo.DokkatooExtension
-import dev.adamko.dokkatoo.adapters.DokkatooAndroidAdapter
-import dev.adamko.dokkatoo.adapters.DokkatooJavaAdapter
-import dev.adamko.dokkatoo.adapters.DokkatooKotlinAdapter
-import dev.adamko.dokkatoo.dependencies.DependencyContainerNames
-import dev.adamko.dokkatoo.dependencies.DokkatooAttribute.Companion.DokkatooClasspathAttribute
-import dev.adamko.dokkatoo.dependencies.DokkatooAttribute.Companion.DokkatooFormatAttribute
-import dev.adamko.dokkatoo.dependencies.FormatDependenciesManager
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.DokkatooBasePlugin
+import org.jetbrains.dokka.gradle.DokkatooExtension
+import org.jetbrains.dokka.gradle.adapters.DokkatooAndroidAdapter
+import org.jetbrains.dokka.gradle.adapters.DokkatooJavaAdapter
+import org.jetbrains.dokka.gradle.adapters.DokkatooKotlinAdapter
+import org.jetbrains.dokka.gradle.dependencies.DependencyContainerNames
+import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooClasspathAttribute
+import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooFormatAttribute
+import org.jetbrains.dokka.gradle.dependencies.FormatDependenciesManager
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import javax.inject.Inject
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectProvider

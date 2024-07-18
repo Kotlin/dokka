@@ -1,10 +1,11 @@
 @file:Suppress("FunctionName")
 
-package dev.adamko.dokkatoo.utils
+package org.jetbrains.dokka.gradle.utils
 
-import dev.adamko.dokkatoo.dokka.parameters.DokkaPackageOptionsSpec
-import dev.adamko.dokkatoo.dokka.parameters.DokkaSourceLinkSpec
-import dev.adamko.dokkatoo.dokka.parameters.DokkaSourceSetSpec
+import org.gradle.api.Action
+import org.jetbrains.dokka.gradle.dokka.parameters.DokkaPackageOptionsSpec
+import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceLinkSpec
+import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.NamedDomainObjectProvider
@@ -70,7 +71,12 @@ fun <T> NamedDomainObjectContainer<T>.register_(
 
 fun DokkaSourceSetSpec.sourceLink_(
   action: DokkaSourceLinkSpec.() -> Unit
-): Unit = sourceLink(action)
+): Unit = sourceLink(
+  object : Action<DokkaSourceLinkSpec> {
+  override fun execute(t: DokkaSourceLinkSpec) {
+    t.action()
+  }
+})
 
 fun DokkaSourceSetSpec.perPackageOption_(
   action: DokkaPackageOptionsSpec.() -> Unit

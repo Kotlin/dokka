@@ -1,4 +1,4 @@
-package dev.adamko.dokkatoo.utils
+package org.jetbrains.dokka.gradle.utils
 
 /** Replace all newlines with `\n`, so the String can be used in assertions cross-platform */
 fun String.invariantNewlines(): String =

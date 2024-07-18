@@ -1,12 +1,12 @@
-package dev.adamko.dokkatoo.dokka.parameters.builders
+package org.jetbrains.dokka.gradle.dokka.parameters.builders
 
 
-import dev.adamko.dokkatoo.dokka.parameters.*
-import dev.adamko.dokkatoo.dokka.parameters.KotlinPlatform.Companion.dokkaType
-import dev.adamko.dokkatoo.dokka.parameters.VisibilityModifier.Companion.dokkaType
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
-import dev.adamko.dokkatoo.internal.mapNotNullToSet
-import dev.adamko.dokkatoo.internal.mapToSet
+import org.jetbrains.dokka.gradle.dokka.parameters.*
+import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform.Companion.dokkaType
+import org.jetbrains.dokka.gradle.dokka.parameters.VisibilityModifier.Companion.dokkaType
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.mapNotNullToSet
+import org.jetbrains.dokka.gradle.internal.mapToSet
 import org.gradle.api.logging.Logging
 import org.jetbrains.dokka.*
 

@@ -1,7 +1,7 @@
-package dev.adamko.dokkatoo.dokka.plugins
+package org.jetbrains.dokka.gradle.dokka.plugins
 
-import dev.adamko.dokkatoo.internal.DokkaPluginParametersContainer
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import java.io.File
 import javax.inject.Inject
 import kotlinx.serialization.json.*

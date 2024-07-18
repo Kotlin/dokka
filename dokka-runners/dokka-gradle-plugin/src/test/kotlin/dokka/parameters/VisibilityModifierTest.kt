@@ -1,6 +1,6 @@
-package dev.adamko.dokkatoo.dokka.parameters
+package org.jetbrains.dokka.gradle.dokka.parameters
 
-import dev.adamko.dokkatoo.dokka.parameters.VisibilityModifier.Companion.dokkaType
+import org.jetbrains.dokka.gradle.dokka.parameters.VisibilityModifier.Companion.dokkaType
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.inspectors.shouldForAll
 import io.kotest.inspectors.shouldForOne

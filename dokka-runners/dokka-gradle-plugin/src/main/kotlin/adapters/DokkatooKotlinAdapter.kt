@@ -1,16 +1,16 @@
-package dev.adamko.dokkatoo.adapters
+package org.jetbrains.dokka.gradle.adapters
 
-import dev.adamko.dokkatoo.DokkatooBasePlugin
-import dev.adamko.dokkatoo.DokkatooExtension
-import dev.adamko.dokkatoo.adapters.DokkatooKotlinAdapter.Companion.currentKotlinToolingVersion
-import dev.adamko.dokkatoo.dokka.parameters.DokkaSourceSetIdSpec
-import dev.adamko.dokkatoo.dokka.parameters.DokkaSourceSetIdSpec.Companion.dokkaSourceSetIdSpec
-import dev.adamko.dokkatoo.dokka.parameters.DokkaSourceSetSpec
-import dev.adamko.dokkatoo.dokka.parameters.KotlinPlatform
-import dev.adamko.dokkatoo.internal.*
-import dev.adamko.dokkatoo.internal.PluginId
-import dev.adamko.dokkatoo.internal.artifactType
-import dev.adamko.dokkatoo.internal.warn
+import org.jetbrains.dokka.gradle.DokkatooBasePlugin
+import org.jetbrains.dokka.gradle.DokkatooExtension
+import org.jetbrains.dokka.gradle.adapters.DokkatooKotlinAdapter.Companion.currentKotlinToolingVersion
+import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetIdSpec
+import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetIdSpec.Companion.dokkaSourceSetIdSpec
+import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform
+import org.jetbrains.dokka.gradle.internal.*
+import org.jetbrains.dokka.gradle.internal.PluginId
+import org.jetbrains.dokka.gradle.internal.artifactType
+import org.jetbrains.dokka.gradle.internal.warn
 import java.io.File
 import javax.inject.Inject
 import kotlin.reflect.jvm.jvmName
@@ -47,7 +47,7 @@ import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
 /**
  * The [DokkatooKotlinAdapter] plugin will automatically register Kotlin source sets as Dokka source sets.
  *
- * This is not a standalone plugin, it requires [dev.adamko.dokkatoo.DokkatooBasePlugin] is also applied.
+ * This is not a standalone plugin, it requires [org.jetbrains.dokka.gradle.DokkatooBasePlugin] is also applied.
  */
 @DokkatooInternalApi
 abstract class DokkatooKotlinAdapter @Inject constructor(

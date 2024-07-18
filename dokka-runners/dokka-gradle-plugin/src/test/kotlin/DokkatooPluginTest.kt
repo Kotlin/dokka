@@ -1,6 +1,6 @@
-package dev.adamko.dokkatoo
+package org.jetbrains.dokka.gradle
 
-import dev.adamko.dokkatoo.utils.create_
+import org.jetbrains.dokka.gradle.utils.create_
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
@@ -13,8 +13,8 @@ class DokkatooPluginTest : FunSpec({
   test("expect plugin id can be applied to project successfully") {
     val project = ProjectBuilder.builder().build()
     project.extraProperties.set("enableDokkatoo", true)
-    project.plugins.apply("dev.adamko.dokkatoo")
-    project.plugins.hasPlugin("dev.adamko.dokkatoo") shouldBe true
+    project.plugins.apply("org.jetbrains.dokka")
+    project.plugins.hasPlugin("org.jetbrains.dokka") shouldBe true
     project.plugins.hasPlugin(DokkatooPlugin::class) shouldBe true
   }
 
@@ -22,14 +22,14 @@ class DokkatooPluginTest : FunSpec({
     val project = ProjectBuilder.builder().build()
     project.extraProperties.set("enableDokkatoo", true)
     project.plugins.apply(type = DokkatooPlugin::class)
-    project.plugins.hasPlugin("dev.adamko.dokkatoo") shouldBe true
+    project.plugins.hasPlugin("org.jetbrains.dokka") shouldBe true
     project.plugins.hasPlugin(DokkatooPlugin::class) shouldBe true
   }
 
   context("Dokkatoo property conventions") {
     val project = ProjectBuilder.builder().build()
     project.extraProperties.set("enableDokkatoo", true)
-    project.plugins.apply("dev.adamko.dokkatoo")
+    project.plugins.apply("org.jetbrains.dokka")
 
     val extension = project.extensions.getByType<DokkatooExtension>()
 

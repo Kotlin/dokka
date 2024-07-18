@@ -1,6 +1,6 @@
-package dev.adamko.dokkatoo.utils
+package org.jetbrains.dokka.gradle.utils
 
-import dev.adamko.dokkatoo.utils.GradleProjectTest.Companion.dokkaVersionOverride
+import org.jetbrains.dokka.gradle.utils.GradleProjectTest.Companion.dokkaVersionOverride
 import org.gradle.testkit.runner.GradleRunner
 import org.intellij.lang.annotations.Language
 import java.io.File
@@ -29,7 +29,7 @@ class GradleProjectTest(
     /** Args that will be added to every [runner] */
     val defaultRunnerArgs: MutableList<String> = mutableListOf(
         // disable the logging task so the tests work consistently on local machines and CI/CD
-        "-P" + "dev.adamko.dokkatoo.tasks.logHtmlPublicationLinkEnabled=false"
+        "-P" + "org.jetbrains.dokka.gradle.tasks.logHtmlPublicationLinkEnabled=false"
     )
 
     val runner: GradleRunner
@@ -240,11 +240,11 @@ interface ProjectDirectoryScope {
         |  )
         |  filter {
         |    includeGroup("org.jetbrains.dokka")
-        |    includeGroup("dev.adamko.dokkatoo")
-        |    includeGroup("dev.adamko.dokkatoo-html")
-        |    includeGroup("dev.adamko.dokkatoo-javadoc")
-        |    includeGroup("dev.adamko.dokkatoo-jekyll")
-        |    includeGroup("dev.adamko.dokkatoo-gfm")
+        |    includeGroup("org.jetbrains.dokka")
+        |    includeGroup("org.jetbrains.dokka")
+        |    includeGroup("org.jetbrains.dokka.gradle-javadoc")
+        |    includeGroup("org.jetbrains.dokka.gradle-jekyll")
+        |    includeGroup("org.jetbrains.dokka.gradle-gfm")
         |  }
         |}
     """.trimMargin()

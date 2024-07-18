@@ -1,7 +1,7 @@
-package dev.adamko.dokkatoo.workers
+package org.jetbrains.dokka.gradle.workers
 
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
-import dev.adamko.dokkatoo.internal.LoggerAdapter
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.LoggerAdapter
 import java.io.File
 import java.time.Duration
 import org.gradle.api.file.RegularFileProperty

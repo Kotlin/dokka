@@ -1,10 +1,8 @@
-package dev.adamko.dokkatoo.utils
+package org.jetbrains.dokka.gradle.utils
 
 import io.kotest.core.config.AbstractProjectConfig
 
-@Suppress("unused") // this class is automatically picked up by Kotest
-object KotestProjectConfig : AbstractProjectConfig() {
-  init {
-    displayFullTestPath = true
-  }
+@Suppress("unused") // this class is picked up by Kotest
+class KotestProjectConfig : AbstractProjectConfig() {
+    override var displayFullTestPath: Boolean? = true
 }

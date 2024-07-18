@@ -1,4 +1,4 @@
-package dev.adamko.dokkatoo.utils
+package org.jetbrains.dokka.gradle.utils
 
 import io.kotest.matchers.collections.shouldBeSameSizeAs
 import io.kotest.matchers.file.shouldBeADirectory

@@ -1,6 +1,6 @@
-package dev.adamko.dokkatoo.internal
+package org.jetbrains.dokka.gradle.internal
 
-import dev.adamko.dokkatoo.dokka.plugins.DokkaPluginParametersBaseSpec
+import org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec
 import org.gradle.api.*
 import org.gradle.api.artifacts.ArtifactView
 import org.gradle.api.artifacts.Configuration
@@ -243,7 +243,7 @@ internal fun ObjectFactory.dokkaPluginParametersContainer(): DokkaPluginParamete
  */
 @Deprecated(
   "Typed attributes are broken - use String attributes instead. https://github.com/adamko-dev/dokkatoo/issues/214",
-  ReplaceWith("dev.adamko.dokkatoo.internal.Attribute(name)"),
+  ReplaceWith("org.jetbrains.dokka.gradle.internal.Attribute(name)"),
 )
 @JvmName("TypedAttribute")
 internal inline fun <reified T> Attribute(

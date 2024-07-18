@@ -1,6 +1,6 @@
-package dev.adamko.dokkatoo.tasks
+package org.jetbrains.dokka.gradle.tasks
 
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import javax.inject.Inject
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
@@ -19,7 +19,7 @@ import org.gradle.api.tasks.UntrackedTask
  * Generation of the Module Descriptor JSON was moved into [DokkatooGenerateModuleTask].
  * This task now does nothing and should not be used.
  *
- * @see dev.adamko.dokkatoo.tasks.DokkatooGenerateModuleTask
+ * @see org.jetbrains.dokka.gradle.tasks.DokkatooGenerateModuleTask
  */
 @Deprecated(
   "The module-descriptor.json that this task produced was not compatible with relocatable build-cache. " +

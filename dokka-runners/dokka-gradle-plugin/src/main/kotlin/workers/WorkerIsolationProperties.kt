@@ -1,4 +1,4 @@
-package dev.adamko.dokkatoo.workers
+package org.jetbrains.dokka.gradle.workers
 
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty

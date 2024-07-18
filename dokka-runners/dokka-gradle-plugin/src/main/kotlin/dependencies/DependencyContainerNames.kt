@@ -1,10 +1,10 @@
-package dev.adamko.dokkatoo.dependencies
+package org.jetbrains.dokka.gradle.dependencies
 
-import dev.adamko.dokkatoo.DokkatooBasePlugin
-import dev.adamko.dokkatoo.DokkatooBasePlugin.Companion.DOKKATOO_CONFIGURATION_NAME
-import dev.adamko.dokkatoo.DokkatooBasePlugin.Companion.DOKKA_GENERATOR_PLUGINS_CONFIGURATION_NAME
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
-import dev.adamko.dokkatoo.internal.HasFormatName
+import org.jetbrains.dokka.gradle.DokkatooBasePlugin
+import org.jetbrains.dokka.gradle.DokkatooBasePlugin.Companion.DOKKATOO_CONFIGURATION_NAME
+import org.jetbrains.dokka.gradle.DokkatooBasePlugin.Companion.DOKKA_GENERATOR_PLUGINS_CONFIGURATION_NAME
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.HasFormatName
 import org.gradle.api.artifacts.Configuration
 
 /**

@@ -1,12 +1,12 @@
-package dev.adamko.dokkatoo.adapters
+package org.jetbrains.dokka.gradle.adapters
 
-import dev.adamko.dokkatoo.DokkatooExtension
-import dev.adamko.dokkatoo.dokka.parameters.DokkaSourceSetSpec
-import dev.adamko.dokkatoo.dokka.parameters.KotlinPlatform
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
-import dev.adamko.dokkatoo.internal.PluginId
-import dev.adamko.dokkatoo.internal.or
-import dev.adamko.dokkatoo.internal.uppercaseFirstChar
+import org.jetbrains.dokka.gradle.DokkatooExtension
+import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.PluginId
+import org.jetbrains.dokka.gradle.internal.or
+import org.jetbrains.dokka.gradle.internal.uppercaseFirstChar
 import javax.inject.Inject
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
@@ -26,7 +26,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 /**
  * Apply Java specific configuration to the Dokkatoo plugin.
  *
- * **Must be applied *after* [dev.adamko.dokkatoo.DokkatooBasePlugin]**
+ * **Must be applied *after* [org.jetbrains.dokka.gradle.DokkatooBasePlugin]**
  */
 @DokkatooInternalApi
 abstract class DokkatooJavaAdapter @Inject constructor(

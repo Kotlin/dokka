@@ -1,12 +1,12 @@
-package dev.adamko.dokkatoo.dokka.parameters.builders
+package org.jetbrains.dokka.gradle.dokka.parameters.builders
 
-import dev.adamko.dokkatoo.DokkatooExtension
-import dev.adamko.dokkatoo.DokkatooPlugin
-import dev.adamko.dokkatoo.dokka.parameters.DokkaSourceSetSpec
-import dev.adamko.dokkatoo.utils.all_
-import dev.adamko.dokkatoo.utils.create_
-import dev.adamko.dokkatoo.utils.shouldContainAll
-import dev.adamko.dokkatoo.utils.sourceLink_
+import org.jetbrains.dokka.gradle.DokkatooExtension
+import org.jetbrains.dokka.gradle.DokkatooPlugin
+import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.utils.all_
+import org.jetbrains.dokka.gradle.utils.create_
+import org.jetbrains.dokka.gradle.utils.shouldContainAll
+//import org.jetbrains.dokka.gradle.utils.sourceLink_
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
@@ -85,7 +85,7 @@ class DokkaSourceSetBuilderTest : FunSpec({
       val tempDir = tempdir()
 
       val sourceSetSpec = project.createDokkaSourceSetSpec("testAllProperties") {
-        sourceLink_ {
+        sourceLink {
           localDirectory.set(tempDir)
           remoteUrl("https://github.com/adamko-dev/dokkatoo/")
           remoteLineSuffix.set("%L")
@@ -103,7 +103,7 @@ class DokkaSourceSetBuilderTest : FunSpec({
 
     test("expect localDirectory is required") {
       val sourceSetSpec = project.createDokkaSourceSetSpec("testLocalDirRequired") {
-        sourceLink_ {
+        sourceLink {
           remoteUrl("https://github.com/adamko-dev/dokkatoo/")
           remoteLineSuffix.set("%L")
         }
@@ -129,7 +129,7 @@ class DokkaSourceSetBuilderTest : FunSpec({
       val tempDir = tempdir()
 
       val sourceSetSpec = project.createDokkaSourceSetSpec("testLocalDirPath") {
-        sourceLink_ {
+        sourceLink {
           localDirectory.set(tempDir)
           remoteUrl("https://github.com/adamko-dev/dokkatoo/")
           remoteLineSuffix.set(null as String?)
@@ -146,7 +146,7 @@ class DokkaSourceSetBuilderTest : FunSpec({
 
     test("expect remoteUrl is required") {
       val sourceSetSpec = project.createDokkaSourceSetSpec("testRemoteUrlRequired") {
-        sourceLink_ {
+        sourceLink {
           localDirectory.set(tempdir())
           remoteUrl.set(project.providers.provider { null })
           remoteLineSuffix.set("%L")
@@ -164,7 +164,7 @@ class DokkaSourceSetBuilderTest : FunSpec({
       val tempDir = tempdir()
 
       val sourceSetSpec = project.createDokkaSourceSetSpec("testRemoteLineSuffixOptional") {
-        sourceLink_ {
+        sourceLink {
           localDirectory.set(tempDir)
           remoteUrl("https://github.com/adamko-dev/dokkatoo/")
           remoteLineSuffix.set(project.providers.provider { null })

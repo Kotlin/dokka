@@ -1,8 +1,8 @@
-package dev.adamko.dokkatoo.tasks
+package org.jetbrains.dokka.gradle.tasks
 
-import dev.adamko.dokkatoo.internal.DokkatooConstants
-import dev.adamko.dokkatoo.tasks.LogHtmlPublicationLinkTask.Companion.ENABLE_TASK_PROPERTY_NAME
-import dev.adamko.dokkatoo.utils.*
+import org.jetbrains.dokka.gradle.internal.DokkatooConstants
+import org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask.Companion.ENABLE_TASK_PROPERTY_NAME
+import org.jetbrains.dokka.gradle.utils.*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
@@ -101,13 +101,13 @@ private fun initDokkatooProject(
     buildGradleKts = """
       |plugins {
       |  kotlin("jvm") version "1.8.22"
-      |  id("dev.adamko.dokkatoo") version "${DokkatooConstants.DOKKATOO_VERSION}"
+      |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
       |}
       |
       |dependencies {
       |}
       |
-      |tasks.withType<dev.adamko.dokkatoo.tasks.LogHtmlPublicationLinkTask>().configureEach {
+      |tasks.withType<org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask>().configureEach {
       |  serverUri.set(providers.gradleProperty("testServerUri"))
       |}
     """.trimMargin()

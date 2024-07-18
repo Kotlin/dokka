@@ -1,8 +1,8 @@
-package dev.adamko.dokkatoo.dokka.parameters
+package org.jetbrains.dokka.gradle.dokka.parameters
 
-import dev.adamko.dokkatoo.DokkatooExtension
-import dev.adamko.dokkatoo.DokkatooPlugin
-import dev.adamko.dokkatoo.utils.create_
+import org.jetbrains.dokka.gradle.DokkatooExtension
+import org.jetbrains.dokka.gradle.DokkatooPlugin
+import org.jetbrains.dokka.gradle.utils.create_
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.datatest.WithDataTestName
 import io.kotest.datatest.withData
@@ -97,7 +97,7 @@ private fun createExternalDocLinkSpec(
 ): DokkaExternalDocumentationLinkSpec {
   val dssContainer = project.extensions.getByType<DokkatooExtension>().dokkatooSourceSets
 
-  return dssContainer.create_("test" + dssContainer.size)
+  return dssContainer.create("test" + dssContainer.size)
     .externalDocumentationLinks
     .create("testLink", configure)
 }

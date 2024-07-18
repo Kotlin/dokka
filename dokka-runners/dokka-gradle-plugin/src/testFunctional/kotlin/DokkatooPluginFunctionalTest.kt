@@ -1,7 +1,7 @@
-package dev.adamko.dokkatoo
+package org.jetbrains.dokka.gradle
 
-import dev.adamko.dokkatoo.internal.DokkatooConstants.DOKKATOO_VERSION
-import dev.adamko.dokkatoo.utils.*
+import org.jetbrains.dokka.gradle.internal.DokkatooConstants.DOKKATOO_VERSION
+import org.jetbrains.dokka.gradle.utils.*
 import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
@@ -13,7 +13,7 @@ class DokkatooPluginFunctionalTest : FunSpec({
 
     buildGradleKts = """
       |plugins {
-      |  id("dev.adamko.dokkatoo") version "$DOKKATOO_VERSION"
+      |  id("org.jetbrains.dokka") version "$DOKKATOO_VERSION"
       |}
       |
     """.trimMargin()
@@ -83,9 +83,9 @@ class DokkatooPluginFunctionalTest : FunSpec({
             |Capabilities
             |    - :test:unspecified (default capability)
             |Attributes
-            |    - dev.adamko.dokkatoo.format           = $format
-            |    - dev.adamko.dokkatoo.module-component = ModuleOutputDirectories
-            |    - org.gradle.usage                     = dev.adamko.dokkatoo
+            |    - org.gradle.usage                     = org.jetbrains.dokka
+            |    - org.jetbrains.dokka.format           = $format
+            |    - org.jetbrains.dokka.module-component = ModuleOutputDirectories
             |Artifacts
             |    - build/dokka-module/$format (artifactType = dokka-module-directory)
           """.trimMargin()
@@ -132,13 +132,13 @@ class DokkatooPluginFunctionalTest : FunSpec({
               |Dokka Generator runtime classpath for $format - will be used in Dokka Worker. Should contain all transitive dependencies, plugins (and their transitive dependencies), so Dokka Worker can run.
               |
               |Attributes
-              |    - dev.adamko.dokkatoo.classpath  = dokka-generator
-              |    - dev.adamko.dokkatoo.format     = $format
               |    - org.gradle.category            = Dokkatoo~library
               |    - org.gradle.dependency.bundling = Dokkatoo~external
               |    - org.gradle.jvm.environment     = Dokkatoo~standard-jvm
               |    - org.gradle.libraryelements     = Dokkatoo~jar
               |    - org.gradle.usage               = Dokkatoo~java-runtime
+              |    - org.jetbrains.dokka.classpath  = dokka-generator
+              |    - org.jetbrains.dokka.format     = $format
               |Extended Configurations
               |    - dokkatoo${Format}GeneratorClasspath
            """.trimMargin()
@@ -150,13 +150,13 @@ class DokkatooPluginFunctionalTest : FunSpec({
               |Resolves Dokka Plugins classpath for $format - for internal use. Fetch only the plugins (no transitive dependencies) for use in the Dokka JSON Configuration.
               |
               |Attributes
-              |    - dev.adamko.dokkatoo.classpath  = dokka-plugins
-              |    - dev.adamko.dokkatoo.format     = $format
               |    - org.gradle.category            = Dokkatoo~library
               |    - org.gradle.dependency.bundling = Dokkatoo~external
               |    - org.gradle.jvm.environment     = Dokkatoo~standard-jvm
               |    - org.gradle.libraryelements     = Dokkatoo~jar
               |    - org.gradle.usage               = Dokkatoo~java-runtime
+              |    - org.jetbrains.dokka.classpath  = dokka-plugins
+              |    - org.jetbrains.dokka.format     = $format
               |Extended Configurations
               |    - dokkatooPlugin${Format}
            """.trimMargin()
@@ -168,9 +168,9 @@ class DokkatooPluginFunctionalTest : FunSpec({
               |Resolves Dokkatoo $format ModuleOutputDirectories files.
               |
               |Attributes
-              |    - dev.adamko.dokkatoo.format           = $format
-              |    - dev.adamko.dokkatoo.module-component = ModuleOutputDirectories
-              |    - org.gradle.usage                     = dev.adamko.dokkatoo
+              |    - org.gradle.usage                     = org.jetbrains.dokka
+              |    - org.jetbrains.dokka.format           = $format
+              |    - org.jetbrains.dokka.module-component = ModuleOutputDirectories
               |Extended Configurations
               |    - dokkatoo
             """.trimMargin()

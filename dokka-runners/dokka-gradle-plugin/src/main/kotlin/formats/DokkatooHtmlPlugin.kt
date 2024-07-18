@@ -1,13 +1,13 @@
-package dev.adamko.dokkatoo.formats
+package org.jetbrains.dokka.gradle.formats
 
-import dev.adamko.dokkatoo.dokka.plugins.DokkaHtmlPluginParameters
-import dev.adamko.dokkatoo.dokka.plugins.DokkaHtmlPluginParameters.Companion.DOKKA_HTML_PARAMETERS_NAME
-import dev.adamko.dokkatoo.dokka.plugins.DokkaVersioningPluginParameters
-import dev.adamko.dokkatoo.dokka.plugins.DokkaVersioningPluginParameters.Companion.DOKKA_VERSIONING_PLUGIN_PARAMETERS_NAME
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
-import dev.adamko.dokkatoo.internal.uppercaseFirstChar
-import dev.adamko.dokkatoo.tasks.DokkatooGeneratePublicationTask
-import dev.adamko.dokkatoo.tasks.LogHtmlPublicationLinkTask
+import org.jetbrains.dokka.gradle.dokka.plugins.DokkaHtmlPluginParameters
+import org.jetbrains.dokka.gradle.dokka.plugins.DokkaHtmlPluginParameters.Companion.DOKKA_HTML_PARAMETERS_NAME
+import org.jetbrains.dokka.gradle.dokka.plugins.DokkaVersioningPluginParameters
+import org.jetbrains.dokka.gradle.dokka.plugins.DokkaVersioningPluginParameters.Companion.DOKKA_VERSIONING_PLUGIN_PARAMETERS_NAME
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.uppercaseFirstChar
+import org.jetbrains.dokka.gradle.tasks.DokkatooGeneratePublicationTask
+import org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask
 import java.io.File
 import javax.inject.Inject
 import org.gradle.api.Action
@@ -186,7 +186,7 @@ constructor(
       "org.jetbrains.dokka.allModulesPage.AllModulesPagePlugin"
 
     private const val HTML_MODULE_AGGREGATION_CHECK_ENABLED =
-      "dev.adamko.dokkatoo.tasks.html.moduleAggregationCheckEnabled"
+      "org.jetbrains.dokka.gradle.tasks.html.moduleAggregationCheckEnabled"
 
     private const val DOKKA_PLUGIN_MARKER_PATH =
       "/META-INF/services/org.jetbrains.dokka.plugability.DokkaPlugin"

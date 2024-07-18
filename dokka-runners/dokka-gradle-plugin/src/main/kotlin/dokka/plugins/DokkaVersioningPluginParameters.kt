@@ -1,8 +1,8 @@
-package dev.adamko.dokkatoo.dokka.plugins
+package org.jetbrains.dokka.gradle.dokka.plugins
 
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
-import dev.adamko.dokkatoo.internal.addAll
-import dev.adamko.dokkatoo.internal.putIfNotNull
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.addAll
+import org.jetbrains.dokka.gradle.internal.putIfNotNull
 import javax.inject.Inject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.putJsonArray

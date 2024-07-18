@@ -1,6 +1,6 @@
-package dev.adamko.dokkatoo.dokka.plugins
+package org.jetbrains.dokka.gradle.dokka.plugins
 
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import java.io.Serializable
 import javax.inject.Inject
 import org.gradle.api.Named

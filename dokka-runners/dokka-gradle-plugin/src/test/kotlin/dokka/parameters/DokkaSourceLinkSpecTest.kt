@@ -1,4 +1,4 @@
-package dev.adamko.dokkatoo.dokka.parameters
+package org.jetbrains.dokka.gradle.dokka.parameters
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

@@ -1,11 +1,11 @@
-package dev.adamko.dokkatoo.dependencies
+package org.jetbrains.dokka.gradle.dependencies
 
-import dev.adamko.dokkatoo.dependencies.DokkatooAttribute.Companion.DokkatooClasspathAttribute
-import dev.adamko.dokkatoo.dependencies.DokkatooAttribute.Companion.DokkatooFormatAttribute
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
-import dev.adamko.dokkatoo.internal.consumable
-import dev.adamko.dokkatoo.internal.declarable
-import dev.adamko.dokkatoo.internal.resolvable
+import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooClasspathAttribute
+import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooFormatAttribute
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.consumable
+import org.jetbrains.dokka.gradle.internal.declarable
+import org.jetbrains.dokka.gradle.internal.resolvable
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -152,8 +152,8 @@ class FormatDependenciesManager(
      *
      * Extends [dokkaPluginsClasspath].
      *
-     * @see dev.adamko.dokkatoo.workers.DokkaGeneratorWorker
-     * @see dev.adamko.dokkatoo.tasks.DokkatooGenerateTask
+     * @see org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
+     * @see org.jetbrains.dokka.gradle.tasks.DokkatooGenerateTask
      */
     private val dokkaGeneratorClasspath: NamedDomainObjectProvider<Configuration> =
         project.configurations.register(configurationNames.generatorClasspath) {
@@ -172,8 +172,8 @@ class FormatDependenciesManager(
      *
      * Extends [dokkaPluginsClasspath].
      *
-     * @see dev.adamko.dokkatoo.workers.DokkaGeneratorWorker
-     * @see dev.adamko.dokkatoo.tasks.DokkatooGenerateTask
+     * @see org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
+     * @see org.jetbrains.dokka.gradle.tasks.DokkatooGenerateTask
      */
     val dokkaGeneratorClasspathResolver: NamedDomainObjectProvider<Configuration> =
         project.configurations.register(configurationNames.generatorClasspathResolver) {
@@ -201,7 +201,7 @@ class FormatDependenciesManager(
      * - module output directory
      * - module includes directory
      *
-     * @see dev.adamko.dokkatoo.dokka.parameters.DokkaModuleDescriptionKxs
+     * @see org.jetbrains.dokka.gradle.dokka.parameters.DokkaModuleDescriptionKxs
      * @see org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription.sourceOutputDirectory
      */
     val moduleOutputDirectories: ModuleComponentDependencies =

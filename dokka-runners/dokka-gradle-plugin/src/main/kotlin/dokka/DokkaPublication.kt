@@ -1,8 +1,8 @@
-package dev.adamko.dokkatoo.dokka
+package org.jetbrains.dokka.gradle.dokka
 
-import dev.adamko.dokkatoo.internal.DokkaPluginParametersContainer
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
-import dev.adamko.dokkatoo.internal.adding
+import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.adding
 import java.io.Serializable
 import javax.inject.Inject
 import org.gradle.api.Named
@@ -32,7 +32,7 @@ constructor(
 
   /**
    * Configurations for Dokka Generator Plugins. Must be provided from
-   * [dev.adamko.dokkatoo.DokkatooExtension.pluginsConfiguration].
+   * [org.jetbrains.dokka.gradle.DokkatooExtension.pluginsConfiguration].
    */
   pluginsConfiguration: DokkaPluginParametersContainer,
 ) : Named, Serializable, ExtensionAware {

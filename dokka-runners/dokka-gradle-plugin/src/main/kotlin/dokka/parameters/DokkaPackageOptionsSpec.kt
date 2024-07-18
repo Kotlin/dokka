@@ -1,8 +1,8 @@
 @file:Suppress("FunctionName")
 
-package dev.adamko.dokkatoo.dokka.parameters
+package org.jetbrains.dokka.gradle.dokka.parameters
 
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import java.io.Serializable
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty

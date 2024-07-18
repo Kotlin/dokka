@@ -1,12 +1,12 @@
-package dev.adamko.dokkatoo
+package org.jetbrains.dokka.gradle
 
-import dev.adamko.dokkatoo.dependencies.BaseDependencyManager
-import dev.adamko.dokkatoo.dokka.DokkaPublication
-import dev.adamko.dokkatoo.dokka.parameters.DokkaSourceSetSpec
-import dev.adamko.dokkatoo.internal.*
-import dev.adamko.dokkatoo.workers.ClassLoaderIsolation
-import dev.adamko.dokkatoo.workers.ProcessIsolation
-import dev.adamko.dokkatoo.workers.WorkerIsolation
+import org.jetbrains.dokka.gradle.dependencies.BaseDependencyManager
+import org.jetbrains.dokka.gradle.dokka.DokkaPublication
+import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.internal.*
+import org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
+import org.jetbrains.dokka.gradle.workers.ProcessIsolation
+import org.jetbrains.dokka.gradle.workers.WorkerIsolation
 import java.io.Serializable
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.file.DirectoryProperty
@@ -166,8 +166,8 @@ constructor(
    * ```
    *
    * @see WorkerIsolation
-   * @see dev.adamko.dokkatoo.workers.ProcessIsolation
-   * @see dev.adamko.dokkatoo.workers.ClassLoaderIsolation
+   * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation
+   * @see org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
    *
    */
   @get:Nested

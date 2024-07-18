@@ -1,12 +1,12 @@
-package dev.adamko.dokkatoo
+package org.jetbrains.dokka.gradle
 
-import dev.adamko.dokkatoo.formats.DokkatooGfmPlugin
-import dev.adamko.dokkatoo.formats.DokkatooHtmlPlugin
-import dev.adamko.dokkatoo.formats.DokkatooJavadocPlugin
-import dev.adamko.dokkatoo.formats.DokkatooJekyllPlugin
-import dev.adamko.dokkatoo.internal.CurrentGradleVersion
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
-import dev.adamko.dokkatoo.internal.compareTo
+import org.jetbrains.dokka.gradle.formats.DokkatooGfmPlugin
+import org.jetbrains.dokka.gradle.formats.DokkatooHtmlPlugin
+import org.jetbrains.dokka.gradle.formats.DokkatooJavadocPlugin
+import org.jetbrains.dokka.gradle.formats.DokkatooJekyllPlugin
+import org.jetbrains.dokka.gradle.internal.CurrentGradleVersion
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.compareTo
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.ProviderFactory

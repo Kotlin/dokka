@@ -1,14 +1,14 @@
-package dev.adamko.dokkatoo.formats
+package org.jetbrains.dokka.gradle.formats
 
-import dev.adamko.dokkatoo.DokkatooExtension
-import dev.adamko.dokkatoo.dependencies.FormatDependenciesManager
-import dev.adamko.dokkatoo.dokka.DokkaPublication
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
-import dev.adamko.dokkatoo.internal.configuring
-import dev.adamko.dokkatoo.tasks.DokkatooGenerateModuleTask
-import dev.adamko.dokkatoo.tasks.DokkatooGeneratePublicationTask
-import dev.adamko.dokkatoo.tasks.DokkatooGenerateTask
-import dev.adamko.dokkatoo.tasks.TaskNames
+import org.jetbrains.dokka.gradle.DokkatooExtension
+import org.jetbrains.dokka.gradle.dependencies.FormatDependenciesManager
+import org.jetbrains.dokka.gradle.dokka.DokkaPublication
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.configuring
+import org.jetbrains.dokka.gradle.tasks.DokkatooGenerateModuleTask
+import org.jetbrains.dokka.gradle.tasks.DokkatooGeneratePublicationTask
+import org.jetbrains.dokka.gradle.tasks.DokkatooGenerateTask
+import org.jetbrains.dokka.gradle.tasks.TaskNames
 import org.gradle.api.Project
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.TaskProvider
@@ -76,8 +76,8 @@ class DokkatooFormatTasks(
 
   @Suppress("DEPRECATION", "unused")
   @Deprecated("DokkatooPrepareModuleDescriptorTask was not compatible with relocatable Gradle Build Cache and has been replaced with a dark Gradle devilry. All references to DokkatooPrepareModuleDescriptorTask must be removed.")
-  val prepareModuleDescriptor: TaskProvider<dev.adamko.dokkatoo.tasks.DokkatooPrepareModuleDescriptorTask> =
-    project.tasks.register<dev.adamko.dokkatoo.tasks.DokkatooPrepareModuleDescriptorTask>(
+  val prepareModuleDescriptor: TaskProvider<org.jetbrains.dokka.gradle.tasks.DokkatooPrepareModuleDescriptorTask> =
+    project.tasks.register<org.jetbrains.dokka.gradle.tasks.DokkatooPrepareModuleDescriptorTask>(
       taskNames.prepareModuleDescriptor
     ) {
       description = "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for $formatName"

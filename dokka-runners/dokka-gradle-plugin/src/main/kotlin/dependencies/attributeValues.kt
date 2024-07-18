@@ -1,7 +1,7 @@
-package dev.adamko.dokkatoo.dependencies
+package org.jetbrains.dokka.gradle.dependencies
 
-import dev.adamko.dokkatoo.internal.Attribute
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.Attribute
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.attributes.Usage
@@ -14,7 +14,7 @@ import org.gradle.kotlin.dsl.named
 class BaseAttributes(
     objects: ObjectFactory,
 ) {
-    val dokkatooUsage: Usage = objects.named("dev.adamko.dokkatoo")
+    val dokkatooUsage: Usage = objects.named("org.jetbrains.dokka")
 
     val dokkaPlugins: DokkatooAttribute.Classpath =
         DokkatooAttribute.Classpath("dokka-plugins")

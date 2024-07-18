@@ -1,9 +1,9 @@
-package dev.adamko.dokkatoo
+package org.jetbrains.dokka.gradle
 
-import dev.adamko.dokkatoo.utils.addArguments
-import dev.adamko.dokkatoo.utils.build
-import dev.adamko.dokkatoo.utils.name
-import dev.adamko.dokkatoo.utils.projects.initMultiModuleProject
+import org.jetbrains.dokka.gradle.utils.addArguments
+import org.jetbrains.dokka.gradle.utils.build
+import org.jetbrains.dokka.gradle.utils.name
+import org.jetbrains.dokka.gradle.utils.projects.initMultiModuleProject
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.datatest.withData
 import io.kotest.inspectors.shouldForAll

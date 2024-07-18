@@ -1,7 +1,7 @@
-package dev.adamko.dokkatoo.dependencies
+package org.jetbrains.dokka.gradle.dependencies
 
-import dev.adamko.dokkatoo.internal.Attribute
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.Attribute
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import org.gradle.api.Named
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Attribute
@@ -21,7 +21,7 @@ interface DokkatooAttribute {
         override fun getName(): String = named
     }
 
-    /** Generated output, or subproject classpath, or included files, etc */
+    /** Generated output, or subproject classpath, or included files, etc. */
     @DokkatooInternalApi
     @JvmInline
     value class ModuleComponent(private val named: String) : Named {
@@ -38,12 +38,12 @@ interface DokkatooAttribute {
     @DokkatooInternalApi
     companion object {
         val DokkatooFormatAttribute: Attribute<String> =
-            Attribute("dev.adamko.dokkatoo.format")
+            Attribute("org.jetbrains.dokka.format")
 
         val DokkatooModuleComponentAttribute: Attribute<String> =
-            Attribute("dev.adamko.dokkatoo.module-component")
+            Attribute("org.jetbrains.dokka.module-component")
 
         val DokkatooClasspathAttribute: Attribute<String> =
-            Attribute("dev.adamko.dokkatoo.classpath")
+            Attribute("org.jetbrains.dokka.classpath")
     }
 }

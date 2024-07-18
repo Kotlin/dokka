@@ -1,4 +1,4 @@
-package dev.adamko.dokkatoo.internal
+package org.jetbrains.dokka.gradle.internal
 
 /**
  * Gradle Plugin IDs.

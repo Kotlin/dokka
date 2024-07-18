@@ -1,4 +1,4 @@
-package dev.adamko.dokkatoo.dependencies
+package org.jetbrains.dokka.gradle.dependencies
 
 import org.gradle.api.Named
 import org.gradle.api.attributes.*

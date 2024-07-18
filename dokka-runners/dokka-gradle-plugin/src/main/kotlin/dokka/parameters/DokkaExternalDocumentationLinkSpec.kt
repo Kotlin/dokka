@@ -1,6 +1,6 @@
-package dev.adamko.dokkatoo.dokka.parameters
+package org.jetbrains.dokka.gradle.dokka.parameters
 
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import java.io.Serializable
 import java.net.URI
 import javax.inject.Inject
@@ -108,9 +108,9 @@ constructor(
    *
    * Defaults to `true`.
    *
-   * @see dev.adamko.dokkatoo.dokka.parameters.DokkaSourceSetSpec.enableKotlinStdLibDocumentationLink
-   * @see dev.adamko.dokkatoo.dokka.parameters.DokkaSourceSetSpec.enableJdkDocumentationLink
-   * @see dev.adamko.dokkatoo.dokka.parameters.DokkaSourceSetSpec.enableAndroidDocumentationLink
+   * @see org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec.enableKotlinStdLibDocumentationLink
+   * @see org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec.enableJdkDocumentationLink
+   * @see org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec.enableAndroidDocumentationLink
    */
   @get:Input
   abstract val enabled: Property<Boolean>

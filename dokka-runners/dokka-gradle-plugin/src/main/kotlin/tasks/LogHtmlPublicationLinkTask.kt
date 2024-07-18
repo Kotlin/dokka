@@ -1,8 +1,8 @@
-package dev.adamko.dokkatoo.tasks
+package org.jetbrains.dokka.gradle.tasks
 
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
-import dev.adamko.dokkatoo.internal.appendPath
-import dev.adamko.dokkatoo.tasks.LogHtmlPublicationLinkTask.Companion.ENABLE_TASK_PROPERTY_NAME
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.appendPath
+import org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask.Companion.ENABLE_TASK_PROPERTY_NAME
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.provider.ValueSource
@@ -194,15 +194,15 @@ constructor(
          *
          * ```properties
          * # $GRADLE_USER_HOME/gradle.properties
-         * dev.adamko.dokkatoo.tasks.logHtmlPublicationLinkEnabled=false
+         * org.jetbrains.dokka.gradle.tasks.logHtmlPublicationLinkEnabled=false
          * ```
          *
          * or via an environment variable
          *
          * ```env
-         * ORG_GRADLE_PROJECT_dev.adamko.dokkatoo.tasks.logHtmlPublicationLinkEnabled=false
+         * ORG_GRADLE_PROJECT_org.jetbrains.dokka.gradle.tasks.logHtmlPublicationLinkEnabled=false
          * ```
          */
-        const val ENABLE_TASK_PROPERTY_NAME = "dev.adamko.dokkatoo.tasks.logHtmlPublicationLinkEnabled"
+        const val ENABLE_TASK_PROPERTY_NAME = "org.jetbrains.dokka.gradle.tasks.logHtmlPublicationLinkEnabled"
     }
 }

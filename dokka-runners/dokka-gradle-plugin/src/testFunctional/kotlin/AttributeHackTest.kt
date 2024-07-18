@@ -1,7 +1,7 @@
-package dev.adamko.dokkatoo
+package org.jetbrains.dokka.gradle
 
-import dev.adamko.dokkatoo.internal.DokkatooConstants.DOKKATOO_VERSION
-import dev.adamko.dokkatoo.utils.*
+import org.jetbrains.dokka.gradle.internal.DokkatooConstants.DOKKATOO_VERSION
+import org.jetbrains.dokka.gradle.utils.*
 import io.kotest.core.spec.style.FunSpec
 
 
@@ -46,7 +46,7 @@ private fun initProject(
       buildGradleKts = """
           |plugins {
           |  kotlin("multiplatform") version embeddedKotlinVersion
-          |  id("dev.adamko.dokkatoo-html") version "$DOKKATOO_VERSION"
+          |  id("org.jetbrains.dokka") version "$DOKKATOO_VERSION"
           |}
           |
           |kotlin {

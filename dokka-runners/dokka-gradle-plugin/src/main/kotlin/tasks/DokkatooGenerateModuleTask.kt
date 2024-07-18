@@ -1,9 +1,9 @@
-package dev.adamko.dokkatoo.tasks
+package org.jetbrains.dokka.gradle.tasks
 
-import dev.adamko.dokkatoo.DokkatooBasePlugin
-import dev.adamko.dokkatoo.dokka.parameters.DokkaModuleDescriptionKxs
-import dev.adamko.dokkatoo.internal.DokkaPluginParametersContainer
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.DokkatooBasePlugin
+import org.jetbrains.dokka.gradle.dokka.parameters.DokkaModuleDescriptionKxs
+import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import java.io.File
 import javax.inject.Inject
 import org.gradle.api.file.ArchiveOperations
@@ -33,7 +33,7 @@ constructor(
   private val fs: FileSystemOperations,
   /**
    * Configurations for Dokka Generator Plugins. Must be provided from
-   * [dev.adamko.dokkatoo.dokka.DokkaPublication.pluginsConfiguration].
+   * [org.jetbrains.dokka.gradle.dokka.DokkaPublication.pluginsConfiguration].
    */
   pluginsConfiguration: DokkaPluginParametersContainer,
 ) : DokkatooGenerateTask(

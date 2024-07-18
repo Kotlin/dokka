@@ -1,4 +1,4 @@
-package dev.adamko.dokkatoo.internal
+package org.jetbrains.dokka.gradle.internal
 
 import kotlin.RequiresOptIn.Level.WARNING
 import kotlin.annotation.AnnotationRetention.BINARY

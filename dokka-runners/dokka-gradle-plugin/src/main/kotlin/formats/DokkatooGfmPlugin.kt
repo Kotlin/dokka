@@ -1,6 +1,6 @@
-package dev.adamko.dokkatoo.formats
+package org.jetbrains.dokka.gradle.formats
 
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import org.gradle.kotlin.dsl.*
 
 abstract class DokkatooGfmPlugin

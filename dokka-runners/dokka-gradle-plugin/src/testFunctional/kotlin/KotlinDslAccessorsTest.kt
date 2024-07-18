@@ -1,7 +1,7 @@
-package dev.adamko.dokkatoo
+package org.jetbrains.dokka.gradle
 
-import dev.adamko.dokkatoo.internal.DokkatooConstants.DOKKATOO_VERSION
-import dev.adamko.dokkatoo.utils.*
+import org.jetbrains.dokka.gradle.internal.DokkatooConstants.DOKKATOO_VERSION
+import org.jetbrains.dokka.gradle.utils.*
 import io.kotest.core.spec.style.FunSpec
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
@@ -72,7 +72,7 @@ private fun initProject(
         "src/main/kotlin/dokkatoo-convention.gradle.kts",
         """
           |plugins {
-          |  id("dev.adamko.dokkatoo")
+          |  id("org.jetbrains.dokka")
           |}
           |
         """.trimMargin()

@@ -1,7 +1,7 @@
-package dev.adamko.dokkatoo.utils.projects
+package org.jetbrains.dokka.gradle.utils.projects
 
-import dev.adamko.dokkatoo.internal.DokkatooConstants
-import dev.adamko.dokkatoo.utils.*
+import org.jetbrains.dokka.gradle.internal.DokkatooConstants
+import org.jetbrains.dokka.gradle.utils.*
 import io.kotest.core.test.TestScope
 
 
@@ -13,7 +13,7 @@ fun TestScope.initMultiModuleProject(
   // get the FQN of the class that contains the test, so even though multiple
   // tests uses this project it's unlikely that the project dirs clash
   val baseDirName = testCase.descriptor.ids().first().value
-    .substringAfter("dev.adamko.dokkatoo.") // drop the package name
+    .substringAfter("org.jetbrains.dokka.gradle.") // drop the package name
     .replaceNonAlphaNumeric()
 
   return gradleKtsProjectTest("$baseDirName/multi-module-hello-goodbye/$testName") {
@@ -30,7 +30,7 @@ fun TestScope.initMultiModuleProject(
       |  // Kotlin plugin shouldn't be necessary here, but without it Dokka errors
       |  // with ClassNotFound KotlinPluginExtension... very weird
       |  kotlin("jvm") version embeddedKotlinVersion apply false
-      |  id("dev.adamko.dokkatoo") version "${DokkatooConstants.DOKKATOO_VERSION}"
+      |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
       |}
       |
       |dependencies {
@@ -44,7 +44,7 @@ fun TestScope.initMultiModuleProject(
       buildGradleKts = """
           |plugins {
           |  kotlin("jvm") version embeddedKotlinVersion
-          |  id("dev.adamko.dokkatoo") version "${DokkatooConstants.DOKKATOO_VERSION}"
+          |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
           |}
           |
         """.trimMargin()
@@ -71,7 +71,7 @@ fun TestScope.initMultiModuleProject(
       buildGradleKts = """
           |plugins {
           |  kotlin("jvm") version embeddedKotlinVersion
-          |  id("dev.adamko.dokkatoo") version "${DokkatooConstants.DOKKATOO_VERSION}"
+          |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
           |}
           |
         """.trimMargin()

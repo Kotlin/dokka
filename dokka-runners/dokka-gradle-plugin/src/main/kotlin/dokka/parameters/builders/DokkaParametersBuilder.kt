@@ -1,11 +1,11 @@
-package dev.adamko.dokkatoo.dokka.parameters.builders
+package org.jetbrains.dokka.gradle.dokka.parameters.builders
 
-import dev.adamko.dokkatoo.DokkatooBasePlugin
-import dev.adamko.dokkatoo.dokka.parameters.DokkaGeneratorParametersSpec
-import dev.adamko.dokkatoo.dokka.parameters.DokkaModuleDescriptionKxs
-import dev.adamko.dokkatoo.dokka.plugins.DokkaPluginParametersBaseSpec
-import dev.adamko.dokkatoo.formats.DokkatooHtmlPlugin.Companion.extractDokkaPluginMarkers
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.DokkatooBasePlugin
+import org.jetbrains.dokka.gradle.dokka.parameters.DokkaGeneratorParametersSpec
+import org.jetbrains.dokka.gradle.dokka.parameters.DokkaModuleDescriptionKxs
+import org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec
+import org.jetbrains.dokka.gradle.formats.DokkatooHtmlPlugin.Companion.extractDokkaPluginMarkers
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.file.ArchiveOperations

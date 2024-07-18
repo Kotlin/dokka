@@ -1,7 +1,7 @@
-package dev.adamko.dokkatoo.dokka.parameters
+package org.jetbrains.dokka.gradle.dokka.parameters
 
-import dev.adamko.dokkatoo.dokka.parameters.DokkaSourceSetIdSpec.Companion.dokkaSourceSetIdSpec
-import dev.adamko.dokkatoo.internal.*
+import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetIdSpec.Companion.dokkaSourceSetIdSpec
+import org.jetbrains.dokka.gradle.internal.*
 import java.io.Serializable
 import javax.inject.Inject
 import org.gradle.api.*
@@ -55,7 +55,7 @@ constructor(
    * This is primarily used by Kotlin Multiplatform projects, which can have multiple source sets
    * per subproject.
    *
-   * The default is set from [DokkatooExtension.sourceSetScopeDefault][dev.adamko.dokkatoo.DokkatooExtension.sourceSetScopeDefault]
+   * The default is set from [DokkatooExtension.sourceSetScopeDefault][org.jetbrains.dokka.gradle.DokkatooExtension.sourceSetScopeDefault]
    *
    * It's unlikely that this value needs to be changed.
    */

@@ -1,9 +1,9 @@
-package dev.adamko.dokkatoo
+package org.jetbrains.dokka.gradle
 
-import dev.adamko.dokkatoo.WorkerIsolation.ClassLoader
-import dev.adamko.dokkatoo.WorkerIsolation.Process
-import dev.adamko.dokkatoo.utils.*
-import dev.adamko.dokkatoo.utils.projects.initMultiModuleProject
+import org.jetbrains.dokka.gradle.WorkerIsolation.ClassLoader
+import org.jetbrains.dokka.gradle.WorkerIsolation.Process
+import org.jetbrains.dokka.gradle.utils.*
+import org.jetbrains.dokka.gradle.utils.projects.initMultiModuleProject
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.inspectors.shouldForAll
@@ -567,7 +567,7 @@ class MultiModuleFunctionalTest : FunSpec({
         // language=kts
         val tasksLogWorkerIsolation = """
           |
-          |tasks.withType<dev.adamko.dokkatoo.tasks.DokkatooGenerateTask>().configureEach {
+          |tasks.withType<org.jetbrains.dokka.gradle.tasks.DokkatooGenerateTask>().configureEach {
           |  doFirst {
           |    val isolation = workerIsolation.get()
           |    logger.lifecycle(path + " - running with workerIsolation " + isolation)
@@ -599,8 +599,8 @@ class MultiModuleFunctionalTest : FunSpec({
           }
 
           val expectedIsolationClassFqn = when (isolation) {
-            ClassLoader -> "dev.adamko.dokkatoo.workers.ClassLoaderIsolation"
-            Process     -> "dev.adamko.dokkatoo.workers.ProcessIsolation"
+            ClassLoader -> "org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation"
+            Process     -> "org.jetbrains.dokka.gradle.workers.ProcessIsolation"
           }
 
           listOf(

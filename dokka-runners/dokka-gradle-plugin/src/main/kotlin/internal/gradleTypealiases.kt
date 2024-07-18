@@ -1,6 +1,6 @@
-package dev.adamko.dokkatoo.internal
+package org.jetbrains.dokka.gradle.internal
 
-import dev.adamko.dokkatoo.dokka.plugins.DokkaPluginParametersBaseSpec
+import org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer
 
 /** Container for all [Dokka Plugin parameters][DokkaPluginParametersBaseSpec]. */

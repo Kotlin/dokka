@@ -1,14 +1,14 @@
-package dev.adamko.dokkatoo.tasks
+package org.jetbrains.dokka.gradle.tasks
 
-import dev.adamko.dokkatoo.DokkatooBasePlugin.Companion.jsonMapper
-import dev.adamko.dokkatoo.dokka.parameters.DokkaGeneratorParametersSpec
-import dev.adamko.dokkatoo.dokka.parameters.builders.DokkaParametersBuilder
-import dev.adamko.dokkatoo.internal.DokkaPluginParametersContainer
-import dev.adamko.dokkatoo.internal.DokkatooInternalApi
-import dev.adamko.dokkatoo.workers.ClassLoaderIsolation
-import dev.adamko.dokkatoo.workers.DokkaGeneratorWorker
-import dev.adamko.dokkatoo.workers.ProcessIsolation
-import dev.adamko.dokkatoo.workers.WorkerIsolation
+import org.jetbrains.dokka.gradle.DokkatooBasePlugin.Companion.jsonMapper
+import org.jetbrains.dokka.gradle.dokka.parameters.DokkaGeneratorParametersSpec
+import org.jetbrains.dokka.gradle.dokka.parameters.builders.DokkaParametersBuilder
+import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
+import org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
+import org.jetbrains.dokka.gradle.workers.ProcessIsolation
+import org.jetbrains.dokka.gradle.workers.WorkerIsolation
 import java.io.File
 import javax.inject.Inject
 import kotlinx.serialization.json.JsonElement
@@ -41,7 +41,7 @@ constructor(
 
   /**
    * Configurations for Dokka Generator Plugins. Must be provided from
-   * [dev.adamko.dokkatoo.dokka.DokkaPublication.pluginsConfiguration].
+   * [org.jetbrains.dokka.gradle.dokka.DokkaPublication.pluginsConfiguration].
    */
   pluginsConfiguration: DokkaPluginParametersContainer,
 ) : DokkatooTask() {
@@ -66,7 +66,7 @@ constructor(
   @get:LocalState
   abstract val cacheDirectory: DirectoryProperty
 
-  /** @see dev.adamko.dokkatoo.dokka.DokkaPublication.enabled */
+  /** @see org.jetbrains.dokka.gradle.dokka.DokkaPublication.enabled */
   @get:Input
   abstract val publicationEnabled: Property<Boolean>
 
@@ -76,10 +76,10 @@ constructor(
   /**
    * Control whether Dokkatoo launches Dokka Generator.
    *
-   * Defaults to [dev.adamko.dokkatoo.DokkatooExtension.dokkaGeneratorIsolation].
+   * Defaults to [org.jetbrains.dokka.gradle.DokkatooExtension.dokkaGeneratorIsolation].
    *
-   * @see dev.adamko.dokkatoo.DokkatooExtension.dokkaGeneratorIsolation
-   * @see dev.adamko.dokkatoo.workers.ProcessIsolation
+   * @see org.jetbrains.dokka.gradle.DokkatooExtension.dokkaGeneratorIsolation
+   * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation
    */
   @get:Nested
   abstract val workerIsolation: Property<WorkerIsolation>
@@ -229,8 +229,8 @@ constructor(
    *
    * Worker options were moved to allow for configuring worker isolation.
    *
-   * @see dev.adamko.dokkatoo.DokkatooExtension.dokkaGeneratorIsolation
-   * @see dev.adamko.dokkatoo.workers.ProcessIsolation.debug
+   * @see org.jetbrains.dokka.gradle.DokkatooExtension.dokkaGeneratorIsolation
+   * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation.debug
    */
   @get:Internal
   @Deprecated("Please move worker options to `DokkatooExtension.dokkaGeneratorIsolation`. Worker options were moved to allow for configuring worker isolation")
@@ -251,8 +251,8 @@ constructor(
    *
    * Worker options were moved to allow for configuring worker isolation.
    *
-   * @see dev.adamko.dokkatoo.DokkatooExtension.dokkaGeneratorIsolation
-   * @see dev.adamko.dokkatoo.workers.ProcessIsolation.minHeapSize
+   * @see org.jetbrains.dokka.gradle.DokkatooExtension.dokkaGeneratorIsolation
+   * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation.minHeapSize
    */
   @get:Internal
   @Deprecated("Please move worker options to `DokkatooExtension.dokkaGeneratorIsolation`. Worker options were moved to allow for configuring worker isolation")
@@ -273,8 +273,8 @@ constructor(
    *
    * Worker options were moved to allow for configuring worker isolation.
    *
-   * @see dev.adamko.dokkatoo.DokkatooExtension.dokkaGeneratorIsolation
-   * @see dev.adamko.dokkatoo.workers.ProcessIsolation.maxHeapSize
+   * @see org.jetbrains.dokka.gradle.DokkatooExtension.dokkaGeneratorIsolation
+   * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation.maxHeapSize
    */
   @get:Internal
   @Deprecated("Please move worker options to `DokkatooExtension.dokkaGeneratorIsolation`. Worker options were moved to allow for configuring worker isolation")
@@ -297,8 +297,8 @@ constructor(
    *
    * Worker options were moved to allow for configuring worker isolation.
    *
-   * @see dev.adamko.dokkatoo.DokkatooExtension.dokkaGeneratorIsolation
-   * @see dev.adamko.dokkatoo.workers.ProcessIsolation.jvmArgs
+   * @see org.jetbrains.dokka.gradle.DokkatooExtension.dokkaGeneratorIsolation
+   * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation.jvmArgs
    */
   @get:Internal
   @Deprecated("Please move worker options to `DokkatooExtension.dokkaGeneratorIsolation`. Worker options were moved to allow for configuring worker isolation")

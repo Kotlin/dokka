@@ -1,7 +1,7 @@
-package dev.adamko.dokkatoo
+package org.jetbrains.dokka.gradle
 
-import dev.adamko.dokkatoo.internal.DokkatooConstants
-import dev.adamko.dokkatoo.utils.*
+import org.jetbrains.dokka.gradle.internal.DokkatooConstants
+import org.jetbrains.dokka.gradle.utils.*
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.inspectors.shouldForAll
@@ -145,7 +145,7 @@ private fun initKotlinMultiplatformProject(
     buildGradleKts = """
       |plugins {
       |  kotlin("multiplatform") version "1.8.22"
-      |  id("dev.adamko.dokkatoo") version "${DokkatooConstants.DOKKATOO_VERSION}"
+      |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
       |}
       |
       |kotlin {

@@ -2,15 +2,17 @@
 
 import dokkabuild.tasks.GenerateDokkatooConstants
 import dokkabuild.utils.skipTestFixturesPublications
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 
 plugins {
     id("dokkabuild.base")
+
     `kotlin-dsl`
-    id("dokkabuild.dev-maven-publish")
     kotlin("plugin.serialization") version embeddedKotlinVersion
 
+    id("dokkabuild.dev-maven-publish")
     id("dev.adamko.kotlin.binary-compatibility-validator") version "0.1.0"
-
     `java-test-fixtures`
     `jvm-test-suite`
 
@@ -26,17 +28,27 @@ description = "Generates documentation for Kotlin projects (using Dokka)"
 kotlin {
     jvmToolchain(8)
 
+//    target {
+//        compilations.matching { it.name != KotlinCompilation.MAIN_COMPILATION_NAME }.configureEach {
+//            compileTaskProvider.configure {
+//                compilerOptions {
+//                    languageVersion = KotlinVersion.KOTLIN_1_9
+//                    apiVersion = KotlinVersion.KOTLIN_1_9
+//                }
+//            }
+//        }
+//    }
+
     sourceSets {
         configureEach {
             languageSettings {
-                optIn("dev.adamko.dokkatoo.internal.DokkatooInternalApi")
+                optIn("org.jetbrains.dokka.gradle.internal.DokkatooInternalApi")
                 optIn("kotlin.io.path.ExperimentalPathApi")
             }
         }
 
         main {
             kotlin.srcDir("src/classicMain/kotlin")
-            kotlin.srcDir(generateDokkatooConstants)
         }
         test {
             kotlin.srcDir("src/classicTest/kotlin")
@@ -95,18 +107,6 @@ dependencies {
     devPublication("org.jetbrains.dokka:plugin-versioning:$dokkaVersion")
 
     devPublication(project)
-
-    //region classic-plugin dependencies
-    compileOnly(libs.gradlePlugin.kotlin)
-    compileOnly(libs.gradlePlugin.kotlin.klibCommonizerApi)
-    compileOnly(libs.gradlePlugin.android)
-
-    testImplementation(kotlin("test"))
-    testImplementation(libs.gradlePlugin.kotlin)
-    testImplementation(libs.gradlePlugin.kotlin.klibCommonizerApi)
-    testImplementation(libs.gradlePlugin.android)
-    testImplementation("org.jetbrains.dokka:dokka-test-api:$dokkaVersion")
-    //endregion
 }
 
 gradlePlugin {
@@ -116,14 +116,14 @@ gradlePlugin {
         id = "dev.adamko.dokkatoo"
         displayName = "Dokka"
         description = "Dokka is an API documentation engine for Kotlin"
-        implementationClass = "dev.adamko.dokkatoo.DokkatooPlugin"
+        implementationClass = "org.jetbrains.dokka.gradle.DokkatooPlugin"
     }
 
     plugins.register("dokka") {
         id = "org.jetbrains.dokka"
         displayName = "Dokka"
         description = "Dokka is an API documentation engine for Kotlin"
-        implementationClass = "dev.adamko.dokkatoo.DokkatooPlugin"
+        implementationClass = "org.jetbrains.dokka.gradle.DokkatooPlugin"
     }
 
     fun registerDokkaPlugin(
@@ -135,7 +135,7 @@ gradlePlugin {
             id = "dev.adamko.dokkatoo-${shortName.lowercase()}"
             displayName = "Dokkatoo $shortName"
             description = "Generates $longName documentation for Kotlin projects (using Dokka)"
-            implementationClass = "dev.adamko.dokkatoo.formats.$pluginClass"
+            implementationClass = "org.jetbrains.dokka.gradle.formats.$pluginClass"
         }
     }
     registerDokkaPlugin("DokkatooGfmPlugin", "GFM", longName = "GFM (GitHub Flavoured Markdown)")
@@ -168,12 +168,20 @@ testing.suites {
         useJUnitJupiter()
 
         dependencies {
-            implementation(project.dependencies.gradleTestKit())
+            implementation(gradleTestKit())
 
-            implementation(project.dependencies.testFixtures(project()))
+            implementation(testFixtures(project()))
 
-            implementation(project.dependencies.platform(libs.kotlinxSerialization.bom))
+            implementation(platform(libs.kotlinxSerialization.bom))
             implementation(libs.kotlinxSerialization.json)
+
+            //region classic-plugin dependencies
+            implementation(libs.kotlin.test)
+            implementation(libs.gradlePlugin.kotlin)
+            implementation(libs.gradlePlugin.kotlin.klibCommonizerApi)
+            implementation(libs.gradlePlugin.android)
+            implementation("org.jetbrains.dokka:dokka-test-api:$dokkaVersion")
+            //endregion
         }
 
         targets.configureEach {
@@ -191,6 +199,7 @@ testing.suites {
 //                    }
 //                }
 
+                systemProperty("kotest.framework.config.fqn", "org.jetbrains.dokka.gradle.utils.KotestProjectConfig")
                 // FIXME remove when Kotest >= 6.0
                 systemProperty("kotest.framework.classpath.scanning.autoscan.disable", "true")
             }
@@ -228,11 +237,11 @@ testing.suites {
 skipTestFixturesPublications()
 
 binaryCompatibilityValidator {
-    ignoredMarkers.add("dev.adamko.dokkatoo.internal.DokkatooInternalApi")
+    ignoredMarkers.add("org.jetbrains.dokka.gradle.internal.DokkatooInternalApi")
 }
 
 val generateDokkatooConstants by tasks.registering(GenerateDokkatooConstants::class) {
-    properties.apply {
+    val dokkaPluginConstants = objects.mapProperty<String, String>().apply {
         // TODO remove DOKKATOO_VERSION
         put("DOKKATOO_VERSION", dokkaVersion)
 //        put("DOKKA_VERSION", dokkaBuild.projectVersion)
@@ -242,8 +251,19 @@ val generateDokkatooConstants by tasks.registering(GenerateDokkatooConstants::cl
         put("DOKKA_DEPENDENCY_VERSION_FREEMARKER", libs.versions.freemarker)
         put("DOKKA_DEPENDENCY_VERSION_JETBRAINS_MARKDOWN", libs.versions.jetbrains.markdown)
     }
+
+    properties.set(dokkaPluginConstants)
     destinationDir.set(layout.buildDirectory.dir("generated-source/main/kotlin/"))
 //  dokkaSource.fileProvider(tasks.prepareDokkaSource.map { it.destinationDir })
+}
+
+
+kotlin {
+    sourceSets {
+        main {
+            kotlin.srcDir(generateDokkatooConstants)
+        }
+    }
 }
 
 //dokkatoo {
