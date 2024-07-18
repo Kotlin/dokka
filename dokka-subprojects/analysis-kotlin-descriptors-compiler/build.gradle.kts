@@ -7,18 +7,18 @@ plugins {
 }
 
 dependencies {
-    compileOnly(projects.dokkaCore)
-    compileOnly(projects.analysisKotlinApi)
+    compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.analysisKotlinApi)
 
     api(libs.kotlin.compiler)
 
-    implementation(projects.analysisMarkdownJb)
-    implementation(projects.analysisJavaPsi)
+    implementation(projects.dokkaSubprojects.analysisMarkdownJb)
+    implementation(projects.dokkaSubprojects.analysisJavaPsi)
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.coreContentMatcherTestUtils)
-    testImplementation(projects.dokkaTestApi)
-    testImplementation(projects.analysisKotlinApi)
+    testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
+    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
+    testImplementation(projects.dokkaSubprojects.analysisKotlinApi)
 
     // TODO [beresnev] get rid of it
     compileOnly(libs.kotlinx.coroutines.core)

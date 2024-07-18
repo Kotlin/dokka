@@ -28,17 +28,6 @@ description = "Generates documentation for Kotlin projects (using Dokka)"
 kotlin {
     jvmToolchain(8)
 
-//    target {
-//        compilations.matching { it.name != KotlinCompilation.MAIN_COMPILATION_NAME }.configureEach {
-//            compileTaskProvider.configure {
-//                compilerOptions {
-//                    languageVersion = KotlinVersion.KOTLIN_1_9
-//                    apiVersion = KotlinVersion.KOTLIN_1_9
-//                }
-//            }
-//        }
-//    }
-
     sourceSets {
         configureEach {
             languageSettings {

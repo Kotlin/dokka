@@ -13,19 +13,19 @@ plugins {
 overridePublicationArtifactId("kotlin-as-java-plugin")
 
 dependencies {
-    compileOnly(projects.dokkaCore)
-    compileOnly(projects.analysisKotlinApi)
+    compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.analysisKotlinApi)
 
-    implementation(projects.pluginBase)
+    implementation(projects.dokkaSubprojects.pluginBase)
 
     implementation(kotlin("reflect"))
 
     testImplementation(kotlin("test"))
     testImplementation(libs.jsoup)
-    testImplementation(projects.pluginBase)
-    symbolsTestImplementation(project(path = ":analysis-kotlin-symbols", configuration = "shadow"))
-    descriptorsTestImplementation(project(path = ":analysis-kotlin-descriptors", configuration = "shadow"))
-    testImplementation(projects.pluginBaseTestUtils)
-    testImplementation(projects.coreContentMatcherTestUtils)
-    testImplementation(projects.dokkaTestApi)
+    testImplementation(projects.dokkaSubprojects.pluginBase)
+    symbolsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
+    testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)
+    testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
+    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
 }

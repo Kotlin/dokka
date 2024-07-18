@@ -7,8 +7,8 @@ plugins {
 }
 
 dependencies {
-    compileOnly(projects.dokkaCore)
-    compileOnly(projects.analysisKotlinApi)
+    compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.analysisKotlinApi)
 
     // We exclude `log4j` as it's not used in our codebase,
     // and we do override intellij logger with NOOP logger
@@ -17,7 +17,7 @@ dependencies {
         exclude("org.jetbrains.intellij.deps", "log4j")
     }
 
-    implementation(projects.analysisMarkdownJb)
+    implementation(projects.dokkaSubprojects.analysisMarkdownJb)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.jsoup)
 }

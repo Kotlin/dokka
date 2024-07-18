@@ -13,18 +13,18 @@ plugins {
 overridePublicationArtifactId("mathjax-plugin")
 
 dependencies {
-    compileOnly(projects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.dokkaCore)
 
-    implementation(projects.pluginBase)
+    implementation(projects.dokkaSubprojects.pluginBase)
 
     implementation(kotlin("reflect"))
 
     testImplementation(kotlin("test"))
     testImplementation(libs.jsoup)
-    testImplementation(projects.coreContentMatcherTestUtils)
-    testImplementation(projects.dokkaTestApi)
+    testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
+    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
 
-    symbolsTestImplementation(project(path = ":analysis-kotlin-symbols", configuration = "shadow"))
-    descriptorsTestImplementation(project(path = ":analysis-kotlin-descriptors", configuration = "shadow"))
-    testImplementation(projects.pluginBaseTestUtils)
+    symbolsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
+    testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)
 }

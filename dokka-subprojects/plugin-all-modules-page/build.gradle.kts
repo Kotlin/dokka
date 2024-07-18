@@ -13,24 +13,24 @@ plugins {
 overridePublicationArtifactId("all-modules-page-plugin")
 
 dependencies {
-    compileOnly(projects.dokkaCore)
-    compileOnly(projects.analysisKotlinApi)
+    compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.analysisKotlinApi)
 
-    implementation(projects.pluginBase)
-    implementation(projects.pluginTemplating)
+    implementation(projects.dokkaSubprojects.pluginBase)
+    implementation(projects.dokkaSubprojects.pluginTemplating)
 
-    implementation(projects.analysisMarkdownJb)
+    implementation(projects.dokkaSubprojects.analysisMarkdownJb)
 
     implementation(libs.kotlinx.html)
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.pluginBase)
-    testImplementation(projects.pluginBaseTestUtils)
-    testImplementation(projects.pluginGfm)
-    testImplementation(projects.pluginGfmTemplateProcessing)
-    testImplementation(projects.coreContentMatcherTestUtils)
-    testImplementation(projects.dokkaTestApi)
+    testImplementation(projects.dokkaSubprojects.pluginBase)
+    testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)
+    testImplementation(projects.dokkaSubprojects.pluginGfm)
+    testImplementation(projects.dokkaSubprojects.pluginGfmTemplateProcessing)
+    testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
+    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
 
-    symbolsTestImplementation(project(path = ":analysis-kotlin-symbols", configuration = "shadow"))
-    descriptorsTestImplementation(project(path = ":analysis-kotlin-descriptors", configuration = "shadow"))
+    symbolsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
 }

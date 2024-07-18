@@ -12,17 +12,17 @@ plugins {
 overridePublicationArtifactId("dokka-base-test-utils")
 
 dependencies {
-    compileOnly(projects.dokkaCore)
-    compileOnly(projects.pluginBase)
+    compileOnly(projects.dokkaSubprojects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.pluginBase)
 
-    api(projects.analysisKotlinApi)
+    api(projects.dokkaSubprojects.analysisKotlinApi)
 
     implementation(kotlin("reflect"))
     implementation(libs.jsoup)
 
     implementation(kotlin("test"))
-    implementation(projects.dokkaTestApi)
+    implementation(projects.dokkaSubprojects.dokkaTestApi)
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.dokkaTestApi)
+    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
 }

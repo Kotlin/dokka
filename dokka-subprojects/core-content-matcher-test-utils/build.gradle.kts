@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.dokkaTestApi)
+    implementation(projects.dokkaSubprojects.dokkaTestApi)
 
     implementation(kotlin("reflect"))
     implementation(kotlin("test"))

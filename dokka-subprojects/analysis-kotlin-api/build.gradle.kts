@@ -14,15 +14,15 @@ plugins {
 overridePublicationArtifactId("analysis-kotlin-api")
 
 dependencies {
-    compileOnly(projects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.dokkaCore)
 
-    testFixturesApi(projects.dokkaCore)
+    testFixturesApi(projects.dokkaSubprojects.dokkaCore)
 
     testImplementation(kotlin("test"))
 
-    symbolsTestImplementation(project(path = ":analysis-kotlin-symbols", configuration = "shadow"))
+    symbolsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
     descriptorsTestImplementation(
-        project(path = ":analysis-kotlin-descriptors", configuration = "shadow")
+        project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow")
     )
 }
 

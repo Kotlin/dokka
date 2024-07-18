@@ -13,7 +13,7 @@ plugins {
 overridePublicationArtifactId("analysis-kotlin-symbols")
 
 dependencies {
-    compileOnly(projects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.dokkaCore)
 
     // this is a `hack` to include classes `intellij-java-psi-api` in shadowJar
     // which are not present in `kotlin-compiler`
@@ -22,9 +22,9 @@ dependencies {
     // as several intellij dependencies share the same packages like `org.intellij.core`
     api(libs.intellij.java.psi.api) { isTransitive = false }
 
-    implementation(projects.analysisKotlinApi)
-    implementation(projects.analysisMarkdownJb)
-    implementation(projects.analysisJavaPsi)
+    implementation(projects.dokkaSubprojects.analysisKotlinApi)
+    implementation(projects.dokkaSubprojects.analysisMarkdownJb)
+    implementation(projects.dokkaSubprojects.analysisJavaPsi)
 
     // ----------- Analysis dependencies ----------------------------------------------------------------------------
 

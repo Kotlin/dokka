@@ -12,9 +12,9 @@ plugins {
 overridePublicationArtifactId("gfm-plugin")
 
 dependencies {
-    compileOnly(projects.dokkaCore)
+    compileOnly(projects.dokkaSubprojects.dokkaCore)
 
-    implementation(projects.pluginBase)
+    implementation(projects.dokkaSubprojects.pluginBase)
 
     implementation(kotlin("reflect"))
     implementation(libs.jackson.kotlin)
@@ -25,7 +25,7 @@ dependencies {
     }
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.pluginBase)
-    testImplementation(projects.pluginBaseTestUtils)
-    testImplementation(projects.dokkaTestApi)
+    testImplementation(projects.dokkaSubprojects.pluginBase)
+    testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)
+    testImplementation(projects.dokkaSubprojects.dokkaTestApi)
 }
