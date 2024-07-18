@@ -18,28 +18,33 @@ abstract class TaskPathCollector @Inject constructor(
     abstract val taskPaths: SetProperty<String>
 
     fun addTasksFrom(project: Project) {
-        if (project.rootProject == project) return
+//        if (project.rootProject == project) return
 
-        val projectPath = providers.provider { project.path }
+        val projectPath = providers.provider {project.path}
         val taskNames = providers.provider { project.tasks.names }
 
         taskPaths.addAll(
             taskNames.zip(projectPath) { names, path ->
-                names.map { name -> "$path:$name" }
+                // TODO remove debug logs
+                val x = names.map { name -> "$path$name" }
+                println("[${project.path}] - basePath: '$path', x:$x")
+                x
             }
         )
     }
 
     @Suppress("ConstPropertyName")
     companion object {
+        // TODO rename it's not just subproject tasks, it's all tasks in the build
         const val SubprojectTasksPrefix = "subprojectTasks_"
         const val IncludedBuildTasksPrefix = "includedBuildTasks_"
 
-        val buildLogicIBNames = setOf(
+        val buildLogicProjectsNames = setOf(
             "build-logic",
             "build-settings-logic",
         )
 
+        /** Only call this in the root project, otherwise different IBs depends on other IBs, and it gets messy. */
         fun Task.dependsOnIncludedBuildTasks(
             taskName: String = name
         ) {

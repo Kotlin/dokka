@@ -5,7 +5,7 @@ package dokkabuild
 
 import dokkabuild.TaskPathCollector.Companion.IncludedBuildTasksPrefix
 import dokkabuild.TaskPathCollector.Companion.SubprojectTasksPrefix
-import dokkabuild.TaskPathCollector.Companion.buildLogicIBNames
+import dokkabuild.TaskPathCollector.Companion.buildLogicProjectsNames
 
 /**
  * Workaround for https://github.com/gradle/gradle/issues/22335
@@ -25,7 +25,7 @@ if (project == rootProject) {
             task(taskName) {
                 val requestedTaskName = taskName.removePrefix(IncludedBuildTasksPrefix)
                 val includedBuildTasks = gradle.includedBuilds
-                    .filter { it.name !in buildLogicIBNames }
+                    .filter { it.name !in buildLogicProjectsNames }
                     .map { includedBuild ->
                         includedBuild.task(":${SubprojectTasksPrefix}${requestedTaskName}")
                     }
