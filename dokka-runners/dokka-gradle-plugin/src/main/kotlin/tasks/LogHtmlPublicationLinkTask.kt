@@ -1,8 +1,5 @@
 package org.jetbrains.dokka.gradle.tasks
 
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
-import org.jetbrains.dokka.gradle.internal.appendPath
-import org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask.Companion.ENABLE_TASK_PROPERTY_NAME
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.provider.ValueSource
@@ -11,11 +8,13 @@ import org.gradle.api.tasks.Console
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.of
 import org.gradle.work.DisableCachingByDefault
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.appendPath
+import org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask.Companion.ENABLE_TASK_PROPERTY_NAME
 import org.slf4j.LoggerFactory
+import java.net.HttpURLConnection
 import java.net.URI
-import java.time.Duration
 import javax.inject.Inject
-import javax.net.ssl.HttpsURLConnection
 
 /**
  * Prints an HTTP link in the console when the HTML publication is generated.
@@ -152,10 +151,10 @@ constructor(
         }
 
         private fun httpGetStatus(uri: URI): Result<Int> {
-            var connection: HttpsURLConnection? = null
+            var connection: HttpURLConnection? = null
             try {
                 val url = uri.toURL()
-                connection = url.openConnection() as HttpsURLConnection
+                connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "GET"
                 connection.connectTimeout = 1_000 // 1 second
                 connection.readTimeout = 1_000 // 1 second
