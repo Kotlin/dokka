@@ -8,4 +8,13 @@
   color: var(--color-text-white);
 
   font: var(--font-text-s);
+
+  @media (width <= $breakpoint-desktop-min) {
+    display: flex;
+    align-items: center;
+
+    height: 52px;
+
+    background-color: var(--color-text-black);
+  }
 }

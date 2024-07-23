@@ -7,7 +7,9 @@
   z-index: 4;
 
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-start;
 
   box-sizing: border-box;
   height: var(--size-l1);
@@ -17,12 +19,7 @@
   background-color: var(--color-nav-bar);
 
   @media (width <= $breakpoint-desktop-min) {
-    height: 52px;
-    padding: 12px;
+    height: auto;
+    padding: 0;
   }
-}
-
-.navigation-title {
-  display: flex;
-  align-items: center;
 }

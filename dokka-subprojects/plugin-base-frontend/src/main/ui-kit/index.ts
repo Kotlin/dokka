@@ -9,6 +9,6 @@ import * as navbarButton from './navbar-button/index';
 import * as platformTag from './platform-tag/index';
 import * as platformTags from './platform-tags/index';
 import * as tabs from './tabs/index';
-import * as tocMenu from './toc-menu/index';
+import './helpers.scss';
 
-export { filterSection, libraryName, libraryVersion, navbar, navbarButton, platformTag, platformTags, tabs, tocMenu };
+export { filterSection, libraryName, libraryVersion, navbar, navbarButton, platformTag, platformTags, tabs };

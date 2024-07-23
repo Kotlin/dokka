@@ -14,11 +14,17 @@
 
   margin-right: var(--size-s2);
 
+  white-space: nowrap;
+
   color: var(--color-text-white);
 
   font: var(--font-h4);
 
-  white-space: nowrap;
+  @media (width <= $breakpoint-desktop-min) {
+    height: 52px;
+
+    margin-left: 12px;
+  }
 }
 
 .library-name--link::before {
