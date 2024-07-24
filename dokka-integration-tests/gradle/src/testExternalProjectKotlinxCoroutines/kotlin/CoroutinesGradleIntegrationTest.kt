@@ -24,8 +24,8 @@ import kotlin.test.assertTrue
 
 class CoroutinesBuildVersionsArgumentsProvider : ArgumentsProvider {
     private val buildVersions = BuildVersions.permutations(
-        gradleVersions = listOf("7.4.2"),
-        kotlinVersions = listOf("1.8.10")
+        gradleVersions = listOf("8.5"),
+        kotlinVersions = listOf("1.9.0"),
     )
 
     override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
@@ -53,7 +53,9 @@ class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOut
     fun execute(buildVersions: BuildVersions) {
         val result = createGradleRunner(
             buildVersions,
-            ":dokkaHtmlMultiModule", "-i", "-s",
+            ":dokkaHtmlMultiModule",
+            "--stacktrace",
+            "-Pdokka_version=${dokkaVersion}",
             jvmArgs = listOf(
                 "-Xmx2G",
                 "-XX:MaxMetaspaceSize=500m", // Intentionally small to verify that Dokka tasks do not cause leaks.

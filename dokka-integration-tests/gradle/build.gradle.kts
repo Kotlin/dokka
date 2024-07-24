@@ -164,7 +164,7 @@ fun registerTestProjectSuite(
 
 val checkoutKotlinxCoroutines by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx.coroutines.git"
-    commitId = "b78bbf518bd8e90e9ed2133ebdacc36441210cd6"
+    commitId = "1bffe67a32d9d0285320f5b23fa94bc2b5f2b92e"
     destination = templateProjectsDir.dir("coroutines/kotlinx-coroutines")
 }
 

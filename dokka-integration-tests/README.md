@@ -36,18 +36,41 @@ Here's how to update an external project:
         destination = templateProjectsDir.dir("serialization/kotlinx-serialization")
     }
     ```
-   Note that the Gradle task will clone the repo into a `build/tmp` directory
-   before copying it to a subdirectory inside `projects/`
+3. Run the Gradle task
 
-3. Manually write the diff (or apply the existing one and tweak) to have the project buildable against locally published Dokka of version `for-integration-tests-SNAPSHOT`
-
-   A git patch can be exported with:
    ```shell
-   git diff > $pathToProjectInDokka/project.diff
+   ./gradlew :dokka-integration-tests:gradle:checkoutKotlinxSerialization
    ```
 
-4. Check that the corresponding `GradleIntegrationTest` passes locally and push
+4. The `GitCheckoutTask` task will first clone the repo into a `build/tmp` directory.
+   Open this directory in an IDE, and edit the project to be testable.
 
+   ```shell
+   # open with IntelliJ IDEA
+   idea ./gradle/build/tmp/checkoutKotlinxSerialization/repo
+   ```
+
+   - Remove `mavenLocal()` repositories.
+   - Add `/* %{DOKKA_IT_MAVEN_REPO}% */` to the top of `repositories {}` blocks.
+   - Update Dokka version.
+     ```diff
+     - classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
+     + classpath "org.jetbrains.dokka:dokka-gradle-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}"
+     ```
+
+   ⚠️ `GitCheckoutTask` will delete any changes, so make sure not to run it again while you're editing.
+5. Once you're happy, export a git patch.
+   ```shell
+   cd ./gradle/build/tmp/checkoutKotlinxSerialization/repo;
+   git diff > updated.diff
+   ```
+   Update the patch in the [projects](./gradle/projects/) directory,
+   e.g. [`dokka-integration-tests/gradle/projects/serialization/serialization.diff`](./gradle/projects/serialization/serialization.diff).
+6. Run the corresponding test task.
+   ```shell
+   ./gradlew :dokka-integration-tests:gradle:testExternalProjectKotlinxSerialization
+   ```
+7. Once the test works, commit and push.
 
 ### Run integration tests with K2 (symbols)
 
