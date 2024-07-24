@@ -1,11 +1,9 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-
-package internal
+package org.jetbrains.dokka.gradle.internal
 
 import org.gradle.api.Project
-import org.jetbrains.dokka.gradle.internal.lowercase
 import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
 internal data class ExperimentalFlags(

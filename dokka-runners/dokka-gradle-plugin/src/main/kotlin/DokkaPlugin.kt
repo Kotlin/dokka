@@ -3,13 +3,13 @@
  */
 package org.jetbrains.dokka.gradle
 
-import internal.ExperimentalFlags.Companion.dokkaMode
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.Logging
 import org.gradle.kotlin.dsl.apply
 import org.jetbrains.dokka.gradle.formats.DokkaHtmlPlugin
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.ExperimentalFlags.Companion.dokkaMode
 import javax.inject.Inject
 import org.jetbrains.dokka.gradle.DokkaClassicPlugin as ClassicDokkaPlugin
 
