@@ -18,17 +18,12 @@ abstract class TaskPathCollector @Inject constructor(
     abstract val taskPaths: SetProperty<String>
 
     fun addTasksFrom(project: Project) {
-//        if (project.rootProject == project) return
-
-        val projectPath = providers.provider {project.path}
+        val projectPath = providers.provider { project.path }
         val taskNames = providers.provider { project.tasks.names }
 
         taskPaths.addAll(
             taskNames.zip(projectPath) { names, path ->
-                // TODO remove debug logs
-                val x = names.map { name -> "$path$name" }
-                println("[${project.path}] - basePath: '$path', x:$x")
-                x
+                names.map { name -> "$path$name" }
             }
         )
     }
