@@ -29,8 +29,9 @@ sealed class WorkerIsolation {
      * @see org.gradle.workers.ClassLoaderWorkerSpec
      * @see WorkerExecutor.classLoaderIsolation
      */
-    abstract class ClassLoaderIsolation : WorkerIsolation() {
+    abstract class ClassLoader : WorkerIsolation() {
         // no options yet...
+        override fun toString(): String = "WorkerIsolation.ClassLoader"
     }
 
     /**
@@ -43,7 +44,7 @@ sealed class WorkerIsolation {
      * @see org.gradle.workers.ProcessWorkerSpec
      * @see WorkerExecutor.processIsolation
      */
-    abstract class ProcessIsolation : WorkerIsolation() {
+    abstract class Process : WorkerIsolation() {
         /** @see JavaForkOptions.setDebug */
         @get:Input
         @get:Optional
@@ -78,11 +79,13 @@ sealed class WorkerIsolation {
         @get:Input
         @get:Optional
         abstract val systemProperties: MapProperty<String, Any>
+
+        override fun toString(): String = "WorkerIsolation.Process"
     }
 }
 
-/** @see WorkerIsolation.ClassLoaderIsolation */
-typealias ClassLoaderIsolation = WorkerIsolation.ClassLoaderIsolation
+/** @see WorkerIsolation.ClassLoader */
+typealias ClassLoaderIsolation = WorkerIsolation.ClassLoader
 
-/** @see WorkerIsolation.ProcessIsolation */
-typealias ProcessIsolation = WorkerIsolation.ProcessIsolation
+/** @see WorkerIsolation.Process */
+typealias ProcessIsolation = WorkerIsolation.Process

@@ -106,10 +106,10 @@ public final class org/jetbrains/dokka/gradle/DokkatooBasePlugin$inlined$sam$i$o
 }
 
 public abstract class org/jetbrains/dokka/gradle/DokkatooExtension : java/io/Serializable, org/gradle/api/plugins/ExtensionAware {
-	public final fun ClassLoaderIsolation (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$ClassLoaderIsolation;
-	public static synthetic fun ClassLoaderIsolation$default (Lorg/jetbrains/dokka/gradle/DokkatooExtension;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$ClassLoaderIsolation;
-	public final fun ProcessIsolation (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$ProcessIsolation;
-	public static synthetic fun ProcessIsolation$default (Lorg/jetbrains/dokka/gradle/DokkatooExtension;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$ProcessIsolation;
+	public final fun ClassLoaderIsolation (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$ClassLoader;
+	public static synthetic fun ClassLoaderIsolation$default (Lorg/jetbrains/dokka/gradle/DokkatooExtension;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$ClassLoader;
+	public final fun ProcessIsolation (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$Process;
+	public static synthetic fun ProcessIsolation$default (Lorg/jetbrains/dokka/gradle/DokkatooExtension;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$Process;
 	public abstract fun getDokkaGeneratorIsolation ()Lorg/gradle/api/provider/Property;
 	public abstract fun getDokkatooCacheDirectory ()Lorg/gradle/api/file/DirectoryProperty;
 	public abstract fun getDokkatooConfigurationsDirectory ()Lorg/gradle/api/file/DirectoryProperty;
@@ -603,11 +603,12 @@ public final class org/jetbrains/dokka/gradle/tasks/LogHtmlPublicationLinkTask$C
 public abstract class org/jetbrains/dokka/gradle/workers/WorkerIsolation {
 }
 
-public abstract class org/jetbrains/dokka/gradle/workers/WorkerIsolation$ClassLoaderIsolation : org/jetbrains/dokka/gradle/workers/WorkerIsolation {
+public abstract class org/jetbrains/dokka/gradle/workers/WorkerIsolation$ClassLoader : org/jetbrains/dokka/gradle/workers/WorkerIsolation {
 	public fun <init> ()V
+	public fun toString ()Ljava/lang/String;
 }
 
-public abstract class org/jetbrains/dokka/gradle/workers/WorkerIsolation$ProcessIsolation : org/jetbrains/dokka/gradle/workers/WorkerIsolation {
+public abstract class org/jetbrains/dokka/gradle/workers/WorkerIsolation$Process : org/jetbrains/dokka/gradle/workers/WorkerIsolation {
 	public fun <init> ()V
 	public abstract fun getDebug ()Lorg/gradle/api/provider/Property;
 	public abstract fun getDefaultCharacterEncoding ()Lorg/gradle/api/provider/Property;
@@ -616,5 +617,6 @@ public abstract class org/jetbrains/dokka/gradle/workers/WorkerIsolation$Process
 	public abstract fun getMaxHeapSize ()Lorg/gradle/api/provider/Property;
 	public abstract fun getMinHeapSize ()Lorg/gradle/api/provider/Property;
 	public abstract fun getSystemProperties ()Lorg/gradle/api/provider/MapProperty;
+	public fun toString ()Ljava/lang/String;
 }
 

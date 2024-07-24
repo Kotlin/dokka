@@ -602,8 +602,8 @@ class MultiModuleFunctionalTest : FunSpec({
                     }
 
                     val expectedIsolationClassFqn = when (isolation) {
-                        ClassLoader -> "org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation"
-                        Process -> "org.jetbrains.dokka.gradle.workers.ProcessIsolation"
+                        ClassLoader -> "WorkerIsolation.ClassLoader"
+                        Process -> "WorkerIsolation.Process"
                     }
 
                     listOf(
