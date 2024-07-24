@@ -225,7 +225,7 @@ class MultiModuleFunctionalTest : FunSpec({
                         ":dokkaGenerate",
                         "--stacktrace",
                         "--build-cache",
-                        "-D" + "org.gradle.caching.debug=true"
+                        "-D" + "org.gradle.caching.debug=true",
                     )
                     .forwardOutput()
                     .build {
@@ -257,7 +257,7 @@ class MultiModuleFunctionalTest : FunSpec({
                         ":dokkaGenerate",
                         "--stacktrace",
                         "--build-cache",
-                        "-D" + "org.gradle.caching.debug=true"
+                        "-D" + "org.gradle.caching.debug=true",
                     )
                     .forwardOutput()
                     .build {
@@ -474,24 +474,12 @@ class MultiModuleFunctionalTest : FunSpec({
                         .shouldContainAll(
                             "> Task :clean",
                             "> Task :dokkaGenerate",
-                            "> Task :dokkaGenerateModuleGfm",
                             "> Task :dokkaGenerateModuleHtml",
-                            "> Task :dokkaGenerateModuleJavadoc",
-                            "> Task :dokkaGenerateModuleJekyll",
-                            "> Task :dokkaGeneratePublicationGfm",
                             "> Task :dokkaGeneratePublicationHtml",
-                            "> Task :dokkaGeneratePublicationJavadoc",
-                            "> Task :dokkaGeneratePublicationJekyll",
                             "> Task :subproject-goodbye:clean",
-                            "> Task :subproject-goodbye:dokkaGenerateModuleGfm",
                             "> Task :subproject-goodbye:dokkaGenerateModuleHtml",
-                            "> Task :subproject-goodbye:dokkaGenerateModuleJavadoc",
-                            "> Task :subproject-goodbye:dokkaGenerateModuleJekyll",
                             "> Task :subproject-hello:clean",
-                            "> Task :subproject-hello:dokkaGenerateModuleGfm",
                             "> Task :subproject-hello:dokkaGenerateModuleHtml",
-                            "> Task :subproject-hello:dokkaGenerateModuleJavadoc",
-                            "> Task :subproject-hello:dokkaGenerateModuleJekyll",
                         )
                 }
         }
