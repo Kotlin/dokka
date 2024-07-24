@@ -200,14 +200,14 @@ class MultiModuleFunctionalTest : FunSpec({
             }
 
             context("original project") {
-                originalProject.runner
-                    .addArguments(
-                        "clean",
-                        "--build-cache",
-                    )
-                    .forwardOutput()
-                    .build {
-                        test("clean tasks should run successfully") {
+                test("clean tasks should run successfully") {
+                    originalProject.runner
+                        .addArguments(
+                            "clean",
+                            "--build-cache",
+                        )
+                        .forwardOutput()
+                        .build {
                             shouldHaveTasksWithAnyOutcome(
                                 ":clean" to listOf(UP_TO_DATE, SUCCESS),
                                 ":subproject-hello:clean" to listOf(UP_TO_DATE, SUCCESS),
@@ -216,53 +216,52 @@ class MultiModuleFunctionalTest : FunSpec({
 
                             output.shouldContain("BUILD SUCCESSFUL")
                         }
-                    }
-                originalProject.runner
-                    .addArguments(
-                        ":dokkaGenerate",
-                        "--stacktrace",
-                        "--build-cache",
-                        "-D" + "org.gradle.caching.debug=true",
-                    )
-                    .forwardOutput()
-                    .build {
-                        test("should execute all generation tasks") {
+                }
+                test("should execute all generation tasks") {
+                    originalProject.runner
+                        .addArguments(
+                            ":dokkaGenerate",
+                            "--stacktrace",
+                            "--build-cache",
+                            "-D" + "org.gradle.caching.debug=true",
+                        )
+                        .forwardOutput()
+                        .build {
                             shouldHaveTasksWithOutcome(expectedGenerationTasks.map { it to SUCCESS })
                         }
-                    }
+                }
             }
 
             context("relocated project") {
-                relocatedProject.runner
-                    .addArguments(
-                        "clean",
-                        "--build-cache",
-                    )
-                    .forwardOutput()
-                    .build {
-                        test("clean tasks should run successfully") {
+                test("clean tasks should run successfully") {
+                    relocatedProject.runner
+                        .addArguments(
+                            "clean",
+                            "--build-cache",
+                        )
+                        .forwardOutput()
+                        .build {
                             shouldHaveTasksWithAnyOutcome(
                                 ":clean" to listOf(UP_TO_DATE, SUCCESS),
                                 ":subproject-hello:clean" to listOf(UP_TO_DATE, SUCCESS),
                                 ":subproject-goodbye:clean" to listOf(UP_TO_DATE, SUCCESS),
                             )
                         }
-                    }
+                }
 
-                relocatedProject.runner
-                    .addArguments(
-                        ":dokkaGenerate",
-                        "--stacktrace",
-                        "--build-cache",
-                        "-D" + "org.gradle.caching.debug=true",
-                    )
-                    .build {
-                        withClue(output) {
-                            test("should load all generation tasks from cache") {
-                                shouldHaveTasksWithOutcome(expectedGenerationTasks.map { it to FROM_CACHE })
-                            }
+                test("should load all generation tasks from cache") {
+                    relocatedProject.runner
+                        .addArguments(
+                            ":dokkaGenerate",
+                            "--stacktrace",
+                            "--build-cache",
+                            "-D" + "org.gradle.caching.debug=true",
+                        )
+                        .forwardOutput()
+                        .build {
+                            shouldHaveTasksWithOutcome(expectedGenerationTasks.map { it to FROM_CACHE })
                         }
-                    }
+                }
             }
         }
 
