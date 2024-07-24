@@ -3,7 +3,7 @@
  */
 package org.jetbrains.dokka.gradle.internal
 
-@DokkatooInternalApi
+@DokkaInternalApi
 abstract class HasFormatName {
     abstract val formatName: String
 

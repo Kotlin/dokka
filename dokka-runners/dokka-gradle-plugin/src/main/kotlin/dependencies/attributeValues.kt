@@ -9,35 +9,35 @@ import org.gradle.api.attributes.Usage
 import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.named
 import org.jetbrains.dokka.gradle.internal.Attribute
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 
 
-/** Common [Attribute] values for Dokkatoo [Configuration]s. */
-@DokkatooInternalApi
+/** Common [Attribute] values for Dokka [Configuration]s. */
+@DokkaInternalApi
 class BaseAttributes(
     objects: ObjectFactory,
 ) {
-    val dokkatooUsage: Usage = objects.named("org.jetbrains.dokka")
+    val dokkaUsage: Usage = objects.named("org.jetbrains.dokka")
 
-    val dokkaPlugins: DokkatooAttribute.Classpath =
-        DokkatooAttribute.Classpath("dokka-plugins")
+    val dokkaPlugins: DokkaAttribute.Classpath =
+        DokkaAttribute.Classpath("dokka-plugins")
 
-    val dokkaPublicationPlugins: DokkatooAttribute.Classpath =
-        DokkatooAttribute.Classpath("dokka-publication-plugins")
+    val dokkaPublicationPlugins: DokkaAttribute.Classpath =
+        DokkaAttribute.Classpath("dokka-publication-plugins")
 
-    val dokkaGenerator: DokkatooAttribute.Classpath =
-        DokkatooAttribute.Classpath("dokka-generator")
+    val dokkaGenerator: DokkaAttribute.Classpath =
+        DokkaAttribute.Classpath("dokka-generator")
 }
 
 
 /** [Attribute] values for a specific Dokka format. */
-@DokkatooInternalApi
+@DokkaInternalApi
 class FormatAttributes(
     formatName: String,
 ) {
-    val format: DokkatooAttribute.Format =
-        DokkatooAttribute.Format(formatName)
+    val format: DokkaAttribute.Format =
+        DokkaAttribute.Format(formatName)
 
-    val moduleOutputDirectories: DokkatooAttribute.ModuleComponent =
-        DokkatooAttribute.ModuleComponent("ModuleOutputDirectories")
+    val moduleOutputDirectories: DokkaAttribute.ModuleComponent =
+        DokkaAttribute.ModuleComponent("ModuleOutputDirectories")
 }

@@ -9,7 +9,7 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaGenerator
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.LoggerAdapter
 import java.io.File
 import java.time.Duration
@@ -20,10 +20,10 @@ import java.time.Duration
  * The worker requires [DokkaGenerator] is present on its classpath, as well as any Dokka plugins
  * that are used to generate the Dokka files. Transitive dependencies are also required.
  */
-@DokkatooInternalApi
+@DokkaInternalApi
 abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters> {
 
-    @DokkatooInternalApi
+    @DokkaInternalApi
     interface Parameters : WorkParameters {
         val dokkaParameters: Property<DokkaConfiguration>
         val logFile: RegularFileProperty
@@ -67,7 +67,7 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
         }
     }
 
-    @DokkatooInternalApi
+    @DokkaInternalApi
     companion object {
         // can't use kotlin.Duration or kotlin.time.measureTime {} because
         // the implementation isn't stable across Kotlin versions

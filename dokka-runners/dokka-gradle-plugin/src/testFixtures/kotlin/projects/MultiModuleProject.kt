@@ -4,7 +4,7 @@
 package org.jetbrains.dokka.gradle.utils.projects
 
 import io.kotest.core.test.TestScope
-import org.jetbrains.dokka.gradle.internal.DokkatooConstants
+import org.jetbrains.dokka.gradle.internal.DokkaConstants
 import org.jetbrains.dokka.gradle.utils.*
 
 
@@ -33,7 +33,7 @@ fun TestScope.initMultiModuleProject(
       |  // Kotlin plugin shouldn't be necessary here, but without it Dokka errors
       |  // with ClassNotFound KotlinPluginExtension... very weird
       |  kotlin("jvm") version embeddedKotlinVersion apply false
-      |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
+      |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
       |}
       |
       |dependencies {
@@ -47,7 +47,7 @@ fun TestScope.initMultiModuleProject(
             buildGradleKts = """
           |plugins {
           |  kotlin("jvm") version embeddedKotlinVersion
-          |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
+          |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
           |}
           |
         """.trimMargin()
@@ -74,7 +74,7 @@ fun TestScope.initMultiModuleProject(
             buildGradleKts = """
           |plugins {
           |  kotlin("jvm") version embeddedKotlinVersion
-          |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
+          |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
           |}
           |
         """.trimMargin()

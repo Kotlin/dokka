@@ -16,8 +16,8 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.java
 import org.gradle.kotlin.dsl.newInstance
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetIdSpec.Companion.dokkaSourceSetIdSpec
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.dokka.parameters.SourceSetIdSpec.Companion.dokkaSourceSetIdSpec
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.adding
 import org.jetbrains.dokka.gradle.internal.domainObjectContainer
 import java.io.Serializable
@@ -45,9 +45,11 @@ import javax.inject.Inject
  *   }
  * }
  * ```
+ *
+ * @see org.jetbrains.dokka.DokkaSourceSetImpl
  */
 abstract class DokkaSourceSetSpec
-@DokkatooInternalApi
+@DokkaInternalApi
 @Inject
 constructor(
     private val name: String,
@@ -66,7 +68,7 @@ constructor(
      * This is primarily used by Kotlin Multiplatform projects, which can have multiple source sets
      * per subproject.
      *
-     * The default is set from [DokkatooExtension.sourceSetScopeDefault][org.jetbrains.dokka.gradle.DokkatooExtension.sourceSetScopeDefault]
+     * The default is set from [DokkatooExtension.sourceSetScopeDefault][org.jetbrains.dokka.gradle.DokkaExtension.sourceSetScopeDefault]
      *
      * It's unlikely that this value needs to be changed.
      */
@@ -80,7 +82,7 @@ constructor(
      * @see getName
      */
     @get:Input
-    val sourceSetId: Provider<DokkaSourceSetIdSpec>
+    val sourceSetId: Provider<SourceSetIdSpec>
         get() = sourceSetScope.map { scope -> objects.dokkaSourceSetIdSpec(scope, getName()) }
 
     /**
@@ -141,7 +143,7 @@ constructor(
      *
      * Can be configured on per-package basis, see [DokkaPackageOptionsSpec.documentedVisibilities].
      *
-     * Default is [VisibilityModifier.PUBLIC].
+     * Default is [VisibilityModifier.Public].
      */
     @get:Input
     abstract override val documentedVisibilities: SetProperty<VisibilityModifier>
@@ -155,7 +157,7 @@ constructor(
      * By default, the values are deduced from information provided by the Kotlin Gradle plugin.
      */
     @get:Nested
-    val dependentSourceSets: NamedDomainObjectContainer<DokkaSourceSetIdSpec> =
+    val dependentSourceSets: NamedDomainObjectContainer<SourceSetIdSpec> =
         extensions.adding("dependentSourceSets", objects.domainObjectContainer())
 
     /**

@@ -9,7 +9,7 @@ import kotlin.annotation.AnnotationTarget.*
 
 
 /**
- * Functionality that is annotated with this API is intended only for use by Dokkatoo internal code,
+ * Functionality annotated with this API is intended only for use by Dokka internal code,
  * but it has been given
  * [`public` visibility](https://kotlinlang.org/docs/visibility-modifiers.html)
  * for technical reasons.
@@ -23,7 +23,7 @@ import kotlin.annotation.AnnotationTarget.*
  * [the Dokkatoo issue tracker](https://github.com/adamko-dev/dokkatoo/issues).
  */
 @RequiresOptIn(
-    message = "Internal Dokkatoo API - may change at any time without notice",
+    message = "Internal Dokka API - may change at any time without notice",
     level = WARNING,
 )
 @Retention(BINARY)
@@ -35,4 +35,4 @@ import kotlin.annotation.AnnotationTarget.*
     PROPERTY_GETTER,
 )
 @MustBeDocumented
-annotation class DokkatooInternalApi
+annotation class DokkaInternalApi

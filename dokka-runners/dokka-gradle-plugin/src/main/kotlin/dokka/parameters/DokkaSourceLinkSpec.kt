@@ -11,7 +11,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.intellij.lang.annotations.Language
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import java.io.Serializable
 import java.net.URI
 import javax.inject.Inject
@@ -32,7 +32,7 @@ import javax.inject.Inject
  * ```
  */
 abstract class DokkaSourceLinkSpec
-@DokkatooInternalApi
+@DokkaInternalApi
 @Inject
 constructor(
     private val layout: ProjectLayout
@@ -59,7 +59,7 @@ constructor(
      * Should not be used anywhere directly.
      */
     @get:Input
-    @DokkatooInternalApi
+    @DokkaInternalApi
     internal val localDirectoryPath: Provider<String>
         get() = localDirectory.map {
             it.asFile.relativeTo(layout.projectDirectory.asFile).invariantSeparatorsPath

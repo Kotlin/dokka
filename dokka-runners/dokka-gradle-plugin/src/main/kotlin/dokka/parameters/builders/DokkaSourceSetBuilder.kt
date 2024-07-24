@@ -9,7 +9,7 @@ import org.jetbrains.dokka.*
 import org.jetbrains.dokka.gradle.dokka.parameters.*
 import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform.Companion.dokkaType
 import org.jetbrains.dokka.gradle.dokka.parameters.VisibilityModifier.Companion.dokkaType
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.mapNotNullToSet
 import org.jetbrains.dokka.gradle.internal.mapToSet
 
@@ -21,7 +21,7 @@ import org.jetbrains.dokka.gradle.internal.mapToSet
  * The conversion is defined in a separate class to try and prevent classes from Dokka Generator
  * leaking into the public API.
  */
-@DokkatooInternalApi
+@DokkaInternalApi
 internal object DokkaSourceSetBuilder {
 
     private val logger = Logging.getLogger(DokkaParametersBuilder::class.java)
@@ -47,7 +47,7 @@ internal object DokkaSourceSetBuilder {
 
     private fun build(
         spec: DokkaSourceSetSpec,
-        suppressedSourceSetIds: Set<DokkaSourceSetIdSpec>,
+        suppressedSourceSetIds: Set<SourceSetIdSpec>,
     ): DokkaSourceSetImpl {
 
         val dependentSourceSets =
@@ -100,7 +100,7 @@ internal object DokkaSourceSetBuilder {
             includeNonPublic = DokkaDefaults.includeNonPublic,
         )
 
-    private fun build(spec: DokkaSourceSetIdSpec): DokkaSourceSetID =
+    private fun build(spec: SourceSetIdSpec): DokkaSourceSetID =
         DokkaSourceSetID(
             scopeId = spec.scopeId,
             sourceSetName = spec.sourceSetName

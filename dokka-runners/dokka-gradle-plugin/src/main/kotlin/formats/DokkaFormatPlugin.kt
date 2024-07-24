@@ -20,72 +20,72 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.*
-import org.jetbrains.dokka.gradle.DokkatooBasePlugin
-import org.jetbrains.dokka.gradle.DokkatooExtension
-import org.jetbrains.dokka.gradle.adapters.DokkatooAndroidAdapter
-import org.jetbrains.dokka.gradle.adapters.DokkatooJavaAdapter
-import org.jetbrains.dokka.gradle.adapters.DokkatooKotlinAdapter
+import org.jetbrains.dokka.gradle.DokkaBasePlugin
+import org.jetbrains.dokka.gradle.DokkaExtension
+import org.jetbrains.dokka.gradle.adapters.AndroidAdapter
+import org.jetbrains.dokka.gradle.adapters.JavaAdapter
+import org.jetbrains.dokka.gradle.adapters.KotlinAdapter
 import org.jetbrains.dokka.gradle.dependencies.DependencyContainerNames
-import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooClasspathAttribute
-import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooFormatAttribute
+import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaClasspathAttribute
+import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaFormatAttribute
 import org.jetbrains.dokka.gradle.dependencies.FormatDependenciesManager
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import javax.inject.Inject
 
 /**
  * Base Gradle Plugin for setting up a Dokka Publication for a specific format.
  *
- * [DokkatooBasePlugin] must be applied for this plugin (or any subclass) to have an effect.
+ * [DokkaBasePlugin] must be applied for this plugin (or any subclass) to have an effect.
  *
  * Anyone can use this class as a basis for a generating a Dokka Publication in a custom format.
  */
-abstract class DokkatooFormatPlugin(
+abstract class DokkaFormatPlugin(
     val formatName: String,
 ) : Plugin<Project> {
 
     @get:Inject
-    @DokkatooInternalApi
+    @DokkaInternalApi
     protected abstract val objects: ObjectFactory
 
     @get:Inject
-    @DokkatooInternalApi
+    @DokkaInternalApi
     protected abstract val providers: ProviderFactory
 
     @get:Inject
-    @DokkatooInternalApi
+    @DokkaInternalApi
     protected abstract val files: FileSystemOperations
 
     @get:Inject
-    @DokkatooInternalApi
+    @DokkaInternalApi
     protected abstract val layout: ProjectLayout
 
 
     override fun apply(target: Project) {
 
         // apply DokkatooBasePlugin
-        target.pluginManager.apply(DokkatooBasePlugin::class)
+        target.pluginManager.apply(DokkaBasePlugin::class)
 
         // apply the plugin that will autoconfigure Dokkatoo to use the sources of a Kotlin project
-        target.pluginManager.apply(type = DokkatooKotlinAdapter::class)
-        target.pluginManager.apply(type = DokkatooJavaAdapter::class)
-        target.pluginManager.apply(type = DokkatooAndroidAdapter::class)
+        target.pluginManager.apply(type = KotlinAdapter::class)
+        target.pluginManager.apply(type = JavaAdapter::class)
+        target.pluginManager.apply(type = AndroidAdapter::class)
 
-        target.plugins.withType<DokkatooBasePlugin>().configureEach {
-            val dokkatooExtension = target.extensions.getByType(DokkatooExtension::class)
+        target.plugins.withType<DokkaBasePlugin>().configureEach {
+            val dokkaExtension = target.extensions.getByType(DokkaExtension::class)
 
-            val publication = dokkatooExtension.dokkatooPublications.create(formatName)
+            val publication = dokkaExtension.dokkatooPublications.create(formatName)
 
             val formatDependencies = FormatDependenciesManager(
                 project = target,
-                baseDependencyManager = dokkatooExtension.baseDependencyManager,
+                baseDependencyManager = dokkaExtension.baseDependencyManager,
                 formatName = formatName,
                 objects = objects,
             )
 
-            val dokkatooTasks = DokkatooFormatTasks(
+            val dokkatooTasks = DokkaFormatTasks(
                 project = target,
                 publication = publication,
-                dokkatooExtension = dokkatooExtension,
+                dokkaExtension = dokkaExtension,
                 formatDependencies = formatDependencies,
                 providers = providers,
             )
@@ -110,7 +110,7 @@ abstract class DokkatooFormatPlugin(
 
             val context = DokkatooFormatPluginContext(
                 project = target,
-                dokkatooExtension = dokkatooExtension,
+                dokkaExtension = dokkaExtension,
                 dokkatooTasks = dokkatooTasks,
                 formatDependencies = formatDependencies,
                 formatName = formatName,
@@ -138,7 +138,7 @@ abstract class DokkatooFormatPlugin(
                         resolutionStrategy.eachDependency {
                             if (requested.group == "org.jetbrains.dokka" && requested.version.isNullOrBlank()) {
                                 logger.info("adding version of dokka dependency '$requested'")
-                                useVersion(dokkatooExtension.versions.jetbrainsDokka.get())
+                                useVersion(dokkaExtension.versions.jetbrainsDokka.get())
                             }
                         }
                     }
@@ -152,11 +152,11 @@ abstract class DokkatooFormatPlugin(
     open fun DokkatooFormatPluginContext.configure() {}
 
 
-    @DokkatooInternalApi
+    @DokkaInternalApi
     class DokkatooFormatPluginContext(
         val project: Project,
-        val dokkatooExtension: DokkatooExtension,
-        val dokkatooTasks: DokkatooFormatTasks,
+        val dokkaExtension: DokkaExtension,
+        val dokkatooTasks: DokkaFormatTasks,
         val formatDependencies: FormatDependenciesManager,
         formatName: String,
     ) {
@@ -168,16 +168,16 @@ abstract class DokkatooFormatPlugin(
 
         /** Create a [Dependency] for a Dokka module */
         fun DependencyHandler.dokka(module: String): Provider<Dependency> =
-            dokkatooExtension.versions.jetbrainsDokka.map { version -> create("org.jetbrains.dokka:$module:$version") }
+            dokkaExtension.versions.jetbrainsDokka.map { version -> create("org.jetbrains.dokka:$module:$version") }
 
         private fun AttributeContainer.dokkaPluginsClasspath() {
-            attribute(DokkatooFormatAttribute, formatDependencies.formatAttributes.format.name)
-            attribute(DokkatooClasspathAttribute, formatDependencies.baseAttributes.dokkaPlugins.name)
+            attribute(DokkaFormatAttribute, formatDependencies.formatAttributes.format.name)
+            attribute(DokkaClasspathAttribute, formatDependencies.baseAttributes.dokkaPlugins.name)
         }
 
         private fun AttributeContainer.dokkaGeneratorClasspath() {
-            attribute(DokkatooFormatAttribute, formatDependencies.formatAttributes.format.name)
-            attribute(DokkatooClasspathAttribute, formatDependencies.baseAttributes.dokkaGenerator.name)
+            attribute(DokkaFormatAttribute, formatDependencies.formatAttributes.format.name)
+            attribute(DokkaClasspathAttribute, formatDependencies.baseAttributes.dokkaGenerator.name)
         }
 
         /** Add a dependency to the Dokka plugins classpath */
@@ -219,7 +219,7 @@ abstract class DokkatooFormatPlugin(
             infix fun String.version(version: Property<String>): Provider<Dependency> =
                 version.map { v -> create("$this:$v") }
 
-            with(dokkatooExtension.versions) {
+            with(dokkaExtension.versions) {
                 dokkaPlugin(dokka("templating-plugin"))
                 dokkaPlugin(dokka("dokka-base"))
 
@@ -234,6 +234,6 @@ abstract class DokkatooFormatPlugin(
     }
 
     companion object {
-        private val logger = Logging.getLogger(DokkatooFormatPlugin::class.java)
+        private val logger = Logging.getLogger(DokkaFormatPlugin::class.java)
     }
 }

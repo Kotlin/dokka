@@ -11,7 +11,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.adding
 import org.jetbrains.dokka.gradle.internal.domainObjectContainer
 import javax.inject.Inject
@@ -21,7 +21,7 @@ import javax.inject.Inject
  * Dokka Publication or a Dokka Module.
  */
 abstract class DokkaGeneratorParametersSpec
-@DokkatooInternalApi
+@DokkaInternalApi
 @Inject
 constructor(
     objects: ObjectFactory,

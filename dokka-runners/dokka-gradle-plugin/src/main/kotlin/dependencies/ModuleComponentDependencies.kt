@@ -11,16 +11,16 @@ import org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
-import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooFormatAttribute
-import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooModuleComponentAttribute
+import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaFormatAttribute
+import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaModuleComponentAttribute
 import org.jetbrains.dokka.gradle.internal.*
 import java.io.File
 
 
-@DokkatooInternalApi
+@DokkaInternalApi
 class ModuleComponentDependencies(
     project: Project,
-    private val component: DokkatooAttribute.ModuleComponent,
+    private val component: DokkaAttribute.ModuleComponent,
     private val baseAttributes: BaseAttributes,
     private val formatAttributes: FormatAttributes,
     declaredDependencies: Configuration,
@@ -35,9 +35,9 @@ class ModuleComponentDependencies(
             resolvable()
             extendsFrom(declaredDependencies)
             attributes {
-                attribute(USAGE_ATTRIBUTE, baseAttributes.dokkatooUsage)
-                attribute(DokkatooFormatAttribute, formatAttributes.format.name)
-                attribute(DokkatooModuleComponentAttribute, component.name)
+                attribute(USAGE_ATTRIBUTE, baseAttributes.dokkaUsage)
+                attribute(DokkaFormatAttribute, formatAttributes.format.name)
+                attribute(DokkaModuleComponentAttribute, component.name)
             }
         }
 
@@ -48,9 +48,9 @@ class ModuleComponentDependencies(
             consumable()
             extendsFrom(declaredDependencies)
             attributes {
-                attribute(USAGE_ATTRIBUTE, baseAttributes.dokkatooUsage)
-                attribute(DokkatooFormatAttribute, formatAttributes.format.name)
-                attribute(DokkatooModuleComponentAttribute, component.name)
+                attribute(USAGE_ATTRIBUTE, baseAttributes.dokkaUsage)
+                attribute(DokkaFormatAttribute, formatAttributes.format.name)
+                attribute(DokkaModuleComponentAttribute, component.name)
             }
         }
 
@@ -59,8 +59,8 @@ class ModuleComponentDependencies(
      *
      * The artifacts will be filtered to ensure:
      *
-     * - [DokkatooModuleComponentAttribute] equals [component]
-     * - [DokkatooFormatAttribute] equals [FormatAttributes.format]
+     * - [DokkaModuleComponentAttribute] equals [component]
+     * - [DokkaFormatAttribute] equals [FormatAttributes.format]
      *
      * This filtering should prevent a Gradle bug where it fetches random files.
      * Unfortunately, [org.gradle.api.artifacts.ArtifactView.ViewConfiguration.lenient] must be
@@ -74,7 +74,7 @@ class ModuleComponentDependencies(
         // Redefine variables locally, because Configuration Cache is easily confused
         // and produces confusing error messages.
         val baseAttributes = baseAttributes
-        val usage = baseAttributes.dokkatooUsage
+        val usage = baseAttributes.dokkaUsage
         val formatAttributes = formatAttributes
         val incoming = incoming
         val incomingName = incoming.name
@@ -86,8 +86,8 @@ class ModuleComponentDependencies(
                 withVariantReselection()
                 attributes {
                     attribute(USAGE_ATTRIBUTE, usage)
-                    attribute(DokkatooFormatAttribute, formatAttributes.format.name)
-                    attribute(DokkatooModuleComponentAttribute, component.name)
+                    attribute(DokkaFormatAttribute, formatAttributes.format.name)
+                    attribute(DokkaModuleComponentAttribute, component.name)
                 }
                 lenient(true)
             }
@@ -101,17 +101,17 @@ class ModuleComponentDependencies(
                     .filter { artifact ->
                         val variantAttributes = artifact.variant.attributes
                         when {
-                            variantAttributes[USAGE_ATTRIBUTE]?.name != baseAttributes.dokkatooUsage.name -> {
-                                logger.info("[${incomingName}] ignoring artifact $artifact - USAGE_ATTRIBUTE != ${baseAttributes.dokkatooUsage} | attributes:${variantAttributes.toDebugString()}")
+                            variantAttributes[USAGE_ATTRIBUTE]?.name != baseAttributes.dokkaUsage.name -> {
+                                logger.info("[${incomingName}] ignoring artifact $artifact - USAGE_ATTRIBUTE != ${baseAttributes.dokkaUsage} | attributes:${variantAttributes.toDebugString()}")
                                 false
                             }
 
-                            variantAttributes[DokkatooFormatAttribute] != formatAttributes.format.name -> {
+                            variantAttributes[DokkaFormatAttribute] != formatAttributes.format.name -> {
                                 logger.info("[${incomingName}] ignoring artifact $artifact - DokkatooFormatAttribute != ${formatAttributes.format} | attributes:${variantAttributes.toDebugString()}")
                                 false
                             }
 
-                            variantAttributes[DokkatooModuleComponentAttribute] != component.name -> {
+                            variantAttributes[DokkaModuleComponentAttribute] != component.name -> {
                                 logger.info("[${incomingName}] ignoring artifact $artifact - DokkatooModuleComponentAttribute != $component | attributes:${variantAttributes.toDebugString()}")
                                 false
                             }
@@ -125,8 +125,8 @@ class ModuleComponentDependencies(
             }
     }
 
-    @DokkatooInternalApi
+    @DokkaInternalApi
     companion object {
-        private val logger: Logger = Logging.getLogger(DokkatooAttribute.ModuleComponent::class.java)
+        private val logger: Logger = Logging.getLogger(DokkaAttribute.ModuleComponent::class.java)
     }
 }

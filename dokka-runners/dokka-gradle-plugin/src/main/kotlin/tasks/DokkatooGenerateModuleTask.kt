@@ -11,10 +11,10 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkerExecutor
-import org.jetbrains.dokka.gradle.DokkatooBasePlugin
+import org.jetbrains.dokka.gradle.DokkaBasePlugin
 import org.jetbrains.dokka.gradle.dokka.parameters.DokkaModuleDescriptionKxs
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import java.io.File
 import javax.inject.Inject
 
@@ -27,7 +27,7 @@ import javax.inject.Inject
  */
 @CacheableTask
 abstract class DokkatooGenerateModuleTask
-@DokkatooInternalApi
+@DokkaInternalApi
 @Inject
 constructor(
     objects: ObjectFactory,
@@ -86,7 +86,7 @@ constructor(
         )
 
         val encodedModuleDesc =
-            DokkatooBasePlugin.jsonMapper.encodeToString(
+            DokkaBasePlugin.jsonMapper.encodeToString(
                 DokkaModuleDescriptionKxs.serializer(),
                 moduleDesc
             )

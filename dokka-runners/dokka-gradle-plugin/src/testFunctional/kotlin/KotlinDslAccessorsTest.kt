@@ -5,7 +5,7 @@ package org.jetbrains.dokka.gradle
 
 import io.kotest.core.spec.style.FunSpec
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
-import org.jetbrains.dokka.gradle.internal.DokkatooConstants.DOKKATOO_VERSION
+import org.jetbrains.dokka.gradle.internal.DokkaConstants.DOKKA_VERSION
 import org.jetbrains.dokka.gradle.utils.*
 
 
@@ -53,7 +53,7 @@ private fun initProject(
                 |}
                 |
                 |dependencies {
-                |  implementation("org.jetbrains.dokka:dokka-gradle-plugin:$DOKKATOO_VERSION")
+                |  implementation("org.jetbrains.dokka:dokka-gradle-plugin:$DOKKA_VERSION")
                 |}
                 |
                 |kotlin {

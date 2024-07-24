@@ -16,20 +16,20 @@ import org.jetbrains.dokka.gradle.dokka.plugins.DokkaHtmlPluginParameters
 import org.jetbrains.dokka.gradle.dokka.plugins.DokkaHtmlPluginParameters.Companion.DOKKA_HTML_PARAMETERS_NAME
 import org.jetbrains.dokka.gradle.dokka.plugins.DokkaVersioningPluginParameters
 import org.jetbrains.dokka.gradle.dokka.plugins.DokkaVersioningPluginParameters.Companion.DOKKA_VERSIONING_PLUGIN_PARAMETERS_NAME
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.uppercaseFirstChar
 import org.jetbrains.dokka.gradle.tasks.DokkatooGeneratePublicationTask
 import org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask
 import java.io.File
 import javax.inject.Inject
 
-abstract class DokkatooHtmlPlugin
-@DokkatooInternalApi
+abstract class DokkaHtmlPlugin
+@DokkaInternalApi
 @Inject
 constructor(
     archives: ArchiveOperations,
     providers: ProviderFactory,
-) : DokkatooFormatPlugin(formatName = "html") {
+) : DokkaFormatPlugin(formatName = "html") {
 
     private val moduleAggregationCheck: HtmlModuleAggregationCheck =
         HtmlModuleAggregationCheck(archives, providers)
@@ -42,7 +42,7 @@ constructor(
     }
 
     private fun DokkatooFormatPluginContext.registerDokkaBasePluginConfiguration() {
-        with(dokkatooExtension.pluginsConfiguration) {
+        with(dokkaExtension.pluginsConfiguration) {
             registerBinding(DokkaHtmlPluginParameters::class, DokkaHtmlPluginParameters::class)
             register<DokkaHtmlPluginParameters>(DOKKA_HTML_PARAMETERS_NAME)
             withType<DokkaHtmlPluginParameters>().configureEach {
@@ -54,7 +54,7 @@ constructor(
 
     /** register and configure Dokka Versioning Plugin */
     private fun DokkatooFormatPluginContext.registerDokkaVersioningPlugin() {
-        with(dokkatooExtension.pluginsConfiguration) {
+        with(dokkaExtension.pluginsConfiguration) {
             registerBinding(
                 DokkaVersioningPluginParameters::class,
                 DokkaVersioningPluginParameters::class,
@@ -109,7 +109,7 @@ constructor(
         }
 
         formatDependencies.dokkaPublicationPluginClasspathApiOnly.configure {
-            dependencies.addLater(dokkatooExtension.versions.jetbrainsDokka.map { v ->
+            dependencies.addLater(dokkaExtension.versions.jetbrainsDokka.map { v ->
                 project.dependencies.create("org.jetbrains.dokka:all-modules-page-plugin:$v")
             })
         }
@@ -183,9 +183,9 @@ constructor(
         }
     }
 
-    @DokkatooInternalApi
+    @DokkaInternalApi
     companion object {
-        private val logger = Logging.getLogger(DokkatooHtmlPlugin::class.java)
+        private val logger = Logging.getLogger(DokkaHtmlPlugin::class.java)
 
         private const val ALL_MODULES_PAGE_PLUGIN_FQN =
             "org.jetbrains.dokka.allModulesPage.AllModulesPagePlugin"

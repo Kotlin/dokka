@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage") // jvm test suites
 
-import dokkabuild.tasks.GenerateDokkatooConstants
+import dokkabuild.tasks.GenerateDokkaGradlePluginConstants
 import dokkabuild.utils.skipTestFixturesPublications
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -35,7 +35,8 @@ kotlin {
     sourceSets {
         configureEach {
             languageSettings {
-                optIn("org.jetbrains.dokka.gradle.internal.DokkatooInternalApi")
+                optIn("kotlin.RequiresOptIn")
+                optIn("org.jetbrains.dokka.gradle.internal.DokkaInternalApi")
                 optIn("kotlin.io.path.ExperimentalPathApi")
             }
         }
@@ -107,9 +108,9 @@ gradlePlugin {
 
     plugins.register("dokka") {
         id = "org.jetbrains.dokka"
-        displayName = "Dokka"
+        displayName = "Dokka Gradle Plugin"
         description = "Dokka is an API documentation engine for Kotlin"
-        implementationClass = "org.jetbrains.dokka.gradle.DokkatooPlugin"
+        implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
     }
 
     plugins.configureEach {
@@ -235,14 +236,13 @@ testing.suites {
 skipTestFixturesPublications()
 
 binaryCompatibilityValidator {
-    ignoredMarkers.add("org.jetbrains.dokka.gradle.internal.DokkatooInternalApi")
+    ignoredMarkers.add("org.jetbrains.dokka.gradle.internal.DokkaInternalApi")
 }
 
-val generateDokkatooConstants by tasks.registering(GenerateDokkatooConstants::class) {
+val generateDokkaGradlePluginConstants by tasks.registering(GenerateDokkaGradlePluginConstants::class) {
     val dokkaPluginConstants = objects.mapProperty<String, String>().apply {
-        // TODO remove DOKKATOO_VERSION
-        put("DOKKATOO_VERSION", dokkaVersion)
-//        put("DOKKA_VERSION", dokkaBuild.projectVersion)
+//         TODO remove DOKKATOO_VERSION
+//        put("DOKKATOO_VERSION", dokkaVersion)
         put("DOKKA_VERSION", dokkaVersion) // TODO how to get actual Dokka project version?
         put("DOKKA_DEPENDENCY_VERSION_KOTLINX_HTML", libs.versions.kotlinx.html)
         put("DOKKA_DEPENDENCY_VERSION_KOTLINX_COROUTINES", libs.versions.kotlinx.coroutines)
@@ -259,7 +259,7 @@ val generateDokkatooConstants by tasks.registering(GenerateDokkatooConstants::cl
 kotlin {
     sourceSets {
         main {
-            kotlin.srcDir(generateDokkatooConstants)
+            kotlin.srcDir(generateDokkaGradlePluginConstants)
         }
     }
 }

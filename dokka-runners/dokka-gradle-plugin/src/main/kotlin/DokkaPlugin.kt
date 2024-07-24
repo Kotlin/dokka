@@ -7,25 +7,25 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.apply
-import org.jetbrains.dokka.gradle.formats.DokkatooGfmPlugin
-import org.jetbrains.dokka.gradle.formats.DokkatooHtmlPlugin
-import org.jetbrains.dokka.gradle.formats.DokkatooJavadocPlugin
-import org.jetbrains.dokka.gradle.formats.DokkatooJekyllPlugin
+import org.jetbrains.dokka.gradle.formats.DokkaGfmPlugin
+import org.jetbrains.dokka.gradle.formats.DokkaHtmlPlugin
+import org.jetbrains.dokka.gradle.formats.DokkaJavadocPlugin
+import org.jetbrains.dokka.gradle.formats.DokkaJekyllPlugin
 import org.jetbrains.dokka.gradle.internal.CurrentGradleVersion
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.compareTo
 import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import javax.inject.Inject
-import org.jetbrains.dokka.gradle.DokkaPlugin as ClassicDokkaPlugin
+import org.jetbrains.dokka.gradle.DokkaClassicPlugin as ClassicDokkaPlugin
 
 /**
  * Dokkatoo Gradle Plugin.
  *
  * Creates all necessary defaults to generate documentation for HTML, Jekyll, Markdown, and Javadoc formats.
  */
-abstract class DokkatooPlugin
+abstract class DokkaPlugin
 @Inject
-@DokkatooInternalApi
+@DokkaInternalApi
 constructor(
     private val providers: ProviderFactory,
 ) : Plugin<Project> {
@@ -33,13 +33,13 @@ constructor(
     override fun apply(target: Project) {
         if (isDokkatooEnabled(target)) {
             with(target.pluginManager) {
-                apply(type = DokkatooBasePlugin::class)
+                apply(type = DokkaBasePlugin::class)
 
                 // auto-apply the custom format plugins
-                apply(type = DokkatooGfmPlugin::class)
-                apply(type = DokkatooHtmlPlugin::class)
-                apply(type = DokkatooJavadocPlugin::class)
-                apply(type = DokkatooJekyllPlugin::class)
+                apply(type = DokkaGfmPlugin::class)
+                apply(type = DokkaHtmlPlugin::class)
+                apply(type = DokkaJavadocPlugin::class)
+                apply(type = DokkaJekyllPlugin::class)
             }
         } else {
             target.pluginManager.apply(ClassicDokkaPlugin::class)

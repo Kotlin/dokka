@@ -18,5 +18,5 @@ fun DokkaBootstrap(configuration: Configuration, bootstrapClass: KClass<out Dokk
 
     val runtimeClassloaderBootstrapClass = runtimeClassLoader.loadClass(bootstrapClass.qualifiedName)
     val runtimeClassloaderBootstrapInstance = runtimeClassloaderBootstrapClass.constructors.first().newInstance()
-    return automagicTypedProxy(DokkaPlugin::class.java.classLoader, runtimeClassloaderBootstrapInstance)
+    return automagicTypedProxy(DokkaClassicPlugin::class.java.classLoader, runtimeClassloaderBootstrapInstance)
 }

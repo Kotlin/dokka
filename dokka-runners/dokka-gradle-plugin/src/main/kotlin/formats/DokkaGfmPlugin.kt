@@ -4,11 +4,11 @@
 package org.jetbrains.dokka.gradle.formats
 
 import org.gradle.kotlin.dsl.dependencies
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 
-abstract class DokkatooGfmPlugin
-@DokkatooInternalApi
-constructor() : DokkatooFormatPlugin(formatName = "gfm") {
+abstract class DokkaGfmPlugin
+@DokkaInternalApi
+constructor() : DokkaFormatPlugin(formatName = "gfm") {
     override fun DokkatooFormatPluginContext.configure() {
         project.dependencies {
             dokkaPlugin(dokka("gfm-plugin"))

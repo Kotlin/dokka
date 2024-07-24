@@ -14,7 +14,7 @@ import org.jetbrains.dokka.gradle.utils.build
 import org.jetbrains.dokka.gradle.utils.name
 import org.jetbrains.dokka.gradle.utils.projects.initMultiModuleProject
 
-class DokkatooBaseTasksLinksTest : FunSpec({
+class DokkaBaseTasksLinksTest : FunSpec({
 
     context("Verify that the base lifecycle tasks do not trigger Dokkatoo tasks") {
         val project = initMultiModuleProject("TaskLinks")
@@ -36,7 +36,7 @@ class DokkatooBaseTasksLinksTest : FunSpec({
                     tasks.shouldForOne { it.path shouldBe ":subproject-hello:${baseTask}" }
 
                     tasks.shouldForAll { task ->
-                        task.name shouldNotContainIgnoringCase "dokkatoo"
+                        task.name shouldNotContainIgnoringCase "dokka"
                     }
                 }
         }

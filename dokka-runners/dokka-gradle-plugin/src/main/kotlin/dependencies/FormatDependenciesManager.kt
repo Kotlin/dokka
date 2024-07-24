@@ -20,9 +20,9 @@ import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMEN
 import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.named
-import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooClasspathAttribute
-import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooFormatAttribute
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaClasspathAttribute
+import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaFormatAttribute
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.consumable
 import org.jetbrains.dokka.gradle.internal.declarable
 import org.jetbrains.dokka.gradle.internal.resolvable
@@ -37,7 +37,7 @@ import org.jetbrains.dokka.gradle.internal.resolvable
  * [DokkaConfiguration][org.jetbrains.dokka.DokkaConfiguration]
  * is used to configure Dokka behaviour.)
  */
-@DokkatooInternalApi
+@DokkaInternalApi
 class FormatDependenciesManager(
     private val formatName: String,
     private val baseDependencyManager: BaseDependencyManager,
@@ -97,8 +97,8 @@ class FormatDependenciesManager(
             isTransitive = false
             attributes {
                 jvmJar()
-                attribute(DokkatooFormatAttribute, formatAttributes.format.name)
-                attribute(DokkatooClasspathAttribute, baseAttributes.dokkaPlugins.name)
+                attribute(DokkaFormatAttribute, formatAttributes.format.name)
+                attribute(DokkaClasspathAttribute, baseAttributes.dokkaPlugins.name)
             }
         }
     //endregion
@@ -120,8 +120,8 @@ class FormatDependenciesManager(
             extendsFrom(dokkaPublicationPluginClasspath.get())
             attributes {
                 jvmJar()
-                attribute(DokkatooFormatAttribute, formatAttributes.format.name)
-                attribute(DokkatooClasspathAttribute, baseAttributes.dokkaPublicationPlugins.name)
+                attribute(DokkaFormatAttribute, formatAttributes.format.name)
+                attribute(DokkaClasspathAttribute, baseAttributes.dokkaPublicationPlugins.name)
             }
         }
 
@@ -140,8 +140,8 @@ class FormatDependenciesManager(
             extendsFrom(dokkaPublicationPluginClasspathApiOnly.get())
             attributes {
                 jvmJar()
-                attribute(DokkatooFormatAttribute, formatAttributes.format.name)
-                attribute(DokkatooClasspathAttribute, baseAttributes.dokkaPublicationPlugins.name)
+                attribute(DokkaFormatAttribute, formatAttributes.format.name)
+                attribute(DokkaClasspathAttribute, baseAttributes.dokkaPublicationPlugins.name)
             }
         }
     }
@@ -189,8 +189,8 @@ class FormatDependenciesManager(
 
             attributes {
                 jvmJar()
-                attribute(DokkatooFormatAttribute, formatAttributes.format.name)
-                attribute(DokkatooClasspathAttribute, baseAttributes.dokkaGenerator.name)
+                attribute(DokkaFormatAttribute, formatAttributes.format.name)
+                attribute(DokkaClasspathAttribute, baseAttributes.dokkaGenerator.name)
             }
         }
     //endregion
@@ -211,7 +211,7 @@ class FormatDependenciesManager(
         componentDependencies(formatAttributes.moduleOutputDirectories)
 
     private fun componentDependencies(
-        component: DokkatooAttribute.ModuleComponent,
+        component: DokkaAttribute.ModuleComponent,
     ): ModuleComponentDependencies =
         ModuleComponentDependencies(
             project = project,

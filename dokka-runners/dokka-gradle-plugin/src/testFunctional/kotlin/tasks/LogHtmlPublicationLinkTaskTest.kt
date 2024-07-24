@@ -10,7 +10,7 @@ import io.ktor.server.cio.*
 import io.ktor.server.engine.*
 import org.gradle.testkit.runner.TaskOutcome.SKIPPED
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
-import org.jetbrains.dokka.gradle.internal.DokkatooConstants
+import org.jetbrains.dokka.gradle.internal.DokkaConstants
 import org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask.Companion.ENABLE_TASK_PROPERTY_NAME
 import org.jetbrains.dokka.gradle.utils.*
 

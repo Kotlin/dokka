@@ -11,7 +11,7 @@ import org.gradle.api.tasks.Console
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.of
 import org.gradle.work.DisableCachingByDefault
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.appendPath
 import org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask.Companion.ENABLE_TASK_PROPERTY_NAME
 import org.slf4j.LoggerFactory
@@ -39,7 +39,7 @@ import javax.inject.Inject
 @DisableCachingByDefault(because = "logging-only task")
 abstract class LogHtmlPublicationLinkTask
 @Inject
-@DokkatooInternalApi
+@DokkaInternalApi
 constructor(
     providers: ProviderFactory
 ) : DokkatooTask() {

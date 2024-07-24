@@ -11,7 +11,7 @@ import io.kotest.matchers.file.shouldBeAFile
 import io.kotest.matchers.sequences.shouldNotBeEmpty
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
-import org.jetbrains.dokka.gradle.internal.DokkatooConstants
+import org.jetbrains.dokka.gradle.internal.DokkaConstants
 import org.jetbrains.dokka.gradle.utils.*
 import kotlin.io.path.extension
 import kotlin.io.path.readText
@@ -148,7 +148,7 @@ private fun initKotlinMultiplatformProject(
         buildGradleKts = """
             |plugins {
             |  kotlin("multiplatform") version "1.8.22"
-            |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
+            |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
             |}
             |
             |kotlin {

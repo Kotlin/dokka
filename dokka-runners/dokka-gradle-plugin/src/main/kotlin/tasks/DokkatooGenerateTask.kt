@@ -15,11 +15,11 @@ import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.*
 import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.gradle.DokkatooBasePlugin.Companion.jsonMapper
+import org.jetbrains.dokka.gradle.DokkaBasePlugin.Companion.jsonMapper
 import org.jetbrains.dokka.gradle.dokka.parameters.DokkaGeneratorParametersSpec
 import org.jetbrains.dokka.gradle.dokka.parameters.builders.DokkaParametersBuilder
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
 import org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
 import org.jetbrains.dokka.gradle.workers.ProcessIsolation
@@ -35,7 +35,7 @@ import javax.inject.Inject
  */
 @CacheableTask
 abstract class DokkatooGenerateTask
-@DokkatooInternalApi
+@DokkaInternalApi
 @Inject
 constructor(
     objects: ObjectFactory,
@@ -79,9 +79,9 @@ constructor(
     /**
      * Control whether Dokkatoo launches Dokka Generator.
      *
-     * Defaults to [org.jetbrains.dokka.gradle.DokkatooExtension.dokkaGeneratorIsolation].
+     * Defaults to [org.jetbrains.dokka.gradle.DokkaExtension.dokkaGeneratorIsolation].
      *
-     * @see org.jetbrains.dokka.gradle.DokkatooExtension.dokkaGeneratorIsolation
+     * @see org.jetbrains.dokka.gradle.DokkaExtension.dokkaGeneratorIsolation
      * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation
      */
     @get:Nested
@@ -94,17 +94,17 @@ constructor(
      * The [DokkaConfiguration] by Dokka Generator can be saved to a file for debugging purposes.
      * To disable this behaviour set this property to `null`.
      */
-    @DokkatooInternalApi
+    @DokkaInternalApi
     @get:Internal
     abstract val dokkaConfigurationJsonFile: RegularFileProperty
 
-    @DokkatooInternalApi
+    @DokkaInternalApi
     enum class GeneratorMode {
         Module,
         Publication,
     }
 
-    @DokkatooInternalApi
+    @DokkaInternalApi
     protected fun generateDocumentation(
         generationType: GeneratorMode,
         outputDirectory: File,
@@ -232,7 +232,7 @@ constructor(
      *
      * Worker options were moved to allow for configuring worker isolation.
      *
-     * @see org.jetbrains.dokka.gradle.DokkatooExtension.dokkaGeneratorIsolation
+     * @see org.jetbrains.dokka.gradle.DokkaExtension.dokkaGeneratorIsolation
      * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation.debug
      */
     @get:Internal
@@ -254,7 +254,7 @@ constructor(
      *
      * Worker options were moved to allow for configuring worker isolation.
      *
-     * @see org.jetbrains.dokka.gradle.DokkatooExtension.dokkaGeneratorIsolation
+     * @see org.jetbrains.dokka.gradle.DokkaExtension.dokkaGeneratorIsolation
      * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation.minHeapSize
      */
     @get:Internal
@@ -276,7 +276,7 @@ constructor(
      *
      * Worker options were moved to allow for configuring worker isolation.
      *
-     * @see org.jetbrains.dokka.gradle.DokkatooExtension.dokkaGeneratorIsolation
+     * @see org.jetbrains.dokka.gradle.DokkaExtension.dokkaGeneratorIsolation
      * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation.maxHeapSize
      */
     @get:Internal
@@ -300,7 +300,7 @@ constructor(
      *
      * Worker options were moved to allow for configuring worker isolation.
      *
-     * @see org.jetbrains.dokka.gradle.DokkatooExtension.dokkaGeneratorIsolation
+     * @see org.jetbrains.dokka.gradle.DokkaExtension.dokkaGeneratorIsolation
      * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation.jvmArgs
      */
     @get:Internal

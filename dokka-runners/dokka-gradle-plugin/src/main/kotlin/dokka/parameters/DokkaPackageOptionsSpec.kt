@@ -8,7 +8,7 @@ package org.jetbrains.dokka.gradle.dokka.parameters
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import java.io.Serializable
 
 /**
@@ -29,7 +29,7 @@ import java.io.Serializable
  * ```
  */
 abstract class DokkaPackageOptionsSpec
-@DokkatooInternalApi
+@DokkaInternalApi
 constructor() :
     HasConfigurableVisibilityModifiers,
     Serializable {
@@ -58,7 +58,7 @@ constructor() :
      *
      * Can be configured for a whole source set, see [DokkaSourceSetSpec.documentedVisibilities].
      *
-     * Default is [VisibilityModifier.PUBLIC].
+     * Default is [VisibilityModifier.Public].
      */
     @get:Input
     abstract override val documentedVisibilities: SetProperty<VisibilityModifier>

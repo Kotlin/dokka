@@ -3,7 +3,7 @@
  */
 package org.jetbrains.dokka.gradle
 
-import org.jetbrains.dokka.gradle.internal.DokkatooConstants
+import org.jetbrains.dokka.gradle.internal.DokkaConstants
 import org.jetbrains.dokka.gradle.utils.*
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
@@ -63,7 +63,7 @@ private fun initGradlePluginProject(
         buildGradleKts = """
             |plugins {
             |  `kotlin-dsl`
-            |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
+            |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
             |}
             |
             """.trimMargin()

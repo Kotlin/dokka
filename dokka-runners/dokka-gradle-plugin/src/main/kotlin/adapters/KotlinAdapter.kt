@@ -17,11 +17,11 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.provider.SetProperty
 import org.gradle.kotlin.dsl.*
-import org.jetbrains.dokka.gradle.DokkatooBasePlugin
-import org.jetbrains.dokka.gradle.DokkatooExtension
-import org.jetbrains.dokka.gradle.adapters.DokkatooKotlinAdapter.Companion.currentKotlinToolingVersion
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetIdSpec
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetIdSpec.Companion.dokkaSourceSetIdSpec
+import org.jetbrains.dokka.gradle.DokkaBasePlugin
+import org.jetbrains.dokka.gradle.DokkaExtension
+import org.jetbrains.dokka.gradle.adapters.KotlinAdapter.Companion.currentKotlinToolingVersion
+import org.jetbrains.dokka.gradle.dokka.parameters.SourceSetIdSpec
+import org.jetbrains.dokka.gradle.dokka.parameters.SourceSetIdSpec.Companion.dokkaSourceSetIdSpec
 import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.internal.*
@@ -45,12 +45,12 @@ import javax.inject.Inject
 import kotlin.reflect.jvm.jvmName
 
 /**
- * The [DokkatooKotlinAdapter] plugin will automatically register Kotlin source sets as Dokka source sets.
+ * The [KotlinAdapter] plugin will automatically register Kotlin source sets as Dokka source sets.
  *
- * This is not a standalone plugin, it requires [org.jetbrains.dokka.gradle.DokkatooBasePlugin] is also applied.
+ * This is not a standalone plugin, it requires [org.jetbrains.dokka.gradle.DokkaBasePlugin] is also applied.
  */
-@DokkatooInternalApi
-abstract class DokkatooKotlinAdapter @Inject constructor(
+@DokkaInternalApi
+abstract class KotlinAdapter @Inject constructor(
     private val objects: ObjectFactory,
     private val providers: ProviderFactory,
 ) : Plugin<Project> {
@@ -58,7 +58,7 @@ abstract class DokkatooKotlinAdapter @Inject constructor(
     override fun apply(project: Project) {
         logger.info("Applying $dkaName to ${project.path}")
 
-        project.plugins.withType<DokkatooBasePlugin>().configureEach {
+        project.plugins.withType<DokkaBasePlugin>().configureEach {
             project.pluginManager.apply {
                 withPlugin(PluginId.KotlinAndroid) { exec(project) }
                 withPlugin(PluginId.KotlinJs) { exec(project) }
@@ -93,13 +93,13 @@ abstract class DokkatooKotlinAdapter @Inject constructor(
         }
         logger.info("Configuring $dkaName in Gradle Kotlin Project ${project.path}")
 
-        val dokkatooExtension = project.extensions.getByType<DokkatooExtension>()
+        val dokkaExtension = project.extensions.getByType<DokkaExtension>()
 
         // first fetch the relevant properties of all KotlinCompilations
         val compilationDetailsBuilder = KotlinCompilationDetailsBuilder(
             providers = providers,
             objects = objects,
-            konanHome = dokkatooExtension.konanHome.asFile,
+            konanHome = dokkaExtension.konanHome.asFile,
             project = project,
         )
         val allKotlinCompilationDetails: ListProperty<KotlinCompilationDetails> =
@@ -111,7 +111,7 @@ abstract class DokkatooKotlinAdapter @Inject constructor(
         val sourceSetDetailsBuilder = KotlinSourceSetDetailsBuilder(
             providers = providers,
             objects = objects,
-            sourceSetScopeDefault = dokkatooExtension.sourceSetScopeDefault,
+            sourceSetScopeDefault = dokkaExtension.sourceSetScopeDefault,
             projectPath = project.path,
         )
         val sourceSetDetails: NamedDomainObjectContainer<KotlinSourceSetDetails> =
@@ -121,20 +121,20 @@ abstract class DokkatooKotlinAdapter @Inject constructor(
             )
 
         // for each Kotlin source set, register a Dokkatoo source set
-        registerDokkatooSourceSets(
-            dokkatooExtension = dokkatooExtension,
+        registerDokkaSourceSets(
+            dokkaExtension = dokkaExtension,
             sourceSetDetails = sourceSetDetails,
         )
     }
 
     /** Register a [DokkaSourceSetSpec] for each element in [sourceSetDetails] */
-    private fun registerDokkatooSourceSets(
-        dokkatooExtension: DokkatooExtension,
+    private fun registerDokkaSourceSets(
+        dokkaExtension: DokkaExtension,
         sourceSetDetails: NamedDomainObjectContainer<KotlinSourceSetDetails>,
     ) {
         // proactively use 'all' so source sets will be available in users' build files if they use `named("...")`
         sourceSetDetails.all details@{
-            dokkatooExtension.dokkatooSourceSets.register(details = this@details)
+            dokkaExtension.dokkaSourceSets.register(details = this@details)
         }
     }
 
@@ -177,11 +177,11 @@ abstract class DokkatooKotlinAdapter @Inject constructor(
         }
     }
 
-    @DokkatooInternalApi
+    @DokkaInternalApi
     companion object {
-        private val dkaName: String = DokkatooKotlinAdapter::class.simpleName!!
+        private val dkaName: String = KotlinAdapter::class.simpleName!!
 
-        private val logger = Logging.getLogger(DokkatooKotlinAdapter::class.java)
+        private val logger = Logging.getLogger(KotlinAdapter::class.java)
 
         /** Try and get [KotlinProjectExtension], or `null` if it's not present */
         private fun ExtensionContainer.findKotlinExtension(): KotlinProjectExtension? =
@@ -219,7 +219,7 @@ abstract class DokkatooKotlinAdapter @Inject constructor(
  * The compilation details may come from a multiplatform project ([KotlinMultiplatformExtension])
  * or a single-platform project ([KotlinSingleTargetExtension]).
  */
-@DokkatooInternalApi
+@DokkaInternalApi
 private data class KotlinCompilationDetails(
     val target: String,
     val kotlinPlatform: KotlinPlatform,
@@ -399,13 +399,13 @@ private class KotlinCompilationDetailsBuilder(
  *
  * @param[named] Should be [KotlinSourceSet.getName]
  */
-@DokkatooInternalApi
+@DokkaInternalApi
 private abstract class KotlinSourceSetDetails @Inject constructor(
     private val named: String,
 ) : Named {
 
     /** Direct source sets that this source set depends on */
-    abstract val dependentSourceSetIds: SetProperty<DokkaSourceSetIdSpec>
+    abstract val dependentSourceSetIds: SetProperty<SourceSetIdSpec>
     abstract val sourceDirectories: ConfigurableFileCollection
 
     /** _All_ source directories from any (recursively) dependant source set */

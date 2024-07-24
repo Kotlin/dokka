@@ -8,12 +8,12 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.kotlin.dsl.newInstance
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import java.io.Serializable
 import javax.inject.Inject
 
-abstract class DokkaSourceSetIdSpec
-@DokkatooInternalApi
+abstract class SourceSetIdSpec
+@DokkaInternalApi
 @Inject
 constructor(
     /**
@@ -40,7 +40,7 @@ constructor(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is DokkaSourceSetIdSpec) return false
+        if (other !is SourceSetIdSpec) return false
 
         if (scopeId != other.scopeId) return false
         return sourceSetName == other.sourceSetName
@@ -54,11 +54,11 @@ constructor(
 
     companion object {
 
-        /** Utility for creating a new [DokkaSourceSetIdSpec] instance using [ObjectFactory.newInstance] */
-        @DokkatooInternalApi
+        /** Utility for creating a new [SourceSetIdSpec] instance using [ObjectFactory.newInstance] */
+        @DokkaInternalApi
         fun ObjectFactory.dokkaSourceSetIdSpec(
             scopeId: String,
             sourceSetName: String,
-        ): DokkaSourceSetIdSpec = newInstance<DokkaSourceSetIdSpec>(scopeId, sourceSetName)
+        ): SourceSetIdSpec = newInstance<SourceSetIdSpec>(scopeId, sourceSetName)
     }
 }

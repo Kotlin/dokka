@@ -4,7 +4,7 @@
 package org.jetbrains.dokka.gradle
 
 import io.kotest.core.spec.style.FunSpec
-import org.jetbrains.dokka.gradle.internal.DokkatooConstants.DOKKATOO_VERSION
+import org.jetbrains.dokka.gradle.internal.DokkaConstants.DOKKA_VERSION
 import org.jetbrains.dokka.gradle.utils.*
 
 
@@ -49,7 +49,7 @@ private fun initProject(
             buildGradleKts = """
                 |plugins {
                 |  kotlin("multiplatform") version embeddedKotlinVersion
-                |  id("org.jetbrains.dokka") version "$DOKKATOO_VERSION"
+                |  id("org.jetbrains.dokka") version "$DOKKA_VERSION"
                 |}
                 |
                 |kotlin {

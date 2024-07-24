@@ -10,9 +10,8 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import javax.inject.Inject
 
-// TODO rename
 @CacheableTask
-abstract class GenerateDokkatooConstants @Inject constructor(
+abstract class GenerateDokkaGradlePluginConstants @Inject constructor(
     private val fs: FileSystemOperations
 ) : DefaultTask() {
 
@@ -40,14 +39,14 @@ abstract class GenerateDokkatooConstants @Inject constructor(
                 """const val $k = "$v""""
             }.prependIndent("  ")
 
-        temporaryDir.resolve("DokkatooConstants.kt").apply {
+        temporaryDir.resolve("DokkaConstants.kt").apply {
             parentFile.mkdirs()
             writeText(
                 """
         |package org.jetbrains.dokka.gradle.internal
         |
-        |@DokkatooInternalApi
-        |object DokkatooConstants {
+        |@DokkaInternalApi
+        |object DokkaConstants {
         |$vals
         |}
         |

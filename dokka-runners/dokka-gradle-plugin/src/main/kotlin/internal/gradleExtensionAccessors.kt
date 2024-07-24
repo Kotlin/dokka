@@ -3,10 +3,10 @@
  */
 package org.jetbrains.dokka.gradle.internal
 
-import org.jetbrains.dokka.gradle.DokkatooExtension
+import org.jetbrains.dokka.gradle.DokkaExtension
 
 // When Dokkatoo is applied to a build script Gradle will auto-generate these accessors
 
-internal fun DokkatooExtension.versions(configure: DokkatooExtension.Versions.() -> Unit) {
+internal fun DokkaExtension.versions(configure: DokkaExtension.Versions.() -> Unit) {
     versions.apply(configure)
 }

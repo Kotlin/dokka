@@ -8,7 +8,7 @@ import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.string.shouldContain
-import org.jetbrains.dokka.gradle.internal.DokkatooConstants.DOKKATOO_VERSION
+import org.jetbrains.dokka.gradle.internal.DokkaConstants.DOKKA_VERSION
 import org.jetbrains.dokka.gradle.utils.*
 
 class DokkatooPluginFunctionalTest : FunSpec({
@@ -16,7 +16,7 @@ class DokkatooPluginFunctionalTest : FunSpec({
 
         buildGradleKts = """
             |plugins {
-            |  id("org.jetbrains.dokka") version "$DOKKATOO_VERSION"
+            |  id("org.jetbrains.dokka") version "$DOKKA_VERSION"
             |}
             |
             """.trimMargin()

@@ -10,7 +10,7 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import javax.inject.Inject
 
 
@@ -22,7 +22,7 @@ import javax.inject.Inject
  */
 @CacheableTask
 abstract class DokkatooGeneratePublicationTask
-@DokkatooInternalApi
+@DokkaInternalApi
 @Inject
 constructor(
     objects: ObjectFactory,

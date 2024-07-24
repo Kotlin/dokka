@@ -7,46 +7,46 @@ import org.gradle.api.Named
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Attribute
 import org.jetbrains.dokka.gradle.internal.Attribute
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 
 /**
  * Gradle Configuration Attributes for sharing Dokkatoo files across subprojects.
  *
  * These attributes are used to tag [Configuration]s, so files can be shared between subprojects.
  */
-@DokkatooInternalApi
-interface DokkatooAttribute {
+@DokkaInternalApi
+interface DokkaAttribute {
 
     /** HTML, Markdown, etc. */
-    @DokkatooInternalApi
+    @DokkaInternalApi
     class Format(private val named: String) : Named {
         override fun getName(): String = named
         override fun toString(): String = "Format($named)"
     }
 
     /** Generated output, or subproject classpath, or included files, etc. */
-    @DokkatooInternalApi
+    @DokkaInternalApi
     class ModuleComponent(private val named: String) : Named {
         override fun getName(): String = named
         override fun toString(): String = "ModuleComponent($named)"
     }
 
     /** A classpath, e.g. for Dokka Plugins or the Dokka Generator. */
-    @DokkatooInternalApi
+    @DokkaInternalApi
     class Classpath(private val named: String) : Named {
         override fun getName(): String = named
         override fun toString(): String = "Classpath($named)"
     }
 
-    @DokkatooInternalApi
+    @DokkaInternalApi
     companion object {
-        val DokkatooFormatAttribute: Attribute<String> =
+        val DokkaFormatAttribute: Attribute<String> =
             Attribute("org.jetbrains.dokka.format")
 
-        val DokkatooModuleComponentAttribute: Attribute<String> =
+        val DokkaModuleComponentAttribute: Attribute<String> =
             Attribute("org.jetbrains.dokka.module-component")
 
-        val DokkatooClasspathAttribute: Attribute<String> =
+        val DokkaClasspathAttribute: Attribute<String> =
             Attribute("org.jetbrains.dokka.classpath")
     }
 }

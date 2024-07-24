@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
-class DokkaPluginApplyTest {
+class DokkaClassicPluginApplyTest {
 
     @Test
     fun `one task per format is registered`() {

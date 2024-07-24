@@ -7,10 +7,10 @@ import org.gradle.api.Project
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.register
-import org.jetbrains.dokka.gradle.DokkatooExtension
+import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.dependencies.FormatDependenciesManager
 import org.jetbrains.dokka.gradle.dokka.DokkaPublication
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.configuring
 import org.jetbrains.dokka.gradle.tasks.DokkatooGenerateModuleTask
 import org.jetbrains.dokka.gradle.tasks.DokkatooGeneratePublicationTask
@@ -18,11 +18,11 @@ import org.jetbrains.dokka.gradle.tasks.DokkatooGenerateTask
 import org.jetbrains.dokka.gradle.tasks.TaskNames
 
 /** Tasks for generating a Dokkatoo Publication in a specific format. */
-@DokkatooInternalApi
-class DokkatooFormatTasks(
+@DokkaInternalApi
+class DokkaFormatTasks(
     project: Project,
     private val publication: DokkaPublication,
-    private val dokkatooExtension: DokkatooExtension,
+    private val dokkaExtension: DokkaExtension,
     private val formatDependencies: FormatDependenciesManager,
 
     private val providers: ProviderFactory,
@@ -60,7 +60,7 @@ class DokkatooFormatTasks(
         ).configuring {
             description = "Executes the Dokka Generator, generating the $formatName publication"
 
-            outputDirectory.convention(dokkatooExtension.dokkatooPublicationDirectory.dir(formatName))
+            outputDirectory.convention(dokkaExtension.dokkatooPublicationDirectory.dir(formatName))
 
             applyFormatSpecificConfiguration()
         }
@@ -72,7 +72,7 @@ class DokkatooFormatTasks(
         ).configuring {
             description = "Executes the Dokka Generator, generating a $formatName module"
 
-            outputDirectory.convention(dokkatooExtension.dokkatooModuleDirectory.dir(formatName))
+            outputDirectory.convention(dokkaExtension.dokkatooModuleDirectory.dir(formatName))
 
             applyFormatSpecificConfiguration()
         }

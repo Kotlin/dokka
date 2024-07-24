@@ -4,11 +4,11 @@
 package org.jetbrains.dokka.gradle.formats
 
 import org.gradle.kotlin.dsl.dependencies
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 
-abstract class DokkatooJavadocPlugin
-@DokkatooInternalApi
-constructor() : DokkatooFormatPlugin(formatName = "javadoc") {
+abstract class DokkaJavadocPlugin
+@DokkaInternalApi
+constructor() : DokkaFormatPlugin(formatName = "javadoc") {
     override fun DokkatooFormatPluginContext.configure() {
         project.dependencies {
             dokkaPlugin(dokka("javadoc-plugin"))

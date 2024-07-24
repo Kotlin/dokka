@@ -10,7 +10,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.UntrackedTask
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import javax.inject.Inject
 
 /**
@@ -32,7 +32,7 @@ import javax.inject.Inject
 @UntrackedTask(because = "DokkatooPrepareModuleDescriptorTask has been deprecated and should no longer be used - see KDoc")
 @Suppress("unused")
 abstract class DokkatooPrepareModuleDescriptorTask
-@DokkatooInternalApi
+@DokkaInternalApi
 @Inject
 constructor() : DokkatooTask() {
 

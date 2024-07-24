@@ -17,8 +17,8 @@ import org.gradle.api.file.Directory
 import org.gradle.api.internal.provider.MissingValueException
 import org.gradle.kotlin.dsl.*
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.dokka.gradle.DokkatooExtension
-import org.jetbrains.dokka.gradle.DokkatooPlugin
+import org.jetbrains.dokka.gradle.DokkaExtension
+import org.jetbrains.dokka.gradle.DokkaPlugin
 import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.utils.all_
 import org.jetbrains.dokka.gradle.utils.create_
@@ -188,7 +188,7 @@ class DokkaSourceSetBuilderTest : FunSpec({
 private fun createProject(): Project {
     val project = ProjectBuilder.builder().build()
     project.extraProperties.set("enableDokkatoo", true)
-    project.plugins.apply(type = DokkatooPlugin::class)
+    project.plugins.apply(type = DokkaPlugin::class)
     return project
 }
 
@@ -197,7 +197,7 @@ private fun Project.createDokkaSourceSetSpec(
     configure: DokkaSourceSetSpec.() -> Unit = {}
 ): DokkaSourceSetSpec {
     return extensions
-        .getByType<DokkatooExtension>()
-        .dokkatooSourceSets
+        .getByType<DokkaExtension>()
+        .dokkaSourceSets
         .create_(name, configure)
 }

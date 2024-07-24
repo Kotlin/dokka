@@ -3,10 +3,10 @@
  */
 package org.jetbrains.dokka.gradle.tasks
 
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.HasFormatName
 
-@DokkatooInternalApi
+@DokkaInternalApi
 class TaskNames(override val formatName: String) : HasFormatName() {
     val generate = "dokkatooGenerate".appendFormat()
     val generatePublication = "dokkatooGeneratePublication".appendFormat()

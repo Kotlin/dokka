@@ -6,20 +6,20 @@ package org.jetbrains.dokka.gradle.tasks
 import org.gradle.api.DefaultTask
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.CacheableTask
-import org.jetbrains.dokka.gradle.DokkatooBasePlugin
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.DokkaBasePlugin
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import javax.inject.Inject
 
 /** Base Dokkatoo task */
 @CacheableTask
 abstract class DokkatooTask
-@DokkatooInternalApi
+@DokkaInternalApi
 constructor() : DefaultTask() {
 
     @get:Inject
     abstract val objects: ObjectFactory
 
     init {
-        group = DokkatooBasePlugin.TASK_GROUP
+        group = DokkaBasePlugin.TASK_GROUP
     }
 }

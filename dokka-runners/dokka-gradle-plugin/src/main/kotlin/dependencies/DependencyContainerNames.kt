@@ -4,23 +4,23 @@
 package org.jetbrains.dokka.gradle.dependencies
 
 import org.gradle.api.artifacts.Configuration
-import org.jetbrains.dokka.gradle.DokkatooBasePlugin
-import org.jetbrains.dokka.gradle.DokkatooBasePlugin.Companion.DOKKATOO_CONFIGURATION_NAME
-import org.jetbrains.dokka.gradle.DokkatooBasePlugin.Companion.DOKKA_GENERATOR_PLUGINS_CONFIGURATION_NAME
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.DokkaBasePlugin
+import org.jetbrains.dokka.gradle.DokkaBasePlugin.Companion.DOKKA_CONFIGURATION_NAME
+import org.jetbrains.dokka.gradle.DokkaBasePlugin.Companion.DOKKA_GENERATOR_PLUGINS_CONFIGURATION_NAME
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.HasFormatName
 
 /**
- * Names of the Gradle [Configuration]s used by the [Dokkatoo Plugin][DokkatooBasePlugin].
+ * Names of the Gradle [Configuration]s used by the [Dokkatoo Plugin][DokkaBasePlugin].
  *
  * Beware the confusing terminology:
  * - [Gradle Configurations][org.gradle.api.artifacts.Configuration] - share files between subprojects. Each has a name.
  * - [DokkaConfiguration][org.jetbrains.dokka.DokkaConfiguration] - parameters for executing the Dokka Generator
  */
-@DokkatooInternalApi
+@DokkaInternalApi
 class DependencyContainerNames(override val formatName: String) : HasFormatName() {
 
-    val dokkatoo = DOKKATOO_CONFIGURATION_NAME.appendFormat()
+    val dokkatoo = DOKKA_CONFIGURATION_NAME.appendFormat()
     val dokkatooResolver = "${dokkatoo}Resolver"
 
     /**

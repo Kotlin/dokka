@@ -9,12 +9,12 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.gradle.DokkatooBasePlugin
+import org.jetbrains.dokka.gradle.DokkaBasePlugin
 import org.jetbrains.dokka.gradle.dokka.parameters.DokkaGeneratorParametersSpec
 import org.jetbrains.dokka.gradle.dokka.parameters.DokkaModuleDescriptionKxs
 import org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec
-import org.jetbrains.dokka.gradle.formats.DokkatooHtmlPlugin.Companion.extractDokkaPluginMarkers
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.formats.DokkaHtmlPlugin.Companion.extractDokkaPluginMarkers
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import java.io.File
 
 /**
@@ -24,7 +24,7 @@ import java.io.File
  * The conversion is defined in a separate class to try and prevent classes from Dokka Generator
  * leaking into the public API.
  */
-@DokkatooInternalApi
+@DokkaInternalApi
 internal class DokkaParametersBuilder(
     private val archives: ArchiveOperations,
 ) {
@@ -96,7 +96,7 @@ internal class DokkaParametersBuilder(
                 }
 
                 val moduleDescriptor: DokkaModuleDescriptionKxs =
-                    DokkatooBasePlugin.jsonMapper.decodeFromString(
+                    DokkaBasePlugin.jsonMapper.decodeFromString(
                         DokkaModuleDescriptionKxs.serializer(),
                         moduleDescriptorJson.readText(),
                     )

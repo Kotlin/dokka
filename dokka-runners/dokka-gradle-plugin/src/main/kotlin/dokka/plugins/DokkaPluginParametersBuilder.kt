@@ -19,8 +19,8 @@ import org.gradle.api.tasks.PathSensitivity.RELATIVE
 import org.gradle.kotlin.dsl.containerWithType
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.mapProperty
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import java.io.File
 import javax.inject.Inject
 
@@ -28,7 +28,7 @@ import javax.inject.Inject
 /**
  * Dynamically create some configuration to control the behaviour of a Dokka Plugin.
  *
- * @param[pluginFqn] The fully-qualified name of a Dokka Plugin. For example, the FQN of the
+ * @param[pluginFqn] The fully qualified name of a Dokka Plugin. For example, the FQN of the
  * [Dokka Base plugin](https://github.com/Kotlin/dokka/tree/master/plugins/base#readme)
  * is `org.jetbrains.dokka.base.DokkaBase`
  */
@@ -48,11 +48,12 @@ fun DokkaPluginParametersContainer.pluginParameters(
  * This type of builder is necessary to respect
  * [Gradle incremental build annotations](https://docs.gradle.org/current/userguide/incremental_build.html#sec:task_input_output_annotations).
  *
- * @param[pluginFqn] The fully-qualified name of a Dokka Plugin. For example, the Dokka Base plugin's FQN is `org.jetbrains.dokka.base.DokkaBase`
+ * @param[pluginFqn] The fully qualified name of a Dokka Plugin.
+ *                   For example, the Dokka Base plugin's FQN is `org.jetbrains.dokka.base.DokkaBase`
  */
 abstract class DokkaPluginParametersBuilder
 @Inject
-@DokkatooInternalApi
+@DokkaInternalApi
 constructor(
     name: String,
     @get:Input

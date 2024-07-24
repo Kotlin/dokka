@@ -6,7 +6,7 @@ package org.jetbrains.dokka.gradle.dokka.parameters
 import kotlinx.serialization.Serializable
 import org.gradle.kotlin.dsl.java
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 
 /**
  * Any subproject can be merged into a single Dokka Publication. To do this, first it must create
@@ -19,9 +19,12 @@ import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
  * property values classes using Java Serialization.
  *
  * All other configuration data classes also implement [java.io.Serializable] via their parent interfaces.
+ *
+ * @see org.jetbrains.dokka.gradle.dokka.parameters.DokkaModuleDescriptionKxs
+ * @see org.jetbrains.dokka.DokkaModuleDescriptionImpl
  */
 @Serializable
-@DokkatooInternalApi
+@DokkaInternalApi
 data class DokkaModuleDescriptionKxs(
     /** @see DokkaConfiguration.DokkaModuleDescription.name */
     val name: String,

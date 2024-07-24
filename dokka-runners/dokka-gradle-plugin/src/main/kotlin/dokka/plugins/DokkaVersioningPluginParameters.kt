@@ -11,7 +11,7 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.addAll
 import org.jetbrains.dokka.gradle.internal.putIfNotNull
 import javax.inject.Inject
@@ -28,7 +28,7 @@ import javax.inject.Inject
  * Note: The versioning plugin only works with Dokka's HTML format.
  */
 abstract class DokkaVersioningPluginParameters
-@DokkatooInternalApi
+@DokkaInternalApi
 @Inject
 constructor(
     name: String,

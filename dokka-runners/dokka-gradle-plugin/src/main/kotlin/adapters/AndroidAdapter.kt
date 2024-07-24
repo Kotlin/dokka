@@ -18,24 +18,24 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.dokka.gradle.DokkatooBasePlugin
-import org.jetbrains.dokka.gradle.DokkatooExtension
+import org.jetbrains.dokka.gradle.DokkaBasePlugin
+import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.PluginId
 import org.jetbrains.dokka.gradle.internal.artifactType
 import java.io.File
 import javax.inject.Inject
 
-@DokkatooInternalApi
-abstract class DokkatooAndroidAdapter @Inject constructor(
+@DokkaInternalApi
+abstract class AndroidAdapter @Inject constructor(
     private val objects: ObjectFactory,
 ) : Plugin<Project> {
 
     override fun apply(project: Project) {
         logger.info("applied DokkatooAndroidAdapter to ${project.path}")
 
-        project.plugins.withType<DokkatooBasePlugin>().configureEach {
+        project.plugins.withType<DokkaBasePlugin>().configureEach {
             project.pluginManager.apply {
                 withPlugin(PluginId.AndroidBase) { configure(project) }
                 withPlugin(PluginId.AndroidApplication) { configure(project) }
@@ -45,11 +45,11 @@ abstract class DokkatooAndroidAdapter @Inject constructor(
     }
 
     protected fun configure(project: Project) {
-        val dokkatooExtension = project.extensions.getByType<DokkatooExtension>()
+        val dokkaExtension = project.extensions.getByType<DokkaExtension>()
 
         val androidExt = AndroidExtensionWrapper(project) ?: return
 
-        dokkatooExtension.dokkatooSourceSets.configureEach {
+        dokkaExtension.dokkaSourceSets.configureEach {
 
             classpath.from(
                 androidExt.bootClasspath()
@@ -72,12 +72,12 @@ abstract class DokkatooAndroidAdapter @Inject constructor(
         }
     }
 
-    @DokkatooInternalApi
+    @DokkaInternalApi
     companion object
 }
 
 
-private val logger = Logging.getLogger(DokkatooAndroidAdapter::class.java)
+private val logger = Logging.getLogger(AndroidAdapter::class.java)
 
 
 /** Create a [AndroidExtensionWrapper] */
@@ -165,10 +165,10 @@ private interface AndroidExtensionWrapper {
 /**
  * A utility for determining the classpath of an Android compilation.
  *
- * It's important that this class is separate from [DokkatooAndroidAdapter]. It must be separate
+ * It's important that this class is separate from [AndroidAdapter]. It must be separate
  * because it uses Android Gradle Plugin classes (like [BaseExtension]). Were it not separate, and
- * these classes were present in the function signatures of [DokkatooAndroidAdapter], then when
- * Gradle tries to create a decorated instance of [DokkatooAndroidAdapter] it will throw an
+ * these classes were present in the function signatures of [AndroidAdapter], then when
+ * Gradle tries to create a decorated instance of [AndroidAdapter] it will throw an
  * exception if the project does not have the Android Gradle Plugin applied, because the AGP
  * classes will be missing.
  */

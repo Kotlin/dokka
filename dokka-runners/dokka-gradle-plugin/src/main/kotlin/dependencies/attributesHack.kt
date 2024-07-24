@@ -15,7 +15,7 @@ import org.gradle.kotlin.dsl.DependencyHandlerScope
 import org.gradle.kotlin.dsl.add
 
 /**
- * Dumb hack to work around Gradle bugs/issues/deficiencies.
+ * Workaround for requiring stricter Gradle dependency resolution.
  *
  * Basically, even though a [Configuration][org.gradle.api.artifacts.Configuration] might specify
  * some [Attribute]s, Gradle can, in some situations, randomly ignore them, leading to

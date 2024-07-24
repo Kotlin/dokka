@@ -14,19 +14,19 @@ import org.jetbrains.dokka.DokkaConfiguration
  */
 enum class VisibilityModifier {
     /** `public` modifier for Java, default visibility for Kotlin */
-    PUBLIC,
+    Public,
 
     /** `private` modifier for both Kotlin and Java */
-    PRIVATE,
+    Private,
 
     /** `protected` modifier for both Kotlin and Java */
-    PROTECTED,
+    Protected,
 
     /** Kotlin-specific `internal` modifier */
-    INTERNAL,
+    Internal,
 
     /** Java-specific package-private visibility (no modifier) */
-    PACKAGE,
+    Package,
     ;
 
     companion object {
@@ -36,11 +36,11 @@ enum class VisibilityModifier {
         // Not defined as a property to try and minimize the dependency on Dokka Core types
         internal val VisibilityModifier.dokkaType: DokkaConfiguration.Visibility
             get() = when (this) {
-                PUBLIC -> DokkaConfiguration.Visibility.PUBLIC
-                PRIVATE -> DokkaConfiguration.Visibility.PRIVATE
-                PROTECTED -> DokkaConfiguration.Visibility.PROTECTED
-                INTERNAL -> DokkaConfiguration.Visibility.INTERNAL
-                PACKAGE -> DokkaConfiguration.Visibility.PACKAGE
+                Public -> DokkaConfiguration.Visibility.PUBLIC
+                Private -> DokkaConfiguration.Visibility.PRIVATE
+                Protected -> DokkaConfiguration.Visibility.PROTECTED
+                Internal -> DokkaConfiguration.Visibility.INTERNAL
+                Package -> DokkaConfiguration.Visibility.PACKAGE
             }
     }
 }

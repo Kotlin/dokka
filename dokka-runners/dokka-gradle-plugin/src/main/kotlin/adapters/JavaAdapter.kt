@@ -17,10 +17,10 @@ import org.gradle.api.tasks.SourceSet.TEST_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.dokka.gradle.DokkatooExtension
+import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.PluginId
 import org.jetbrains.dokka.gradle.internal.or
 import org.jetbrains.dokka.gradle.internal.uppercaseFirstChar
@@ -30,35 +30,35 @@ import javax.inject.Inject
 /**
  * Apply Java specific configuration to the Dokkatoo plugin.
  *
- * **Must be applied *after* [org.jetbrains.dokka.gradle.DokkatooBasePlugin]**
+ * **Must be applied *after* [org.jetbrains.dokka.gradle.DokkaBasePlugin]**
  */
-@DokkatooInternalApi
-abstract class DokkatooJavaAdapter @Inject constructor(
+@DokkaInternalApi
+abstract class JavaAdapter @Inject constructor(
     private val providers: ProviderFactory,
 ) : Plugin<Project> {
 
     private val logger = Logging.getLogger(this::class.java)
 
     override fun apply(project: Project) {
-        logger.info("applied DokkatooJavaAdapter to ${project.path}")
+        logger.info("applied DokkaJavaAdapter to ${project.path}")
 
-        val dokkatoo = project.extensions.getByType<DokkatooExtension>()
+        val dokkaExtension = project.extensions.getByType<DokkaExtension>()
 
         // wait for the Java plugin to be applied
         project.plugins.withType<JavaBasePlugin>().configureEach {
             val java = project.extensions.getByType<JavaPluginExtension>()
             val sourceSets = project.extensions.getByType<SourceSetContainer>()
 
-            detectJavaToolchainVersion(dokkatoo, java)
+            detectJavaToolchainVersion(dokkaExtension, java)
 
             val isConflictingPluginPresent = isConflictingPluginPresent(project)
-            registerDokkatooSourceSets(dokkatoo, sourceSets, isConflictingPluginPresent)
+            registerDokkaSourceSets(dokkaExtension, sourceSets, isConflictingPluginPresent)
         }
     }
 
-    /** fetch the  toolchain, and use the language version as Dokka's jdkVersion */
+    /** Fetch the  toolchain, and use the language version as Dokka's jdkVersion */
     private fun detectJavaToolchainVersion(
-        dokkatoo: DokkatooExtension,
+        dokkaExtension: DokkaExtension,
         java: JavaPluginExtension,
     ) {
         // fetch the toolchain, and use the language version as Dokka's jdkVersion
@@ -66,19 +66,19 @@ abstract class DokkatooJavaAdapter @Inject constructor(
             .toolchain
             .languageVersion
 
-        dokkatoo.dokkatooSourceSets.configureEach {
+        dokkaExtension.dokkaSourceSets.configureEach {
             jdkVersion.set(toolchainLanguageVersion.map { it.asInt() }.orElse(11))
         }
     }
 
-    private fun registerDokkatooSourceSets(
-        dokkatoo: DokkatooExtension,
+    private fun registerDokkaSourceSets(
+        dokkaExtension: DokkaExtension,
         sourceSets: SourceSetContainer,
         isConflictingPluginPresent: Provider<Boolean>,
     ) {
         sourceSets.all jss@{
             register(
-                dokkaSourceSets = dokkatoo.dokkatooSourceSets,
+                dokkaSourceSets = dokkaExtension.dokkaSourceSets,
                 src = this@jss,
                 isConflictingPluginPresent = isConflictingPluginPresent,
             )
@@ -109,8 +109,8 @@ abstract class DokkatooJavaAdapter @Inject constructor(
      * To prevent generating documentation for the same sources twice, automatically suppress any
      * [DokkaSourceSetSpec] when any Android or Kotlin plugin is present
      *
-     * Projects with Android or Kotlin projects present will be handled by [DokkatooAndroidAdapter]
-     * or [DokkatooKotlinAdapter].
+     * Projects with Android or Kotlin projects present will be handled by [AndroidAdapter]
+     * or [KotlinAdapter].
      */
     private fun isConflictingPluginPresent(
         project: Project
@@ -132,7 +132,7 @@ abstract class DokkatooJavaAdapter @Inject constructor(
         return projectHasKotlinPlugin or projectHasAndroidPlugin
     }
 
-    @DokkatooInternalApi
+    @DokkaInternalApi
     companion object {
         /**
          * Determine if a [KotlinCompilation] is 'publishable', and so should be enabled by default

@@ -20,15 +20,15 @@ class DokkatooPluginTest : FunSpec({
         project.extraProperties.set("enableDokkatoo", true)
         project.plugins.apply("org.jetbrains.dokka")
         project.plugins.hasPlugin("org.jetbrains.dokka") shouldBe true
-        project.plugins.hasPlugin(DokkatooPlugin::class) shouldBe true
+        project.plugins.hasPlugin(DokkaPlugin::class) shouldBe true
     }
 
     test("expect plugin class can be applied to project successfully") {
         val project = ProjectBuilder.builder().build()
         project.extraProperties.set("enableDokkatoo", true)
-        project.plugins.apply(type = DokkatooPlugin::class)
+        project.plugins.apply(type = DokkaPlugin::class)
         project.plugins.hasPlugin("org.jetbrains.dokka") shouldBe true
-        project.plugins.hasPlugin(DokkatooPlugin::class) shouldBe true
+        project.plugins.hasPlugin(DokkaPlugin::class) shouldBe true
     }
 
     context("Dokkatoo property conventions") {
@@ -36,10 +36,10 @@ class DokkatooPluginTest : FunSpec({
         project.extraProperties.set("enableDokkatoo", true)
         project.plugins.apply("org.jetbrains.dokka")
 
-        val extension = project.extensions.getByType<DokkatooExtension>()
+        val extension = project.extensions.getByType<DokkaExtension>()
 
         context("DokkatooSourceSets") {
-            val testSourceSet = extension.dokkatooSourceSets.create_("Test") {
+            val testSourceSet = extension.dokkaSourceSets.create_("Test") {
                 externalDocumentationLinks.create_("gradle") {
                     url("https://docs.gradle.org/7.6.1/javadoc")
                 }

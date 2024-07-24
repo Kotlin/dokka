@@ -74,7 +74,7 @@ class HtmlAggregationWarningTest : FunSpec({
             |
             |Suggestions:
             | - Verify that the dependency has not been excluded.
-            | - Raise an issue https://github.com/adamko-dev/dokkatoo/issues
+            | - Raise an issue https://github.com/Kotlin/dokka/
             """
             .trimMargin()
             .prependIndent("> ")

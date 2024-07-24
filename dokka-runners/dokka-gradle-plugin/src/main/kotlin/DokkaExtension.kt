@@ -22,10 +22,10 @@ import org.jetbrains.dokka.gradle.workers.WorkerIsolation
 import java.io.Serializable
 
 /**
- * Configure the behaviour of the [DokkatooBasePlugin].
+ * Configure the behaviour of the [DokkaBasePlugin].
  */
-abstract class DokkatooExtension
-@DokkatooInternalApi
+abstract class DokkaExtension
+@DokkaInternalApi
 constructor(
     private val objects: ObjectFactory,
     internal val baseDependencyManager: BaseDependencyManager,
@@ -69,7 +69,7 @@ constructor(
      * projects with a version below 2.0.
      */
     // This property should be removed when Dokkatoo only supports KGP 2 or higher.
-    @DokkatooInternalApi
+    @DokkaInternalApi
     abstract val konanHome: RegularFileProperty
 
     /**
@@ -113,7 +113,7 @@ constructor(
      *
      * Dokka will merge Dokka Source Sets from other subprojects if...
      */
-    val dokkatooSourceSets: NamedDomainObjectContainer<DokkaSourceSetSpec> =
+    val dokkaSourceSets: NamedDomainObjectContainer<DokkaSourceSetSpec> =
         extensions.adding("dokkatooSourceSets", objects.domainObjectContainer())
 
     /**

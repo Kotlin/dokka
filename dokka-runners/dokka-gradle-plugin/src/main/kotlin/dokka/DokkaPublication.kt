@@ -12,7 +12,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.adding
 import java.io.Serializable
 import javax.inject.Inject
@@ -26,7 +26,7 @@ import javax.inject.Inject
  * By default, Dokka will create publications for HTML, Jekyll, and GitHub Flavoured Markdown.
  */
 abstract class DokkaPublication
-@DokkatooInternalApi
+@DokkaInternalApi
 @Inject
 constructor(
     @get:Internal
@@ -34,7 +34,7 @@ constructor(
 
     /**
      * Configurations for Dokka Generator Plugins. Must be provided from
-     * [org.jetbrains.dokka.gradle.DokkatooExtension.pluginsConfiguration].
+     * [org.jetbrains.dokka.gradle.DokkaExtension.pluginsConfiguration].
      */
     pluginsConfiguration: DokkaPluginParametersContainer,
 ) : Named, Serializable, ExtensionAware {
@@ -68,7 +68,7 @@ constructor(
     @get:Input
     // marked as an Input because a DokkaPublication is used to configure the appropriate
     // DokkatooTasks, which will then
-    @DokkatooInternalApi
+    @DokkaInternalApi
     protected val outputDirPath: Provider<String>
         get() = outputDir.map { it.asFile.invariantSeparatorsPath }
 
@@ -83,7 +83,7 @@ constructor(
      */
     @get:Input
     @get:Optional
-    @DokkatooInternalApi
+    @DokkaInternalApi
     protected val cacheRootPath: Provider<String>
         get() = cacheRoot.map { it.asFile.invariantSeparatorsPath }
 
