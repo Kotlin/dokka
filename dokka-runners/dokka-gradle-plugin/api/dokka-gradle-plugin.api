@@ -106,10 +106,10 @@ public final class org/jetbrains/dokka/gradle/DokkatooBasePlugin$inlined$sam$i$o
 }
 
 public abstract class org/jetbrains/dokka/gradle/DokkatooExtension : java/io/Serializable, org/gradle/api/plugins/ExtensionAware {
-	public final fun ClassLoaderIsolation (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/gradle/workers/ClassLoaderIsolation;
-	public static synthetic fun ClassLoaderIsolation$default (Lorg/jetbrains/dokka/gradle/DokkatooExtension;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/dokka/gradle/workers/ClassLoaderIsolation;
-	public final fun ProcessIsolation (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/gradle/workers/ProcessIsolation;
-	public static synthetic fun ProcessIsolation$default (Lorg/jetbrains/dokka/gradle/DokkatooExtension;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/dokka/gradle/workers/ProcessIsolation;
+	public final fun ClassLoaderIsolation (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$ClassLoaderIsolation;
+	public static synthetic fun ClassLoaderIsolation$default (Lorg/jetbrains/dokka/gradle/DokkatooExtension;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$ClassLoaderIsolation;
+	public final fun ProcessIsolation (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$ProcessIsolation;
+	public static synthetic fun ProcessIsolation$default (Lorg/jetbrains/dokka/gradle/DokkatooExtension;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$ProcessIsolation;
 	public abstract fun getDokkaGeneratorIsolation ()Lorg/gradle/api/provider/Property;
 	public abstract fun getDokkatooCacheDirectory ()Lorg/gradle/api/file/DirectoryProperty;
 	public abstract fun getDokkatooConfigurationsDirectory ()Lorg/gradle/api/file/DirectoryProperty;
@@ -458,10 +458,10 @@ public abstract class org/jetbrains/dokka/gradle/dokka/plugins/DokkaVersioningPl
 public final class org/jetbrains/dokka/gradle/dokka/plugins/DokkaVersioningPluginParameters$Companion {
 }
 
-public abstract interface class org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue {
+public abstract class org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue {
 }
 
-public final class org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue$BooleanValue : org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue$Primitive {
+public final class org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue$BooleanValue : org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue {
 	public fun <init> (Z)V
 	public final fun getBoolean ()Z
 }
@@ -481,12 +481,9 @@ public final class org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue$Fi
 	public final fun getFiles ()Lorg/gradle/api/file/ConfigurableFileCollection;
 }
 
-public final class org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue$NumberValue : org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue$Primitive {
+public final class org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue$NumberValue : org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue {
 	public fun <init> (Ljava/lang/Number;)V
 	public final fun getNumber ()Ljava/lang/Number;
-}
-
-public abstract interface class org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue$Primitive : org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue {
 }
 
 public final class org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue$Properties : org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue {
@@ -494,7 +491,7 @@ public final class org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue$Pr
 	public final fun getValues ()Lorg/gradle/api/provider/MapProperty;
 }
 
-public final class org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue$StringValue : org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue$Primitive {
+public final class org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue$StringValue : org/jetbrains/dokka/gradle/dokka/plugins/PluginConfigValue {
 	public fun <init> (Ljava/lang/String;)V
 	public final fun getString ()Ljava/lang/String;
 }
@@ -603,10 +600,15 @@ public abstract class org/jetbrains/dokka/gradle/tasks/LogHtmlPublicationLinkTas
 public final class org/jetbrains/dokka/gradle/tasks/LogHtmlPublicationLinkTask$Companion {
 }
 
-public abstract interface class org/jetbrains/dokka/gradle/workers/ClassLoaderIsolation : org/jetbrains/dokka/gradle/workers/WorkerIsolation {
+public abstract class org/jetbrains/dokka/gradle/workers/WorkerIsolation {
 }
 
-public abstract interface class org/jetbrains/dokka/gradle/workers/ProcessIsolation : org/jetbrains/dokka/gradle/workers/WorkerIsolation {
+public abstract class org/jetbrains/dokka/gradle/workers/WorkerIsolation$ClassLoaderIsolation : org/jetbrains/dokka/gradle/workers/WorkerIsolation {
+	public fun <init> ()V
+}
+
+public abstract class org/jetbrains/dokka/gradle/workers/WorkerIsolation$ProcessIsolation : org/jetbrains/dokka/gradle/workers/WorkerIsolation {
+	public fun <init> ()V
 	public abstract fun getDebug ()Lorg/gradle/api/provider/Property;
 	public abstract fun getDefaultCharacterEncoding ()Lorg/gradle/api/provider/Property;
 	public abstract fun getEnableAssertions ()Lorg/gradle/api/provider/Property;
@@ -614,8 +616,5 @@ public abstract interface class org/jetbrains/dokka/gradle/workers/ProcessIsolat
 	public abstract fun getMaxHeapSize ()Lorg/gradle/api/provider/Property;
 	public abstract fun getMinHeapSize ()Lorg/gradle/api/provider/Property;
 	public abstract fun getSystemProperties ()Lorg/gradle/api/provider/MapProperty;
-}
-
-public abstract interface class org/jetbrains/dokka/gradle/workers/WorkerIsolation {
 }
 
