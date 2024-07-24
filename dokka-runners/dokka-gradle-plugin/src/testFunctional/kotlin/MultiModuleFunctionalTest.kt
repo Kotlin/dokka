@@ -196,14 +196,14 @@ class MultiModuleFunctionalTest : FunSpec({
                 buildCacheDir.toFile().mkdirs()
 
                 val buildCacheConfig = """
-          |
-          |buildCache { 
-          |  local { 
-          |    directory = "${buildCacheDir.invariantSeparatorsPathString}"
-          |  }
-          |}
-          |
-        """.trimMargin()
+                    |
+                    |buildCache { 
+                    |  local { 
+                    |    directory = "${buildCacheDir.invariantSeparatorsPathString}"
+                    |  }
+                    |}
+                    |
+                    """.trimMargin()
 
                 originalProject.settingsGradleKts += buildCacheConfig
                 relocatedProject.settingsGradleKts += buildCacheConfig
@@ -345,15 +345,15 @@ class MultiModuleFunctionalTest : FunSpec({
                     project.createKotlinFile(
                         "subproject-hello/src/main/kotlin/HelloAgain.kt",
                         """
-              |package com.project.hello
-              |
-              |/** Like [Hello], but again */
-              |class HelloAgain {
-              |    /** prints `Hello Again` to the console */  
-              |    fun sayHelloAgain() = println("Hello Again")
-              |}
-              |
-            """.trimMargin()
+                        |package com.project.hello
+                        |
+                        |/** Like [Hello], but again */
+                        |class HelloAgain {
+                        |    /** prints `Hello Again` to the console */  
+                        |    fun sayHelloAgain() = println("Hello Again")
+                        |}
+                        |
+                        """.trimMargin()
                     ).toPath()
 
                 context("expect Dokka re-generates the publication") {
@@ -469,11 +469,11 @@ class MultiModuleFunctionalTest : FunSpec({
                     // easy way to force Gradle to re-configure the projects - so only check conditionally.
                     if ("Configure project" in output) {
                         output shouldContain /*language=text*/ """
-              ¦> Configure project :
-              ¦> Configure project :subproject-goodbye
-              ¦> Configure project :subproject-hello
-              ¦> Task :clean
-            """.trimMargin("¦")
+                            ¦> Configure project :
+                            ¦> Configure project :subproject-goodbye
+                            ¦> Configure project :subproject-hello
+                            ¦> Task :clean
+                            """.trimMargin("¦")
                     }
 
                     output.lines()
@@ -536,48 +536,48 @@ class MultiModuleFunctionalTest : FunSpec({
                 val workerIsolationConfig = when (isolation) {
                     ClassLoader -> { // language=kts
                         """
-              |
-              |dokkatoo {
-              |  dokkaGeneratorIsolation.set(
-              |    ClassLoaderIsolation()
-              |  )
-              |}
-              |
-            """.trimMargin()
+                        |
+                        |dokkatoo {
+                        |  dokkaGeneratorIsolation.set(
+                        |    ClassLoaderIsolation()
+                        |  )
+                        |}
+                        |
+                        """.trimMargin()
                     }
 
                     Process ->  // language=kts
                         """
-              |
-              |dokkatoo {
-              |  dokkaGeneratorIsolation.set(
-              |    ProcessIsolation {
-              |       debug.set(false)
-              |       enableAssertions.set(true)
-              |       minHeapSize.set("64m")
-              |       maxHeapSize.set("512m")
-              |       jvmArgs.set(listOf("a"))
-              |       //allJvmArgs.set(listOf("b"))
-              |       defaultCharacterEncoding.set("UTF-8")
-              |       systemProperties.set(mapOf("a" to "b"))
-              |     }
-              |  )
-              |}
-              |
-            """.trimMargin()
+                        |
+                        |dokkatoo {
+                        |  dokkaGeneratorIsolation.set(
+                        |    ProcessIsolation {
+                        |       debug.set(false)
+                        |       enableAssertions.set(true)
+                        |       minHeapSize.set("64m")
+                        |       maxHeapSize.set("512m")
+                        |       jvmArgs.set(listOf("a"))
+                        |       //allJvmArgs.set(listOf("b"))
+                        |       defaultCharacterEncoding.set("UTF-8")
+                        |       systemProperties.set(mapOf("a" to "b"))
+                        |     }
+                        |  )
+                        |}
+                        |
+                        """.trimMargin()
                 }
 
                 // language=kts
                 val tasksLogWorkerIsolation = """
-          |
-          |tasks.withType<org.jetbrains.dokka.gradle.tasks.DokkatooGenerateTask>().configureEach {
-          |  doFirst {
-          |    val isolation = workerIsolation.get()
-          |    logger.lifecycle(path + " - running with workerIsolation " + isolation)
-          |  }
-          |}
-          |
-        """.trimMargin()
+                    |
+                    |tasks.withType<org.jetbrains.dokka.gradle.tasks.DokkatooGenerateTask>().configureEach {
+                    |  doFirst {
+                    |    val isolation = workerIsolation.get()
+                    |    logger.lifecycle(path + " - running with workerIsolation " + isolation)
+                    |  }
+                    |}
+                    |
+                    """.trimMargin()
 
                 buildGradleKts += workerIsolationConfig + tasksLogWorkerIsolation
                 dir("subproject-hello") {

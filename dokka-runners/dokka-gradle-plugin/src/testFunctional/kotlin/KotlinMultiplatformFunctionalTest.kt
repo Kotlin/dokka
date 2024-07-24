@@ -68,15 +68,15 @@ class KotlinMultiplatformFunctionalTest : FunSpec({
                 project.projectDir.resolve("build/dokka/html/test/package-list").readText()
                     .sortLines()
                     .shouldContain( /* language=text */ """
-              |${'$'}dokka.format:html-v1
-              |${'$'}dokka.linkExtension:html
-              |${'$'}dokka.location:com.project////PointingToDeclaration/test/com.project/index.html
-              |${'$'}dokka.location:com.project//goodbye/#kotlinx.serialization.json.JsonObject/PointingToDeclaration/test/com.project/goodbye.html
-              |${'$'}dokka.location:com.project/Hello///PointingToDeclaration/test/com.project/-hello/index.html
-              |${'$'}dokka.location:com.project/Hello/Hello/#/PointingToDeclaration/test/com.project/-hello/-hello.html
-              |${'$'}dokka.location:com.project/Hello/sayHello/#kotlinx.serialization.json.JsonObject/PointingToDeclaration/test/com.project/-hello/say-hello.html
-              |com.project
-            """.trimMargin()
+                        |${'$'}dokka.format:html-v1
+                        |${'$'}dokka.linkExtension:html
+                        |${'$'}dokka.location:com.project////PointingToDeclaration/test/com.project/index.html
+                        |${'$'}dokka.location:com.project//goodbye/#kotlinx.serialization.json.JsonObject/PointingToDeclaration/test/com.project/goodbye.html
+                        |${'$'}dokka.location:com.project/Hello///PointingToDeclaration/test/com.project/-hello/index.html
+                        |${'$'}dokka.location:com.project/Hello/Hello/#/PointingToDeclaration/test/com.project/-hello/-hello.html
+                        |${'$'}dokka.location:com.project/Hello/sayHello/#kotlinx.serialization.json.JsonObject/PointingToDeclaration/test/com.project/-hello/say-hello.html
+                        |com.project
+                        """.trimMargin()
                     )
             }
 
@@ -108,111 +108,111 @@ private fun initKotlinMultiplatformProject(
     return gradleKtsProjectTest("kotlin-multiplatform-project") {
 
         settingsGradleKts += """
-      |
-      |dependencyResolutionManagement {
-      |
-      |  repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-      |
-      |  repositories {
-      |    mavenCentral()
-      |
-      |    // Declare the Node.js & Yarn download repositories
-      |    exclusiveContent {
-      |      forRepository {
-      |        ivy("https://nodejs.org/dist/") {
-      |          name = "Node Distributions at ${'$'}url"
-      |          patternLayout { artifact("v[revision]/[artifact](-v[revision]-[classifier]).[ext]") }
-      |          metadataSources { artifact() }
-      |          content { includeModule("org.nodejs", "node") }
-      |        }
-      |      }
-      |      filter { includeGroup("org.nodejs") }
-      |    }
-      |
-      |    exclusiveContent {
-      |      forRepository {
-      |        ivy("https://github.com/yarnpkg/yarn/releases/download") {
-      |          name = "Node Distributions at ${'$'}url"
-      |          patternLayout { artifact("v[revision]/[artifact](-v[revision]).[ext]") }
-      |          metadataSources { artifact() }
-      |          content { includeModule("com.yarnpkg", "yarn") }
-      |        }
-      |      }
-      |      filter { includeGroup("com.yarnpkg") }
-      |    }
-      |  }
-      |}
-      |
-    """.trimMargin()
+            |
+            |dependencyResolutionManagement {
+            |
+            |  repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+            |
+            |  repositories {
+            |    mavenCentral()
+            |
+            |    // Declare the Node.js & Yarn download repositories
+            |    exclusiveContent {
+            |      forRepository {
+            |        ivy("https://nodejs.org/dist/") {
+            |          name = "Node Distributions at ${'$'}url"
+            |          patternLayout { artifact("v[revision]/[artifact](-v[revision]-[classifier]).[ext]") }
+            |          metadataSources { artifact() }
+            |          content { includeModule("org.nodejs", "node") }
+            |        }
+            |      }
+            |      filter { includeGroup("org.nodejs") }
+            |    }
+            |
+            |    exclusiveContent {
+            |      forRepository {
+            |        ivy("https://github.com/yarnpkg/yarn/releases/download") {
+            |          name = "Node Distributions at ${'$'}url"
+            |          patternLayout { artifact("v[revision]/[artifact](-v[revision]).[ext]") }
+            |          metadataSources { artifact() }
+            |          content { includeModule("com.yarnpkg", "yarn") }
+            |        }
+            |      }
+            |      filter { includeGroup("com.yarnpkg") }
+            |    }
+            |  }
+            |}
+            |
+            """.trimMargin()
 
         buildGradleKts = """
-      |plugins {
-      |  kotlin("multiplatform") version "1.8.22"
-      |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
-      |}
-      |
-      |kotlin {
-      |  jvm()
-      |  js(IR) {
-      |    browser()
-      |  }
-      |
-      |  sourceSets {
-      |    commonMain {
-      |      dependencies {
-      |        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-      |      }
-      |    }
-      |    commonTest {
-      |      dependencies {
-      |        implementation(kotlin("test"))
-      |      }
-      |    }
-      |  }
-      |}
-      |
-      |dokkatoo {
-      |  dokkatooSourceSets.configureEach {
-      |    externalDocumentationLinks {
-      |      create("kotlinxSerialization") {
-      |        url("https://kotlinlang.org/api/kotlinx.serialization/")
-      |      }
-      |    }
-      |  }
-      |}
-      |
-      |
-    """.trimMargin()
+            |plugins {
+            |  kotlin("multiplatform") version "1.8.22"
+            |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
+            |}
+            |
+            |kotlin {
+            |  jvm()
+            |  js(IR) {
+            |    browser()
+            |  }
+            |
+            |  sourceSets {
+            |    commonMain {
+            |      dependencies {
+            |        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+            |      }
+            |    }
+            |    commonTest {
+            |      dependencies {
+            |        implementation(kotlin("test"))
+            |      }
+            |    }
+            |  }
+            |}
+            |
+            |dokkatoo {
+            |  dokkatooSourceSets.configureEach {
+            |    externalDocumentationLinks {
+            |      create("kotlinxSerialization") {
+            |        url("https://kotlinlang.org/api/kotlinx.serialization/")
+            |      }
+            |    }
+            |  }
+            |}
+            |
+            |
+            """.trimMargin()
 
         dir("src/commonMain/kotlin/") {
 
             createKotlinFile(
                 "Hello.kt",
                 """
-          |package com.project
-          |
-          |import kotlinx.serialization.json.JsonObject
-          |
-          |/** The Hello class */
-          |class Hello {
-          |    /** prints `Hello` and [json] to the console */
-          |    fun sayHello(json: JsonObject) = println("Hello ${'$'}json")
-          |}
-          |
-        """.trimMargin()
+                |package com.project
+                |
+                |import kotlinx.serialization.json.JsonObject
+                |
+                |/** The Hello class */
+                |class Hello {
+                |    /** prints `Hello` and [json] to the console */
+                |    fun sayHello(json: JsonObject) = println("Hello ${'$'}json")
+                |}
+                |
+                """.trimMargin()
             )
 
             createKotlinFile(
                 "goodbye.kt",
                 """
-          |package com.project
-          |
-          |import kotlinx.serialization.json.JsonObject
-          |
-          |/** Should print `goodbye` and [json] to the console */
-          |expect fun goodbye(json: JsonObject)
-          |
-        """.trimMargin()
+                |package com.project
+                |
+                |import kotlinx.serialization.json.JsonObject
+                |
+                |/** Should print `goodbye` and [json] to the console */
+                |expect fun goodbye(json: JsonObject)
+                |
+                """.trimMargin()
             )
         }
 
@@ -220,14 +220,14 @@ private fun initKotlinMultiplatformProject(
             createKotlinFile(
                 "goodbyeJvm.kt",
                 """
-          |package com.project
-          |
-          |import kotlinx.serialization.json.JsonObject
-          |
-          |/** JVM implementation - prints `goodbye` and [json] to the console */
-          |actual fun goodbye(json: JsonObject) = println("[JVM] goodbye ${'$'}json")
-          |
-        """.trimMargin()
+                |package com.project
+                |
+                |import kotlinx.serialization.json.JsonObject
+                |
+                |/** JVM implementation - prints `goodbye` and [json] to the console */
+                |actual fun goodbye(json: JsonObject) = println("[JVM] goodbye ${'$'}json")
+                |
+                """.trimMargin()
             )
         }
 
@@ -235,14 +235,14 @@ private fun initKotlinMultiplatformProject(
             createKotlinFile(
                 "goodbyeJs.kt",
                 """
-          |package com.project
-          |
-          |import kotlinx.serialization.json.JsonObject
-          |
-          |/** JS implementation - prints `goodbye` and [json] to the console */
-          |actual fun goodbye(json: JsonObject) = println("[JS] goodbye ${'$'}json")
-          |
-        """.trimMargin()
+                |package com.project
+                |
+                |import kotlinx.serialization.json.JsonObject
+                |
+                |/** JS implementation - prints `goodbye` and [json] to the console */
+                |actual fun goodbye(json: JsonObject) = println("[JS] goodbye ${'$'}json")
+                |
+                """.trimMargin()
             )
         }
 

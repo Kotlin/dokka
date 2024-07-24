@@ -57,54 +57,54 @@ private fun initGradlePluginProject(
     return gradleKtsProjectTest("gradle-plugin-project") {
 
         settingsGradleKts += """
-      |
-    """.trimMargin()
+            |
+            """.trimMargin()
 
         buildGradleKts = """
-      |plugins {
-      |  `kotlin-dsl`
-      |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
-      |}
-      |
-    """.trimMargin()
+            |plugins {
+            |  `kotlin-dsl`
+            |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
+            |}
+            |
+            """.trimMargin()
 
         dir("src/main/kotlin") {
 
             createKotlinFile(
                 "MyCustomGradlePlugin.kt",
                 """
-          |package com.project.gradle.plugin
-          |
-          |import javax.inject.Inject
-          |import org.gradle.api.Plugin
-          |import org.gradle.api.Project
-          |import org.gradle.api.model.ObjectFactory
-          |import org.gradle.kotlin.dsl.*
-          |
-          |abstract class MyCustomGradlePlugin @Inject constructor(
-          |  private val objects: ObjectFactory
-          |) : Plugin<Project> {
-          |  override fun apply(project: Project) {
-          |    println(objects.property<String>().getOrElse("empty"))
-          |  }
-          |}
-
-        """.trimMargin()
+                |package com.project.gradle.plugin
+                |
+                |import javax.inject.Inject
+                |import org.gradle.api.Plugin
+                |import org.gradle.api.Project
+                |import org.gradle.api.model.ObjectFactory
+                |import org.gradle.kotlin.dsl.*
+                |
+                |abstract class MyCustomGradlePlugin @Inject constructor(
+                |  private val objects: ObjectFactory
+                |) : Plugin<Project> {
+                |  override fun apply(project: Project) {
+                |    println(objects.property<String>().getOrElse("empty"))
+                |  }
+                |}
+                |
+                """.trimMargin()
             )
 
             createKotlinFile(
                 "MyCustomGradlePluginExtension.kt",
                 """
-          |package com.project.gradle.plugin
-          |
-          |import org.gradle.api.provider.*
-          |
-          |interface MyCustomGradlePluginExtension {
-          |  val versionProperty: Property<String>
-          |  val versionProvider: Provider<String>
-          |}
-          |
-        """.trimMargin()
+                |package com.project.gradle.plugin
+                |
+                |import org.gradle.api.provider.*
+                |
+                |interface MyCustomGradlePluginExtension {
+                |  val versionProperty: Property<String>
+                |  val versionProvider: Provider<String>
+                |}
+                |
+                """.trimMargin()
             )
         }
 

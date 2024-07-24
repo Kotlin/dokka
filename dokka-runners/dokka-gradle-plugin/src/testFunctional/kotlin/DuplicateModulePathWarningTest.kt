@@ -14,22 +14,22 @@ class DuplicateModulePathWarningTest : FunSpec({
 
         project.dir("subproject-hello") {
             buildGradleKts += """
-        |
-        |dokkatoo {
-        |  modulePath = "dupe"
-        |}
-        |
-      """.trimMargin()
+                |
+                |dokkatoo {
+                |  modulePath = "dupe"
+                |}
+                |
+                """.trimMargin()
         }
 
         project.dir("subproject-goodbye") {
             buildGradleKts += """
-        |
-        |dokkatoo {
-        |  modulePath = "dupe"
-        |}
-        |
-      """.trimMargin()
+                |
+                |dokkatoo {
+                |  modulePath = "dupe"
+                |}
+                |
+                """.trimMargin()
         }
 
         context("generate HTML publication") {

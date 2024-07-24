@@ -15,11 +15,11 @@ class DokkatooPluginFunctionalTest : FunSpec({
     val testProject = gradleKtsProjectTest("DokkatooPluginFunctionalTest") {
 
         buildGradleKts = """
-      |plugins {
-      |  id("org.jetbrains.dokka") version "$DOKKATOO_VERSION"
-      |}
-      |
-    """.trimMargin()
+            |plugins {
+            |  id("org.jetbrains.dokka") version "$DOKKATOO_VERSION"
+            |}
+            |
+            """.trimMargin()
     }
 
     test("expect Dokka Plugin creates Dokka tasks") {
@@ -35,20 +35,20 @@ class DokkatooPluginFunctionalTest : FunSpec({
 
                     dokkatooTasks.shouldContainExactly(
                         //@formatter:off
-            "dokkatooGenerate"                       to "Generates Dokkatoo publications for all formats",
-            "dokkatooGenerateModuleGfm"              to "Executes the Dokka Generator, generating a gfm module",
-            "dokkatooGenerateModuleHtml"             to "Executes the Dokka Generator, generating a html module",
-            "dokkatooGenerateModuleJavadoc"          to "Executes the Dokka Generator, generating a javadoc module",
-            "dokkatooGenerateModuleJekyll"           to "Executes the Dokka Generator, generating a jekyll module",
-            "dokkatooGeneratePublicationGfm"         to "Executes the Dokka Generator, generating the gfm publication",
-            "dokkatooGeneratePublicationHtml"        to "Executes the Dokka Generator, generating the html publication",
-            "dokkatooGeneratePublicationJavadoc"     to "Executes the Dokka Generator, generating the javadoc publication",
-            "dokkatooGeneratePublicationJekyll"      to "Executes the Dokka Generator, generating the jekyll publication",
-            "prepareDokkatooModuleDescriptorGfm"     to "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for gfm",
-            "prepareDokkatooModuleDescriptorHtml"    to "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for html",
-            "prepareDokkatooModuleDescriptorJavadoc" to "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for javadoc",
-            "prepareDokkatooModuleDescriptorJekyll"  to "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for jekyll",
-            //@formatter:on
+                        "dokkatooGenerate"                       to "Generates Dokkatoo publications for all formats",
+                        "dokkatooGenerateModuleGfm"              to "Executes the Dokka Generator, generating a gfm module",
+                        "dokkatooGenerateModuleHtml"             to "Executes the Dokka Generator, generating a html module",
+                        "dokkatooGenerateModuleJavadoc"          to "Executes the Dokka Generator, generating a javadoc module",
+                        "dokkatooGenerateModuleJekyll"           to "Executes the Dokka Generator, generating a jekyll module",
+                        "dokkatooGeneratePublicationGfm"         to "Executes the Dokka Generator, generating the gfm publication",
+                        "dokkatooGeneratePublicationHtml"        to "Executes the Dokka Generator, generating the html publication",
+                        "dokkatooGeneratePublicationJavadoc"     to "Executes the Dokka Generator, generating the javadoc publication",
+                        "dokkatooGeneratePublicationJekyll"      to "Executes the Dokka Generator, generating the jekyll publication",
+                        "prepareDokkatooModuleDescriptorGfm"     to "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for gfm",
+                        "prepareDokkatooModuleDescriptorHtml"    to "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for html",
+                        "prepareDokkatooModuleDescriptorJavadoc" to "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for javadoc",
+                        "prepareDokkatooModuleDescriptorJekyll"  to "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for jekyll",
+                        //@formatter:on
                     )
                 }
             }
@@ -78,20 +78,20 @@ class DokkatooPluginFunctionalTest : FunSpec({
                     val Format = format.uppercaseFirstChar()
 
                     variants shouldContain /* language=text */ """
-            |--------------------------------------------------
-            |Variant dokkatoo${Format}ModuleOutputDirectoriesConsumable
-            |--------------------------------------------------
-            |Provides Dokkatoo $format ModuleOutputDirectories files for consumption by other subprojects.
-            |
-            |Capabilities
-            |    - :test:unspecified (default capability)
-            |Attributes
-            |    - org.gradle.usage                     = org.jetbrains.dokka
-            |    - org.jetbrains.dokka.format           = $format
-            |    - org.jetbrains.dokka.module-component = ModuleOutputDirectories
-            |Artifacts
-            |    - build/dokka-module/$format (artifactType = dokka-module-directory)
-          """.trimMargin()
+                        |--------------------------------------------------
+                        |Variant dokkatoo${Format}ModuleOutputDirectoriesConsumable
+                        |--------------------------------------------------
+                        |Provides Dokkatoo $format ModuleOutputDirectories files for consumption by other subprojects.
+                        |
+                        |Capabilities
+                        |    - :test:unspecified (default capability)
+                        |Attributes
+                        |    - org.gradle.usage                     = org.jetbrains.dokka
+                        |    - org.jetbrains.dokka.format           = $format
+                        |    - org.jetbrains.dokka.module-component = ModuleOutputDirectories
+                        |Artifacts
+                        |    - build/dokka-module/$format (artifactType = dokka-module-directory)
+                        """.trimMargin()
                 }
 
                 checkVariant("gfm")
@@ -129,54 +129,54 @@ class DokkatooPluginFunctionalTest : FunSpec({
                         val format = Format.lowercase()
 
                         allConfigurations shouldContain /* language=text */ """
-              |--------------------------------------------------
-              |Configuration dokkatoo${Format}GeneratorClasspathResolver
-              |--------------------------------------------------
-              |Dokka Generator runtime classpath for $format - will be used in Dokka Worker. Should contain all transitive dependencies, plugins (and their transitive dependencies), so Dokka Worker can run.
-              |
-              |Attributes
-              |    - org.gradle.category            = Dokkatoo~library
-              |    - org.gradle.dependency.bundling = Dokkatoo~external
-              |    - org.gradle.jvm.environment     = Dokkatoo~standard-jvm
-              |    - org.gradle.libraryelements     = Dokkatoo~jar
-              |    - org.gradle.usage               = Dokkatoo~java-runtime
-              |    - org.jetbrains.dokka.classpath  = dokka-generator
-              |    - org.jetbrains.dokka.format     = $format
-              |Extended Configurations
-              |    - dokkatoo${Format}GeneratorClasspath
-           """.trimMargin()
+                            |--------------------------------------------------
+                            |Configuration dokkatoo${Format}GeneratorClasspathResolver
+                            |--------------------------------------------------
+                            |Dokka Generator runtime classpath for $format - will be used in Dokka Worker. Should contain all transitive dependencies, plugins (and their transitive dependencies), so Dokka Worker can run.
+                            |
+                            |Attributes
+                            |    - org.gradle.category            = Dokkatoo~library
+                            |    - org.gradle.dependency.bundling = Dokkatoo~external
+                            |    - org.gradle.jvm.environment     = Dokkatoo~standard-jvm
+                            |    - org.gradle.libraryelements     = Dokkatoo~jar
+                            |    - org.gradle.usage               = Dokkatoo~java-runtime
+                            |    - org.jetbrains.dokka.classpath  = dokka-generator
+                            |    - org.jetbrains.dokka.format     = $format
+                            |Extended Configurations
+                            |    - dokkatoo${Format}GeneratorClasspath
+                            """.trimMargin()
 
                         allConfigurations shouldContain /* language=text */ """
-              |--------------------------------------------------
-              |Configuration dokkatoo${Format}PluginsClasspathIntransitiveResolver
-              |--------------------------------------------------
-              |Resolves Dokka Plugins classpath for $format - for internal use. Fetch only the plugins (no transitive dependencies) for use in the Dokka JSON Configuration.
-              |
-              |Attributes
-              |    - org.gradle.category            = Dokkatoo~library
-              |    - org.gradle.dependency.bundling = Dokkatoo~external
-              |    - org.gradle.jvm.environment     = Dokkatoo~standard-jvm
-              |    - org.gradle.libraryelements     = Dokkatoo~jar
-              |    - org.gradle.usage               = Dokkatoo~java-runtime
-              |    - org.jetbrains.dokka.classpath  = dokka-plugins
-              |    - org.jetbrains.dokka.format     = $format
-              |Extended Configurations
-              |    - dokkatooPlugin${Format}
-           """.trimMargin()
+                            |--------------------------------------------------
+                            |Configuration dokkatoo${Format}PluginsClasspathIntransitiveResolver
+                            |--------------------------------------------------
+                            |Resolves Dokka Plugins classpath for $format - for internal use. Fetch only the plugins (no transitive dependencies) for use in the Dokka JSON Configuration.
+                            |
+                            |Attributes
+                            |    - org.gradle.category            = Dokkatoo~library
+                            |    - org.gradle.dependency.bundling = Dokkatoo~external
+                            |    - org.gradle.jvm.environment     = Dokkatoo~standard-jvm
+                            |    - org.gradle.libraryelements     = Dokkatoo~jar
+                            |    - org.gradle.usage               = Dokkatoo~java-runtime
+                            |    - org.jetbrains.dokka.classpath  = dokka-plugins
+                            |    - org.jetbrains.dokka.format     = $format
+                            |Extended Configurations
+                            |    - dokkatooPlugin${Format}
+                            """.trimMargin()
 
                         allConfigurations shouldContain /* language=text */ """
-              |--------------------------------------------------
-              |Configuration dokkatoo${Format}ModuleOutputDirectoriesResolver
-              |--------------------------------------------------
-              |Resolves Dokkatoo $format ModuleOutputDirectories files.
-              |
-              |Attributes
-              |    - org.gradle.usage                     = org.jetbrains.dokka
-              |    - org.jetbrains.dokka.format           = $format
-              |    - org.jetbrains.dokka.module-component = ModuleOutputDirectories
-              |Extended Configurations
-              |    - dokkatoo
-            """.trimMargin()
+                            |--------------------------------------------------
+                            |Configuration dokkatoo${Format}ModuleOutputDirectoriesResolver
+                            |--------------------------------------------------
+                            |Resolves Dokkatoo $format ModuleOutputDirectories files.
+                            |
+                            |Attributes
+                            |    - org.gradle.usage                     = org.jetbrains.dokka
+                            |    - org.jetbrains.dokka.format           = $format
+                            |    - org.jetbrains.dokka.module-component = ModuleOutputDirectories
+                            |Extended Configurations
+                            |    - dokkatoo
+                            """.trimMargin()
                     }
 
                     expectedFormats.forEach {

@@ -39,77 +39,77 @@ private fun initProject(
     return gradleKtsProjectTest("attribute-hack-test") {
 
         settingsGradleKts += """
-      |
-      |include(":subproject-with-dokkatoo")
-      |include(":subproject-without-dokkatoo")
-      |
-    """.trimMargin()
+            |
+            |include(":subproject-with-dokkatoo")
+            |include(":subproject-without-dokkatoo")
+            |
+            """.trimMargin()
 
         dir("subproject-with-dokkatoo") {
             buildGradleKts = """
-          |plugins {
-          |  kotlin("multiplatform") version embeddedKotlinVersion
-          |  id("org.jetbrains.dokka") version "$DOKKATOO_VERSION"
-          |}
-          |
-          |kotlin {
-          |  jvm()
-          |}
-          |
-        """.trimMargin()
+                |plugins {
+                |  kotlin("multiplatform") version embeddedKotlinVersion
+                |  id("org.jetbrains.dokka") version "$DOKKATOO_VERSION"
+                |}
+                |
+                |kotlin {
+                |  jvm()
+                |}
+                |
+                """.trimMargin()
         }
 
         dir("subproject-without-dokkatoo") {
 
             buildGradleKts = """
-        |import org.gradle.api.attributes.Category.CATEGORY_ATTRIBUTE
-        |import org.gradle.api.attributes.Category.LIBRARY
-        |import org.gradle.api.attributes.LibraryElements.JAR
-        |import org.gradle.api.attributes.LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE
-        |import org.gradle.api.attributes.Usage.JAVA_RUNTIME
-        |import org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE
-        |import org.gradle.api.attributes.java.TargetJvmEnvironment.STANDARD_JVM
-        |import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
-        |
-        |plugins {
-        |  `java-library`
-        |}
-        |
-        |val jarFiles: Configuration by configurations.creating {
-        |  isCanBeResolved = false
-        |  isCanBeConsumed = false
-        |  isCanBeDeclared = true
-        |}
-        |
-        |val jarFilesResolver: Configuration by configurations.creating {
-        |  isCanBeResolved = true
-        |  isCanBeConsumed = false
-        |  isCanBeDeclared = false
-        |  extendsFrom(jarFiles)
-        |  attributes {
-        |    //attribute(USAGE_ATTRIBUTE, objects.named(JAVA_RUNTIME))
-        |    //attribute(CATEGORY_ATTRIBUTE, objects.named(LIBRARY))
-        |    //attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, objects.named(STANDARD_JVM))
-        |    //attribute(LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(JAR))
-        |    //attribute(Attribute.of("org.jetbrains.kotlin.platform.type", String::class.java), "jvm")
-        |  }
-        |}
-        |
-        |dependencies {
-        |  jarFiles(project(":subproject-with-dokkatoo"))
-        |}
-        |
-        |val printJarFileCoords by tasks.registering {
-        |  val fileCoords = jarFilesResolver.incoming.artifacts.resolvedArtifacts.map { artifacts ->
-        |    artifacts.map { it.id.componentIdentifier.displayName }
-        |  }
-        |  inputs.files(jarFilesResolver).withPropertyName("jarFilesResolver")
-        |  doLast {
-        |    println(fileCoords.get().joinToString("\n"))
-        |  }
-        |}
-        |
-        """.trimMargin()
+                |import org.gradle.api.attributes.Category.CATEGORY_ATTRIBUTE
+                |import org.gradle.api.attributes.Category.LIBRARY
+                |import org.gradle.api.attributes.LibraryElements.JAR
+                |import org.gradle.api.attributes.LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE
+                |import org.gradle.api.attributes.Usage.JAVA_RUNTIME
+                |import org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE
+                |import org.gradle.api.attributes.java.TargetJvmEnvironment.STANDARD_JVM
+                |import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
+                |
+                |plugins {
+                |  `java-library`
+                |}
+                |
+                |val jarFiles: Configuration by configurations.creating {
+                |  isCanBeResolved = false
+                |  isCanBeConsumed = false
+                |  isCanBeDeclared = true
+                |}
+                |
+                |val jarFilesResolver: Configuration by configurations.creating {
+                |  isCanBeResolved = true
+                |  isCanBeConsumed = false
+                |  isCanBeDeclared = false
+                |  extendsFrom(jarFiles)
+                |  attributes {
+                |    //attribute(USAGE_ATTRIBUTE, objects.named(JAVA_RUNTIME))
+                |    //attribute(CATEGORY_ATTRIBUTE, objects.named(LIBRARY))
+                |    //attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, objects.named(STANDARD_JVM))
+                |    //attribute(LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(JAR))
+                |    //attribute(Attribute.of("org.jetbrains.kotlin.platform.type", String::class.java), "jvm")
+                |  }
+                |}
+                |
+                |dependencies {
+                |  jarFiles(project(":subproject-with-dokkatoo"))
+                |}
+                |
+                |val printJarFileCoords by tasks.registering {
+                |  val fileCoords = jarFilesResolver.incoming.artifacts.resolvedArtifacts.map { artifacts ->
+                |    artifacts.map { it.id.componentIdentifier.displayName }
+                |  }
+                |  inputs.files(jarFilesResolver).withPropertyName("jarFilesResolver")
+                |  doLast {
+                |    println(fileCoords.get().joinToString("\n"))
+                |  }
+                |}
+                |
+                """.trimMargin()
         }
 
         config()

@@ -102,31 +102,31 @@ private fun initDokkatooProject(
 ): GradleProjectTest {
     return gradleKtsProjectTest("log-html-publication-link-task") {
         buildGradleKts = """
-      |plugins {
-      |  kotlin("jvm") version "1.8.22"
-      |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
-      |}
-      |
-      |dependencies {
-      |}
-      |
-      |tasks.withType<org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask>().configureEach {
-      |  serverUri.set(providers.gradleProperty("testServerUri"))
-      |}
-    """.trimMargin()
+            |plugins {
+            |  kotlin("jvm") version "1.8.22"
+            |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
+            |}
+            |
+            |dependencies {
+            |}
+            |
+            |tasks.withType<org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask>().configureEach {
+            |  serverUri.set(providers.gradleProperty("testServerUri"))
+            |}
+            """.trimMargin()
 
         createKotlinFile(
             "src/main/kotlin/Hello.kt",
             """
-        |package com.project.hello
-        |
-        |/** The Hello class */
-        |class Hello {
-        |    /** prints `Hello` to the console */  
-        |    fun sayHello() = println("Hello")
-        |}
-        |
-      """.trimMargin()
+            |package com.project.hello
+            |
+            |/** The Hello class */
+            |class Hello {
+            |    /** prints `Hello` to the console */  
+            |    fun sayHello() = println("Hello")
+            |}
+            |
+            """.trimMargin()
         )
 
         // remove the flag that disables the logging task, since this test wants the logger to run
