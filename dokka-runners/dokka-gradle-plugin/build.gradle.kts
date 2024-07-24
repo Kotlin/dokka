@@ -105,13 +105,6 @@ dependencies {
 gradlePlugin {
     isAutomatedPublishing = true
 
-    plugins.register("dokkatoo") {
-        id = "dev.adamko.dokkatoo"
-        displayName = "Dokka"
-        description = "Dokka is an API documentation engine for Kotlin"
-        implementationClass = "org.jetbrains.dokka.gradle.DokkatooPlugin"
-    }
-
     plugins.register("dokka") {
         id = "org.jetbrains.dokka"
         displayName = "Dokka"
@@ -119,38 +112,17 @@ gradlePlugin {
         implementationClass = "org.jetbrains.dokka.gradle.DokkatooPlugin"
     }
 
-    fun registerDokkaPlugin(
-        pluginClass: String,
-        shortName: String,
-        longName: String = shortName,
-    ) {
-        plugins.register(pluginClass) {
-            id = "dev.adamko.dokkatoo-${shortName.lowercase()}"
-            displayName = "Dokkatoo $shortName"
-            description = "Generates $longName documentation for Kotlin projects (using Dokka)"
-            implementationClass = "org.jetbrains.dokka.gradle.formats.$pluginClass"
-        }
-    }
-    registerDokkaPlugin("DokkatooGfmPlugin", "GFM", longName = "GFM (GitHub Flavoured Markdown)")
-    registerDokkaPlugin("DokkatooHtmlPlugin", "HTML")
-    registerDokkaPlugin("DokkatooJavadocPlugin", "Javadoc")
-    registerDokkaPlugin("DokkatooJekyllPlugin", "Jekyll")
-
     plugins.configureEach {
-//        website.set("https://adamko-dev.github.io/dokkatoo/")
-//        vcsUrl.set("https://github.com/adamko-dev/dokkatoo.git")
+        website.set("https://kotlinlang.org/docs/dokka-introduction.html")
+        vcsUrl.set("https://github.com/Kotlin/dokka.git")
         tags.addAll(
             "dokka",
-//            "dokkatoo",
             "kotlin",
             "kdoc",
             "android",
             "api reference",
             "documentation",
-//            "javadoc",
             "html",
-//            "markdown",
-//            "gfm",
             "website",
         )
     }
@@ -194,13 +166,6 @@ testing.suites {
                 val projectTestTempDirPath = layout.buildDirectory.dir("test-temp-dir").get().asFile
                 inputs.property("projectTestTempDir", projectTestTempDirPath)
                 systemProperty("projectTestTempDir", projectTestTempDirPath)
-
-//                when (testType.get()) {
-//                    TestSuiteType.FUNCTIONAL_TEST,
-//                    TestSuiteType.INTEGRATION_TEST -> {
-//                        dependsOn(tasks.matching { it.name == "publishAllPublicationsToTestRepository" })
-//                    }
-//                }
 
                 systemProperty("kotest.framework.config.fqn", "org.jetbrains.dokka.gradle.utils.KotestProjectConfig")
                 // FIXME remove when Kotest >= 6.0
