@@ -85,12 +85,6 @@ constructor(
     val dokkaSourceSets: NamedDomainObjectContainer<DokkaSourceSetSpec> =
         extensions.adding("dokkaSourceSets", objects.domainObjectContainer())
 
-//    /** Dokka Module files from other subprojects. */
-//    @get:Internal
-//    @Deprecated("DokkatooPrepareModuleDescriptorTask was not compatible with relocatable Gradle Build Cache and has been replaced with a dark Gradle devilry. All references to DokkatooPrepareModuleDescriptorTask must be removed.")
-//    @Suppress("unused")
-//    abstract val dokkaModuleFiles: ConfigurableFileCollection
-
     /** Dokka Modules directories, containing the output, module descriptor, and module includes. */
     @get:InputFiles
     @get:PathSensitive(RELATIVE)

@@ -76,13 +76,4 @@ class DokkaFormatTasks(
 
             applyFormatSpecificConfiguration()
         }
-
-//    @Suppress("DEPRECATION", "unused")
-//    @Deprecated("DokkatooPrepareModuleDescriptorTask was not compatible with relocatable Gradle Build Cache and has been replaced with a dark Gradle devilry. All references to DokkatooPrepareModuleDescriptorTask must be removed.")
-//    val prepareModuleDescriptor: TaskProvider<org.jetbrains.dokka.gradle.tasks.DokkatooPrepareModuleDescriptorTask> =
-//        project.tasks.register<org.jetbrains.dokka.gradle.tasks.DokkatooPrepareModuleDescriptorTask>(
-//            taskNames.prepareModuleDescriptor
-//        ) {
-//            description = "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for $formatName"
-//        }
 }

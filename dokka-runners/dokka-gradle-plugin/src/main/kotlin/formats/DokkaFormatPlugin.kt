@@ -62,10 +62,10 @@ abstract class DokkaFormatPlugin(
 
     override fun apply(target: Project) {
 
-        // apply DokkatooBasePlugin
+        // apply DokkaBasePlugin
         target.pluginManager.apply(DokkaBasePlugin::class)
 
-        // apply the plugin that will autoconfigure Dokkatoo to use the sources of a Kotlin project
+        // apply the plugin that will autoconfigure Dokka to use the sources of a Kotlin project
         target.pluginManager.apply(type = KotlinAdapter::class)
         target.pluginManager.apply(type = JavaAdapter::class)
         target.pluginManager.apply(type = AndroidAdapter::class)
@@ -82,7 +82,7 @@ abstract class DokkaFormatPlugin(
                 objects = objects,
             )
 
-            val dokkatooTasks = DokkaFormatTasks(
+            val dokkaTasks = DokkaFormatTasks(
                 project = target,
                 publication = publication,
                 dokkaExtension = dokkaExtension,
@@ -94,12 +94,12 @@ abstract class DokkaFormatPlugin(
                 .outgoing
                 .get()
                 .outgoing
-                .artifact(dokkatooTasks.generateModule.map { it.outputDirectory }) {
-                    builtBy(dokkatooTasks.generateModule)
+                .artifact(dokkaTasks.generateModule.map { it.outputDirectory }) {
+                    builtBy(dokkaTasks.generateModule)
                     type = "dokka-module-directory"
                 }
 
-            dokkatooTasks.generatePublication.configure {
+            dokkaTasks.generatePublication.configure {
                 generator.moduleOutputDirectories.from(
                     formatDependencies.moduleOutputDirectories.incomingArtifactFiles
                 )
@@ -111,7 +111,7 @@ abstract class DokkaFormatPlugin(
             val context = DokkaFormatPluginContext(
                 project = target,
                 dokkaExtension = dokkaExtension,
-                dokkatooTasks = dokkatooTasks,
+                dokkaTasks = dokkaTasks,
                 formatDependencies = formatDependencies,
                 formatName = formatName,
             )
@@ -156,7 +156,7 @@ abstract class DokkaFormatPlugin(
     class DokkaFormatPluginContext(
         val project: Project,
         val dokkaExtension: DokkaExtension,
-        val dokkatooTasks: DokkaFormatTasks,
+        val dokkaTasks: DokkaFormatTasks,
         val formatDependencies: FormatDependenciesManager,
         formatName: String,
     ) {

@@ -298,11 +298,6 @@ constructor(
         /** The names of [Gradle tasks][org.gradle.api.Task] created by Dokka */
         val taskNames = TaskNames("")
 
-//        /** The names of [Configuration]s created by Dokkatoo */
-//        @Deprecated("no longer used")
-//        @Suppress("unused")
-//        val dependencyContainerNames = DependencyContainerNames("null")
-
         /** Name of the [Configuration] used to declare dependencies on other subprojects. */
         const val DOKKA_CONFIGURATION_NAME = "dokka"
 

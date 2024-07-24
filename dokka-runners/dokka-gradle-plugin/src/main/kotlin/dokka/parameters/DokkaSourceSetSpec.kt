@@ -31,8 +31,8 @@ import javax.inject.Inject
  * ```kotlin
  * // build.gradle.kts
  *
- * dokkatoo {
- *   dokkatooSourceSets {
+ * dokka {
+ *   dokkaSourceSets {
  *     // configure individual source set by name
  *     named("customSourceSet") {
  *       suppress.set(true)
@@ -68,7 +68,7 @@ constructor(
      * This is primarily used by Kotlin Multiplatform projects, which can have multiple source sets
      * per subproject.
      *
-     * The default is set from [DokkatooExtension.sourceSetScopeDefault][org.jetbrains.dokka.gradle.DokkaExtension.sourceSetScopeDefault]
+     * The default is set from [DokkaExtension.sourceSetScopeDefault][org.jetbrains.dokka.gradle.DokkaExtension.sourceSetScopeDefault].
      *
      * It's unlikely that this value needs to be changed.
      */

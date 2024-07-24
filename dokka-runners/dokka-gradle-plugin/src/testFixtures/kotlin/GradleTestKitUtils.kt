@@ -240,7 +240,7 @@ interface ProjectDirectoryScope {
         // must be compatible with both Kotlin DSL and Groovy DSL
 
         @Language("kts")
-        val dokkatooTestRepo = """
+        val dokkaTestRepo = """
         |exclusiveContent {
         |  forRepositories(
         |${reposSpecs.prependIndent("   ")}
@@ -259,7 +259,7 @@ interface ProjectDirectoryScope {
         return """
         |pluginManagement {
         |  repositories {
-        |${dokkatooTestRepo.prependIndent("    ")}
+        |${dokkaTestRepo.prependIndent("    ")}
         |    mavenCentral()
         |    gradlePluginPortal()
         |  }
@@ -268,7 +268,7 @@ interface ProjectDirectoryScope {
         |@Suppress("UnstableApiUsage")
         |dependencyResolutionManagement {
         |  repositories {
-        |${dokkatooTestRepo.prependIndent("    ")}
+        |${dokkaTestRepo.prependIndent("    ")}
         |    mavenCentral()
         |  }
         |}

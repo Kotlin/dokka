@@ -69,7 +69,7 @@ constructor(
     private fun DokkaFormatPluginContext.configureHtmlUrlLogging() {
         val logHtmlUrlTask = registerLogHtmlUrlTask()
 
-        dokkatooTasks.generatePublication.configure {
+        dokkaTasks.generatePublication.configure {
             finalizedBy(logHtmlUrlTask)
         }
     }
@@ -77,7 +77,7 @@ constructor(
     private fun DokkaFormatPluginContext.registerLogHtmlUrlTask():
             TaskProvider<LogHtmlPublicationLinkTask> {
 
-        val generatePublicationTask = dokkatooTasks.generatePublication
+        val generatePublicationTask = dokkaTasks.generatePublication
 
         val indexHtmlFile = generatePublicationTask
             .flatMap { it.outputDirectory.file("index.html") }
@@ -104,7 +104,7 @@ constructor(
      */
     private fun DokkaFormatPluginContext.configureModuleAggregation() {
 
-        dokkatooTasks.generatePublication.configure {
+        dokkaTasks.generatePublication.configure {
             doFirst("check all-modules-page-plugin is present", moduleAggregationCheck)
         }
 

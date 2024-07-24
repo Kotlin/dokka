@@ -44,7 +44,7 @@ class MultiModuleFunctionalTest : FunSpec({
                     output shouldContain "BUILD SUCCESSFUL"
                 }
 
-                test("expect all dokka workers are successful") {
+                test("expect all Dokka workers are successful") {
                     project
                         .findFiles { it.name == "dokka-worker.log" }
                         .shouldForAll { dokkaWorkerLog ->
@@ -125,7 +125,7 @@ class MultiModuleFunctionalTest : FunSpec({
                         output shouldContain "BUILD SUCCESSFUL"
                     }
 
-                    test("expect all dokka workers are successful") {
+                    test("expect all Dokka workers are successful") {
                         project
                             .findFiles { it.name == "dokka-worker.log" }
                             .shouldForAll { dokkaWorkerLog ->
@@ -150,7 +150,7 @@ class MultiModuleFunctionalTest : FunSpec({
                         test("expect build is successful") {
                             output shouldContainAll listOf(
                                 "BUILD SUCCESSFUL",
-                                "16 actionable tasks: 16 up-to-date",
+                                "4 actionable tasks: 4 up-to-date",
                             )
                         }
 
@@ -179,18 +179,9 @@ class MultiModuleFunctionalTest : FunSpec({
             val buildCacheDir = originalProject.projectDir.resolve("build-cache")
 
             val expectedGenerationTasks = listOf(
-                ":dokkaGeneratePublicationGfm",
                 ":dokkaGeneratePublicationHtml",
-                ":dokkaGeneratePublicationJavadoc",
-                ":dokkaGeneratePublicationJekyll",
-                ":subproject-hello:dokkaGenerateModuleGfm",
                 ":subproject-hello:dokkaGenerateModuleHtml",
-                ":subproject-hello:dokkaGenerateModuleJavadoc",
-                ":subproject-hello:dokkaGenerateModuleJekyll",
-                ":subproject-goodbye:dokkaGenerateModuleGfm",
                 ":subproject-goodbye:dokkaGenerateModuleHtml",
-                ":subproject-goodbye:dokkaGenerateModuleJavadoc",
-                ":subproject-goodbye:dokkaGenerateModuleJekyll",
             )
 
             test("setup build cache") {
@@ -302,7 +293,7 @@ class MultiModuleFunctionalTest : FunSpec({
                     }
                 }
 
-            test("expect all dokka workers are successful") {
+            test("expect all Dokka workers are successful") {
                 project
                     .findFiles { it.name == "dokka-worker.log" }
                     .shouldForAll { dokkaWorkerLog ->
