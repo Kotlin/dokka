@@ -17,7 +17,7 @@ import org.jetbrains.dokka.gradle.tasks.DokkaGeneratePublicationTask
 import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
 import org.jetbrains.dokka.gradle.tasks.TaskNames
 
-/** Tasks for generating a Dokkatoo Publication in a specific format. */
+/** Tasks for generating a Dokka Publication in a specific format. */
 @DokkaInternalApi
 class DokkaFormatTasks(
     project: Project,

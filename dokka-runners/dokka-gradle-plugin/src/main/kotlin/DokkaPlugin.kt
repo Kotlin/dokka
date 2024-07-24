@@ -27,7 +27,7 @@ constructor() : Plugin<Project> {
         val dokkaMode = target.dokkaMode()
         if (dokkaMode.dokkatooEnabled) {
             if (!dokkaMode.dokkatooEnabledQuietly) {
-                logger.lifecycle("[${target.path}] Using Dokka 2")
+                logger.lifecycle("[${target.displayName}] Dokka Gradle Plugin: Dokkatoo mode enabled")
             }
             with(target.pluginManager) {
                 apply(type = DokkaBasePlugin::class)

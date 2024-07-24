@@ -16,7 +16,7 @@ import org.jetbrains.dokka.gradle.utils.projects.initMultiModuleProject
 
 class DokkaBaseTasksLinksTest : FunSpec({
 
-    context("Verify that the base lifecycle tasks do not trigger Dokkatoo tasks") {
+    context("Verify that the base lifecycle tasks do not trigger DGP tasks") {
         val project = initMultiModuleProject("TaskLinks")
 
         withData(

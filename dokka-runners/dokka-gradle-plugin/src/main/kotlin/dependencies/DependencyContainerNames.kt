@@ -21,7 +21,6 @@ import org.jetbrains.dokka.gradle.internal.HasFormatName
 class DependencyContainerNames(override val formatName: String) : HasFormatName() {
 
     val dokka = DOKKA_CONFIGURATION_NAME.appendFormat()
-//    val dokkatooResolver = "${dokka}Resolver"
 
     /**
      * ### Dokka Plugins

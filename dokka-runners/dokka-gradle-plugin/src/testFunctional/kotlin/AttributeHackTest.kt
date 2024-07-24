@@ -9,20 +9,20 @@ import org.jetbrains.dokka.gradle.utils.*
 
 
 class AttributeHackTest : FunSpec({
-    context("verify that Dokkatoo does not interfere with JAR Configurations") {
+    context("verify that DGP does not interfere with JAR Configurations") {
 
         val project = initProject()
 
         project.runner
             .addArguments(
-                ":subproject-without-dokkatoo:printJarFileCoords",
+                ":subproject-without-dokka:printJarFileCoords",
                 "--quiet",
                 "--stacktrace",
                 "--no-configuration-cache",
             )
             .forwardOutput()
             .build {
-                test("resolving JARs from a Dokkatoo-enabled project should not contain Dokka plugin JARs") {
+                test("resolving JARs from a Dokka-enabled project should not contain Dokka plugin JARs") {
                     output.shouldNotContainAnyOf(
                         "org.jetbrains.dokka",
                         "all-modules-page-plugin",
@@ -40,12 +40,12 @@ private fun initProject(
 
         settingsGradleKts += """
             |
-            |include(":subproject-with-dokkatoo")
-            |include(":subproject-without-dokkatoo")
+            |include(":subproject-with-dokka")
+            |include(":subproject-without-dokka")
             |
             """.trimMargin()
 
-        dir("subproject-with-dokkatoo") {
+        dir("subproject-with-dokka") {
             buildGradleKts = """
                 |plugins {
                 |  kotlin("multiplatform") version embeddedKotlinVersion
@@ -59,7 +59,7 @@ private fun initProject(
                 """.trimMargin()
         }
 
-        dir("subproject-without-dokkatoo") {
+        dir("subproject-without-dokka") {
 
             buildGradleKts = """
                 |import org.gradle.api.attributes.Category.CATEGORY_ATTRIBUTE
@@ -96,7 +96,7 @@ private fun initProject(
                 |}
                 |
                 |dependencies {
-                |  jarFiles(project(":subproject-with-dokkatoo"))
+                |  jarFiles(project(":subproject-with-dokka"))
                 |}
                 |
                 |val printJarFileCoords by tasks.registering {

@@ -22,8 +22,8 @@ import org.jetbrains.dokka.gradle.DokkaPlugin
 import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.utils.all_
 import org.jetbrains.dokka.gradle.utils.create_
+import org.jetbrains.dokka.gradle.utils.enableDokkatoo
 import org.jetbrains.dokka.gradle.utils.shouldContainAll
-import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import java.io.File
 import java.net.URI
 
@@ -187,7 +187,7 @@ class DokkaSourceSetBuilderTest : FunSpec({
 
 private fun createProject(): Project {
     val project = ProjectBuilder.builder().build()
-    project.extraProperties.set("DokkaGradlePluginMode", "dokkatoo")
+    project.enableDokkatoo()
     project.plugins.apply(type = DokkaPlugin::class)
     return project
 }

@@ -66,8 +66,7 @@ constructor(
      * [outputDirPath] is required so Gradle can determine if the task is up-to-date.
      */
     @get:Input
-    // marked as an Input because a DokkaPublication is used to configure the appropriate
-    // DokkatooTasks, which will then
+    // marked as an Input because a DokkaPublication is used to configure the appropriate Dokka Tasks
     @DokkaInternalApi
     protected val outputDirPath: Provider<String>
         get() = outputDir.map { it.asFile.invariantSeparatorsPath }
@@ -89,12 +88,6 @@ constructor(
 
     @get:Input
     abstract val offlineMode: Property<Boolean>
-
-//    /** Dokka Configuration files from other subprojects that will be merged into this Dokka Configuration */
-//    @get:InputFiles
-//    @get:NormalizeLineEndings
-//    @get:PathSensitive(PathSensitivity.NAME_ONLY)
-//    abstract val dokkaSubprojectConfigurations: ConfigurableFileCollection
 
     @get:Input
     abstract val failOnWarning: Property<Boolean>

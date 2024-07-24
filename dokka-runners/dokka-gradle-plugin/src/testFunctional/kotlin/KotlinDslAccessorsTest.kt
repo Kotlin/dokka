@@ -13,7 +13,7 @@ class KotlinDslAccessorsTest : FunSpec({
 
     val project = initProject()
 
-    test("Dokkatoo DSL accessors do not trigger compilation warnings") {
+    test("DGP DSL accessors do not trigger compilation warnings") {
 
         project
             .runner
@@ -41,7 +41,7 @@ private fun initProject(
         buildGradleKts = """
             |plugins {
             |  base
-            |  id("dokkatoo-convention")
+            |  id("dokka-convention")
             |}
             |
             """.trimMargin()
@@ -72,7 +72,7 @@ private fun initProject(
                 """.trimMargin()
 
             createKtsFile(
-                "src/main/kotlin/dokkatoo-convention.gradle.kts",
+                "src/main/kotlin/dokka-convention.gradle.kts",
                 """
                 |plugins {
                 |  id("org.jetbrains.dokka")

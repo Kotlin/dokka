@@ -20,7 +20,7 @@ import kotlin.annotation.AnnotationTarget.*
  * hints.
  *
  * If you find yourself needing to opt in, then please report your use-case on
- * [the Dokkatoo issue tracker](https://github.com/adamko-dev/dokkatoo/issues).
+ * [the Dokka issue tracker](https://github.com/Kotlin/dokka/issues).
  */
 @RequiresOptIn(
     message = "Internal Dokka API - may change at any time without notice",

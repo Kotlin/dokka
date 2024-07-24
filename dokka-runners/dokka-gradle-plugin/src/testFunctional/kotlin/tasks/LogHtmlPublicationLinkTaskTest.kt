@@ -25,7 +25,7 @@ class LogHtmlPublicationLinkTaskTest : FunSpec({
         val validServerUriParam = `-P`("testServerUri=$validServerUri")
 
         context("and a Kotlin project") {
-            val project = initDokkatooProject()
+            val project = initDokkaProject()
 
             context("when generate task is run with correct server URI") {
                 project.runner
@@ -43,7 +43,7 @@ class LogHtmlPublicationLinkTaskTest : FunSpec({
                         }
                         test("LogHtmlPublicationLinkTask should run") {
                             shouldHaveTasksWithAnyOutcome(
-                                ":logLinkDokkatooGeneratePublicationHtml" to listOf(SUCCESS)
+                                ":logLinkDokkaGeneratePublicationHtml" to listOf(SUCCESS)
                             )
                         }
                         test("expect link is logged") {
@@ -72,9 +72,9 @@ class LogHtmlPublicationLinkTaskTest : FunSpec({
                             }
                             test("LogHtmlPublicationLinkTask should be skipped") {
                                 shouldHaveTasksWithAnyOutcome(
-                                    ":logLinkDokkatooGeneratePublicationHtml" to listOf(SKIPPED)
+                                    ":logLinkDokkaGeneratePublicationHtml" to listOf(SKIPPED)
                                 )
-                                output shouldContain "Skipping task ':logLinkDokkatooGeneratePublicationHtml' as task onlyIf 'server URL is reachable' is false"
+                                output shouldContain "Skipping task ':logLinkDokkaGeneratePublicationHtml' as task onlyIf 'server URL is reachable' is false"
                             }
                             test("expect link is not logged") {
                                 output shouldNotContain "Generated Dokka HTML publication"
@@ -97,7 +97,7 @@ class LogHtmlPublicationLinkTaskTest : FunSpec({
 }
 
 
-private fun initDokkatooProject(
+private fun initDokkaProject(
     config: GradleProjectTest.() -> Unit = {},
 ): GradleProjectTest {
     return gradleKtsProjectTest("log-html-publication-link-task") {

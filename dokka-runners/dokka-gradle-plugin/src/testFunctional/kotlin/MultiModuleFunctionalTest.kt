@@ -9,6 +9,7 @@ import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.file.shouldBeAFile
 import io.kotest.matchers.paths.shouldNotExist
 import io.kotest.matchers.sequences.shouldNotBeEmpty
@@ -28,7 +29,7 @@ import kotlin.io.path.readText
 
 class MultiModuleFunctionalTest : FunSpec({
 
-    context("when dokkatoo generates all formats") {
+    context("when DGP generates all formats") {
         val project = initMultiModuleProject("all-formats")
 
         project.runner
@@ -87,13 +88,13 @@ class MultiModuleFunctionalTest : FunSpec({
                             .sorted()
                             .joinToString("\n")
                             .shouldContain( /* language=text */ """
-              |${'$'}dokka.format:html-v1
-              |${'$'}dokka.linkExtension:html
-              |com.project.goodbye
-                |com.project.hello
-                |module:subproject-goodbye
-                |module:subproject-hello
-              """.trimMargin()
+                                |${'$'}dokka.format:html-v1
+                                |${'$'}dokka.linkExtension:html
+                                |com.project.goodbye
+                                |com.project.hello
+                                |module:subproject-goodbye
+                                |module:subproject-hello
+                                """.trimMargin()
                             )
                     }
                 }
@@ -102,7 +103,7 @@ class MultiModuleFunctionalTest : FunSpec({
 
     context("Gradle caching") {
 
-        context("expect Dokkatoo is compatible with Gradle Build Cache") {
+        context("expect DGP is compatible with Gradle Build Cache") {
             val project = initMultiModuleProject("build-cache")
 
             test("expect clean is successful") {
@@ -153,11 +154,12 @@ class MultiModuleFunctionalTest : FunSpec({
                             )
                         }
 
-                        test("expect all dokkatoo tasks are up-to-date") {
+                        test("expect all Dokka tasks are up-to-date") {
                             tasks
                                 .filter { task ->
-                                    task.name.contains("dokkatoo", ignoreCase = true)
+                                    task.name.contains("dokka", ignoreCase = true)
                                 }
+                                .shouldNotBeEmpty()
                                 .shouldForAll { task ->
                                     task.outcome.shouldBeIn(FROM_CACHE, UP_TO_DATE, SKIPPED)
                                 }
@@ -452,7 +454,7 @@ class MultiModuleFunctionalTest : FunSpec({
                 }
         }
 
-        test("expect no Dokkatoo logs when built using lifecycle log level") {
+        test("expect no Dokka Gradle Plugin logs when built using lifecycle log level") {
             project.runner
                 .addArguments(
                     "clean",
@@ -521,23 +523,23 @@ class MultiModuleFunctionalTest : FunSpec({
                 .forwardOutput()
                 .build {
                     // the root project doesn't have the KGP applied, so KotlinProjectExtension shouldn't be applied
-                    output shouldNotContain "DokkatooKotlinAdapter failed to get KotlinProjectExtension in :\n"
+                    output shouldNotContain "KotlinAdapter failed to get KotlinProjectExtension in :\n"
 
-                    output shouldContain "DokkatooKotlinAdapter failed to get KotlinProjectExtension in :subproject-hello\n"
-                    output shouldContain "DokkatooKotlinAdapter failed to get KotlinProjectExtension in :subproject-goodbye\n"
+                    output shouldContain "KotlinAdapter failed to get KotlinProjectExtension in :subproject-hello\n"
+                    output shouldContain "KotlinAdapter failed to get KotlinProjectExtension in :subproject-goodbye\n"
                 }
         }
     }
 
     WorkerIsolation.values().forEach { isolation ->
-        context("DokkatooGenerateTask worker $isolation") {
+        context("DokkaGenerateTask worker $isolation") {
 
             val project = initMultiModuleProject("worker-$isolation") {
                 val workerIsolationConfig = when (isolation) {
                     ClassLoader -> { // language=kts
                         """
                         |
-                        |dokkatoo {
+                        |dokka {
                         |  dokkaGeneratorIsolation.set(
                         |    ClassLoaderIsolation()
                         |  )
@@ -549,7 +551,7 @@ class MultiModuleFunctionalTest : FunSpec({
                     Process ->  // language=kts
                         """
                         |
-                        |dokkatoo {
+                        |dokka {
                         |  dokkaGeneratorIsolation.set(
                         |    ProcessIsolation {
                         |       debug.set(false)
@@ -570,7 +572,7 @@ class MultiModuleFunctionalTest : FunSpec({
                 // language=kts
                 val tasksLogWorkerIsolation = """
                     |
-                    |tasks.withType<org.jetbrains.dokka.gradle.tasks.DokkatooGenerateTask>().configureEach {
+                    |tasks.withType<org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask>().configureEach {
                     |  doFirst {
                     |    val isolation = workerIsolation.get()
                     |    logger.lifecycle(path + " - running with workerIsolation " + isolation)
@@ -610,9 +612,9 @@ class MultiModuleFunctionalTest : FunSpec({
                         ":subproject-goodbye:dokkaGenerateModuleHtml",
                         ":subproject-hello:dokkaGenerateModuleHtml",
                         ":dokkaGeneratePublicationHtml",
-                    ).forEach { dokkatooTaskPath ->
-                        test("expect $dokkatooTaskPath runs with isolation $isolation") {
-                            output shouldContain "$dokkatooTaskPath - running with workerIsolation $expectedIsolationClassFqn"
+                    ).forEach { dokkaTaskPath ->
+                        test("expect $dokkaTaskPath runs with isolation $isolation") {
+                            output shouldContain "$dokkaTaskPath - running with workerIsolation $expectedIsolationClassFqn"
                         }
                     }
 

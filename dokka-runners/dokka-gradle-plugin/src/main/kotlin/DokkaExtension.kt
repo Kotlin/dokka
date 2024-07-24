@@ -42,9 +42,6 @@ constructor(
      */
     abstract val dokkaModuleDirectory: DirectoryProperty
 
-//    @Deprecated("No longer used")
-//    abstract val dokkatooConfigurationsDirectory: DirectoryProperty
-
     /** Default Dokka Gradle Plugin cache directory */
     abstract val dokkaCacheDirectory: DirectoryProperty
 

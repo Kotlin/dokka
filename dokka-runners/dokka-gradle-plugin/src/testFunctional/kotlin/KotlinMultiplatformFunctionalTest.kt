@@ -18,7 +18,7 @@ import kotlin.io.path.readText
 
 class KotlinMultiplatformFunctionalTest : FunSpec({
 
-    context("when dokkatoo generates all formats") {
+    context("when DGP generates all formats") {
         val project = initKotlinMultiplatformProject()
 
         project.runner
@@ -34,7 +34,7 @@ class KotlinMultiplatformFunctionalTest : FunSpec({
                 }
             }
 
-        test("expect all dokka workers are successful") {
+        test("expect all DGP workers are successful") {
             project
                 .findFiles { it.name == "dokka-worker.log" }
                 .shouldBeSingleton { dokkaWorkerLog ->
@@ -110,7 +110,6 @@ private fun initKotlinMultiplatformProject(
         settingsGradleKts += """
             |
             |dependencyResolutionManagement {
-            |
             |  repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
             |
             |  repositories {
@@ -171,8 +170,8 @@ private fun initKotlinMultiplatformProject(
             |  }
             |}
             |
-            |dokkatoo {
-            |  dokkatooSourceSets.configureEach {
+            |dokka {
+            |  dokkaSourceSets.configureEach {
             |    externalDocumentationLinks {
             |      create("kotlinxSerialization") {
             |        url("https://kotlinlang.org/api/kotlinx.serialization/")

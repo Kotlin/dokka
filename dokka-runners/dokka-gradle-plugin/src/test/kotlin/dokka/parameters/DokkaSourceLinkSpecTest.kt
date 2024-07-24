@@ -8,11 +8,11 @@ import io.kotest.matchers.shouldBe
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.kotlin.gradle.plugin.extraProperties
+import org.jetbrains.dokka.gradle.utils.enableDokkatoo
 
 class DokkaSourceLinkSpecTest : FunSpec({
     val project = ProjectBuilder.builder().build()
-    project.extraProperties.set("DokkaGradlePluginMode", "dokkatoo")
+    project.enableDokkatoo()
 
     context("expect localDirectoryPath") {
         test("is the invariantSeparatorsPath of localDirectory") {

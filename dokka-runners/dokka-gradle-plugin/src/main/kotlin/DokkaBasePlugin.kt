@@ -181,8 +181,8 @@ constructor(
             skipEmptyPackages.convention(true)
             sourceSetScope.convention(sourceSetScopeConvention)
 
-            // Manually added sourceSets should not be suppressed by default. dokkatooSourceSets that are
-            // automatically added by DokkatooKotlinAdapter will have a sensible value for 'suppress'.
+            // Manually added sourceSets should not be suppressed by default.
+            // dokkaSourceSets that are automatically added by DokkaKotlinAdapter will have a sensible value for 'suppress'.
             suppress.convention(false)
 
             suppressGeneratedFiles.convention(true)
