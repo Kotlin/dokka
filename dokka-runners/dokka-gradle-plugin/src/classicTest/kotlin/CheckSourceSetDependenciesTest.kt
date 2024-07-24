@@ -5,7 +5,6 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.testfixtures.ProjectBuilder
-import java.lang.IllegalArgumentException
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue

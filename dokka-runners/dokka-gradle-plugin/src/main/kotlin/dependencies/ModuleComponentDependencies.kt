@@ -1,8 +1,8 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle.dependencies
 
-import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooFormatAttribute
-import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooModuleComponentAttribute
-import org.jetbrains.dokka.gradle.internal.*
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -11,6 +11,9 @@ import org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
+import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooFormatAttribute
+import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooModuleComponentAttribute
+import org.jetbrains.dokka.gradle.internal.*
 import java.io.File
 
 

@@ -1,9 +1,12 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle.dokka.parameters
 
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import kotlinx.serialization.Serializable
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.java
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 
 /**
  * Any subproject can be merged into a single Dokka Publication. To do this, first it must create
@@ -20,12 +23,12 @@ import org.jetbrains.dokka.DokkaConfiguration
 @Serializable
 @DokkatooInternalApi
 data class DokkaModuleDescriptionKxs(
-  /** @see DokkaConfiguration.DokkaModuleDescription.name */
-  val name: String,
-  /** @see [org.gradle.api.Project.getPath] */
-  val modulePath: String,
-  /** name of the sibling directory that contains the module output */
-  val moduleOutputDirName: String = "module",
-  /** name of the sibling directory that contains the module includes */
-  val moduleIncludesDirName: String = "includes",
+    /** @see DokkaConfiguration.DokkaModuleDescription.name */
+    val name: String,
+    /** @see [org.gradle.api.Project.getPath] */
+    val modulePath: String,
+    /** name of the sibling directory that contains the module output */
+    val moduleOutputDirName: String = "module",
+    /** name of the sibling directory that contains the module includes */
+    val moduleIncludesDirName: String = "includes",
 )

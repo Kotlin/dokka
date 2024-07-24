@@ -1,10 +1,13 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle.dokka.plugins
 
+import org.gradle.api.Named
+import org.gradle.api.tasks.Input
 import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import java.io.Serializable
 import javax.inject.Inject
-import org.gradle.api.Named
-import org.gradle.api.tasks.Input
 
 /**
  * Base class for defining Dokka Plugin configuration.
@@ -20,13 +23,13 @@ abstract class DokkaPluginParametersBaseSpec
 @DokkatooInternalApi
 @Inject
 constructor(
-  private val name: String,
-  @get:Input
-  open val pluginFqn: String,
+    private val name: String,
+    @get:Input
+    open val pluginFqn: String,
 ) : Serializable, Named {
 
-  abstract fun jsonEncode(): String // to be implemented by subclasses
+    abstract fun jsonEncode(): String // to be implemented by subclasses
 
-  @Input
-  override fun getName(): String = name
+    @Input
+    override fun getName(): String = name
 }

@@ -1,17 +1,16 @@
 @file:Suppress("FunctionName")
 
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle.utils
 
-import org.gradle.api.Action
+import org.gradle.api.*
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.DependencySet
 import org.jetbrains.dokka.gradle.dokka.parameters.DokkaPackageOptionsSpec
 import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceLinkSpec
 import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
-import org.gradle.api.DomainObjectCollection
-import org.gradle.api.NamedDomainObjectContainer
-import org.gradle.api.NamedDomainObjectProvider
-import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.DependencySet
 
 
 /**
@@ -45,39 +44,39 @@ import org.gradle.api.artifacts.DependencySet
 private object Explain
 
 fun Project.subprojects_(configure: Project.() -> Unit) =
-  subprojects(configure)
+    subprojects(configure)
 
 @Suppress("SpellCheckingInspection")
 fun Project.allprojects_(configure: Project.() -> Unit) =
-  allprojects(configure)
+    allprojects(configure)
 
 fun <T> DomainObjectCollection<T>.configureEach_(configure: T.() -> Unit) =
-  configureEach(configure)
+    configureEach(configure)
 
 fun <T> DomainObjectCollection<T>.all_(configure: T.() -> Unit) =
-  all(configure)
+    all(configure)
 
 fun Configuration.withDependencies_(action: DependencySet.() -> Unit): Configuration =
-  withDependencies(action)
+    withDependencies(action)
 
 fun <T> NamedDomainObjectContainer<T>.create_(name: String, configure: T.() -> Unit = {}): T =
-  create(name, configure)
+    create(name, configure)
 
 fun <T> NamedDomainObjectContainer<T>.register_(
-  name: String,
-  configure: T.() -> Unit
+    name: String,
+    configure: T.() -> Unit
 ): NamedDomainObjectProvider<T> =
-  register(name, configure)
+    register(name, configure)
 
 fun DokkaSourceSetSpec.sourceLink_(
-  action: DokkaSourceLinkSpec.() -> Unit
+    action: DokkaSourceLinkSpec.() -> Unit
 ): Unit = sourceLink(
-  object : Action<DokkaSourceLinkSpec> {
-  override fun execute(t: DokkaSourceLinkSpec) {
-    t.action()
-  }
-})
+    object : Action<DokkaSourceLinkSpec> {
+        override fun execute(t: DokkaSourceLinkSpec) {
+            t.action()
+        }
+    })
 
 fun DokkaSourceSetSpec.perPackageOption_(
-  action: DokkaPackageOptionsSpec.() -> Unit
+    action: DokkaPackageOptionsSpec.() -> Unit
 ): Unit = perPackageOption(action)

@@ -1,6 +1,8 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle.internal
 
-import org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec
 import org.gradle.api.*
 import org.gradle.api.artifacts.ArtifactView
 import org.gradle.api.artifacts.Configuration
@@ -15,8 +17,12 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.add
+import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.domainObjectContainer
+import org.gradle.kotlin.dsl.polymorphicDomainObjectContainer
 import org.gradle.util.GradleVersion
+import org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec
 
 
 /**
@@ -32,12 +38,12 @@ import org.gradle.util.GradleVersion
  * ```
  */
 internal fun Configuration.declarable(
-  visible: Boolean = false,
+    visible: Boolean = false,
 ) {
-  isCanBeResolved = false
-  isCanBeConsumed = false
-  canBeDeclared(true)
-  isVisible = visible
+    isCanBeResolved = false
+    isCanBeConsumed = false
+    canBeDeclared(true)
+    isVisible = visible
 }
 
 
@@ -51,12 +57,12 @@ internal fun Configuration.declarable(
  * ```
  */
 internal fun Configuration.consumable(
-  visible: Boolean = false,
+    visible: Boolean = false,
 ) {
-  isCanBeResolved = false
-  isCanBeConsumed = true
-  canBeDeclared(false)
-  isVisible = visible
+    isCanBeResolved = false
+    isCanBeConsumed = true
+    canBeDeclared(false)
+    isVisible = visible
 }
 
 
@@ -70,12 +76,12 @@ internal fun Configuration.consumable(
  * ```
  */
 internal fun Configuration.resolvable(
-  visible: Boolean = false,
+    visible: Boolean = false,
 ) {
-  isCanBeResolved = true
-  isCanBeConsumed = false
-  canBeDeclared(false)
-  isVisible = visible
+    isCanBeResolved = true
+    isCanBeConsumed = false
+    canBeDeclared(false)
+    isVisible = visible
 }
 
 
@@ -87,26 +93,26 @@ internal fun Configuration.resolvable(
  */
 @Suppress("UnstableApiUsage")
 private fun Configuration.canBeDeclared(value: Boolean) {
-  if (CurrentGradleVersion >= "8.2") {
-    isCanBeDeclared = value
-  }
+    if (CurrentGradleVersion >= "8.2") {
+        isCanBeDeclared = value
+    }
 }
 
 
 /** Shortcut for [GradleVersion.current] */
 internal val CurrentGradleVersion: GradleVersion
-  get() = GradleVersion.current()
+    get() = GradleVersion.current()
 
 
 /** Compare a [GradleVersion] to a [version]. */
 internal operator fun GradleVersion.compareTo(version: String): Int =
-  compareTo(GradleVersion.version(version))
+    compareTo(GradleVersion.version(version))
 
 
 /** Only matches components that come from subprojects */
 internal object LocalProjectOnlyFilter : Spec<ComponentIdentifier> {
-  override fun isSatisfiedBy(element: ComponentIdentifier?): Boolean =
-    element is ProjectComponentIdentifier
+    override fun isSatisfiedBy(element: ComponentIdentifier?): Boolean =
+        element is ProjectComponentIdentifier
 }
 
 
@@ -115,8 +121,8 @@ internal operator fun <T> Spec<T>.not(): Spec<T> = Spec<T> { !this@not.isSatisfi
 
 
 internal fun Project.pathAsFilePath(): String = path
-  .removePrefix(GradleProjectPath.SEPARATOR)
-  .replace(GradleProjectPath.SEPARATOR, "/")
+    .removePrefix(GradleProjectPath.SEPARATOR)
+    .replace(GradleProjectPath.SEPARATOR, "/")
 
 
 /**
@@ -125,13 +131,13 @@ internal fun Project.pathAsFilePath(): String = path
  * and return the same [TaskProvider].
  */
 internal fun <T : Task> TaskProvider<T>.configuring(
-  block: Action<T>
+    block: Action<T>
 ): TaskProvider<T> = apply { configure(block) }
 
 
 internal fun <T> NamedDomainObjectContainer<T>.maybeCreate(
-  name: String,
-  configure: T.() -> Unit,
+    name: String,
+    configure: T.() -> Unit,
 ): T = maybeCreate(name).apply(configure)
 
 
@@ -147,29 +153,29 @@ internal fun <T> NamedDomainObjectContainer<T>.maybeCreate(
  * misconfigured.
  */
 internal fun ConfigurationContainer.collectIncomingFiles(
-  named: String,
-  collector: ConfigurableFileCollection,
-  builtBy: TaskProvider<*>? = null,
-  artifactViewConfiguration: ArtifactView.ViewConfiguration.() -> Unit = {
-    // ignore failures: it's usually okay if fetching files is best-effort because
-    // maybe Dokka doesn't need _all_ dependencies
-    lenient(true)
-  },
+    named: String,
+    collector: ConfigurableFileCollection,
+    builtBy: TaskProvider<*>? = null,
+    artifactViewConfiguration: ArtifactView.ViewConfiguration.() -> Unit = {
+        // ignore failures: it's usually okay if fetching files is best-effort because
+        // maybe Dokka doesn't need _all_ dependencies
+        lenient(true)
+    },
 ) {
-  val conf = findByName(named)
-  if (conf != null && conf.isCanBeResolved) {
-    val incomingFiles = conf.incoming
-      .artifactView(artifactViewConfiguration)
-      .artifacts
-      .resolvedArtifacts // using 'resolved' might help with triggering artifact transforms?
-      .map { artifacts -> artifacts.map { it.file } }
+    val conf = findByName(named)
+    if (conf != null && conf.isCanBeResolved) {
+        val incomingFiles = conf.incoming
+            .artifactView(artifactViewConfiguration)
+            .artifacts
+            .resolvedArtifacts // using 'resolved' might help with triggering artifact transforms?
+            .map { artifacts -> artifacts.map { it.file } }
 
-    collector.from(incomingFiles)
+        collector.from(incomingFiles)
 
-    if (builtBy != null) {
-      collector.builtBy(builtBy)
+        if (builtBy != null) {
+            collector.builtBy(builtBy)
+        }
     }
-  }
 }
 
 
@@ -182,13 +188,13 @@ internal fun ConfigurationContainer.collectIncomingFiles(
  * @see org.gradle.kotlin.dsl.domainObjectContainer
  */
 internal inline fun <reified T : Any> ObjectFactory.domainObjectContainer(
-  factory: NamedDomainObjectFactory<T>? = null
+    factory: NamedDomainObjectFactory<T>? = null
 ): NamedDomainObjectContainer<T> =
-  if (factory == null) {
-    domainObjectContainer(T::class)
-  } else {
-    domainObjectContainer(T::class, factory)
-  }
+    if (factory == null) {
+        domainObjectContainer(T::class)
+    } else {
+        domainObjectContainer(T::class, factory)
+    }
 
 
 /**
@@ -199,8 +205,8 @@ internal inline fun <reified T : Any> ObjectFactory.domainObjectContainer(
  * @see org.gradle.kotlin.dsl.polymorphicDomainObjectContainer
  */
 internal inline fun <reified T : Any> ObjectFactory.polymorphicDomainObjectContainer()
-    : ExtensiblePolymorphicDomainObjectContainer<T> =
-  polymorphicDomainObjectContainer(T::class)
+        : ExtensiblePolymorphicDomainObjectContainer<T> =
+    polymorphicDomainObjectContainer(T::class)
 
 
 /**
@@ -217,22 +223,22 @@ internal inline fun <reified T : Any> ObjectFactory.polymorphicDomainObjectConta
  * create accessors).
  */
 internal inline fun <reified T : Any> ExtensionContainer.adding(
-  name: String,
-  value: T,
+    name: String,
+    value: T,
 ): T {
-  add<T>(name, value)
-  return value
+    add<T>(name, value)
+    return value
 }
 
 
 /** Create a new [DokkaPluginParametersContainer] instance. */
 internal fun ObjectFactory.dokkaPluginParametersContainer(): DokkaPluginParametersContainer {
-  val container = polymorphicDomainObjectContainer<DokkaPluginParametersBaseSpec>()
-  container.whenObjectAdded {
-    // workaround for https://github.com/gradle/gradle/issues/24972
-    (container as ExtensionAware).extensions.add(name, this)
-  }
-  return container
+    val container = polymorphicDomainObjectContainer<DokkaPluginParametersBaseSpec>()
+    container.whenObjectAdded {
+        // workaround for https://github.com/gradle/gradle/issues/24972
+        (container as ExtensionAware).extensions.add(name, this)
+    }
+    return container
 }
 
 
@@ -242,14 +248,14 @@ internal fun ObjectFactory.dokkaPluginParametersContainer(): DokkaPluginParamete
  * @see Attribute.of
  */
 @Deprecated(
-  "Typed attributes are broken - use String attributes instead. https://github.com/adamko-dev/dokkatoo/issues/214",
-  ReplaceWith("org.jetbrains.dokka.gradle.internal.Attribute(name)"),
+    "Typed attributes are broken - use String attributes instead. https://github.com/adamko-dev/dokkatoo/issues/214",
+    ReplaceWith("org.jetbrains.dokka.gradle.internal.Attribute(name)"),
 )
 @JvmName("TypedAttribute")
 internal inline fun <reified T> Attribute(
-  name: String
+    name: String
 ): Attribute<T> =
-  Attribute.of(name, T::class.java)
+    Attribute.of(name, T::class.java)
 
 
 /**
@@ -259,16 +265,16 @@ internal inline fun <reified T> Attribute(
  */
 @JvmName("StringAttribute")
 internal fun Attribute(
-  name: String
+    name: String
 ): Attribute<String> =
-  Attribute.of(name, String::class.java)
+    Attribute.of(name, String::class.java)
 
 
 internal val ArtifactTypeAttribute: Attribute<String> = Attribute("artifactType")
 
 
 internal fun AttributeContainer.artifactType(value: String) {
-  attribute(ArtifactTypeAttribute, value)
+    attribute(ArtifactTypeAttribute, value)
 }
 
 
@@ -276,11 +282,11 @@ internal fun AttributeContainer.artifactType(value: String) {
  * Get all [Attribute]s as a [Map] (helpful for debug printing)
  */
 internal fun AttributeContainer.toMap(): Map<Attribute<*>, Any?> =
-  keySet().associateWith { getAttribute(it) }
+    keySet().associateWith { getAttribute(it) }
 
 
 internal fun AttributeContainer.toDebugString(): String =
-  toMap().entries.joinToString { (k, v) -> "$k[name:${k.name}, type:${k.type}, type.hc:${k.type.hashCode()}]=$v" }
+    toMap().entries.joinToString { (k, v) -> "$k[name:${k.name}, type:${k.type}, type.hc:${k.type.hashCode()}]=$v" }
 
 
 /**
@@ -289,43 +295,43 @@ internal fun AttributeContainer.toDebugString(): String =
  * (Nicer Kotlin accessor function).
  */
 internal operator fun <T : Any> AttributeContainer.get(key: Attribute<T>): T? {
-  // first, try the official way
-  val value = getAttribute(key)
-  if (value != null) {
-    return value
-  }
+    // first, try the official way
+    val value = getAttribute(key)
+    if (value != null) {
+        return value
+    }
 
-  // Failed to get attribute using official method, which might have been caused by a Gradle bug
-  // https://github.com/gradle/gradle/issues/28695
-  // Attempting to check...
+    // Failed to get attribute using official method, which might have been caused by a Gradle bug
+    // https://github.com/gradle/gradle/issues/28695
+    // Attempting to check...
 
-  // Quickly check that any attribute has the same name.
-  // (There's no point in checking further if no names match.)
-  if (keySet().none { it.name == key.name }) {
-    return null
-  }
+    // Quickly check that any attribute has the same name.
+    // (There's no point in checking further if no names match.)
+    if (keySet().none { it.name == key.name }) {
+        return null
+    }
 
-  val actualKey = keySet()
-    .firstOrNull { candidate -> candidate.matchesTypeOf(key) }
-    ?: return null
+    val actualKey = keySet()
+        .firstOrNull { candidate -> candidate.matchesTypeOf(key) }
+        ?: return null
 
-  error(
-    """
-      Gradle failed to fetch attribute from AttributeContainer, even though the attribute is present.
-      Please report this error to Gradle https://github.com/gradle/gradle/issues/28695
-        Requested attribute: $key ${key.type} ${key.type.hashCode()}
-        Actual attribute: $actualKey ${actualKey.type} ${actualKey.type.hashCode()}
-        All attributes: ${toDebugString()}
-        Gradle Version: $CurrentGradleVersion
-    """.trimIndent()
-  )
+    error(
+        """
+          Gradle failed to fetch attribute from AttributeContainer, even though the attribute is present.
+          Please report this error to Gradle https://github.com/gradle/gradle/issues/28695
+            Requested attribute: $key ${key.type} ${key.type.hashCode()}
+            Actual attribute: $actualKey ${actualKey.type} ${actualKey.type.hashCode()}
+            All attributes: ${toDebugString()}
+            Gradle Version: $CurrentGradleVersion
+        """.trimIndent()
+    )
 }
 
 /** Leniently check if [Attribute.type]s are equal, avoiding [Class.hashCode] classloader differences. */
 private fun Attribute<*>.matchesTypeOf(other: Attribute<*>): Boolean {
-  val thisTypeId = this.typeId() ?: false
-  val otherTypeId = other.typeId() ?: false
-  return thisTypeId == otherTypeId
+    val thisTypeId = this.typeId() ?: false
+    val otherTypeId = other.typeId() ?: false
+    return thisTypeId == otherTypeId
 }
 
 /**
@@ -334,4 +340,4 @@ private fun Attribute<*>.matchesTypeOf(other: Attribute<*>): Boolean {
  * Workaround for https://github.com/gradle/gradle/issues/28695.
  */
 private fun Attribute<*>.typeId(): String? =
-  type.toString().ifBlank { null }
+    type.toString().ifBlank { null }

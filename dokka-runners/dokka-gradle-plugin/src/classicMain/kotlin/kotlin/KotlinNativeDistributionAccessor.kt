@@ -3,6 +3,7 @@
  */
 
 @file:Suppress("INVISIBLE_REFERENCE")
+
 package org.jetbrains.dokka.gradle.kotlin
 
 import org.gradle.api.Project
@@ -24,31 +25,31 @@ import java.io.File
  * It should not be used with Kotlin versions later than 1.9
  */
 internal class KotlinNativeDistributionAccessor(
-  project: Project
+    project: Project
 ) {
-  private val konanDistribution = KonanDistribution(
-      // see this comment for the explanation of what's happening:
-      // https://github.com/Kotlin/dokka/pull/3516#issuecomment-1992141380
-      Class.forName("org.jetbrains.kotlin.compilerRunner.NativeToolRunnersKt")
-          .declaredMethods
-          .find { it.name == "getKonanHome" && it.returnType.simpleName == "String" }
-          ?.invoke(null, project) as? String
-          ?: project.alternativeKonanHome()
-          ?: error("Unable to find the Kotlin Native home")
-  )
+    private val konanDistribution = KonanDistribution(
+        // see this comment for the explanation of what's happening:
+        // https://github.com/Kotlin/dokka/pull/3516#issuecomment-1992141380
+        Class.forName("org.jetbrains.kotlin.compilerRunner.NativeToolRunnersKt")
+            .declaredMethods
+            .find { it.name == "getKonanHome" && it.returnType.simpleName == "String" }
+            ?.invoke(null, project) as? String
+            ?: project.alternativeKonanHome()
+            ?: error("Unable to find the Kotlin Native home")
+    )
 
-  val stdlibDir: File = konanDistribution.stdlib
+    val stdlibDir: File = konanDistribution.stdlib
 
-  private fun Project.alternativeKonanHome(): String? {
-      val nativeHome = this.findProperty("org.jetbrains.kotlin.native.home") as? String ?: return null
-      return File(nativeHome).absolutePath ?: NativeCompilerDownloader(project).compilerDirectory.absolutePath
-  }
+    private fun Project.alternativeKonanHome(): String? {
+        val nativeHome = this.findProperty("org.jetbrains.kotlin.native.home") as? String ?: return null
+        return File(nativeHome).absolutePath ?: NativeCompilerDownloader(project).compilerDirectory.absolutePath
+    }
 
-  fun platformDependencies(target: KonanTarget): List<File> = konanDistribution
-    .platformLibsDir
-    .resolve(target.name)
-    .listLibraryFiles()
+    fun platformDependencies(target: KonanTarget): List<File> = konanDistribution
+        .platformLibsDir
+        .resolve(target.name)
+        .listLibraryFiles()
 
-  private fun File.listLibraryFiles(): List<File> = listFiles().orEmpty()
-    .filter { it.isDirectory || it.extension == "klib" }
+    private fun File.listLibraryFiles(): List<File> = listFiles().orEmpty()
+        .filter { it.isDirectory || it.extension == "klib" }
 }

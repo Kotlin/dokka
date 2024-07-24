@@ -1,11 +1,14 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle.internal
 
-import org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer
+import org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec
 
 /** Container for all [Dokka Plugin parameters][DokkaPluginParametersBaseSpec]. */
 typealias DokkaPluginParametersContainer =
-    ExtensiblePolymorphicDomainObjectContainer<DokkaPluginParametersBaseSpec>
+        ExtensiblePolymorphicDomainObjectContainer<DokkaPluginParametersBaseSpec>
 
 
 /**

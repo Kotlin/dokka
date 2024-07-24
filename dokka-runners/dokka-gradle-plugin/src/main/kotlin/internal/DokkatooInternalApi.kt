@@ -1,3 +1,6 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle.internal
 
 import kotlin.RequiresOptIn.Level.WARNING
@@ -20,16 +23,16 @@ import kotlin.annotation.AnnotationTarget.*
  * [the Dokkatoo issue tracker](https://github.com/adamko-dev/dokkatoo/issues).
  */
 @RequiresOptIn(
-  message = "Internal Dokkatoo API - may change at any time without notice",
-  level = WARNING,
+    message = "Internal Dokkatoo API - may change at any time without notice",
+    level = WARNING,
 )
 @Retention(BINARY)
 @Target(
-  CLASS,
-  FUNCTION,
-  CONSTRUCTOR,
-  PROPERTY,
-  PROPERTY_GETTER,
+    CLASS,
+    FUNCTION,
+    CONSTRUCTOR,
+    PROPERTY,
+    PROPERTY_GETTER,
 )
 @MustBeDocumented
 annotation class DokkatooInternalApi

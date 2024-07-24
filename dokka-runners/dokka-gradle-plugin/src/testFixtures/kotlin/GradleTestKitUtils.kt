@@ -1,8 +1,11 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle.utils
 
-import org.jetbrains.dokka.gradle.utils.GradleProjectTest.Companion.dokkaVersionOverride
 import org.gradle.testkit.runner.GradleRunner
 import org.intellij.lang.annotations.Language
+import org.jetbrains.dokka.gradle.utils.GradleProjectTest.Companion.dokkaVersionOverride
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths

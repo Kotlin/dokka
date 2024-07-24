@@ -18,7 +18,6 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.net.URI
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class DokkaConfigurationSerializableTest {
 

@@ -1,18 +1,21 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle
 
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
 import org.jetbrains.dokka.gradle.utils.buildGradleKts
 import org.jetbrains.dokka.gradle.utils.projects.initMultiModuleProject
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.string.shouldContain
-import io.kotest.matchers.string.shouldNotContain
 
 class HtmlAggregationWarningTest : FunSpec({
-  context("when all-modules-page-plugin is missing") {
-    val project = initMultiModuleProject("no-all-pages-plugin")
+    context("when all-modules-page-plugin is missing") {
+        val project = initMultiModuleProject("no-all-pages-plugin")
 
-    project.buildGradleKts += """
+        project.buildGradleKts += """
       |
       |// hack, to remove all-modules-page-plugin for testing purposes
       |configurations.all { 
@@ -21,43 +24,43 @@ class HtmlAggregationWarningTest : FunSpec({
     """.trimMargin()
 
 
-    project.runner
-      .addArguments(
-        "clean",
-        ":dokkatooGenerate",
-        "--stacktrace",
-        "--info",
-      )
-      .forwardOutput()
-      .build {
-        test("expect warning message is logged") {
-          output shouldContain expectedWarning
-          output shouldContain allPlugins
-        }
-      }
-  }
+        project.runner
+            .addArguments(
+                "clean",
+                ":dokkatooGenerate",
+                "--stacktrace",
+                "--info",
+            )
+            .forwardOutput()
+            .build {
+                test("expect warning message is logged") {
+                    output shouldContain expectedWarning
+                    output shouldContain allPlugins
+                }
+            }
+    }
 
-  context("when all-modules-page-plugin is present") {
-    val project = initMultiModuleProject("with-all-pages-plugin")
+    context("when all-modules-page-plugin is present") {
+        val project = initMultiModuleProject("with-all-pages-plugin")
 
-    project.runner
-      .addArguments(
-        "clean",
-        ":dokkatooGenerate",
-        "--stacktrace",
-        "--info",
-      )
-      .forwardOutput()
-      .build {
-        test("expect warning message is not logged") {
-          output shouldNotContain expectedWarning
-          output shouldNotContain allPlugins
-        }
-      }
-  }
+        project.runner
+            .addArguments(
+                "clean",
+                ":dokkatooGenerate",
+                "--stacktrace",
+                "--info",
+            )
+            .forwardOutput()
+            .build {
+                test("expect warning message is not logged") {
+                    output shouldNotContain expectedWarning
+                    output shouldNotContain allPlugins
+                }
+            }
+    }
 }) {
-  companion object {
-    private val expectedWarning = /* language=text */ """
+    companion object {
+        private val expectedWarning = /* language=text */ """
         |[:dokkatooGeneratePublicationHtml] org.jetbrains.dokka:all-modules-page-plugin is missing.
         |
         |Publication 'test' in has 2 modules, but
@@ -73,13 +76,13 @@ class HtmlAggregationWarningTest : FunSpec({
         | - Verify that the dependency has not been excluded.
         | - Raise an issue https://github.com/adamko-dev/dokkatoo/issues
       """
-      .trimMargin()
-      .prependIndent("> ")
+            .trimMargin()
+            .prependIndent("> ")
 
-    private val allPlugins = /* language=text */ """
+        private val allPlugins = /* language=text */ """
         |(all plugins: org.jetbrains.dokka.base.DokkaBase, org.jetbrains.dokka.templates.TemplatingPlugin)
       """
-      .trimMargin()
-      .prependIndent("> ")
-  }
+            .trimMargin()
+            .prependIndent("> ")
+    }
 }

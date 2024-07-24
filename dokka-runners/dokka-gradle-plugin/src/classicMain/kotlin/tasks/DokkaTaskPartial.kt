@@ -6,7 +6,7 @@
 
 package org.jetbrains.dokka.gradle
 
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.CacheableTask
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.build
 

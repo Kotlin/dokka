@@ -9,7 +9,8 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.property
+import org.gradle.kotlin.dsl.setProperty
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfigurationBuilder
 import org.jetbrains.dokka.DokkaDefaults

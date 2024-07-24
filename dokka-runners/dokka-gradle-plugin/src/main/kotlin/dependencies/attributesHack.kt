@@ -1,3 +1,6 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle.dependencies
 
 import org.gradle.api.Named
@@ -8,7 +11,8 @@ import org.gradle.api.attributes.LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE
 import org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE
 import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.DependencyHandlerScope
+import org.gradle.kotlin.dsl.add
 
 /**
  * Dumb hack to work around Gradle bugs/issues/deficiencies.
@@ -29,13 +33,13 @@ import org.gradle.kotlin.dsl.*
  *   can ignore the prefix when **consuming**.
  */
 internal abstract class AttributeHackCompatibilityRule<T : Named> : AttributeCompatibilityRule<T> {
-  override fun execute(details: CompatibilityCheckDetails<T>): Unit = details.run {
-    val consumerName = consumerValue?.name?.substringAfter(AttributeHackPrefix) ?: return
-    val producerName = producerValue?.name?.substringAfter(AttributeHackPrefix) ?: return
-    if (consumerName == producerName) {
-      compatible()
+    override fun execute(details: CompatibilityCheckDetails<T>): Unit = details.run {
+        val consumerName = consumerValue?.name?.substringAfter(AttributeHackPrefix) ?: return
+        val producerName = producerValue?.name?.substringAfter(AttributeHackPrefix) ?: return
+        if (consumerName == producerName) {
+            compatible()
+        }
     }
-  }
 }
 
 internal const val AttributeHackPrefix = "Dokkatoo~"
@@ -50,21 +54,21 @@ internal class LibraryElementsHackRule : AttributeHackCompatibilityRule<LibraryE
  * @see AttributeHackCompatibilityRule
  */
 internal fun DependencyHandlerScope.applyAttributeHacks() {
-  attributesSchema {
-    attribute(USAGE_ATTRIBUTE) {
-      compatibilityRules.add(UsageHackRule::class)
+    attributesSchema {
+        attribute(USAGE_ATTRIBUTE) {
+            compatibilityRules.add(UsageHackRule::class)
+        }
+        attribute(CATEGORY_ATTRIBUTE) {
+            compatibilityRules.add(CategoryHackRule::class)
+        }
+        attribute(BUNDLING_ATTRIBUTE) {
+            compatibilityRules.add(BundlingHackRule::class)
+        }
+        attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE) {
+            compatibilityRules.add(TargetJvmEnvironmentHackRule::class)
+        }
+        attribute(LIBRARY_ELEMENTS_ATTRIBUTE) {
+            compatibilityRules.add(LibraryElementsHackRule::class)
+        }
     }
-    attribute(CATEGORY_ATTRIBUTE) {
-      compatibilityRules.add(CategoryHackRule::class)
-    }
-    attribute(BUNDLING_ATTRIBUTE) {
-      compatibilityRules.add(BundlingHackRule::class)
-    }
-    attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE) {
-      compatibilityRules.add(TargetJvmEnvironmentHackRule::class)
-    }
-    attribute(LIBRARY_ELEMENTS_ATTRIBUTE) {
-      compatibilityRules.add(LibraryElementsHackRule::class)
-    }
-  }
 }

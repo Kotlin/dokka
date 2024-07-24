@@ -4,12 +4,12 @@
 
 package org.jetbrains.dokka.gradle
 
-import org.jetbrains.dokka.gradle.utils.withDependencies_
 import org.gradle.api.artifacts.FileCollectionDependency
 import org.gradle.api.internal.project.DefaultProject
 import org.gradle.kotlin.dsl.get
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.gradle.kotlin.gistOf
+import org.jetbrains.dokka.gradle.utils.withDependencies_
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType

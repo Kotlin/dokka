@@ -18,7 +18,10 @@ import org.jetbrains.dokka.gradle.utils.configureEach_
 import org.jetbrains.dokka.gradle.utils.withDependencies_
 import org.jetbrains.dokka.testApi.assertDokkaConfigurationEquals
 import java.io.File
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class DokkaCollectorTaskTest {
 

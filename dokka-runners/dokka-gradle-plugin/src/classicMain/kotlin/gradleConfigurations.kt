@@ -27,7 +27,10 @@ internal fun Project.maybeCreateDokkaDefaultRuntimeConfiguration(): Configuratio
     }
 }
 
-internal fun Project.maybeCreateDokkaPluginConfiguration(dokkaTaskName: String, additionalDependencies: Collection<Dependency> = emptySet()): Configuration {
+internal fun Project.maybeCreateDokkaPluginConfiguration(
+    dokkaTaskName: String,
+    additionalDependencies: Collection<Dependency> = emptySet()
+): Configuration {
     return project.configurations.maybeCreate("${dokkaTaskName}Plugin") {
         extendsFrom(maybeCreateDokkaDefaultPluginConfiguration())
         attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))

@@ -1,3 +1,6 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle
 
 import org.jetbrains.dokka.gradle.internal.DokkatooConstants
@@ -11,53 +14,53 @@ import io.kotest.matchers.string.shouldNotContain
 
 class GradlePluginProjectIntegrationTest : FunSpec({
 
-  context("given a gradle plugin project") {
-    val project = initGradlePluginProject()
+    context("given a gradle plugin project") {
+        val project = initGradlePluginProject()
 
-    project.runner
-      .addArguments(
-        "clean",
-        "dokkatooGeneratePublicationHtml",
-        "--stacktrace",
-      )
-      .forwardOutput()
-      .build {
+        project.runner
+            .addArguments(
+                "clean",
+                "dokkatooGeneratePublicationHtml",
+                "--stacktrace",
+            )
+            .forwardOutput()
+            .build {
 
-        test("expect project builds successfully") {
-          output shouldContain "BUILD SUCCESSFUL"
-        }
+                test("expect project builds successfully") {
+                    output shouldContain "BUILD SUCCESSFUL"
+                }
 
-        test("expect no 'unknown class' message in HTML files") {
-          val htmlFiles = project.projectDir.toFile()
-            .resolve("build/dokka/html")
-            .walk()
-            .filter { it.isFile && it.extension == "html" }
+                test("expect no 'unknown class' message in HTML files") {
+                    val htmlFiles = project.projectDir.toFile()
+                        .resolve("build/dokka/html")
+                        .walk()
+                        .filter { it.isFile && it.extension == "html" }
 
-          htmlFiles.shouldNotBeEmpty()
+                    htmlFiles.shouldNotBeEmpty()
 
-          htmlFiles.forEach { htmlFile ->
-            val relativePath = htmlFile.relativeTo(project.projectDir.toFile())
-            withClue("$relativePath should not contain Error class: unknown class") {
-              htmlFile.useLines { lines ->
-                lines.shouldForAll { line -> line.shouldNotContain("Error class: unknown class") }
-              }
+                    htmlFiles.forEach { htmlFile ->
+                        val relativePath = htmlFile.relativeTo(project.projectDir.toFile())
+                        withClue("$relativePath should not contain Error class: unknown class") {
+                            htmlFile.useLines { lines ->
+                                lines.shouldForAll { line -> line.shouldNotContain("Error class: unknown class") }
+                            }
+                        }
+                    }
+                }
             }
-          }
-        }
-      }
-  }
+    }
 })
 
 private fun initGradlePluginProject(
-  config: GradleProjectTest.() -> Unit = {},
+    config: GradleProjectTest.() -> Unit = {},
 ): GradleProjectTest {
-  return gradleKtsProjectTest("gradle-plugin-project") {
+    return gradleKtsProjectTest("gradle-plugin-project") {
 
-    settingsGradleKts += """
+        settingsGradleKts += """
       |
     """.trimMargin()
 
-    buildGradleKts = """
+        buildGradleKts = """
       |plugins {
       |  `kotlin-dsl`
       |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
@@ -65,11 +68,11 @@ private fun initGradlePluginProject(
       |
     """.trimMargin()
 
-    dir("src/main/kotlin") {
+        dir("src/main/kotlin") {
 
-      createKotlinFile(
-        "MyCustomGradlePlugin.kt",
-        """
+            createKotlinFile(
+                "MyCustomGradlePlugin.kt",
+                """
           |package com.project.gradle.plugin
           |
           |import javax.inject.Inject
@@ -87,11 +90,11 @@ private fun initGradlePluginProject(
           |}
 
         """.trimMargin()
-      )
+            )
 
-      createKotlinFile(
-        "MyCustomGradlePluginExtension.kt",
-        """
+            createKotlinFile(
+                "MyCustomGradlePluginExtension.kt",
+                """
           |package com.project.gradle.plugin
           |
           |import org.gradle.api.provider.*
@@ -102,9 +105,9 @@ private fun initGradlePluginProject(
           |}
           |
         """.trimMargin()
-      )
-    }
+            )
+        }
 
-    config()
-  }
+        config()
+    }
 }

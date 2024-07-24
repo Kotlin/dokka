@@ -1,9 +1,8 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle.dokka.parameters
 
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
-import java.io.Serializable
-import java.net.URI
-import javax.inject.Inject
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.Property
@@ -12,6 +11,10 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.intellij.lang.annotations.Language
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import java.io.Serializable
+import java.net.URI
+import javax.inject.Inject
 
 /**
  * Configuration builder that allows adding a `source` link to each signature
@@ -32,82 +35,82 @@ abstract class DokkaSourceLinkSpec
 @DokkatooInternalApi
 @Inject
 constructor(
-  private val layout: ProjectLayout
+    private val layout: ProjectLayout
 ) : Serializable {
 
-  /**
-   * Path to the local source directory. The path must be relative to the root of current project.
-   *
-   * This path is used to find relative paths of the source files from which the documentation is built.
-   * These relative paths are then combined with the base url of a source code hosting service specified with
-   * the [remoteUrl] property to create source links for each declaration.
-   *
-   * Example:
-   *
-   * ```kotlin
-   * projectDir.resolve("src")
-   * ```
-   */
-  @get:Internal // changing contents of the directory should not invalidate the task
-  abstract val localDirectory: DirectoryProperty
+    /**
+     * Path to the local source directory. The path must be relative to the root of current project.
+     *
+     * This path is used to find relative paths of the source files from which the documentation is built.
+     * These relative paths are then combined with the base url of a source code hosting service specified with
+     * the [remoteUrl] property to create source links for each declaration.
+     *
+     * Example:
+     *
+     * ```kotlin
+     * projectDir.resolve("src")
+     * ```
+     */
+    @get:Internal // changing contents of the directory should not invalidate the task
+    abstract val localDirectory: DirectoryProperty
 
-  /**
-   * The relative path to [localDirectory] from the project directory. Declared as an input to invalidate the task if that path changes.
-   * Should not be used anywhere directly.
-   */
-  @get:Input
-  @DokkatooInternalApi
-  internal val localDirectoryPath: Provider<String>
-    get() = localDirectory.map {
-      it.asFile.relativeTo(layout.projectDirectory.asFile).invariantSeparatorsPath
-    }
+    /**
+     * The relative path to [localDirectory] from the project directory. Declared as an input to invalidate the task if that path changes.
+     * Should not be used anywhere directly.
+     */
+    @get:Input
+    @DokkatooInternalApi
+    internal val localDirectoryPath: Provider<String>
+        get() = localDirectory.map {
+            it.asFile.relativeTo(layout.projectDirectory.asFile).invariantSeparatorsPath
+        }
 
-  /**
-   * URL of source code hosting service that can be accessed by documentation readers,
-   * like GitHub, GitLab, Bitbucket, etc. This URL will be used to generate
-   * source code links of declarations.
-   *
-   * Example:
-   *
-   * ```kotlin
-   * java.net.URI("https://github.com/username/projectname/tree/master/src"))
-   * ```
-   */
-  @get:Input
-  abstract val remoteUrl: Property<URI>
+    /**
+     * URL of source code hosting service that can be accessed by documentation readers,
+     * like GitHub, GitLab, Bitbucket, etc. This URL will be used to generate
+     * source code links of declarations.
+     *
+     * Example:
+     *
+     * ```kotlin
+     * java.net.URI("https://github.com/username/projectname/tree/master/src"))
+     * ```
+     */
+    @get:Input
+    abstract val remoteUrl: Property<URI>
 
-  /**
-   * Set the value of [remoteUrl].
-   *
-   * @param[value] will be converted to a [URI]
-   */
-  fun remoteUrl(@Language("http-url-reference") value: String): Unit =
-    remoteUrl.set(URI(value))
+    /**
+     * Set the value of [remoteUrl].
+     *
+     * @param[value] will be converted to a [URI]
+     */
+    fun remoteUrl(@Language("http-url-reference") value: String): Unit =
+        remoteUrl.set(URI(value))
 
-  /**
-   * Set the value of [remoteUrl].
-   *
-   * @param[value] will be converted to a [URI]
-   */
-  fun remoteUrl(value: Provider<String>): Unit =
-    remoteUrl.set(value.map(::URI))
+    /**
+     * Set the value of [remoteUrl].
+     *
+     * @param[value] will be converted to a [URI]
+     */
+    fun remoteUrl(value: Provider<String>): Unit =
+        remoteUrl.set(value.map(::URI))
 
-  /**
-   * Suffix used to append source code line number to the URL. This will help readers navigate
-   * not only to the file, but to the specific line number of the declaration.
-   *
-   * The number itself will be appended to the specified suffix. For instance,
-   * if this property is set to `#L` and the line number is 10, resulting URL suffix
-   * will be `#L10`
-   *
-   * Suffixes used by popular services:
-   * - GitHub: `#L`
-   * - GitLab: `#L`
-   * - Bitbucket: `#lines-`
-   *
-   * Default is `#L`.
-   */
-  @get:Optional
-  @get:Input
-  abstract val remoteLineSuffix: Property<String>
+    /**
+     * Suffix used to append source code line number to the URL. This will help readers navigate
+     * not only to the file, but to the specific line number of the declaration.
+     *
+     * The number itself will be appended to the specified suffix. For instance,
+     * if this property is set to `#L` and the line number is 10, resulting URL suffix
+     * will be `#L10`
+     *
+     * Suffixes used by popular services:
+     * - GitHub: `#L`
+     * - GitLab: `#L`
+     * - Bitbucket: `#lines-`
+     *
+     * Default is `#L`.
+     */
+    @get:Optional
+    @get:Input
+    abstract val remoteLineSuffix: Property<String>
 }

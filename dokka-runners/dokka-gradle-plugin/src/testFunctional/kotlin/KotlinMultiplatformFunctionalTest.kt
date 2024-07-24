@@ -1,7 +1,8 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle
 
-import org.jetbrains.dokka.gradle.internal.DokkatooConstants
-import org.jetbrains.dokka.gradle.utils.*
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.inspectors.shouldForAll
@@ -10,61 +11,63 @@ import io.kotest.matchers.file.shouldBeAFile
 import io.kotest.matchers.sequences.shouldNotBeEmpty
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import org.jetbrains.dokka.gradle.internal.DokkatooConstants
+import org.jetbrains.dokka.gradle.utils.*
 import kotlin.io.path.extension
 import kotlin.io.path.readText
 
 class KotlinMultiplatformFunctionalTest : FunSpec({
 
-  context("when dokkatoo generates all formats") {
-    val project = initKotlinMultiplatformProject()
+    context("when dokkatoo generates all formats") {
+        val project = initKotlinMultiplatformProject()
 
-    project.runner
-      .addArguments(
-        "clean",
-        ":dokkatooGeneratePublicationHtml",
-        "--stacktrace",
-      )
-      .forwardOutput()
-      .build {
-        test("expect build is successful") {
-          output shouldContain "BUILD SUCCESSFUL"
+        project.runner
+            .addArguments(
+                "clean",
+                ":dokkatooGeneratePublicationHtml",
+                "--stacktrace",
+            )
+            .forwardOutput()
+            .build {
+                test("expect build is successful") {
+                    output shouldContain "BUILD SUCCESSFUL"
+                }
+            }
+
+        test("expect all dokka workers are successful") {
+            project
+                .findFiles { it.name == "dokka-worker.log" }
+                .shouldBeSingleton { dokkaWorkerLog ->
+                    dokkaWorkerLog.shouldBeAFile()
+                    dokkaWorkerLog.readText().shouldNotContainAnyOf(
+                        "[ERROR]",
+                        "[WARN]",
+                    )
+                }
         }
-      }
 
-    test("expect all dokka workers are successful") {
-      project
-        .findFiles { it.name == "dokka-worker.log" }
-        .shouldBeSingleton { dokkaWorkerLog ->
-          dokkaWorkerLog.shouldBeAFile()
-          dokkaWorkerLog.readText().shouldNotContainAnyOf(
-            "[ERROR]",
-            "[WARN]",
-          )
-        }
-    }
+        context("expect HTML site is generated") {
 
-    context("expect HTML site is generated") {
+            test("with expected HTML files") {
+                project.projectDir
+                    .resolve("build/dokka/")
+                    .listRelativePathsMatching { it.extension == "html" }
+                    .shouldContainExactlyInAnyOrder(
+                        "html/index.html",
+                        "html/navigation.html",
+                        "html/test/com.project/-hello/-hello.html",
+                        "html/test/com.project/-hello/index.html",
+                        "html/test/com.project/-hello/say-hello.html",
+                        "html/test/com.project/goodbye.html",
+                        "html/test/com.project/index.html",
+                    )
+            }
 
-      test("with expected HTML files") {
-        project.projectDir
-          .resolve("build/dokka/")
-          .listRelativePathsMatching { it.extension == "html" }
-          .shouldContainExactlyInAnyOrder(
-            "html/index.html",
-            "html/navigation.html",
-            "html/test/com.project/-hello/-hello.html",
-            "html/test/com.project/-hello/index.html",
-            "html/test/com.project/-hello/say-hello.html",
-            "html/test/com.project/goodbye.html",
-            "html/test/com.project/index.html",
-          )
-      }
-
-      test("with element-list") {
-        project.projectDir.resolve("build/dokka/html/test/package-list").toFile().shouldBeAFile()
-        project.projectDir.resolve("build/dokka/html/test/package-list").readText()
-          .sortLines()
-          .shouldContain( /* language=text */ """
+            test("with element-list") {
+                project.projectDir.resolve("build/dokka/html/test/package-list").toFile().shouldBeAFile()
+                project.projectDir.resolve("build/dokka/html/test/package-list").readText()
+                    .sortLines()
+                    .shouldContain( /* language=text */ """
               |${'$'}dokka.format:html-v1
               |${'$'}dokka.linkExtension:html
               |${'$'}dokka.location:com.project////PointingToDeclaration/test/com.project/index.html
@@ -74,37 +77,37 @@ class KotlinMultiplatformFunctionalTest : FunSpec({
               |${'$'}dokka.location:com.project/Hello/sayHello/#kotlinx.serialization.json.JsonObject/PointingToDeclaration/test/com.project/-hello/say-hello.html
               |com.project
             """.trimMargin()
-          )
-      }
-
-      test("expect no 'unknown class' message in HTML files") {
-        val htmlFiles = project.projectDir.toFile()
-          .resolve("build/dokka/html")
-          .walk()
-          .filter { it.isFile && it.extension == "html" }
-
-        htmlFiles.shouldNotBeEmpty()
-
-        htmlFiles.forEach { htmlFile ->
-          val relativePath = htmlFile.relativeTo(project.projectDir.toFile())
-          withClue("$relativePath should not contain Error class: unknown class") {
-            htmlFile.useLines { lines ->
-              lines.shouldForAll { line -> line.shouldNotContain("Error class: unknown class") }
+                    )
             }
-          }
+
+            test("expect no 'unknown class' message in HTML files") {
+                val htmlFiles = project.projectDir.toFile()
+                    .resolve("build/dokka/html")
+                    .walk()
+                    .filter { it.isFile && it.extension == "html" }
+
+                htmlFiles.shouldNotBeEmpty()
+
+                htmlFiles.forEach { htmlFile ->
+                    val relativePath = htmlFile.relativeTo(project.projectDir.toFile())
+                    withClue("$relativePath should not contain Error class: unknown class") {
+                        htmlFile.useLines { lines ->
+                            lines.shouldForAll { line -> line.shouldNotContain("Error class: unknown class") }
+                        }
+                    }
+                }
+            }
         }
-      }
     }
-  }
 })
 
 
 private fun initKotlinMultiplatformProject(
-  config: GradleProjectTest.() -> Unit = {},
+    config: GradleProjectTest.() -> Unit = {},
 ): GradleProjectTest {
-  return gradleKtsProjectTest("kotlin-multiplatform-project") {
+    return gradleKtsProjectTest("kotlin-multiplatform-project") {
 
-    settingsGradleKts += """
+        settingsGradleKts += """
       |
       |dependencyResolutionManagement {
       |
@@ -142,7 +145,7 @@ private fun initKotlinMultiplatformProject(
       |
     """.trimMargin()
 
-    buildGradleKts = """
+        buildGradleKts = """
       |plugins {
       |  kotlin("multiplatform") version "1.8.22"
       |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
@@ -181,11 +184,11 @@ private fun initKotlinMultiplatformProject(
       |
     """.trimMargin()
 
-    dir("src/commonMain/kotlin/") {
+        dir("src/commonMain/kotlin/") {
 
-      createKotlinFile(
-        "Hello.kt",
-        """
+            createKotlinFile(
+                "Hello.kt",
+                """
           |package com.project
           |
           |import kotlinx.serialization.json.JsonObject
@@ -197,11 +200,11 @@ private fun initKotlinMultiplatformProject(
           |}
           |
         """.trimMargin()
-      )
+            )
 
-      createKotlinFile(
-        "goodbye.kt",
-        """
+            createKotlinFile(
+                "goodbye.kt",
+                """
           |package com.project
           |
           |import kotlinx.serialization.json.JsonObject
@@ -210,13 +213,13 @@ private fun initKotlinMultiplatformProject(
           |expect fun goodbye(json: JsonObject)
           |
         """.trimMargin()
-      )
-    }
+            )
+        }
 
-    dir("src/jvmMain/kotlin/") {
-      createKotlinFile(
-        "goodbyeJvm.kt",
-        """
+        dir("src/jvmMain/kotlin/") {
+            createKotlinFile(
+                "goodbyeJvm.kt",
+                """
           |package com.project
           |
           |import kotlinx.serialization.json.JsonObject
@@ -225,13 +228,13 @@ private fun initKotlinMultiplatformProject(
           |actual fun goodbye(json: JsonObject) = println("[JVM] goodbye ${'$'}json")
           |
         """.trimMargin()
-      )
-    }
+            )
+        }
 
-    dir("src/jsMain/kotlin/") {
-      createKotlinFile(
-        "goodbyeJs.kt",
-        """
+        dir("src/jsMain/kotlin/") {
+            createKotlinFile(
+                "goodbyeJs.kt",
+                """
           |package com.project
           |
           |import kotlinx.serialization.json.JsonObject
@@ -240,9 +243,9 @@ private fun initKotlinMultiplatformProject(
           |actual fun goodbye(json: JsonObject) = println("[JS] goodbye ${'$'}json")
           |
         """.trimMargin()
-      )
-    }
+            )
+        }
 
-    config()
-  }
+        config()
+    }
 }

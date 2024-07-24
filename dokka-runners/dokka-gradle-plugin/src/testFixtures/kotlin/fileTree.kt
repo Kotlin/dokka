@@ -1,3 +1,6 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle.utils
 
 import java.io.File
@@ -8,16 +11,16 @@ import java.nio.file.Path
 
 
 fun Path.toTreeString(
-  fileFilter: FileFilter = FileFilter { true },
+    fileFilter: FileFilter = FileFilter { true },
 ): String =
-  toFile().toTreeString(fileFilter = fileFilter)
+    toFile().toTreeString(fileFilter = fileFilter)
 
 
 fun File.toTreeString(
-  fileFilter: FileFilter = FileFilter { true },
+    fileFilter: FileFilter = FileFilter { true },
 ): String = when {
-  isDirectory -> name + "/\n" + buildTreeString(dir = this, fileFilter = fileFilter)
-  else        -> name
+    isDirectory -> name + "/\n" + buildTreeString(dir = this, fileFilter = fileFilter)
+    else -> name
 }
 
 
@@ -25,74 +28,75 @@ fun File.toTreeString(
  * Optionally include/exclude files. Directories will always be included.
  */
 fun interface FileFilter {
-  operator fun invoke(file: File): Boolean
+    operator fun invoke(file: File): Boolean
 }
 
 
 private fun FileFilter.matches(file: File): Boolean =
-  if (file.isDirectory) {
-    // don't include directories that have no matches
-    file.walk().any { it.isFile && invoke(it) }
-  } else {
-    invoke(file)
-  }
+    if (file.isDirectory) {
+        // don't include directories that have no matches
+        file.walk().any { it.isFile && invoke(it) }
+    } else {
+        invoke(file)
+    }
 
 
 private fun buildTreeString(
-  dir: File,
-  fileFilter: FileFilter = FileFilter { true },
-  margin: String = "",
+    dir: File,
+    fileFilter: FileFilter = FileFilter { true },
+    margin: String = "",
 ): String {
-  val entries = dir.listDirectoryEntries()
-    .filter { file -> fileFilter.matches(file) }
+    val entries = dir.listDirectoryEntries()
+        .filter { file -> fileFilter.matches(file) }
 
-  return entries.joinToString("\n") { entry ->
-    val (currentPrefix, nextPrefix) = when (entry) {
-      entries.last() -> PrefixPair.LAST_ENTRY
-      else           -> PrefixPair.INTERMEDIATE
-    }
-
-    buildString {
-      append("$margin${currentPrefix}${entry.name}")
-
-      if (entry.isDirectory) {
-        append("/")
-        if (entry.countDirectoryEntries(fileFilter) > 0) {
-          append("\n")
+    return entries.joinToString("\n") { entry ->
+        val (currentPrefix, nextPrefix) = when (entry) {
+            entries.last() -> PrefixPair.LAST_ENTRY
+            else -> PrefixPair.INTERMEDIATE
         }
-        append(buildTreeString(entry, fileFilter, margin + nextPrefix))
-      }
+
+        buildString {
+            append("$margin${currentPrefix}${entry.name}")
+
+            if (entry.isDirectory) {
+                append("/")
+                if (entry.countDirectoryEntries(fileFilter) > 0) {
+                    append("\n")
+                }
+                append(buildTreeString(entry, fileFilter, margin + nextPrefix))
+            }
+        }
     }
-  }
 }
 
 private fun File.listDirectoryEntries(): Sequence<File> =
-  walkTopDown()
-    .maxDepth(1)
-    .filter { it != this@listDirectoryEntries }
-    .sortedWith(FileSorter)
+    walkTopDown()
+        .maxDepth(1)
+        .filter { it != this@listDirectoryEntries }
+        .sortedWith(FileSorter)
 
 
 private fun File.countDirectoryEntries(
-  fileFilter: FileFilter,
+    fileFilter: FileFilter,
 ): Int =
-  listDirectoryEntries()
-    .filter { file -> fileFilter.matches(file) }
-    .count()
+    listDirectoryEntries()
+        .filter { file -> fileFilter.matches(file) }
+        .count()
 
 
 private data class PrefixPair(
-  /** The current entry should be prefixed with this */
-  val currentPrefix: String,
-  /** If the next item is a directory, it should be prefixed with this */
-  val nextPrefix: String,
+    /** The current entry should be prefixed with this */
+    val currentPrefix: String,
+    /** If the next item is a directory, it should be prefixed with this */
+    val nextPrefix: String,
 ) {
-  companion object {
-    /** Prefix pair for a non-last directory entry */
-    val INTERMEDIATE = PrefixPair("├── ", "│   ")
-    /** Prefix pair for the last directory entry */
-    val LAST_ENTRY = PrefixPair("└── ", "    ")
-  }
+    companion object {
+        /** Prefix pair for a non-last directory entry */
+        val INTERMEDIATE = PrefixPair("├── ", "│   ")
+
+        /** Prefix pair for the last directory entry */
+        val LAST_ENTRY = PrefixPair("└── ", "    ")
+    }
 }
 
 
@@ -100,11 +104,11 @@ private data class PrefixPair(
  * Directories before files, otherwise sort by filename.
  */
 private object FileSorter : Comparator<File> {
-  override fun compare(o1: File, o2: File): Int {
-    return when {
-      o1.isDirectory && o2.isFile -> -1 // directories before files
-      o1.isFile && o2.isDirectory -> +1 // files after directories
-      else                        -> o1.name.compareTo(o2.name)
+    override fun compare(o1: File, o2: File): Int {
+        return when {
+            o1.isDirectory && o2.isFile -> -1 // directories before files
+            o1.isFile && o2.isDirectory -> +1 // files after directories
+            else -> o1.name.compareTo(o2.name)
+        }
     }
-  }
 }

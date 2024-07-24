@@ -4,7 +4,10 @@
 
 package org.jetbrains.dokka.gradle.utils
 
-import org.gradle.api.*
+import org.gradle.api.DomainObjectCollection
+import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.NamedDomainObjectProvider
+import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.DependencySet
 import org.jetbrains.dokka.gradle.GradleDokkaSourceSetBuilder

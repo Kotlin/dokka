@@ -17,7 +17,6 @@ import org.jetbrains.dokka.toCompactJsonString
 import java.io.File
 import java.net.URI
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class DokkaConfigurationJsonTest {
 

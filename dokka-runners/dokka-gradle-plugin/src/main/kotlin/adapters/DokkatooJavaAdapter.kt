@@ -1,13 +1,8 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle.adapters
 
-import org.jetbrains.dokka.gradle.DokkatooExtension
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
-import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
-import org.jetbrains.dokka.gradle.internal.PluginId
-import org.jetbrains.dokka.gradle.internal.or
-import org.jetbrains.dokka.gradle.internal.uppercaseFirstChar
-import javax.inject.Inject
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -20,8 +15,17 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSet.MAIN_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSet.TEST_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.dokka.gradle.DokkatooExtension
+import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.PluginId
+import org.jetbrains.dokka.gradle.internal.or
+import org.jetbrains.dokka.gradle.internal.uppercaseFirstChar
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
+import javax.inject.Inject
 
 /**
  * Apply Java specific configuration to the Dokkatoo plugin.
@@ -30,117 +34,117 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
  */
 @DokkatooInternalApi
 abstract class DokkatooJavaAdapter @Inject constructor(
-  private val providers: ProviderFactory,
+    private val providers: ProviderFactory,
 ) : Plugin<Project> {
 
-  private val logger = Logging.getLogger(this::class.java)
+    private val logger = Logging.getLogger(this::class.java)
 
-  override fun apply(project: Project) {
-    logger.info("applied DokkatooJavaAdapter to ${project.path}")
+    override fun apply(project: Project) {
+        logger.info("applied DokkatooJavaAdapter to ${project.path}")
 
-    val dokkatoo = project.extensions.getByType<DokkatooExtension>()
+        val dokkatoo = project.extensions.getByType<DokkatooExtension>()
 
-    // wait for the Java plugin to be applied
-    project.plugins.withType<JavaBasePlugin>().configureEach {
-      val java = project.extensions.getByType<JavaPluginExtension>()
-      val sourceSets = project.extensions.getByType<SourceSetContainer>()
+        // wait for the Java plugin to be applied
+        project.plugins.withType<JavaBasePlugin>().configureEach {
+            val java = project.extensions.getByType<JavaPluginExtension>()
+            val sourceSets = project.extensions.getByType<SourceSetContainer>()
 
-      detectJavaToolchainVersion(dokkatoo, java)
+            detectJavaToolchainVersion(dokkatoo, java)
 
-      val isConflictingPluginPresent = isConflictingPluginPresent(project)
-      registerDokkatooSourceSets(dokkatoo, sourceSets, isConflictingPluginPresent)
+            val isConflictingPluginPresent = isConflictingPluginPresent(project)
+            registerDokkatooSourceSets(dokkatoo, sourceSets, isConflictingPluginPresent)
+        }
     }
-  }
 
-  /** fetch the  toolchain, and use the language version as Dokka's jdkVersion */
-  private fun detectJavaToolchainVersion(
-    dokkatoo: DokkatooExtension,
-    java: JavaPluginExtension,
-  ) {
-    // fetch the toolchain, and use the language version as Dokka's jdkVersion
-    val toolchainLanguageVersion = java
-      .toolchain
-      .languageVersion
-
-    dokkatoo.dokkatooSourceSets.configureEach {
-      jdkVersion.set(toolchainLanguageVersion.map { it.asInt() }.orElse(11))
-    }
-  }
-
-  private fun registerDokkatooSourceSets(
-    dokkatoo: DokkatooExtension,
-    sourceSets: SourceSetContainer,
-    isConflictingPluginPresent: Provider<Boolean>,
-  ) {
-    sourceSets.all jss@{
-      register(
-        dokkaSourceSets = dokkatoo.dokkatooSourceSets,
-        src = this@jss,
-        isConflictingPluginPresent = isConflictingPluginPresent,
-      )
-    }
-  }
-
-  /** Register a single [DokkaSourceSetSpec] for [src] */
-  private fun register(
-    dokkaSourceSets: NamedDomainObjectContainer<DokkaSourceSetSpec>,
-    src: SourceSet,
-    isConflictingPluginPresent: Provider<Boolean>,
-  ) {
-    dokkaSourceSets.register(
-      "java${src.name.uppercaseFirstChar()}"
+    /** fetch the  toolchain, and use the language version as Dokka's jdkVersion */
+    private fun detectJavaToolchainVersion(
+        dokkatoo: DokkatooExtension,
+        java: JavaPluginExtension,
     ) {
-      suppress.convention(!src.isPublished() or isConflictingPluginPresent)
-      sourceRoots.from(src.java)
-      analysisPlatform.convention(KotlinPlatform.JVM)
+        // fetch the toolchain, and use the language version as Dokka's jdkVersion
+        val toolchainLanguageVersion = java
+            .toolchain
+            .languageVersion
 
-      classpath.from(providers.provider { src.compileClasspath })
-      classpath.builtBy(src.compileJavaTaskName)
-    }
-  }
-
-  /**
-   * The Android and Kotlin plugins _also_ add the Java plugin.
-   *
-   * To prevent generating documentation for the same sources twice, automatically suppress any
-   * [DokkaSourceSetSpec] when any Android or Kotlin plugin is present
-   *
-   * Projects with Android or Kotlin projects present will be handled by [DokkatooAndroidAdapter]
-   * or [DokkatooKotlinAdapter].
-   */
-  private fun isConflictingPluginPresent(
-    project: Project
-  ): Provider<Boolean> {
-
-    val projectHasKotlinPlugin = providers.provider {
-      project.pluginManager.hasPlugin(PluginId.KotlinAndroid)
-          || project.pluginManager.hasPlugin(PluginId.KotlinJs)
-          || project.pluginManager.hasPlugin(PluginId.KotlinJvm)
-          || project.pluginManager.hasPlugin(PluginId.KotlinMultiplatform)
+        dokkatoo.dokkatooSourceSets.configureEach {
+            jdkVersion.set(toolchainLanguageVersion.map { it.asInt() }.orElse(11))
+        }
     }
 
-    val projectHasAndroidPlugin = providers.provider {
-      project.pluginManager.hasPlugin(PluginId.AndroidBase)
-          || project.pluginManager.hasPlugin(PluginId.AndroidApplication)
-          || project.pluginManager.hasPlugin(PluginId.AndroidLibrary)
+    private fun registerDokkatooSourceSets(
+        dokkatoo: DokkatooExtension,
+        sourceSets: SourceSetContainer,
+        isConflictingPluginPresent: Provider<Boolean>,
+    ) {
+        sourceSets.all jss@{
+            register(
+                dokkaSourceSets = dokkatoo.dokkatooSourceSets,
+                src = this@jss,
+                isConflictingPluginPresent = isConflictingPluginPresent,
+            )
+        }
     }
 
-    return projectHasKotlinPlugin or projectHasAndroidPlugin
-  }
+    /** Register a single [DokkaSourceSetSpec] for [src] */
+    private fun register(
+        dokkaSourceSets: NamedDomainObjectContainer<DokkaSourceSetSpec>,
+        src: SourceSet,
+        isConflictingPluginPresent: Provider<Boolean>,
+    ) {
+        dokkaSourceSets.register(
+            "java${src.name.uppercaseFirstChar()}"
+        ) {
+            suppress.convention(!src.isPublished() or isConflictingPluginPresent)
+            sourceRoots.from(src.java)
+            analysisPlatform.convention(KotlinPlatform.JVM)
 
-  @DokkatooInternalApi
-  companion object {
+            classpath.from(providers.provider { src.compileClasspath })
+            classpath.builtBy(src.compileJavaTaskName)
+        }
+    }
+
     /**
-     * Determine if a [KotlinCompilation] is 'publishable', and so should be enabled by default
-     * when creating a Dokka publication.
+     * The Android and Kotlin plugins _also_ add the Java plugin.
      *
-     * Typically, 'main' compilations are publishable and 'test' compilations should be suppressed.
-     * This can be overridden manually, though.
+     * To prevent generating documentation for the same sources twice, automatically suppress any
+     * [DokkaSourceSetSpec] when any Android or Kotlin plugin is present
      *
-     * @see DokkaSourceSetSpec.suppress
+     * Projects with Android or Kotlin projects present will be handled by [DokkatooAndroidAdapter]
+     * or [DokkatooKotlinAdapter].
      */
-    fun SourceSet.isPublished(): Boolean =
-      name != TEST_SOURCE_SET_NAME
-          && name.startsWith(MAIN_SOURCE_SET_NAME)
-  }
+    private fun isConflictingPluginPresent(
+        project: Project
+    ): Provider<Boolean> {
+
+        val projectHasKotlinPlugin = providers.provider {
+            project.pluginManager.hasPlugin(PluginId.KotlinAndroid)
+                    || project.pluginManager.hasPlugin(PluginId.KotlinJs)
+                    || project.pluginManager.hasPlugin(PluginId.KotlinJvm)
+                    || project.pluginManager.hasPlugin(PluginId.KotlinMultiplatform)
+        }
+
+        val projectHasAndroidPlugin = providers.provider {
+            project.pluginManager.hasPlugin(PluginId.AndroidBase)
+                    || project.pluginManager.hasPlugin(PluginId.AndroidApplication)
+                    || project.pluginManager.hasPlugin(PluginId.AndroidLibrary)
+        }
+
+        return projectHasKotlinPlugin or projectHasAndroidPlugin
+    }
+
+    @DokkatooInternalApi
+    companion object {
+        /**
+         * Determine if a [KotlinCompilation] is 'publishable', and so should be enabled by default
+         * when creating a Dokka publication.
+         *
+         * Typically, 'main' compilations are publishable and 'test' compilations should be suppressed.
+         * This can be overridden manually, though.
+         *
+         * @see DokkaSourceSetSpec.suppress
+         */
+        fun SourceSet.isPublished(): Boolean =
+            name != TEST_SOURCE_SET_NAME
+                    && name.startsWith(MAIN_SOURCE_SET_NAME)
+    }
 }

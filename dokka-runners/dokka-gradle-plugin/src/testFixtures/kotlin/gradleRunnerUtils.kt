@@ -1,3 +1,6 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle.utils
 
 import org.gradle.testkit.runner.BuildResult
@@ -9,24 +12,24 @@ import org.gradle.testkit.runner.internal.DefaultGradleRunner
 /** Edit environment variables in the Gradle Runner */
 @Deprecated("Windows does not support withEnvironment - https://github.com/gradle/gradle/issues/23959")
 fun GradleRunner.withEnvironment(build: MutableMap<String, String?>.() -> Unit): GradleRunner {
-  val env = environment ?: mutableMapOf()
-  env.build()
-  return withEnvironment(env)
+    val env = environment ?: mutableMapOf()
+    env.build()
+    return withEnvironment(env)
 }
 
 
 inline fun GradleRunner.build(
-  handleResult: BuildResult.() -> Unit
+    handleResult: BuildResult.() -> Unit
 ): Unit = build().let(handleResult)
 
 
 inline fun GradleRunner.buildAndFail(
-  handleResult: BuildResult.() -> Unit
+    handleResult: BuildResult.() -> Unit
 ): Unit = buildAndFail().let(handleResult)
 
 
 fun GradleRunner.withJvmArguments(
-  vararg jvmArguments: String
+    vararg jvmArguments: String
 ): GradleRunner = (this as DefaultGradleRunner).withJvmArguments(*jvmArguments)
 
 
@@ -35,13 +38,13 @@ fun GradleRunner.withJvmArguments(
  * [GradleRunner arguments][GradleRunner.getArguments].
  */
 fun GradleRunner.addArguments(
-  vararg arguments: String
+    vararg arguments: String
 ): GradleRunner =
-  withArguments(this@addArguments.arguments + arguments)
+    withArguments(this@addArguments.arguments + arguments)
 
 
 /**
  * Get the name of the task, without the leading [BuildTask.getPath].
  */
 val BuildTask.name: String
-  get() = path.substringAfterLast(':')
+    get() = path.substringAfterLast(':')

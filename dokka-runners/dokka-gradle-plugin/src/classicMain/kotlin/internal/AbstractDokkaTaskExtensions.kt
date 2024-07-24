@@ -4,11 +4,11 @@
 
 package org.jetbrains.dokka.gradle.internal
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.InternalDokkaApi
 import org.jetbrains.dokka.gradle.AbstractDokkaTask
-import org.jetbrains.dokka.toPrettyJsonString
-import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.toCompactJsonString
+import org.jetbrains.dokka.toPrettyJsonString
 
 /**
  * Serializes [DokkaConfiguration] of this [AbstractDokkaTask] as json

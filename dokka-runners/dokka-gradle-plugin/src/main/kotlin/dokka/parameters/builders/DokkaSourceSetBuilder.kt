@@ -1,14 +1,17 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle.dokka.parameters.builders
 
 
+import org.gradle.api.logging.Logging
+import org.jetbrains.dokka.*
 import org.jetbrains.dokka.gradle.dokka.parameters.*
 import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform.Companion.dokkaType
 import org.jetbrains.dokka.gradle.dokka.parameters.VisibilityModifier.Companion.dokkaType
 import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import org.jetbrains.dokka.gradle.internal.mapNotNullToSet
 import org.jetbrains.dokka.gradle.internal.mapToSet
-import org.gradle.api.logging.Logging
-import org.jetbrains.dokka.*
 
 
 /**
@@ -21,92 +24,92 @@ import org.jetbrains.dokka.*
 @DokkatooInternalApi
 internal object DokkaSourceSetBuilder {
 
-  private val logger = Logging.getLogger(DokkaParametersBuilder::class.java)
+    private val logger = Logging.getLogger(DokkaParametersBuilder::class.java)
 
-  fun buildAll(sourceSets: Set<DokkaSourceSetSpec>): List<DokkaSourceSetImpl> {
+    fun buildAll(sourceSets: Set<DokkaSourceSetSpec>): List<DokkaSourceSetImpl> {
 
-    val suppressedSourceSetIds = sourceSets.mapNotNullToSet {
-      val suppressed = it.suppress.get()
-      val sourceSetId = it.sourceSetId.get()
-      if (suppressed) {
-        logger.info("Dokka source set $sourceSetId is suppressed")
-        sourceSetId
-      } else {
-        logger.info("Dokka source set $sourceSetId isn't suppressed")
-        null
-      }
+        val suppressedSourceSetIds = sourceSets.mapNotNullToSet {
+            val suppressed = it.suppress.get()
+            val sourceSetId = it.sourceSetId.get()
+            if (suppressed) {
+                logger.info("Dokka source set $sourceSetId is suppressed")
+                sourceSetId
+            } else {
+                logger.info("Dokka source set $sourceSetId isn't suppressed")
+                null
+            }
+        }
+
+        val enabledSourceSets = sourceSets.filter { it.sourceSetId.get() !in suppressedSourceSetIds }
+
+        return enabledSourceSets.map { build(it, suppressedSourceSetIds) }
     }
 
-    val enabledSourceSets = sourceSets.filter { it.sourceSetId.get() !in suppressedSourceSetIds }
+    private fun build(
+        spec: DokkaSourceSetSpec,
+        suppressedSourceSetIds: Set<DokkaSourceSetIdSpec>,
+    ): DokkaSourceSetImpl {
 
-    return enabledSourceSets.map { build(it, suppressedSourceSetIds) }
-  }
+        val dependentSourceSets =
+            (spec.dependentSourceSets subtract suppressedSourceSetIds).mapToSet(::build)
 
-  private fun build(
-    spec: DokkaSourceSetSpec,
-    suppressedSourceSetIds: Set<DokkaSourceSetIdSpec>,
-  ): DokkaSourceSetImpl {
+        return DokkaSourceSetImpl(
+            // properties
+            analysisPlatform = spec.analysisPlatform.get().dokkaType,
+            apiVersion = spec.apiVersion.orNull,
+            dependentSourceSets = dependentSourceSets,
+            displayName = spec.displayName.get(),
+            documentedVisibilities = spec.documentedVisibilities.get().mapToSet { it.dokkaType },
+            externalDocumentationLinks = spec.externalDocumentationLinks.mapNotNullToSet(::build),
+            jdkVersion = spec.jdkVersion.get(),
+            languageVersion = spec.languageVersion.orNull,
+            noJdkLink = !spec.enableJdkDocumentationLink.get(),
+            noStdlibLink = !spec.enableKotlinStdLibDocumentationLink.get(),
+            perPackageOptions = spec.perPackageOptions.map(::build),
+            reportUndocumented = spec.reportUndocumented.get(),
+            skipDeprecated = spec.skipDeprecated.get(),
+            skipEmptyPackages = spec.skipEmptyPackages.get(),
+            sourceLinks = spec.sourceLinks.mapToSet { build(it) },
+            sourceSetID = build(spec.sourceSetId.get()),
 
-    val dependentSourceSets =
-      (spec.dependentSourceSets subtract suppressedSourceSetIds).mapToSet(::build)
+            // files
+            classpath = spec.classpath.files.toList(),
+            includes = spec.includes.files,
+            samples = spec.samples.files,
+            sourceRoots = spec.sourceRoots.files,
+            suppressedFiles = spec.suppressedFiles.files,
+        )
+    }
 
-    return DokkaSourceSetImpl(
-      // properties
-      analysisPlatform = spec.analysisPlatform.get().dokkaType,
-      apiVersion = spec.apiVersion.orNull,
-      dependentSourceSets = dependentSourceSets,
-      displayName = spec.displayName.get(),
-      documentedVisibilities = spec.documentedVisibilities.get().mapToSet { it.dokkaType },
-      externalDocumentationLinks = spec.externalDocumentationLinks.mapNotNullToSet(::build),
-      jdkVersion = spec.jdkVersion.get(),
-      languageVersion = spec.languageVersion.orNull,
-      noJdkLink = !spec.enableJdkDocumentationLink.get(),
-      noStdlibLink = !spec.enableKotlinStdLibDocumentationLink.get(),
-      perPackageOptions = spec.perPackageOptions.map(::build),
-      reportUndocumented = spec.reportUndocumented.get(),
-      skipDeprecated = spec.skipDeprecated.get(),
-      skipEmptyPackages = spec.skipEmptyPackages.get(),
-      sourceLinks = spec.sourceLinks.mapToSet { build(it) },
-      sourceSetID = build(spec.sourceSetId.get()),
+    private fun build(spec: DokkaExternalDocumentationLinkSpec): ExternalDocumentationLinkImpl? {
+        if (!spec.enabled.getOrElse(true)) return null
 
-      // files
-      classpath = spec.classpath.files.toList(),
-      includes = spec.includes.files,
-      samples = spec.samples.files,
-      sourceRoots = spec.sourceRoots.files,
-      suppressedFiles = spec.suppressedFiles.files,
-    )
-  }
+        return ExternalDocumentationLinkImpl(
+            url = spec.url.get().toURL(),
+            packageListUrl = spec.packageListUrl.get().toURL(),
+        )
+    }
 
-  private fun build(spec: DokkaExternalDocumentationLinkSpec): ExternalDocumentationLinkImpl? {
-    if (!spec.enabled.getOrElse(true)) return null
+    private fun build(spec: DokkaPackageOptionsSpec): PackageOptionsImpl =
+        PackageOptionsImpl(
+            matchingRegex = spec.matchingRegex.get(),
+            documentedVisibilities = spec.documentedVisibilities.get().mapToSet { it.dokkaType },
+            reportUndocumented = spec.reportUndocumented.get(),
+            skipDeprecated = spec.skipDeprecated.get(),
+            suppress = spec.suppress.get(),
+            includeNonPublic = DokkaDefaults.includeNonPublic,
+        )
 
-    return ExternalDocumentationLinkImpl(
-      url = spec.url.get().toURL(),
-      packageListUrl = spec.packageListUrl.get().toURL(),
-    )
-  }
+    private fun build(spec: DokkaSourceSetIdSpec): DokkaSourceSetID =
+        DokkaSourceSetID(
+            scopeId = spec.scopeId,
+            sourceSetName = spec.sourceSetName
+        )
 
-  private fun build(spec: DokkaPackageOptionsSpec): PackageOptionsImpl =
-    PackageOptionsImpl(
-      matchingRegex = spec.matchingRegex.get(),
-      documentedVisibilities = spec.documentedVisibilities.get().mapToSet { it.dokkaType },
-      reportUndocumented = spec.reportUndocumented.get(),
-      skipDeprecated = spec.skipDeprecated.get(),
-      suppress = spec.suppress.get(),
-      includeNonPublic = DokkaDefaults.includeNonPublic,
-    )
-
-  private fun build(spec: DokkaSourceSetIdSpec): DokkaSourceSetID =
-    DokkaSourceSetID(
-      scopeId = spec.scopeId,
-      sourceSetName = spec.sourceSetName
-    )
-
-  private fun build(spec: DokkaSourceLinkSpec): SourceLinkDefinitionImpl =
-    SourceLinkDefinitionImpl(
-      localDirectory = spec.localDirectory.asFile.get().invariantSeparatorsPath,
-      remoteUrl = spec.remoteUrl.get().toURL(),
-      remoteLineSuffix = spec.remoteLineSuffix.orNull,
-    )
+    private fun build(spec: DokkaSourceLinkSpec): SourceLinkDefinitionImpl =
+        SourceLinkDefinitionImpl(
+            localDirectory = spec.localDirectory.asFile.get().invariantSeparatorsPath,
+            remoteUrl = spec.remoteUrl.get().toURL(),
+            remoteLineSuffix = spec.remoteLineSuffix.orNull,
+        )
 }

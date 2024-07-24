@@ -1,49 +1,52 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle
 
+import io.kotest.core.spec.style.FunSpec
 import org.jetbrains.dokka.gradle.internal.DokkatooConstants.DOKKATOO_VERSION
 import org.jetbrains.dokka.gradle.utils.*
-import io.kotest.core.spec.style.FunSpec
 
 
 class AttributeHackTest : FunSpec({
-  context("verify that Dokkatoo does not interfere with JAR Configurations") {
+    context("verify that Dokkatoo does not interfere with JAR Configurations") {
 
-    val project = initProject()
+        val project = initProject()
 
-    project.runner
-      .addArguments(
-        ":subproject-without-dokkatoo:printJarFileCoords",
-        "--quiet",
-        "--stacktrace",
-        "--no-configuration-cache",
-      )
-      .forwardOutput()
-      .build {
-        test("resolving JARs from a Dokkatoo-enabled project should not contain Dokka plugin JARs") {
-          output.shouldNotContainAnyOf(
-            "org.jetbrains.dokka",
-            "all-modules-page-plugin",
-          )
-        }
-      }
-  }
+        project.runner
+            .addArguments(
+                ":subproject-without-dokkatoo:printJarFileCoords",
+                "--quiet",
+                "--stacktrace",
+                "--no-configuration-cache",
+            )
+            .forwardOutput()
+            .build {
+                test("resolving JARs from a Dokkatoo-enabled project should not contain Dokka plugin JARs") {
+                    output.shouldNotContainAnyOf(
+                        "org.jetbrains.dokka",
+                        "all-modules-page-plugin",
+                    )
+                }
+            }
+    }
 })
 
 
 private fun initProject(
-  config: GradleProjectTest.() -> Unit = {},
+    config: GradleProjectTest.() -> Unit = {},
 ): GradleProjectTest {
-  return gradleKtsProjectTest("attribute-hack-test") {
+    return gradleKtsProjectTest("attribute-hack-test") {
 
-    settingsGradleKts += """
+        settingsGradleKts += """
       |
       |include(":subproject-with-dokkatoo")
       |include(":subproject-without-dokkatoo")
       |
     """.trimMargin()
 
-    dir("subproject-with-dokkatoo") {
-      buildGradleKts = """
+        dir("subproject-with-dokkatoo") {
+            buildGradleKts = """
           |plugins {
           |  kotlin("multiplatform") version embeddedKotlinVersion
           |  id("org.jetbrains.dokka") version "$DOKKATOO_VERSION"
@@ -54,11 +57,11 @@ private fun initProject(
           |}
           |
         """.trimMargin()
-    }
+        }
 
-    dir("subproject-without-dokkatoo") {
+        dir("subproject-without-dokkatoo") {
 
-      buildGradleKts = """
+            buildGradleKts = """
         |import org.gradle.api.attributes.Category.CATEGORY_ATTRIBUTE
         |import org.gradle.api.attributes.Category.LIBRARY
         |import org.gradle.api.attributes.LibraryElements.JAR
@@ -107,8 +110,8 @@ private fun initProject(
         |}
         |
         """.trimMargin()
-    }
+        }
 
-    config()
-  }
+        config()
+    }
 }

@@ -1,11 +1,8 @@
+/*
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 package org.jetbrains.dokka.gradle.dependencies
 
-import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooClasspathAttribute
-import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooFormatAttribute
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
-import org.jetbrains.dokka.gradle.internal.consumable
-import org.jetbrains.dokka.gradle.internal.declarable
-import org.jetbrains.dokka.gradle.internal.resolvable
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -23,6 +20,12 @@ import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMEN
 import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.named
+import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooClasspathAttribute
+import org.jetbrains.dokka.gradle.dependencies.DokkatooAttribute.Companion.DokkatooFormatAttribute
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
+import org.jetbrains.dokka.gradle.internal.consumable
+import org.jetbrains.dokka.gradle.internal.declarable
+import org.jetbrains.dokka.gradle.internal.resolvable
 
 /**
  * Dependencies for a specific Dokka Format - for example, HTML or Markdown.
