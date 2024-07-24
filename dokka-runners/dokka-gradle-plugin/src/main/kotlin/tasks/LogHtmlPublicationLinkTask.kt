@@ -139,18 +139,17 @@ constructor(
 
         override fun obtain(): Boolean {
             val uri = URI.create(parameters.uri.get())
-            val result = httpGetStatus(uri)
+            val (status, err) = httpGetStatus(uri)
 
-            result.onFailure { ex ->
-                logger.info("could not reach URI ${uri}: $ex")
+            if (err != null) {
+                logger.info("could not reach URI ${uri}: $err")
             }
 
-            val status = result.getOrNull() ?: -1
             logger.info("got $status from $uri")
             return status > 0
         }
 
-        private fun httpGetStatus(uri: URI): Result<Int> {
+        private fun httpGetStatus(uri: URI): Pair<Int, Exception?> {
             var connection: HttpURLConnection? = null
             try {
                 val url = uri.toURL()
@@ -158,9 +157,9 @@ constructor(
                 connection.requestMethod = "GET"
                 connection.connectTimeout = 1_000 // 1 second
                 connection.readTimeout = 1_000 // 1 second
-                return Result.success(connection.responseCode)
+                return (connection.responseCode to null)
             } catch (ex: Exception) {
-                return Result.failure(ex)
+                return (-1 to ex)
             } finally {
                 connection?.disconnect()
             }

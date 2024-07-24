@@ -1,10 +1,10 @@
 package org.jetbrains.dokka.gradle.dependencies
 
-import org.jetbrains.dokka.gradle.internal.Attribute
-import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 import org.gradle.api.Named
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Attribute
+import org.jetbrains.dokka.gradle.internal.Attribute
+import org.jetbrains.dokka.gradle.internal.DokkatooInternalApi
 
 /**
  * Gradle Configuration Attributes for sharing Dokkatoo files across subprojects.
@@ -16,23 +16,23 @@ interface DokkatooAttribute {
 
     /** HTML, Markdown, etc. */
     @DokkatooInternalApi
-    @JvmInline
-    value class Format(private val named: String) : Named {
+    class Format(private val named: String) : Named {
         override fun getName(): String = named
+        override fun toString(): String = "Format($named)"
     }
 
     /** Generated output, or subproject classpath, or included files, etc. */
     @DokkatooInternalApi
-    @JvmInline
-    value class ModuleComponent(private val named: String) : Named {
+    class ModuleComponent(private val named: String) : Named {
         override fun getName(): String = named
+        override fun toString(): String = "ModuleComponent($named)"
     }
 
     /** A classpath, e.g. for Dokka Plugins or the Dokka Generator. */
     @DokkatooInternalApi
-    @JvmInline
-    value class Classpath(private val named: String) : Named {
+    class Classpath(private val named: String) : Named {
         override fun getName(): String = named
+        override fun toString(): String = "Classpath($named)"
     }
 
     @DokkatooInternalApi

@@ -28,9 +28,8 @@ kotlin {
     jvmToolchain(8)
 
     compilerOptions {
-        @Suppress("DEPRECATION")
-        languageVersion = KotlinVersion.KOTLIN_1_4
-        apiVersion = languageVersion
+        // must use Kotlin 1.4 to support Gradle 7
+        languageVersion = @Suppress("DEPRECATION") KotlinVersion.KOTLIN_1_4
     }
 
     sourceSets {
@@ -154,6 +153,16 @@ gradlePlugin {
 //            "gfm",
             "website",
         )
+    }
+}
+
+tasks.compileKotlin {
+    compilerOptions {
+        // `kotlin-dsl` plugin overrides the versions at the task level,
+        // which takes priority over the `kotlin` project extension.
+        // So, fix it by manually setting the LV per-task.
+        languageVersion.set(kotlin.compilerOptions.languageVersion)
+        apiVersion.set(kotlin.compilerOptions.apiVersion)
     }
 }
 

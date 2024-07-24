@@ -160,51 +160,49 @@ fun PluginConfigValue.Values.add(value: Provider<Boolean>) =
 //endregion
 
 
-sealed interface PluginConfigValue {
+sealed class PluginConfigValue {
 
   /** An input file */
   class FileValue(
     @InputFile
     @PathSensitive(RELATIVE)
     val file: RegularFileProperty,
-  ) : PluginConfigValue
+  ) : PluginConfigValue()
 
   /** Input files and directories */
   class FilesValue(
     @InputFiles
     @PathSensitive(RELATIVE)
     val files: ConfigurableFileCollection,
-  ) : PluginConfigValue
+  ) : PluginConfigValue()
 
   /** An input directory */
   class DirectoryValue(
     @InputDirectory
     @PathSensitive(RELATIVE)
     val directory: DirectoryProperty,
-  ) : PluginConfigValue
+  ) : PluginConfigValue()
 
   /** Key-value properties. Analogous to a [JsonObject]. */
   class Properties(
     @Nested
     val values: MapProperty<String, PluginConfigValue>
-  ) : PluginConfigValue
+  ) : PluginConfigValue()
 
   /** Multiple values. Analogous to a [JsonArray]. */
   class Values(
     @Nested
     val values: ListProperty<PluginConfigValue>
-  ) : PluginConfigValue
-
-  sealed interface Primitive : PluginConfigValue
+  ) : PluginConfigValue()
 
   /** A basic [String] value */
-  class StringValue(@Input val string: String) : Primitive
+  class StringValue(@Input val string: String) : PluginConfigValue()
 
   /** A basic [Number] value */
-  class NumberValue(@Input val number: Number) : Primitive
+  class NumberValue(@Input val number: Number) : PluginConfigValue()
 
   /** A basic [Boolean] value */
-  class BooleanValue(@Input val boolean: Boolean) : Primitive
+  class BooleanValue(@Input val boolean: Boolean) : PluginConfigValue()
 }
 
 fun PluginConfigValue(value: String) =
