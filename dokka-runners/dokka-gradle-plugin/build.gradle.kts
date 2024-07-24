@@ -3,7 +3,6 @@
 import dokkabuild.tasks.GenerateDokkatooConstants
 import dokkabuild.utils.skipTestFixturesPublications
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 
 plugins {
     id("dokkabuild.base")
@@ -27,6 +26,12 @@ description = "Generates documentation for Kotlin projects (using Dokka)"
 
 kotlin {
     jvmToolchain(8)
+
+    compilerOptions {
+        @Suppress("DEPRECATION")
+        languageVersion = KotlinVersion.KOTLIN_1_4
+        apiVersion = languageVersion
+    }
 
     sourceSets {
         configureEach {
