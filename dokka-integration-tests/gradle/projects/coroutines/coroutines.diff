@@ -251,14 +251,19 @@ index 423c613f3..1f2928998 100644
      }
  }
 diff --git a/ui/kotlinx-coroutines-android/build.gradle.kts b/ui/kotlinx-coroutines-android/build.gradle.kts
-index adbafe457..37f5ae988 100644
+index adbafe457..d695c8e77 100644
 --- a/ui/kotlinx-coroutines-android/build.gradle.kts
 +++ b/ui/kotlinx-coroutines-android/build.gradle.kts
-@@ -3,6 +3,7 @@ configurations {
+@@ -2,9 +2,9 @@ configurations {
+     create("r8")
  }
  
- repositories {
-+    /* %{DOKKA_IT_MAVEN_REPO}% */
-     mavenCentral()
- }
+-repositories {
+-    mavenCentral()
+-}
++//repositories {
++//    mavenCentral()
++//}
+ 
+ project.configureAar()
  
