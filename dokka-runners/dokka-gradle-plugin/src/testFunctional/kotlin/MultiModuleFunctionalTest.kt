@@ -22,10 +22,7 @@ import org.jetbrains.dokka.gradle.WorkerIsolation.ClassLoader
 import org.jetbrains.dokka.gradle.WorkerIsolation.Process
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.projects.initMultiModuleProject
-import kotlin.io.path.deleteRecursively
-import kotlin.io.path.extension
-import kotlin.io.path.invariantSeparatorsPathString
-import kotlin.io.path.readText
+import kotlin.io.path.*
 
 class MultiModuleFunctionalTest : FunSpec({
 
@@ -186,7 +183,7 @@ class MultiModuleFunctionalTest : FunSpec({
 
             test("setup build cache") {
                 buildCacheDir.deleteRecursively()
-                buildCacheDir.toFile().mkdirs()
+                buildCacheDir.createDirectories()
 
                 val buildCacheConfig = """
                     |
@@ -259,10 +256,11 @@ class MultiModuleFunctionalTest : FunSpec({
                         "--build-cache",
                         "-D" + "org.gradle.caching.debug=true",
                     )
-                    .forwardOutput()
                     .build {
-                        test("should load all generation tasks from cache") {
-                            shouldHaveTasksWithOutcome(expectedGenerationTasks.map { it to FROM_CACHE })
+                        withClue(output) {
+                            test("should load all generation tasks from cache") {
+                                shouldHaveTasksWithOutcome(expectedGenerationTasks.map { it to FROM_CACHE })
+                            }
                         }
                     }
             }
