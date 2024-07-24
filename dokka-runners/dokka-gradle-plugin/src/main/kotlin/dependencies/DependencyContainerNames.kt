@@ -11,7 +11,7 @@ import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.HasFormatName
 
 /**
- * Names of the Gradle [Configuration]s used by the [Dokkatoo Plugin][DokkaBasePlugin].
+ * Names of the Gradle [Configuration]s used by the [Dokka Plugin][DokkaBasePlugin].
  *
  * Beware the confusing terminology:
  * - [Gradle Configurations][org.gradle.api.artifacts.Configuration] - share files between subprojects. Each has a name.
@@ -20,8 +20,8 @@ import org.jetbrains.dokka.gradle.internal.HasFormatName
 @DokkaInternalApi
 class DependencyContainerNames(override val formatName: String) : HasFormatName() {
 
-    val dokkatoo = DOKKA_CONFIGURATION_NAME.appendFormat()
-    val dokkatooResolver = "${dokkatoo}Resolver"
+    val dokka = DOKKA_CONFIGURATION_NAME.appendFormat()
+//    val dokkatooResolver = "${dokka}Resolver"
 
     /**
      * ### Dokka Plugins
@@ -39,10 +39,10 @@ class DependencyContainerNames(override val formatName: String) : HasFormatName(
      *
      * Extends [pluginsClasspath]
      *
-     * Internal Dokkatoo usage only.
+     * Internal Dokka Gradle Plugin usage only.
      */
     val pluginsClasspathIntransitiveResolver =
-        "${dokkatoo}PluginsClasspathIntransitiveResolver"
+        "${dokka}PluginsClasspathIntransitiveResolver"
 
     /**
      * ### Dokka Generator Classpath
@@ -51,12 +51,12 @@ class DependencyContainerNames(override val formatName: String) : HasFormatName(
      *
      * Extends [pluginsClasspath], so Dokka plugins and their dependencies are included.
      */
-    val generatorClasspath = "${dokkatoo}GeneratorClasspath"
+    val generatorClasspath = "${dokka}GeneratorClasspath"
 
-    /** Resolver for [generatorClasspath] - internal Dokkatoo usage only. */
-    val generatorClasspathResolver = "${dokkatoo}GeneratorClasspathResolver"
+    /** Resolver for [generatorClasspath] - internal Dokka usage only. */
+    val generatorClasspathResolver = "${dokka}GeneratorClasspathResolver"
 
-    val publicationPluginClasspath = "${dokkatoo}PublicationPluginClasspath"
+    val publicationPluginClasspath = "${dokka}PublicationPluginClasspath"
     val publicationPluginClasspathApiOnly = "${publicationPluginClasspath}ApiOnly"
     val publicationPluginClasspathResolver = "${publicationPluginClasspath}Resolver"
     val publicationPluginClasspathApiOnlyConsumable =

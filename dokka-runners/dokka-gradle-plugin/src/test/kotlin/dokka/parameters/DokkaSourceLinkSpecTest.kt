@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
 class DokkaSourceLinkSpecTest : FunSpec({
     val project = ProjectBuilder.builder().build()
-    project.extraProperties.set("enableDokkatoo", true)
+    project.extraProperties.set("DokkaGradlePluginMode", "dokkatoo")
 
     context("expect localDirectoryPath") {
         test("is the invariantSeparatorsPath of localDirectory") {

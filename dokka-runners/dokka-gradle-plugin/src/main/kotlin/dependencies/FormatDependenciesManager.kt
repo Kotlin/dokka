@@ -156,7 +156,7 @@ class FormatDependenciesManager(
      * Extends [dokkaPluginsClasspath].
      *
      * @see org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
-     * @see org.jetbrains.dokka.gradle.tasks.DokkatooGenerateTask
+     * @see org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
      */
     private val dokkaGeneratorClasspath: NamedDomainObjectProvider<Configuration> =
         project.configurations.register(configurationNames.generatorClasspath) {
@@ -176,7 +176,7 @@ class FormatDependenciesManager(
      * Extends [dokkaPluginsClasspath].
      *
      * @see org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
-     * @see org.jetbrains.dokka.gradle.tasks.DokkatooGenerateTask
+     * @see org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
      */
     val dokkaGeneratorClasspathResolver: NamedDomainObjectProvider<Configuration> =
         project.configurations.register(configurationNames.generatorClasspathResolver) {
@@ -219,6 +219,6 @@ class FormatDependenciesManager(
             baseAttributes = baseAttributes,
             formatAttributes = formatAttributes,
             declaredDependencies = baseDependencyManager.declaredDependencies,
-            baseConfigurationName = configurationNames.dokkatoo,
+            baseConfigurationName = configurationNames.dokka,
         )
 }

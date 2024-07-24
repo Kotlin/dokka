@@ -42,7 +42,7 @@ abstract class LogHtmlPublicationLinkTask
 @DokkaInternalApi
 constructor(
     providers: ProviderFactory
-) : DokkatooTask() {
+) : DokkaBaseTask() {
 
     @get:Console
     abstract val serverUri: Property<String>

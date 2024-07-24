@@ -12,9 +12,9 @@ import org.jetbrains.dokka.gradle.dependencies.FormatDependenciesManager
 import org.jetbrains.dokka.gradle.dokka.DokkaPublication
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.configuring
-import org.jetbrains.dokka.gradle.tasks.DokkatooGenerateModuleTask
-import org.jetbrains.dokka.gradle.tasks.DokkatooGeneratePublicationTask
-import org.jetbrains.dokka.gradle.tasks.DokkatooGenerateTask
+import org.jetbrains.dokka.gradle.tasks.DokkaGenerateModuleTask
+import org.jetbrains.dokka.gradle.tasks.DokkaGeneratePublicationTask
+import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
 import org.jetbrains.dokka.gradle.tasks.TaskNames
 
 /** Tasks for generating a Dokkatoo Publication in a specific format. */
@@ -31,7 +31,7 @@ class DokkaFormatTasks(
 
     private val taskNames = TaskNames(formatName)
 
-    private fun DokkatooGenerateTask.applyFormatSpecificConfiguration() {
+    private fun DokkaGenerateTask.applyFormatSpecificConfiguration() {
         runtimeClasspath.from(
             formatDependencies.dokkaGeneratorClasspathResolver
         )
@@ -53,36 +53,36 @@ class DokkaFormatTasks(
         }
     }
 
-    val generatePublication: TaskProvider<DokkatooGeneratePublicationTask> =
-        project.tasks.register<DokkatooGeneratePublicationTask>(
+    val generatePublication: TaskProvider<DokkaGeneratePublicationTask> =
+        project.tasks.register<DokkaGeneratePublicationTask>(
             taskNames.generatePublication,
             publication.pluginsConfiguration,
         ).configuring {
             description = "Executes the Dokka Generator, generating the $formatName publication"
 
-            outputDirectory.convention(dokkaExtension.dokkatooPublicationDirectory.dir(formatName))
+            outputDirectory.convention(dokkaExtension.dokkaPublicationDirectory.dir(formatName))
 
             applyFormatSpecificConfiguration()
         }
 
-    val generateModule: TaskProvider<DokkatooGenerateModuleTask> =
-        project.tasks.register<DokkatooGenerateModuleTask>(
+    val generateModule: TaskProvider<DokkaGenerateModuleTask> =
+        project.tasks.register<DokkaGenerateModuleTask>(
             taskNames.generateModule,
             publication.pluginsConfiguration,
         ).configuring {
             description = "Executes the Dokka Generator, generating a $formatName module"
 
-            outputDirectory.convention(dokkaExtension.dokkatooModuleDirectory.dir(formatName))
+            outputDirectory.convention(dokkaExtension.dokkaModuleDirectory.dir(formatName))
 
             applyFormatSpecificConfiguration()
         }
 
-    @Suppress("DEPRECATION", "unused")
-    @Deprecated("DokkatooPrepareModuleDescriptorTask was not compatible with relocatable Gradle Build Cache and has been replaced with a dark Gradle devilry. All references to DokkatooPrepareModuleDescriptorTask must be removed.")
-    val prepareModuleDescriptor: TaskProvider<org.jetbrains.dokka.gradle.tasks.DokkatooPrepareModuleDescriptorTask> =
-        project.tasks.register<org.jetbrains.dokka.gradle.tasks.DokkatooPrepareModuleDescriptorTask>(
-            taskNames.prepareModuleDescriptor
-        ) {
-            description = "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for $formatName"
-        }
+//    @Suppress("DEPRECATION", "unused")
+//    @Deprecated("DokkatooPrepareModuleDescriptorTask was not compatible with relocatable Gradle Build Cache and has been replaced with a dark Gradle devilry. All references to DokkatooPrepareModuleDescriptorTask must be removed.")
+//    val prepareModuleDescriptor: TaskProvider<org.jetbrains.dokka.gradle.tasks.DokkatooPrepareModuleDescriptorTask> =
+//        project.tasks.register<org.jetbrains.dokka.gradle.tasks.DokkatooPrepareModuleDescriptorTask>(
+//            taskNames.prepareModuleDescriptor
+//        ) {
+//            description = "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for $formatName"
+//        }
 }

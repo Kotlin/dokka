@@ -25,18 +25,16 @@ import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.dokka.parameters.VisibilityModifier
 import org.jetbrains.dokka.gradle.internal.*
-import org.jetbrains.dokka.gradle.tasks.DokkatooGenerateModuleTask
-import org.jetbrains.dokka.gradle.tasks.DokkatooGenerateTask
-import org.jetbrains.dokka.gradle.tasks.DokkatooTask
+import org.jetbrains.dokka.gradle.tasks.DokkaBaseTask
+import org.jetbrains.dokka.gradle.tasks.DokkaGenerateModuleTask
+import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
 import org.jetbrains.dokka.gradle.tasks.TaskNames
-import org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
-import org.jetbrains.dokka.gradle.workers.ProcessIsolation
 import java.io.File
 import javax.inject.Inject
 
 /**
- * The base plugin for Dokkatoo. Sets up Dokkatoo and configures default values, but does not
- * add any specific config (specifically, it does not create Dokka Publications).
+ * The base plugin for Dokka. Sets up Dokka tasks, configurations, etc., and configures default values,
+ * but does not add any specific config (specifically, it does not create Dokka Publications).
  */
 abstract class DokkaBasePlugin
 @DokkaInternalApi
@@ -51,13 +49,13 @@ constructor(
         // apply the lifecycle-base plugin so the clean task is available
         target.pluginManager.apply(LifecycleBasePlugin::class)
 
-        val dokkatooExtension = createExtension(target)
+        val dokkaExtension = createExtension(target)
 
         configureDependencyAttributes(target)
 
-        configureDokkaPublicationsDefaults(dokkatooExtension)
+        configureDokkaPublicationsDefaults(dokkaExtension)
 
-        initDokkatooTasks(target, dokkatooExtension)
+        initDokkaTasks(target, dokkaExtension)
     }
 
     private fun createExtension(project: Project): DokkaExtension {
@@ -85,10 +83,10 @@ constructor(
             )
 
             sourceSetScopeDefault.convention(project.path)
-            dokkatooPublicationDirectory.convention(layout.buildDirectory.dir("dokka"))
-            dokkatooModuleDirectory.convention(layout.buildDirectory.dir("dokka-module"))
-            @Suppress("DEPRECATION")
-            dokkatooConfigurationsDirectory.convention(layout.buildDirectory.dir("dokka-config"))
+            dokkaPublicationDirectory.convention(layout.buildDirectory.dir("dokka"))
+            dokkaModuleDirectory.convention(layout.buildDirectory.dir("dokka-module"))
+//            @Suppress("DEPRECATION")
+//            dokkaConfigurationsDirectory.convention(layout.buildDirectory.dir("dokka-config"))
         }
 
         dokkaExtension.versions {
@@ -131,20 +129,20 @@ constructor(
     }
 
 
-    /** Set defaults in all [DokkaExtension.dokkatooPublications]s */
+    /** Set defaults in all [DokkaExtension.dokkaPublications]s */
     private fun configureDokkaPublicationsDefaults(
         dokkaExtension: DokkaExtension,
     ) {
-        dokkaExtension.dokkatooPublications.all {
+        dokkaExtension.dokkaPublications.all {
             enabled.convention(true)
-            cacheRoot.convention(dokkaExtension.dokkatooCacheDirectory)
+            cacheRoot.convention(dokkaExtension.dokkaCacheDirectory)
             delayTemplateSubstitution.convention(false)
             failOnWarning.convention(false)
             finalizeCoroutines.convention(false)
             moduleName.convention(dokkaExtension.moduleName)
             moduleVersion.convention(dokkaExtension.moduleVersion)
             offlineMode.convention(false)
-            outputDir.convention(dokkaExtension.dokkatooPublicationDirectory)
+            outputDir.convention(dokkaExtension.dokkaPublicationDirectory)
             suppressInheritedMembers.convention(false)
             suppressObviousFunctions.convention(true)
         }
@@ -243,42 +241,20 @@ constructor(
     }
 
 
-    private fun initDokkatooTasks(
+    private fun initDokkaTasks(
         target: Project,
         dokkaExtension: DokkaExtension,
     ) {
-        target.tasks.register<DokkatooTask>(taskNames.generate) {
-            description = "Generates Dokkatoo publications for all formats"
-            dependsOn(target.tasks.withType<DokkatooGenerateTask>())
+        target.tasks.register<DokkaBaseTask>(taskNames.generate) {
+            description = "Generates Dokka publications for all formats"
+            dependsOn(target.tasks.withType<DokkaGenerateTask>())
         }
 
-        target.tasks.withType<DokkatooGenerateTask>().configureEach {
-            cacheDirectory.convention(dokkaExtension.dokkatooCacheDirectory)
+        target.tasks.withType<DokkaGenerateTask>().configureEach {
+            cacheDirectory.convention(dokkaExtension.dokkaCacheDirectory)
             workerLogFile.convention(temporaryDir.resolve("dokka-worker.log"))
             dokkaConfigurationJsonFile.convention(temporaryDir.resolve("dokka-configuration.json"))
-
-            workerIsolation.convention(dokkaExtension.dokkaGeneratorIsolation.map { src ->
-                when (src) {
-                    is ClassLoaderIsolation -> src
-                    is ProcessIsolation -> {
-                        // Complicated workaround to copy old properties, to maintain backwards compatibility.
-                        // Remove when the deprecated task properties are deleted.
-                        dokkaExtension.ProcessIsolation {
-                            @Suppress("DEPRECATION")
-                            run {
-                                debug.convention(workerDebugEnabled.orElse(src.debug))
-                                enableAssertions.convention(src.enableAssertions)
-                                minHeapSize.convention(workerMinHeapSize.orElse(src.minHeapSize))
-                                maxHeapSize.convention(workerMaxHeapSize.orElse(src.maxHeapSize))
-                                jvmArgs.convention(workerJvmArgs.orElse(src.jvmArgs))
-                                defaultCharacterEncoding.convention(src.defaultCharacterEncoding)
-                                systemProperties.convention(src.systemProperties)
-                            }
-                        }
-                    }
-                }
-            })
-
+            workerIsolation.convention(dokkaExtension.dokkaGeneratorIsolation)
             publicationEnabled.convention(true)
             onlyIf("publication must be enabled") { publicationEnabled.getOrElse(true) }
 
@@ -294,7 +270,7 @@ constructor(
             )
         }
 
-        target.tasks.withType<DokkatooGenerateModuleTask>().configureEach {
+        target.tasks.withType<DokkaGenerateModuleTask>().configureEach {
             modulePath.convention(dokkaExtension.modulePath)
         }
     }
@@ -313,13 +289,13 @@ constructor(
         const val EXTENSION_NAME = "dokka"
 
         /**
-         * The group of all Dokkatoo [Gradle tasks][org.gradle.api.Task].
+         * The group of all Dokka [Gradle tasks][org.gradle.api.Task].
          *
          * @see org.gradle.api.Task.getGroup
          */
         const val TASK_GROUP = "dokka"
 
-        /** The names of [Gradle tasks][org.gradle.api.Task] created by Dokkatoo */
+        /** The names of [Gradle tasks][org.gradle.api.Task] created by Dokka */
         val taskNames = TaskNames("")
 
 //        /** The names of [Configuration]s created by Dokkatoo */

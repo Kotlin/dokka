@@ -27,9 +27,9 @@ class HtmlAggregationWarningTest : FunSpec({
         project.runner
             .addArguments(
                 "clean",
-                ":dokkatooGenerate",
+                ":dokkaGenerate",
                 "--stacktrace",
-                "--info",
+//                "--info",
             )
             .forwardOutput()
             .build {
@@ -46,9 +46,9 @@ class HtmlAggregationWarningTest : FunSpec({
         project.runner
             .addArguments(
                 "clean",
-                ":dokkatooGenerate",
+                ":dokkaGenerate",
                 "--stacktrace",
-                "--info",
+//                "--info",
             )
             .forwardOutput()
             .build {
@@ -61,20 +61,22 @@ class HtmlAggregationWarningTest : FunSpec({
 }) {
     companion object {
         private val expectedWarning = /* language=text */ """
-            |[:dokkatooGeneratePublicationHtml] org.jetbrains.dokka:all-modules-page-plugin is missing.
+            |[:dokkaGeneratePublicationHtml] org.jetbrains.dokka:all-modules-page-plugin is missing.
             |
             |Publication 'test' in has 2 modules, but
             |the Dokka Generator plugins classpath does not contain 
             |   org.jetbrains.dokka:all-modules-page-plugin
             |which is required for aggregating Dokka HTML modules.
             |
-            |Dokkatoo should have added org.jetbrains.dokka:all-modules-page-plugin automatically.
+            |Dokka Gradle Plugin should have added org.jetbrains.dokka:all-modules-page-plugin automatically.
             |
             |Generation will proceed, but the generated output might not contain the full HTML docs.
             |
             |Suggestions:
             | - Verify that the dependency has not been excluded.
-            | - Raise an issue https://github.com/Kotlin/dokka/
+            | - Create an issue with logs, and a reproducer, so we can investigate.
+            |   https://github.com/Kotlin/dokka/
+            |
             """
             .trimMargin()
             .prependIndent("> ")

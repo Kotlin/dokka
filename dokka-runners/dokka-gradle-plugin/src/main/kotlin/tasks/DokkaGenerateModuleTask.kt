@@ -23,10 +23,10 @@ import javax.inject.Inject
  * Generates a Dokka Module.
  *
  * Dokka Modules are 'incomplete', and must be combined into a single Dokka Publication
- * by [DokkatooGeneratePublicationTask].
+ * by [DokkaGeneratePublicationTask].
  */
 @CacheableTask
-abstract class DokkatooGenerateModuleTask
+abstract class DokkaGenerateModuleTask
 @DokkaInternalApi
 @Inject
 constructor(
@@ -39,7 +39,7 @@ constructor(
      * [org.jetbrains.dokka.gradle.dokka.DokkaPublication.pluginsConfiguration].
      */
     pluginsConfiguration: DokkaPluginParametersContainer,
-) : DokkatooGenerateTask(
+) : DokkaGenerateTask(
     objects = objects,
     workers = workers,
     pluginsConfiguration = pluginsConfiguration,

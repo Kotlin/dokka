@@ -9,17 +9,17 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.newInstance
+import org.gradle.kotlin.dsl.submit
 import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.gradle.DokkaBasePlugin.Companion.jsonMapper
 import org.jetbrains.dokka.gradle.dokka.parameters.DokkaGeneratorParametersSpec
 import org.jetbrains.dokka.gradle.dokka.parameters.builders.DokkaParametersBuilder
-import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
 import org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
 import org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
 import org.jetbrains.dokka.gradle.workers.ProcessIsolation
@@ -34,7 +34,7 @@ import javax.inject.Inject
  * The Dokka Plugins added to the generator classpath determine the type of documentation generated.
  */
 @CacheableTask
-abstract class DokkatooGenerateTask
+abstract class DokkaGenerateTask
 @DokkaInternalApi
 @Inject
 constructor(
@@ -47,7 +47,7 @@ constructor(
      * [org.jetbrains.dokka.gradle.dokka.DokkaPublication.pluginsConfiguration].
      */
     pluginsConfiguration: DokkaPluginParametersContainer,
-) : DokkatooTask() {
+) : DokkaBaseTask() {
 
     private val dokkaParametersBuilder = DokkaParametersBuilder(archives)
 
@@ -77,7 +77,7 @@ constructor(
     val generator: DokkaGeneratorParametersSpec = objects.newInstance(pluginsConfiguration)
 
     /**
-     * Control whether Dokkatoo launches Dokka Generator.
+     * Control how Dokka Gradle Plugin launches Dokka Generator.
      *
      * Defaults to [org.jetbrains.dokka.gradle.DokkaExtension.dokkaGeneratorIsolation].
      *
@@ -214,115 +214,4 @@ constructor(
             cacheDirectory = cacheDirectory.asFile.orNull,
         )
     }
-
-
-    //region Deprecated Properties
-    /**
-     * Please move worker options:
-     *
-     * ```kotlin
-     * // build.gradle.kts
-     *
-     * dokkatoo {
-     *   dokkaGeneratorIsolation = ProcessIsolation {
-     *     debug = true
-     *   }
-     * }
-     * ```
-     *
-     * Worker options were moved to allow for configuring worker isolation.
-     *
-     * @see org.jetbrains.dokka.gradle.DokkaExtension.dokkaGeneratorIsolation
-     * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation.debug
-     */
-    @get:Internal
-    @Deprecated("Please move worker options to `DokkatooExtension.dokkaGeneratorIsolation`. Worker options were moved to allow for configuring worker isolation")
-    abstract val workerDebugEnabled: Property<Boolean>
-
-    /**
-     * Please move worker options:
-     *
-     * ```kotlin
-     * // build.gradle.kts
-     *
-     * dokkatoo {
-     *   dokkaGeneratorIsolation = ProcessIsolation {
-     *     minHeapSize = "512m"
-     *   }
-     * }
-     * ```
-     *
-     * Worker options were moved to allow for configuring worker isolation.
-     *
-     * @see org.jetbrains.dokka.gradle.DokkaExtension.dokkaGeneratorIsolation
-     * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation.minHeapSize
-     */
-    @get:Internal
-    @Deprecated("Please move worker options to `DokkatooExtension.dokkaGeneratorIsolation`. Worker options were moved to allow for configuring worker isolation")
-    abstract val workerMinHeapSize: Property<String>
-
-    /**
-     * Please move worker options:
-     *
-     * ```kotlin
-     * // build.gradle.kts
-     *
-     * dokkatoo {
-     *   dokkaGeneratorIsolation = ProcessIsolation {
-     *     maxHeapSize = "1g"
-     *   }
-     * }
-     * ```
-     *
-     * Worker options were moved to allow for configuring worker isolation.
-     *
-     * @see org.jetbrains.dokka.gradle.DokkaExtension.dokkaGeneratorIsolation
-     * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation.maxHeapSize
-     */
-    @get:Internal
-    @Deprecated("Please move worker options to `DokkatooExtension.dokkaGeneratorIsolation`. Worker options were moved to allow for configuring worker isolation")
-    abstract val workerMaxHeapSize: Property<String>
-
-    /**
-     * Please move worker options:
-     *
-     * ```kotlin
-     * // build.gradle.kts
-     *
-     * dokkatoo {
-     *   dokkaGeneratorIsolation = ProcessIsolation {
-     *     jvmArgs = listOf(
-     *       "-XX:+UseStringDeduplication",
-     *     )
-     *   }
-     * }
-     * ```
-     *
-     * Worker options were moved to allow for configuring worker isolation.
-     *
-     * @see org.jetbrains.dokka.gradle.DokkaExtension.dokkaGeneratorIsolation
-     * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation.jvmArgs
-     */
-    @get:Internal
-    @Deprecated("Please move worker options to `DokkatooExtension.dokkaGeneratorIsolation`. Worker options were moved to allow for configuring worker isolation")
-    abstract val workerJvmArgs: ListProperty<String>
-
-    @Deprecated("Removed - Module and Publication generation have been moved to specific subtasks")
-    @Suppress("unused")
-    enum class GenerationType {
-        MODULE,
-        PUBLICATION,
-    }
-
-    /**
-     * Deprecated - instead use specific subtasks for Module/Publication generation.
-     *
-     * @see DokkatooGenerateModuleTask
-     * @see DokkatooGeneratePublicationTask
-     */
-    @get:Internal
-    @Deprecated("Created specific Module/Publication subclasses")
-    @Suppress("DEPRECATION", "unused")
-    abstract val generationType: Property<GenerationType>
-    //endregion
 }

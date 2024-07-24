@@ -34,7 +34,7 @@ class MultiModuleFunctionalTest : FunSpec({
         project.runner
             .addArguments(
                 "clean",
-                ":dokkatooGenerate",
+                ":dokkaGenerate",
                 "--stacktrace",
             )
             .forwardOutput()
@@ -114,7 +114,7 @@ class MultiModuleFunctionalTest : FunSpec({
             project.runner
                 .addArguments(
                     //"clean",
-                    ":dokkatooGenerate",
+                    ":dokkaGenerate",
                     "--stacktrace",
                     "--build-cache",
                 )
@@ -140,7 +140,7 @@ class MultiModuleFunctionalTest : FunSpec({
             context("when build cache is enabled") {
                 project.runner
                     .addArguments(
-                        ":dokkatooGenerate",
+                        ":dokkaGenerate",
                         "--stacktrace",
                         "--build-cache",
                     )
@@ -177,18 +177,18 @@ class MultiModuleFunctionalTest : FunSpec({
             val buildCacheDir = originalProject.projectDir.resolve("build-cache")
 
             val expectedGenerationTasks = listOf(
-                ":dokkatooGeneratePublicationGfm",
-                ":dokkatooGeneratePublicationHtml",
-                ":dokkatooGeneratePublicationJavadoc",
-                ":dokkatooGeneratePublicationJekyll",
-                ":subproject-hello:dokkatooGenerateModuleGfm",
-                ":subproject-hello:dokkatooGenerateModuleHtml",
-                ":subproject-hello:dokkatooGenerateModuleJavadoc",
-                ":subproject-hello:dokkatooGenerateModuleJekyll",
-                ":subproject-goodbye:dokkatooGenerateModuleGfm",
-                ":subproject-goodbye:dokkatooGenerateModuleHtml",
-                ":subproject-goodbye:dokkatooGenerateModuleJavadoc",
-                ":subproject-goodbye:dokkatooGenerateModuleJekyll",
+                ":dokkaGeneratePublicationGfm",
+                ":dokkaGeneratePublicationHtml",
+                ":dokkaGeneratePublicationJavadoc",
+                ":dokkaGeneratePublicationJekyll",
+                ":subproject-hello:dokkaGenerateModuleGfm",
+                ":subproject-hello:dokkaGenerateModuleHtml",
+                ":subproject-hello:dokkaGenerateModuleJavadoc",
+                ":subproject-hello:dokkaGenerateModuleJekyll",
+                ":subproject-goodbye:dokkaGenerateModuleGfm",
+                ":subproject-goodbye:dokkaGenerateModuleHtml",
+                ":subproject-goodbye:dokkaGenerateModuleJavadoc",
+                ":subproject-goodbye:dokkaGenerateModuleJekyll",
             )
 
             test("setup build cache") {
@@ -229,7 +229,7 @@ class MultiModuleFunctionalTest : FunSpec({
                     }
                 originalProject.runner
                     .addArguments(
-                        ":dokkatooGenerate",
+                        ":dokkaGenerate",
                         "--stacktrace",
                         "--build-cache",
                         "-D" + "org.gradle.caching.debug=true"
@@ -261,7 +261,7 @@ class MultiModuleFunctionalTest : FunSpec({
 
                 relocatedProject.runner
                     .addArguments(
-                        ":dokkatooGenerate",
+                        ":dokkaGenerate",
                         "--stacktrace",
                         "--build-cache",
                         "-D" + "org.gradle.caching.debug=true"
@@ -288,7 +288,7 @@ class MultiModuleFunctionalTest : FunSpec({
             project.runner
                 .addArguments(
                     //"clean",
-                    ":dokkatooGenerate",
+                    ":dokkaGenerate",
                     "--stacktrace",
                     "--no-build-cache",
                     "--configuration-cache",
@@ -328,7 +328,7 @@ class MultiModuleFunctionalTest : FunSpec({
                 project.runner
                     .addArguments(
                         //"clean",
-                        ":dokkatooGeneratePublicationHtml",
+                        ":dokkaGeneratePublicationHtml",
                         "--stacktrace",
                         "--build-cache",
                     )
@@ -359,7 +359,7 @@ class MultiModuleFunctionalTest : FunSpec({
                 context("expect Dokka re-generates the publication") {
                     project.runner
                         .addArguments(
-                            ":dokkatooGeneratePublicationHtml",
+                            ":dokkaGeneratePublicationHtml",
                             "--stacktrace",
                             "--build-cache",
                         )
@@ -373,20 +373,20 @@ class MultiModuleFunctionalTest : FunSpec({
 
                             test("expect :subproject-goodbye tasks are up-to-date, because no files changed") {
                                 shouldHaveTasksWithOutcome(
-                                    ":subproject-goodbye:dokkatooGenerateModuleHtml" to UP_TO_DATE,
+                                    ":subproject-goodbye:dokkaGenerateModuleHtml" to UP_TO_DATE,
                                 )
                             }
 
                             val successfulOutcomes = listOf(SUCCESS, FROM_CACHE)
                             test("expect :subproject-hello tasks should be re-run, since a file changed") {
                                 shouldHaveTasksWithAnyOutcome(
-                                    ":subproject-hello:dokkatooGenerateModuleHtml" to successfulOutcomes,
+                                    ":subproject-hello:dokkaGenerateModuleHtml" to successfulOutcomes,
                                 )
                             }
 
                             test("expect aggregating tasks should re-run because the :subproject-hello Dokka Module changed") {
                                 shouldHaveTasksWithAnyOutcome(
-                                    ":dokkatooGeneratePublicationHtml" to successfulOutcomes,
+                                    ":dokkaGeneratePublicationHtml" to successfulOutcomes,
                                 )
                             }
 
@@ -408,7 +408,7 @@ class MultiModuleFunctionalTest : FunSpec({
 
                         project.runner
                             .addArguments(
-                                ":dokkatooGeneratePublicationHtml",
+                                ":dokkaGeneratePublicationHtml",
                                 "--stacktrace",
                                 "--info",
                                 "--build-cache",
@@ -441,7 +441,7 @@ class MultiModuleFunctionalTest : FunSpec({
             project.runner
                 .addArguments(
                     "clean",
-                    ":dokkatooGenerate",
+                    ":dokkaGenerate",
                     "--no-configuration-cache",
                     "--no-build-cache",
                     "--quiet",
@@ -456,7 +456,7 @@ class MultiModuleFunctionalTest : FunSpec({
             project.runner
                 .addArguments(
                     "clean",
-                    ":dokkatooGenerate",
+                    ":dokkaGenerate",
                     "--no-configuration-cache",
                     "--no-build-cache",
                     "--no-parallel",
@@ -480,25 +480,25 @@ class MultiModuleFunctionalTest : FunSpec({
                         .filter { it.startsWith("> Task :") }
                         .shouldContainAll(
                             "> Task :clean",
-                            "> Task :dokkatooGenerate",
-                            "> Task :dokkatooGenerateModuleGfm",
-                            "> Task :dokkatooGenerateModuleHtml",
-                            "> Task :dokkatooGenerateModuleJavadoc",
-                            "> Task :dokkatooGenerateModuleJekyll",
-                            "> Task :dokkatooGeneratePublicationGfm",
-                            "> Task :dokkatooGeneratePublicationHtml",
-                            "> Task :dokkatooGeneratePublicationJavadoc",
-                            "> Task :dokkatooGeneratePublicationJekyll",
+                            "> Task :dokkaGenerate",
+                            "> Task :dokkaGenerateModuleGfm",
+                            "> Task :dokkaGenerateModuleHtml",
+                            "> Task :dokkaGenerateModuleJavadoc",
+                            "> Task :dokkaGenerateModuleJekyll",
+                            "> Task :dokkaGeneratePublicationGfm",
+                            "> Task :dokkaGeneratePublicationHtml",
+                            "> Task :dokkaGeneratePublicationJavadoc",
+                            "> Task :dokkaGeneratePublicationJekyll",
                             "> Task :subproject-goodbye:clean",
-                            "> Task :subproject-goodbye:dokkatooGenerateModuleGfm",
-                            "> Task :subproject-goodbye:dokkatooGenerateModuleHtml",
-                            "> Task :subproject-goodbye:dokkatooGenerateModuleJavadoc",
-                            "> Task :subproject-goodbye:dokkatooGenerateModuleJekyll",
+                            "> Task :subproject-goodbye:dokkaGenerateModuleGfm",
+                            "> Task :subproject-goodbye:dokkaGenerateModuleHtml",
+                            "> Task :subproject-goodbye:dokkaGenerateModuleJavadoc",
+                            "> Task :subproject-goodbye:dokkaGenerateModuleJekyll",
                             "> Task :subproject-hello:clean",
-                            "> Task :subproject-hello:dokkatooGenerateModuleGfm",
-                            "> Task :subproject-hello:dokkatooGenerateModuleHtml",
-                            "> Task :subproject-hello:dokkatooGenerateModuleJavadoc",
-                            "> Task :subproject-hello:dokkatooGenerateModuleJekyll",
+                            "> Task :subproject-hello:dokkaGenerateModuleGfm",
+                            "> Task :subproject-hello:dokkaGenerateModuleHtml",
+                            "> Task :subproject-hello:dokkaGenerateModuleJavadoc",
+                            "> Task :subproject-hello:dokkaGenerateModuleJekyll",
                         )
                 }
         }
@@ -591,7 +591,7 @@ class MultiModuleFunctionalTest : FunSpec({
             project.runner
                 .addArguments(
                     "clean",
-                    ":dokkatooGeneratePublicationHtml",
+                    ":dokkaGeneratePublicationHtml",
                     "--stacktrace",
                 )
                 .forwardOutput()
@@ -607,9 +607,9 @@ class MultiModuleFunctionalTest : FunSpec({
                     }
 
                     listOf(
-                        ":subproject-goodbye:dokkatooGenerateModuleHtml",
-                        ":subproject-hello:dokkatooGenerateModuleHtml",
-                        ":dokkatooGeneratePublicationHtml",
+                        ":subproject-goodbye:dokkaGenerateModuleHtml",
+                        ":subproject-hello:dokkaGenerateModuleHtml",
+                        ":dokkaGeneratePublicationHtml",
                     ).forEach { dokkatooTaskPath ->
                         test("expect $dokkatooTaskPath runs with isolation $isolation") {
                             output shouldContain "$dokkatooTaskPath - running with workerIsolation $expectedIsolationClassFqn"

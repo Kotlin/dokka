@@ -15,7 +15,7 @@ class DuplicateModulePathWarningTest : FunSpec({
         project.dir("subproject-hello") {
             buildGradleKts += """
                 |
-                |dokkatoo {
+                |dokka {
                 |  modulePath = "dupe"
                 |}
                 |
@@ -25,7 +25,7 @@ class DuplicateModulePathWarningTest : FunSpec({
         project.dir("subproject-goodbye") {
             buildGradleKts += """
                 |
-                |dokkatoo {
+                |dokka {
                 |  modulePath = "dupe"
                 |}
                 |
@@ -35,7 +35,7 @@ class DuplicateModulePathWarningTest : FunSpec({
         context("generate HTML publication") {
             project.runner
                 .addArguments(
-                    ":dokkatooGeneratePublicationHtml",
+                    ":dokkaGeneratePublicationHtml",
                     "--rerun-tasks",
                     "--stacktrace",
                     "--warn",
@@ -44,7 +44,7 @@ class DuplicateModulePathWarningTest : FunSpec({
                 .build {
                     test("expect duplicate module path warning") {
                         output.shouldContainAll(
-                            "[:dokkatooGeneratePublicationHtml] Duplicate `modulePath`s in Dokka Generator parameters.",
+                            "[:dokkaGeneratePublicationHtml] Duplicate `modulePath`s in Dokka Generator parameters.",
                             "- 'subproject-hello', 'subproject-goodbye' have modulePath 'dupe'",
                         )
                     }

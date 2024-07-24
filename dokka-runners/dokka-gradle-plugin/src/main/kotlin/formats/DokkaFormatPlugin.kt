@@ -33,7 +33,7 @@ import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import javax.inject.Inject
 
 /**
- * Base Gradle Plugin for setting up a Dokka Publication for a specific format.
+ * Base Gradle Plugin for setting up a Dokka Publication for a specific output format.
  *
  * [DokkaBasePlugin] must be applied for this plugin (or any subclass) to have an effect.
  *
@@ -73,7 +73,7 @@ abstract class DokkaFormatPlugin(
         target.plugins.withType<DokkaBasePlugin>().configureEach {
             val dokkaExtension = target.extensions.getByType(DokkaExtension::class)
 
-            val publication = dokkaExtension.dokkatooPublications.create(formatName)
+            val publication = dokkaExtension.dokkaPublications.create(formatName)
 
             val formatDependencies = FormatDependenciesManager(
                 project = target,
@@ -108,7 +108,7 @@ abstract class DokkaFormatPlugin(
                 )
             }
 
-            val context = DokkatooFormatPluginContext(
+            val context = DokkaFormatPluginContext(
                 project = target,
                 dokkaExtension = dokkaExtension,
                 dokkatooTasks = dokkatooTasks,
@@ -149,11 +149,11 @@ abstract class DokkaFormatPlugin(
     }
 
     /** Format specific configuration - to be implemented by subclasses */
-    open fun DokkatooFormatPluginContext.configure() {}
+    open fun DokkaFormatPluginContext.configure() {}
 
 
     @DokkaInternalApi
-    class DokkatooFormatPluginContext(
+    class DokkaFormatPluginContext(
         val project: Project,
         val dokkaExtension: DokkaExtension,
         val dokkatooTasks: DokkaFormatTasks,
@@ -213,7 +213,7 @@ abstract class DokkaFormatPlugin(
     }
 
 
-    private fun DokkatooFormatPluginContext.addDefaultDokkaDependencies() {
+    private fun DokkaFormatPluginContext.addDefaultDokkaDependencies() {
         project.dependencies {
             /** lazily create a [Dependency] with the provided [version] */
             infix fun String.version(version: Property<String>): Provider<Dependency> =

@@ -10,9 +10,9 @@ import org.jetbrains.dokka.gradle.DokkaBasePlugin
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import javax.inject.Inject
 
-/** Base Dokkatoo task */
+/** Base Dokka task */
 @CacheableTask
-abstract class DokkatooTask
+abstract class DokkaBaseTask
 @DokkaInternalApi
 constructor() : DefaultTask() {
 

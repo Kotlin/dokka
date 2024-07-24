@@ -24,7 +24,7 @@ class DokkatooPluginFunctionalTest : FunSpec({
 
     test("expect Dokka Plugin creates Dokka tasks") {
         testProject.runner
-            .addArguments("tasks", "--group=dokkatoo", "-q")
+            .addArguments("tasks", "--group=dokka", "--quiet")
             .build {
                 withClue(output) {
                     val dokkatooTasks = output
@@ -35,19 +35,19 @@ class DokkatooPluginFunctionalTest : FunSpec({
 
                     dokkatooTasks.shouldContainExactly(
                         //@formatter:off
-                        "dokkatooGenerate"                       to "Generates Dokkatoo publications for all formats",
-                        "dokkatooGenerateModuleGfm"              to "Executes the Dokka Generator, generating a gfm module",
-                        "dokkatooGenerateModuleHtml"             to "Executes the Dokka Generator, generating a html module",
-                        "dokkatooGenerateModuleJavadoc"          to "Executes the Dokka Generator, generating a javadoc module",
-                        "dokkatooGenerateModuleJekyll"           to "Executes the Dokka Generator, generating a jekyll module",
-                        "dokkatooGeneratePublicationGfm"         to "Executes the Dokka Generator, generating the gfm publication",
-                        "dokkatooGeneratePublicationHtml"        to "Executes the Dokka Generator, generating the html publication",
-                        "dokkatooGeneratePublicationJavadoc"     to "Executes the Dokka Generator, generating the javadoc publication",
-                        "dokkatooGeneratePublicationJekyll"      to "Executes the Dokka Generator, generating the jekyll publication",
-                        "prepareDokkatooModuleDescriptorGfm"     to "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for gfm",
-                        "prepareDokkatooModuleDescriptorHtml"    to "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for html",
-                        "prepareDokkatooModuleDescriptorJavadoc" to "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for javadoc",
-                        "prepareDokkatooModuleDescriptorJekyll"  to "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for jekyll",
+                        "dokkaGenerate"                       to "Generates Dokka publications for all formats",
+//                        "dokkaGenerateModuleGfm"              to "Executes the Dokka Generator, generating a gfm module",
+                        "dokkaGenerateModuleHtml"             to "Executes the Dokka Generator, generating a html module",
+//                        "dokkaGenerateModuleJavadoc"          to "Executes the Dokka Generator, generating a javadoc module",
+//                        "dokkaGenerateModuleJekyll"           to "Executes the Dokka Generator, generating a jekyll module",
+//                        "dokkaGeneratePublicationGfm"         to "Executes the Dokka Generator, generating the gfm publication",
+                        "dokkaGeneratePublicationHtml"        to "Executes the Dokka Generator, generating the html publication",
+//                        "dokkaGeneratePublicationJavadoc"     to "Executes the Dokka Generator, generating the javadoc publication",
+//                        "dokkaGeneratePublicationJekyll"      to "Executes the Dokka Generator, generating the jekyll publication",
+//                        "prepareDokkatooModuleDescriptorGfm"     to "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for gfm",
+//                        "prepareDokkatooModuleDescriptorHtml"    to "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for html",
+//                        "prepareDokkatooModuleDescriptorJavadoc" to "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for javadoc",
+//                        "prepareDokkatooModuleDescriptorJekyll"  to "[Deprecated ⚠️] Prepares the Dokka Module Descriptor for jekyll",
                         //@formatter:on
                     )
                 }
@@ -56,7 +56,7 @@ class DokkatooPluginFunctionalTest : FunSpec({
 
     test("expect Dokka Plugin creates Dokka outgoing variants") {
         testProject.runner
-            .addArguments("outgoingVariants", "-q")
+            .addArguments("outgoingVariants", "--quiet")
             .build {
                 val variants = output.invariantNewlines().replace('\\', '/')
 
@@ -67,8 +67,8 @@ class DokkatooPluginFunctionalTest : FunSpec({
                 dokkatooVariants.shouldContainExactlyInAnyOrder(
                     expectedFormats.flatMap {
                         listOf(
-                            "dokkatoo${it}ModuleOutputDirectoriesConsumable",
-                            "dokkatoo${it}PublicationPluginClasspathApiOnlyConsumable",
+                            "dokka${it}ModuleOutputDirectoriesConsumable",
+                            "dokka${it}PublicationPluginClasspathApiOnlyConsumable",
                         )
                     }
                 )
@@ -79,9 +79,9 @@ class DokkatooPluginFunctionalTest : FunSpec({
 
                     variants shouldContain /* language=text */ """
                         |--------------------------------------------------
-                        |Variant dokkatoo${Format}ModuleOutputDirectoriesConsumable
+                        |Variant dokka${Format}ModuleOutputDirectoriesConsumable
                         |--------------------------------------------------
-                        |Provides Dokkatoo $format ModuleOutputDirectories files for consumption by other subprojects.
+                        |Provides Dokka $format ModuleOutputDirectories files for consumption by other subprojects.
                         |
                         |Capabilities
                         |    - :test:unspecified (default capability)
@@ -94,10 +94,9 @@ class DokkatooPluginFunctionalTest : FunSpec({
                         """.trimMargin()
                 }
 
-                checkVariant("gfm")
-                checkVariant("html")
-                checkVariant("javadoc")
-                checkVariant("jekyll")
+                expectedFormats.forEach {
+                    checkVariant(it.lowercase())
+                }
             }
     }
 
@@ -105,7 +104,7 @@ class DokkatooPluginFunctionalTest : FunSpec({
         // disabled because Gradle is bugged https://github.com/gradle/gradle/issues/28733
 
         testProject.runner
-            .addArguments("resolvableConfigurations", "-q")
+            .addArguments("resolvableConfigurations", "--quiet")
             .build {
                 output.invariantNewlines().asClue { allConfigurations ->
 
@@ -115,10 +114,10 @@ class DokkatooPluginFunctionalTest : FunSpec({
 
                     dokkatooConfigurations.shouldContainExactlyInAnyOrder(
                         buildSet {
-                            addAll(expectedFormats.map { "dokkatoo${it}GeneratorClasspathResolver" })
-                            addAll(expectedFormats.map { "dokkatoo${it}ModuleOutputDirectoriesResolver" })
-                            addAll(expectedFormats.map { "dokkatoo${it}PluginsClasspathIntransitiveResolver" })
-                            addAll(expectedFormats.map { "dokkatoo${it}PublicationPluginClasspathResolver" })
+                            addAll(expectedFormats.map { "dokka${it.uppercaseFirstChar()}GeneratorClasspathResolver" })
+                            addAll(expectedFormats.map { "dokka${it.uppercaseFirstChar()}ModuleOutputDirectoriesResolver" })
+                            addAll(expectedFormats.map { "dokka${it.uppercaseFirstChar()}PluginsClasspathIntransitiveResolver" })
+                            addAll(expectedFormats.map { "dokka${it.uppercaseFirstChar()}PublicationPluginClasspathResolver" })
                         }
                     )
 
@@ -135,11 +134,11 @@ class DokkatooPluginFunctionalTest : FunSpec({
                             |Dokka Generator runtime classpath for $format - will be used in Dokka Worker. Should contain all transitive dependencies, plugins (and their transitive dependencies), so Dokka Worker can run.
                             |
                             |Attributes
-                            |    - org.gradle.category            = Dokkatoo~library
-                            |    - org.gradle.dependency.bundling = Dokkatoo~external
-                            |    - org.gradle.jvm.environment     = Dokkatoo~standard-jvm
-                            |    - org.gradle.libraryelements     = Dokkatoo~jar
-                            |    - org.gradle.usage               = Dokkatoo~java-runtime
+                            |    - org.gradle.category            = DGP~library
+                            |    - org.gradle.dependency.bundling = DGP~external
+                            |    - org.gradle.jvm.environment     = DGP~standard-jvm
+                            |    - org.gradle.libraryelements     = DGP~jar
+                            |    - org.gradle.usage               = DGP~java-runtime
                             |    - org.jetbrains.dokka.classpath  = dokka-generator
                             |    - org.jetbrains.dokka.format     = $format
                             |Extended Configurations
@@ -153,11 +152,11 @@ class DokkatooPluginFunctionalTest : FunSpec({
                             |Resolves Dokka Plugins classpath for $format - for internal use. Fetch only the plugins (no transitive dependencies) for use in the Dokka JSON Configuration.
                             |
                             |Attributes
-                            |    - org.gradle.category            = Dokkatoo~library
-                            |    - org.gradle.dependency.bundling = Dokkatoo~external
-                            |    - org.gradle.jvm.environment     = Dokkatoo~standard-jvm
-                            |    - org.gradle.libraryelements     = Dokkatoo~jar
-                            |    - org.gradle.usage               = Dokkatoo~java-runtime
+                            |    - org.gradle.category            = DGP~library
+                            |    - org.gradle.dependency.bundling = DGP~external
+                            |    - org.gradle.jvm.environment     = DGP~standard-jvm
+                            |    - org.gradle.libraryelements     = DGP~jar
+                            |    - org.gradle.usage               = DGP~java-runtime
                             |    - org.jetbrains.dokka.classpath  = dokka-plugins
                             |    - org.jetbrains.dokka.format     = $format
                             |Extended Configurations
@@ -187,6 +186,11 @@ class DokkatooPluginFunctionalTest : FunSpec({
     }
 }) {
     companion object {
-        private val expectedFormats = listOf("Gfm", "Html", "Javadoc", "Jekyll")
+        private val expectedFormats = listOf(
+//            "Gfm",
+            "Html",
+//            "Javadoc",
+//            "Jekyll",
+        )
     }
 }

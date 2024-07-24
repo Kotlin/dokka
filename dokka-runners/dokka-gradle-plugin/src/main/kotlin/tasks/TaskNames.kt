@@ -8,9 +8,7 @@ import org.jetbrains.dokka.gradle.internal.HasFormatName
 
 @DokkaInternalApi
 class TaskNames(override val formatName: String) : HasFormatName() {
-    val generate = "dokkatooGenerate".appendFormat()
-    val generatePublication = "dokkatooGeneratePublication".appendFormat()
-    val generateModule = "dokkatooGenerateModule".appendFormat()
-    val consolidateModuleElements = "dokkatooConsolidateModuleElements".appendFormat()
-    val prepareModuleDescriptor = "prepareDokkatooModuleDescriptor".appendFormat()
+    val generate = "dokkaGenerate".appendFormat()
+    val generatePublication = "dokkaGeneratePublication".appendFormat()
+    val generateModule = "dokkaGenerateModule".appendFormat()
 }

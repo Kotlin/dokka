@@ -187,7 +187,7 @@ class DokkaSourceSetBuilderTest : FunSpec({
 
 private fun createProject(): Project {
     val project = ProjectBuilder.builder().build()
-    project.extraProperties.set("enableDokkatoo", true)
+    project.extraProperties.set("DokkaGradlePluginMode", "dokkatoo")
     project.plugins.apply(type = DokkaPlugin::class)
     return project
 }

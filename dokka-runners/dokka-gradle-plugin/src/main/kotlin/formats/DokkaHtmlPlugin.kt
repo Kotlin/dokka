@@ -18,7 +18,7 @@ import org.jetbrains.dokka.gradle.dokka.plugins.DokkaVersioningPluginParameters
 import org.jetbrains.dokka.gradle.dokka.plugins.DokkaVersioningPluginParameters.Companion.DOKKA_VERSIONING_PLUGIN_PARAMETERS_NAME
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.uppercaseFirstChar
-import org.jetbrains.dokka.gradle.tasks.DokkatooGeneratePublicationTask
+import org.jetbrains.dokka.gradle.tasks.DokkaGeneratePublicationTask
 import org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask
 import java.io.File
 import javax.inject.Inject
@@ -34,14 +34,14 @@ constructor(
     private val moduleAggregationCheck: HtmlModuleAggregationCheck =
         HtmlModuleAggregationCheck(archives, providers)
 
-    override fun DokkatooFormatPluginContext.configure() {
+    override fun DokkaFormatPluginContext.configure() {
         registerDokkaBasePluginConfiguration()
         registerDokkaVersioningPlugin()
         configureHtmlUrlLogging()
         configureModuleAggregation()
     }
 
-    private fun DokkatooFormatPluginContext.registerDokkaBasePluginConfiguration() {
+    private fun DokkaFormatPluginContext.registerDokkaBasePluginConfiguration() {
         with(dokkaExtension.pluginsConfiguration) {
             registerBinding(DokkaHtmlPluginParameters::class, DokkaHtmlPluginParameters::class)
             register<DokkaHtmlPluginParameters>(DOKKA_HTML_PARAMETERS_NAME)
@@ -53,7 +53,7 @@ constructor(
     }
 
     /** register and configure Dokka Versioning Plugin */
-    private fun DokkatooFormatPluginContext.registerDokkaVersioningPlugin() {
+    private fun DokkaFormatPluginContext.registerDokkaVersioningPlugin() {
         with(dokkaExtension.pluginsConfiguration) {
             registerBinding(
                 DokkaVersioningPluginParameters::class,
@@ -66,7 +66,7 @@ constructor(
         }
     }
 
-    private fun DokkatooFormatPluginContext.configureHtmlUrlLogging() {
+    private fun DokkaFormatPluginContext.configureHtmlUrlLogging() {
         val logHtmlUrlTask = registerLogHtmlUrlTask()
 
         dokkatooTasks.generatePublication.configure {
@@ -74,7 +74,7 @@ constructor(
         }
     }
 
-    private fun DokkatooFormatPluginContext.registerLogHtmlUrlTask():
+    private fun DokkaFormatPluginContext.registerLogHtmlUrlTask():
             TaskProvider<LogHtmlPublicationLinkTask> {
 
         val generatePublicationTask = dokkatooTasks.generatePublication
@@ -102,7 +102,7 @@ constructor(
      * - Automatically depend on `all-modules-page-plugin` if aggregating multiple projects.
      * - Add a check that logs a warning if `all-modules-page-plugin` is not defined.
      */
-    private fun DokkatooFormatPluginContext.configureModuleAggregation() {
+    private fun DokkaFormatPluginContext.configureModuleAggregation() {
 
         dokkatooTasks.generatePublication.configure {
             doFirst("check all-modules-page-plugin is present", moduleAggregationCheck)
@@ -136,8 +136,8 @@ constructor(
                 return
             }
 
-            require(task is DokkatooGeneratePublicationTask) {
-                "[${task.path} ModuleAggregationCheck] expected DokkatooGeneratePublicationTask but got ${task::class}"
+            require(task is DokkaGeneratePublicationTask) {
+                "[${task.path} ModuleAggregationCheck] expected DokkaGeneratePublicationTask but got ${task::class}"
             }
 
             val modulesCount = task.generator.moduleOutputDirectories.count()
@@ -166,13 +166,14 @@ constructor(
                     |   org.jetbrains.dokka:all-modules-page-plugin
                     |which is required for aggregating Dokka HTML modules.
                     |
-                    |Dokkatoo should have added org.jetbrains.dokka:all-modules-page-plugin automatically.
+                    |Dokka Gradle Plugin should have added org.jetbrains.dokka:all-modules-page-plugin automatically.
                     |
                     |Generation will proceed, but the generated output might not contain the full HTML docs.
                     |
                     |Suggestions:
                     | - Verify that the dependency has not been excluded.
-                    | - Raise an issue https://github.com/adamko-dev/dokkatoo/issues
+                    | - Create an issue with logs, and a reproducer, so we can investigate.
+                    |   https://github.com/Kotlin/dokka/
                     |
                     |(all plugins: ${allDokkaPlugins.sorted().joinToString()})
                   """

@@ -100,8 +100,8 @@ fun gradleKtsProjectTest(
         baseDir = baseDir,
     ) {
         gradleProperties += """
-            enableDokkatoo=true
-        """
+            |DokkaGradlePluginMode=dokkatoo!
+        """.trimMargin()
 
         settingsGradleKts = """
           |rootProject.name = "test"
@@ -129,12 +129,16 @@ fun gradleGroovyProjectTest(
         testProjectName = testProjectName,
         baseDir = baseDir,
     ) {
+        gradleProperties += """
+            |DokkaGradlePluginMode=dokkatoo!
+        """.trimMargin()
+
         settingsGradle = """
-      |rootProject.name = "test"
-      |
-      |${settingsRepositories()}
-      |
-    """.trimMargin()
+          |rootProject.name = "test"
+          |
+          |${settingsRepositories()}
+          |
+        """.trimMargin()
 
         build()
     }

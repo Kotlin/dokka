@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
 class DokkaVersioningPluginParametersTest : FunSpec({
     val project = ProjectBuilder.builder().build().also { project ->
-        project.extraProperties.set("enableDokkatoo", true)
+        project.extraProperties.set("DokkaGradlePluginMode", "dokkatoo")
         project.plugins.apply(type = DokkaPlugin::class)
     }
 

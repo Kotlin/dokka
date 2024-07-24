@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import javax.inject.Inject
 
 /**
- * Apply Java specific configuration to the Dokkatoo plugin.
+ * Discovers Java Gradle Plugin specific configuration and uses it to configure Dokka.
  *
  * **Must be applied *after* [org.jetbrains.dokka.gradle.DokkaBasePlugin]**
  */

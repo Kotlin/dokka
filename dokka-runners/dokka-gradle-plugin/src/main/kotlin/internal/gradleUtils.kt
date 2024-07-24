@@ -243,22 +243,6 @@ internal fun ObjectFactory.dokkaPluginParametersContainer(): DokkaPluginParamete
 
 
 /**
- * Creates a new [Attribute] of the given name with the given type [T].
- *
- * @see Attribute.of
- */
-@Deprecated(
-    "Typed attributes are broken - use String attributes instead. https://github.com/adamko-dev/dokkatoo/issues/214",
-    ReplaceWith("org.jetbrains.dokka.gradle.internal.Attribute(name)"),
-)
-@JvmName("TypedAttribute")
-internal inline fun <reified T> Attribute(
-    name: String
-): Attribute<T> =
-    Attribute.of(name, T::class.java)
-
-
-/**
  * Creates a new [Attribute] of the given name with a type of [String].
  *
  * @see Attribute.of

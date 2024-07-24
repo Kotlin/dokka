@@ -13,11 +13,11 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.gradle.utils.create_
 import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
-class DokkatooPluginTest : FunSpec({
+class DokkaPluginTest : FunSpec({
 
     test("expect plugin id can be applied to project successfully") {
         val project = ProjectBuilder.builder().build()
-        project.extraProperties.set("enableDokkatoo", true)
+        project.extraProperties.set("DokkaGradlePluginMode", "dokkatoo")
         project.plugins.apply("org.jetbrains.dokka")
         project.plugins.hasPlugin("org.jetbrains.dokka") shouldBe true
         project.plugins.hasPlugin(DokkaPlugin::class) shouldBe true
@@ -25,7 +25,7 @@ class DokkatooPluginTest : FunSpec({
 
     test("expect plugin class can be applied to project successfully") {
         val project = ProjectBuilder.builder().build()
-        project.extraProperties.set("enableDokkatoo", true)
+        project.extraProperties.set("DokkaGradlePluginMode", "dokkatoo")
         project.plugins.apply(type = DokkaPlugin::class)
         project.plugins.hasPlugin("org.jetbrains.dokka") shouldBe true
         project.plugins.hasPlugin(DokkaPlugin::class) shouldBe true
@@ -33,7 +33,7 @@ class DokkatooPluginTest : FunSpec({
 
     context("Dokkatoo property conventions") {
         val project = ProjectBuilder.builder().build()
-        project.extraProperties.set("enableDokkatoo", true)
+        project.extraProperties.set("DokkaGradlePluginMode", "dokkatoo")
         project.plugins.apply("org.jetbrains.dokka")
 
         val extension = project.extensions.getByType<DokkaExtension>()

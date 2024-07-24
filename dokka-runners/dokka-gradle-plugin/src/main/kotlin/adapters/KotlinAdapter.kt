@@ -120,7 +120,7 @@ abstract class KotlinAdapter @Inject constructor(
                 allKotlinCompilationDetails = allKotlinCompilationDetails,
             )
 
-        // for each Kotlin source set, register a Dokkatoo source set
+        // for each Kotlin source set, register a Dokka source set
         registerDokkaSourceSets(
             dokkaExtension = dokkaExtension,
             sourceSetDetails = sourceSetDetails,

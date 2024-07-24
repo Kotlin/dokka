@@ -31,7 +31,7 @@ class LogHtmlPublicationLinkTaskTest : FunSpec({
                 project.runner
                     .addArguments(
                         "clean",
-                        "dokkatooGeneratePublicationHtml",
+                        "dokkaGeneratePublicationHtml",
                         "--stacktrace",
                         "--info",
                         validServerUriParam,
@@ -60,7 +60,7 @@ class LogHtmlPublicationLinkTaskTest : FunSpec({
                     project.runner
                         .addArguments(
                             "clean",
-                            "dokkatooGeneratePublicationHtml",
+                            "dokkaGeneratePublicationHtml",
                             "--stacktrace",
                             "--info",
                             validServerUriParam,
@@ -104,7 +104,7 @@ private fun initDokkatooProject(
         buildGradleKts = """
             |plugins {
             |  kotlin("jvm") version "1.8.22"
-            |  id("org.jetbrains.dokka") version "${DokkatooConstants.DOKKATOO_VERSION}"
+            |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
             |}
             |
             |dependencies {

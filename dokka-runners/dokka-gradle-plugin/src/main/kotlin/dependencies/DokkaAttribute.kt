@@ -10,7 +10,7 @@ import org.jetbrains.dokka.gradle.internal.Attribute
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 
 /**
- * Gradle Configuration Attributes for sharing Dokkatoo files across subprojects.
+ * Gradle Configuration Attributes for sharing Dokka files across subprojects.
  *
  * These attributes are used to tag [Configuration]s, so files can be shared between subprojects.
  */

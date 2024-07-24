@@ -13,7 +13,7 @@ import org.jetbrains.dokka.gradle.internal.declarable
 
 
 /**
- * Root [Configuration] for fetching all types of Dokkatoo files from other subprojects.
+ * Root [Configuration] for fetching all types of Dokka files from other subprojects.
  */
 @DokkaInternalApi
 class BaseDependencyManager(
@@ -25,7 +25,7 @@ class BaseDependencyManager(
 
     val declaredDependencies: Configuration =
         project.configurations.create(DOKKA_CONFIGURATION_NAME) {
-            description = "Fetch all Dokkatoo files from all configurations in other subprojects."
+            description = "Fetch all Dokka files from all configurations in other subprojects."
             declarable()
         }
 

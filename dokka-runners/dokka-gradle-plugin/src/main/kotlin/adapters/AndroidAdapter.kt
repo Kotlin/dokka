@@ -33,7 +33,7 @@ abstract class AndroidAdapter @Inject constructor(
 ) : Plugin<Project> {
 
     override fun apply(project: Project) {
-        logger.info("applied DokkatooAndroidAdapter to ${project.path}")
+        logger.info("applied ${this::class} to ${project.path}")
 
         project.plugins.withType<DokkaBasePlugin>().configureEach {
             project.pluginManager.apply {
@@ -87,7 +87,7 @@ private fun AndroidExtensionWrapper(
     val androidExt: BaseExtension = try {
         project.extensions.getByType()
     } catch (ex: Exception) {
-        logger.warn("DokkatooAndroidAdapter could not get Android Extension for project ${project.path}")
+        logger.warn("${AndroidExtensionWrapper::class} could not get Android Extension for project ${project.path}")
         return null
     }
     return AndroidExtensionWrapper.forBaseExtension(
@@ -99,8 +99,8 @@ private fun AndroidExtensionWrapper(
 
 
 /**
- * Wrap the Android extension so that Dokkatoo can still access the configuration names without
- * caring about which AGP version is in use.
+ * Wrap the Android extension so that Dokka can still access the configuration names without
+ * caring about the AGP version in use.
  */
 private interface AndroidExtensionWrapper {
 
@@ -125,7 +125,7 @@ private interface AndroidExtensionWrapper {
                         is AppExtension -> androidExt.applicationVariants
                         is TestExtension -> androidExt.applicationVariants
                         else -> {
-                            logger.warn("DokkatooAndroidAdapter found unknown Android Extension $androidExt")
+                            logger.warn("${AndroidExtensionWrapper::class} found unknown Android Extension $androidExt")
                             return objects.fileCollection()
                         }
                     }

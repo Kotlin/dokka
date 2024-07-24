@@ -32,7 +32,7 @@ constructor(
 ) : ExtensionAware, Serializable {
 
     /** Directory into which [DokkaPublication]s will be produced */
-    abstract val dokkatooPublicationDirectory: DirectoryProperty
+    abstract val dokkaPublicationDirectory: DirectoryProperty
 
     /**
      * Directory into which Dokka Modules will be produced.
@@ -40,13 +40,13 @@ constructor(
      * Note that Dokka Modules are intermediate products and must be combined into a completed
      * Dokka Publication. They are not intended to be comprehensible in isolation.
      */
-    abstract val dokkatooModuleDirectory: DirectoryProperty
+    abstract val dokkaModuleDirectory: DirectoryProperty
 
-    @Deprecated("No longer used")
-    abstract val dokkatooConfigurationsDirectory: DirectoryProperty
+//    @Deprecated("No longer used")
+//    abstract val dokkatooConfigurationsDirectory: DirectoryProperty
 
-    /** Default Dokkatoo cache directory */
-    abstract val dokkatooCacheDirectory: DirectoryProperty
+    /** Default Dokka Gradle Plugin cache directory */
+    abstract val dokkaCacheDirectory: DirectoryProperty
 
     abstract val moduleName: Property<String>
     abstract val moduleVersion: Property<String>
@@ -68,7 +68,7 @@ constructor(
      * This is only required as a workaround to fetch the compile-time dependencies in Kotlin/Native
      * projects with a version below 2.0.
      */
-    // This property should be removed when Dokkatoo only supports KGP 2 or higher.
+    // This property should be removed when Dokka only supports KGP 2 or higher.
     @DokkaInternalApi
     abstract val konanHome: RegularFileProperty
 
@@ -79,9 +79,9 @@ constructor(
      *
      * The type of site is determined by the Dokka Plugins. By default, an HTML site will be generated.
      */
-    val dokkatooPublications: NamedDomainObjectContainer<DokkaPublication> =
+    val dokkaPublications: NamedDomainObjectContainer<DokkaPublication> =
         extensions.adding(
-            "dokkatooPublications",
+            "dokkaPublications",
             objects.domainObjectContainer { named -> objects.newInstance(named, pluginsConfiguration) }
         )
 
@@ -90,7 +90,7 @@ constructor(
      *
      * Dokka will not generate documentation unless there is at least there is at least one Dokka Source Set.
      *
-     *  TODO make sure dokkatooSourceSets doc is up to date...
+     *  TODO make sure dokkaSourceSets doc is up to date...
      *
      * Only source sets that are contained within _this project_ should be included here.
      * To merge source sets from other projects, use the Gradle dependencies block.
@@ -114,7 +114,7 @@ constructor(
      * Dokka will merge Dokka Source Sets from other subprojects if...
      */
     val dokkaSourceSets: NamedDomainObjectContainer<DokkaSourceSetSpec> =
-        extensions.adding("dokkatooSourceSets", objects.domainObjectContainer())
+        extensions.adding("dokkaSourceSets", objects.domainObjectContainer())
 
     /**
      * Dokka Plugin are used to configure the way Dokka generates a format.
@@ -125,9 +125,9 @@ constructor(
         extensions.adding("pluginsConfiguration", objects.dokkaPluginParametersContainer())
 
     /**
-     * Versions of dependencies that Dokkatoo will use to run Dokka Generator.
+     * Versions of dependencies that Dokka Gradle Plugin will use to run Dokka Generator.
      *
-     * These versions can be set to change the versions of dependencies that Dokkatoo uses defaults,
+     * These versions can be set to change the versions of dependencies that Dokka Gradle Plugin uses by default,
      * or can be read to align versions.
      */
     val versions: Versions = extensions.adding("versions", objects.newInstance())
@@ -145,10 +145,10 @@ constructor(
     }
 
     /**
-     * Dokkatoo runs Dokka Generator in a separate
+     * Dokka Gradle Plugin runs Dokka Generator in a separate
      * [Gradle Worker](https://docs.gradle.org/8.5/userguide/worker_api.html).
      *
-     * You can control whether Dokkatoo launches Dokka Generator in
+     * You can control whether Dokka Gradle Plugin launches Dokka Generator in
      * * a new process, using [ProcessIsolation],
      * * or the current process with an isolated classpath, using [ClassLoaderIsolation].
      *
@@ -156,7 +156,7 @@ constructor(
      * running Dokka Generator **requires** an isolated classpath._
      *
      * ```kotlin
-     * dokkatoo {
+     * dokka {
      *   // use the current Gradle process, but with an isolated classpath
      *   workerIsolation = ClassLoaderIsolation()
      *

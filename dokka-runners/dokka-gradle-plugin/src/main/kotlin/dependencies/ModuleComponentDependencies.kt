@@ -31,7 +31,7 @@ class ModuleComponentDependencies(
 
     private val resolver: NamedDomainObjectProvider<Configuration> =
         project.configurations.register("${baseConfigurationName}${componentName}Resolver") {
-            description = "Resolves Dokkatoo $formatName $componentName files."
+            description = "Resolves Dokka $formatName $componentName files."
             resolvable()
             extendsFrom(declaredDependencies)
             attributes {
@@ -44,7 +44,7 @@ class ModuleComponentDependencies(
     val outgoing: NamedDomainObjectProvider<Configuration> =
         project.configurations.register("${baseConfigurationName}${componentName}Consumable") {
             description =
-                "Provides Dokkatoo $formatName $componentName files for consumption by other subprojects."
+                "Provides Dokka $formatName $componentName files for consumption by other subprojects."
             consumable()
             extendsFrom(declaredDependencies)
             attributes {
@@ -107,12 +107,12 @@ class ModuleComponentDependencies(
                             }
 
                             variantAttributes[DokkaFormatAttribute] != formatAttributes.format.name -> {
-                                logger.info("[${incomingName}] ignoring artifact $artifact - DokkatooFormatAttribute != ${formatAttributes.format} | attributes:${variantAttributes.toDebugString()}")
+                                logger.info("[${incomingName}] ignoring artifact $artifact - DokkaFormatAttribute != ${formatAttributes.format} | attributes:${variantAttributes.toDebugString()}")
                                 false
                             }
 
                             variantAttributes[DokkaModuleComponentAttribute] != component.name -> {
-                                logger.info("[${incomingName}] ignoring artifact $artifact - DokkatooModuleComponentAttribute != $component | attributes:${variantAttributes.toDebugString()}")
+                                logger.info("[${incomingName}] ignoring artifact $artifact - DokkaModuleComponentAttribute != $component | attributes:${variantAttributes.toDebugString()}")
                                 false
                             }
 
