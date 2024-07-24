@@ -2,7 +2,9 @@
 
 import dokkabuild.tasks.GenerateDokkatooConstants
 import dokkabuild.utils.skipTestFixturesPublications
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     id("dokkabuild.base")
@@ -22,11 +24,9 @@ plugins {
 val dokkaVersion = "2.0.20-SNAPSHOT"
 version = "2.0.20-SNAPSHOT"
 group = "org.jetbrains.dokka"
-description = "Generates documentation for Kotlin projects (using Dokka)"
+description = "Gradle plugin for using Dokka Engine"
 
 kotlin {
-    jvmToolchain(8)
-
     compilerOptions {
         // must use Kotlin 1.4 to support Gradle 7
         languageVersion = @Suppress("DEPRECATION") KotlinVersion.KOTLIN_1_4
@@ -127,6 +127,36 @@ gradlePlugin {
         )
     }
 }
+
+//region Java version target/compile config
+val minSupportedJavaVersion = JavaLanguageVersion.of(8)
+val JavaLanguageVersion.formattedName: String
+    get() = if (asInt() <= 8) "1.${asInt()}" else asInt().toString()
+
+kotlin {
+    jvmToolchain(21)
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xjdk-release=${minSupportedJavaVersion.formattedName}")
+    }
+}
+
+tasks.withType<KotlinJvmCompile>().configureEach {
+    compilerOptions {
+        jvmTarget = JvmTarget.fromTarget(minSupportedJavaVersion.formattedName)
+    }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(minSupportedJavaVersion.asInt())
+}
+
+tasks.withType<Test>().configureEach {
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = minSupportedJavaVersion
+    }
+}
+//endregion
 
 tasks.compileKotlin {
     compilerOptions {
