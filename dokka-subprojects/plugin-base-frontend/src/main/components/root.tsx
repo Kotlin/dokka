@@ -3,20 +3,19 @@
  */
 
 import React from 'react';
-import {render} from 'react-dom';
+import { render } from 'react-dom';
 
-import App from "./app";
+import App from './app';
 import './app/index.scss';
 
-
 const renderMainSearch = () => {
-    render(<App/>, document.getElementById('searchBar'));
-}
+  render(<App />, document.getElementById('searchBar'));
+};
 
-let renderApp = () => {
-    renderMainSearch();
+const renderApp = () => {
+  renderMainSearch();
 
-    document.removeEventListener('DOMContentLoaded', renderApp);
+  document.removeEventListener('DOMContentLoaded', renderApp);
 };
 
 document.addEventListener('DOMContentLoaded', renderApp);
