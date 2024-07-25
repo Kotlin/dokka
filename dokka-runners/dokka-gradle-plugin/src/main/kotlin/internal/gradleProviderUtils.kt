@@ -26,3 +26,11 @@ internal infix fun Boolean.or(right: Provider<Boolean>): Provider<Boolean> =
 
 internal infix fun Provider<Boolean>.or(right: Boolean): Provider<Boolean> =
     map { l -> l || right }
+
+internal fun <T> Provider<T>.forUseAtConfigurationTimeCompat(): Provider<T> =
+    if (CurrentGradleVersion < "7.0") {
+        @Suppress("DEPRECATION")
+        forUseAtConfigurationTime()
+    } else {
+        this
+    }

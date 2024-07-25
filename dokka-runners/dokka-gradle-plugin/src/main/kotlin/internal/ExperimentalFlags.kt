@@ -4,7 +4,7 @@
 package org.jetbrains.dokka.gradle.internal
 
 import org.gradle.api.Project
-import org.jetbrains.kotlin.gradle.plugin.extraProperties
+import org.gradle.kotlin.dsl.extra
 
 internal data class ExperimentalFlags(
     val dokkatooEnabled: Boolean,
@@ -20,8 +20,10 @@ internal data class ExperimentalFlags(
             val flags = providers
                 .gradleProperty(PropName)
                 .orElse(
-                    project.extraProperties.properties[PropName]?.toString() ?: ""
-                ).orNull
+                    project.extra.properties[PropName]?.toString() ?: ""
+                )
+                .forUseAtConfigurationTimeCompat()
+                .orNull
                 ?.split(",")
                 .orEmpty()
                 .map { it.lowercase() }

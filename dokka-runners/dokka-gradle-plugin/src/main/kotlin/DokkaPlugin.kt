@@ -36,7 +36,7 @@ constructor() : Plugin<Project> {
                 apply(type = DokkaHtmlPlugin::class)
             }
         } else {
-            logger.lifecycle("[${target.path}] Using Dokka Classic - please migrate, see \$linkToDGPMigrationDocs")
+            logger.lifecycle("[${target.path}] Dokka Gradle Plugin: classic mode, please migrate, see \$linkToDGPMigrationDocs")
             target.pluginManager.apply(ClassicDokkaPlugin::class)
         }
     }
