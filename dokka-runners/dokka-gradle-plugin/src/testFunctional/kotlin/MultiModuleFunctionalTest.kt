@@ -534,7 +534,7 @@ class MultiModuleFunctionalTest : FunSpec({
                         |       enableAssertions.set(true)
                         |       minHeapSize.set("64m")
                         |       maxHeapSize.set("512m")
-                        |       jvmArgs.set(listOf("a"))
+                        |       jvmArgs.set(listOf("-XX:+HeapDumpOnOutOfMemoryError"))
                         |       //allJvmArgs.set(listOf("b"))
                         |       defaultCharacterEncoding.set("UTF-8")
                         |       systemProperties.set(mapOf("a" to "b"))

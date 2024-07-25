@@ -134,7 +134,7 @@ constructor(
                         isolation.enableAssertions.orNull?.let(this::setEnableAssertions)
                         isolation.maxHeapSize.orNull?.let(this::setMaxHeapSize)
                         isolation.minHeapSize.orNull?.let(this::setMinHeapSize)
-                        isolation.jvmArgs.orNull?.let(this::setJvmArgs)
+                        isolation.jvmArgs.orNull?.filter { it.isNotBlank() }?.let(this::setJvmArgs)
                         isolation.systemProperties.orNull?.let(this::systemProperties)
                     }
                 }
