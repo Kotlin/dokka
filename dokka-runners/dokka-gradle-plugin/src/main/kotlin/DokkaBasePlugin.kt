@@ -11,12 +11,15 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.*
 import org.gradle.language.base.plugins.LifecycleBasePlugin
+import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.gradle.dependencies.BaseDependencyManager
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaClasspathAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaFormatAttribute
@@ -46,6 +49,20 @@ constructor(
 ) : Plugin<Project> {
 
     override fun apply(target: Project) {
+        if (CurrentGradleVersion < minimumSupportedGradleVersion) {
+            val currentGradleMajorVersion = CurrentGradleVersion.version.substringBefore(".")
+            val updateGradleLink =
+                "https://docs.gradle.org/current/userguide/upgrading_version_${currentGradleMajorVersion}.html"
+            logger.error(
+                """
+                |Failed to apply ${DokkaBasePlugin::class.simpleName} in project ${target.displayName}. 
+                |The minimum supported Gradle version is $minimumSupportedGradleVersion, but the current Gradle version is $CurrentGradleVersion.
+                |Please update your Gradle version $updateGradleLink
+                """.trimMargin()
+            )
+            return
+        }
+
         // apply the lifecycle-base plugin so the clean task is available
         target.pluginManager.apply(LifecycleBasePlugin::class)
 
@@ -309,5 +326,9 @@ constructor(
             @OptIn(ExperimentalSerializationApi::class)
             prettyPrintIndent = "  "
         }
+
+        private val logger: Logger = Logging.getLogger(DokkaBasePlugin::class.java)
+
+        private val minimumSupportedGradleVersion = GradleVersion.version("7.0")
     }
 }
