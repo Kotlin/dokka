@@ -1,6 +1,8 @@
 /*!
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@import '../tokens/index';
+
 .tabs-section,
 .platform-hinted > .platform-bookmarks-row {
   margin-right: -8px;
@@ -24,11 +26,11 @@
 }
 
 .platform-hinted > .platform-bookmarks-row {
-  margin-bottom: 16px;
+  margin-bottom: var(--size-s3);
 }
 
 .no-js .platform-bookmarks-row + .sourceset-dependent-content {
-  margin-top: 8px;
+  margin-top: var(--size-s2);
 }
 
 .no-js .platform-bookmarks-row + .sourceset-dependent-content:last-of-type {
