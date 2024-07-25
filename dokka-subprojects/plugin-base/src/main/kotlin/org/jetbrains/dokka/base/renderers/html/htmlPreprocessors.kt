@@ -61,6 +61,7 @@ public class ScriptsInstaller(private val dokkaContext: DokkaContext) : PageTran
         "scripts/platform-content-handler.js",
         "scripts/main.js",
         "scripts/prism.js",
+        "ui-kit/ui-kit.min.js",
 
         // It's important for this script to be deferred because it has logic that makes decisions based on
         // rendered elements (for instance taking their clientWidth), and if not all styles are loaded/applied
@@ -86,7 +87,8 @@ public class StylesInstaller(private val dokkaContext: DokkaContext) : PageTrans
         "styles/main.css",
         "styles/prism.css",
         "styles/logo-styles.css",
-        "styles/font-jb-sans-auto.css"
+        "styles/font-jb-sans-auto.css",
+        "ui-kit/ui-kit.min.css"
     )
 
     override fun invoke(input: RootPageNode): RootPageNode =
