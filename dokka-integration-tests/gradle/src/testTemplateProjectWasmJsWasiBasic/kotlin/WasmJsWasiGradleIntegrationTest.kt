@@ -29,7 +29,6 @@ class WasmJsWasiGradleIntegrationTest : AbstractGradleIntegrationTest() {
     @ArgumentsSource(WasmJsWasiTestedVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
         val result = createGradleRunner(buildVersions, "dokkaHtml", "-i", "-s").buildRelaxed()
-
         result.shouldHaveTask(":dokkaHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)
 
         val htmlOutputDir = File(projectDir, "build/dokka/html")

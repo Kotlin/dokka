@@ -31,8 +31,13 @@ class JsIRGradleIntegrationTest : AbstractGradleIntegrationTest() {
 
         val reactVersion = TestedVersions.KT_REACT_WRAPPER_MAPPING[buildVersions.kotlinVersion]
             ?: throw IllegalStateException("Unspecified version of react for kotlin " + buildVersions.kotlinVersion)
-        val result =
-            createGradleRunner(buildVersions, "-Preact_version=$reactVersion", "dokkaHtml", "-i", "-s").buildRelaxed()
+        val result = createGradleRunner(
+            buildVersions,
+            "-Preact_version=$reactVersion",
+            "dokkaHtml",
+            "-i",
+            "-s"
+        ).buildRelaxed()
 
         result.shouldHaveTask(":dokkaHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)
 
