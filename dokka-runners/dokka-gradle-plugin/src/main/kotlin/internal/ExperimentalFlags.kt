@@ -19,10 +19,11 @@ internal data class ExperimentalFlags(
 
             val flags = providers
                 .gradleProperty(PropName)
+                .forUseAtConfigurationTimeCompat()
                 .orElse(
                     project.extra.properties[PropName]?.toString() ?: ""
                 )
-                .forUseAtConfigurationTimeCompat()
+                //.forUseAtConfigurationTimeCompat()
                 .orNull
                 ?.split(",")
                 .orEmpty()
