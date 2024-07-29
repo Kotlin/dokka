@@ -2,7 +2,7 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@import "src/main/scss/index.scss";
+@import 'src/main/scss/index.scss';
 
 html,
 .app-root {
@@ -22,9 +22,4 @@ html,
 
 .search-content {
   z-index: 8;
-}
-
-@media screen and (max-width: 759px) {
-  .search-content {
-  }
 }
