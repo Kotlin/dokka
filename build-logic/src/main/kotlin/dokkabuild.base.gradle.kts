@@ -11,7 +11,6 @@ import dokkabuild.DokkaBuildProperties
 
 plugins {
     base
-    id("dokkabuild.included-build-task-selector")
 }
 
 extensions.create<DokkaBuildProperties>(
