@@ -21,9 +21,8 @@ internal data class ExperimentalFlags(
                 .gradleProperty(PropName)
                 .forUseAtConfigurationTimeCompat()
                 .orElse(
-                    project.extra.properties[PropName]?.toString() ?: ""
+                    project.provider { project.extra.properties[PropName]?.toString() ?: "" }
                 )
-                //.forUseAtConfigurationTimeCompat()
                 .orNull
                 ?.split(",")
                 .orEmpty()
