@@ -11,6 +11,7 @@ pluginManagement {
     repositories {
         mavenCentral()
         gradlePluginPortal()
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
     }
 }
 
@@ -29,6 +30,7 @@ dependencyResolutionManagement {
         maven("https://cache-redirector.jetbrains.com/intellij-third-party-dependencies")
 
         mavenCentral()
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
     }
 
     versionCatalogs {
