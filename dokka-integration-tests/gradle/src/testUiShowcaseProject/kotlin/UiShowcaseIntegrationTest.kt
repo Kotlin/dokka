@@ -6,6 +6,8 @@ package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
 import org.jetbrains.dokka.it.TestOutputCopier
+import org.junit.jupiter.api.condition.EnabledOnOs
+import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
@@ -13,6 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+@EnabledOnOs(OS.MAC, disabledReason = "Contains KMP code for macOS")
 class UiShowcaseIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopier {
     override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/htmlMultiModule") }
 
