@@ -4,13 +4,11 @@
 
 package org.jetbrains.dokka.it.gradle
 
-import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
+import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class JsIRGradleIntegrationTest : AbstractGradleIntegrationTest() {
@@ -33,8 +31,10 @@ class JsIRGradleIntegrationTest : AbstractGradleIntegrationTest() {
 
         val reactVersion = TestedVersions.KT_REACT_WRAPPER_MAPPING[buildVersions.kotlinVersion]
             ?: throw IllegalStateException("Unspecified version of react for kotlin " + buildVersions.kotlinVersion)
-        val result = createGradleRunner(buildVersions, "-Preact_version=$reactVersion", "dokkaHtml", "-i", "-s").buildRelaxed()
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
+        val result =
+            createGradleRunner(buildVersions, "-Preact_version=$reactVersion", "dokkaHtml", "-i", "-s").buildRelaxed()
+
+        result.shouldHaveTask(":dokkaHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)
 
         val htmlOutputDir = File(projectDir, "build/dokka/html")
         assertTrue(htmlOutputDir.isDirectory, "Missing html output directory")

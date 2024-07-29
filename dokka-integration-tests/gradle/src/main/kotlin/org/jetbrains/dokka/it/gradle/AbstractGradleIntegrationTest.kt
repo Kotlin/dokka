@@ -17,6 +17,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.copyTo
 import kotlin.io.path.copyToRecursively
+import kotlin.io.path.exists
 import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.test.BeforeTest
 import kotlin.time.Duration.Companion.seconds
@@ -41,6 +42,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
         buildVersions: BuildVersions,
         vararg arguments: String,
         jvmArgs: List<String> = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=1G"),
+        enableBuildCache: Boolean = true,
     ): GradleRunner {
 
         // TODO quick hack to add `android { namespace }` on AGP 7+ (it's mandatory in 8+).
@@ -66,27 +68,40 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             .withJetBrainsCachedGradleVersion(buildVersions.gradleVersion)
             .withTestKitDir(File("build", "gradle-test-kit").absoluteFile)
             .withDebug(TestEnvironment.isEnabledDebug)
+            .apply {
+                withEnvironment(
+                    buildMap {
+                        // `withEnvironment()` will wipe all existing environment variables,
+                        // which breaks things like ANDROID_HOME and PATH, so re-add them.
+                        putAll(System.getenv())
+
+                        if (hostGradleDependenciesCache.exists()) {
+                            put("GRADLE_RO_DEP_CACHE", hostGradleDependenciesCache.invariantSeparatorsPathString)
+                        }
+                    }
+                )
+            }
             .withArguments(
-                listOfNotNull(
-                    "-Pdokka_it_dokka_version=${dokkaVersion}",
-                    "-Pdokka_it_kotlin_version=${buildVersions.kotlinVersion}",
+                buildList {
+                    if (enableBuildCache) add("--build-cache") else add("--no-build-cache")
+
+                    add("-Pdokka_it_dokka_version=${dokkaVersion}")
+                    add("-Pdokka_it_kotlin_version=${buildVersions.kotlinVersion}")
+
                     buildVersions.androidGradlePluginVersion?.let { androidVersion ->
-                        "-Pdokka_it_android_gradle_plugin_version=$androidVersion"
-                    },
-                    // property flag to use K2
-                    if (TestEnvironment.shouldUseK2())
-                        "-P${TestEnvironment.TRY_K2}=true"
-                    else
-                        null,
+                        add("-Pdokka_it_android_gradle_plugin_version=$androidVersion")
+                    }
+
+                    if (TestEnvironment.shouldUseK2()) add("-P${TestEnvironment.TRY_K2}=true")
 
                     // Decrease Gradle daemon idle timeout to prevent old agents lingering on CI.
                     // A lower timeout means slower tests, which is preferred over OOMs and locked processes.
-                    "-Dorg.gradle.daemon.idletimeout=" + 10.seconds.inWholeMilliseconds, // default is 3 hours!
-                    "-Pkotlin.daemon.options.autoshutdownIdleSeconds=10",
-
-                    * arguments
-                )
-            ).withJvmArguments(jvmArgs)
+                    add("-Dorg.gradle.daemon.idletimeout=" + 10.seconds.inWholeMilliseconds) // default is 3 hours!
+                    add("-Pkotlin.daemon.options.autoshutdownIdleSeconds=10")
+                    addAll(arguments)
+                }
+            )
+            .withJvmArguments(jvmArgs)
     }
 
     fun GradleRunner.buildRelaxed(): BuildResult {
@@ -97,7 +112,6 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             if (gradleConnectionException != null) {
                 gradleConnectionException.printStackTrace()
                 throw IllegalStateException("Assumed Gradle connection", gradleConnectionException)
-
             }
             throw e
         }
@@ -122,6 +136,23 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
          * This value is provided by the Gradle Test task.
          */
         val templateSettingsGradleKts: Path by systemProperty(Paths::get)
+
+        /** Gradle User Home of the current machine. Defaults to `~/.gradle`, but might be different on CI. */
+        private val hostGradleUserHome: Path by systemProperty(Paths::get)
+
+        /**
+         * Gradle dependencies cache of the current machine.
+         *
+         * Used as a read-only dependencies cache by setting `GRADLE_RO_DEP_CACHE`
+         *
+         * See https://docs.gradle.org/8.9/userguide/dependency_resolution.html#sub:cache_copy
+         *
+         * Note: Currently all Gradle versions store caches in `$GRADLE_USER_HOME/caches/modules-2`,
+         * but this might change. Check the docs.
+         */
+        private val hostGradleDependenciesCache: Path by lazy {
+            hostGradleUserHome.resolve("caches/modules-2")
+        }
 
         /** file-based Maven repositories with Dokka dependencies */
         private val devMavenRepositories: List<Path> by systemProperty { repos ->
