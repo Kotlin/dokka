@@ -2,14 +2,10 @@
 
 import dokkabuild.tasks.GenerateDokkaGradlePluginConstants
 import dokkabuild.utils.skipTestFixturesPublications
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
-    id("dokkabuild.base")
+    id("dokkabuild.gradle-plugin")
 
-    `kotlin-dsl`
     kotlin("plugin.serialization") version embeddedKotlinVersion
 
     id("dokkabuild.dev-maven-publish")
@@ -27,11 +23,6 @@ group = "org.jetbrains.dokka"
 description = "Gradle plugin for using Dokka Engine"
 
 kotlin {
-    compilerOptions {
-        // must use Kotlin 1.4 to support Gradle 7
-        languageVersion = @Suppress("DEPRECATION") KotlinVersion.KOTLIN_1_4
-    }
-
     sourceSets {
         configureEach {
             languageSettings {
@@ -41,12 +32,15 @@ kotlin {
             }
         }
 
+        //region Keep the classic plugin in separate directories.
+        // This helps with organisation, and with its eventual removal.
         main {
             kotlin.srcDir("src/classicMain/kotlin")
         }
         test {
             kotlin.srcDir("src/classicTest/kotlin")
         }
+        //endregion
     }
 }
 
@@ -129,46 +123,6 @@ gradlePlugin {
     }
 }
 
-//region Java version target/compile config
-val minSupportedJavaVersion = JavaLanguageVersion.of(8)
-val JavaLanguageVersion.formattedName: String
-    get() = if (asInt() <= 8) "1.${asInt()}" else asInt().toString()
-
-kotlin {
-    jvmToolchain(21)
-
-    compilerOptions {
-        freeCompilerArgs.add("-Xjdk-release=${minSupportedJavaVersion.formattedName}")
-    }
-}
-
-tasks.withType<KotlinJvmCompile>().configureEach {
-    compilerOptions {
-        jvmTarget = JvmTarget.fromTarget(minSupportedJavaVersion.formattedName)
-    }
-}
-
-tasks.withType<JavaCompile>().configureEach {
-    options.release.set(minSupportedJavaVersion.asInt())
-}
-
-tasks.withType<Test>().configureEach {
-    javaLauncher = javaToolchains.launcherFor {
-        languageVersion = minSupportedJavaVersion
-    }
-}
-//endregion
-
-tasks.compileKotlin {
-    compilerOptions {
-        // `kotlin-dsl` plugin overrides the versions at the task level,
-        // which takes priority over the `kotlin` project extension.
-        // So, fix it by manually setting the LV per-task.
-        languageVersion.set(kotlin.compilerOptions.languageVersion)
-        apiVersion.set(kotlin.compilerOptions.apiVersion)
-    }
-}
-
 testing.suites {
     withType<JvmTestSuite>().configureEach {
         useJUnitJupiter()
@@ -199,7 +153,7 @@ testing.suites {
                 systemProperty("projectTestTempDir", projectTestTempDirPath)
 
                 systemProperty("kotest.framework.config.fqn", "org.jetbrains.dokka.gradle.utils.KotestProjectConfig")
-                // FIXME remove when Kotest >= 6.0
+                // FIXME remove autoscan when Kotest >= 6.0
                 systemProperty("kotest.framework.classpath.scanning.autoscan.disable", "true")
             }
         }
@@ -241,8 +195,6 @@ binaryCompatibilityValidator {
 
 val generateDokkaGradlePluginConstants by tasks.registering(GenerateDokkaGradlePluginConstants::class) {
     val dokkaPluginConstants = objects.mapProperty<String, String>().apply {
-//         TODO remove DOKKATOO_VERSION
-//        put("DOKKATOO_VERSION", dokkaVersion)
         put("DOKKA_VERSION", dokkaVersion) // TODO how to get actual Dokka project version?
         put("DOKKA_DEPENDENCY_VERSION_KOTLINX_HTML", libs.versions.kotlinx.html)
         put("DOKKA_DEPENDENCY_VERSION_KOTLINX_COROUTINES", libs.versions.kotlinx.coroutines)
@@ -252,7 +204,6 @@ val generateDokkaGradlePluginConstants by tasks.registering(GenerateDokkaGradleP
 
     properties.set(dokkaPluginConstants)
     destinationDir.set(layout.buildDirectory.dir("generated-source/main/kotlin/"))
-//  dokkaSource.fileProvider(tasks.prepareDokkaSource.map { it.destinationDir })
 }
 
 
@@ -263,11 +214,3 @@ kotlin {
         }
     }
 }
-
-//dokkatoo {
-//  moduleName = "Dokkatoo Gradle Plugin"
-//
-//  dokkatooSourceSets.configureEach {
-//    includes.from("Module.md")
-//  }
-//}

@@ -10,6 +10,7 @@ import org.gradle.api.attributes.*
 import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.component.AdhocComponentWithVariants
 import org.gradle.api.model.ObjectFactory
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.named
 
@@ -90,6 +91,14 @@ internal fun AttributeContainer.jvmJar(objects: ObjectFactory) {
     attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, objects.named(TargetJvmEnvironment.STANDARD_JVM))
     attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.JAR))
 }
+
+/**
+ * Pretty-print the Java name.
+ *
+ * For Java 8 and below the version is prefixed with `1.`.
+ */
+fun JavaLanguageVersion.formattedName(): String =
+    if (asInt() <= 8) "1.${asInt()}" else asInt().toString()
 
 /**
  * Disable publishing of test fixtures (which causes warnings when publishing).
