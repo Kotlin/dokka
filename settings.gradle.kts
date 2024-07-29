@@ -15,6 +15,7 @@ pluginManagement {
         maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2") {
             name = "GradlePluginPortal-JBCache"
         }
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
     }
 }
 
@@ -41,6 +42,8 @@ dependencyResolutionManagement {
         maven("https://cache-redirector.jetbrains.com/dl.google.com.android.maven2") {
             name = "Google-JBCache"
         }
+
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
 
         //region Declare the Node.js & Yarn download repositories
         // Required by Gradle Node plugin: https://github.com/node-gradle/gradle-node-plugin/blob/3.5.1/docs/faq.md#is-this-plugin-compatible-with-centralized-repositories-declaration
