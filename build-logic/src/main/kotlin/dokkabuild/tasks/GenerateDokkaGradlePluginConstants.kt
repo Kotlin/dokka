@@ -43,14 +43,14 @@ abstract class GenerateDokkaGradlePluginConstants @Inject constructor(
             parentFile.mkdirs()
             writeText(
                 """
-        |package org.jetbrains.dokka.gradle.internal
-        |
-        |@DokkaInternalApi
-        |object DokkaConstants {
-        |$vals
-        |}
-        |
-      """.trimMargin()
+                |package org.jetbrains.dokka.gradle.internal
+                |
+                |@DokkaInternalApi
+                |object DokkaConstants {
+                |$vals
+                |}
+                |
+                """.trimMargin()
             )
         }
 
