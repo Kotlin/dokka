@@ -1,56 +1,65 @@
-diff --git a/build.gradle b/build.gradle
-index e7d405e12..db5dcec66 100644
---- a/build.gradle
-+++ b/build.gradle
-@@ -52,17 +52,27 @@ buildscript {
-     }
-
-     repositories {
-+        /* %{DOKKA_IT_MAVEN_REPO}% */
-         mavenCentral()
-         maven { url "https://plugins.gradle.org/m2/" }
-         CommunityProjectsBuild.addDevRepositoryIfEnabled(delegate, project)
--        mavenLocal()
-+        //mavenLocal()
-     }
-
-     dependencies {
-         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
--        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
-+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}"
-         classpath "org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicfu_version"
--        classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
-+        classpath("org.jetbrains.kotlinx:kotlinx-knit:$knit_version") {
-+            exclude(group: "org.jetbrains.kotlinx", module: "dokka-pathsaver-plugin")
-+        }
-+        classpath("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version") {
-+            exclude(group: "org.jetbrains.dokka", module: "templating-plugin")
-+            exclude(group: "org.jetbrains.dokka", module: "dokka-base")
-+        }
-+        classpath("org.jetbrains.dokka:templating-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}")
-+        classpath("org.jetbrains.dokka:dokka-base:${providers.gradleProperty("dokka_it_dokka_version").get()}")
-+
-         classpath "com.github.node-gradle:gradle-node-plugin:$gradle_node_version"
-         classpath "org.jetbrains.kotlinx:binary-compatibility-validator:$binary_compatibility_validator_version"
-         classpath "ru.vyarus:gradle-animalsniffer-plugin:1.5.4" // Android API check
-@@ -102,11 +112,11 @@ allprojects {
-         kotlin_version = rootProject.properties['kotlin_snapshot_version']
-     }
-
--    if (using_snapshot_version) {
+diff --git a/benchmarks/build.gradle.kts b/benchmarks/build.gradle.kts
+index 7006c915d..082856b5c 100644
+--- a/benchmarks/build.gradle.kts
++++ b/benchmarks/build.gradle.kts
+@@ -9,6 +9,7 @@ plugins {
+ }
+ 
+ repositories {
++    /* %{DOKKA_IT_MAVEN_REPO}% */
+     maven("https://repo.typesafe.com/typesafe/releases/")
+ }
+ 
+diff --git a/build.gradle.kts b/build.gradle.kts
+index fa66b5d95..3b111b21c 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -3,26 +3,13 @@ import org.jetbrains.kotlin.gradle.dsl.*
+ import org.gradle.kotlin.dsl.*
+ 
+ buildscript {
+-    if (shouldUseLocalMaven(rootProject)) {
 -        repositories {
 -            mavenLocal()
 -        }
 -    }
-+    //if (using_snapshot_version) {
+-
+-    repositories {
+-        mavenCentral()
+-        maven(url = "https://plugins.gradle.org/m2/")
+-        addDevRepositoryIfEnabled(this, project)
+-        mavenLocal()
+-    }
+-
+     dependencies {
+         // Please ensure that atomicfu-gradle-plugin is added to the classpath first, do not change the order, for details see #3984.
+         // The corresponding issue in kotlinx-atomicfu: https://github.com/Kotlin/kotlinx-atomicfu/issues/384
+         classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:${version("atomicfu")}")
+         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${version("kotlin")}")
+         classpath("org.jetbrains.dokka:dokka-gradle-plugin:${version("dokka")}")
+-        classpath("org.jetbrains.kotlinx:kotlinx-knit:${version("knit")}")
++        //classpath("org.jetbrains.kotlinx:kotlinx-knit:${version("knit")}")
+         classpath("org.jetbrains.kotlinx:binary-compatibility-validator:${version("binary_compatibility_validator")}")
+         classpath("ru.vyarus:gradle-animalsniffer-plugin:${version("animalsniffer")}") // Android API check
+         classpath("org.jetbrains.kotlin:atomicfu:${version("kotlin")}")
+@@ -49,11 +36,11 @@ allprojects {
+         }
+     }
+ 
+-    if (shouldUseLocalMaven(rootProject)) {
+-        repositories {
+-            mavenLocal()
+-        }
+-    }
++    //if (shouldUseLocalMaven(rootProject)) {
 +    //    repositories {
 +    //        mavenLocal()
 +    //    }
 +    //}
-
-     ext.unpublished = unpublished
-
-@@ -135,6 +145,7 @@ apiValidation {
+ 
+     // This project property is set during nightly stress test
+     val stressTest = project.properties["stressTest"]
+@@ -87,6 +74,7 @@ apiValidation {
  // Configure repositories
  allprojects {
      repositories {
@@ -58,33 +67,24 @@ index e7d405e12..db5dcec66 100644
          /*
           * google should be first in the repository list because some of the play services
           * transitive dependencies was removed from jcenter, thus breaking gradle dependency resolution
-@@ -323,7 +334,12 @@ knit {
- knitPrepare.dependsOn getTasksByName("dokkaHtmlMultiModule", true)
-
- dependencies {
--    dokkaHtmlMultiModulePlugin("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version")
-+    dokkaHtmlMultiModulePlugin("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version") {
-+        exclude(group: "org.jetbrains.dokka", module: "templating-plugin")
-+        exclude(group: "org.jetbrains.dokka", module: "dokka-base")
-+    }
-+    dokkaHtmlMultiModulePlugin("org.jetbrains.dokka:templating-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}")
-+    dokkaHtmlMultiModulePlugin("org.jetbrains.dokka:dokka-base:${providers.gradleProperty("dokka_it_dokka_version").get()}")
- }
-
- // Opt-in for build scan in order to troubleshoot Gradle on TC
+@@ -160,4 +148,3 @@ rootProject.registerTopLevelDeployTask()
+ 
+ // Report Kotlin compiler version when building project
+ println("Using Kotlin compiler version: ${KotlinCompilerVersion.VERSION}")
+-
 diff --git a/buildSrc/build.gradle.kts b/buildSrc/build.gradle.kts
-index ae54ad0f6..00963f5b2 100644
+index d8c7c1973..8102595ef 100644
 --- a/buildSrc/build.gradle.kts
 +++ b/buildSrc/build.gradle.kts
-@@ -13,6 +13,7 @@ val buildSnapshotTrain = properties["build_snapshot_train"]?.toString()?.toBoole
+@@ -9,6 +9,7 @@ val buildSnapshotTrain = properties["build_snapshot_train"]?.toString()?.toBoole
  val kotlinDevUrl = project.rootProject.properties["kotlin_repo_url"] as? String
-
+ 
  repositories {
 +    /* %{DOKKA_IT_MAVEN_REPO}% */
      mavenCentral()
      if (cacheRedirectorEnabled) {
          maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2")
-@@ -22,9 +23,9 @@ repositories {
+@@ -18,9 +19,9 @@ repositories {
      if (!kotlinDevUrl.isNullOrEmpty()) {
          maven(kotlinDevUrl)
      }
@@ -95,28 +95,29 @@ index ae54ad0f6..00963f5b2 100644
 +    //    mavenLocal()
 +    //}
  }
-
+ 
  val gradleProperties = Properties().apply {
-@@ -49,12 +50,12 @@ dependencies {
-      * our version of Gradle bundles Kotlin 1.4.x and can read metadata only up to 1.5.x,
-      * thus we're excluding stdlib compiled with 1.6.0 from dependencies.
-      */
--    implementation("org.jetbrains.dokka:dokka-gradle-plugin:${version("dokka")}") {
-+    implementation("org.jetbrains.dokka:dokka-gradle-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}") {
-         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
-         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk7")
+@@ -64,5 +65,14 @@ dependencies {
          exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
      }
--    implementation("org.jetbrains.dokka:dokka-core:${version("dokka")}") {
-+    implementation("org.jetbrains.dokka:dokka-core:${providers.gradleProperty("dokka_it_dokka_version").get()}") {
-         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
-         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk7")
-         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
+     implementation("org.jetbrains.kotlinx:kotlinx-benchmark-plugin:0.4.9")
+-    implementation("org.jetbrains.kotlinx:kotlinx-knit:${version("knit")}")
++
++    implementation("org.jetbrains.kotlinx:kotlinx-knit:${version("knit")}") {
++        exclude(group = "org.jetbrains.kotlinx", module = "dokka-pathsaver-plugin")
++    }
++    implementation("org.jetbrains.kotlinx:dokka-pathsaver-plugin:${version("knit")}") {
++        exclude(group = "org.jetbrains.dokka", module = "templating-plugin")
++        exclude(group = "org.jetbrains.dokka", module = "dokka-base")
++    }
++    implementation("org.jetbrains.dokka:templating-plugin:${version("dokka")}")
++    implementation("org.jetbrains.dokka:dokka-base:${version("dokka")}")
+ }
 diff --git a/buildSrc/settings.gradle.kts b/buildSrc/settings.gradle.kts
-index c2e859f65..9cc749a1f 100644
+index 2ad2ddbea..85c2ff0e5 100644
 --- a/buildSrc/settings.gradle.kts
 +++ b/buildSrc/settings.gradle.kts
-@@ -4,6 +4,7 @@
+@@ -1,6 +1,7 @@
  pluginManagement {
      val build_snapshot_train: String? by settings
      repositories {
@@ -124,61 +125,145 @@ index c2e859f65..9cc749a1f 100644
          val cacheRedirectorEnabled = System.getenv("CACHE_REDIRECTOR")?.toBoolean() == true
          if (cacheRedirectorEnabled) {
              println("Redirecting repositories for buildSrc buildscript")
-@@ -11,8 +12,8 @@ pluginManagement {
-         } else {
+@@ -9,7 +10,7 @@ pluginManagement {
              maven("https://plugins.gradle.org/m2")
          }
--        if (build_snapshot_train?.toBoolean() == true) {
+         if (build_snapshot_train?.toBoolean() == true) {
 -            mavenLocal()
--        }
-+        //if (build_snapshot_train?.toBoolean() == true) {
-+        //    mavenLocal()
-+        //}
++            //mavenLocal()
+         }
+     }
+ }
+diff --git a/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts b/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts
+index 966aa98e0..b28ae6d21 100644
+--- a/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts
++++ b/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts
+@@ -32,7 +32,13 @@ dependencies {
+ private fun Project.configurePathsaver() {
+     tasks.withType(DokkaTaskPartial::class).configureEach {
+         dependencies {
+-            plugins("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version")
++             val knit_version: String by project
++             plugins("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version") {
++                 exclude(group = "org.jetbrains.dokka", module = "templating-plugin")
++                 exclude(group = "org.jetbrains.dokka", module = "dokka-base")
++             }
++             plugins("org.jetbrains.dokka:templating-plugin:${providers.gradleProperty("dokka_version").get()}")
++             plugins("org.jetbrains.dokka:dokka-base:${providers.gradleProperty("dokka_version").get()}")
+         }
      }
  }
 diff --git a/gradle.properties b/gradle.properties
-index 3d9431be0..9af01ef86 100644
+index ab990476e..5c2672475 100644
 --- a/gradle.properties
 +++ b/gradle.properties
-@@ -14,7 +14,7 @@ atomicfu_version=0.21.0
- knit_version=0.5.0-Beta
+@@ -12,7 +12,7 @@ junit5_version=5.7.0
+ knit_version=0.5.0
  html_version=0.7.2
  lincheck_version=2.18.1
--dokka_version=1.8.10
-+dokka_version=non-existing-sanity-check-SNAPSHOT
+-dokka_version=1.9.20
++#dokka_version=1.9.20
  byte_buddy_version=1.10.9
  reactor_version=3.4.1
- reactive_streams_version=1.0.3
-diff --git a/gradle/dokka.gradle.kts b/gradle/dokka.gradle.kts
-index ba6956aa8..4a5d27e1a 100644
---- a/gradle/dokka.gradle.kts
-+++ b/gradle/dokka.gradle.kts
-@@ -21,7 +21,13 @@ fun GradleDokkaSourceSetBuilder.makeLinkMapping(projectDir: File) {
- val knit_version: String by project
- tasks.withType(DokkaTaskPartial::class).configureEach {
-     dependencies {
--        plugins("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version")
-+        val knit_version: String by project
-+        plugins("org.jetbrains.kotlinx:dokka-pathsaver-plugin:$knit_version") {
-+            exclude(group = "org.jetbrains.dokka", module = "templating-plugin")
-+            exclude(group = "org.jetbrains.dokka", module = "dokka-base")
-+        }
-+        plugins("org.jetbrains.dokka:templating-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}")
-+        plugins("org.jetbrains.dokka:dokka-base:${providers.gradleProperty("dokka_it_dokka_version").get()}")
+ reactor_docs_version=3.4.5
+diff --git a/integration-testing/build.gradle b/integration-testing/build.gradle
+index 64301dd9c..96a943884 100644
+--- a/integration-testing/build.gradle
++++ b/integration-testing/build.gradle
+@@ -28,12 +28,12 @@ buildscript {
+         }
+     }
+ 
+-    if (using_snapshot_version) {
+-        repositories {
+-            mavenLocal()
+-            maven { url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+-        }
+-    }
++    //if (using_snapshot_version) {
++    //    repositories {
++    //        mavenLocal()
++    //        maven { url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
++    //    }
++    //}
+ 
+ }
+ 
+@@ -42,10 +42,11 @@ plugins {
+ }
+ 
+ repositories {
++    /* %{DOKKA_IT_MAVEN_REPO}% */
+     if (build_snapshot_train) {
+         maven { url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+     }
+-    mavenLocal()
++    //mavenLocal()
+     mavenCentral()
+ }
+ 
+diff --git a/integration-testing/settings.gradle b/integration-testing/settings.gradle
+index 8584c05a9..1c796803e 100644
+--- a/integration-testing/settings.gradle
++++ b/integration-testing/settings.gradle
+@@ -1,9 +1,10 @@
+ pluginManagement {
+     repositories {
++        /* %{DOKKA_IT_MAVEN_REPO}% */
+         mavenCentral()
+         maven { url "https://plugins.gradle.org/m2/" }
+         maven { url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+-        mavenLocal()
++        //mavenLocal()
      }
  }
-
-diff --git a/settings.gradle b/settings.gradle
-index 151c087fd..e4433c24f 100644
---- a/settings.gradle
-+++ b/settings.gradle
-@@ -9,7 +9,8 @@ pluginManagement {
+ 
+diff --git a/integration-testing/smokeTest/build.gradle b/integration-testing/smokeTest/build.gradle
+index 65d09dfa3..416ec75f9 100644
+--- a/integration-testing/smokeTest/build.gradle
++++ b/integration-testing/smokeTest/build.gradle
+@@ -3,10 +3,11 @@ plugins {
+ }
+ 
+ repositories {
++    /* %{DOKKA_IT_MAVEN_REPO}% */
+     mavenCentral()
+     maven { url "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+     // Coroutines from the outer project are published by previous CI buils step
+-    mavenLocal()
++    //mavenLocal()
+ }
+ 
+ kotlin {
+diff --git a/settings.gradle.kts b/settings.gradle.kts
+index 423c613f3..1f2928998 100644
+--- a/settings.gradle.kts
++++ b/settings.gradle.kts
+@@ -6,7 +6,9 @@ pluginManagement {
      }
-
+ 
      repositories {
--        maven { url "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/" }
+-        maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/")
 +        /* %{DOKKA_IT_MAVEN_REPO}% */
-+        //maven { url "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/" }
++        mavenCentral()
++        //maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/")
          gradlePluginPortal()
      }
  }
+diff --git a/ui/kotlinx-coroutines-android/build.gradle.kts b/ui/kotlinx-coroutines-android/build.gradle.kts
+index adbafe457..d695c8e77 100644
+--- a/ui/kotlinx-coroutines-android/build.gradle.kts
++++ b/ui/kotlinx-coroutines-android/build.gradle.kts
+@@ -2,9 +2,9 @@ configurations {
+     create("r8")
+ }
+ 
+-repositories {
+-    mavenCentral()
+-}
++//repositories {
++//    mavenCentral()
++//}
+ 
+ project.configureAar()
+ 

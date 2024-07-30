@@ -105,7 +105,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
 
     companion object {
         private val dokkaVersionOverride: String? by optionalSystemProperty()
-        private val dokkaVersion: String by systemProperty { dokkaVersionOverride ?: it }
+        val dokkaVersion: String by systemProperty { dokkaVersionOverride ?: it }
 
         /**
          * Location of the template project that will be copied into [AbstractIntegrationTest.projectDir].
