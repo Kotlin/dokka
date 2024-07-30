@@ -92,10 +92,10 @@ abstract class GitCheckoutTask @Inject constructor(
 
         // Check if the repo is already cloned. If yes, then we can re-use it to save time.
         val repo = if (dirContainsGitRepo(localRepoDir)) {
-            logger.lifecycle("[$path] re-using existing cloned repo")
+            logger.info("[$path] re-using existing cloned repo $localRepoDir")
             Git.open(localRepoDir)
         } else {
-            logger.lifecycle("[$path] repo is either not cloned or is not recognizable")
+            logger.info("[$path] repo $localRepoDir is either not cloned or is not recognizable")
             // delete the invalid repo and make a fresh clone
             fs.delete { delete(localRepoDir) }
 
