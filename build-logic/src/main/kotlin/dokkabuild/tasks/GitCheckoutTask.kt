@@ -48,7 +48,11 @@ abstract class GitCheckoutTask @Inject constructor(
     init {
         outputs.upToDateWhen { task ->
             require(task is GitCheckoutTask)
-            task.gitRepoIsUpToDate().get()
+            val result = task.gitRepoStatus().get()
+            if (!result.isUpToDate) {
+                task.logger.lifecycle("[${task.path}] git repo ${task.localRepoDir} is not up to date. ${result.message}")
+            }
+            result.isUpToDate
         }
     }
 
@@ -72,7 +76,7 @@ abstract class GitCheckoutTask @Inject constructor(
             exclude(".git/")
         }
 
-        logger.lifecycle("initialized git repo ${uri.get()} in ${destination.asFile.get()}")
+        logger.lifecycle("[$path] Initialized project ${uri.get()} in ${destination.asFile.get()}")
     }
 
     /**
@@ -87,13 +91,12 @@ abstract class GitCheckoutTask @Inject constructor(
         val commitId = commitId.get()
 
         // Check if the repo is already cloned. If yes, then we can re-use it to save time.
-        val gitRepoInitialized = RepositoryCache.FileKey.isGitRepository(localRepoDir, FS.DETECTED)
-
-        val repo = if (gitRepoInitialized) {
-            // re-use existing cloned repo
+        val repo = if (dirContainsGitRepo(localRepoDir)) {
+            logger.lifecycle("[$path] re-using existing cloned repo")
             Git.open(localRepoDir)
         } else {
-            // repo is either not cloned or is not recognizable, so delete it and make a fresh clone
+            logger.lifecycle("[$path] repo is either not cloned or is not recognizable")
+            // delete the invalid repo and make a fresh clone
             fs.delete { delete(localRepoDir) }
 
             Git.cloneRepository()
@@ -127,16 +130,23 @@ abstract class GitCheckoutTask @Inject constructor(
         }
     }
 
-    private fun gitRepoIsUpToDate(): Provider<Boolean> =
-        providers.of(GitRepoIsUpToDate::class) {
+    private fun gitRepoStatus(): Provider<GitRepoStatusCheck.Result> =
+        providers.of(GitRepoStatusCheck::class) {
             parameters.repoDir = localRepoDir
+            parameters.expectedCommitId = commitId
         }
 
     /**
-     * Determine if [repoDir][GitRepoIsUpToDate.Params.repoDir] is a valid Git repo,
+     * Determine if [repoDir][GitRepoStatusCheck.Params.repoDir] is a valid Git repo,
      * and it does not contain any changes.
      */
-    internal abstract class GitRepoIsUpToDate : ValueSource<Boolean, GitRepoIsUpToDate.Params> {
+    internal abstract class GitRepoStatusCheck : ValueSource<GitRepoStatusCheck.Result, GitRepoStatusCheck.Params> {
+
+        data class Result(
+            val isUpToDate: Boolean,
+            val message: String,
+        )
+
         interface Params : ValueSourceParameters {
             val repoDir: DirectoryProperty
             val expectedCommitId: Property<String>
@@ -145,37 +155,45 @@ abstract class GitCheckoutTask @Inject constructor(
         private val repoDir: File get() = parameters.repoDir.get().asFile
         private val expectedCommitId: String get() = parameters.expectedCommitId.get()
 
-        private val logger = Logging.getLogger(GitRepoIsUpToDate::class.java)
-        private fun log(msg: String): Unit = logger.info("[GitRepoIsUpToDate] $msg (repoDir=$repoDir)")
+        private val logger = Logging.getLogger(GitRepoStatusCheck::class.java)
 
-        override fun obtain(): Boolean {
-            val gitRepoInitialized = RepositoryCache.FileKey.isGitRepository(repoDir, FS.DETECTED)
-
-            if (!gitRepoInitialized) {
-                log("repo is either not cloned or is not recognizable as a git repo")
-                return false
+        override fun obtain(): Result {
+            if (!dirContainsGitRepo(repoDir)) {
+                return Result(
+                    isUpToDate = false,
+                    message = "Repo is either not cloned or is not recognizable as a git repo."
+                )
             }
 
             // Open repository and get the current commit hash
             Git.open(repoDir).use { git ->
                 val currentCommitId = git.repository.findRef("HEAD")?.objectId?.name()
                 if (currentCommitId != expectedCommitId) {
-                    log("repo is not up-to-date. Expected commit-id $expectedCommitId, but was $currentCommitId")
-                    return false
+                    return Result(
+                        isUpToDate = false,
+                        message = "Repo is not up-to-date. Expected commit-id $expectedCommitId, but was $currentCommitId."
+                    )
                 }
 
                 val status = git.status()
                     .setProgressMonitor(logger.asProgressMonitor())
                     .call()
                 if (!status.isClean) {
-                    log("repo is not up-to-date. ${status.uncommittedChanges.size} uncommited, ${status.untracked.size} untracked")
+                    return Result(
+                        isUpToDate = false,
+                        message = "Repo is not up-to-date. Found ${status.uncommittedChanges.size} uncommited, ${status.untracked.size} untracked changes."
+                    )
                 }
-                return status.isClean
+                return Result(isUpToDate = true, message = "Repo is valid and up-to-date.")
             }
         }
     }
 
     companion object {
+
+        private fun dirContainsGitRepo(repoDir: File): Boolean =
+            RepositoryCache.FileKey.isGitRepository(repoDir.resolve(".git"), FS.DETECTED)
+
         private fun Logger.asProgressMonitor(): ProgressMonitor =
             if (isInfoEnabled) {
                 TextProgressMonitor()
