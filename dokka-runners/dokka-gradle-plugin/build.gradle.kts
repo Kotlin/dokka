@@ -17,9 +17,6 @@ plugins {
     alias(libs.plugins.gradlePluginPublish)
 }
 
-val dokkaVersion = "2.0.20-SNAPSHOT"
-version = "2.0.20-SNAPSHOT"
-group = "org.jetbrains.dokka"
 description = "Gradle plugin for using Dokka Engine"
 
 kotlin {
@@ -48,7 +45,7 @@ dependencies {
     // ideally there should be a 'dokka-core-api' dependency (that is very thin and doesn't drag in loads of unnecessary code)
     // that would be used as an implementation dependency, while dokka-core would be used as a compileOnly dependency
     // https://github.com/Kotlin/dokka/issues/2933
-    implementation("org.jetbrains.dokka:dokka-core:$dokkaVersion")
+    implementation("org.jetbrains.dokka:dokka-core:${project.version}")
 
     compileOnly(libs.gradlePlugin.kotlin)
     compileOnly(libs.gradlePlugin.kotlin.klibCommonizerApi)
@@ -61,7 +58,7 @@ dependencies {
     testFixturesImplementation(gradleApi())
     testFixturesImplementation(gradleTestKit())
 
-    testFixturesCompileOnly("org.jetbrains.dokka:dokka-core:$dokkaVersion")
+    testFixturesCompileOnly("org.jetbrains.dokka:dokka-core:${project.version}")
     testFixturesImplementation(platform(libs.kotlinxSerialization.bom))
     testFixturesImplementation(libs.kotlinxSerialization.json)
 
@@ -75,24 +72,24 @@ dependencies {
 
     // We're using Gradle included-builds and dependency substitution, so we
     // need to use the Gradle project name, *not* the published Maven artifact-id
-    devPublication("org.jetbrains.dokka:plugin-all-modules-page:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:analysis-kotlin-api:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:analysis-kotlin-descriptors:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:analysis-kotlin-symbols:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:analysis-markdown-jb:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:plugin-android-documentation:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:plugin-base:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:plugin-base-test-utils:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:dokka-core:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:plugin-gfm:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:plugin-gfm-template-processing:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:plugin-javadoc:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:plugin-jekyll:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:plugin-jekyll-template-processing:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:plugin-kotlin-as-java:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:plugin-mathjax:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:plugin-templating:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:plugin-versioning:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:plugin-all-modules-page:${project.version}")
+    devPublication("org.jetbrains.dokka:analysis-kotlin-api:${project.version}")
+    devPublication("org.jetbrains.dokka:analysis-kotlin-descriptors:${project.version}")
+    devPublication("org.jetbrains.dokka:analysis-kotlin-symbols:${project.version}")
+    devPublication("org.jetbrains.dokka:analysis-markdown-jb:${project.version}")
+    devPublication("org.jetbrains.dokka:plugin-android-documentation:${project.version}")
+    devPublication("org.jetbrains.dokka:plugin-base:${project.version}")
+    devPublication("org.jetbrains.dokka:plugin-base-test-utils:${project.version}")
+    devPublication("org.jetbrains.dokka:dokka-core:${project.version}")
+    devPublication("org.jetbrains.dokka:plugin-gfm:${project.version}")
+    devPublication("org.jetbrains.dokka:plugin-gfm-template-processing:${project.version}")
+    devPublication("org.jetbrains.dokka:plugin-javadoc:${project.version}")
+    devPublication("org.jetbrains.dokka:plugin-jekyll:${project.version}")
+    devPublication("org.jetbrains.dokka:plugin-jekyll-template-processing:${project.version}")
+    devPublication("org.jetbrains.dokka:plugin-kotlin-as-java:${project.version}")
+    devPublication("org.jetbrains.dokka:plugin-mathjax:${project.version}")
+    devPublication("org.jetbrains.dokka:plugin-templating:${project.version}")
+    devPublication("org.jetbrains.dokka:plugin-versioning:${project.version}")
 
     devPublication(project)
 }
@@ -135,12 +132,12 @@ testing.suites {
             implementation(platform(libs.kotlinxSerialization.bom))
             implementation(libs.kotlinxSerialization.json)
 
-            //region classic-plugin dependencies
+            //region classic-plugin dependencies - delete these when src/classicMain is removed
             implementation(libs.kotlin.test)
             implementation(libs.gradlePlugin.kotlin)
             implementation(libs.gradlePlugin.kotlin.klibCommonizerApi)
             implementation(libs.gradlePlugin.android)
-            implementation("org.jetbrains.dokka:dokka-test-api:$dokkaVersion")
+            implementation("org.jetbrains.dokka:dokka-test-api:${project.version}")
             //endregion
         }
 
@@ -195,7 +192,7 @@ binaryCompatibilityValidator {
 
 val generateDokkaGradlePluginConstants by tasks.registering(GenerateDokkaGradlePluginConstants::class) {
     val dokkaPluginConstants = objects.mapProperty<String, String>().apply {
-        put("DOKKA_VERSION", dokkaVersion) // TODO how to get actual Dokka project version?
+        put("DOKKA_VERSION", project.version.toString())
         put("DOKKA_DEPENDENCY_VERSION_KOTLINX_HTML", libs.versions.kotlinx.html)
         put("DOKKA_DEPENDENCY_VERSION_KOTLINX_COROUTINES", libs.versions.kotlinx.coroutines)
         put("DOKKA_DEPENDENCY_VERSION_FREEMARKER", libs.versions.freemarker)
