@@ -25,9 +25,8 @@ class Versioning0IntegrationTest : AbstractGradleIntegrationTest() {
     fun execute(buildVersions: BuildVersions) {
         val result = createGradleRunner(
             buildVersions,
-            "--build-cache",
-            "--stacktrace",
             ":dokkaHtmlMultiModuleBaseVersion",
+            "-i", "-s"
         ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtmlMultiModuleBaseVersion")).outcome)
@@ -36,10 +35,9 @@ class Versioning0IntegrationTest : AbstractGradleIntegrationTest() {
 
         val result2 = createGradleRunner(
             buildVersions,
-            "--build-cache",
-            "--stacktrace",
             "clean",
             ":dokkaHtmlMultiModuleNextVersion",
+            "-i", "-s"
         ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result2.task(":dokkaHtmlMultiModuleNextVersion")).outcome)
@@ -48,10 +46,9 @@ class Versioning0IntegrationTest : AbstractGradleIntegrationTest() {
 
         val result3 = createGradleRunner(
             buildVersions,
-            "--build-cache",
-            "--stacktrace",
             "clean",
             ":dokkaHtmlMultiModule",
+            "-i", "-s"
         ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result3.task(":dokkaHtmlMultiModule")).outcome)
@@ -85,10 +82,9 @@ class Versioning0IntegrationTest : AbstractGradleIntegrationTest() {
 
         val result = createGradleRunner(
             buildVersions,
-            "--build-cache",
-            "--stacktrace",
             ":dokkaHtmlMultiModuleBaseVersion",
-            "-PolderVersionsDirName=$olderVersionsDirName",
+            "-i", "-s",
+            "-PolderVersionsDirName=$olderVersionsDirName"
         ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtmlMultiModuleBaseVersion")).outcome)
@@ -97,11 +93,10 @@ class Versioning0IntegrationTest : AbstractGradleIntegrationTest() {
 
         val result2 = createGradleRunner(
             buildVersions,
-            "--build-cache",
-            "--stacktrace",
             "clean",
             ":dokkaHtmlMultiModuleNextVersion",
-            "-PolderVersionsDirName=$olderVersionsDirName",
+            "-i", "-s",
+            "-PolderVersionsDirName=$olderVersionsDirName"
         ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result2.task(":dokkaHtmlMultiModuleNextVersion")).outcome)
@@ -110,11 +105,10 @@ class Versioning0IntegrationTest : AbstractGradleIntegrationTest() {
 
         val result3 = createGradleRunner(
             buildVersions,
-            "--build-cache",
-            "--stacktrace",
             "clean",
             ":dokkaHtmlMultiModule",
-            "-PolderVersionsDirName=$olderVersionsDirName",
+            "-i", "-s",
+            "-PolderVersionsDirName=$olderVersionsDirName"
         ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result3.task(":dokkaHtmlMultiModule")).outcome)
@@ -152,10 +146,9 @@ class Versioning0IntegrationTest : AbstractGradleIntegrationTest() {
         val olderVersionsDirName = ""
         val result = createGradleRunner(
             buildVersions,
-            "--build-cache",
-            "--stacktrace",
             ":dokkaHtmlMultiModuleBaseVersion",
-            "-PolderVersionsDirName=$olderVersionsDirName",
+            "-i", "-s",
+            "-PolderVersionsDirName=$olderVersionsDirName"
         ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtmlMultiModuleBaseVersion")).outcome)
@@ -164,11 +157,10 @@ class Versioning0IntegrationTest : AbstractGradleIntegrationTest() {
 
         val result2 = createGradleRunner(
             buildVersions,
-            "--build-cache",
-            "--stacktrace",
             "clean",
             ":dokkaHtmlMultiModuleNextVersion",
-            "-PolderVersionsDirName=$olderVersionsDirName",
+            "-i", "-s",
+            "-PolderVersionsDirName=$olderVersionsDirName"
         ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result2.task(":dokkaHtmlMultiModuleNextVersion")).outcome)
@@ -177,11 +169,10 @@ class Versioning0IntegrationTest : AbstractGradleIntegrationTest() {
 
         val result3 = createGradleRunner(
             buildVersions,
-            "--build-cache",
-            "--stacktrace",
             "clean",
             ":dokkaHtmlMultiModule",
-            "-PolderVersionsDirName=$olderVersionsDirName",
+            "-i", "-s",
+            "-PolderVersionsDirName=$olderVersionsDirName"
         ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result3.task(":dokkaHtmlMultiModule")).outcome)

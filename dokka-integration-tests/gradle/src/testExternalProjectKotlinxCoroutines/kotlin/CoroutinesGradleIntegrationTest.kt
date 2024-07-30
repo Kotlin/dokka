@@ -53,7 +53,7 @@ class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOut
     fun execute(buildVersions: BuildVersions) {
         val result = createGradleRunner(
             buildVersions,
-            ":dokkaHtmlMultiModule", /*"-i",*/ "-s",
+            ":dokkaHtmlMultiModule", "-i", "-s",
             jvmArgs = listOf(
                 "-Xmx2G",
                 "-XX:MaxMetaspaceSize=500m", // Intentionally small to verify that Dokka tasks do not cause leaks.

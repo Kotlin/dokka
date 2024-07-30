@@ -37,7 +37,7 @@ class ConfigurationTest : AbstractGradleIntegrationTest() {
     ) {
         val result = createGradleRunner(
             buildVersions,
-//            "-info",
+            "--info",
             "--stacktrace",
             "-Preport_undocumented=true",
             "-Pfail_on_warning=true",

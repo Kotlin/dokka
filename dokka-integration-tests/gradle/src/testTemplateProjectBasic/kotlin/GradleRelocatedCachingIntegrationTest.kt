@@ -30,7 +30,7 @@ class GradleRelocatedCachingIntegrationTest : AbstractGradleCachingIntegrationTe
     ) {
         val result = createGradleRunner(
             buildVersions,
-            "clean", "dokkaHtml", /*"-i",*/ "-s", "-Dorg.gradle.caching.debug=true", "--build-cache"
+            "clean", "dokkaHtml", "-i", "-s", "-Dorg.gradle.caching.debug=true", "--build-cache"
         ).withProjectDir(project).buildRelaxed()
 
         assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaHtml")).outcome)

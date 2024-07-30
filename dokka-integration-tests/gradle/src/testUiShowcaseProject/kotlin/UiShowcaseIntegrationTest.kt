@@ -25,7 +25,7 @@ class UiShowcaseIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCop
         val result = createGradleRunner(
             buildVersions,
             "dokkaHtmlMultiModule",
-            /*"-i",*/
+            "-i",
             "-s"
         ).buildRelaxed()
 

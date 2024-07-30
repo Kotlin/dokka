@@ -15,6 +15,10 @@ import kotlin.test.assertTrue
 
 class Multiplatform0GradleIntegrationTest : AbstractGradleIntegrationTest() {
 
+    fun x() {
+
+    }
+
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
