@@ -83,7 +83,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             }
             .withArguments(
                 buildList {
-                    if (enableBuildCache) add("--build-cache") else add("--no-build-cache")
+                    add(if (enableBuildCache) "--build-cache" else "--no-build-cache")
 
                     add("-Pdokka_it_dokka_version=${dokkaVersion}")
                     add("-Pdokka_it_kotlin_version=${buildVersions.kotlinVersion}")
