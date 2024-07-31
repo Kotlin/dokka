@@ -7,5 +7,6 @@ module.exports = {
   customSyntax: 'postcss-scss',
   rules: {
     'selector-max-specificity': ['0,2,0', { severity: 'warning' }],
+    'media-query-no-invalid': [true, { severity: 'warning' }],
   },
 };
