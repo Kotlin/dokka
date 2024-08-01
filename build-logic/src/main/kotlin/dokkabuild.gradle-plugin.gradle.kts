@@ -17,6 +17,7 @@ kotlin {
     compilerOptions {
         // Must use Kotlin 1.4 to support Gradle 7
         languageVersion = @Suppress("DEPRECATION") KotlinVersion.KOTLIN_1_4
+        apiVersion = @Suppress("DEPRECATION") KotlinVersion.KOTLIN_1_4
     }
 }
 
