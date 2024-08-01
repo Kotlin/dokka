@@ -4,13 +4,9 @@
 
 package org.jetbrains.dokka.it.gradle
 
-import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
-import java.io.File
-import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 /**
  * Tests for Dokka's configuration options of the Gradle runner.
@@ -44,7 +40,7 @@ class ConfigurationTest : AbstractGradleIntegrationTest() {
             "dokkaHtml"
         ).buildAndFail()
 
-        assertEquals(TaskOutcome.FAILED, assertNotNull(result.task(":dokkaHtml")).outcome)
+        result.shouldHaveTask(":dokkaHtml").shouldHaveOutcome(FAILED)
 
         result.output.contains("> Task :dokkaHtml FAILED")
         result.output.contains(

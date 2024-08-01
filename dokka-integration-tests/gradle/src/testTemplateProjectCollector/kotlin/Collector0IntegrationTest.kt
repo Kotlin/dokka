@@ -4,13 +4,11 @@
 
 package org.jetbrains.dokka.it.gradle
 
-import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
+import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class Collector0IntegrationTest : AbstractGradleIntegrationTest() {
@@ -27,10 +25,10 @@ class Collector0IntegrationTest : AbstractGradleIntegrationTest() {
             "-i", "-s"
         ).buildRelaxed()
 
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaHtmlCollector")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaJavadocCollector")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaGfmCollector")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaJekyllCollector")).outcome)
+        result.shouldHaveTask(":moduleA:dokkaHtmlCollector").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":moduleA:dokkaJavadocCollector").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":moduleA:dokkaGfmCollector").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":moduleA:dokkaJekyllCollector").shouldHaveOutcome(SUCCESS, FROM_CACHE)
 
         File(projectDir, "moduleA/build/dokka/htmlCollector").assertHtmlOutputDir()
         File(projectDir, "moduleA/build/dokka/javadocCollector").assertJavadocOutputDir()
