@@ -38,12 +38,8 @@ tasks.validatePlugins {
 //region Java version target/compile config
 
 kotlin {
-    jvmToolchain(21)
-
-    compilerOptions {
-        freeCompilerArgs.add(
-            dokkaBuild.mainJavaVersion.map { "-Xjdk-release=${it.formattedName()}" }
-        )
+    jvmToolchain {
+        languageVersion = dokkaBuild.mainJavaVersion
     }
 }
 
@@ -55,13 +51,9 @@ tasks.withType<KotlinJvmCompile>().configureEach {
     }
 }
 
-tasks.withType<JavaCompile>().configureEach {
-    options.release = dokkaBuild.mainJavaVersion.map { it.asInt() }
-}
-
 tasks.withType<Test>().configureEach {
     javaLauncher = javaToolchains.launcherFor {
-        languageVersion = dokkaBuild.mainJavaVersion
+        languageVersion = dokkaBuild.testJavaLauncherVersion
     }
 }
 //endregion
