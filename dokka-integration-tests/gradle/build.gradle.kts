@@ -60,6 +60,8 @@ tasks.withType<Test>().configureEach {
     val enableDebug = providers.environmentVariable("ENABLE_DEBUG")
     inputs.property("enableDebug", enableDebug).optional(true)
     environment("ENABLE_DEBUG", enableDebug.getOrElse("false"))
+
+    systemProperty("hostGradleUserHome", gradle.gradleUserHomeDir.invariantSeparatorsPath)
 }
 
 val templateSettingsGradleKts = layout.projectDirectory.file("projects/template.settings.gradle.kts")

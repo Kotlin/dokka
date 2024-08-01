@@ -4,13 +4,11 @@
 
 package org.jetbrains.dokka.it.gradle
 
-import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
+import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
@@ -27,7 +25,7 @@ class MultiModule1IntegrationTest : AbstractGradleIntegrationTest() {
             "-i", "-s"
         ).buildRelaxed()
 
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":second:dokkaHtml")).outcome)
+        result.shouldHaveTask(":second:dokkaHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)
 
         val outputDir = File(projectDir, "second/build/dokka/html")
         assertTrue(outputDir.isDirectory, "Missing dokka output directory")

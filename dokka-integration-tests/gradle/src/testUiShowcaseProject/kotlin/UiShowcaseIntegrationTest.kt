@@ -4,15 +4,14 @@
 
 package org.jetbrains.dokka.it.gradle
 
-import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
+import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.jetbrains.dokka.it.TestOutputCopier
 import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @EnabledOnOs(OS.MAC, disabledReason = "Contains KMP code for macOS")
@@ -29,9 +28,9 @@ class UiShowcaseIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCop
             "-s"
         ).buildRelaxed()
 
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtmlMultiModule")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":jvm:dokkaHtmlPartial")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":kmp:dokkaHtmlPartial")).outcome)
+        result.shouldHaveTask(":dokkaHtmlMultiModule").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":jvm:dokkaHtmlPartial").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":kmp:dokkaHtmlPartial").shouldHaveOutcome(SUCCESS, FROM_CACHE)
 
         assertTrue(projectOutputLocation.isDirectory, "Missing dokka output directory")
 
