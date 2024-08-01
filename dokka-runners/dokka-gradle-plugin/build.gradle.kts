@@ -13,7 +13,7 @@ plugins {
     kotlin("plugin.serialization") version embeddedKotlinVersion
 
     id("dokkabuild.dev-maven-publish")
-    id("dev.adamko.kotlin.binary-compatibility-validator") version "0.1.0"
+    alias(libs.plugins.kotlinx.binaryCompatibilityValidator)
     `java-test-fixtures`
     `jvm-test-suite`
 
@@ -190,8 +190,8 @@ testing.suites {
 
 skipTestFixturesPublications()
 
-binaryCompatibilityValidator {
-    ignoredMarkers.add("org.jetbrains.dokka.gradle.internal.DokkaInternalApi")
+apiValidation {
+    nonPublicMarkers.add("org.jetbrains.dokka.gradle.internal.DokkaInternalApi")
 }
 
 val generateDokkaGradlePluginConstants by tasks.registering(GenerateDokkaGradlePluginConstants::class) {
