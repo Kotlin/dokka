@@ -13,15 +13,15 @@ internal data class ExperimentalFlags(
 
     companion object {
         @Suppress("ConstPropertyName")
-        private const val PropName = "DokkaGradlePluginMode"
+        private const val GradlePluginMode = "org.jetbrains.dokka.experimental.gradlePlugin"
 
         fun Project.dokkaMode(): ExperimentalFlags {
 
             val flags = providers
-                .gradleProperty(PropName)
+                .gradleProperty(GradlePluginMode)
                 .forUseAtConfigurationTimeCompat()
                 .orElse(
-                    project.provider { project.extra.properties[PropName]?.toString() ?: "" }
+                    project.provider { project.extra.properties[GradlePluginMode]?.toString() ?: "" }
                 )
                 .orNull
                 ?.split(",")

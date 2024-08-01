@@ -7,5 +7,5 @@ package org.jetbrains.dokka.gradle.utils
 import org.gradle.api.Project
 
 fun Project.enableDokkatoo() {
-    extensions.extraProperties.set("DokkaGradlePluginMode", "dokkatoo")
+    extensions.extraProperties.set("org.jetbrains.dokka.experimental.gradlePlugin", "dokkatoo")
 }

@@ -100,7 +100,7 @@ fun gradleKtsProjectTest(
         baseDir = baseDir,
     ) {
         gradleProperties += """
-            |DokkaGradlePluginMode=dokkatoo!
+            |org.jetbrains.dokka.experimental.gradlePlugin=dokkatoo!
         """.trimMargin()
 
         settingsGradleKts = """
@@ -130,7 +130,7 @@ fun gradleGroovyProjectTest(
         baseDir = baseDir,
     ) {
         gradleProperties += """
-            |DokkaGradlePluginMode=dokkatoo!
+            |org.jetbrains.dokka.experimental.gradlePlugin=dokkatoo!
         """.trimMargin()
 
         settingsGradle = """
