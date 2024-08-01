@@ -61,7 +61,7 @@ class AndroidAutoConfigurationTest {
         project as ProjectInternal
         project.evaluate()
         dokkaTasks.flatMap { it.dokkaSourceSets }.forEach { sourceSet ->
-            if ("test" in sourceSet.name.toLowerCase()) {
+            if ("test" in sourceSet.name.lowercase()) {
                 assertTrue(
                     sourceSet.suppress.get(),
                     "Expected source set `${sourceSet.name}` to be suppressed by default"
