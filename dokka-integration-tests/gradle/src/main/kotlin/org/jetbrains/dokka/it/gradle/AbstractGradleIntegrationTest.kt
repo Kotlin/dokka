@@ -140,7 +140,11 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
          */
         val templateSettingsGradleKts: Path by systemProperty(Paths::get)
 
-        /** Gradle User Home of the current machine. Defaults to `~/.gradle`, but might be different on CI. */
+        /**
+         * Gradle User Home of the current machine. Defaults to `~/.gradle`, but might be different on CI.
+         *
+         * This value is provided by the Gradle Test task.
+         */
         private val hostGradleUserHome: Path by systemProperty(Paths::get)
 
         /**
