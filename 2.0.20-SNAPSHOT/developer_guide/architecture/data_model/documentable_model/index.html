@@ -1458,7 +1458,8 @@ of something that could be seen or produced by a compiler frontend, it's not far
 </ul>
 <p>Code-wise, you can have a look at following classes:</p>
 <ul>
-<li><code>DefaultDescriptorToDocumentableTranslator</code> - responsible for Kotlin -&gt; <code>Documentable</code> mapping</li>
+<li><code>DefaultDescriptorToDocumentableTranslator</code> - responsible for Kotlin's K1 -&gt; <code>Documentable</code> mapping</li>
+<li><code>DefaultSymbolToDocumentableTranslator</code> - responsible for Kotlin's K2 -&gt; <code>Documentable</code> mapping</li>
 <li><code>DefaultPsiToDocumentableTranslator</code> - responsible for Java -&gt; <code>Documentable</code> mapping</li>
 </ul>
 <p>Upon creation, the documentable model represents a collection of trees, each with <code>DModule</code> as root.</p>
