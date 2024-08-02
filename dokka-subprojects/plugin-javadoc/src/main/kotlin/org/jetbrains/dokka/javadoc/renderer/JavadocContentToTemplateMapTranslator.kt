@@ -139,7 +139,7 @@ internal class JavadocContentToTemplateMapTranslator(
                 "constructors" to node.constructors.map { templateMapForFunctionNode(it) },
                 "signature" to templateMapForSignatureNode(node.signature),
                 "methods" to templateMapForClasslikeMethods(node.methods),
-                "classlikeDocumentation" to htmlForContentNodes(node.description, node),
+                "classlikeDocumentation" to htmlForContentNodes(node.description, contextNode),
                 "entries" to node.entries.map { templateMapForEntryNode(it) },
                 "properties" to node.properties.map { templateMapForPropertyNode(it) },
                 "classlikes" to node.classlikes.map { templateMapForNestedClasslikeNode(it) },
@@ -249,7 +249,7 @@ internal class JavadocContentToTemplateMapTranslator(
                     contextNode.children.first { (it as? JavadocClasslikePageNode)?.dri?.first() == node.dri.first() },
                     contextNode
                 ).formatToEndWithHtml(),
-                "description" to htmlForContentNodes(node.description, node)
+                "description" to htmlForContentNodes(node.description, contextNode)
             )
         }
 
