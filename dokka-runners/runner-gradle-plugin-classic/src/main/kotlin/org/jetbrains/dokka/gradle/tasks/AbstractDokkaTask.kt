@@ -210,7 +210,11 @@ abstract class AbstractDokkaTask : DefaultTask() {
      */
     private val dokkaGeneratorLogLevel: Provider<LogLevel>
         get() = providers.gradleProperty("org.jetbrains.dokka.internal.gradleLogLevel")
-            .map { LogLevel.values().first { level -> level.name == it } }
+            .flatMap {
+                providers.provider {
+                    LogLevel.values().firstOrNull { level -> level.name == it }
+                }
+            }
 
     final override fun doFirst(action: Action<in Task>): Task = super.doFirst(action)
 
