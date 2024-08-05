@@ -1,20 +1,25 @@
-name: Test [smoke]
+name: Gradle Tests
 
-on: pull_request
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
 
 concurrency:
   group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
-  cancel-in-progress: true
-
-env:
-  JAVA_TEST_VERSION: 11
+  # Cancel if there is a new update only on pull requests
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   test-matrix:
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
-      fail-fast: false
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        javaVersion: [ 8, 11, 17, 21 ]
+      # Enable fail-fast on pull requests, to avoid clogging up CI
+      fail-fast: ${{ github.event_name == 'pull_request' }}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Set longpaths support for Windows
@@ -32,5 +37,5 @@ jobs:
           gradle-home-cache-cleanup: true
       - name: Run tests
         run: >
-          ./gradlew test --stacktrace --continue 
-          "-Porg.jetbrains.dokka.javaToolchain.testLauncher=${{ env.JAVA_TEST_VERSION }}"
+          ./gradlew test --stacktrace --continue
+          "-Porg.jetbrains.dokka.javaToolchain.testLauncher=${{ matrix.javaVersion }}"
