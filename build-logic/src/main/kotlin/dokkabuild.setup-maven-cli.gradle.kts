@@ -3,6 +3,8 @@
  */
 
 import dokkabuild.tasks.MvnExec
+import dokkabuild.utils.declarable
+import dokkabuild.utils.resolvable
 import org.gradle.kotlin.dsl.support.serviceOf
 
 /**
@@ -62,11 +64,9 @@ val mavenCliSetupExtension =
         )
     }
 
-val mavenBinary by configurations.registering {
-    description = "used to download the Maven binary"
-    isCanBeResolved = true
-    isCanBeConsumed = false
-    isVisible = false
+val mavenBinary: Configuration by configurations.creating {
+    description = "Apache Maven executable dependency"
+    declarable()
 
     defaultDependencies {
         addLater(mavenCliSetupExtension.mavenVersion.map { mavenVersion ->
@@ -81,29 +81,44 @@ val mavenBinary by configurations.registering {
     }
 }
 
+val mavenBinaryResolver: Configuration by configurations.creating {
+    description = "Resolves the Maven executable dependency"
+    resolvable()
+    extendsFrom(mavenBinary)
+}
+
 tasks.clean {
     delete(mavenCliSetupExtension.mavenInstallDir)
 }
 
-val installMavenBinary by tasks.registering(Sync::class) {
+val installMavenBinary by tasks.registering {
     val archives = serviceOf<ArchiveOperations>()
-    from(
-        mavenBinary.flatMap { conf ->
-            conf.incoming
-                .artifacts
-                .resolvedArtifacts
-                .map { artifacts ->
-                    artifacts.map { archives.zipTree(it.file) }
+    val fs = serviceOf<FileSystemOperations>()
+
+    val mavenBinary = mavenBinaryResolver.incoming.files
+    inputs.files(mavenBinary)
+        .withPropertyName("mavenBinary")
+        .withNormalizer(ClasspathNormalizer::class)
+
+    val outputDir = mavenCliSetupExtension.mavenInstallDir
+    outputs.dir(outputDir).withPropertyName("outputDir")
+
+    doLast {
+        val unpackedMavenBinary = mavenBinary.flatMap { artifact ->
+            archives.zipTree(artifact)
+        }
+
+        fs.sync {
+            from(unpackedMavenBinary) {
+                eachFile {
+                    // drop the first directory inside the zipped Maven bin (apache-maven-$version)
+                    relativePath = RelativePath(true, *relativePath.segments.drop(1).toTypedArray())
                 }
+            }
+            includeEmptyDirs = false
+            into(outputDir)
         }
-    ) {
-        eachFile {
-            // drop the first directory inside the zipped Maven bin (apache-maven-$version)
-            relativePath = RelativePath(true, *relativePath.segments.drop(1).toTypedArray())
-        }
-        includeEmptyDirs = false
     }
-    into(mavenCliSetupExtension.mavenInstallDir)
 }
 
 tasks.withType<MvnExec>().configureEach {
