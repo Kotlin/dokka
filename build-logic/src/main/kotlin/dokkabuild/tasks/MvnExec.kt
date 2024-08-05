@@ -55,6 +55,17 @@ constructor(
     @get:PathSensitive(NONE)
     abstract val mvnCli: RegularFileProperty
 
+    /**
+     * Optional Maven `settings.xml` file.
+     *
+     * When `mvn` is invoked, it will be set using the `--settings` argument.
+     */
+    @get:InputFile
+    @get:PathSensitive(NONE)
+    @get:NormalizeLineEndings
+    @get:Optional
+    abstract val settingsXml: RegularFileProperty
+
     @get:Input
     abstract val arguments: ListProperty<String>
 
@@ -82,6 +93,10 @@ constructor(
             addAll(arguments.get())
             if (showErrors.orNull == true) add("--errors")
             if (batchMode.orNull == true) add("--batch-mode")
+            if (settingsXml.isPresent) {
+                add("--settings")
+                add(settingsXml.get().asFile.invariantSeparatorsPath)
+            }
         }
 
         exec.exec {
