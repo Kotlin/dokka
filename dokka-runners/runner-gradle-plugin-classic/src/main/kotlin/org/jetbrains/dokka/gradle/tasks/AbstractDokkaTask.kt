@@ -208,8 +208,8 @@ abstract class AbstractDokkaTask : DefaultTask() {
      *
      * Override the log level that [DokkaBootstrap] produces output logs. Intended for use in tests.
      */
-    private val dokkaGeneratorLogLevelOverride: Provider<LogLevel>
-        get() = providers.gradleProperty("dokka.internal.gradle.dokkaGenerator.logLevelOverride")
+    private val dokkaGeneratorLogLevel: Provider<LogLevel>
+        get() = providers.gradleProperty("org.jetbrains.dokka.internal.gradleLogLevel")
             .map { LogLevel.values().first { level -> level.name == it } }
 
     final override fun doFirst(action: Action<in Task>): Task = super.doFirst(action)
@@ -239,7 +239,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
     private fun createProxyLogger(): BiConsumer<String, String> =
         object : BiConsumer<String, String> {
             private val overrideLogger: ((message: String) -> Unit)? =
-                when (dokkaGeneratorLogLevelOverride.orNull) {
+                when (dokkaGeneratorLogLevel.orNull) {
                     DEBUG -> logger::debug
                     INFO -> logger::info
                     LIFECYCLE -> logger::lifecycle

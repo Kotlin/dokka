@@ -110,7 +110,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                         ERROR -> add("--error")
                     }
 
-                    add("-Pdokka.internal.gradle.dokkaGenerator.logLevelOverride=$dokkaLogLevel")
+                    add("-PdokkaGeneratorLogLevel=$dokkaLogLevel")
 
                     add("--stacktrace")
 
