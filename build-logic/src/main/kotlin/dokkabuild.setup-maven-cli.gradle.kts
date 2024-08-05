@@ -113,4 +113,5 @@ tasks.withType<MvnExec>().configureEach {
     workDirectory.convention(layout.dir(provider { temporaryDir }))
     showErrors.convention(true)
     batchMode.convention(true)
+    settingsXml.convention(layout.projectDirectory.file("settings.xml"))
 }
