@@ -4,19 +4,23 @@
 :root {
   // Interface
   --color-key-blue: rgb(48, 127, 255); //#307FFF;
-  --color-nav-bar: rgb(39, 40, 44);
-  --color-dark-theme-bg: rgb(38, 38, 40);
+  --color-background-nav: rgb(39, 40, 44);
+  --color-background-nav-dt: rgb(50, 50, 55);
+  --color-background-page: rgb(255, 255, 255);
+  --color-background-page-dt: rgb(38, 38, 40);
+  --color-background-footer: rgb(235, 235, 235);
+  --color-background-footer-dt: rgb(50, 50, 55);
 
   // Text colors (headings, paragraphs, labels)
-  --color-text-black: rgb(0, 0, 0);
-  --color-text-white: rgba(255, 255, 255, 0.96);
-  --color-text-light-black: rgba(0, 0, 0, 0.7);
-  --color-text-light-white: rgba(255, 255, 255, 0.7);
+  --color-text: rgb(0, 0, 0);
+  --color-text-dt: rgba(255, 255, 255, 0.96);
+  --color-text-light: rgba(0, 0, 0, 0.7);
+  --color-text-light-dt: rgba(255, 255, 255, 0.7);
 
   // Generic monochrome
   --color-w05: rgba(255, 255, 255, 0.05);
   --color-w10: rgba(255, 255, 255, 0.1);
-  --color-w20: rgba(255, 255, 255, 0.2);
+  --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
   --color-w70: rgba(255, 255, 255, 0.7);
   --color-w80: rgba(255, 255, 255, 0.8);
