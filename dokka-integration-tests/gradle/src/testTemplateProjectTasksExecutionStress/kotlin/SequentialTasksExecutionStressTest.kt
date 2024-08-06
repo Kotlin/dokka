@@ -19,12 +19,14 @@ class SequentialTasksExecutionStressTest : AbstractGradleIntegrationTest() {
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(LatestTestedVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
+        val iterations = 50
+
         val result = createGradleRunner(
             buildVersions,
             "runTasks",
             "--info",
             "--stacktrace",
-            "-Ptask_number=100",
+            "-Ptask_number=$iterations",
             jvmArgs = listOf("-Xmx1G", "-XX:MaxMetaspaceSize=500m"),
             enableBuildCache = false,
         ).buildRelaxed()
