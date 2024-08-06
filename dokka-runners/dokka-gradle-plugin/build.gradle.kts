@@ -24,17 +24,16 @@ plugins {
 description = "Gradle plugin for using Dokka Engine"
 
 kotlin {
+    compilerOptions {
+        optIn.addAll(
+            "kotlin.RequiresOptIn",
+            "org.jetbrains.dokka.gradle.internal.DokkaInternalApi",
+            "kotlin.io.path.ExperimentalPathApi",
+        )
+    }
     sourceSets {
-        configureEach {
-            languageSettings {
-                optIn("kotlin.RequiresOptIn")
-                optIn("org.jetbrains.dokka.gradle.internal.DokkaInternalApi")
-                optIn("kotlin.io.path.ExperimentalPathApi")
-            }
-        }
-
         //region Keep the classic plugin in separate directories.
-        // This helps with organisation, and with its eventual removal.
+        // This helps with organisation and with its eventual removal.
         main {
             kotlin.srcDir("src/classicMain/kotlin")
         }
