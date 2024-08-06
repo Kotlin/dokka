@@ -1,0 +1,84 @@
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../tokens/index';
+
+.platform-tag {
+  --platform-tag-color: #bababb;
+
+  padding: 10px 12px;
+
+  cursor: pointer;
+
+  text-transform: capitalize;
+
+  border: 0 none;
+
+  border-radius: var(--size-s1);
+
+  font: var(--font-text-s);
+}
+
+.platform-tag.js-like,
+.platform-tag.jvm-like,
+.platform-tag.wasm-like {
+  text-transform: uppercase;
+}
+
+.platform-tags .platform-tag {
+  display: flex;
+  align-items: center;
+}
+
+.filter-section .platform-tag[data-active] {
+  color: #19191c;
+  background-color: var(--platform-tag-color);
+}
+
+.filter-section .platform-tag.jvm-like[data-active],
+.platform-tags .platform-tag.jvm-like {
+  --platform-tag-color: #4dbb5f;
+}
+
+.filter-section .platform-tag.js-like[data-active],
+.platform-tags .platform-tag.js-like {
+  --platform-tag-color: #ffc700;
+}
+
+.filter-section .platform-tag.native-like[data-active],
+.platform-tags .platform-tag.native-like {
+  --platform-tag-color: #e082f3;
+}
+
+.filter-section .platform-tag.wasm-like[data-active],
+.platform-tags .platform-tag.wasm-like {
+  --platform-tag-color: #9585f9;
+}
+
+.filter-section .platform-tag[data-active]:hover {
+  color: #fff;
+  background-color: rgba(186, 186, 187, 0.7);
+}
+
+.filter-section .platform-tag:not([data-active]) {
+  text-decoration: line-through;
+
+  color: var(--color-w50);
+  background-color: var(--color-w10);
+}
+
+.platform-tags .platform-tag::before {
+  display: inline-block;
+
+  width: 8px;
+  height: 8px;
+  margin: 0 4px 0 8px;
+
+  content: '';
+
+  border-radius: 50%;
+  background: var(--platform-tag-color);
+
+  font-size: 13px;
+  line-height: 1.6;
+}
