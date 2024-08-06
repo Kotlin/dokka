@@ -45,7 +45,6 @@ class GradleProjectTest(
             .addArguments(*defaultRunnerArgs.toTypedArray())
 
     companion object {
-
         val dokkaVersionOverride: String? by optionalSystemProperty()
 
         /** file-based Maven repositories with Dokka dependencies */
@@ -53,35 +52,14 @@ class GradleProjectTest(
             repos.split(",").map { Path(it) }
         }
 
-        val projectTestTempDir: Path by systemProperty(Paths::get)
-
-        val exampleProjectDataPath: Path by systemProperty(Paths::get)
+        private val projectTestTempDir: Path by systemProperty(Paths::get)
 
         /** Temporary directory for the functional tests */
         val funcTestTempDir: Path by lazy {
             projectTestTempDir.resolve("functional-tests")
         }
-
-        /** Dokka Source directory that contains Gradle projects used for integration tests */
-        val integrationTestProjectsDir: Path by systemProperty(Paths::get)
-
-        /** Dokka Source directory that contains example Gradle projects */
-        val exampleProjectsDir: Path by systemProperty(Paths::get)
     }
 }
-
-
-///**
-// * Load a project from the [GradleProjectTest.dokkaSrcIntegrationTestProjectsDir]
-// */
-//fun gradleKtsProjectIntegrationTest(
-//  testProjectName: String,
-//  build: GradleProjectTest.() -> Unit,
-//): GradleProjectTest =
-//  GradleProjectTest(
-//    baseDir = GradleProjectTest.dokkaSrcIntegrationTestProjectsDir,
-//    testProjectName = testProjectName,
-//  ).apply(build)
 
 
 /**
@@ -204,11 +182,6 @@ annotation class ProjectDirectoryDsl
 interface ProjectDirectoryScope {
     val projectDir: Path
 
-//    val testMavenRepoRelativePath: String
-//        get() = projectDir
-//            .relativize(GradleProjectTest.testMavenRepoDir)
-//            .invariantSeparatorsPathString
-
     @Language("kts")
     fun settingsRepositories(): String {
         val reposSpecs = if (dokkaVersionOverride != null) {
@@ -216,11 +189,11 @@ interface ProjectDirectoryScope {
             // if `DOKKA_VERSION_OVERRIDE` environment variable is provided,
             //  we allow running tests on a custom Dokka version from specific repositories
             """
-                maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/test"),
-                maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev"),
-                mavenCentral(),
-                mavenLocal()
-                """.trimIndent()
+            maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/test"),
+            maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev"),
+            mavenCentral(),
+            mavenLocal()
+            """.trimIndent()
         } else {
             // otherwise - use locally published versions via `devMavenPublish`
             GradleProjectTest.devMavenRepositories.withIndex().joinToString(",\n") { (i, repoPath) ->
