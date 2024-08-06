@@ -16,15 +16,19 @@
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
-  --color-nav-bar: rgb(39, 40, 44);
-  --color-dark-theme-bg: rgb(38, 38, 40);
-  --color-text-black: rgb(0, 0, 0);
-  --color-text-white: rgba(255, 255, 255, 0.96);
-  --color-text-light-black: rgba(0, 0, 0, 0.7);
-  --color-text-light-white: rgba(255, 255, 255, 0.7);
+  --color-background-nav: rgb(39, 40, 44);
+  --color-background-nav-dt: rgb(50, 50, 55);
+  --color-background-page: rgb(255, 255, 255);
+  --color-background-page-dt: rgb(38, 38, 40);
+  --color-background-footer: rgb(235, 235, 235);
+  --color-background-footer-dt: rgb(50, 50, 55);
+  --color-text: rgb(0, 0, 0);
+  --color-text-dt: rgba(255, 255, 255, 0.96);
+  --color-text-light: rgba(0, 0, 0, 0.7);
+  --color-text-light-dt: rgba(255, 255, 255, 0.7);
   --color-w05: rgba(255, 255, 255, 0.05);
   --color-w10: rgba(255, 255, 255, 0.1);
-  --color-w20: rgba(255, 255, 255, 0.2);
+  --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
   --color-w70: rgba(255, 255, 255, 0.7);
   --color-w80: rgba(255, 255, 255, 0.8);
@@ -73,8 +77,761 @@
   --font-h3: 600 24px/24px var(--font-family-default);
   --font-h4: 600 16px/24px var(--font-family-default);
   --font-text-m: 400 16px/24px var(--font-family-default);
-  --font-text-s: 400 13px/24px var(--font-family-default);
+  --font-text-s: 400 14px/20px var(--font-family-default);
   --font-code: 400 16px/24px var(--font-family-mono);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --hover-transition: background-color 200ms ease-in-out;
+}
+
+.filter-section {
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-right: 12px;
+  gap: 2px;
+}
+
+@media (width <= 900px) {
+  .filter-section {
+    display: none;
+  }
+}
+.no-js .filter-section {
+  display: none;
+}
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --breakpoint-desktop-min: 900px;
+  --breakpoint-tablet-max: 899px;
+  --breakpoint-tablet-min: 440px;
+  --breakpoint-mobile-max: 439px;
+  --breakpoint-mobile-min: 360px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --color-key-blue: rgb(48, 127, 255);
+  --color-background-nav: rgb(39, 40, 44);
+  --color-background-nav-dt: rgb(50, 50, 55);
+  --color-background-page: rgb(255, 255, 255);
+  --color-background-page-dt: rgb(38, 38, 40);
+  --color-background-footer: rgb(235, 235, 235);
+  --color-background-footer-dt: rgb(50, 50, 55);
+  --color-text: rgb(0, 0, 0);
+  --color-text-dt: rgba(255, 255, 255, 0.96);
+  --color-text-light: rgba(0, 0, 0, 0.7);
+  --color-text-light-dt: rgba(255, 255, 255, 0.7);
+  --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w10: rgba(255, 255, 255, 0.1);
+  --color-w16: rgba(255, 255, 255, 0.16);
+  --color-w50: rgba(255, 255, 255, 0.5);
+  --color-w70: rgba(255, 255, 255, 0.7);
+  --color-w80: rgba(255, 255, 255, 0.8);
+  --color-b05: rgba(0, 0, 0, 0.05);
+  --color-b08: rgba(0, 0, 0, 0.08);
+  --color-b20: rgba(0, 0, 0, 0.2);
+  --color-b50: rgba(0, 0, 0, 0.5);
+  --color-b70: rgba(0, 0, 0, 0.7);
+  --color-cd-punctuation: rgb(153, 153, 153);
+  --color-cd-keyword: rgb(0, 51, 179);
+  --color-cd-keyword-alternative: rgba(204, 120, 50);
+  --color-cd-builtin: rgb(6, 125, 23);
+  --color-cd-builtin-alternative: rgb(231, 191, 106);
+  --color-cd-function: rgb(0, 98, 122);
+  --color-cd-function-alternative: rgb(255, 198, 109);
+  --color-cd-operator: rgb(154, 110, 58);
+  --color-cd-operator-alternative: rgb(169, 183, 198);
+  --color-cd-body: rgb(0, 0, 0);
+  --color-cd-body-alternative: rgb(169, 183, 198);
+  --color-generic: rgb(83, 157, 243);
+  --color-jvm: rgb(77, 187, 95);
+  --color-js: rgb(255, 199, 0);
+  --color-wasm: rgb(255, 255, 255);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --size-s1: 4px;
+  --size-s2: 8px;
+  --size-s3: 16px;
+  --size-m1: 24px;
+  --size-m2: 32px;
+  --size-m3: 48px;
+  --size-l1: 64px;
+  --size-l2: 72px;
+  --size-ta1: 40px;
+  --size-ta2: 52px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --font-family-default: JetBrains Sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+  --font-family-mono: JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+  --font-h1: 600 44px/44px var(--font-family-default);
+  --font-h2: 600 32px/32px var(--font-family-default);
+  --font-h3: 600 24px/24px var(--font-family-default);
+  --font-h4: 600 16px/24px var(--font-family-default);
+  --font-text-m: 400 16px/24px var(--font-family-default);
+  --font-text-s: 400 14px/20px var(--font-family-default);
+  --font-code: 400 16px/24px var(--font-family-mono);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --hover-transition: background-color 200ms ease-in-out;
+}
+
+:root {
+  --dokka-logo-height: 28px;
+  --dokka-logo-width: 28px;
+}
+
+.library-name--link {
+  display: flex;
+  align-items: center;
+  margin-right: var(--size-s2);
+  white-space: nowrap;
+  color: var(--color-text-dt);
+  font: var(--font-h4);
+}
+
+@media (width <= 900px) {
+  .library-name--link {
+    height: 52px;
+    margin-left: 12px;
+  }
+}
+.library-name--link::before {
+  width: var(--dokka-logo-height);
+  height: var(--dokka-logo-width);
+  margin-right: var(--size-s2);
+  content: "";
+  background: var(--dokka-logo-image-url) center no-repeat;
+  background-size: var(--dokka-logo-height) var(--dokka-logo-width);
+}
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --breakpoint-desktop-min: 900px;
+  --breakpoint-tablet-max: 899px;
+  --breakpoint-tablet-min: 440px;
+  --breakpoint-mobile-max: 439px;
+  --breakpoint-mobile-min: 360px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --color-key-blue: rgb(48, 127, 255);
+  --color-background-nav: rgb(39, 40, 44);
+  --color-background-nav-dt: rgb(50, 50, 55);
+  --color-background-page: rgb(255, 255, 255);
+  --color-background-page-dt: rgb(38, 38, 40);
+  --color-background-footer: rgb(235, 235, 235);
+  --color-background-footer-dt: rgb(50, 50, 55);
+  --color-text: rgb(0, 0, 0);
+  --color-text-dt: rgba(255, 255, 255, 0.96);
+  --color-text-light: rgba(0, 0, 0, 0.7);
+  --color-text-light-dt: rgba(255, 255, 255, 0.7);
+  --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w10: rgba(255, 255, 255, 0.1);
+  --color-w16: rgba(255, 255, 255, 0.16);
+  --color-w50: rgba(255, 255, 255, 0.5);
+  --color-w70: rgba(255, 255, 255, 0.7);
+  --color-w80: rgba(255, 255, 255, 0.8);
+  --color-b05: rgba(0, 0, 0, 0.05);
+  --color-b08: rgba(0, 0, 0, 0.08);
+  --color-b20: rgba(0, 0, 0, 0.2);
+  --color-b50: rgba(0, 0, 0, 0.5);
+  --color-b70: rgba(0, 0, 0, 0.7);
+  --color-cd-punctuation: rgb(153, 153, 153);
+  --color-cd-keyword: rgb(0, 51, 179);
+  --color-cd-keyword-alternative: rgba(204, 120, 50);
+  --color-cd-builtin: rgb(6, 125, 23);
+  --color-cd-builtin-alternative: rgb(231, 191, 106);
+  --color-cd-function: rgb(0, 98, 122);
+  --color-cd-function-alternative: rgb(255, 198, 109);
+  --color-cd-operator: rgb(154, 110, 58);
+  --color-cd-operator-alternative: rgb(169, 183, 198);
+  --color-cd-body: rgb(0, 0, 0);
+  --color-cd-body-alternative: rgb(169, 183, 198);
+  --color-generic: rgb(83, 157, 243);
+  --color-jvm: rgb(77, 187, 95);
+  --color-js: rgb(255, 199, 0);
+  --color-wasm: rgb(255, 255, 255);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --size-s1: 4px;
+  --size-s2: 8px;
+  --size-s3: 16px;
+  --size-m1: 24px;
+  --size-m2: 32px;
+  --size-m3: 48px;
+  --size-l1: 64px;
+  --size-l2: 72px;
+  --size-ta1: 40px;
+  --size-ta2: 52px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --font-family-default: JetBrains Sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+  --font-family-mono: JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+  --font-h1: 600 44px/44px var(--font-family-default);
+  --font-h2: 600 32px/32px var(--font-family-default);
+  --font-h3: 600 24px/24px var(--font-family-default);
+  --font-h4: 600 16px/24px var(--font-family-default);
+  --font-text-m: 400 16px/24px var(--font-family-default);
+  --font-text-s: 400 14px/20px var(--font-family-default);
+  --font-code: 400 16px/24px var(--font-family-mono);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --hover-transition: background-color 200ms ease-in-out;
+}
+
+.library-version {
+  color: var(--color-text-dt);
+  font: var(--font-text-s);
+}
+
+@media (width <= 900px) {
+  .library-version {
+    display: flex;
+    align-items: center;
+    height: 52px;
+    background-color: var(--color-text);
+  }
+}
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --breakpoint-desktop-min: 900px;
+  --breakpoint-tablet-max: 899px;
+  --breakpoint-tablet-min: 440px;
+  --breakpoint-mobile-max: 439px;
+  --breakpoint-mobile-min: 360px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --color-key-blue: rgb(48, 127, 255);
+  --color-background-nav: rgb(39, 40, 44);
+  --color-background-nav-dt: rgb(50, 50, 55);
+  --color-background-page: rgb(255, 255, 255);
+  --color-background-page-dt: rgb(38, 38, 40);
+  --color-background-footer: rgb(235, 235, 235);
+  --color-background-footer-dt: rgb(50, 50, 55);
+  --color-text: rgb(0, 0, 0);
+  --color-text-dt: rgba(255, 255, 255, 0.96);
+  --color-text-light: rgba(0, 0, 0, 0.7);
+  --color-text-light-dt: rgba(255, 255, 255, 0.7);
+  --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w10: rgba(255, 255, 255, 0.1);
+  --color-w16: rgba(255, 255, 255, 0.16);
+  --color-w50: rgba(255, 255, 255, 0.5);
+  --color-w70: rgba(255, 255, 255, 0.7);
+  --color-w80: rgba(255, 255, 255, 0.8);
+  --color-b05: rgba(0, 0, 0, 0.05);
+  --color-b08: rgba(0, 0, 0, 0.08);
+  --color-b20: rgba(0, 0, 0, 0.2);
+  --color-b50: rgba(0, 0, 0, 0.5);
+  --color-b70: rgba(0, 0, 0, 0.7);
+  --color-cd-punctuation: rgb(153, 153, 153);
+  --color-cd-keyword: rgb(0, 51, 179);
+  --color-cd-keyword-alternative: rgba(204, 120, 50);
+  --color-cd-builtin: rgb(6, 125, 23);
+  --color-cd-builtin-alternative: rgb(231, 191, 106);
+  --color-cd-function: rgb(0, 98, 122);
+  --color-cd-function-alternative: rgb(255, 198, 109);
+  --color-cd-operator: rgb(154, 110, 58);
+  --color-cd-operator-alternative: rgb(169, 183, 198);
+  --color-cd-body: rgb(0, 0, 0);
+  --color-cd-body-alternative: rgb(169, 183, 198);
+  --color-generic: rgb(83, 157, 243);
+  --color-jvm: rgb(77, 187, 95);
+  --color-js: rgb(255, 199, 0);
+  --color-wasm: rgb(255, 255, 255);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --size-s1: 4px;
+  --size-s2: 8px;
+  --size-s3: 16px;
+  --size-m1: 24px;
+  --size-m2: 32px;
+  --size-m3: 48px;
+  --size-l1: 64px;
+  --size-l2: 72px;
+  --size-ta1: 40px;
+  --size-ta2: 52px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --font-family-default: JetBrains Sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+  --font-family-mono: JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+  --font-h1: 600 44px/44px var(--font-family-default);
+  --font-h2: 600 32px/32px var(--font-family-default);
+  --font-h3: 600 24px/24px var(--font-family-default);
+  --font-h4: 600 16px/24px var(--font-family-default);
+  --font-text-m: 400 16px/24px var(--font-family-default);
+  --font-text-s: 400 14px/20px var(--font-family-default);
+  --font-code: 400 16px/24px var(--font-family-mono);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --hover-transition: background-color 200ms ease-in-out;
+}
+
+.navigation {
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  height: var(--size-l1);
+  padding: 12px var(--size-m1);
+  color: var(--color-text-dt);
+  background-color: var(--color-background-nav);
+}
+
+@media (width <= 900px) {
+  .navigation {
+    height: auto;
+    padding: 0;
+  }
+}
+.theme-dark .navigation {
+  background-color: var(--color-background-nav-dt);
+}
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --breakpoint-desktop-min: 900px;
+  --breakpoint-tablet-max: 899px;
+  --breakpoint-tablet-min: 440px;
+  --breakpoint-mobile-max: 439px;
+  --breakpoint-mobile-min: 360px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --color-key-blue: rgb(48, 127, 255);
+  --color-background-nav: rgb(39, 40, 44);
+  --color-background-nav-dt: rgb(50, 50, 55);
+  --color-background-page: rgb(255, 255, 255);
+  --color-background-page-dt: rgb(38, 38, 40);
+  --color-background-footer: rgb(235, 235, 235);
+  --color-background-footer-dt: rgb(50, 50, 55);
+  --color-text: rgb(0, 0, 0);
+  --color-text-dt: rgba(255, 255, 255, 0.96);
+  --color-text-light: rgba(0, 0, 0, 0.7);
+  --color-text-light-dt: rgba(255, 255, 255, 0.7);
+  --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w10: rgba(255, 255, 255, 0.1);
+  --color-w16: rgba(255, 255, 255, 0.16);
+  --color-w50: rgba(255, 255, 255, 0.5);
+  --color-w70: rgba(255, 255, 255, 0.7);
+  --color-w80: rgba(255, 255, 255, 0.8);
+  --color-b05: rgba(0, 0, 0, 0.05);
+  --color-b08: rgba(0, 0, 0, 0.08);
+  --color-b20: rgba(0, 0, 0, 0.2);
+  --color-b50: rgba(0, 0, 0, 0.5);
+  --color-b70: rgba(0, 0, 0, 0.7);
+  --color-cd-punctuation: rgb(153, 153, 153);
+  --color-cd-keyword: rgb(0, 51, 179);
+  --color-cd-keyword-alternative: rgba(204, 120, 50);
+  --color-cd-builtin: rgb(6, 125, 23);
+  --color-cd-builtin-alternative: rgb(231, 191, 106);
+  --color-cd-function: rgb(0, 98, 122);
+  --color-cd-function-alternative: rgb(255, 198, 109);
+  --color-cd-operator: rgb(154, 110, 58);
+  --color-cd-operator-alternative: rgb(169, 183, 198);
+  --color-cd-body: rgb(0, 0, 0);
+  --color-cd-body-alternative: rgb(169, 183, 198);
+  --color-generic: rgb(83, 157, 243);
+  --color-jvm: rgb(77, 187, 95);
+  --color-js: rgb(255, 199, 0);
+  --color-wasm: rgb(255, 255, 255);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --size-s1: 4px;
+  --size-s2: 8px;
+  --size-s3: 16px;
+  --size-m1: 24px;
+  --size-m2: 32px;
+  --size-m3: 48px;
+  --size-l1: 64px;
+  --size-l2: 72px;
+  --size-ta1: 40px;
+  --size-ta2: 52px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --font-family-default: JetBrains Sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+  --font-family-mono: JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+  --font-h1: 600 44px/44px var(--font-family-default);
+  --font-h2: 600 32px/32px var(--font-family-default);
+  --font-h3: 600 24px/24px var(--font-family-default);
+  --font-h4: 600 16px/24px var(--font-family-default);
+  --font-text-m: 400 16px/24px var(--font-family-default);
+  --font-text-s: 400 14px/20px var(--font-family-default);
+  --font-code: 400 16px/24px var(--font-family-mono);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --hover-transition: background-color 200ms ease-in-out;
+}
+
+.navigation-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--size-s1);
+  margin-left: auto;
+}
+
+@media (width <= 900px) {
+  .navigation-controls {
+    flex-grow: 1;
+    justify-content: flex-end;
+    background-color: var(--color-text);
+    gap: 0;
+  }
+}
+.no-js .navigation-controls {
+  display: none;
+}
+
+.navigation-controls--btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  cursor: pointer;
+  transition: var(--hover-transition);
+  border: none;
+  border-radius: var(--size-s1);
+  background-color: inherit;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-size: 24px 24px;
+  font-size: 0;
+  line-height: 0;
+  will-change: background-color;
+}
+
+.navigation-controls--btn:hover {
+  background-color: var(--color-w10);
+}
+
+@media (width <= 900px) {
+  .navigation-controls--btn {
+    width: 52px;
+    height: 52px;
+  }
+}
+.navigation-controls--break {
+  flex-basis: 100%;
+}
+
+.navigation-controls--btn_theme {
+  background-image: url(assets/theme-toggle.svg);
+}
+
+.navigation-controls--btn_homepage {
+  background-image: url(assets/homepage.svg);
+}
+
+.navigation-controls--btn_menu {
+  margin-left: auto;
+  background-image: url(assets/burger.svg);
+}
+
+.navigation-controls--btn_filter {
+  background-image: url(assets/filter.svg);
+}
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --breakpoint-desktop-min: 900px;
+  --breakpoint-tablet-max: 899px;
+  --breakpoint-tablet-min: 440px;
+  --breakpoint-mobile-max: 439px;
+  --breakpoint-mobile-min: 360px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --color-key-blue: rgb(48, 127, 255);
+  --color-background-nav: rgb(39, 40, 44);
+  --color-background-nav-dt: rgb(50, 50, 55);
+  --color-background-page: rgb(255, 255, 255);
+  --color-background-page-dt: rgb(38, 38, 40);
+  --color-background-footer: rgb(235, 235, 235);
+  --color-background-footer-dt: rgb(50, 50, 55);
+  --color-text: rgb(0, 0, 0);
+  --color-text-dt: rgba(255, 255, 255, 0.96);
+  --color-text-light: rgba(0, 0, 0, 0.7);
+  --color-text-light-dt: rgba(255, 255, 255, 0.7);
+  --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w10: rgba(255, 255, 255, 0.1);
+  --color-w16: rgba(255, 255, 255, 0.16);
+  --color-w50: rgba(255, 255, 255, 0.5);
+  --color-w70: rgba(255, 255, 255, 0.7);
+  --color-w80: rgba(255, 255, 255, 0.8);
+  --color-b05: rgba(0, 0, 0, 0.05);
+  --color-b08: rgba(0, 0, 0, 0.08);
+  --color-b20: rgba(0, 0, 0, 0.2);
+  --color-b50: rgba(0, 0, 0, 0.5);
+  --color-b70: rgba(0, 0, 0, 0.7);
+  --color-cd-punctuation: rgb(153, 153, 153);
+  --color-cd-keyword: rgb(0, 51, 179);
+  --color-cd-keyword-alternative: rgba(204, 120, 50);
+  --color-cd-builtin: rgb(6, 125, 23);
+  --color-cd-builtin-alternative: rgb(231, 191, 106);
+  --color-cd-function: rgb(0, 98, 122);
+  --color-cd-function-alternative: rgb(255, 198, 109);
+  --color-cd-operator: rgb(154, 110, 58);
+  --color-cd-operator-alternative: rgb(169, 183, 198);
+  --color-cd-body: rgb(0, 0, 0);
+  --color-cd-body-alternative: rgb(169, 183, 198);
+  --color-generic: rgb(83, 157, 243);
+  --color-jvm: rgb(77, 187, 95);
+  --color-js: rgb(255, 199, 0);
+  --color-wasm: rgb(255, 255, 255);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --size-s1: 4px;
+  --size-s2: 8px;
+  --size-s3: 16px;
+  --size-m1: 24px;
+  --size-m2: 32px;
+  --size-m3: 48px;
+  --size-l1: 64px;
+  --size-l2: 72px;
+  --size-ta1: 40px;
+  --size-ta2: 52px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --font-family-default: JetBrains Sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+  --font-family-mono: JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+  --font-h1: 600 44px/44px var(--font-family-default);
+  --font-h2: 600 32px/32px var(--font-family-default);
+  --font-h3: 600 24px/24px var(--font-family-default);
+  --font-h4: 600 16px/24px var(--font-family-default);
+  --font-text-m: 400 16px/24px var(--font-family-default);
+  --font-text-s: 400 14px/20px var(--font-family-default);
+  --font-code: 400 16px/24px var(--font-family-mono);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --hover-transition: background-color 200ms ease-in-out;
+}
+
+.platform-tag {
+  --platform-tag-color: #bababb;
+  padding: 10px 12px;
+  cursor: pointer;
+  text-transform: capitalize;
+  border: 0 none;
+  border-radius: var(--size-s1);
+  font: var(--font-text-s);
+}
+
+.platform-tag.js-like, .platform-tag.jvm-like, .platform-tag.wasm-like {
+  text-transform: uppercase;
+}
+
+.platform-tags .platform-tag {
+  display: flex;
+  align-items: center;
+}
+
+.filter-section .platform-tag[data-active] {
+  color: #19191c;
+  background-color: var(--platform-tag-color);
+}
+
+.filter-section .platform-tag.jvm-like[data-active], .platform-tags .platform-tag.jvm-like {
+  --platform-tag-color: #4dbb5f;
+}
+
+.filter-section .platform-tag.js-like[data-active], .platform-tags .platform-tag.js-like {
+  --platform-tag-color: #ffc700;
+}
+
+.filter-section .platform-tag.native-like[data-active], .platform-tags .platform-tag.native-like {
+  --platform-tag-color: #e082f3;
+}
+
+.filter-section .platform-tag.wasm-like[data-active], .platform-tags .platform-tag.wasm-like {
+  --platform-tag-color: #9585f9;
+}
+
+.filter-section .platform-tag[data-active]:hover {
+  color: #fff;
+  background-color: rgba(186, 186, 187, 0.7);
+}
+
+.filter-section .platform-tag:not([data-active]) {
+  text-decoration: line-through;
+  color: var(--color-w50);
+  background-color: var(--color-w10);
+}
+
+.platform-tags .platform-tag::before {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px 0 8px;
+  content: "";
+  border-radius: 50%;
+  background: var(--platform-tag-color);
+  font-size: 13px;
+  line-height: 1.6;
+}
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+.platform-tags {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: -8px;
+  margin-left: -4px;
+}
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --breakpoint-desktop-min: 900px;
+  --breakpoint-tablet-max: 899px;
+  --breakpoint-tablet-min: 440px;
+  --breakpoint-mobile-max: 439px;
+  --breakpoint-mobile-min: 360px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --color-key-blue: rgb(48, 127, 255);
+  --color-background-nav: rgb(39, 40, 44);
+  --color-background-nav-dt: rgb(50, 50, 55);
+  --color-background-page: rgb(255, 255, 255);
+  --color-background-page-dt: rgb(38, 38, 40);
+  --color-background-footer: rgb(235, 235, 235);
+  --color-background-footer-dt: rgb(50, 50, 55);
+  --color-text: rgb(0, 0, 0);
+  --color-text-dt: rgba(255, 255, 255, 0.96);
+  --color-text-light: rgba(0, 0, 0, 0.7);
+  --color-text-light-dt: rgba(255, 255, 255, 0.7);
+  --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w10: rgba(255, 255, 255, 0.1);
+  --color-w16: rgba(255, 255, 255, 0.16);
+  --color-w50: rgba(255, 255, 255, 0.5);
+  --color-w70: rgba(255, 255, 255, 0.7);
+  --color-w80: rgba(255, 255, 255, 0.8);
+  --color-b05: rgba(0, 0, 0, 0.05);
+  --color-b08: rgba(0, 0, 0, 0.08);
+  --color-b20: rgba(0, 0, 0, 0.2);
+  --color-b50: rgba(0, 0, 0, 0.5);
+  --color-b70: rgba(0, 0, 0, 0.7);
+  --color-cd-punctuation: rgb(153, 153, 153);
+  --color-cd-keyword: rgb(0, 51, 179);
+  --color-cd-keyword-alternative: rgba(204, 120, 50);
+  --color-cd-builtin: rgb(6, 125, 23);
+  --color-cd-builtin-alternative: rgb(231, 191, 106);
+  --color-cd-function: rgb(0, 98, 122);
+  --color-cd-function-alternative: rgb(255, 198, 109);
+  --color-cd-operator: rgb(154, 110, 58);
+  --color-cd-operator-alternative: rgb(169, 183, 198);
+  --color-cd-body: rgb(0, 0, 0);
+  --color-cd-body-alternative: rgb(169, 183, 198);
+  --color-generic: rgb(83, 157, 243);
+  --color-jvm: rgb(77, 187, 95);
+  --color-js: rgb(255, 199, 0);
+  --color-wasm: rgb(255, 255, 255);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --size-s1: 4px;
+  --size-s2: 8px;
+  --size-s3: 16px;
+  --size-m1: 24px;
+  --size-m2: 32px;
+  --size-m3: 48px;
+  --size-l1: 64px;
+  --size-l2: 72px;
+  --size-ta1: 40px;
+  --size-ta2: 52px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --font-family-default: JetBrains Sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+  --font-family-mono: JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+  --font-h1: 600 44px/44px var(--font-family-default);
+  --font-h2: 600 32px/32px var(--font-family-default);
+  --font-h3: 600 24px/24px var(--font-family-default);
+  --font-h4: 600 16px/24px var(--font-family-default);
+  --font-text-m: 400 16px/24px var(--font-family-default);
+  --font-text-s: 400 14px/20px var(--font-family-default);
+  --font-code: 400 16px/24px var(--font-family-mono);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --hover-transition: background-color 200ms ease-in-out;
 }
 
 .tabs-section, .platform-hinted > .platform-bookmarks-row {
@@ -134,7 +891,7 @@
   align-self: flex-start;
   flex: none;
   order: 5;
-  min-width: 64px;
+  min-width: var(--size-l1);
   background: inherit;
 }
 
@@ -158,4 +915,201 @@
 
 .main-content[data-page-type=package] .tabs-section-body h2 {
   display: none;
+}
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --breakpoint-desktop-min: 900px;
+  --breakpoint-tablet-max: 899px;
+  --breakpoint-tablet-min: 440px;
+  --breakpoint-mobile-max: 439px;
+  --breakpoint-mobile-min: 360px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --color-key-blue: rgb(48, 127, 255);
+  --color-background-nav: rgb(39, 40, 44);
+  --color-background-nav-dt: rgb(50, 50, 55);
+  --color-background-page: rgb(255, 255, 255);
+  --color-background-page-dt: rgb(38, 38, 40);
+  --color-background-footer: rgb(235, 235, 235);
+  --color-background-footer-dt: rgb(50, 50, 55);
+  --color-text: rgb(0, 0, 0);
+  --color-text-dt: rgba(255, 255, 255, 0.96);
+  --color-text-light: rgba(0, 0, 0, 0.7);
+  --color-text-light-dt: rgba(255, 255, 255, 0.7);
+  --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w10: rgba(255, 255, 255, 0.1);
+  --color-w16: rgba(255, 255, 255, 0.16);
+  --color-w50: rgba(255, 255, 255, 0.5);
+  --color-w70: rgba(255, 255, 255, 0.7);
+  --color-w80: rgba(255, 255, 255, 0.8);
+  --color-b05: rgba(0, 0, 0, 0.05);
+  --color-b08: rgba(0, 0, 0, 0.08);
+  --color-b20: rgba(0, 0, 0, 0.2);
+  --color-b50: rgba(0, 0, 0, 0.5);
+  --color-b70: rgba(0, 0, 0, 0.7);
+  --color-cd-punctuation: rgb(153, 153, 153);
+  --color-cd-keyword: rgb(0, 51, 179);
+  --color-cd-keyword-alternative: rgba(204, 120, 50);
+  --color-cd-builtin: rgb(6, 125, 23);
+  --color-cd-builtin-alternative: rgb(231, 191, 106);
+  --color-cd-function: rgb(0, 98, 122);
+  --color-cd-function-alternative: rgb(255, 198, 109);
+  --color-cd-operator: rgb(154, 110, 58);
+  --color-cd-operator-alternative: rgb(169, 183, 198);
+  --color-cd-body: rgb(0, 0, 0);
+  --color-cd-body-alternative: rgb(169, 183, 198);
+  --color-generic: rgb(83, 157, 243);
+  --color-jvm: rgb(77, 187, 95);
+  --color-js: rgb(255, 199, 0);
+  --color-wasm: rgb(255, 255, 255);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --size-s1: 4px;
+  --size-s2: 8px;
+  --size-s3: 16px;
+  --size-m1: 24px;
+  --size-m2: 32px;
+  --size-m3: 48px;
+  --size-l1: 64px;
+  --size-l2: 72px;
+  --size-ta1: 40px;
+  --size-ta2: 52px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --font-family-default: JetBrains Sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+  --font-family-mono: JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+  --font-h1: 600 44px/44px var(--font-family-default);
+  --font-h2: 600 32px/32px var(--font-family-default);
+  --font-h3: 600 24px/24px var(--font-family-default);
+  --font-h4: 600 16px/24px var(--font-family-default);
+  --font-text-m: 400 16px/24px var(--font-family-default);
+  --font-text-s: 400 14px/20px var(--font-family-default);
+  --font-code: 400 16px/24px var(--font-family-mono);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --hover-transition: background-color 200ms ease-in-out;
+}
+
+@media (width < 900px) {
+  .ui-kit_desktop-only {
+    display: none;
+  }
+}
+@media (width >= 900px) {
+  .ui-kit_mobile-only {
+    display: none;
+  }
+}
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --breakpoint-desktop-min: 900px;
+  --breakpoint-tablet-max: 899px;
+  --breakpoint-tablet-min: 440px;
+  --breakpoint-mobile-max: 439px;
+  --breakpoint-mobile-min: 360px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --color-key-blue: rgb(48, 127, 255);
+  --color-background-nav: rgb(39, 40, 44);
+  --color-background-nav-dt: rgb(50, 50, 55);
+  --color-background-page: rgb(255, 255, 255);
+  --color-background-page-dt: rgb(38, 38, 40);
+  --color-background-footer: rgb(235, 235, 235);
+  --color-background-footer-dt: rgb(50, 50, 55);
+  --color-text: rgb(0, 0, 0);
+  --color-text-dt: rgba(255, 255, 255, 0.96);
+  --color-text-light: rgba(0, 0, 0, 0.7);
+  --color-text-light-dt: rgba(255, 255, 255, 0.7);
+  --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w10: rgba(255, 255, 255, 0.1);
+  --color-w16: rgba(255, 255, 255, 0.16);
+  --color-w50: rgba(255, 255, 255, 0.5);
+  --color-w70: rgba(255, 255, 255, 0.7);
+  --color-w80: rgba(255, 255, 255, 0.8);
+  --color-b05: rgba(0, 0, 0, 0.05);
+  --color-b08: rgba(0, 0, 0, 0.08);
+  --color-b20: rgba(0, 0, 0, 0.2);
+  --color-b50: rgba(0, 0, 0, 0.5);
+  --color-b70: rgba(0, 0, 0, 0.7);
+  --color-cd-punctuation: rgb(153, 153, 153);
+  --color-cd-keyword: rgb(0, 51, 179);
+  --color-cd-keyword-alternative: rgba(204, 120, 50);
+  --color-cd-builtin: rgb(6, 125, 23);
+  --color-cd-builtin-alternative: rgb(231, 191, 106);
+  --color-cd-function: rgb(0, 98, 122);
+  --color-cd-function-alternative: rgb(255, 198, 109);
+  --color-cd-operator: rgb(154, 110, 58);
+  --color-cd-operator-alternative: rgb(169, 183, 198);
+  --color-cd-body: rgb(0, 0, 0);
+  --color-cd-body-alternative: rgb(169, 183, 198);
+  --color-generic: rgb(83, 157, 243);
+  --color-jvm: rgb(77, 187, 95);
+  --color-js: rgb(255, 199, 0);
+  --color-wasm: rgb(255, 255, 255);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --size-s1: 4px;
+  --size-s2: 8px;
+  --size-s3: 16px;
+  --size-m1: 24px;
+  --size-m2: 32px;
+  --size-m3: 48px;
+  --size-l1: 64px;
+  --size-l2: 72px;
+  --size-ta1: 40px;
+  --size-ta2: 52px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --font-family-default: JetBrains Sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+  --font-family-mono: JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+  --font-h1: 600 44px/44px var(--font-family-default);
+  --font-h2: 600 32px/32px var(--font-family-default);
+  --font-h3: 600 24px/24px var(--font-family-default);
+  --font-h4: 600 16px/24px var(--font-family-default);
+  --font-text-m: 400 16px/24px var(--font-family-default);
+  --font-text-s: 400 14px/20px var(--font-family-default);
+  --font-code: 400 16px/24px var(--font-family-mono);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --hover-transition: background-color 200ms ease-in-out;
+}
+
+:root {
+  --color-background: var(--color-background-page);
+}
+
+.theme-dark {
+  --color-background: var(--color-background-page-dt);
+}
+
+body, table {
+  background-color: var(--color-background);
 }

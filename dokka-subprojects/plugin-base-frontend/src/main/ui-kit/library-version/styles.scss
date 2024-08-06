@@ -1,0 +1,20 @@
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+@import '../tokens/index';
+
+.library-version {
+  color: var(--color-text-dt);
+
+  font: var(--font-text-s);
+
+  @media (width <= $breakpoint-desktop-min) {
+    display: flex;
+    align-items: center;
+
+    height: 52px;
+
+    background-color: var(--color-text);
+  }
+}
