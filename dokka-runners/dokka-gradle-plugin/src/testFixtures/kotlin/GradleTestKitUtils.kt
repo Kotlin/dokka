@@ -79,14 +79,14 @@ fun gradleKtsProjectTest(
     ) {
         gradleProperties += """
             |org.jetbrains.dokka.experimental.gradlePlugin=dokkatoo!
-        """.trimMargin()
+            """.trimMargin()
 
         settingsGradleKts = """
-          |rootProject.name = "test"
-          |
-          |${settingsRepositories()}
-          |
-        """.trimMargin()
+            |rootProject.name = "test"
+            |
+            |${settingsRepositories()}
+            |
+            """.trimMargin()
 
         build()
     }
@@ -109,14 +109,14 @@ fun gradleGroovyProjectTest(
     ) {
         gradleProperties += """
             |org.jetbrains.dokka.experimental.gradlePlugin=dokkatoo!
-        """.trimMargin()
+            """.trimMargin()
 
         settingsGradle = """
-          |rootProject.name = "test"
-          |
-          |${settingsRepositories()}
-          |
-        """.trimMargin()
+            |rootProject.name = "test"
+            |
+            |${settingsRepositories()}
+            |
+            """.trimMargin()
 
         build()
     }
@@ -130,10 +130,10 @@ private fun gradleProjectTest(
     return GradleProjectTest(baseDir = baseDir, testProjectName = testProjectName).apply {
 
         gradleProperties = """
-      |kotlin.mpp.stability.nowarn=true
-      |org.gradle.cache=true
-      |
-    """.trimMargin()
+            |kotlin.mpp.stability.nowarn=true
+            |org.gradle.cache=true
+            |
+            """.trimMargin()
 
         build()
     }
