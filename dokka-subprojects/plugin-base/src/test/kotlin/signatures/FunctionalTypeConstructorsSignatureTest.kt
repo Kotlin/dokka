@@ -10,6 +10,7 @@ import org.jetbrains.dokka.jdk
 import utils.A
 import utils.Span
 import utils.TestOutputWriterPlugin
+import utils.Wbr
 import utils.match
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -116,10 +117,32 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
             configuration,
             pluginOverrides = listOf(writerPlugin)
         ) {
+            documentablesMergingStage = {
+                println(it)
+            }
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "val ", A("nF"), ": (param: ", A("Int"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `kotlin syntactic sugar function with explicit the @ParameterName annotation`() {
+        val source = source("val nF:  (@ParameterName(name=\"param\") Int) -> String = { _ -> \"\" }\n")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
+                    "val ", A("nF"), ": (param: ", Span(Wbr, ") "), A("Int"), ") -> ", A("String"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
