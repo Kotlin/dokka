@@ -43,14 +43,6 @@ kotlin {
     }
 }
 
-tasks.withType<KotlinJvmCompile>().configureEach {
-    compilerOptions {
-        jvmTarget = dokkaBuild.mainJavaVersion.map {
-            JvmTarget.fromTarget(it.formattedName())
-        }
-    }
-}
-
 tasks.withType<Test>().configureEach {
     javaLauncher = javaToolchains.launcherFor {
         languageVersion = dokkaBuild.testJavaLauncherVersion
