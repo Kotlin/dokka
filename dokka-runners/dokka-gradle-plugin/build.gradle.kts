@@ -105,11 +105,6 @@ gradlePlugin {
         displayName = "Dokka Gradle Plugin"
         description = "Dokka is an API documentation engine for Kotlin"
         implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
-    }
-
-    plugins.configureEach {
-        website.set("https://kotlinlang.org/docs/dokka-introduction.html")
-        vcsUrl.set("https://github.com/Kotlin/dokka.git")
         tags.addAll(
             "dokka",
             "kotlin",
