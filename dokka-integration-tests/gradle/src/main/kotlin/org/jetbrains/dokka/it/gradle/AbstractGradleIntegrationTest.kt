@@ -154,11 +154,11 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
          *
          * See https://docs.gradle.org/8.9/userguide/dependency_resolution.html#sub:cache_copy
          *
-         * Note: Currently all Gradle versions store caches in `$GRADLE_USER_HOME/caches/modules-2`,
+         * Note: Currently all Gradle versions store caches in `$GRADLE_USER_HOME/caches/`,
          * but this might change. Check the docs.
          */
         private val hostGradleDependenciesCache: Path by lazy {
-            hostGradleUserHome.resolve("caches/modules-2")
+            hostGradleUserHome.resolve("caches")
         }
 
         /** file-based Maven repositories with Dokka dependencies */
