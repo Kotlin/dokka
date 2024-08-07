@@ -34,3 +34,13 @@ jobs:
         run: >
           ./gradlew test --stacktrace --continue 
           "-Porg.jetbrains.dokka.javaToolchain.testLauncher=${{ env.JAVA_TEST_VERSION }}"
+      - name: Upload build reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-reports-${{ runner.os }}-${{ github.action }}-${{ github.run_id }}
+          path: |
+            **/build/reports/
+            **/*.hprof
+            **/*.log
+          if-no-files-found: ignore
