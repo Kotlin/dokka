@@ -28,6 +28,7 @@ import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.dokka.parameters.VisibilityModifier
 import org.jetbrains.dokka.gradle.internal.*
+import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.pluginFeaturesService
 import org.jetbrains.dokka.gradle.tasks.DokkaBaseTask
 import org.jetbrains.dokka.gradle.tasks.DokkaGenerateModuleTask
 import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
@@ -62,6 +63,8 @@ constructor(
             )
             return
         }
+
+        target.pluginFeaturesService.logV2Message()
 
         // apply the lifecycle-base plugin so the clean task is available
         target.pluginManager.apply(LifecycleBasePlugin::class)

@@ -5,11 +5,10 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.logging.Logging
 import org.gradle.kotlin.dsl.apply
 import org.jetbrains.dokka.gradle.formats.DokkaHtmlPlugin
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
-import org.jetbrains.dokka.gradle.internal.ExperimentalFlags.Companion.dokkaMode
+import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.pluginFeaturesService
 import javax.inject.Inject
 import org.jetbrains.dokka.gradle.DokkaClassicPlugin as ClassicDokkaPlugin
 
@@ -24,24 +23,17 @@ abstract class DokkaPlugin
 constructor() : Plugin<Project> {
 
     override fun apply(target: Project) {
-        val dokkaMode = target.dokkaMode()
-        if (dokkaMode.dokkatooEnabled) {
-            if (!dokkaMode.dokkatooEnabledQuietly) {
-                logger.lifecycle("[${target.displayName}] Dokka Gradle Plugin: Dokkatoo mode enabled")
-            }
+        val pluginFeaturesService = target.pluginFeaturesService
+        if (pluginFeaturesService.enableV2Plugin) {
             with(target.pluginManager) {
                 apply(type = DokkaBasePlugin::class)
-
-                // auto-apply the custom format plugins
+                // auto-apply the HTML plugin
                 apply(type = DokkaHtmlPlugin::class)
             }
         } else {
-            logger.warn("[${target.path}] Dokka Gradle Plugin: classic mode, please migrate, see https://kotl.in/dokka-gradle-migration")
             target.pluginManager.apply(ClassicDokkaPlugin::class)
         }
     }
 
-    companion object {
-        private val logger = Logging.getLogger(DokkaPlugin::class.java)
-    }
+    companion object
 }

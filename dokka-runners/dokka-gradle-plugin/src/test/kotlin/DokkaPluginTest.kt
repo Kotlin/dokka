@@ -11,13 +11,13 @@ import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.hasPlugin
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.gradle.utils.create_
-import org.jetbrains.dokka.gradle.utils.enableDokkatoo
+import org.jetbrains.dokka.gradle.utils.enableV2Plugin
 
 class DokkaPluginTest : FunSpec({
 
     test("expect plugin id can be applied to project successfully") {
         val project = ProjectBuilder.builder().build()
-        project.enableDokkatoo()
+            .enableV2Plugin()
         project.plugins.apply("org.jetbrains.dokka")
         project.plugins.hasPlugin("org.jetbrains.dokka") shouldBe true
         project.plugins.hasPlugin(DokkaPlugin::class) shouldBe true
@@ -25,7 +25,7 @@ class DokkaPluginTest : FunSpec({
 
     test("expect plugin class can be applied to project successfully") {
         val project = ProjectBuilder.builder().build()
-        project.enableDokkatoo()
+            .enableV2Plugin()
         project.plugins.apply(type = DokkaPlugin::class)
         project.plugins.hasPlugin("org.jetbrains.dokka") shouldBe true
         project.plugins.hasPlugin(DokkaPlugin::class) shouldBe true
@@ -33,7 +33,7 @@ class DokkaPluginTest : FunSpec({
 
     context("Dokkatoo property conventions") {
         val project = ProjectBuilder.builder().build()
-        project.enableDokkatoo()
+            .enableV2Plugin()
         project.plugins.apply("org.jetbrains.dokka")
 
         val extension = project.extensions.getByType<DokkaExtension>()

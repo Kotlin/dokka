@@ -3,7 +3,6 @@
  */
 package org.jetbrains.dokka.gradle.dokka.parameters.builders
 
-//import org.jetbrains.dokka.gradle.utils.sourceLink_
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
@@ -20,10 +19,7 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.DokkaPlugin
 import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
-import org.jetbrains.dokka.gradle.utils.all_
-import org.jetbrains.dokka.gradle.utils.create_
-import org.jetbrains.dokka.gradle.utils.enableDokkatoo
-import org.jetbrains.dokka.gradle.utils.shouldContainAll
+import org.jetbrains.dokka.gradle.utils.*
 import java.io.File
 import java.net.URI
 
@@ -187,7 +183,7 @@ class DokkaSourceSetBuilderTest : FunSpec({
 
 private fun createProject(): Project {
     val project = ProjectBuilder.builder().build()
-    project.enableDokkatoo()
+    project.enableV2Plugin()
     project.plugins.apply(type = DokkaPlugin::class)
     return project
 }

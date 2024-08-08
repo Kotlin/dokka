@@ -12,12 +12,16 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.DokkaDefaults
+import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.pluginFeaturesService
 
 open class DokkaClassicPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         if (GradleVersion.version(project.gradle.gradleVersion) < GradleVersion.version("5.6")) {
             project.logger.warn("Dokka: Build is using unsupported gradle version, expected at least 5.6 but got ${project.gradle.gradleVersion}. This may result in strange errors")
         }
+
+        project.pluginFeaturesService.logV1Warning()
+
         if (project.shouldUseK2())
             project.logger.warn(
                 "Dokka's K2 Analysis is being used. " +
