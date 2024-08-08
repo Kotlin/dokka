@@ -17,8 +17,7 @@ plugins {
     `java-test-fixtures`
     `jvm-test-suite`
 
-    id("dokkabuild.publish-base")
-    alias(libs.plugins.gradlePluginPublish)
+    id("dokkabuild.publish-gradle-plugin")
 }
 
 description = "Gradle plugin for using Dokka Engine"
@@ -98,8 +97,6 @@ dependencies {
 }
 
 gradlePlugin {
-    isAutomatedPublishing = true
-
     plugins.register("dokka") {
         id = "org.jetbrains.dokka"
         displayName = "Dokka Gradle Plugin"
