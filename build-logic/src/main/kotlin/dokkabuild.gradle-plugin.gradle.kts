@@ -2,10 +2,7 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import dokkabuild.utils.formattedName
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     id("org.gradle.kotlin.kotlin-dsl")
@@ -34,18 +31,3 @@ tasks.compileKotlin {
 tasks.validatePlugins {
     enableStricterValidation = true
 }
-
-//region Java version target/compile config
-
-kotlin {
-    jvmToolchain {
-        languageVersion = dokkaBuild.mainJavaVersion
-    }
-}
-
-tasks.withType<Test>().configureEach {
-    javaLauncher = javaToolchains.launcherFor {
-        languageVersion = dokkaBuild.testJavaLauncherVersion
-    }
-}
-//endregion
