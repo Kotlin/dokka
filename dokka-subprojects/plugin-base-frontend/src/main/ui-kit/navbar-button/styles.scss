@@ -11,7 +11,7 @@
 
   margin-left: auto;
 
-  @media (width <= $breakpoint-desktop-min) {
+  @media (width < $breakpoint-desktop-min) {
     flex-grow: 1;
     justify-content: flex-end;
 
@@ -51,7 +51,7 @@
     background-color: var(--color-w10);
   }
 
-  @media (width <= $breakpoint-desktop-min) {
+  @media (width < $breakpoint-desktop-min) {
     width: 52px;
     height: 52px;
   }

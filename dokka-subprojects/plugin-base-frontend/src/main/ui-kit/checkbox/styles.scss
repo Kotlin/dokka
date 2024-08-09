@@ -1,0 +1,22 @@
+/*!
+ * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../tokens/index';
+
+.checkbox {
+  position: relative;
+
+  display: inline-block;
+
+  width: 18px;
+  height: 18px;
+
+  cursor: pointer;
+
+  input[type='checkbox'] {
+    width: 0;
+    height: 0;
+
+    opacity: 0;
+  }
+}

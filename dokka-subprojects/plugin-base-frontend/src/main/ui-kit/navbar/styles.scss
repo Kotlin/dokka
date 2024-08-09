@@ -18,7 +18,7 @@
   color: var(--color-text-dt);
   background-color: var(--color-background-nav);
 
-  @media (width <= $breakpoint-desktop-min) {
+  @media (width < $breakpoint-desktop-min) {
     height: auto;
     padding: 0;
   }

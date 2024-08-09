@@ -13,8 +13,18 @@
   margin-right: 12px;
   gap: 2px;
 
-  @media (width <= $breakpoint-desktop-min) {
+  @media (width < $breakpoint-desktop-min) {
     display: none;
+  }
+
+  &--header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 12px;
+
+    background-color: var(--color-background-nav-dt);
   }
 }
 
