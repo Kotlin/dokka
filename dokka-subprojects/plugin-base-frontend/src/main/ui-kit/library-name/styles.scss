@@ -20,7 +20,7 @@
 
   font: var(--font-h4);
 
-  @media (width <= $breakpoint-desktop-min) {
+  @media (width < $breakpoint-desktop-min) {
     height: 52px;
 
     margin-left: 12px;
