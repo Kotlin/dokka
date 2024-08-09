@@ -9,7 +9,7 @@
 
   font: var(--font-text-s);
 
-  @media (width <= $breakpoint-desktop-min) {
+  @media (width < $breakpoint-desktop-min) {
     display: flex;
     align-items: center;
 

@@ -8,7 +8,9 @@
                 </@template_cmd>
             </a>
         </@template_cmd>
-        <button class="navigation-controls--btn navigation-controls--btn_menu ui-kit_mobile-only" id="menu-toggle" type="button">Toggle table of content</button>
+        <button class="navigation-controls--btn navigation-controls--btn_menu ui-kit_mobile-only" id="menu-toggle"
+                type="button">Toggle table of content
+        </button>
         <div class="navigation-controls--break ui-kit_mobile-only"></div>
         <div class="library-version">
             <#-- This can be handled by the versioning plugin -->
@@ -17,11 +19,20 @@
         <div class="navigation-controls">
             <@source_set_selector.display/>
             <#if homepageLink?has_content>
-                <a class="navigation-controls--btn navigation-controls--btn_homepage" id="homepage-link" href="${homepageLink}"></a>
+                <a class="navigation-controls--btn navigation-controls--btn_homepage" id="homepage-link"
+                   href="${homepageLink}"></a>
             </#if>
-            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button" type="button">Switch theme</button>
-            <button class="navigation-controls--btn navigation-controls--btn_filter ui-kit_mobile-only" id="menu-toggle" type="button">Toggle source set</button>
-            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in API</div>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <#if sourceSets?has_content>
+                <button class="navigation-controls--btn navigation-controls--btn_filter ui-kit_mobile-only"
+                        id="platform-tags-toggle" type="button">Toggle source set
+                </button>
+            </#if>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
         </div>
     </nav>
 </#macro>
