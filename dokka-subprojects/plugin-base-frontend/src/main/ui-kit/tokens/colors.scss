@@ -4,6 +4,7 @@
 :root {
   // Interface
   --color-key-blue: rgb(48, 127, 255); //#307FFF;
+  --color-key-blue-05: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -24,6 +25,7 @@
   --color-w50: rgba(255, 255, 255, 0.5);
   --color-w70: rgba(255, 255, 255, 0.7);
   --color-w80: rgba(255, 255, 255, 0.8);
+  --color-w100: rgba(255, 255, 255, 1);
   --color-b05: rgba(0, 0, 0, 0.05);
   --color-b08: rgba(0, 0, 0, 0.08);
   --color-b20: rgba(0, 0, 0, 0.2);

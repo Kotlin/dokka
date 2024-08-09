@@ -1,0 +1,32 @@
+/*!
+ * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../tokens/index';
+
+.ui-kit-icon {
+  width: var(--size-m1);
+  height: var(--size-m1);
+
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-size: 24px 24px;
+
+  font-size: 0;
+  line-height: 0;
+  will-change: background-color;
+
+  filter: invert(1);
+
+  .theme-dark & {
+    filter: none;
+  }
+}
+
+.ui-kit-icon_arrow-down {
+  background-image: url('./assets/arrow-down.svg');
+}
+
+.ui-kit-icon_placeholder {
+  background-image: url('./assets/placeholder.svg');
+}
