@@ -1,0 +1,89 @@
+/*!
+ * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../tokens/index';
+
+.dropdown {
+  position: relative;
+
+  &--list {
+    position: absolute;
+    z-index: 9;
+    top: 44px;
+
+    right: 0;
+
+    display: none;
+
+    min-width: 272px;
+    max-width: 360px;
+    max-height: 400px;
+    padding: 0;
+
+    border: 1px solid lighten(rgb(50, 50, 55), 15%); // color-background-nav-dt
+
+    box-shadow: 0 2px 8px 0 #00000040;
+
+    &_expanded {
+      display: block;
+    }
+
+    @media (width < $breakpoint-desktop-min) {
+      top: 0;
+      right: -52px;
+
+      width: 100vw;
+      max-width: unset;
+    }
+  }
+
+  &--option {
+    position: relative;
+
+    display: block;
+
+    padding: var(--size-s2) 44px;
+
+    list-style-type: none;
+
+    cursor: pointer;
+    letter-spacing: -0.03em;
+
+    text-transform: capitalize;
+
+    border: none;
+    background-color: var(--color-background-nav-dt);
+
+    font: var(--font-text-m);
+
+    &:hover {
+      background-color: lighten(rgb(50, 50, 55), 10%); // color-background-nav-dt
+    }
+
+    &:focus-visible {
+      z-index: 1;
+
+      outline: 4px solid var(--color-key-blue-05);
+    }
+
+    &_active {
+      background-color: var(--color-key-blue);
+
+      &:hover {
+        background-color: lighten(rgb(48, 127, 255), 10%); // color-key-blue
+      }
+    }
+  }
+
+  &--checkbox {
+    position: absolute;
+
+    top: 50%;
+
+    left: 12px;
+
+    margin-top: -9px;
+
+    pointer-events: none;
+  }
+}
