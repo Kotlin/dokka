@@ -16,7 +16,7 @@
   background-color: var(--color-key-blue);
 }
 
-@media (max-width: 900px) {
+@media (width < 900px) {
   .versions-dropdown {
     height: 52px;
   }
