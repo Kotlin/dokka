@@ -1,6 +1,6 @@
 <#import "source_set_selector.ftl" as source_set_selector>
 <#macro display>
-    <nav class="navigation" id="navigation-wrapper">
+    <nav class="navigation theme-dark" id="navigation-wrapper">
         <@template_cmd name="pathToRoot">
             <a class="library-name--link" href="${pathToRoot}index.html">
                 <@template_cmd name="projectName">
