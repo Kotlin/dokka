@@ -7,7 +7,7 @@ import dokkabuild.PublicationName
 plugins {
     id("dokkabuild.java")
     id("dokkabuild.publish-base")
-    id("com.github.johnrengelman.shadow")
+    id("com.gradleup.shadow")
 }
 
 java {
