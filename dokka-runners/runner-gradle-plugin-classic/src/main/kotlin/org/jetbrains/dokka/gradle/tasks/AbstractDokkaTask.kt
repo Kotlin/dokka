@@ -12,10 +12,10 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.logging.LogLevel
+import org.gradle.api.logging.LogLevel.*
 import org.gradle.api.plugins.JavaBasePlugin
-import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.MapProperty
-import org.gradle.api.provider.Property
+import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.mapProperty
@@ -201,6 +201,21 @@ abstract class AbstractDokkaTask : DefaultTask() {
     @Classpath
     val runtime: Configuration = project.maybeCreateDokkaRuntimeConfiguration(name)
 
+    private val providers: ProviderFactory = project.providers
+
+    /**
+     * Internal Dokka Gradle Plugin only.
+     *
+     * Override the log level that [DokkaBootstrap] produces output logs. Intended for use in tests.
+     */
+    private val dokkaGeneratorLogLevel: Provider<LogLevel>
+        get() = providers.gradleProperty("org.jetbrains.dokka.internal.gradleLogLevel")
+            .flatMap {
+                providers.provider {
+                    LogLevel.values().firstOrNull { level -> level.name == it }
+                }
+            }
+
     final override fun doFirst(action: Action<in Task>): Task = super.doFirst(action)
 
     final override fun doFirst(action: Closure<*>): Task = super.doFirst(action)
@@ -225,15 +240,36 @@ abstract class AbstractDokkaTask : DefaultTask() {
 
     internal abstract fun buildDokkaConfiguration(): DokkaConfigurationImpl
 
-    private fun createProxyLogger(): BiConsumer<String, String> = BiConsumer { level, message ->
-        when (level) {
-            "debug" -> logger.debug(message)
-            "info" -> logger.info(message)
-            "progress" -> logger.lifecycle(message)
-            "warn" -> logger.warn(message)
-            "error" -> logger.error(message)
+    private fun createProxyLogger(): BiConsumer<String, String> =
+        object : BiConsumer<String, String> {
+            private val overrideLogger: ((message: String) -> Unit)? =
+                when (dokkaGeneratorLogLevel.orNull) {
+                    DEBUG -> logger::debug
+                    INFO -> logger::info
+                    LIFECYCLE -> logger::lifecycle
+                    WARN -> logger::warn
+                    QUIET -> logger::quiet
+                    ERROR -> logger::error
+                    null -> null
+                }
+
+            override fun accept(level: String, message: String) {
+                if (overrideLogger != null) {
+                    // when an override level is set, re-route all the messages
+                    overrideLogger.invoke(message)
+                } else {
+                    // otherwise, map the Dokka log level (org.jetbrains.dokka.utilities.LoggingLevel)
+                    // to an equivalent Gradle log level
+                    when (level) {
+                        "debug" -> logger.debug(message)
+                        "info" -> logger.info(message)
+                        "progress" -> logger.lifecycle(message)
+                        "warn" -> logger.warn(message)
+                        "error" -> logger.error(message)
+                    }
+                }
+            }
         }
-    }
 
     init {
         group = JavaBasePlugin.DOCUMENTATION_GROUP

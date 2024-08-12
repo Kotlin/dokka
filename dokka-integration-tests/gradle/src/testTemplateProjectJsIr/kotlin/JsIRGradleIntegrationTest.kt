@@ -35,8 +35,6 @@ class JsIRGradleIntegrationTest : AbstractGradleIntegrationTest() {
             buildVersions,
             "-Preact_version=$reactVersion",
             "dokkaHtml",
-            "-i",
-            "-s"
         ).buildRelaxed()
 
         result.shouldHaveTask(":dokkaHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)
