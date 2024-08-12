@@ -347,6 +347,7 @@ interface ProjectDirectoryScope {
         |pluginManagement {
         |  repositories {
         |${dokkaTestRepo.prependIndent("    ")}
+        |    maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
         |    mavenCentral()
         |    gradlePluginPortal()
         |  }
@@ -356,6 +357,7 @@ interface ProjectDirectoryScope {
         |dependencyResolutionManagement {
         |  repositories {
         |${dokkaTestRepo.prependIndent("    ")}
+        |    maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
         |    mavenCentral()
         |  }
         |}
