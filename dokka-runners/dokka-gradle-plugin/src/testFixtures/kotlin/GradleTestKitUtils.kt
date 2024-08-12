@@ -205,6 +205,7 @@ class GradleProjectTest(
                 |pluginManagement {
                 |  repositories {
                 |${dokkaTestRepo.prependIndent("    ")}
+                |    maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
                 |    mavenCentral()
                 |    gradlePluginPortal()
                 |  }
@@ -214,6 +215,7 @@ class GradleProjectTest(
                 |dependencyResolutionManagement {
                 |  repositories {
                 |${dokkaTestRepo.prependIndent("    ")}
+                |    maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
                 |    mavenCentral()
                 |  }
                 |}
