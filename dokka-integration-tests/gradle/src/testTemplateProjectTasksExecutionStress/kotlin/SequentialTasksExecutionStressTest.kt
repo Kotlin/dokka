@@ -24,8 +24,6 @@ class SequentialTasksExecutionStressTest : AbstractGradleIntegrationTest() {
         val result = createGradleRunner(
             buildVersions,
             "runTasks",
-            "--info",
-            "--stacktrace",
             "-Ptask_number=$iterations",
             jvmArgs = listOf("-Xmx1G", "-XX:MaxMetaspaceSize=500m"),
             enableBuildCache = false,

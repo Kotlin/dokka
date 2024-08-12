@@ -22,8 +22,6 @@ class BasicGroovyIntegrationTest : AbstractGradleIntegrationTest() {
             "dokkaJavadoc",
             "dokkaGfm",
             "dokkaJekyll",
-            "-i",
-            "-s"
         ).buildRelaxed()
 
         result.shouldHaveTask(":dokkaHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)

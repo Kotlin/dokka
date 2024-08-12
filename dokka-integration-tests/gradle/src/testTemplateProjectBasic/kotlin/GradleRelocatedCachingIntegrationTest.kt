@@ -32,8 +32,6 @@ class GradleRelocatedCachingIntegrationTest : AbstractGradleCachingIntegrationTe
             buildVersions,
             "clean",
             "dokkaHtml",
-            "-i",
-            "-s",
             "-Dorg.gradle.caching.debug=true",
             enableBuildCache = true,
         ).withProjectDir(project).buildRelaxed()
