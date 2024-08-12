@@ -23,6 +23,11 @@ fun createSettingsXml(): String {
         url = "https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2",
     )
 
+    val kotlinDevRepo = Repository(
+        id = "kotlin-dev",
+        url = "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev",
+    )
+
     val pluginRepos = buildList {
         addAll(
             devMavenRepositories.mapIndexed { i, repoPath ->
@@ -33,7 +38,13 @@ fun createSettingsXml(): String {
             }
         )
         add(mavenCentralRepo)
+        add(kotlinDevRepo)
     }.joinToString("\n") { it.pluginRepository() }
+
+    val repos = buildList {
+        add(mavenCentralRepo)
+        add(kotlinDevRepo)
+    }.joinToString("\n") { it.repository() }
 
     return """
         |<settings>
@@ -44,7 +55,7 @@ fun createSettingsXml(): String {
         |${pluginRepos.prependIndent("                ")}
         |            </pluginRepositories>
         |            <repositories>
-        |${mavenCentralRepo.repository().prependIndent("            ")}
+        |${repos.prependIndent("            ")}
         |            </repositories>
         |        </profile>
         |    </profiles>

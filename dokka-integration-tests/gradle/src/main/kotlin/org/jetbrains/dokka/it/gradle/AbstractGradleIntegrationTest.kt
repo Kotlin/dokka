@@ -227,6 +227,10 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
 
             /* language=kts */
             """
+            |maven {
+            |    setUrl("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
+            |    name = "kotlin-dev"
+            |}
             |exclusiveContent {
             |    forRepositories(
             |      $reposSpecs
