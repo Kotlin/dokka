@@ -66,8 +66,6 @@ class BasicCachingIntegrationTest : AbstractGradleCachingIntegrationTest() {
             buildVersions,
             "clean",
             "dokkaHtml",
-            "-i",
-            "-s",
             "-Dorg.gradle.caching.debug=true",
             enableBuildCache = true,
         ).buildRelaxed()

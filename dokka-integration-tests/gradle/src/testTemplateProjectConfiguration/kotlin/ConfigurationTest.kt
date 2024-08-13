@@ -33,8 +33,6 @@ class ConfigurationTest : AbstractGradleIntegrationTest() {
     ) {
         val result = createGradleRunner(
             buildVersions,
-            "--info",
-            "--stacktrace",
             "-Preport_undocumented=true",
             "-Pfail_on_warning=true",
             "dokkaHtml"

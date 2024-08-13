@@ -4,6 +4,8 @@
 
 package org.jetbrains.dokka.it.gradle
 
+import org.gradle.api.logging.LogLevel
+import org.gradle.api.logging.LogLevel.*
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.tooling.GradleConnectionException
@@ -42,7 +44,21 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
         buildVersions: BuildVersions,
         vararg arguments: String,
         jvmArgs: List<String> = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=1G"),
-        enableBuildCache: Boolean = true,
+        enableBuildCache: Boolean? = true,
+        /**
+         * The log level that Gradle will use.
+         *
+         * Prefer using [LogLevel.LIFECYCLE] or above. Gradle TestKit stores logs in-memory, which makes the tests slow.
+         * See https://github.com/gradle/gradle/issues/23965
+         *
+         * Avoid using [LogLevel.DEBUG] - it is *very* noisy!
+         */
+        gradleLogLevel: LogLevel = LIFECYCLE,
+        /**
+         * The log level that Dokka Generator will use.
+         * Defaults to [gradleLogLevel], so that the Dokka logs are always produced.
+         */
+        dokkaLogLevel: LogLevel = gradleLogLevel,
     ): GradleRunner {
 
         // TODO quick hack to add `android { namespace }` on AGP 7+ (it's mandatory in 8+).
@@ -58,7 +74,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                 |    namespace = "org.jetbrains.dokka.it.android"
                 |}
                 |
-            """.trimMargin()
+                """.trimMargin()
             )
         }
 
@@ -83,7 +99,24 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             }
             .withArguments(
                 buildList {
-                    add(if (enableBuildCache) "--build-cache" else "--no-build-cache")
+
+                    when (gradleLogLevel) {
+                        // For the 'LogLevel to cli-option' mapping, see https://docs.gradle.org/8.9/userguide/logging.html#sec:choosing_a_log_level
+                        DEBUG -> add("--debug")
+                        INFO -> add("--info")
+                        LIFECYCLE -> {} // 'lifecycle' is the default and has no flag
+                        WARN -> add("--warn")
+                        QUIET -> add("--quiet")
+                        ERROR -> add("--error")
+                    }
+
+                    add("-PdokkaGeneratorLogLevel=$dokkaLogLevel")
+
+                    add("--stacktrace")
+
+                    if (enableBuildCache != null) {
+                        add(if (enableBuildCache) "--build-cache" else "--no-build-cache")
+                    }
 
                     add("-Pdokka_it_dokka_version=${dokkaVersion}")
                     add("-Pdokka_it_kotlin_version=${buildVersions.kotlinVersion}")
@@ -226,15 +259,10 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
     }
 }
 
-private fun GradleRunner.withJetBrainsCachedGradleVersion(version: GradleVersion): GradleRunner {
-    return withGradleDistribution(
-        URI.create(
-            "https://cache-redirector.jetbrains.com/" +
-                    "services.gradle.org/distributions/" +
-                    "gradle-${version.version}-bin.zip"
-        )
+private fun GradleRunner.withJetBrainsCachedGradleVersion(version: GradleVersion): GradleRunner =
+    withGradleDistribution(
+        URI("https://cache-redirector.jetbrains.com/services.gradle.org/distributions/gradle-${version.version}-bin.zip")
     )
-}
 
 private fun Throwable.withAllCauses(): Sequence<Throwable> {
     val root = this
