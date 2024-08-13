@@ -12,10 +12,10 @@ plugins {
 
     kotlin("plugin.serialization") version embeddedKotlinVersion
 
+    `jvm-test-suite`
+    `java-test-fixtures`
     id("dokkabuild.dev-maven-publish")
     alias(libs.plugins.kotlinx.binaryCompatibilityValidator)
-    `java-test-fixtures`
-    `jvm-test-suite`
 
     id("dokkabuild.publish-gradle-plugin")
 }
