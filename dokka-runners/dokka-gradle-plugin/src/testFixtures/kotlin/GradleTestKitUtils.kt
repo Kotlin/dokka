@@ -220,11 +220,6 @@ interface ProjectDirectoryScope {
         |  )
         |  filter {
         |    includeGroup("org.jetbrains.dokka")
-        |    includeGroup("org.jetbrains.dokka")
-        |    includeGroup("org.jetbrains.dokka")
-        |    includeGroup("org.jetbrains.dokka.gradle-javadoc")
-        |    includeGroup("org.jetbrains.dokka.gradle-jekyll")
-        |    includeGroup("org.jetbrains.dokka.gradle-gfm")
         |  }
         |}
     """.trimMargin()
