@@ -29,7 +29,6 @@ class HtmlAggregationWarningTest : FunSpec({
                 "clean",
                 ":dokkaGenerate",
                 "--stacktrace",
-//                "--info",
             )
             .forwardOutput()
             .build {
@@ -48,7 +47,6 @@ class HtmlAggregationWarningTest : FunSpec({
                 "clean",
                 ":dokkaGenerate",
                 "--stacktrace",
-//                "--info",
             )
             .forwardOutput()
             .build {

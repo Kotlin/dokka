@@ -195,15 +195,15 @@ constructor(
          *
          * ```properties
          * # $GRADLE_USER_HOME/gradle.properties
-         * org.jetbrains.dokka.gradle.tasks.logHtmlPublicationLinkEnabled=false
+         * org.jetbrains.dokka.gradle.enabledLogHtmlPublicationLink=false
          * ```
          *
          * or via an environment variable
          *
          * ```env
-         * ORG_GRADLE_PROJECT_org.jetbrains.dokka.gradle.tasks.logHtmlPublicationLinkEnabled=false
+         * ORG_GRADLE_PROJECT_org.jetbrains.dokka.gradle.enabledLogHtmlPublicationLink=false
          * ```
          */
-        const val ENABLE_TASK_PROPERTY_NAME = "org.jetbrains.dokka.gradle.tasks.logHtmlPublicationLinkEnabled"
+        const val ENABLE_TASK_PROPERTY_NAME = "org.jetbrains.dokka.gradle.enableLogHtmlPublicationLink"
     }
 }
