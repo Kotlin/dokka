@@ -47,7 +47,7 @@ dependencies {
     devPublication("org.jetbrains.dokka:plugin-templating:$dokkaVersion")
     devPublication("org.jetbrains.dokka:plugin-versioning:$dokkaVersion")
 
-    devPublication("org.jetbrains.dokka:runner-gradle-plugin-classic:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
 }
 
 kotlin {
