@@ -2,6 +2,7 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+import dokkabuild.utils.excludeGradleEmbeddedDependencies
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
@@ -31,3 +32,5 @@ tasks.compileKotlin {
 tasks.validatePlugins {
     enableStricterValidation = true
 }
+
+excludeGradleEmbeddedDependencies(sourceSets.main)
