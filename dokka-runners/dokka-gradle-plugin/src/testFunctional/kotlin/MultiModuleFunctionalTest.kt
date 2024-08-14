@@ -31,9 +31,8 @@ class MultiModuleFunctionalTest : FunSpec({
 
         project.runner
             .addArguments(
-                "clean",
                 ":dokkaGenerate",
-                "--stacktrace",
+                "--rerun-tasks",
             )
             .forwardOutput()
             .build {
@@ -111,7 +110,6 @@ class MultiModuleFunctionalTest : FunSpec({
 
             project.runner
                 .addArguments(
-                    //"clean",
                     ":dokkaGenerate",
                     "--stacktrace",
                     "--build-cache",
@@ -568,9 +566,8 @@ class MultiModuleFunctionalTest : FunSpec({
 
             project.runner
                 .addArguments(
-                    "clean",
                     ":dokkaGeneratePublicationHtml",
-                    "--stacktrace",
+                    "--rerun-tasks",
                 )
                 .forwardOutput()
                 .build {

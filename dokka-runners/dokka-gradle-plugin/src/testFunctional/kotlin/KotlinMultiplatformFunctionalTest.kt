@@ -23,9 +23,8 @@ class KotlinMultiplatformFunctionalTest : FunSpec({
 
         project.runner
             .addArguments(
-                "clean",
                 ":dokkaGeneratePublicationHtml",
-                "--stacktrace",
+                "--rerun-tasks",
             )
             .forwardOutput()
             .build {
