@@ -1,8 +1,7 @@
 /*!
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-
-@import '../tokens/index';
+@import '../_tokens/index';
 
 .navigation-controls {
   display: flex;
@@ -25,6 +24,8 @@
 }
 
 .navigation-controls--btn {
+  z-index: 0;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -62,19 +63,15 @@
 }
 
 .navigation-controls--btn_theme {
-  background-image: url('./assets/theme-toggle.svg');
+  background-image: url('../_assets/theme-toggle.svg');
 }
 
 .navigation-controls--btn_homepage {
-  background-image: url('./assets/homepage.svg');
+  background-image: url('../_assets/homepage.svg');
 }
 
 .navigation-controls--btn_menu {
   margin-left: auto;
 
-  background-image: url('./assets/burger.svg');
-}
-
-.navigation-controls--btn_filter {
-  background-image: url('./assets/filter.svg');
+  background-image: url('../_assets/burger.svg');
 }
