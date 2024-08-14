@@ -1,11 +1,12 @@
 /*!
  * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-@import '../tokens/index';
+@import '../_tokens/index';
 
 .button {
   display: flex;
   align-items: center;
+  justify-content: center;
 
   height: 40px;
 
@@ -78,7 +79,7 @@
       content: '';
       transform: rotate(0);
 
-      background-image: url('./assets/arrow-down.svg');
+      background-image: url('../_assets/arrow-down.svg');
       background-repeat: no-repeat;
       will-change: transform;
 
@@ -103,5 +104,10 @@
       transform: rotate(-180deg);
       filter: invert(0);
     }
+  }
+
+  @media (width < $breakpoint-desktop-min) {
+    width: 52px;
+    height: 52px;
   }
 }
