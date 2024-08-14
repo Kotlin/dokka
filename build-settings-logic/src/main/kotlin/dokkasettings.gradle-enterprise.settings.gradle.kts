@@ -39,7 +39,9 @@ develocity {
     server = "https://ge.jetbrains.com/"
 
     buildScan {
-        publishing.onlyIf { buildScanEnabled }
+        publishing {
+            onlyIf { buildScanEnabled }
+        }
 
         capture {
             buildLogging = buildScanEnabled
