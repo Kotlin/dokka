@@ -5,11 +5,11 @@ import DokkaBuildSettingsProperties.Companion.BUILD_SCAN_USERNAME_DEFAULT
 import DokkaBuildSettingsProperties.Companion.dokkaBuildSettingsProperties
 
 /**
- * Gradle Enterprise conventions.
+ * [Gradle Develocity](https://docs.gradle.com/develocity/gradle-plugin/) conventions.
  *
  * See [DokkaBuildSettingsProperties] for properties.
  *
- * To use JetBrain's Gradle Enterprise set the URL
+ * To use JetBrain's Gradle Develocity set the URL
  * https://ge.jetbrains.com/
  * in `$GRADLE_USER_HOME/gradle.properties`†
  *
@@ -23,11 +23,11 @@ import DokkaBuildSettingsProperties.Companion.dokkaBuildSettingsProperties
  */
 
 plugins {
-    id("com.gradle.enterprise")
+    id("com.gradle.develocity")
     id("com.gradle.common-custom-user-data-gradle-plugin") apply false
 }
 
-gradleEnterprise {
+develocity {
     val buildSettingsProps = dokkaBuildSettingsProperties
 
     val buildScanEnabled = buildSettingsProps.buildScanEnabled.get()
@@ -36,16 +36,17 @@ gradleEnterprise {
         plugins.apply("com.gradle.common-custom-user-data-gradle-plugin")
     }
 
-    buildScan {
-        if (buildScanEnabled) {
-            server = "https://ge.jetbrains.com/"
-            publishAlwaysIf(buildScanEnabled)
+    server = "https://ge.jetbrains.com/"
 
-            capture {
-                isTaskInputFiles = true
-                isBuildLogging = true
-                isUploadInBackground = true
-            }
+    buildScan {
+        publishing {
+            onlyIf { buildScanEnabled }
+        }
+
+        capture {
+            buildLogging = buildScanEnabled
+            fileFingerprints = buildScanEnabled
+            testLogging = buildScanEnabled
         }
 
         val overriddenName = buildSettingsProps.buildScanUsername.orNull
