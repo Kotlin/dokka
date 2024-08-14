@@ -1,14 +1,18 @@
 /*!
  * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-@import '../tokens/index';
+@import '../_tokens/index';
 
 .dropdown {
   position: relative;
 
+  @media (width < $breakpoint-desktop-min) {
+    position: static;
+  }
+
   &--list {
     position: absolute;
-    z-index: 9;
+    z-index: 10;
     top: 44px;
 
     right: 0;
@@ -21,6 +25,7 @@
     padding: 0;
 
     border: 1px solid lighten(rgb(50, 50, 55), 15%); // color-background-nav-dt
+    background-color: var(--color-background-nav-dt);
 
     box-shadow: 0 2px 8px 0 #00000040;
 
@@ -30,10 +35,12 @@
 
     @media (width < $breakpoint-desktop-min) {
       top: 0;
-      right: -52px;
+      left: 0;
 
       width: 100vw;
       max-width: unset;
+      height: 100vh;
+      max-height: unset;
     }
   }
 
