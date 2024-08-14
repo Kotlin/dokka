@@ -25,11 +25,6 @@
             <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
                     type="button">Switch theme
             </button>
-            <#if sourceSets?has_content>
-                <button class="navigation-controls--btn navigation-controls--btn_filter ui-kit_mobile-only"
-                        id="platform-tags-toggle" type="button">Toggle source set
-                </button>
-            </#if>
             <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
                 API
             </div>
