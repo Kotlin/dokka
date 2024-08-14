@@ -16,7 +16,7 @@
                 <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
                     <div class="filter-section--header"><span>Platform filter</span>
                         <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
-                            <div class="ui-kit-icon ui-kit-icon_cross"></div>
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
                         </button>
                     </div>
                     <#list sourceSets as ss>
@@ -27,7 +27,24 @@
                             ${ss.name}
                         </li>
                     </#list>
+                    <#list sourceSets as ss>
+                        <li role="option" class="dropdown--option" onclick="onToggleOption(event)"
+                            onkeyup="onToggleOptionByKey(event)" tabindex="0">
+                            <input type="checkbox" class="checkbox dropdown--checkbox" id="1${ss.filter}"
+                                   data-filter="${ss.filter}" tabindex="-1"/>
+                            ${ss.name}
+                        </li>
+                    </#list>
+                    <#list sourceSets as ss>
+                        <li role="option" class="dropdown--option" onclick="onToggleOption(event)"
+                            onkeyup="onToggleOptionByKey(event)" tabindex="0">
+                            <input type="checkbox" class="checkbox dropdown--checkbox" id="1${ss.filter}"
+                                   data-filter="${ss.filter}" tabindex="-1"/>
+                            ${ss.name}
+                        </li>
+                    </#list>
                 </ul>
+                <div class="filter-section--overlay" id="filter-section-overlay"></div>
             </div>
         </div>
     </#if>
