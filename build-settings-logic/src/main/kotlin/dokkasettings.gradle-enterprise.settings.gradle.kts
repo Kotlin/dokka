@@ -36,16 +36,15 @@ develocity {
         plugins.apply("com.gradle.common-custom-user-data-gradle-plugin")
     }
 
-    buildScan {
-        if (buildScanEnabled) {
-            server = "https://ge.jetbrains.com/"
-            publishing.onlyIf { buildScanEnabled }
+    server = "https://ge.jetbrains.com/"
 
-            capture {
-                buildLogging = true
-                fileFingerprints = true
-                testLogging = true
-            }
+    buildScan {
+        publishing.onlyIf { buildScanEnabled }
+
+        capture {
+            buildLogging = buildScanEnabled
+            fileFingerprints = buildScanEnabled
+            testLogging = buildScanEnabled
         }
 
         val overriddenName = buildSettingsProps.buildScanUsername.orNull
