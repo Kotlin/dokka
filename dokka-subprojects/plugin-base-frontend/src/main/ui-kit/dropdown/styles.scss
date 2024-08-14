@@ -19,6 +19,8 @@
 
     display: none;
 
+    overflow-y: scroll;
+
     min-width: 272px;
     max-width: 360px;
     max-height: 400px;
@@ -29,18 +31,23 @@
 
     box-shadow: 0 2px 8px 0 #00000040;
 
-    &_expanded {
-      display: block;
-    }
-
     @media (width < $breakpoint-desktop-min) {
       top: 0;
-      left: 0;
+      right: 0;
 
-      width: 100vw;
-      max-width: unset;
       height: 100vh;
       max-height: unset;
+
+      border: none;
+    }
+
+    @media (width < $breakpoint-tablet-min) {
+      width: 100vw;
+      max-width: unset;
+    }
+
+    &_expanded {
+      display: block;
     }
   }
 
