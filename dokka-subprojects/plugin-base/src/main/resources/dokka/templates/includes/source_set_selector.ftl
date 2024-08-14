@@ -6,15 +6,16 @@
                         data-filter="${ss.filter}">${ss.name}</button>
             </#list>
             <div class="dropdown" data-role="dropdown" id="filter-section-dropdown">
-                <button class="button button_dropdown" role="combobox"
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
                         data-role="dropdown-toggle"
                         aria-controls="platform-tags-listbox"
                         aria-haspopup="listbox"
                         aria-expanded="false"
+                        aria-label="Toggle source sets"
                 ></button>
                 <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
                     <div class="filter-section--header"><span>Platform filter</span>
-                        <button class="button" data-role="dropdown-toggle">
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
                             <div class="ui-kit-icon ui-kit-icon_cross"></div>
                         </button>
                     </div>
