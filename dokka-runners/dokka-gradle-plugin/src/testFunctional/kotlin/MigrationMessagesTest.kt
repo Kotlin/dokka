@@ -57,20 +57,20 @@ class MigrationMessagesTest : FunSpec({
                 .build {
                     test("output should contain V2 message") {
                         output shouldContainOnlyOnce /* language=text */ """
-                            |┌────────────────────────────────────────────────────────────────────────────┐
-                            |│ Dokka Gradle Plugin V2 is enabled ♡                                        │
-                            |│                                                                            │
-                            |│   We would appreciate your feedback!                                       │
-                            |│   Please report any feedback or problems to Dokka GitHub Issues            │
-                            |│       https://github.com/Kotlin/dokka/issues/                              │
-                            |│                                                                            │
-                            |│   If you need help or advice, check out the migration guide                │
-                            |│       https://kotl.in/dokka-gradle-migration                               │
-                            |│                                                                            │
-                            |│   You can suppress this message by adding                                  │
+                            |┌─────────────────────────────────────────────────────────────────────────┐
+                            |│ Dokka Gradle Plugin V2 is enabled ♡                                     │
+                            |│                                                                         │
+                            |│   We would appreciate your feedback!                                    │
+                            |│   Please report any feedback or problems to Dokka GitHub Issues         │
+                            |│       https://github.com/Kotlin/dokka/issues/                           │
+                            |│                                                                         │
+                            |│   If you need help or advice, check out the migration guide             │
+                            |│       https://kotl.in/dokka-gradle-migration                            │
+                            |│                                                                         │
+                            |│   You can suppress this message by adding                               │
                             |│       $V2_PLUGIN_MESSAGE_SUPPRESSED_FLAG=true │
-                            |│   to your project's `gradle.properties`                                    │
-                            |└────────────────────────────────────────────────────────────────────────────┘
+                            |│   to your project's `gradle.properties`                                 │
+                            |└─────────────────────────────────────────────────────────────────────────┘
                             """.trimMargin()
                         output shouldNotContain "Dokka Gradle Plugin V1 mode"
                     }

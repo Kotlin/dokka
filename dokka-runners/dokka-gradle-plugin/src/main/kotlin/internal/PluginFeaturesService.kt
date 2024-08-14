@@ -78,7 +78,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 |      https://kotl.in/dokka-gradle-migration
                 |
                 |  You can suppress this message by adding
-                |      $V2_PLUGIN_MESSAGE_SUPPRESSED_FLAG=true
+                |      $V2_PLUGIN_ENABLED_QUIET_FLAG=true
                 |  to your project's `gradle.properties`
                 """.trimMargin().surroundWithBorder()
             )
@@ -97,15 +97,15 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 .registerIfAbsent("PluginFeaturesService.internal", PluginFeaturesService::class) {
                     parameters {
                         enableV2Plugin.set(getFlag(V2_PLUGIN_ENABLED_FLAG))
-                        suppressV2PluginMessage.set(getFlag(V2_PLUGIN_MESSAGE_SUPPRESSED_FLAG))
+                        suppressV2PluginMessage.set(getFlag(V2_PLUGIN_ENABLED_QUIET_FLAG))
                     }
                 }.get()
 
         internal const val V2_PLUGIN_ENABLED_FLAG =
             "org.jetbrains.dokka.experimental.gradlePlugin.enableV2"
 
-        internal const val V2_PLUGIN_MESSAGE_SUPPRESSED_FLAG =
-            "org.jetbrains.dokka.experimental.gradlePlugin.suppressV2Message"
+        internal const val V2_PLUGIN_ENABLED_QUIET_FLAG =
+            "$V2_PLUGIN_ENABLED_FLAG.quiet"
 
         private fun Project.getFlag(flag: String): Boolean =
             providers

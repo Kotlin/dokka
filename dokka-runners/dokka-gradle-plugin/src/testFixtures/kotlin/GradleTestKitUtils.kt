@@ -120,7 +120,7 @@ class GradleProjectTest(
 
             with(dokka) {
                 putNotNull("org.jetbrains.dokka.experimental.gradlePlugin.enableV2", enableV2Plugin)
-                putNotNull("org.jetbrains.dokka.experimental.gradlePlugin.suppressV2Message", enableV2Plugin)
+                putNotNull("org.jetbrains.dokka.experimental.gradlePlugin.enableV2.quiet", enableV2Plugin)
                 putNotNull("org.jetbrains.dokka.gradle.enableLogHtmlPublicationLink", enableLogHtmlPublicationLink)
             }
 
