@@ -384,32 +384,48 @@
   position: relative;
 }
 
+@media (width < 900px) {
+  .dropdown {
+    position: static;
+  }
+}
 .dropdown--list {
   position: absolute;
-  z-index: 9;
+  z-index: 10;
   top: 44px;
   right: 0;
   display: none;
+  overflow-y: scroll;
   min-width: 272px;
   max-width: 360px;
   max-height: 400px;
   padding: 0;
   border: 1px solid #56565f;
+  background-color: var(--color-background-nav-dt);
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2509803922);
-}
-
-.dropdown--list_expanded {
-  display: block;
 }
 
 @media (width < 900px) {
   .dropdown--list {
     top: 0;
-    right: -52px;
+    right: 0;
+    overflow-y: visible;
+    height: 100vh;
+    max-height: unset;
+    border: none;
+  }
+}
+@media (width < 440px) {
+  .dropdown--list {
+    overflow-y: scroll;
     width: 100vw;
     max-width: unset;
   }
 }
+.dropdown--list_expanded {
+  display: block;
+}
+
 .dropdown--option {
   position: relative;
   display: block;
@@ -539,7 +555,7 @@
 }
 
 .filter-section {
-  z-index: 0;
+  z-index: 1;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -551,19 +567,52 @@
   .filter-section {
     margin-right: 0;
   }
+  .filter-section > :not(.dropdown) {
+    display: none;
+  }
   .filter-section--dropdown-toggle {
     background-image: url(assets/filter.svg);
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
   }
   .filter-section--dropdown-toggle::after {
     display: none;
   }
 }
 .filter-section--header {
+  position: sticky;
+  z-index: 2;
+  top: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px;
+  padding-left: var(--size-s3);
+  color: var(--color-w70);
+  border-bottom: 1px solid #56565f;
   background-color: var(--color-background-nav-dt);
+}
+
+@media (width >= 900px) {
+  .filter-section--header {
+    display: none;
+  }
+}
+.filter-section--overlay {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  content: "";
+  background-color: rgba(137, 137, 137, 0.5);
+}
+
+.dropdown--list_expanded + .filter-section--overlay {
+  display: block;
 }
 
 .no-js .filter-section {
@@ -1135,6 +1184,7 @@
 }
 
 .navigation-controls--btn {
+  z-index: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
