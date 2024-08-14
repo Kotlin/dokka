@@ -126,7 +126,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
          * Draw a pretty ascii border around some text.
          * This helps with logging a multiline message, so it is easier to view.
          */
-        fun String.surroundWithBorder(): String {
+        private fun String.surroundWithBorder(): String {
             val lines = lines()
             val maxLength = lines.maxOf { it.length }
             val horizontalBorder = "─".repeat(maxLength)

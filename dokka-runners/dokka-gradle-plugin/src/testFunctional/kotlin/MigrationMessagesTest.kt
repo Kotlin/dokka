@@ -102,11 +102,11 @@ class MigrationMessagesTest : FunSpec({
     }
 }) {
     companion object {
-        internal const val V2_PLUGIN_ENABLED_FLAG =
+        private const val V2_PLUGIN_ENABLED_FLAG =
             "org.jetbrains.dokka.experimental.gradlePlugin.enableV2"
 
-        internal const val V2_PLUGIN_MESSAGE_SUPPRESSED_FLAG =
-            "org.jetbrains.dokka.experimental.gradlePlugin.suppressV2Message"
+        private const val V2_PLUGIN_MESSAGE_SUPPRESSED_FLAG =
+            "$V2_PLUGIN_ENABLED_FLAG.quiet"
     }
 }
 
