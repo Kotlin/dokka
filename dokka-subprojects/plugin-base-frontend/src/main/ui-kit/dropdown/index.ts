@@ -1,7 +1,6 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-
 import './styles.scss';
 import { hasAncestorWithClass } from '../utils';
 
@@ -33,7 +32,6 @@ function toggleDropdownButton(button: Element): void {
 }
 
 function toggleDropdownList(list: Element | null): void {
-  console.log(list);
   list?.classList.toggle('dropdown--list_expanded');
 }
 
@@ -42,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('click', (event) => {
     const target = event.target as HTMLElement;
-    if (!hasAncestorWithClass(target, 'dropdown')) {
+    if (!hasAncestorWithClass(target, 'dropdown') && target.id !== 'platform-tags-toggle') {
       const dropdowns = document.querySelectorAll('.button_dropdown');
       dropdowns.forEach((dropdown) => {
         dropdown.classList.remove('button_dropdown_active');
@@ -51,17 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
-
-// function onToggleDropdown(event: PointerEvent): void {
-//   const target = event.target as HTMLButtonElement;
-//   if (target.classList.contains('button_dropdown')) {
-//     target.classList.toggle('button_dropdown_active');
-//   }
-//   target.parentNode
-//       ?.querySelector('.dropdown')
-//       ?.querySelector('.dropdown--list')
-//       ?.classList.toggle('dropdown--list_expanded');
-// }
 
 function onToggleOption(event: PointerEvent): void {
   const target = event.target as HTMLButtonElement;
