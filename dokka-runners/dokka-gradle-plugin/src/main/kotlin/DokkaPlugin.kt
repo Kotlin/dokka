@@ -24,7 +24,7 @@ constructor() : Plugin<Project> {
 
     override fun apply(project: Project) {
         val pluginFeaturesService = project.pluginFeaturesService
-        if (pluginFeaturesService.enableV2Plugin) {
+        if (pluginFeaturesService.v2PluginEnabled) {
             applyV2(project)
         } else {
             applyV1(project)

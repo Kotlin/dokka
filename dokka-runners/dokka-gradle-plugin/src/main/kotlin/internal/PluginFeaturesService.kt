@@ -3,14 +3,17 @@
  */
 package org.jetbrains.dokka.gradle.internal
 
+import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.extra
-import org.gradle.kotlin.dsl.registerIfAbsent
+import kotlin.LazyThreadSafetyMode.SYNCHRONIZED
 
 /**
  * Internal utility service for managing Dokka Plugin features and warnings.
@@ -26,23 +29,41 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
          *
          * Otherwise, fallback to V1 [org.jetbrains.dokka.gradle.DokkaClassicPlugin].
          */
-        val enableV2Plugin: Property<Boolean>
+        val v2PluginEnabled: Property<Boolean>
 
-        /** If `true`, suppress [PluginFeaturesService.logV2Message]. */
-        val suppressV2PluginMessage: Property<Boolean>
+        /** If `true`, suppress any messages regarding V2 mode. */
+        val v2PluginNoWarn: Property<Boolean>
+
+        /**
+         * Designate this [BuildService] as 'primary', meaning it should log messages to users.
+         * Non-primary services should not log messages.
+         *
+         * Why? Because Gradle is buggy. Sometimes registering a BuildService fails.
+         * See https://github.com/gradle/gradle/issues/17559.
+         * If service registration fails then re-register the service, but with a distinct name
+         * (so it doesn't clash with the existing but inaccessible BuildService), and don't mark it as 'primary'.
+         *
+         * @see org.jetbrains.dokka.gradle.internal.registerIfAbsent
+         */
+        val primaryService: Property<Boolean>
     }
 
-    internal val enableV2Plugin: Boolean get() = parameters.enableV2Plugin.getOrElse(false)
-    private val suppressV2PluginMessage: Boolean get() = parameters.suppressV2PluginMessage.getOrElse(false)
+    internal val v2PluginEnabled: Boolean by lazy(SYNCHRONIZED) {
+        val v2PluginEnabled = parameters.v2PluginEnabled.getOrElse(false)
 
-    /** Used to only log the V1 message once per project, regardless of how many subprojects there are. */
-    private var v1WarningLogged: Boolean = false
+        if (v2PluginEnabled) {
+            logV2PluginMessage()
+        } else {
+            logV1PluginMessage()
+        }
 
-    /** Used to only log the V2 message once per project, regardless of how many subprojects there are. */
-    private var v2MessageLogged: Boolean = false
+        v2PluginEnabled
+    }
 
-    fun logV1Warning() {
-        if (!v1WarningLogged) {
+    private val primaryService: Boolean get() = parameters.primaryService.getOrElse(false)
+
+    private fun logV1PluginMessage() {
+        if (primaryService) {
             logger.warn(
                 """
                 |⚠ Warning: Dokka Gradle Plugin V1 mode is enabled
@@ -61,12 +82,11 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 |      https://github.com/Kotlin/dokka/issues/
                 """.trimMargin().surroundWithBorder()
             )
-            v1WarningLogged = true
         }
     }
 
-    fun logV2Message() {
-        if (!suppressV2PluginMessage && !v2MessageLogged) {
+    private fun logV2PluginMessage() {
+        if (primaryService && !v2PluginNoWarn) {
             logger.lifecycle(
                 """
                 |Dokka Gradle Plugin V2 is enabled ♡
@@ -79,34 +99,62 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 |      https://kotl.in/dokka-gradle-migration
                 |
                 |  You can suppress this message by adding
-                |      $V2_PLUGIN_ENABLED_QUIET_FLAG=true
+                |      $V2_PLUGIN_NO_WARN_FLAG=true
                 |  to your project's `gradle.properties`
                 """.trimMargin().surroundWithBorder()
             )
-            v2MessageLogged = true
         }
     }
+
+    /** @see [Params.v2PluginNoWarn] */
+    private val v2PluginNoWarn: Boolean
+        get() = parameters.v2PluginNoWarn.getOrElse(false)
 
     companion object {
         private val logger = Logging.getLogger(PluginFeaturesService::class.java)
 
-        /**
-         * Register a new [PluginFeaturesService], or get an existing instance.
-         */
-        internal val Project.pluginFeaturesService: PluginFeaturesService
-            get() = gradle.sharedServices
-                .registerIfAbsent("PluginFeaturesService.internal", PluginFeaturesService::class) {
-                    parameters {
-                        enableV2Plugin.set(getFlag(V2_PLUGIN_ENABLED_FLAG))
-                        suppressV2PluginMessage.set(getFlag(V2_PLUGIN_ENABLED_QUIET_FLAG))
-                    }
-                }.get()
-
         internal const val V2_PLUGIN_ENABLED_FLAG =
             "org.jetbrains.dokka.experimental.gradlePlugin.enableV2"
 
-        internal const val V2_PLUGIN_ENABLED_QUIET_FLAG =
+        internal const val V2_PLUGIN_NO_WARN_FLAG =
             "$V2_PLUGIN_ENABLED_FLAG.nowarn"
+
+        /** The same as [V2_PLUGIN_NO_WARN_FLAG], but it doesn't trigger spell-checks. */
+        private const val V2_PLUGIN_NO_WARN_FLAG_PRETTY =
+            "$V2_PLUGIN_ENABLED_FLAG.noWarn"
+
+        /**
+         * Register a new [PluginFeaturesService], or get an existing instance.
+         */
+        val Project.pluginFeaturesService: PluginFeaturesService
+            get() {
+                val setFlags = Action<Params> {
+                    v2PluginEnabled.set(getFlag(V2_PLUGIN_ENABLED_FLAG))
+                    v2PluginNoWarn.set(getFlag(V2_PLUGIN_NO_WARN_FLAG_PRETTY).orElse(getFlag(V2_PLUGIN_NO_WARN_FLAG)))
+                }
+
+                return try {
+                    gradle.sharedServices.registerIfAbsent(PluginFeaturesService::class) {
+                        parameters(setFlags)
+                        parameters.primaryService = true
+                    }.get()
+                } catch (ex: ClassCastException) {
+                    try {// Recover from Gradle bug: re-register the service, but don't mark it as 'primary'.
+                        gradle.sharedServices.registerIfAbsent(
+                            PluginFeaturesService::class,
+                            classLoaderScoped = true,
+                        ) {
+                            parameters(setFlags)
+                            parameters.primaryService = false
+                        }.get()
+                    } catch (ex: ClassCastException) {
+                        throw GradleException(
+                            "Failed to register BuildService. Please report this problem https://github.com/gradle/gradle/issues/17559",
+                            ex
+                        )
+                    }
+                }
+            }
 
         private fun Project.getFlag(flag: String): Provider<Boolean> =
             providers
@@ -116,11 +164,10 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                     // Note: Enabling/disabling features via extra-properties is only intended for unit tests.
                     // (Because org.gradle.testfixtures.ProjectBuilder doesn't support mocking Gradle properties.)
                     project
-                        .provider { project.extra.properties[flag]?.toString() ?: "" }
+                        .provider { project.extra.properties[flag]?.toString() }
                         .forUseAtConfigurationTimeCompat()
                 )
                 .map(String::toBoolean)
-
 
         /**
          * Draw a pretty ascii border around some text.
