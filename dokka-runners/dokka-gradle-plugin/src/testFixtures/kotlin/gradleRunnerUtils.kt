@@ -40,13 +40,19 @@ fun GradleRunner.updateGradleProperties(
 
     val gradleProperties = Properties().apply {
         load(gradlePropertiesFile.inputStream())
-    }
+    }.entries.associate { it.key.toString() to it.value.toString() }.toMutableMap()
 
     arguments.toGradleProperties().forEach { (k, v) ->
         gradleProperties[k] = v
     }
 
-    gradleProperties.store(gradlePropertiesFile.outputStream(), null)
+    gradlePropertiesFile.writeText(
+        gradleProperties
+            .entries
+            .sortedBy { it.key }
+            .joinToString("\n", postfix = "\n") { (k, v) -> "$k=$v" }
+    )
+
     return this
 }
 
