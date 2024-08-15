@@ -46,7 +46,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 """
                 |⚠ Warning: Dokka Gradle Plugin V1 mode is enabled
                 |
-                |  V1 mode is deprecated, and will be removed in Dokka version 2.0.20.
+                |  V1 mode is deprecated, and will be removed in Dokka version 2.1.0
                 |
                 |  Please migrate Dokka Gradle Plugin to V2. This will require updating your project.
                 |  To get started check out the Dokka Gradle Plugin Migration guide
@@ -127,7 +127,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
          * This helps with logging a multiline message, so it is easier to view.
          */
         private fun String.surroundWithBorder(): String {
-            val lines = lines()
+            val lines = lineSequence().map { it.trimEnd() }
             val maxLength = lines.maxOf { it.length }
             val horizontalBorder = "─".repeat(maxLength)
 

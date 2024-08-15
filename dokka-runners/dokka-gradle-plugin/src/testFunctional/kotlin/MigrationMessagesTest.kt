@@ -28,7 +28,7 @@ class MigrationMessagesTest : FunSpec({
                             |┌──────────────────────────────────────────────────────────────────────────────────────┐
                             |│ ⚠ Warning: Dokka Gradle Plugin V1 mode is enabled                                    │
                             |│                                                                                      │
-                            |│   V1 mode is deprecated, and will be removed in Dokka version 2.0.20.                │
+                            |│   V1 mode is deprecated, and will be removed in Dokka version 2.1.0                  │
                             |│                                                                                      │
                             |│   Please migrate Dokka Gradle Plugin to V2. This will require updating your project. │
                             |│   To get started check out the Dokka Gradle Plugin Migration guide                   │
