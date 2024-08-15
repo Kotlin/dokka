@@ -6,6 +6,7 @@ package org.jetbrains.dokka.gradle.internal
 import org.gradle.api.Project
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import org.gradle.kotlin.dsl.extra
@@ -31,8 +32,8 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
         val suppressV2PluginMessage: Property<Boolean>
     }
 
-    internal val enableV2Plugin: Boolean get() = parameters.enableV2Plugin.get()
-    private val suppressV2PluginMessage: Boolean get() = parameters.suppressV2PluginMessage.get()
+    internal val enableV2Plugin: Boolean get() = parameters.enableV2Plugin.getOrElse(false)
+    private val suppressV2PluginMessage: Boolean get() = parameters.suppressV2PluginMessage.getOrElse(false)
 
     /** Used to only log the V1 message once per project, regardless of how many subprojects there are. */
     private var v1WarningLogged: Boolean = false
@@ -107,7 +108,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
         internal const val V2_PLUGIN_ENABLED_QUIET_FLAG =
             "$V2_PLUGIN_ENABLED_FLAG.nowarn"
 
-        private fun Project.getFlag(flag: String): Boolean =
+        private fun Project.getFlag(flag: String): Provider<Boolean> =
             providers
                 .gradleProperty(flag)
                 .forUseAtConfigurationTimeCompat()
@@ -118,8 +119,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                         .provider { project.extra.properties[flag]?.toString() ?: "" }
                         .forUseAtConfigurationTimeCompat()
                 )
-                .orNull
-                .toBoolean()
+                .map(String::toBoolean)
 
 
         /**
