@@ -140,10 +140,12 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 return try {
                     gradle.sharedServices.registerIfAbsent(PluginFeaturesService::class) {
                         parameters(setFlags)
+                        // This service was successfully registered, so it is considered 'primary'.
                         parameters.primaryService.set(true)
                     }.get()
                 } catch (ex: ClassCastException) {
-                    try {// Recover from Gradle bug: re-register the service, but don't mark it as 'primary'.
+                    try {
+                        // Recover from Gradle bug: re-register the service, but don't mark it as 'primary'.
                         gradle.sharedServices.registerIfAbsent(
                             PluginFeaturesService::class,
                             classLoaderScoped = true,
