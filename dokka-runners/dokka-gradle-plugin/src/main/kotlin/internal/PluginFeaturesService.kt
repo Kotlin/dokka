@@ -11,7 +11,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
-import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.extra
 import kotlin.LazyThreadSafetyMode.SYNCHRONIZED
 
@@ -141,7 +140,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 return try {
                     gradle.sharedServices.registerIfAbsent(PluginFeaturesService::class) {
                         parameters(setFlags)
-                        parameters.primaryService = true
+                        parameters.primaryService.set(true)
                     }.get()
                 } catch (ex: ClassCastException) {
                     try {// Recover from Gradle bug: re-register the service, but don't mark it as 'primary'.
@@ -150,7 +149,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                             classLoaderScoped = true,
                         ) {
                             parameters(setFlags)
-                            parameters.primaryService = false
+                            parameters.primaryService.set(false)
                         }.get()
                     } catch (ex: ClassCastException) {
                         throw GradleException(
