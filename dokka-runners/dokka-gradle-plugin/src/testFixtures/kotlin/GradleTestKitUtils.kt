@@ -135,7 +135,7 @@ class GradleProjectTest(
                 putNotNull("org.gradle.configureondemand", configureOnDemand)
                 putNotNull("org.gradle.continue", continueOnFailure)
                 putNotNull("org.gradle.daemon.idletimeout", daemonIdleTimeout?.inWholeMilliseconds)
-                putNotNull("org.gradle.priority", daemonSchedulingPriority)
+                putNotNull("org.gradle.priority", daemonSchedulingPriority?.name?.lowercase())
                 putNotNull("org.gradle.debug", debug)
                 putNotNull("org.gradle.logging.level", logLevel?.name?.lowercase())
                 putNotNull("org.gradle.workers.max", maxWorkers)
