@@ -24,30 +24,34 @@ import kotlin.LazyThreadSafetyMode.SYNCHRONIZED
 internal abstract class PluginFeaturesService : BuildService<PluginFeaturesService.Params> {
 
     interface Params : BuildServiceParameters {
-        /**
-         * Whether DGP should use V2 [org.jetbrains.dokka.gradle.DokkaBasePlugin].
-         *
-         * Otherwise, fallback to V1 [org.jetbrains.dokka.gradle.DokkaClassicPlugin].
-         */
+        /** @see PluginFeaturesService.v2PluginEnabled */
         val v2PluginEnabled: Property<Boolean>
 
-        /** If `true`, suppress any messages regarding V2 mode. */
+        /** @see [PluginFeaturesService.v2PluginNoWarn] */
         val v2PluginNoWarn: Property<Boolean>
 
-        /**
-         * Designate this [BuildService] as 'primary', meaning it should log messages to users.
-         * Non-primary services should not log messages.
-         *
-         * Why? Because Gradle is buggy. Sometimes registering a BuildService fails.
-         * See https://github.com/gradle/gradle/issues/17559.
-         * If service registration fails then re-register the service, but with a distinct name
-         * (so it doesn't clash with the existing but inaccessible BuildService), and don't mark it as 'primary'.
-         *
-         * @see org.jetbrains.dokka.gradle.internal.registerIfAbsent
-         */
+        /** @see [PluginFeaturesService.primaryService] */
         val primaryService: Property<Boolean>
     }
 
+    /**
+     * Designate this [BuildService] as 'primary', meaning it should log messages to users.
+     * Non-primary services should not log messages.
+     *
+     * Why? Because Gradle is buggy. Sometimes registering a BuildService fails.
+     * See https://github.com/gradle/gradle/issues/17559.
+     * If service registration fails then re-register the service, but with a distinct name
+     * (so it doesn't clash with the existing but inaccessible BuildService), and don't mark it as 'primary'.
+     *
+     * @see org.jetbrains.dokka.gradle.internal.registerIfAbsent
+     */
+    private val primaryService: Boolean get() = parameters.primaryService.getOrElse(false)
+
+    /**
+     * Whether DGP should use V2 [org.jetbrains.dokka.gradle.DokkaBasePlugin].
+     *
+     * Otherwise, fallback to V1 [org.jetbrains.dokka.gradle.DokkaClassicPlugin].
+     */
     internal val v2PluginEnabled: Boolean by lazy(SYNCHRONIZED) {
         val v2PluginEnabled = parameters.v2PluginEnabled.getOrElse(false)
 
@@ -60,7 +64,10 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
         v2PluginEnabled
     }
 
-    private val primaryService: Boolean get() = parameters.primaryService.getOrElse(false)
+    /** If `true`, suppress any messages regarding V2 mode. */
+    private val v2PluginNoWarn: Boolean
+        get() = parameters.v2PluginNoWarn.getOrElse(false)
+
 
     private fun logV1PluginMessage() {
         if (primaryService) {
@@ -106,16 +113,14 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
         }
     }
 
-    /** @see [Params.v2PluginNoWarn] */
-    private val v2PluginNoWarn: Boolean
-        get() = parameters.v2PluginNoWarn.getOrElse(false)
-
     companion object {
         private val logger = Logging.getLogger(PluginFeaturesService::class.java)
 
+        /** @see [PluginFeaturesService.v2PluginEnabled] */
         internal const val V2_PLUGIN_ENABLED_FLAG =
             "org.jetbrains.dokka.experimental.gradlePlugin.enableV2"
 
+        /** @see [PluginFeaturesService.v2PluginNoWarn] */
         internal const val V2_PLUGIN_NO_WARN_FLAG =
             "$V2_PLUGIN_ENABLED_FLAG.nowarn"
 
@@ -162,7 +167,8 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 .forUseAtConfigurationTimeCompat()
                 .orElse(
                     // Note: Enabling/disabling features via extra-properties is only intended for unit tests.
-                    // (Because org.gradle.testfixtures.ProjectBuilder doesn't support mocking Gradle properties.)
+                    // (Because org.gradle.testfixtures.ProjectBuilder doesn't support mocking Gradle properties.
+                    // But maybe soon! https://github.com/gradle/gradle/pull/30002)
                     project
                         .provider { project.extra.properties[flag]?.toString() }
                         .forUseAtConfigurationTimeCompat()
