@@ -105,7 +105,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
             "org.jetbrains.dokka.experimental.gradlePlugin.enableV2"
 
         internal const val V2_PLUGIN_ENABLED_QUIET_FLAG =
-            "$V2_PLUGIN_ENABLED_FLAG.quiet"
+            "$V2_PLUGIN_ENABLED_FLAG.nowarn"
 
         private fun Project.getFlag(flag: String): Boolean =
             providers
