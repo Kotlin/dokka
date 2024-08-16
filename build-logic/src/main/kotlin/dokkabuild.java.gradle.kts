@@ -20,6 +20,7 @@ java {
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 
+    maxHeapSize = "1G"
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
 
     javaLauncher = javaToolchains.launcherFor {
