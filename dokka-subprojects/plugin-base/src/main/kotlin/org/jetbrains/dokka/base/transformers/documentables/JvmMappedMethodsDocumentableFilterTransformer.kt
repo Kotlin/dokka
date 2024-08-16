@@ -27,7 +27,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
  *
  *  TODO https://youtrack.jetbrains.com/issue/KT-69796/Analysis-API-Provide-a-way-to-detect-mapped-methods-from-JVM
  */
-public class JvmMappedMethodsDocumentableFilterTransformer(context: DokkaContext) :
+internal class JvmMappedMethodsDocumentableFilterTransformer(context: DokkaContext) :
     SuppressedByConditionDocumentableFilterTransformer(context) {
 
     private fun inJavaLang(baseName: String, vararg signatures: String): Set<String> {
@@ -243,7 +243,7 @@ public class JvmMappedMethodsDocumentableFilterTransformer(context: DokkaContext
      * that means they are available and have a deprecation annotation.
      * In K2, they are unavailable for final classes + [NOT_CONSIDER_METHOD_SIGNATURES]
      * @see NOT_CONSIDER_METHOD_SIGNATURES
-    */
+     */
     private fun DFunction.hasDeprecated(): Boolean = this.extra[Annotations]?.directAnnotations?.any {
         it.value.any {
             it.dri == deprecationAnnotationDRI && it.params["message"] == StringValue("This member is not fully supported by Kotlin compiler, so it may be absent or have different signature in next major version")
@@ -251,8 +251,12 @@ public class JvmMappedMethodsDocumentableFilterTransformer(context: DokkaContext
     } ?: false
 
     override fun shouldBeSuppressed(d: Documentable): Boolean =
-        d is DFunction && (d.hasDeprecated() || d.dri.let { it.packageName + "." + it.classNames + "." + it.callable?.name }
-            .let {
-                it in VISIBLE_METHOD_SIGNATURES || it in MUTABLE_METHOD_SIGNATURES || it in DEPRECATED_LIST_METHODS || it in HIDDEN_METHOD_SIGNATURES || it in NOT_CONSIDER_METHOD_SIGNATURES
-            })
+        if (d is DFunction) {
+            if (d.hasDeprecated())
+                true
+            else {
+                val fqn = d.dri.let { it.packageName + "." + it.classNames + "." + it.callable?.name }
+                fqn in VISIBLE_METHOD_SIGNATURES || fqn in MUTABLE_METHOD_SIGNATURES || fqn in DEPRECATED_LIST_METHODS || fqn in HIDDEN_METHOD_SIGNATURES || fqn in NOT_CONSIDER_METHOD_SIGNATURES
+            }
+        } else false
 }
