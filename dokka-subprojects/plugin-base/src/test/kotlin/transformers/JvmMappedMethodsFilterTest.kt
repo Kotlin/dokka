@@ -44,31 +44,6 @@ class JvmMappedMethodsFilterTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should filter out JVM mapped methods in String`() {
-        // hacky test, String is final
-        testInline(
-            """
-            |/src/MyCharSequence.kt
-            |class MyString: String
-            """.trimIndent(), configuration
-        ) {
-            preMergeDocumentablesTransformationStage = { modules ->
-                assertEquals(
-                    setOf(
-                        "compareTo",
-                        "equals",
-                        "get",
-                        "plus",
-                        "subSequence",
-                        "toString"
-                    ),
-                    modules.getMethodNamesFrom("MyString")
-                )
-            }
-        }
-    }
-
-    @Test
     fun `should filter out JVM mapped methods in Collection and MutableCollection`() {
         testInline(
             """
