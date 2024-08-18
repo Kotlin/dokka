@@ -12,7 +12,7 @@
                 type="button">Toggle table of content
         </button>
         <div class="navigation-controls--break ui-kit_mobile-only"></div>
-        <div class="library-version">
+        <div class="library-version" id="library-version">
             <#-- This can be handled by the versioning plugin -->
             <@version/>
         </div>
