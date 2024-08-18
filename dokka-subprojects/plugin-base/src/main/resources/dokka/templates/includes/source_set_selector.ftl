@@ -5,6 +5,14 @@
                 <button class="platform-tag platform-selector ${ss.platform}-like" data-active=""
                         data-filter="${ss.filter}">${ss.name}</button>
             </#list>
+            <#list sourceSets as ss>
+                <button class="platform-tag platform-selector ${ss.platform}-like" data-active=""
+                        data-filter="${ss.filter}">${ss.name}</button>
+            </#list>
+            <#list sourceSets as ss>
+                <button class="platform-tag platform-selector ${ss.platform}-like" data-active=""
+                        data-filter="${ss.filter}">${ss.name}</button>
+            </#list>
             <div class="dropdown" data-role="dropdown" id="filter-section-dropdown">
                 <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
                         data-role="dropdown-toggle"
@@ -38,7 +46,7 @@
                     <#list sourceSets as ss>
                         <li role="option" class="dropdown--option" onclick="onToggleOption(event)"
                             onkeyup="onToggleOptionByKey(event)" tabindex="0">
-                            <input type="checkbox" class="checkbox dropdown--checkbox" id="1${ss.filter}"
+                            <input type="checkbox" class="checkbox dropdown--checkbox" id="2${ss.filter}"
                                    data-filter="${ss.filter}" tabindex="-1"/>
                             ${ss.name}
                         </li>
