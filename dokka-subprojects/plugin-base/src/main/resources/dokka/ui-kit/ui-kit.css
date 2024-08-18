@@ -409,7 +409,6 @@
   .dropdown--list {
     top: 0;
     right: 0;
-    overflow-y: visible;
     height: 100vh;
     max-height: unset;
     border: none;
@@ -417,7 +416,6 @@
 }
 @media (width < 440px) {
   .dropdown--list {
-    overflow-y: scroll;
     width: 100vw;
     max-width: unset;
   }
@@ -598,13 +596,13 @@
   }
 }
 .filter-section--overlay {
-  display: none;
   position: absolute;
   z-index: 1;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
+  display: none;
   width: 100vw;
   height: 100vh;
   content: "";
@@ -615,6 +613,11 @@
   display: block;
 }
 
+@media (width >= 900px) {
+  .dropdown--list_expanded + .filter-section--overlay {
+    display: none;
+  }
+}
 .no-js .filter-section {
   display: none;
 }
@@ -1058,7 +1061,6 @@
   flex-wrap: wrap;
   justify-content: flex-start;
   box-sizing: border-box;
-  height: var(--size-l1);
   padding: 12px var(--size-m1);
   color: var(--color-text-dt);
   background-color: var(--color-background-nav);
