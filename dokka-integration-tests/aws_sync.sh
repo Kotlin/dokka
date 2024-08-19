@@ -33,6 +33,6 @@ done
 # Sync the new one
 commit_hash=$(git log -1 --format="%h")
 
-aws s3 sync "$project_path" "$s3_project_address$commit_hash/"
-
 echo "$commit_hash"
+
+aws s3 sync "$project_path" "$s3_project_address$commit_hash/"
