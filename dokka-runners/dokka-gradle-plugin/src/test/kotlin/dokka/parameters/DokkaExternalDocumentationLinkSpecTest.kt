@@ -12,8 +12,7 @@ import org.gradle.kotlin.dsl.getByType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.DokkaPlugin
-import org.jetbrains.dokka.gradle.utils.enableDokkatoo
-
+import org.jetbrains.dokka.gradle.utils.enableV2Plugin
 
 class DokkaExternalDocumentationLinkSpecTest : FunSpec({
 
@@ -91,7 +90,7 @@ class DokkaExternalDocumentationLinkSpecTest : FunSpec({
 })
 
 private val project = ProjectBuilder.builder().build().also { project ->
-    project.enableDokkatoo()
+    project.enableV2Plugin()
     project.plugins.apply(type = DokkaPlugin::class)
 }
 

@@ -26,10 +26,8 @@ class HtmlAggregationWarningTest : FunSpec({
 
         project.runner
             .addArguments(
-                "clean",
                 ":dokkaGenerate",
-                "--stacktrace",
-//                "--info",
+                "--rerun-tasks",
             )
             .forwardOutput()
             .build {
@@ -45,10 +43,8 @@ class HtmlAggregationWarningTest : FunSpec({
 
         project.runner
             .addArguments(
-                "clean",
                 ":dokkaGenerate",
-                "--stacktrace",
-//                "--info",
+                "--rerun-tasks",
             )
             .forwardOutput()
             .build {

@@ -15,14 +15,18 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtensionContainer
+import org.gradle.api.provider.Provider
+import org.gradle.api.services.BuildService
+import org.gradle.api.services.BuildServiceParameters
+import org.gradle.api.services.BuildServiceRegistry
+import org.gradle.api.services.BuildServiceSpec
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.kotlin.dsl.add
-import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.domainObjectContainer
-import org.gradle.kotlin.dsl.polymorphicDomainObjectContainer
+import org.gradle.kotlin.dsl.*
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec
+import kotlin.reflect.KClass
+import kotlin.reflect.jvm.jvmName
 
 
 /**
@@ -325,3 +329,30 @@ private fun Attribute<*>.matchesTypeOf(other: Attribute<*>): Boolean {
  */
 private fun Attribute<*>.typeId(): String? =
     type.toString().ifBlank { null }
+
+
+/**
+ * Registers a service, named by the [jvmName] of [serviceClass].
+ *
+ * @param[classLoaderScoped] If `true`, register a new service with a new name, suffixed with the value of [ClassLoader.hashCode],
+ * to avoid issues related to Gradle classloaders isolation.
+ *
+ * See
+ * - https://github.com/gradle/gradle/issues/17559
+ * - https://github.com/JetBrains/kotlin/blob/96205cabfdb14a5aa5b1f0127871cee9c09aaef9/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/utils/gradleUtils.kt#L29-L35
+ * @see [BuildServiceRegistry.registerIfAbsent]
+ * @see [PluginFeaturesService.Params.primaryService]
+ */
+internal fun <T : BuildService<P>, P : BuildServiceParameters> BuildServiceRegistry.registerIfAbsent(
+    serviceClass: KClass<T>,
+    classLoaderScoped: Boolean = false,
+    configureAction: Action<BuildServiceSpec<P>> = Action {},
+): Provider<T> {
+    val serviceName =
+        if (classLoaderScoped) {
+            "${serviceClass.jvmName}_${serviceClass.java.classLoader.hashCode()}"
+        } else {
+            serviceClass.jvmName
+        }
+    return registerIfAbsent(serviceName, serviceClass, configureAction)
+}
