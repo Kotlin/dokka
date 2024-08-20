@@ -47,9 +47,6 @@ fun TestScope.initMultiModuleProject(
             buildGradleKts = """
                 |plugins {
                 |  kotlin("jvm") version embeddedKotlinVersion
-                |  // important: Register different plugins here to make the buildscript classpath different,
-                |  // because we _want_ the test to trigger a Gradle classloader bug.
-                |  kotlin("plugin.serialization") version embeddedKotlinVersion
                 |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
                 |}
                 |
