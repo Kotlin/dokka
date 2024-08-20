@@ -11,7 +11,6 @@ import io.ktor.server.engine.*
 import org.gradle.testkit.runner.TaskOutcome.SKIPPED
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.jetbrains.dokka.gradle.internal.DokkaConstants
-import org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask.Companion.ENABLE_TASK_PROPERTY_NAME
 import org.jetbrains.dokka.gradle.utils.*
 
 class LogHtmlPublicationLinkTaskTest : FunSpec({
@@ -130,7 +129,7 @@ private fun initDokkaProject(
         )
 
         // remove the flag that disables the logging task, since this test wants the logger to run
-        defaultRunnerArgs.removeIf { ENABLE_TASK_PROPERTY_NAME in it }
+        gradleProperties.dokka.enableLogHtmlPublicationLink = null
 
         config()
     }

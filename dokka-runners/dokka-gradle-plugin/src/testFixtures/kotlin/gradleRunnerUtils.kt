@@ -6,7 +6,7 @@ package org.jetbrains.dokka.gradle.utils
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.BuildTask
 import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.internal.DefaultGradleRunner
+import java.util.*
 
 
 /** Edit environment variables in the Gradle Runner */
@@ -28,9 +28,33 @@ inline fun GradleRunner.buildAndFail(
 ): Unit = buildAndFail().let(handleResult)
 
 
-fun GradleRunner.withJvmArguments(
-    vararg jvmArguments: String
-): GradleRunner = (this as DefaultGradleRunner).withJvmArguments(*jvmArguments)
+fun GradleRunner.updateGradleProperties(
+    arguments: GradleProjectTest.GradleProperties,
+): GradleRunner {
+    val gradlePropertiesFile = projectDir.resolve("gradle.properties").apply {
+        if (!exists()) {
+            parentFile.mkdirs()
+            createNewFile()
+        }
+    }
+
+    val gradleProperties = Properties().apply {
+        load(gradlePropertiesFile.inputStream())
+    }.entries.associate { it.key.toString() to it.value.toString() }.toMutableMap()
+
+    arguments.toGradleProperties().forEach { (k, v) ->
+        gradleProperties[k] = v
+    }
+
+    gradlePropertiesFile.writeText(
+        gradleProperties
+            .entries
+            .sortedBy { it.key }
+            .joinToString("\n", postfix = "\n") { (k, v) -> "$k=$v" }
+    )
+
+    return this
+}
 
 
 /**

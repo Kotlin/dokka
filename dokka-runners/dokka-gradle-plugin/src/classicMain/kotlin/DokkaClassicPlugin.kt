@@ -1,7 +1,6 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.DefaultTask
@@ -13,11 +12,17 @@ import org.gradle.kotlin.dsl.withType
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.DokkaDefaults
 
+/**
+ * The OG Dokka Gradle Plugin. A.K.A. DGP Classic, or Dokka V1.
+ *
+ * This plugin is planned for removal.
+ */
 open class DokkaClassicPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         if (GradleVersion.version(project.gradle.gradleVersion) < GradleVersion.version("5.6")) {
             project.logger.warn("Dokka: Build is using unsupported gradle version, expected at least 5.6 but got ${project.gradle.gradleVersion}. This may result in strange errors")
         }
+
         if (project.shouldUseK2())
             project.logger.warn(
                 "Dokka's K2 Analysis is being used. " +

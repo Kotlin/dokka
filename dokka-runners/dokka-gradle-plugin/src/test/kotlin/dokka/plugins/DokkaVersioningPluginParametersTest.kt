@@ -15,13 +15,13 @@ import org.gradle.kotlin.dsl.getByType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.DokkaPlugin
-import org.jetbrains.dokka.gradle.utils.enableDokkatoo
+import org.jetbrains.dokka.gradle.utils.enableV2Plugin
 
 class DokkaVersioningPluginParametersTest : FunSpec({
-    val project = ProjectBuilder.builder().build().also { project ->
-        project.enableDokkatoo()
-        project.plugins.apply(type = DokkaPlugin::class)
-    }
+
+    val project = ProjectBuilder.builder().build()
+        .enableV2Plugin()
+    project.plugins.apply(type = DokkaPlugin::class)
 
     fun TestScope.versioningPluginParams(
         configure: DokkaVersioningPluginParameters.() -> Unit = {}
