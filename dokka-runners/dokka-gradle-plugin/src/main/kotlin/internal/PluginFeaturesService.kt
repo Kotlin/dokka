@@ -123,7 +123,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
 
         val enableK2Analysis = parameters.k2AnalysisEnabled.getOrElse(false)
 
-        if (enableK2Analysis && !parameters.k2AnalysisNoWarn.getOrElse(false)) {
+        if (enableK2Analysis) {
             logK2AnalysisMessage()
         }
 
@@ -131,18 +131,24 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
     }
 
     private fun logK2AnalysisMessage() {
-        logger.warn(
-            """
-            |Dokka K2 Analysis is enabled
-            |
-            |  This feature is Experimental and is still under active development.
-            |  It can cause build failures or incorrectly generated documentation. 
-            |
-            |  We would appreciate your feedback!
-            |  Please report any feedback or problems to Dokka GitHub Issues
-            |      https://github.com/Kotlin/dokka/issues/
-            """.trimMargin().surroundWithBorder()
-        )
+        if (primaryService && !parameters.k2AnalysisNoWarn.getOrElse(false)) {
+            logger.warn(
+                """
+                |Dokka K2 Analysis is enabled
+                |
+                |  This feature is Experimental and is still under active development.
+                |  It can cause build failures or generate incorrect documentation. 
+                |
+                |  We would appreciate your feedback!
+                |  Please report any feedback or problems to Dokka GitHub Issues
+                |      https://github.com/Kotlin/dokka/issues/
+                |
+                |  You can suppress this message by adding
+                |      $K2_ANALYSIS_NO_WARN_FLAG_PRETTY=true
+                |  to your project's `gradle.properties`
+                """.trimMargin().surroundWithBorder()
+            )
+        }
     }
 
     companion object {
