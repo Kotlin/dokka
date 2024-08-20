@@ -356,3 +356,14 @@ internal fun <T : BuildService<P>, P : BuildServiceParameters> BuildServiceRegis
         }
     return registerIfAbsent(serviceName, serviceClass, configureAction)
 }
+
+/**
+ * Mark the configuration as internal.
+ *
+ * Adds a dot `.`, which is not a valid Kotlin property name,
+ * to prevent Gradle from generating a Kotlin DSL accessor and clogging up the `dependencies {}`
+ * block with confusing unrelated [Configuration]s.
+ */
+internal const val INTERNAL_CONF_NAME_TAG = ".internal"
+
+internal const val INTERNAL_CONF_DESCRIPTION_TAG = "[Internal Dokka Configuration]"

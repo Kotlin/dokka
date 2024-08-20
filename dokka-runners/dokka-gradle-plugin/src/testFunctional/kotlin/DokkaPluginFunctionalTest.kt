@@ -7,6 +7,7 @@ import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.jetbrains.dokka.gradle.internal.DokkaConstants.DOKKA_VERSION
 import org.jetbrains.dokka.gradle.utils.*
@@ -57,8 +58,8 @@ class DokkaPluginFunctionalTest : FunSpec({
                 dokkaVariants.shouldContainExactlyInAnyOrder(
                     expectedFormats.flatMap {
                         listOf(
-                            "dokka${it}ModuleOutputDirectoriesConsumable",
-                            "dokka${it}PublicationPluginClasspathApiOnlyConsumable",
+                            "dokka${it}ModuleOutputDirectoriesConsumable.internal",
+                            "dokka${it}PublicationPluginApiOnlyConsumable.internal",
                         )
                     }
                 )
@@ -69,9 +70,9 @@ class DokkaPluginFunctionalTest : FunSpec({
 
                     variants shouldContain /* language=text */ """
                         |--------------------------------------------------
-                        |Variant dokka${Format}ModuleOutputDirectoriesConsumable
+                        |Variant dokka${Format}ModuleOutputDirectoriesConsumable.internal
                         |--------------------------------------------------
-                        |Provides Dokka $format ModuleOutputDirectories files for consumption by other subprojects.
+                        |[Internal Dokka Configuration] Provides Dokka $format ModuleOutputDirectories files for consumption by other subprojects.
                         |
                         |Capabilities
                         |    - :test:unspecified (default capability)
@@ -90,97 +91,162 @@ class DokkaPluginFunctionalTest : FunSpec({
             }
     }
 
-    xtest("expect Dokka Plugin creates Dokka resolvable configurations") {
-        // disabled because Gradle is bugged https://github.com/gradle/gradle/issues/28733
-
+    test("expect Dokka Plugin creates Dokka resolvable configurations") {
         testProject.runner
             .addArguments("resolvableConfigurations", "--quiet")
             .build {
-                output.invariantNewlines().asClue { allConfigurations ->
+                val configurationsDump = parseConfigurationsDump(output)
+                    .mapValues { (_, v) -> v.removeBuggedGradleWarning() }
 
-                    val dokkaConfigurations = allConfigurations.lines()
-                        .filter { it.contains("dokka", ignoreCase = true) }
-                        .mapNotNull { it.substringAfter("Configuration ", "").takeIf(String::isNotBlank) }
+                configurationsDump
+                    .filter { (k, v) -> "$k=$v".contains("dokka", ignoreCase = true) }
+                    .asClue { dokkaConfigurations ->
+                        expectedFormats.forEach { expectedFormat ->
 
-                    dokkaConfigurations.shouldContainExactlyInAnyOrder(
-                        buildSet {
-                            addAll(expectedFormats.map { "dokka${it.uppercaseFirstChar()}GeneratorClasspathResolver" })
-                            addAll(expectedFormats.map { "dokka${it.uppercaseFirstChar()}ModuleOutputDirectoriesResolver" })
-                            addAll(expectedFormats.map { "dokka${it.uppercaseFirstChar()}PluginsClasspathIntransitiveResolver" })
-                            addAll(expectedFormats.map { "dokka${it.uppercaseFirstChar()}PublicationPluginClasspathResolver" })
+                            val format = expectedFormat.lowercase()
+
+                            @Suppress("LocalVariableName")
+                            val Format = format.uppercaseFirstChar()
+
+                            dokkaConfigurations.keys.shouldContainExactlyInAnyOrder(
+                                listOf(
+                                    "Configuration dokka${Format}GeneratorRuntimeResolver.internal",
+                                    "Configuration dokka${Format}ModuleOutputDirectoriesResolver.internal",
+                                    "Configuration dokka${Format}PluginIntransitiveResolver.internal",
+                                    "Configuration dokka${Format}PublicationPluginResolver.internal",
+                                )
+                            )
+
+                            mapOf(
+                                "Configuration dokka${Format}GeneratorRuntimeResolver.internal" to /* language=text */ """
+                                    |[Internal Dokka Configuration] Dokka Generator runtime classpath for $format - will be used in Dokka Worker. Should contain all transitive dependencies, plugins (and their transitive dependencies), so Dokka Worker can run.
+                                    |
+                                    |Attributes
+                                    |    - org.gradle.category            = DGP~library
+                                    |    - org.gradle.dependency.bundling = DGP~external
+                                    |    - org.gradle.jvm.environment     = DGP~standard-jvm
+                                    |    - org.gradle.libraryelements     = DGP~jar
+                                    |    - org.gradle.usage               = DGP~java-runtime
+                                    |    - org.jetbrains.dokka.classpath  = dokka-generator
+                                    |    - org.jetbrains.dokka.format     = $format
+                                    |Extended Configurations
+                                    |    - dokka${Format}GeneratorRuntime
+                                    """.trimMargin(),
+
+                                "Configuration dokka${Format}ModuleOutputDirectoriesResolver.internal" to /* language=text */ """
+                                    |[Internal Dokka Configuration] Resolves Dokka $format ModuleOutputDirectories files.
+                                    |
+                                    |Attributes
+                                    |    - org.gradle.usage                     = org.jetbrains.dokka
+                                    |    - org.jetbrains.dokka.format           = $format
+                                    |    - org.jetbrains.dokka.module-component = ModuleOutputDirectories
+                                    |Extended Configurations
+                                    |    - dokka
+                                    """.trimMargin(),
+
+                                "Configuration dokka${Format}PluginIntransitiveResolver.internal" to /* language=text */ """
+                                    |[Internal Dokka Configuration] Resolves Dokka Plugins classpath for $format. Fetch only the plugins (no transitive dependencies) for use in the Dokka JSON Configuration.
+                                    |
+                                    |Attributes
+                                    |    - org.gradle.category            = DGP~library
+                                    |    - org.gradle.dependency.bundling = DGP~external
+                                    |    - org.gradle.jvm.environment     = DGP~standard-jvm
+                                    |    - org.gradle.libraryelements     = DGP~jar
+                                    |    - org.gradle.usage               = DGP~java-runtime
+                                    |    - org.jetbrains.dokka.classpath  = dokka-plugins
+                                    |    - org.jetbrains.dokka.format     = $format
+                                    |Extended Configurations
+                                    |    - dokka${Format}Plugin
+                                    """.trimMargin(),
+
+                                "Configuration dokka${Format}PublicationPluginResolver.internal" to /* language=text */ """
+                                    |[Internal Dokka Configuration] Resolves Dokka Plugins classpath for a $format Publication (consisting of 1+ Dokka Module).
+                                    |
+                                    |Attributes
+                                    |    - org.gradle.category            = DGP~library
+                                    |    - org.gradle.dependency.bundling = DGP~external
+                                    |    - org.gradle.jvm.environment     = DGP~standard-jvm
+                                    |    - org.gradle.libraryelements     = DGP~jar
+                                    |    - org.gradle.usage               = DGP~java-runtime
+                                    |    - org.jetbrains.dokka.classpath  = dokka-publication-plugins
+                                    |    - org.jetbrains.dokka.format     = $format
+                                    |Extended Configurations
+                                    |    - dokka${Format}PublicationPlugin
+                                    """.trimMargin(),
+                            ).forEach { (t, u) ->
+                                dokkaConfigurations[t] shouldBe u
+                            }
                         }
-                    )
-
-                    fun checkConfigurations(
-                        @Suppress("LocalVariableName")
-                        Format: String
-                    ) {
-                        val format = Format.lowercase()
-
-                        allConfigurations shouldContain /* language=text */ """
-                            |--------------------------------------------------
-                            |Configuration dokka${Format}GeneratorClasspathResolver
-                            |--------------------------------------------------
-                            |Dokka Generator runtime classpath for $format - will be used in Dokka Worker. Should contain all transitive dependencies, plugins (and their transitive dependencies), so Dokka Worker can run.
-                            |
-                            |Attributes
-                            |    - org.gradle.category            = DGP~library
-                            |    - org.gradle.dependency.bundling = DGP~external
-                            |    - org.gradle.jvm.environment     = DGP~standard-jvm
-                            |    - org.gradle.libraryelements     = DGP~jar
-                            |    - org.gradle.usage               = DGP~java-runtime
-                            |    - org.jetbrains.dokka.classpath  = dokka-generator
-                            |    - org.jetbrains.dokka.format     = $format
-                            |Extended Configurations
-                            |    - dokka${Format}GeneratorClasspath
-                            """.trimMargin()
-
-                        allConfigurations shouldContain /* language=text */ """
-                            |--------------------------------------------------
-                            |Configuration dokka${Format}PluginsClasspathIntransitiveResolver
-                            |--------------------------------------------------
-                            |Resolves Dokka Plugins classpath for $format - for internal use. Fetch only the plugins (no transitive dependencies) for use in the Dokka JSON Configuration.
-                            |
-                            |Attributes
-                            |    - org.gradle.category            = DGP~library
-                            |    - org.gradle.dependency.bundling = DGP~external
-                            |    - org.gradle.jvm.environment     = DGP~standard-jvm
-                            |    - org.gradle.libraryelements     = DGP~jar
-                            |    - org.gradle.usage               = DGP~java-runtime
-                            |    - org.jetbrains.dokka.classpath  = dokka-plugins
-                            |    - org.jetbrains.dokka.format     = $format
-                            |Extended Configurations
-                            |    - dokkaPlugin${Format}
-                            """.trimMargin()
-
-                        allConfigurations shouldContain /* language=text */ """
-                            |--------------------------------------------------
-                            |Configuration dokka${Format}ModuleOutputDirectoriesResolver
-                            |--------------------------------------------------
-                            |Resolves Dokka $format ModuleOutputDirectories files.
-                            |
-                            |Attributes
-                            |    - org.gradle.usage                     = org.jetbrains.dokka
-                            |    - org.jetbrains.dokka.format           = $format
-                            |    - org.jetbrains.dokka.module-component = ModuleOutputDirectories
-                            |Extended Configurations
-                            |    - dokka
-                            """.trimMargin()
                     }
-
-                    expectedFormats.forEach {
-                        checkConfigurations(it)
-                    }
-                }
             }
     }
 }) {
     companion object {
+        /**
+         * The output formats that Dokka supports.
+         */
         private val expectedFormats = listOf(
-//            "Gfm",
+            //"Gfm",
             "Html",
-//            "Javadoc",
-//            "Jekyll",
+            //"Javadoc",
+            //"Jekyll",
         )
+
+        /**
+         * Split the Gradle configuration dump to a map.
+         *
+         * Example input:
+         *
+         * ```text
+         * --------------------------------------------------
+         * Configuration foo
+         * --------------------------------------------------
+         * Foo description
+         *
+         * [...]
+         *
+         * --------------------------------------------------
+         * Configuration bar
+         * --------------------------------------------------
+         * Bar description
+         *
+         * [...]
+         * ```
+         *
+         * Result:
+         *
+         * ```
+         * {
+         *   "Configuration foo": "Foo description [...]",
+         *   "Configuration bar": "Bar description [...]",
+         * }
+         * ```
+         */
+        private fun parseConfigurationsDump(text: String): Map<String, String> {
+            val separator = "-".repeat(50) + "\n"
+            return text
+                .split(separator)
+                .filter { it.isNotBlank() }
+                .chunked(2)
+                .associate {
+                    fun getOrMissing(index: Int) = (it.getOrNull(index) ?: "missing").trim()
+                    getOrMissing(0) to getOrMissing(1)
+                }
+        }
+
+        /**
+         * Gradle is bugged and inserts an annoying warning into the Configuration info dump.
+         * ```text
+         * Consumable configurations with identical capabilities within a project (other than the default configuration) must have unique attributes, but configuration ':dokkaHtmlModuleOutputDirectoriesResolver.internal' and [configuration ':dokkaHtmlModuleOutputDirectoriesConsumable.internal'] contain identical attribute sets. Consider adding an additional attribute to one of the configurations to disambiguate them. For more information, please refer to https://docs.gradle.org/8.9/userguide/upgrading_version_7.html#unique_attribute_sets in the Gradle documentation.
+         * ```
+         * As a workaround, remove the message.
+         */
+        // https://github.com/gradle/gradle/issues/28733
+        private fun String.removeBuggedGradleWarning(): String {
+            return lines()
+                .filterNot { it.startsWith("Consumable configurations with identical capabilities within a project") }
+                .joinToString("\n")
+        }
+
     }
 }

@@ -9,6 +9,7 @@ import org.gradle.kotlin.dsl.apply
 import org.jetbrains.dokka.gradle.formats.DokkaHtmlPlugin
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.pluginFeaturesService
+import org.jetbrains.dokka.gradle.internal.addV1MigrationHelpers
 import javax.inject.Inject
 import org.jetbrains.dokka.gradle.DokkaClassicPlugin as ClassicDokkaPlugin
 
@@ -26,6 +27,9 @@ constructor() : Plugin<Project> {
         val pluginFeaturesService = project.pluginFeaturesService
         if (pluginFeaturesService.v2PluginEnabled) {
             applyV2(project)
+            if (project.providers.gradleProperty("dokkatooMigrationHelpers").getOrElse("true").toBoolean()) {
+                addV1MigrationHelpers(project)
+            }
         } else {
             applyV1(project)
         }

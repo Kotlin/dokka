@@ -22,10 +22,7 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.named
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaClasspathAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaFormatAttribute
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
-import org.jetbrains.dokka.gradle.internal.consumable
-import org.jetbrains.dokka.gradle.internal.declarable
-import org.jetbrains.dokka.gradle.internal.resolvable
+import org.jetbrains.dokka.gradle.internal.*
 
 /**
  * Dependencies for a specific Dokka Format - for example, HTML or Markdown.
@@ -76,8 +73,8 @@ class FormatDependenciesManager(
      *
      * Should not contain runtime dependencies - use [dokkaGeneratorClasspath].
      */
-    private val dokkaPluginsClasspath: NamedDomainObjectProvider<Configuration> =
-        project.configurations.register(configurationNames.pluginsClasspath) {
+    private val dokkaPluginsClasspath: Configuration =
+        project.configurations.create(configurationNames.pluginsClasspath) {
             description = "Dokka Plugins classpath for $formatName."
             declarable()
             extendsFrom(baseDependencyManager.dokkaGeneratorPlugins)
@@ -88,12 +85,12 @@ class FormatDependenciesManager(
      *
      * It extends [dokkaPluginsClasspath].
      */
-    val dokkaPluginsIntransitiveClasspathResolver: NamedDomainObjectProvider<Configuration> =
-        project.configurations.register(configurationNames.pluginsClasspathIntransitiveResolver) {
+    val dokkaPluginsIntransitiveClasspathResolver: Configuration =
+        project.configurations.create(configurationNames.pluginsClasspathIntransitiveResolver) {
             description =
-                "Resolves Dokka Plugins classpath for $formatName - for internal use. Fetch only the plugins (no transitive dependencies) for use in the Dokka JSON Configuration."
+                "$INTERNAL_CONF_DESCRIPTION_TAG Resolves Dokka Plugins classpath for $formatName. Fetch only the plugins (no transitive dependencies) for use in the Dokka JSON Configuration."
             resolvable()
-            extendsFrom(dokkaPluginsClasspath.get())
+            extendsFrom(dokkaPluginsClasspath)
             isTransitive = false
             attributes {
                 jvmJar()
@@ -107,15 +104,15 @@ class FormatDependenciesManager(
     private val dokkaPublicationPluginClasspath: NamedDomainObjectProvider<Configuration> =
         project.configurations.register(configurationNames.publicationPluginClasspath) {
             description =
-                "Dokka Plugins classpath for a $formatName Publication (consisting of 1+ Dokka Module)."
+                "$INTERNAL_CONF_DESCRIPTION_TAG Dokka Plugins classpath for a $formatName Publication (consisting of 1+ Dokka Module)."
             declarable()
             extendsFrom(baseDependencyManager.declaredDependencies)
         }
 
-    val dokkaPublicationPluginClasspathResolver: NamedDomainObjectProvider<Configuration> =
-        project.configurations.register(configurationNames.publicationPluginClasspathResolver) {
+    val dokkaPublicationPluginClasspathResolver: Configuration =
+        project.configurations.create(configurationNames.publicationPluginClasspathResolver) {
             description =
-                "Resolves Dokka Plugins classpath for a $formatName Publication (consisting of 1+ Dokka Module)."
+                "$INTERNAL_CONF_DESCRIPTION_TAG Resolves Dokka Plugins classpath for a $formatName Publication (consisting of 1+ Dokka Module)."
             resolvable()
             extendsFrom(dokkaPublicationPluginClasspath.get())
             attributes {
@@ -125,19 +122,19 @@ class FormatDependenciesManager(
             }
         }
 
-    val dokkaPublicationPluginClasspathApiOnly: NamedDomainObjectProvider<Configuration> =
-        project.configurations.register(configurationNames.publicationPluginClasspathApiOnly) {
+    val dokkaPublicationPluginClasspathApiOnly: Configuration =
+        project.configurations.create(configurationNames.publicationPluginClasspathApiOnly) {
             description =
-                "Dokka Plugins for consumers that will assemble a $formatName Publication using the Dokka Module that this project produces"
+                "$INTERNAL_CONF_DESCRIPTION_TAG Dokka Plugins for consumers that will assemble a $formatName Publication using the Dokka Module that this project produces"
             declarable()
         }
 
     init {
-        project.configurations.register(configurationNames.publicationPluginClasspathApiOnlyConsumable) {
+        project.configurations.create(configurationNames.publicationPluginClasspathApiOnlyConsumable) {
             description =
-                "Shared Dokka Plugins for consumers that will assemble a $formatName Publication using the Dokka Module that this project produces"
+                "$INTERNAL_CONF_DESCRIPTION_TAG Shared Dokka Plugins for consumers that will assemble a $formatName Publication using the Dokka Module that this project produces"
             consumable()
-            extendsFrom(dokkaPublicationPluginClasspathApiOnly.get())
+            extendsFrom(dokkaPublicationPluginClasspathApiOnly)
             attributes {
                 jvmJar()
                 attribute(DokkaFormatAttribute, formatAttributes.format.name)
@@ -165,7 +162,7 @@ class FormatDependenciesManager(
             declarable()
 
             // extend from plugins classpath, so Dokka Worker can run the plugins
-            extendsFrom(dokkaPluginsClasspath.get())
+            extendsFrom(dokkaPluginsClasspath)
         }
 
     /**
@@ -178,10 +175,10 @@ class FormatDependenciesManager(
      * @see org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
      * @see org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
      */
-    val dokkaGeneratorClasspathResolver: NamedDomainObjectProvider<Configuration> =
-        project.configurations.register(configurationNames.generatorClasspathResolver) {
+    val dokkaGeneratorClasspathResolver: Configuration =
+        project.configurations.create(configurationNames.generatorClasspathResolver) {
             description =
-                "Dokka Generator runtime classpath for $formatName - will be used in Dokka Worker. Should contain all transitive dependencies, plugins (and their transitive dependencies), so Dokka Worker can run."
+                "$INTERNAL_CONF_DESCRIPTION_TAG Dokka Generator runtime classpath for $formatName - will be used in Dokka Worker. Should contain all transitive dependencies, plugins (and their transitive dependencies), so Dokka Worker can run."
             resolvable()
 
             // extend from plugins classpath, so Dokka Worker can run the plugins
