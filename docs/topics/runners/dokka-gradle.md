@@ -142,13 +142,14 @@ By default, you can find ready-to-use documentation under `{parentProject}/build
 Given a project with the following structure:
 
 ```text
-parentProject
-    └── childProjectA
-        ├── demo
-            ├── ChildProjectAClass
-    └── childProjectB
-        ├── demo
-            ├── ChildProjectBClass
+.
+└── parentProject/
+    ├── childProjectA/
+    │   └── demo/
+    │       └── ChildProjectAClass
+    └── childProjectB/
+        └── demo/
+            └── ChildProjectBClass
 ```
 
 These pages are generated after running `dokkaHtmlMultiModule`:
@@ -179,13 +180,14 @@ build that contains all declarations from the subprojects.
 Given a project with the following structure:
 
 ```text
-parentProject
-    └── childProjectA
-        ├── demo
-            ├── ChildProjectAClass
-    └── childProjectB
-        ├── demo
-            ├── ChildProjectBClass
+.
+└── parentProject/
+    ├── childProjectA/
+    │   └── demo/
+    │       └── ChildProjectAClass
+    └── childProjectB/
+        └── demo/
+            └── ChildProjectBClass
 ```
 
 These pages are generated after running `dokkaHtmlCollector`:
@@ -306,15 +308,15 @@ Multiplatform:
 ```text
 .
 ├── build.gradle.kts
-└── src
-    └── commonMain
-        └── kotlin
-            └── Common.kt
-    └── jvmMain
-        └── kotlin
-            └── JvmUtils.kt
-    └── nativeMain
-        └── kotlin
+└── src/
+    ├── commonMain/
+    │   └── kotlin/
+    │       └── Common.kt
+    ├── jvmMain/
+    │   └── kotlin/
+    │       └── JvmUtils.kt
+    └── nativeMain/
+        └── kotlin/
             └── NativeUtils.kt
 ```
 
@@ -337,15 +339,15 @@ Multiplatform:
 ```text
 .
 ├── build.gradle
-└── src
-    └── commonMain
-        └── kotlin
-            └── Common.kt
-    └── jvmMain
-        └── kotlin
-            └── JvmUtils.kt
-    └── nativeMain
-        └── kotlin
+└── src/
+    ├── commonMain/
+    │   └── kotlin/
+    │       └── Common.kt
+    ├── jvmMain/
+    │   └── kotlin/
+    │       └── JvmUtils.kt
+    └── nativeMain/
+        └── kotlin/
             └── NativeUtils.kt
 ```
 
@@ -479,17 +481,17 @@ typically have the following structure:
 .
 ├── build.gradle.kts
 ├── settings.gradle.kts
-├── subproject-A
-    └── build.gradle.kts
-    └── src
-        └── main
-            └── kotlin
-                └── HelloFromA.kt
-├── subproject-B
-    └── build.gradle.kts
-    └── src
-        └── main
-            └── kotlin
+├── subproject-A/
+│   ├── build.gradle.kts
+│   └── src/
+│       └── main/
+│           └── kotlin/
+│               └── HelloFromA.kt
+└── subproject-B/
+    ├── build.gradle.kts
+    └── src/
+        └── main/
+            └── kotlin/
                 └── HelloFromB.kt
 ```
 
@@ -500,17 +502,17 @@ typically have the following structure:
 .
 ├── build.gradle
 ├── settings.gradle
-├── subproject-A
-    └── build.gradle
-    └── src
-        └── main
-            └── kotlin
-                └── HelloFromA.kt
-├── subproject-B
-    └── build.gradle
-    └── src
-        └── main
-            └── kotlin
+├── subproject-A/
+│   ├── build.gradle
+│   └── src/
+│       └── main/
+│           └── kotlin/
+│               └── HelloFromA.kt
+└── subproject-B/
+    ├── build.gradle
+    └── src/
+        └── main/
+            └── kotlin/
                 └── HelloFromB.kt
 ```
 
