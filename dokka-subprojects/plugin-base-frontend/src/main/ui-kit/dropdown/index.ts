@@ -53,14 +53,14 @@ document.addEventListener('DOMContentLoaded', () => {
 function onToggleOption(event: PointerEvent): void {
   const target = event.target as HTMLButtonElement;
   target.classList.toggle('dropdown--option_active');
-  target.querySelector('.dropdown--checkbox')?.toggleAttribute('checked');
+  target.querySelector('.checkbox--input')?.toggleAttribute('checked');
 }
 
 function onToggleOptionByKey(event: KeyboardEvent): void {
   const target = event.target as HTMLButtonElement;
   if (event.key === 'Enter' || event.key === ' ') {
     target.classList.toggle('dropdown--option_active');
-    target.querySelector('.dropdown--checkbox')?.toggleAttribute('checked');
+    target.querySelector('.checkbox--input')?.toggleAttribute('checked');
   }
 }
 

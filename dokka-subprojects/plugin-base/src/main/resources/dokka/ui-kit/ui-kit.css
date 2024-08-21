@@ -284,10 +284,21 @@
   cursor: pointer;
 }
 
-.checkbox input[type=checkbox] {
-  width: 0;
-  height: 0;
-  opacity: 0;
+.checkbox:checked {
+  background-image: url(assets/checkbox-on.svg);
+}
+
+.checkbox--input {
+  position: absolute;
+  appearance: none;
+}
+
+.checkbox--icon {
+  position: absolute;
+  width: var(--size-m1);
+  height: var(--size-m1);
+  margin-left: calc(-1 * var(--size-m2));
+  background-image: url(assets/checkbox-off.svg);
 }
 /*!
  * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -399,7 +410,7 @@
   min-width: 272px;
   max-width: 360px;
   max-height: 400px;
-  padding: 0;
+  padding: 12px 0;
   border: 1px solid #56565f;
   background-color: var(--color-background-nav-dt);
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2509803922);
@@ -452,14 +463,6 @@
 
 .dropdown--option_active:hover {
   background-color: #639fff;
-}
-
-.dropdown--checkbox {
-  position: absolute;
-  top: 50%;
-  left: 12px;
-  margin-top: -9px;
-  pointer-events: none;
 }
 /*!
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
