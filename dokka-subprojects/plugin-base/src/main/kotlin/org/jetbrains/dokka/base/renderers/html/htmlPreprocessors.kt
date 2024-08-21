@@ -107,6 +107,8 @@ public object AssetsInstaller : PageTransformer {
         // ui-kit assets
         "ui-kit/assets/arrow-down.svg",
         "ui-kit/assets/burger.svg",
+        "ui-kit/assets/checkbox-off.svg",
+        "ui-kit/assets/checkbox-on.svg",
         "ui-kit/assets/homepage.svg",
         "ui-kit/assets/theme-toggle.svg",
         "ui-kit/assets/placeholder.svg",
