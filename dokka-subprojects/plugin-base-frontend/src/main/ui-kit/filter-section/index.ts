@@ -107,9 +107,46 @@ function initFilterSection(): void {
     resizeObserver.observe(navigation);
   };
 
+  function addOptionEventListener(): void {
+    options.forEach((option) => {
+      option.addEventListener('click', (event) => {
+        toggleFilterForOption(event.target as Element);
+      });
+      option.addEventListener('keydown', (event) => {
+        const key = (event as KeyboardEvent).key;
+        if (key === 'Enter' || key === ' ') {
+          toggleFilterForOption(event.target as Element);
+        }
+      });
+    });
+  }
+
   displayFilterSectionItems();
   initResizeObserver();
+  addOptionEventListener();
   window.addEventListener('resize', initResizeObserver);
 }
 
 document.addEventListener('DOMContentLoaded', initFilterSection);
+
+declare global {
+  const filteringContext: {
+    activeFilters: (string | null | undefined)[];
+  };
+
+  function refreshFiltering(): void;
+}
+
+/**
+ * This syncs platform tags and dropdown options filtering behavior.
+ */
+function toggleFilterForOption(option: Element): void {
+  const dataFilter = option.querySelector('.checkbox--input')?.getAttribute('data-filter');
+  const index = filteringContext.activeFilters.findIndex((item) => item === dataFilter);
+  if (index === -1) {
+    filteringContext.activeFilters.push(dataFilter);
+  } else {
+    filteringContext.activeFilters.splice(index, 1);
+  }
+  refreshFiltering();
+}
