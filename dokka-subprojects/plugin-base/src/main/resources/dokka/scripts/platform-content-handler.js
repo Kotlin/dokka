@@ -369,4 +369,8 @@ function refreshFilterButtons() {
                 f.removeAttribute("data-active")
             }
         })
+    document.querySelectorAll("#filter-section .checkbox--input")
+        .forEach(f => {
+            f.checked = filteringContext.activeFilters.indexOf(f.getAttribute("data-filter")) !== -1;
+        })
 }
