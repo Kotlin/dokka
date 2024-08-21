@@ -3,72 +3,113 @@
  */
 import './styles.scss';
 
-// resize observer code for checking if .filter-section overflows nav tag when the window is resized
-const filterSection = document.getElementById('filter-section');
-const navigation = document.getElementById('navigation-wrapper');
-const libraryVersion = document.getElementById('library-version');
+const DESKTOP_MIN_WIDTH = 900;
+const TAGS_MARGIN = 4;
+const DROPDOWN_BUTTON_WIDTH = 40;
 
-const tags = filterSection?.querySelectorAll('.platform-selector');
-const options = filterSection?.querySelectorAll('.dropdown--option');
+/**
+ * Filter section items are tags with platform names, they should fit in one line.
+ * If there is not enough space, extra tags should be hidden and dropdown options should be shown instead.
+ * */
+type FilterSectionItem = {
+  tag: Element;
+  option: Element;
+};
 
-if (options) {
-  options.forEach((option) => {
-    option.setAttribute('style', 'display: none');
-  });
+function displayItemAsTag(item: FilterSectionItem): void {
+  item.tag.removeAttribute('style');
+  item.option.setAttribute('style', 'display: none');
 }
 
-const tagsWidths: number[] = [];
-if (tags) {
-  tags.forEach((tag) => {
-    tagsWidths.push(tag.getBoundingClientRect().width);
-  });
+function displayItemAsOption(item: FilterSectionItem): void {
+  item.tag.setAttribute('style', 'display: none');
+  item.option.removeAttribute('style');
 }
 
-let currentHiddenTagIndex = tags!.length;
+function initFilterSection(): void {
+  const navigation = document.getElementById('navigation-wrapper');
+  const libraryVersion = document.getElementById('library-version');
+  const filterSection = document.getElementById('filter-section');
+  const firstButtonAfterFilterSection = document.querySelector('#filter-section + .navigation-controls--btn');
+  const dropdownButton = document.getElementById('filter-section-dropdown');
 
-console.log('tagsWidths', tagsWidths);
-
-const resizeObserver = new ResizeObserver(() => {
-  console.log('resizeObserver');
-  if (!filterSection || !navigation || !libraryVersion) {
+  if (!navigation || !libraryVersion || !filterSection || !firstButtonAfterFilterSection || !dropdownButton) {
+    console.error('Navbar elements are not found');
     return;
   }
-  const navigationWidth = navigation.getBoundingClientRect().width;
-  if (navigationWidth < 900) {
-    options?.forEach((option) => {
-      option.removeAttribute('style');
+
+  const options = filterSection?.querySelectorAll('.dropdown--option');
+  const tags = filterSection?.querySelectorAll('.platform-selector');
+
+  if (!tags || !options) {
+    console.error('Filter section items are not found');
+    return;
+  }
+  if (tags.length !== options.length) {
+    console.error('Filter section items are not equal');
+    return;
+  }
+
+  const items: FilterSectionItem[] = Array.from({ length: tags.length }).map((_, index) => ({
+    tag: tags[index],
+    option: options[index],
+  }));
+
+  /**
+   * Saved widths of each tag while they were visible.
+   * */
+  const tagsWidths: number[] = items.map(({ tag }) => tag.getBoundingClientRect().width);
+
+  /**
+   * According to the design, filter section tags should fit between library version and navigation buttons.
+   */
+  function getAvailableWidthForFilterSection(): number {
+    if (!libraryVersion || !firstButtonAfterFilterSection) {
+      return 0;
+    }
+    return firstButtonAfterFilterSection.getBoundingClientRect().left - libraryVersion.getBoundingClientRect().right;
+  }
+
+  /**
+   * If there is not enough space for all tags, the last tag should be hidden and displayed as a dropdown option.
+   * But on narrow screens, all tags should be displayed as dropdown options.
+   */
+  function displayFilterSectionItems(): void {
+    if (!navigation || !dropdownButton) {
+      return;
+    }
+    const navigationWidth = navigation.getBoundingClientRect().width;
+    if (navigationWidth < DESKTOP_MIN_WIDTH) {
+      items.forEach(displayItemAsOption);
+      dropdownButton.removeAttribute('style');
+      return;
+    }
+    const availableWidth = getAvailableWidthForFilterSection() - DROPDOWN_BUTTON_WIDTH;
+    let accumulatedWidth = 0;
+    dropdownButton.setAttribute('style', 'display: none');
+    items.forEach((item, index) => {
+      accumulatedWidth += tagsWidths[index] + TAGS_MARGIN;
+      if (accumulatedWidth < availableWidth) {
+        displayItemAsTag(item);
+      } else {
+        displayItemAsOption(item);
+        dropdownButton.removeAttribute('style');
+      }
     });
-    resizeObserver.unobserve(navigation);
-    return;
   }
 
-  const filterSectionLeft = filterSection.getBoundingClientRect().left;
-  const libraryVersionRight = libraryVersion.getBoundingClientRect().right;
-  const distance = filterSectionLeft - libraryVersionRight;
-
-  console.log('distance', distance);
-
-  if (distance <= 1) {
-    currentHiddenTagIndex--;
-    tags?.item(currentHiddenTagIndex).setAttribute('style', 'display: none');
-    options?.item(currentHiddenTagIndex).removeAttribute('style');
+  const resizeObserver = new ResizeObserver(() => {
+    displayFilterSectionItems();
     resizeObserver.unobserve(navigation);
-  } else if (distance > 200) {
-    tags?.item(currentHiddenTagIndex).removeAttribute('style');
-    options?.item(currentHiddenTagIndex).setAttribute('style', 'display: none');
-    currentHiddenTagIndex++;
-    resizeObserver.unobserve(navigation);
-  }
-});
+  });
 
-function initResizeObserver(): void {
-  if (!navigation || !filterSection || !libraryVersion) {
-    return;
-  }
-  resizeObserver.observe(navigation);
-}
+  const initResizeObserver = (): void => {
+    resizeObserver.observe(navigation);
+  };
 
-document.addEventListener('DOMContentLoaded', () => {
+  displayFilterSectionItems();
   initResizeObserver();
   window.addEventListener('resize', initResizeObserver);
-});
+}
+
+document.addEventListener('DOMContentLoaded', initFilterSection);
