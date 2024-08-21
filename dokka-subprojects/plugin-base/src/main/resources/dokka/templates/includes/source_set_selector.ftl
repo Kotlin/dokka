@@ -7,11 +7,11 @@
             </#list>
             <#list sourceSets as ss>
                 <button class="platform-tag platform-selector ${ss.platform}-like" data-active=""
-                        data-filter="${ss.filter}">${ss.name}</button>
+                        data-filter="${ss.filter}">2 ${ss.name}</button>
             </#list>
             <#list sourceSets as ss>
                 <button class="platform-tag platform-selector ${ss.platform}-like" data-active=""
-                        data-filter="${ss.filter}">${ss.name}</button>
+                        data-filter="${ss.filter}">3 ${ss.name}</button>
             </#list>
             <div class="dropdown" data-role="dropdown" id="filter-section-dropdown">
                 <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
@@ -40,7 +40,7 @@
                             onkeyup="onToggleOptionByKey(event)" tabindex="0">
                             <input type="checkbox" class="checkbox dropdown--checkbox" id="1${ss.filter}"
                                    data-filter="${ss.filter}" tabindex="-1"/>
-                            ${ss.name}
+                            2 ${ss.name}
                         </li>
                     </#list>
                     <#list sourceSets as ss>
@@ -48,7 +48,7 @@
                             onkeyup="onToggleOptionByKey(event)" tabindex="0">
                             <input type="checkbox" class="checkbox dropdown--checkbox" id="2${ss.filter}"
                                    data-filter="${ss.filter}" tabindex="-1"/>
-                            ${ss.name}
+                            3 ${ss.name}
                         </li>
                     </#list>
                 </ul>
