@@ -38,6 +38,8 @@
       height: 100vh;
       max-height: unset;
 
+      padding: 0;
+
       border: none;
     }
 
@@ -86,6 +88,10 @@
       &:hover {
         background-color: lighten(rgb(48, 127, 255), 10%); // color-key-blue
       }
+    }
+
+    & .checkbox {
+      pointer-events: none;
     }
   }
 }

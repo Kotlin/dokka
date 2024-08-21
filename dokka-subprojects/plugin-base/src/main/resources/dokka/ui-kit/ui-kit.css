@@ -279,18 +279,13 @@
 .checkbox {
   position: relative;
   display: inline-block;
-  width: 18px;
-  height: 18px;
   cursor: pointer;
-}
-
-.checkbox:checked {
-  background-image: url(assets/checkbox-on.svg);
 }
 
 .checkbox--input {
   position: absolute;
   appearance: none;
+  visibility: hidden;
 }
 
 .checkbox--icon {
@@ -299,6 +294,18 @@
   height: var(--size-m1);
   margin-left: calc(-1 * var(--size-m2));
   background-image: url(assets/checkbox-off.svg);
+}
+
+.checkbox--input:checked + .checkbox--icon {
+  background-image: url(assets/checkbox-on.svg);
+}
+
+.checkbox--input:disabled + .checkbox--icon {
+  opacity: 0.2;
+}
+
+.checkbox--input:focus-visible {
+  outline: 4px solid var(--color-key-blue-05);
 }
 /*!
  * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -463,6 +470,10 @@
 
 .dropdown--option_active:hover {
   background-color: #639fff;
+}
+
+.dropdown--option .checkbox {
+  pointer-events: none;
 }
 /*!
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
