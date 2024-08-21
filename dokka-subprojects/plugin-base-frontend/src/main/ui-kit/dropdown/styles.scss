@@ -24,7 +24,7 @@
     min-width: 272px;
     max-width: 360px;
     max-height: 400px;
-    padding: 0;
+    padding: 12px 0;
 
     border: 1px solid lighten(rgb(50, 50, 55), 15%); // color-background-nav-dt
     background-color: var(--color-background-nav-dt);
@@ -87,17 +87,5 @@
         background-color: lighten(rgb(48, 127, 255), 10%); // color-key-blue
       }
     }
-  }
-
-  &--checkbox {
-    position: absolute;
-
-    top: 50%;
-
-    left: 12px;
-
-    margin-top: -9px;
-
-    pointer-events: none;
   }
 }
