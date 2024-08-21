@@ -20,8 +20,7 @@
                         </button>
                     </div>
                     <#list sourceSets as ss>
-                        <li role="option" class="dropdown--option" onclick="onToggleOption(event)"
-                            onkeyup="onToggleOptionByKey(event)" tabindex="0">
+                        <li role="option" class="dropdown--option" tabindex="0">
                             <label class="checkbox">
                                 <input type="checkbox" class="checkbox--input" id="${ss.filter}"
                                        data-filter="${ss.filter}"/>
