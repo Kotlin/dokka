@@ -7,6 +7,9 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.BuildTask
 import org.gradle.testkit.runner.GradleRunner
 import java.util.*
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 
 /** Edit environment variables in the Gradle Runner */
@@ -18,9 +21,13 @@ fun GradleRunner.withEnvironment(build: MutableMap<String, String?>.() -> Unit):
 }
 
 
+@OptIn(ExperimentalContracts::class)
 inline fun GradleRunner.build(
     handleResult: BuildResult.() -> Unit
-): Unit = build().let(handleResult)
+) {
+    contract { callsInPlace(handleResult, InvocationKind.EXACTLY_ONCE) }
+    build().let(handleResult)
+}
 
 
 inline fun GradleRunner.buildAndFail(
