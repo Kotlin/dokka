@@ -4,6 +4,7 @@
 package org.jetbrains.dokka.gradle
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.scopes.FunSpecContainerScope
 import io.kotest.matchers.resource.resourceAsString
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.intellij.lang.annotations.Language
@@ -20,40 +21,56 @@ class KotlinDslAccessorsTest : FunSpec({
     context("Kotlin DSL generated accessors") {
         val project = initMultiModuleProject("KotlinDslAccessorsTest")
 
-        suspend fun testKotlinDslAccessors(
-            taskPath: String,
+        suspend fun FunSpecContainerScope.testKotlinDslAccessors(
+            actualAccessors: GeneratedDokkaAccessors,
             @Language("file-reference")
             expected: String,
         ) {
-            test("generated from $taskPath should match $expected") {
-                val (actualAccessors, actualAccessorsFile) = project.generateAccessors(taskPath)
+            test("generated from project ${actualAccessors.projectPath} should match $expected") {
 
                 val expectedAccessors = resourceAsString(expected).trim()
 
                 assertEquals(
                     expected = expectedAccessors,
-                    actual = actualAccessors,
+                    actual = actualAccessors.joined,
                     message = """
-                        Task $taskPath generated unexpected accessors.
-                           Actual:   ${actualAccessorsFile.toUri()}
+                        Task ${actualAccessors.projectPath} generated unexpected accessors.
+                           Actual:   ${actualAccessors.file.toUri()}
                            Expected: ${Path("./src/testFunctional/resources/$expected").toUri()}
                         """.trimIndent()
                 )
             }
         }
 
-        testKotlinDslAccessors(
-            taskPath = ":kotlinDslAccessorsReport",
-            expected = "/KotlinDslAccessorsTest/root-project.txt",
-        )
-        testKotlinDslAccessors(
-            taskPath = ":subproject-hello:kotlinDslAccessorsReport",
-            expected = "/KotlinDslAccessorsTest/subproject-hello.txt"
-        )
-        testKotlinDslAccessors(
-            taskPath = ":subproject-goodbye:kotlinDslAccessorsReport",
-            expected = "/KotlinDslAccessorsTest/subproject-goodbye.txt"
-        )
+        context("default accessors") {
+            testKotlinDslAccessors(
+                actualAccessors = project.generateDokkaAccessors(projectPath = ":"),
+                expected = "/KotlinDslAccessorsTest/root-project.txt",
+            )
+            testKotlinDslAccessors(
+                actualAccessors = project.generateDokkaAccessors(projectPath = ":subproject-hello"),
+                expected = "/KotlinDslAccessorsTest/subproject-hello.txt",
+            )
+            testKotlinDslAccessors(
+                actualAccessors = project.generateDokkaAccessors(projectPath = ":subproject-goodbye"),
+                expected = "/KotlinDslAccessorsTest/subproject-goodbye.txt",
+            )
+        }
+
+        context("v2 migration helpers") {
+            testKotlinDslAccessors(
+                actualAccessors = project.generateDokkaV2MigrationHelpersAccessors(":"),
+                expected = "/KotlinDslAccessorsTest/root-project-v2-migration-helpers.txt",
+            )
+            testKotlinDslAccessors(
+                actualAccessors = project.generateDokkaV2MigrationHelpersAccessors(":subproject-hello"),
+                expected = "/KotlinDslAccessorsTest/subproject-hello-v2-migration-helpers.txt",
+            )
+            testKotlinDslAccessors(
+                actualAccessors = project.generateDokkaV2MigrationHelpersAccessors(":subproject-goodbye"),
+                expected = "/KotlinDslAccessorsTest/subproject-goodbye-v2-migration-helpers.txt",
+            )
+        }
     }
 
     context("when project has Dokka buildSrc convention") {
@@ -132,26 +149,73 @@ private fun initProjectWithBuildSrcConvention(
     }
 }
 
+
+private class GeneratedDokkaAccessors(
+    val projectPath: String,
+    val list: List<String>,
+    private val projectDir: Path,
+) {
+    val joined: String = list.joinToString("\n\n")
+    val file: Path = projectDir.resolve("dokka-accessors-${System.currentTimeMillis()}.txt").apply {
+        writeText(joined)
+    }
+}
+
 /**
- * Generate Kotlin DSL Accessors by running [taskPath].
+ * Specifically extract the V2 migration helpers.
+ */
+private fun GradleProjectTest.generateDokkaV2MigrationHelpersAccessors(
+    projectPath: String,
+): GeneratedDokkaAccessors {
+    val accessorsWithoutV2Helpers = generateDokkaAccessors(
+        projectPath = projectPath,
+        enableV2MigrationHelpers = false,
+    ).list
+
+    val accessorsWithV2Helpers = generateDokkaAccessors(
+        projectPath = projectPath,
+        enableV2MigrationHelpers = true,
+    ).list
+
+    val v2Helpers = accessorsWithV2Helpers - accessorsWithoutV2Helpers.toSet()
+
+//    projectDir.resolve("v2-migration-helpers.txt").writeText(v2Helpers.joinToString("\n\n"))
+
+    return GeneratedDokkaAccessors(
+        projectPath = projectPath,
+        list = accessorsWithV2Helpers - accessorsWithoutV2Helpers.toSet(),
+        projectDir = projectDir
+    )
+}
+
+/**
+ * Generate Kotlin DSL Accessors by running `:` in [projectPath].
  *
  * @returns Dokka-specific accessors, and a file of all accessors (to be used in assertion failure messages.)
  */
-private fun GradleProjectTest.generateAccessors(taskPath: String): Pair<String, Path> {
+private fun GradleProjectTest.generateDokkaAccessors(
+    projectPath: String,
+    enableV2MigrationHelpers: Boolean? = null,
+): GeneratedDokkaAccessors {
     runner
         .addArguments(
-            taskPath,
-            "--quiet",
+            buildList {
+                add(org.gradle.util.Path.path(projectPath).relativePath("kotlinDslAccessorsReport").toString())
+                add("--quiet")
+                enableV2MigrationHelpers?.let {
+                    add("-Porg.jetbrains.dokka.experimental.gradlePlugin.enableV2MigrationHelpers=$it")
+                }
+            }
         )
         .build {
             val dokkaAccessors = splitDslAccessors(output)
                 .filter { it.contains("dokka", ignoreCase = true) }
-                .joinToString("\n\n")
 
-            val dokkaAccessorsFile = projectDir.resolve("dokkaAccessors.txt")
-                .apply { writeText(dokkaAccessors) }
-
-            return dokkaAccessors to dokkaAccessorsFile
+            return GeneratedDokkaAccessors(
+                projectPath = projectPath,
+                list = dokkaAccessors,
+                projectDir = projectDir,
+            )
         }
 }
 

@@ -28,6 +28,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
         /** @see [PluginFeaturesService.v2PluginNoWarn] */
         val v2PluginNoWarn: Property<Boolean>
 
+        /** @see [PluginFeaturesService.v2PluginMigrationHelpersEnabled] */
         val v2PluginMigrationHelpersEnabled: Property<Boolean>
 
         /** @see [PluginFeaturesService.primaryService] */
@@ -152,6 +153,11 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
         }
     }
 
+    /**
+     * Enable some migration helpers to aid in migrating DGP from V1 to V2.
+     *
+     * @see addV2MigrationHelpers
+     */
     internal val v2PluginMigrationHelpersEnabled: Boolean by lazy {
         parameters.v2PluginMigrationHelpersEnabled.getOrElse(true)
     }

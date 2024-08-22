@@ -70,9 +70,16 @@ fun GradleRunner.updateGradleProperties(
  */
 fun GradleRunner.addArguments(
     vararg arguments: String
+): GradleRunner = addArguments(arguments.asList())
+
+/**
+ * Helper function to _append_ [arguments] to any existing
+ * [GradleRunner arguments][GradleRunner.getArguments].
+ */
+fun GradleRunner.addArguments(
+    arguments: List<String>,
 ): GradleRunner =
     withArguments(this@addArguments.arguments + arguments)
-
 
 /**
  * Get the name of the task, without the leading [BuildTask.getPath].
