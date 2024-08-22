@@ -12,7 +12,6 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import org.gradle.kotlin.dsl.extra
-import kotlin.LazyThreadSafetyMode.SYNCHRONIZED
 
 /**
  * Internal utility service for managing Dokka Plugin features and warnings.
@@ -31,6 +30,12 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
 
         /** @see [PluginFeaturesService.primaryService] */
         val primaryService: Property<Boolean>
+
+        /** If `true`, enable K2 analysis. */
+        val k2AnalysisEnabled: Property<Boolean>
+
+        /** If `true`, suppress the K2 analysis message. */
+        val k2AnalysisNoWarn: Property<Boolean>
     }
 
     /**
@@ -51,7 +56,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
      *
      * Otherwise, fallback to V1 [org.jetbrains.dokka.gradle.DokkaClassicPlugin].
      */
-    internal val v2PluginEnabled: Boolean by lazy(SYNCHRONIZED) {
+    internal val v2PluginEnabled: Boolean by lazy {
         val v2PluginEnabled = parameters.v2PluginEnabled.getOrElse(false)
 
         if (v2PluginEnabled) {
@@ -112,6 +117,39 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
         }
     }
 
+    internal val enableK2Analysis: Boolean by lazy {
+        // use lazy {} to ensure messages are only logged once
+
+        val enableK2Analysis = parameters.k2AnalysisEnabled.getOrElse(false)
+
+        if (enableK2Analysis) {
+            logK2AnalysisMessage()
+        }
+
+        enableK2Analysis
+    }
+
+    private fun logK2AnalysisMessage() {
+        if (primaryService && !parameters.k2AnalysisNoWarn.getOrElse(false)) {
+            logger.warn(
+                """
+                |Dokka K2 Analysis is enabled
+                |
+                |  This feature is Experimental and is still under active development.
+                |  It can cause build failures or generate incorrect documentation. 
+                |
+                |  We would appreciate your feedback!
+                |  Please report any feedback or problems to Dokka GitHub Issues
+                |      https://github.com/Kotlin/dokka/issues/
+                |
+                |  You can suppress this message by adding
+                |      $K2_ANALYSIS_NO_WARN_FLAG_PRETTY=true
+                |  to your project's `gradle.properties`
+                """.trimMargin().surroundWithBorder()
+            )
+        }
+    }
+
     companion object {
         private val logger = Logging.getLogger(PluginFeaturesService::class.java)
 
@@ -127,6 +165,15 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
         private const val V2_PLUGIN_NO_WARN_FLAG_PRETTY =
             "$V2_PLUGIN_ENABLED_FLAG.noWarn"
 
+        private const val K2_ANALYSIS_ENABLED_FLAG =
+            "org.jetbrains.dokka.experimental.tryK2"
+
+        private const val K2_ANALYSIS_NO_WARN_FLAG =
+            "$K2_ANALYSIS_ENABLED_FLAG.nowarn"
+
+        private const val K2_ANALYSIS_NO_WARN_FLAG_PRETTY =
+            "$K2_ANALYSIS_ENABLED_FLAG.noWarn"
+
         /**
          * Register a new [PluginFeaturesService], or get an existing instance.
          */
@@ -135,6 +182,11 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 val setFlags = Action<Params> {
                     v2PluginEnabled.set(getFlag(V2_PLUGIN_ENABLED_FLAG))
                     v2PluginNoWarn.set(getFlag(V2_PLUGIN_NO_WARN_FLAG_PRETTY).orElse(getFlag(V2_PLUGIN_NO_WARN_FLAG)))
+                    k2AnalysisEnabled.set(getFlag(K2_ANALYSIS_ENABLED_FLAG))
+                    k2AnalysisNoWarn.set(
+                        getFlag(K2_ANALYSIS_NO_WARN_FLAG_PRETTY)
+                            .orElse(getFlag(K2_ANALYSIS_NO_WARN_FLAG))
+                    )
                 }
 
                 return try {

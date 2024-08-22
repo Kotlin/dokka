@@ -161,8 +161,8 @@ private fun migrationMessagesTestProject(
 
         gradleProperties {
             dokka {
-                enableV2Plugin = null
-                disableV2PluginWarning = null
+                v2Plugin = null
+                v2PluginNoWarn = null
             }
         }
 
