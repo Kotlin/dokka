@@ -1200,11 +1200,6 @@ public final class org/jetbrains/dokka/base/transformers/documentables/Inheritor
 	public fun mergeStrategyFor (Lorg/jetbrains/dokka/base/transformers/documentables/InheritorsInfo;Lorg/jetbrains/dokka/base/transformers/documentables/InheritorsInfo;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
-public final class org/jetbrains/dokka/base/transformers/documentables/JvmMappedMethodsDocumentableFilterTransformer : org/jetbrains/dokka/base/transformers/documentables/SuppressedByConditionDocumentableFilterTransformer {
-	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public fun shouldBeSuppressed (Lorg/jetbrains/dokka/model/Documentable;)Z
-}
-
 public final class org/jetbrains/dokka/base/transformers/documentables/KotlinArrayDocumentableReplacerTransformer : org/jetbrains/dokka/base/transformers/documentables/DocumentableReplacerTransformer {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
 }

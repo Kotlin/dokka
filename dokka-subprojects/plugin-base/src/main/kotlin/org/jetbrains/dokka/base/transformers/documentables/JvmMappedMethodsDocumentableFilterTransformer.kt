@@ -4,6 +4,7 @@
 
 package org.jetbrains.dokka.base.transformers.documentables
 
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.DFunction
@@ -250,8 +251,11 @@ internal class JvmMappedMethodsDocumentableFilterTransformer(context: DokkaConte
         }
     } ?: false
 
+    // user case: stdlib
+    private fun DFunction.isOnlyInJVM() = sourceSets.all { it.analysisPlatform == Platform.jvm }
+
     override fun shouldBeSuppressed(d: Documentable): Boolean =
-        if (d is DFunction) {
+        if (d is DFunction && d.isOnlyInJVM()) {
             if (d.hasDeprecated())
                 true
             else {
