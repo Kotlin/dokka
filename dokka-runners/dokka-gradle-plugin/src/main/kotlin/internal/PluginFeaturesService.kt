@@ -28,6 +28,8 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
         /** @see [PluginFeaturesService.v2PluginNoWarn] */
         val v2PluginNoWarn: Property<Boolean>
 
+        val v2PluginMigrationHelpersEnabled: Property<Boolean>
+
         /** @see [PluginFeaturesService.primaryService] */
         val primaryService: Property<Boolean>
 
@@ -150,6 +152,10 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
         }
     }
 
+    internal val v2PluginMigrationHelpersEnabled: Boolean by lazy {
+        parameters.v2PluginMigrationHelpersEnabled.getOrElse(true)
+    }
+
     companion object {
         private val logger = Logging.getLogger(PluginFeaturesService::class.java)
 
@@ -164,6 +170,9 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
         /** The same as [V2_PLUGIN_NO_WARN_FLAG], but it doesn't trigger spell-checks. */
         private const val V2_PLUGIN_NO_WARN_FLAG_PRETTY =
             "$V2_PLUGIN_ENABLED_FLAG.noWarn"
+
+        private const val V2_PLUGIN_MIGRATION_HELPERS_FLAG =
+            "org.jetbrains.dokka.experimental.gradlePlugin.enableV2MigrationHelpers"
 
         private const val K2_ANALYSIS_ENABLED_FLAG =
             "org.jetbrains.dokka.experimental.tryK2"
@@ -182,6 +191,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 val setFlags = Action<Params> {
                     v2PluginEnabled.set(getFlag(V2_PLUGIN_ENABLED_FLAG))
                     v2PluginNoWarn.set(getFlag(V2_PLUGIN_NO_WARN_FLAG_PRETTY).orElse(getFlag(V2_PLUGIN_NO_WARN_FLAG)))
+                    v2PluginMigrationHelpersEnabled.set(getFlag(V2_PLUGIN_MIGRATION_HELPERS_FLAG))
                     k2AnalysisEnabled.set(getFlag(K2_ANALYSIS_ENABLED_FLAG))
                     k2AnalysisNoWarn.set(
                         getFlag(K2_ANALYSIS_NO_WARN_FLAG_PRETTY)

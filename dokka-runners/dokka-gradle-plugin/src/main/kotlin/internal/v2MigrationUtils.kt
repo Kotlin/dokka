@@ -21,7 +21,7 @@ import org.jetbrains.dokka.gradle.dependencies.DependencyContainerNames
  * - Create the same tasks as V1, but disable them and update the description.
  * - Create the same Configurations as V1, if they are missing from V2, and mark them as deprecated.
  */
-internal fun addV1MigrationHelpers(
+internal fun addV2MigrationHelpers(
     project: Project
 ) {
     // Note: `dokkaPlugin` exists in the v2 plugin, so no migration helper is required.
@@ -75,7 +75,7 @@ private fun setupDokkaTasks(
     fun ConfigurationContainer.createDokkaRuntimeConfiguration(taskName: String): Configuration {
         return create("${taskName}Runtime") {
             declarable()
-            deprecate("dokka${prettyFormat}GeneratorClasspath")
+            deprecate(replaceWith = newConfs.generatorClasspath)
         }
     }
 
@@ -83,7 +83,7 @@ private fun setupDokkaTasks(
     project.configurations.createDokkaRuntimeConfiguration(taskName = baseTaskName)
 
     project.tasks.register<DokkaTask>(baseTaskName) {
-        description = "$taskDesc Generates documentation in '$format' format"
+        description = "$taskDesc Generates documentation in '$format' format."
     }
 
     if (project.parent != null) {
@@ -91,7 +91,7 @@ private fun setupDokkaTasks(
         project.configurations.createDokkaPluginConfiguration(taskName = partialName)
         project.configurations.createDokkaRuntimeConfiguration(taskName = partialName)
         project.tasks.register<DokkaTaskPartial>(partialName) {
-            description = "$taskDesc Generates documentation in '$format' format"
+            description = "$taskDesc Generates documentation in '$format' format."
         }
     }
 
@@ -103,13 +103,13 @@ private fun setupDokkaTasks(
 
             project.tasks.register<DokkaMultiModuleTask>(multiModuleName) {
                 description =
-                    "$taskDesc Runs all subprojects '$name' tasks and generates $format module navigation page"
+                    "$taskDesc Runs all subprojects '$name' tasks and generates $format module navigation page."
             }
         }
 
         project.tasks.register<DokkaCollectorTask>("${baseTaskName}Collector") {
             description =
-                "$taskDesc Generates documentation merging all subprojects '$baseTaskName' tasks into one virtual module"
+                "$taskDesc Generates documentation merging all subprojects '$baseTaskName' tasks into one virtual module."
         }
     }
 }
@@ -119,7 +119,7 @@ private fun ConfigurationContainer.createDokkaDefaultRuntimeConfiguration(): Con
     return create("dokkaRuntime") {
         description = "[⚠ V1 Configurations are disabled] Classpath used to execute the Dokka Generator."
         declarable()
-        deprecate("dokkaHtmlGeneratorRuntime")
+        deprecate(DependencyContainerNames("html").generatorClasspath)
     }
 }
 
