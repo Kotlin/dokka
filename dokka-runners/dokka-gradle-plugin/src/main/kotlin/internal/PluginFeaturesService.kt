@@ -12,7 +12,6 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import org.gradle.kotlin.dsl.extra
-import kotlin.LazyThreadSafetyMode.SYNCHRONIZED
 
 /**
  * Internal utility service for managing Dokka Plugin features and warnings.
@@ -57,7 +56,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
      *
      * Otherwise, fallback to V1 [org.jetbrains.dokka.gradle.DokkaClassicPlugin].
      */
-    internal val v2PluginEnabled: Boolean by lazy(SYNCHRONIZED) {
+    internal val v2PluginEnabled: Boolean by lazy {
         val v2PluginEnabled = parameters.v2PluginEnabled.getOrElse(false)
 
         if (v2PluginEnabled) {
@@ -118,7 +117,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
         }
     }
 
-    internal val enableK2Analysis: Boolean by lazy(SYNCHRONIZED) {
+    internal val enableK2Analysis: Boolean by lazy {
         // use lazy {} to ensure messages are only logged once
 
         val enableK2Analysis = parameters.k2AnalysisEnabled.getOrElse(false)
