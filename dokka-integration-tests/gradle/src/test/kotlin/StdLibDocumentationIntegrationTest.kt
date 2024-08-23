@@ -19,7 +19,7 @@ class StdLibDocumentationIntegrationTest {
      */
     @Test
     fun shouldAssertEnumDocumentationHasNotChanged() {
-        val sourcesLink = "https://raw.githubusercontent.com/JetBrains/kotlin/master/core/builtins/native/kotlin/Enum.kt"
+        val sourcesLink = "https://raw.githubusercontent.com/JetBrains/kotlin/master/libraries/stdlib/src/kotlin/Enum.kt"
         val sources = URL(sourcesLink).readText()
 
         val expectedValuesDoc =
