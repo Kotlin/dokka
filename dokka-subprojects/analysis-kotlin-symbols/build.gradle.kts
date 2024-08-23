@@ -29,7 +29,7 @@ dependencies {
     // ----------- Analysis dependencies ----------------------------------------------------------------------------
 
     listOf(
-        libs.kotlin.high.level.api.api,
+        libs.kotlin.analysis.api.api,
         libs.kotlin.analysis.api.standalone,
     ).forEach {
         implementation(it) {
@@ -37,8 +37,8 @@ dependencies {
         }
     }
     listOf(
-        libs.kotlin.high.level.api.impl,
-        libs.kotlin.high.level.api.fir,
+        libs.kotlin.analysis.api.impl,
+        libs.kotlin.analysis.api.fir,
         libs.kotlin.low.level.api.fir,
         libs.kotlin.analysis.api.platform,
         libs.kotlin.symbol.light.classes,
