@@ -240,7 +240,6 @@ public final class org/jetbrains/dokka/gradle/SourceSetKotlinGistConfigurationKt
 
 public abstract class org/jetbrains/dokka/gradle/dokka/DokkaPublication : java/io/Serializable, org/gradle/api/Named, org/gradle/api/plugins/ExtensionAware {
 	public abstract fun getCacheRoot ()Lorg/gradle/api/file/DirectoryProperty;
-	public abstract fun getDelayTemplateSubstitution ()Lorg/gradle/api/provider/Property;
 	public abstract fun getEnabled ()Lorg/gradle/api/provider/Property;
 	public abstract fun getFailOnWarning ()Lorg/gradle/api/provider/Property;
 	public abstract fun getFinalizeCoroutines ()Lorg/gradle/api/provider/Property;

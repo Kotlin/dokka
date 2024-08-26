@@ -8,11 +8,8 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.*
-import org.gradle.api.tasks.PathSensitivity.RELATIVE
-import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
 import org.jetbrains.dokka.gradle.internal.adding
 import java.io.Serializable
 import javax.inject.Inject
@@ -29,7 +26,6 @@ abstract class DokkaPublication
 @DokkaInternalApi
 @Inject
 constructor(
-    @get:Internal
     val formatName: String,
 
     /**
@@ -40,72 +36,31 @@ constructor(
 ) : Named, Serializable, ExtensionAware {
 
     /** Configurations for Dokka Generator Plugins. */
-    @get:Nested
     val pluginsConfiguration: DokkaPluginParametersContainer =
         extensions.adding("pluginsConfiguration", pluginsConfiguration)
 
-    @Internal
     override fun getName(): String = formatName
 
-    @get:Input
     abstract val enabled: Property<Boolean>
 
-    @get:Input
     abstract val moduleName: Property<String>
 
-    @get:Input
-    @get:Optional
     abstract val moduleVersion: Property<String>
 
-    @get:Internal
-    // marked as Internal because this task does not use the directory contents, only the location
     abstract val outputDir: DirectoryProperty
 
-    /**
-     * Because [outputDir] must be [Internal] (so Gradle doesn't check the directory contents),
-     * [outputDirPath] is required so Gradle can determine if the task is up-to-date.
-     */
-    @get:Input
-    // marked as an Input because a DokkaPublication is used to configure the appropriate Dokka Tasks
-    @DokkaInternalApi
-    protected val outputDirPath: Provider<String>
-        get() = outputDir.map { it.asFile.invariantSeparatorsPath }
-
-    @get:Internal
-    // Marked as Internal because this task does not use the directory contents, only the location.
-    // Note that `cacheRoot` is not used by Dokka, and will probably be deprecated.
     abstract val cacheRoot: DirectoryProperty
 
-    /**
-     * Because [cacheRoot] must be [Internal] (so Gradle doesn't check the directory contents),
-     * [cacheRootPath] is required so Gradle can determine if the task is up-to-date.
-     */
-    @get:Input
-    @get:Optional
-    @DokkaInternalApi
-    protected val cacheRootPath: Provider<String>
-        get() = cacheRoot.map { it.asFile.invariantSeparatorsPath }
-
-    @get:Input
     abstract val offlineMode: Property<Boolean>
 
-    @get:Input
     abstract val failOnWarning: Property<Boolean>
 
-    @get:Input
-    abstract val delayTemplateSubstitution: Property<Boolean>
-
-    @get:Input
     abstract val suppressObviousFunctions: Property<Boolean>
 
-    @get:InputFiles
-    @get:PathSensitive(RELATIVE)
     abstract val includes: ConfigurableFileCollection
 
-    @get:Input
     abstract val suppressInheritedMembers: Property<Boolean>
 
-    @get:Input
     // TODO probably not needed any more, since Dokka Generator now runs in an isolated JVM process
     abstract val finalizeCoroutines: Property<Boolean>
 }
