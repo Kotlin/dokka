@@ -4,6 +4,7 @@ public final class org/jetbrains/dokka/kotlinAsJava/KotlinAsJavaPlugin : org/jet
 	public final fun getJvmNameTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getKotlinAsJavaDocumentableToPageTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getKotlinAsJavaDocumentableTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getSuppressJvmMappedMethodsFilter ()Lorg/jetbrains/dokka/plugability/Extension;
 }
 
 public final class org/jetbrains/dokka/kotlinAsJava/TransformToJavaKt {
