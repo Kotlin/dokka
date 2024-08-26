@@ -153,7 +153,6 @@ constructor(
         dokkaExtension.dokkaPublications.all {
             enabled.convention(true)
             cacheRoot.convention(dokkaExtension.dokkaCacheDirectory)
-            delayTemplateSubstitution.convention(false)
             failOnWarning.convention(false)
             finalizeCoroutines.convention(false)
             moduleName.convention(dokkaExtension.moduleName)
