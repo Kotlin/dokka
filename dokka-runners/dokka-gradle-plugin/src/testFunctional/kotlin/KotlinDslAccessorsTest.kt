@@ -153,7 +153,7 @@ private fun initProjectWithBuildSrcConvention(
 private class GeneratedDokkaAccessors(
     val projectPath: String,
     val list: List<String>,
-    private val projectDir: Path,
+    projectDir: Path,
 ) {
     val joined: String = list.joinToString("\n\n")
     val file: Path = projectDir.resolve("dokka-accessors-${System.currentTimeMillis()}.txt").apply {
@@ -179,11 +179,9 @@ private fun GradleProjectTest.generateDokkaV2MigrationHelpersAccessors(
 
     val v2Helpers = accessorsWithV2Helpers - accessorsWithoutV2Helpers.toSet()
 
-//    projectDir.resolve("v2-migration-helpers.txt").writeText(v2Helpers.joinToString("\n\n"))
-
     return GeneratedDokkaAccessors(
         projectPath = projectPath,
-        list = accessorsWithV2Helpers - accessorsWithoutV2Helpers.toSet(),
+        list = v2Helpers,
         projectDir = projectDir
     )
 }
@@ -230,6 +228,7 @@ private fun splitDslAccessors(
 ): List<String> {
     return output.lineSequence()
         .fold(ArrayDeque<StringBuilder>()) { acc, line ->
+
             if (acc.isEmpty() && line.isBlank()) {
                 // no section started yet, ignore the preceding whitespace
             } else {
