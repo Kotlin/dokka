@@ -3,4 +3,5 @@
 # and will log a warning for unsupported versions.
 gradlew
 gradlew.bat
-gradle/wrapper/**
+**/gradle/wrapper/gradle-wrapper.jar
+**/gradle/wrapper/gradle-wrapper.properties
