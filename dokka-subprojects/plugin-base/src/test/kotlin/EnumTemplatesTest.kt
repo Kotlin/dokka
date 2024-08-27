@@ -2,6 +2,7 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 import org.intellij.lang.annotations.Language
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.assertAll
 import utils.assertContains
 import java.nio.file.Files
@@ -59,24 +60,19 @@ class EnumTemplatesTest {
     }
 
     /**
-     * The Dokka template didn't match the stdlib source code when this test was created.
+     * This test is disabled because the `Enum.entries` does not have accessible documentation.
      *
-     * I've created this just in case the equivalence between the template and stdlib
-     * source should be tested in future.
+     * See https://youtrack.jetbrains.com/issue/KTIJ-23569/Provide-quick-documentation-for-Enum.entries
      */
     @Test
+    @Disabled("Kotlin stdlib does not have kdoc for Enum.entries")
     fun enumEntries() {
         listOf(
             "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
             "This method may be used to iterate over the enum entries.",
         ).forEach { line ->
-            assertSubstringIsInFiles(line, enumEntriesTemplate)
+            assertSubstringIsInFiles(line, enumEntriesTemplate, actualEnumEntriesKt)
         }
-
-        assertSubstringIsInFiles(
-            "Returns [EnumEntries] list containing all enum entries for the given enum type [T].",
-            actualEnumEntriesKt,
-        )
     }
 
     companion object {
