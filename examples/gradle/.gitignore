@@ -1,0 +1,6 @@
+# Exclude Gradle Wrapper files from the example projects.
+# A fixed version of Gradle isn't super important: Dokka should work with most versions of Gradle,
+# and will log a warning for unsupported versions.
+gradlew
+gradlew.bat
+gradle/wrapper/**
