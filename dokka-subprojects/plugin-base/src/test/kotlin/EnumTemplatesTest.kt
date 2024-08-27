@@ -71,7 +71,7 @@ class EnumTemplatesTest {
             "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
             "This method may be used to iterate over the enum entries.",
         ).forEach { line ->
-            assertSubstringIsInFiles(line, enumEntriesTemplate, actualEnumEntriesKt)
+            assertSubstringIsInFiles(line, enumEntriesTemplate)
         }
     }
 
@@ -114,11 +114,6 @@ class EnumTemplatesTest {
         /** Get the actual `Enum.kt` source file from Kotlin stdlib. */
         private val actualStdlibEnumKt: Path by lazy {
             kotlinStdlibSourcesDir.resolve("jvmMain/kotlin/Enum.kt")
-        }
-
-        /** Get the actual `EnumEntries.kt` source file from Kotlin stdlib. */
-        private val actualEnumEntriesKt: Path by lazy {
-            kotlinStdlibSourcesDir.resolve("commonMain/kotlin/enums/EnumEntries.kt")
         }
     }
 }
