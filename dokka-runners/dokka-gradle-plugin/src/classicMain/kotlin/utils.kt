@@ -4,7 +4,6 @@
 
 package org.jetbrains.dokka.gradle
 
-import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.UnknownDomainObjectException
 import org.gradle.kotlin.dsl.findByType
@@ -43,7 +42,3 @@ internal fun Project.isAndroidProject() = try {
 }
 
 internal fun KotlinTarget.isAndroidTarget() = this.platformType == KotlinPlatformType.androidJvm
-
-internal fun <T : Any> NamedDomainObjectContainer<T>.maybeCreate(name: String, configuration: T.() -> Unit): T {
-    return findByName(name) ?: create(name, configuration)
-}
