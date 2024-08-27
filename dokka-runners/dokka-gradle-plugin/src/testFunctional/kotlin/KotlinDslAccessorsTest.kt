@@ -16,11 +16,24 @@ import kotlin.io.path.Path
 import kotlin.io.path.writeText
 import kotlin.test.assertEquals
 
+/**
+ * Test the Kotlin DSL accessors that Gradle generates.
+ *
+ * These accessors are part of Dokka's public ABI, and any modifications could break build scripts.
+ * These tests are similar to the BCV API Dump checks.
+ */
 class KotlinDslAccessorsTest : FunSpec({
 
     context("Kotlin DSL generated accessors") {
         val project = initMultiModuleProject("KotlinDslAccessorsTest")
 
+        /**
+         * Verify the current accessors match the dumped accessors.
+         *
+         * If this test is failing after intentional changes then update the dump file.
+         * (The test assertion messages contains links to files containing the actual and expected accessors,
+         * so copy the actual accessors to the expected.)
+         */
         suspend fun FunSpecContainerScope.testKotlinDslAccessors(
             actualAccessors: GeneratedDokkaAccessors,
             @Language("file-reference")
