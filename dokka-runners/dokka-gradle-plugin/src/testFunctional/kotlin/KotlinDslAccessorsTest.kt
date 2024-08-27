@@ -259,6 +259,12 @@ private fun splitDslAccessors(
 
             acc
         }
-        .map { it.toString().trimIndent().trim() }
+        .map {
+            it.toString()
+                .trimIndent()
+                .substringAfter("*/") // remove KDoc, it's not relevant.
+                .trim()
+        }
+        .distinct()
         .sorted()
 }
