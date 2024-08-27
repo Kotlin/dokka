@@ -68,7 +68,7 @@ class GradleProjectTest(
             var maxWorkers: Int? = null,
             val jvmArgs: JvmArgs = JvmArgs(),
 
-            // maybe also implement these flags? Although there's suitable tests for them at present.
+            // Maybe also implement these flags? Although there's no suitable tests for them at present.
             // org.gradle.projectcachedir=(directory)
             // org.gradle.unsafe.isolated-projects=(true,false)
             // org.gradle.vfs.verbose=(true,false)

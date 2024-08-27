@@ -6,6 +6,7 @@ package org.jetbrains.dokka.gradle
 import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -18,6 +19,14 @@ class DokkaPluginFunctionalTest : FunSpec({
         buildGradleKts = """
             |plugins {
             |  id("org.jetbrains.dokka") version "$DOKKA_VERSION"
+            |}
+            |
+            |val printDeclarableConfigurations by tasks.registering {
+            |  val declarableConfNames = provider { configurations.matching { it.isCanBeDeclared }.names }
+            |  inputs.property("declarableConfNames", declarableConfNames)
+            |  doLast {
+            |    println("declarableConfigurations:" + declarableConfNames.get())
+            |  }
             |}
             |
             """.trimMargin()
@@ -40,6 +49,34 @@ class DokkaPluginFunctionalTest : FunSpec({
                         "dokkaGenerateModuleHtml"      to "Executes the Dokka Generator, generating a html module",
                         "dokkaGeneratePublicationHtml" to "Executes the Dokka Generator, generating the html publication",
                         //@formatter:on
+                    )
+                }
+            }
+    }
+
+    test("expect Dokka Plugin creates Dokka declarable configurations") {
+        testProject.runner
+            .addArguments(
+                ":printDeclarableConfigurations",
+                "--quiet",
+                "-Porg.jetbrains.dokka.experimental.gradlePlugin.enableV2MigrationHelpers=false",
+            )
+            .build {
+                withClue(output) {
+                    val declarableConfigurations = output
+                        .substringAfter("declarableConfigurations:[")
+                        .substringBefore("]")
+                        .split(",")
+                        .map { it.trim() }
+                        .sorted()
+
+                    declarableConfigurations.shouldContainExactly(
+                        "dokka",
+                        "dokkaHtmlGeneratorRuntime",
+                        "dokkaHtmlPlugin",
+                        "dokkaHtmlPublicationPlugin",
+                        "dokkaHtmlPublicationPluginApiOnly.internal",
+                        "dokkaPlugin",
                     )
                 }
             }
