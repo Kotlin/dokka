@@ -44,10 +44,11 @@ kotlin {
 }
 
 dependencies {
+    // TODO KT-71027 When DGPv1 is removed, change dokka-core to be an implementation dependency
     // ideally there should be a 'dokka-core-api' dependency (that is very thin and doesn't drag in loads of unnecessary code)
     // that would be used as an implementation dependency, while dokka-core would be used as a compileOnly dependency
     // https://github.com/Kotlin/dokka/issues/2933
-    implementation("org.jetbrains.dokka:dokka-core:${project.version}")
+    api("org.jetbrains.dokka:dokka-core:${project.version}")
 
     compileOnly(libs.gradlePlugin.kotlin)
     compileOnly(libs.gradlePlugin.kotlin.klibCommonizerApi)
