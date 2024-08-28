@@ -158,7 +158,8 @@ constructor(
             moduleName.convention(dokkaExtension.moduleName)
             moduleVersion.convention(dokkaExtension.moduleVersion)
             offlineMode.convention(false)
-            outputDir.convention(dokkaExtension.dokkaPublicationDirectory)
+            outputDirectory.convention(dokkaExtension.dokkaPublicationDirectory.dir(formatName))
+            moduleOutputDirectory.convention(dokkaExtension.dokkaModuleDirectory.dir(formatName))
             suppressInheritedMembers.convention(false)
             suppressObviousFunctions.convention(true)
         }
