@@ -71,7 +71,7 @@ class EnumTemplatesTest {
             "Returns a representation of an immutable list of all enum entries, in the order they're declared.",
             "This method may be used to iterate over the enum entries.",
         ).forEach { line ->
-            assertSubstringIsInFiles(line, enumEntriesTemplate)
+            assertSubstringIsInFiles(line, enumValuesTemplate, actualStdlibEnumKt)
         }
     }
 
