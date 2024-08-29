@@ -1098,50 +1098,50 @@ fun DependencyHandler.`dokkaRuntime`(
 fun DependencyHandler.`dokkaRuntime`(dependencyNotation: Any): Dependency? =
     add("dokkaRuntime", dependencyNotation)
 
-fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlGeneratorRuntimeResolver.internal`(
+fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlGeneratorRuntimeResolver~internal`(
     dependency: T,
     dependencyConfiguration: T.() -> Unit
-): T = add("dokkaHtmlGeneratorRuntimeResolver.internal", dependency, dependencyConfiguration)
+): T = add("dokkaHtmlGeneratorRuntimeResolver~internal", dependency, dependencyConfiguration)
 
 fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlGeneratorRuntime`(
     dependency: T,
     dependencyConfiguration: T.() -> Unit
 ): T = add("dokkaHtmlGeneratorRuntime", dependency, dependencyConfiguration)
 
-fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlModuleOutputDirectoriesConsumable.internal`(
+fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlModuleOutputDirectoriesConsumable~internal`(
     dependency: T,
     dependencyConfiguration: T.() -> Unit
-): T = add("dokkaHtmlModuleOutputDirectoriesConsumable.internal", dependency, dependencyConfiguration)
+): T = add("dokkaHtmlModuleOutputDirectoriesConsumable~internal", dependency, dependencyConfiguration)
 
-fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlModuleOutputDirectoriesResolver.internal`(
+fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlModuleOutputDirectoriesResolver~internal`(
     dependency: T,
     dependencyConfiguration: T.() -> Unit
-): T = add("dokkaHtmlModuleOutputDirectoriesResolver.internal", dependency, dependencyConfiguration)
+): T = add("dokkaHtmlModuleOutputDirectoriesResolver~internal", dependency, dependencyConfiguration)
 
-fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlPluginIntransitiveResolver.internal`(
+fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlPluginIntransitiveResolver~internal`(
     dependency: T,
     dependencyConfiguration: T.() -> Unit
-): T = add("dokkaHtmlPluginIntransitiveResolver.internal", dependency, dependencyConfiguration)
+): T = add("dokkaHtmlPluginIntransitiveResolver~internal", dependency, dependencyConfiguration)
 
 fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlPlugin`(
     dependency: T,
     dependencyConfiguration: T.() -> Unit
 ): T = add("dokkaHtmlPlugin", dependency, dependencyConfiguration)
 
-fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlPublicationPluginApiOnly.internal`(
+fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable~internal`(
     dependency: T,
     dependencyConfiguration: T.() -> Unit
-): T = add("dokkaHtmlPublicationPluginApiOnly.internal", dependency, dependencyConfiguration)
+): T = add("dokkaHtmlPublicationPluginApiOnlyConsumable~internal", dependency, dependencyConfiguration)
 
-fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable.internal`(
+fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlPublicationPluginApiOnly~internal`(
     dependency: T,
     dependencyConfiguration: T.() -> Unit
-): T = add("dokkaHtmlPublicationPluginApiOnlyConsumable.internal", dependency, dependencyConfiguration)
+): T = add("dokkaHtmlPublicationPluginApiOnly~internal", dependency, dependencyConfiguration)
 
-fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlPublicationPluginResolver.internal`(
+fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlPublicationPluginResolver~internal`(
     dependency: T,
     dependencyConfiguration: T.() -> Unit
-): T = add("dokkaHtmlPublicationPluginResolver.internal", dependency, dependencyConfiguration)
+): T = add("dokkaHtmlPublicationPluginResolver~internal", dependency, dependencyConfiguration)
 
 fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlPublicationPlugin`(
     dependency: T,
@@ -1212,14 +1212,14 @@ fun ArtifactHandler.`dokkaGfmRuntime`(
 fun ArtifactHandler.`dokkaGfmRuntime`(artifactNotation: Any): PublishArtifact =
     add("dokkaGfmRuntime", artifactNotation)
 
-fun ArtifactHandler.`dokkaHtmlGeneratorRuntimeResolver.internal`(
+fun ArtifactHandler.`dokkaHtmlGeneratorRuntimeResolver~internal`(
     artifactNotation: Any,
     configureAction:  ConfigurablePublishArtifact.() -> Unit
 ): PublishArtifact =
-    add("dokkaHtmlGeneratorRuntimeResolver.internal", artifactNotation, configureAction)
+    add("dokkaHtmlGeneratorRuntimeResolver~internal", artifactNotation, configureAction)
 
-fun ArtifactHandler.`dokkaHtmlGeneratorRuntimeResolver.internal`(artifactNotation: Any): PublishArtifact =
-    add("dokkaHtmlGeneratorRuntimeResolver.internal", artifactNotation)
+fun ArtifactHandler.`dokkaHtmlGeneratorRuntimeResolver~internal`(artifactNotation: Any): PublishArtifact =
+    add("dokkaHtmlGeneratorRuntimeResolver~internal", artifactNotation)
 
 fun ArtifactHandler.`dokkaHtmlGeneratorRuntime`(
     artifactNotation: Any,
@@ -1230,23 +1230,23 @@ fun ArtifactHandler.`dokkaHtmlGeneratorRuntime`(
 fun ArtifactHandler.`dokkaHtmlGeneratorRuntime`(artifactNotation: Any): PublishArtifact =
     add("dokkaHtmlGeneratorRuntime", artifactNotation)
 
-fun ArtifactHandler.`dokkaHtmlModuleOutputDirectoriesConsumable.internal`(
+fun ArtifactHandler.`dokkaHtmlModuleOutputDirectoriesConsumable~internal`(
     artifactNotation: Any,
     configureAction:  ConfigurablePublishArtifact.() -> Unit
 ): PublishArtifact =
-    add("dokkaHtmlModuleOutputDirectoriesConsumable.internal", artifactNotation, configureAction)
+    add("dokkaHtmlModuleOutputDirectoriesConsumable~internal", artifactNotation, configureAction)
 
-fun ArtifactHandler.`dokkaHtmlModuleOutputDirectoriesConsumable.internal`(artifactNotation: Any): PublishArtifact =
-    add("dokkaHtmlModuleOutputDirectoriesConsumable.internal", artifactNotation)
+fun ArtifactHandler.`dokkaHtmlModuleOutputDirectoriesConsumable~internal`(artifactNotation: Any): PublishArtifact =
+    add("dokkaHtmlModuleOutputDirectoriesConsumable~internal", artifactNotation)
 
-fun ArtifactHandler.`dokkaHtmlModuleOutputDirectoriesResolver.internal`(
+fun ArtifactHandler.`dokkaHtmlModuleOutputDirectoriesResolver~internal`(
     artifactNotation: Any,
     configureAction:  ConfigurablePublishArtifact.() -> Unit
 ): PublishArtifact =
-    add("dokkaHtmlModuleOutputDirectoriesResolver.internal", artifactNotation, configureAction)
+    add("dokkaHtmlModuleOutputDirectoriesResolver~internal", artifactNotation, configureAction)
 
-fun ArtifactHandler.`dokkaHtmlModuleOutputDirectoriesResolver.internal`(artifactNotation: Any): PublishArtifact =
-    add("dokkaHtmlModuleOutputDirectoriesResolver.internal", artifactNotation)
+fun ArtifactHandler.`dokkaHtmlModuleOutputDirectoriesResolver~internal`(artifactNotation: Any): PublishArtifact =
+    add("dokkaHtmlModuleOutputDirectoriesResolver~internal", artifactNotation)
 
 fun ArtifactHandler.`dokkaHtmlMultiModuleRuntime`(
     artifactNotation: Any,
@@ -1266,14 +1266,14 @@ fun ArtifactHandler.`dokkaHtmlPartialRuntime`(
 fun ArtifactHandler.`dokkaHtmlPartialRuntime`(artifactNotation: Any): PublishArtifact =
     add("dokkaHtmlPartialRuntime", artifactNotation)
 
-fun ArtifactHandler.`dokkaHtmlPluginIntransitiveResolver.internal`(
+fun ArtifactHandler.`dokkaHtmlPluginIntransitiveResolver~internal`(
     artifactNotation: Any,
     configureAction:  ConfigurablePublishArtifact.() -> Unit
 ): PublishArtifact =
-    add("dokkaHtmlPluginIntransitiveResolver.internal", artifactNotation, configureAction)
+    add("dokkaHtmlPluginIntransitiveResolver~internal", artifactNotation, configureAction)
 
-fun ArtifactHandler.`dokkaHtmlPluginIntransitiveResolver.internal`(artifactNotation: Any): PublishArtifact =
-    add("dokkaHtmlPluginIntransitiveResolver.internal", artifactNotation)
+fun ArtifactHandler.`dokkaHtmlPluginIntransitiveResolver~internal`(artifactNotation: Any): PublishArtifact =
+    add("dokkaHtmlPluginIntransitiveResolver~internal", artifactNotation)
 
 fun ArtifactHandler.`dokkaHtmlPlugin`(
     artifactNotation: Any,
@@ -1284,32 +1284,32 @@ fun ArtifactHandler.`dokkaHtmlPlugin`(
 fun ArtifactHandler.`dokkaHtmlPlugin`(artifactNotation: Any): PublishArtifact =
     add("dokkaHtmlPlugin", artifactNotation)
 
-fun ArtifactHandler.`dokkaHtmlPublicationPluginApiOnly.internal`(
+fun ArtifactHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable~internal`(
     artifactNotation: Any,
     configureAction:  ConfigurablePublishArtifact.() -> Unit
 ): PublishArtifact =
-    add("dokkaHtmlPublicationPluginApiOnly.internal", artifactNotation, configureAction)
+    add("dokkaHtmlPublicationPluginApiOnlyConsumable~internal", artifactNotation, configureAction)
 
-fun ArtifactHandler.`dokkaHtmlPublicationPluginApiOnly.internal`(artifactNotation: Any): PublishArtifact =
-    add("dokkaHtmlPublicationPluginApiOnly.internal", artifactNotation)
+fun ArtifactHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable~internal`(artifactNotation: Any): PublishArtifact =
+    add("dokkaHtmlPublicationPluginApiOnlyConsumable~internal", artifactNotation)
 
-fun ArtifactHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable.internal`(
+fun ArtifactHandler.`dokkaHtmlPublicationPluginApiOnly~internal`(
     artifactNotation: Any,
     configureAction:  ConfigurablePublishArtifact.() -> Unit
 ): PublishArtifact =
-    add("dokkaHtmlPublicationPluginApiOnlyConsumable.internal", artifactNotation, configureAction)
+    add("dokkaHtmlPublicationPluginApiOnly~internal", artifactNotation, configureAction)
 
-fun ArtifactHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable.internal`(artifactNotation: Any): PublishArtifact =
-    add("dokkaHtmlPublicationPluginApiOnlyConsumable.internal", artifactNotation)
+fun ArtifactHandler.`dokkaHtmlPublicationPluginApiOnly~internal`(artifactNotation: Any): PublishArtifact =
+    add("dokkaHtmlPublicationPluginApiOnly~internal", artifactNotation)
 
-fun ArtifactHandler.`dokkaHtmlPublicationPluginResolver.internal`(
+fun ArtifactHandler.`dokkaHtmlPublicationPluginResolver~internal`(
     artifactNotation: Any,
     configureAction:  ConfigurablePublishArtifact.() -> Unit
 ): PublishArtifact =
-    add("dokkaHtmlPublicationPluginResolver.internal", artifactNotation, configureAction)
+    add("dokkaHtmlPublicationPluginResolver~internal", artifactNotation, configureAction)
 
-fun ArtifactHandler.`dokkaHtmlPublicationPluginResolver.internal`(artifactNotation: Any): PublishArtifact =
-    add("dokkaHtmlPublicationPluginResolver.internal", artifactNotation)
+fun ArtifactHandler.`dokkaHtmlPublicationPluginResolver~internal`(artifactNotation: Any): PublishArtifact =
+    add("dokkaHtmlPublicationPluginResolver~internal", artifactNotation)
 
 fun ArtifactHandler.`dokkaHtmlPublicationPlugin`(
     artifactNotation: Any,
@@ -1446,11 +1446,11 @@ fun ArtifactHandler.`dokka`(
 fun ArtifactHandler.`dokka`(artifactNotation: Any): PublishArtifact =
     add("dokka", artifactNotation)
 
-fun DependencyConstraintHandler.`dokkaHtmlGeneratorRuntimeResolver.internal`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaHtmlGeneratorRuntimeResolver.internal", constraintNotation)
+fun DependencyConstraintHandler.`dokkaHtmlGeneratorRuntimeResolver~internal`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaHtmlGeneratorRuntimeResolver~internal", constraintNotation)
 
-fun DependencyConstraintHandler.`dokkaHtmlGeneratorRuntimeResolver.internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaHtmlGeneratorRuntimeResolver.internal", constraintNotation, block)
+fun DependencyConstraintHandler.`dokkaHtmlGeneratorRuntimeResolver~internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaHtmlGeneratorRuntimeResolver~internal", constraintNotation, block)
 
 fun DependencyConstraintHandler.`dokkaHtmlGeneratorRuntime`(constraintNotation: Any): DependencyConstraint =
     add("dokkaHtmlGeneratorRuntime", constraintNotation)
@@ -1458,23 +1458,23 @@ fun DependencyConstraintHandler.`dokkaHtmlGeneratorRuntime`(constraintNotation: 
 fun DependencyConstraintHandler.`dokkaHtmlGeneratorRuntime`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
     add("dokkaHtmlGeneratorRuntime", constraintNotation, block)
 
-fun DependencyConstraintHandler.`dokkaHtmlModuleOutputDirectoriesConsumable.internal`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaHtmlModuleOutputDirectoriesConsumable.internal", constraintNotation)
+fun DependencyConstraintHandler.`dokkaHtmlModuleOutputDirectoriesConsumable~internal`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaHtmlModuleOutputDirectoriesConsumable~internal", constraintNotation)
 
-fun DependencyConstraintHandler.`dokkaHtmlModuleOutputDirectoriesConsumable.internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaHtmlModuleOutputDirectoriesConsumable.internal", constraintNotation, block)
+fun DependencyConstraintHandler.`dokkaHtmlModuleOutputDirectoriesConsumable~internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaHtmlModuleOutputDirectoriesConsumable~internal", constraintNotation, block)
 
-fun DependencyConstraintHandler.`dokkaHtmlModuleOutputDirectoriesResolver.internal`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaHtmlModuleOutputDirectoriesResolver.internal", constraintNotation)
+fun DependencyConstraintHandler.`dokkaHtmlModuleOutputDirectoriesResolver~internal`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaHtmlModuleOutputDirectoriesResolver~internal", constraintNotation)
 
-fun DependencyConstraintHandler.`dokkaHtmlModuleOutputDirectoriesResolver.internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaHtmlModuleOutputDirectoriesResolver.internal", constraintNotation, block)
+fun DependencyConstraintHandler.`dokkaHtmlModuleOutputDirectoriesResolver~internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaHtmlModuleOutputDirectoriesResolver~internal", constraintNotation, block)
 
-fun DependencyConstraintHandler.`dokkaHtmlPluginIntransitiveResolver.internal`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaHtmlPluginIntransitiveResolver.internal", constraintNotation)
+fun DependencyConstraintHandler.`dokkaHtmlPluginIntransitiveResolver~internal`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaHtmlPluginIntransitiveResolver~internal", constraintNotation)
 
-fun DependencyConstraintHandler.`dokkaHtmlPluginIntransitiveResolver.internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaHtmlPluginIntransitiveResolver.internal", constraintNotation, block)
+fun DependencyConstraintHandler.`dokkaHtmlPluginIntransitiveResolver~internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaHtmlPluginIntransitiveResolver~internal", constraintNotation, block)
 
 fun DependencyConstraintHandler.`dokkaHtmlPlugin`(constraintNotation: Any): DependencyConstraint =
     add("dokkaHtmlPlugin", constraintNotation)
@@ -1482,23 +1482,23 @@ fun DependencyConstraintHandler.`dokkaHtmlPlugin`(constraintNotation: Any): Depe
 fun DependencyConstraintHandler.`dokkaHtmlPlugin`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
     add("dokkaHtmlPlugin", constraintNotation, block)
 
-fun DependencyConstraintHandler.`dokkaHtmlPublicationPluginApiOnly.internal`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaHtmlPublicationPluginApiOnly.internal", constraintNotation)
+fun DependencyConstraintHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable~internal`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaHtmlPublicationPluginApiOnlyConsumable~internal", constraintNotation)
 
-fun DependencyConstraintHandler.`dokkaHtmlPublicationPluginApiOnly.internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaHtmlPublicationPluginApiOnly.internal", constraintNotation, block)
+fun DependencyConstraintHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable~internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaHtmlPublicationPluginApiOnlyConsumable~internal", constraintNotation, block)
 
-fun DependencyConstraintHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable.internal`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaHtmlPublicationPluginApiOnlyConsumable.internal", constraintNotation)
+fun DependencyConstraintHandler.`dokkaHtmlPublicationPluginApiOnly~internal`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaHtmlPublicationPluginApiOnly~internal", constraintNotation)
 
-fun DependencyConstraintHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable.internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaHtmlPublicationPluginApiOnlyConsumable.internal", constraintNotation, block)
+fun DependencyConstraintHandler.`dokkaHtmlPublicationPluginApiOnly~internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaHtmlPublicationPluginApiOnly~internal", constraintNotation, block)
 
-fun DependencyConstraintHandler.`dokkaHtmlPublicationPluginResolver.internal`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaHtmlPublicationPluginResolver.internal", constraintNotation)
+fun DependencyConstraintHandler.`dokkaHtmlPublicationPluginResolver~internal`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaHtmlPublicationPluginResolver~internal", constraintNotation)
 
-fun DependencyConstraintHandler.`dokkaHtmlPublicationPluginResolver.internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaHtmlPublicationPluginResolver.internal", constraintNotation, block)
+fun DependencyConstraintHandler.`dokkaHtmlPublicationPluginResolver~internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaHtmlPublicationPluginResolver~internal", constraintNotation, block)
 
 fun DependencyConstraintHandler.`dokkaHtmlPublicationPlugin`(constraintNotation: Any): DependencyConstraint =
     add("dokkaHtmlPublicationPlugin", constraintNotation)
@@ -1518,28 +1518,28 @@ fun DependencyConstraintHandler.`dokka`(constraintNotation: Any): DependencyCons
 fun DependencyConstraintHandler.`dokka`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
     add("dokka", constraintNotation, block)
 
-fun DependencyHandler.`dokkaHtmlGeneratorRuntimeResolver.internal`(
+fun DependencyHandler.`dokkaHtmlGeneratorRuntimeResolver~internal`(
     dependencyNotation: Provider<*>,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlGeneratorRuntimeResolver.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlGeneratorRuntimeResolver~internal", dependencyNotation, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlGeneratorRuntimeResolver.internal`(
+fun DependencyHandler.`dokkaHtmlGeneratorRuntimeResolver~internal`(
     dependencyNotation: ProviderConvertible<*>,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlGeneratorRuntimeResolver.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlGeneratorRuntimeResolver~internal", dependencyNotation, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlGeneratorRuntimeResolver.internal`(
+fun DependencyHandler.`dokkaHtmlGeneratorRuntimeResolver~internal`(
     dependencyNotation: String,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaHtmlGeneratorRuntimeResolver.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlGeneratorRuntimeResolver~internal", dependencyNotation, dependencyConfiguration
 ) as ExternalModuleDependency
 
-fun DependencyHandler.`dokkaHtmlGeneratorRuntimeResolver.internal`(
+fun DependencyHandler.`dokkaHtmlGeneratorRuntimeResolver~internal`(
     group: String,
     name: String,
     version: String? = null,
@@ -1548,11 +1548,11 @@ fun DependencyHandler.`dokkaHtmlGeneratorRuntimeResolver.internal`(
     ext: String? = null,
     dependencyConfiguration: Action<ExternalModuleDependency>? = null
 ): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaHtmlGeneratorRuntimeResolver.internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
+    this, "dokkaHtmlGeneratorRuntimeResolver~internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlGeneratorRuntimeResolver.internal`(dependencyNotation: Any): Dependency? =
-    add("dokkaHtmlGeneratorRuntimeResolver.internal", dependencyNotation)
+fun DependencyHandler.`dokkaHtmlGeneratorRuntimeResolver~internal`(dependencyNotation: Any): Dependency? =
+    add("dokkaHtmlGeneratorRuntimeResolver~internal", dependencyNotation)
 
 fun DependencyHandler.`dokkaHtmlGeneratorRuntime`(
     dependencyNotation: Provider<*>,
@@ -1590,28 +1590,28 @@ fun DependencyHandler.`dokkaHtmlGeneratorRuntime`(
 fun DependencyHandler.`dokkaHtmlGeneratorRuntime`(dependencyNotation: Any): Dependency? =
     add("dokkaHtmlGeneratorRuntime", dependencyNotation)
 
-fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesConsumable.internal`(
+fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesConsumable~internal`(
     dependencyNotation: Provider<*>,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlModuleOutputDirectoriesConsumable.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlModuleOutputDirectoriesConsumable~internal", dependencyNotation, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesConsumable.internal`(
+fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesConsumable~internal`(
     dependencyNotation: ProviderConvertible<*>,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlModuleOutputDirectoriesConsumable.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlModuleOutputDirectoriesConsumable~internal", dependencyNotation, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesConsumable.internal`(
+fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesConsumable~internal`(
     dependencyNotation: String,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaHtmlModuleOutputDirectoriesConsumable.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlModuleOutputDirectoriesConsumable~internal", dependencyNotation, dependencyConfiguration
 ) as ExternalModuleDependency
 
-fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesConsumable.internal`(
+fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesConsumable~internal`(
     group: String,
     name: String,
     version: String? = null,
@@ -1620,34 +1620,34 @@ fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesConsumable.internal`(
     ext: String? = null,
     dependencyConfiguration: Action<ExternalModuleDependency>? = null
 ): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaHtmlModuleOutputDirectoriesConsumable.internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
+    this, "dokkaHtmlModuleOutputDirectoriesConsumable~internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesConsumable.internal`(dependencyNotation: Any): Dependency? =
-    add("dokkaHtmlModuleOutputDirectoriesConsumable.internal", dependencyNotation)
+fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesConsumable~internal`(dependencyNotation: Any): Dependency? =
+    add("dokkaHtmlModuleOutputDirectoriesConsumable~internal", dependencyNotation)
 
-fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesResolver.internal`(
+fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesResolver~internal`(
     dependencyNotation: Provider<*>,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlModuleOutputDirectoriesResolver.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlModuleOutputDirectoriesResolver~internal", dependencyNotation, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesResolver.internal`(
+fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesResolver~internal`(
     dependencyNotation: ProviderConvertible<*>,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlModuleOutputDirectoriesResolver.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlModuleOutputDirectoriesResolver~internal", dependencyNotation, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesResolver.internal`(
+fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesResolver~internal`(
     dependencyNotation: String,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaHtmlModuleOutputDirectoriesResolver.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlModuleOutputDirectoriesResolver~internal", dependencyNotation, dependencyConfiguration
 ) as ExternalModuleDependency
 
-fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesResolver.internal`(
+fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesResolver~internal`(
     group: String,
     name: String,
     version: String? = null,
@@ -1656,34 +1656,34 @@ fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesResolver.internal`(
     ext: String? = null,
     dependencyConfiguration: Action<ExternalModuleDependency>? = null
 ): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaHtmlModuleOutputDirectoriesResolver.internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
+    this, "dokkaHtmlModuleOutputDirectoriesResolver~internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesResolver.internal`(dependencyNotation: Any): Dependency? =
-    add("dokkaHtmlModuleOutputDirectoriesResolver.internal", dependencyNotation)
+fun DependencyHandler.`dokkaHtmlModuleOutputDirectoriesResolver~internal`(dependencyNotation: Any): Dependency? =
+    add("dokkaHtmlModuleOutputDirectoriesResolver~internal", dependencyNotation)
 
-fun DependencyHandler.`dokkaHtmlPluginIntransitiveResolver.internal`(
+fun DependencyHandler.`dokkaHtmlPluginIntransitiveResolver~internal`(
     dependencyNotation: Provider<*>,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlPluginIntransitiveResolver.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlPluginIntransitiveResolver~internal", dependencyNotation, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlPluginIntransitiveResolver.internal`(
+fun DependencyHandler.`dokkaHtmlPluginIntransitiveResolver~internal`(
     dependencyNotation: ProviderConvertible<*>,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlPluginIntransitiveResolver.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlPluginIntransitiveResolver~internal", dependencyNotation, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlPluginIntransitiveResolver.internal`(
+fun DependencyHandler.`dokkaHtmlPluginIntransitiveResolver~internal`(
     dependencyNotation: String,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaHtmlPluginIntransitiveResolver.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlPluginIntransitiveResolver~internal", dependencyNotation, dependencyConfiguration
 ) as ExternalModuleDependency
 
-fun DependencyHandler.`dokkaHtmlPluginIntransitiveResolver.internal`(
+fun DependencyHandler.`dokkaHtmlPluginIntransitiveResolver~internal`(
     group: String,
     name: String,
     version: String? = null,
@@ -1692,11 +1692,11 @@ fun DependencyHandler.`dokkaHtmlPluginIntransitiveResolver.internal`(
     ext: String? = null,
     dependencyConfiguration: Action<ExternalModuleDependency>? = null
 ): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaHtmlPluginIntransitiveResolver.internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
+    this, "dokkaHtmlPluginIntransitiveResolver~internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlPluginIntransitiveResolver.internal`(dependencyNotation: Any): Dependency? =
-    add("dokkaHtmlPluginIntransitiveResolver.internal", dependencyNotation)
+fun DependencyHandler.`dokkaHtmlPluginIntransitiveResolver~internal`(dependencyNotation: Any): Dependency? =
+    add("dokkaHtmlPluginIntransitiveResolver~internal", dependencyNotation)
 
 fun DependencyHandler.`dokkaHtmlPlugin`(
     dependencyNotation: Provider<*>,
@@ -1734,28 +1734,28 @@ fun DependencyHandler.`dokkaHtmlPlugin`(
 fun DependencyHandler.`dokkaHtmlPlugin`(dependencyNotation: Any): Dependency? =
     add("dokkaHtmlPlugin", dependencyNotation)
 
-fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnly.internal`(
+fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable~internal`(
     dependencyNotation: Provider<*>,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlPublicationPluginApiOnly.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlPublicationPluginApiOnlyConsumable~internal", dependencyNotation, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnly.internal`(
+fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable~internal`(
     dependencyNotation: ProviderConvertible<*>,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlPublicationPluginApiOnly.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlPublicationPluginApiOnlyConsumable~internal", dependencyNotation, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnly.internal`(
+fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable~internal`(
     dependencyNotation: String,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaHtmlPublicationPluginApiOnly.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlPublicationPluginApiOnlyConsumable~internal", dependencyNotation, dependencyConfiguration
 ) as ExternalModuleDependency
 
-fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnly.internal`(
+fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable~internal`(
     group: String,
     name: String,
     version: String? = null,
@@ -1764,34 +1764,34 @@ fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnly.internal`(
     ext: String? = null,
     dependencyConfiguration: Action<ExternalModuleDependency>? = null
 ): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaHtmlPublicationPluginApiOnly.internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
+    this, "dokkaHtmlPublicationPluginApiOnlyConsumable~internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnly.internal`(dependencyNotation: Any): Dependency? =
-    add("dokkaHtmlPublicationPluginApiOnly.internal", dependencyNotation)
+fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable~internal`(dependencyNotation: Any): Dependency? =
+    add("dokkaHtmlPublicationPluginApiOnlyConsumable~internal", dependencyNotation)
 
-fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable.internal`(
+fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnly~internal`(
     dependencyNotation: Provider<*>,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlPublicationPluginApiOnlyConsumable.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlPublicationPluginApiOnly~internal", dependencyNotation, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable.internal`(
+fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnly~internal`(
     dependencyNotation: ProviderConvertible<*>,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlPublicationPluginApiOnlyConsumable.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlPublicationPluginApiOnly~internal", dependencyNotation, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable.internal`(
+fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnly~internal`(
     dependencyNotation: String,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaHtmlPublicationPluginApiOnlyConsumable.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlPublicationPluginApiOnly~internal", dependencyNotation, dependencyConfiguration
 ) as ExternalModuleDependency
 
-fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable.internal`(
+fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnly~internal`(
     group: String,
     name: String,
     version: String? = null,
@@ -1800,34 +1800,34 @@ fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable.internal`(
     ext: String? = null,
     dependencyConfiguration: Action<ExternalModuleDependency>? = null
 ): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaHtmlPublicationPluginApiOnlyConsumable.internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
+    this, "dokkaHtmlPublicationPluginApiOnly~internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnlyConsumable.internal`(dependencyNotation: Any): Dependency? =
-    add("dokkaHtmlPublicationPluginApiOnlyConsumable.internal", dependencyNotation)
+fun DependencyHandler.`dokkaHtmlPublicationPluginApiOnly~internal`(dependencyNotation: Any): Dependency? =
+    add("dokkaHtmlPublicationPluginApiOnly~internal", dependencyNotation)
 
-fun DependencyHandler.`dokkaHtmlPublicationPluginResolver.internal`(
+fun DependencyHandler.`dokkaHtmlPublicationPluginResolver~internal`(
     dependencyNotation: Provider<*>,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlPublicationPluginResolver.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlPublicationPluginResolver~internal", dependencyNotation, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlPublicationPluginResolver.internal`(
+fun DependencyHandler.`dokkaHtmlPublicationPluginResolver~internal`(
     dependencyNotation: ProviderConvertible<*>,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlPublicationPluginResolver.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlPublicationPluginResolver~internal", dependencyNotation, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlPublicationPluginResolver.internal`(
+fun DependencyHandler.`dokkaHtmlPublicationPluginResolver~internal`(
     dependencyNotation: String,
     dependencyConfiguration: Action<ExternalModuleDependency>
 ): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaHtmlPublicationPluginResolver.internal", dependencyNotation, dependencyConfiguration
+    this, "dokkaHtmlPublicationPluginResolver~internal", dependencyNotation, dependencyConfiguration
 ) as ExternalModuleDependency
 
-fun DependencyHandler.`dokkaHtmlPublicationPluginResolver.internal`(
+fun DependencyHandler.`dokkaHtmlPublicationPluginResolver~internal`(
     group: String,
     name: String,
     version: String? = null,
@@ -1836,11 +1836,11 @@ fun DependencyHandler.`dokkaHtmlPublicationPluginResolver.internal`(
     ext: String? = null,
     dependencyConfiguration: Action<ExternalModuleDependency>? = null
 ): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaHtmlPublicationPluginResolver.internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
+    this, "dokkaHtmlPublicationPluginResolver~internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
 )
 
-fun DependencyHandler.`dokkaHtmlPublicationPluginResolver.internal`(dependencyNotation: Any): Dependency? =
-    add("dokkaHtmlPublicationPluginResolver.internal", dependencyNotation)
+fun DependencyHandler.`dokkaHtmlPublicationPluginResolver~internal`(dependencyNotation: Any): Dependency? =
+    add("dokkaHtmlPublicationPluginResolver~internal", dependencyNotation)
 
 fun DependencyHandler.`dokkaHtmlPublicationPlugin`(
     dependencyNotation: Provider<*>,
@@ -2076,17 +2076,17 @@ val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configura
 val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaGfmRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
     get() = named<org.gradle.api.artifacts.Configuration>("dokkaGfmRuntime")
 
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlGeneratorRuntimeResolver.internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlGeneratorRuntimeResolver.internal")
+val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlGeneratorRuntimeResolver~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
+    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlGeneratorRuntimeResolver~internal")
 
 val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlGeneratorRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
     get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlGeneratorRuntime")
 
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlModuleOutputDirectoriesConsumable.internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlModuleOutputDirectoriesConsumable.internal")
+val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlModuleOutputDirectoriesConsumable~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
+    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlModuleOutputDirectoriesConsumable~internal")
 
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlModuleOutputDirectoriesResolver.internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlModuleOutputDirectoriesResolver.internal")
+val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlModuleOutputDirectoriesResolver~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
+    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlModuleOutputDirectoriesResolver~internal")
 
 val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlMultiModuleRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
     get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlMultiModuleRuntime")
@@ -2094,20 +2094,20 @@ val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configura
 val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlPartialRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
     get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlPartialRuntime")
 
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlPluginIntransitiveResolver.internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlPluginIntransitiveResolver.internal")
+val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlPluginIntransitiveResolver~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
+    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlPluginIntransitiveResolver~internal")
 
 val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlPlugin`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
     get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlPlugin")
 
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlPublicationPluginApiOnly.internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlPublicationPluginApiOnly.internal")
+val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlPublicationPluginApiOnlyConsumable~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
+    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlPublicationPluginApiOnlyConsumable~internal")
 
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlPublicationPluginApiOnlyConsumable.internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlPublicationPluginApiOnlyConsumable.internal")
+val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlPublicationPluginApiOnly~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
+    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlPublicationPluginApiOnly~internal")
 
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlPublicationPluginResolver.internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlPublicationPluginResolver.internal")
+val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlPublicationPluginResolver~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
+    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlPublicationPluginResolver~internal")
 
 val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlPublicationPlugin`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
     get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlPublicationPlugin")

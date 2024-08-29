@@ -107,7 +107,7 @@ class DokkaPluginFunctionalTest : FunSpec({
 
                     variants shouldContain /* language=text */ """
                         |--------------------------------------------------
-                        |Variant dokka${Format}ModuleOutputDirectoriesConsumable.internal
+                        |Variant dokka${Format}ModuleOutputDirectoriesConsumable~internal
                         |--------------------------------------------------
                         |[Internal Dokka Configuration] Provides Dokka $format ModuleOutputDirectories files for consumption by other subprojects.
                         |
@@ -274,7 +274,7 @@ class DokkaPluginFunctionalTest : FunSpec({
         /**
          * Gradle is bugged and inserts an annoying warning into the Configuration info dump.
          * ```text
-         * Consumable configurations with identical capabilities within a project (other than the default configuration) must have unique attributes, but configuration ':dokkaHtmlModuleOutputDirectoriesResolver.internal' and [configuration ':dokkaHtmlModuleOutputDirectoriesConsumable.internal'] contain identical attribute sets. Consider adding an additional attribute to one of the configurations to disambiguate them. For more information, please refer to https://docs.gradle.org/8.9/userguide/upgrading_version_7.html#unique_attribute_sets in the Gradle documentation.
+         * Consumable configurations with identical capabilities within a project (other than the default configuration) must have unique attributes, but configuration ':dokkaHtmlModuleOutputDirectoriesResolver~internal' and [configuration ':dokkaHtmlModuleOutputDirectoriesConsumable~internal'] contain identical attribute sets. Consider adding an additional attribute to one of the configurations to disambiguate them. For more information, please refer to https://docs.gradle.org/8.9/userguide/upgrading_version_7.html#unique_attribute_sets in the Gradle documentation.
          * ```
          * As a workaround, remove the message.
          */
