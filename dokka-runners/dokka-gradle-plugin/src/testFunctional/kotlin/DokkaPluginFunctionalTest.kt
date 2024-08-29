@@ -75,7 +75,7 @@ class DokkaPluginFunctionalTest : FunSpec({
                         "dokkaHtmlGeneratorRuntime",
                         "dokkaHtmlPlugin",
                         "dokkaHtmlPublicationPlugin",
-                        "dokkaHtmlPublicationPluginApiOnly.internal",
+                        "dokkaHtmlPublicationPluginApiOnly~internal",
                         "dokkaPlugin",
                     )
                 }
@@ -95,8 +95,8 @@ class DokkaPluginFunctionalTest : FunSpec({
                 dokkaVariants.shouldContainExactlyInAnyOrder(
                     expectedFormats.flatMap {
                         listOf(
-                            "dokka${it}ModuleOutputDirectoriesConsumable.internal",
-                            "dokka${it}PublicationPluginApiOnlyConsumable.internal",
+                            "dokka${it}ModuleOutputDirectoriesConsumable~internal",
+                            "dokka${it}PublicationPluginApiOnlyConsumable~internal",
                         )
                     }
                 )
@@ -147,15 +147,15 @@ class DokkaPluginFunctionalTest : FunSpec({
 
                             dokkaConfigurations.keys.shouldContainExactlyInAnyOrder(
                                 listOf(
-                                    "Configuration dokka${Format}GeneratorRuntimeResolver.internal",
-                                    "Configuration dokka${Format}ModuleOutputDirectoriesResolver.internal",
-                                    "Configuration dokka${Format}PluginIntransitiveResolver.internal",
-                                    "Configuration dokka${Format}PublicationPluginResolver.internal",
+                                    "Configuration dokka${Format}GeneratorRuntimeResolver~internal",
+                                    "Configuration dokka${Format}ModuleOutputDirectoriesResolver~internal",
+                                    "Configuration dokka${Format}PluginIntransitiveResolver~internal",
+                                    "Configuration dokka${Format}PublicationPluginResolver~internal",
                                 )
                             )
 
                             mapOf(
-                                "Configuration dokka${Format}GeneratorRuntimeResolver.internal" to /* language=text */ """
+                                "Configuration dokka${Format}GeneratorRuntimeResolver~internal" to /* language=text */ """
                                     |[Internal Dokka Configuration] Dokka Generator runtime classpath for $format - will be used in Dokka Worker. Should contain all transitive dependencies, plugins (and their transitive dependencies), so Dokka Worker can run.
                                     |
                                     |Attributes
@@ -170,7 +170,7 @@ class DokkaPluginFunctionalTest : FunSpec({
                                     |    - dokka${Format}GeneratorRuntime
                                     """.trimMargin(),
 
-                                "Configuration dokka${Format}ModuleOutputDirectoriesResolver.internal" to /* language=text */ """
+                                "Configuration dokka${Format}ModuleOutputDirectoriesResolver~internal" to /* language=text */ """
                                     |[Internal Dokka Configuration] Resolves Dokka $format ModuleOutputDirectories files.
                                     |
                                     |Attributes
@@ -181,7 +181,7 @@ class DokkaPluginFunctionalTest : FunSpec({
                                     |    - dokka
                                     """.trimMargin(),
 
-                                "Configuration dokka${Format}PluginIntransitiveResolver.internal" to /* language=text */ """
+                                "Configuration dokka${Format}PluginIntransitiveResolver~internal" to /* language=text */ """
                                     |[Internal Dokka Configuration] Resolves Dokka Plugins classpath for $format. Fetch only the plugins (no transitive dependencies) for use in the Dokka JSON Configuration.
                                     |
                                     |Attributes
@@ -196,7 +196,7 @@ class DokkaPluginFunctionalTest : FunSpec({
                                     |    - dokka${Format}Plugin
                                     """.trimMargin(),
 
-                                "Configuration dokka${Format}PublicationPluginResolver.internal" to /* language=text */ """
+                                "Configuration dokka${Format}PublicationPluginResolver~internal" to /* language=text */ """
                                     |[Internal Dokka Configuration] Resolves Dokka Plugins classpath for a $format Publication (consisting of 1+ Dokka Module).
                                     |
                                     |Attributes

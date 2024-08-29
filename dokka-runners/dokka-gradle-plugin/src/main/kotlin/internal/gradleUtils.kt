@@ -358,12 +358,12 @@ internal fun <T : BuildService<P>, P : BuildServiceParameters> BuildServiceRegis
 }
 
 /**
- * Mark the configuration as internal.
+ * Suffix tag to indicate that a [Configuration] is internal, and is intended for users.
  *
- * Adds a dot `.`, which is not a valid Kotlin property name,
- * to prevent Gradle from generating a Kotlin DSL accessor and clogging up the `dependencies {}`
- * block with confusing unrelated [Configuration]s.
+ * Dokka has a lot of Configurations, so this helps with deciphering which Configuration to use in
+ * a build scripts `dependencies {}` block.
  */
-internal const val INTERNAL_CONF_NAME_TAG = ".internal"
+internal const val INTERNAL_CONF_NAME_TAG = "~internal"
+
 
 internal const val INTERNAL_CONF_DESCRIPTION_TAG = "[Internal Dokka Configuration]"
