@@ -197,7 +197,7 @@ class DokkaPluginFunctionalTest : FunSpec({
                                     """.trimMargin(),
 
                                 "Configuration dokka${Format}PublicationPluginResolver~internal" to /* language=text */ """
-                                    |[Internal Dokka Configuration] Resolves Dokka Plugins classpath for a $format Publication (consisting of 1+ Dokka Module).
+                                    |[Internal Dokka Configuration] Resolves Dokka Plugins classpath for a $format Publication (consisting of one or more Dokka Modules).
                                     |
                                     |Attributes
                                     |    - org.gradle.category            = DGP~library

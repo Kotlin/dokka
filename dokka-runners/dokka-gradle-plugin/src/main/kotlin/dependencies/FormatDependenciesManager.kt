@@ -103,7 +103,7 @@ class FormatDependenciesManager(
     //region Dokka Plugins for Publication Generation
     private val dokkaPublicationPluginClasspath: NamedDomainObjectProvider<Configuration> =
         project.configurations.register(configurationNames.publicationPluginClasspath) {
-            description = "Dokka Plugins classpath for a $formatName Publication (consisting of 1+ Dokka Module)."
+            description = "Dokka Plugins classpath for a $formatName Publication (consisting of one or more Dokka Modules)."
             declarable()
             extendsFrom(baseDependencyManager.declaredDependencies)
         }
@@ -111,7 +111,7 @@ class FormatDependenciesManager(
     val dokkaPublicationPluginClasspathResolver: Configuration =
         project.configurations.create(configurationNames.publicationPluginClasspathResolver) {
             description =
-                "$INTERNAL_CONF_DESCRIPTION_TAG Resolves Dokka Plugins classpath for a $formatName Publication (consisting of 1+ Dokka Module)."
+                "$INTERNAL_CONF_DESCRIPTION_TAG Resolves Dokka Plugins classpath for a $formatName Publication (consisting of one or more Dokka Modules)."
             resolvable()
             extendsFrom(dokkaPublicationPluginClasspath.get())
             attributes {
