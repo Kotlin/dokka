@@ -15,7 +15,7 @@ import org.jetbrains.dokka.DokkaDefaults
 /**
  * The OG Dokka Gradle Plugin. A.K.A. DGP Classic, or Dokka V1.
  *
- * This plugin is planned for removal.
+ * This plugin is planned for removal, see https://youtrack.jetbrains.com/issue/KT-71027/Remove-Dokka-Gradle-Plugin-v1
  */
 open class DokkaClassicPlugin : Plugin<Project> {
     override fun apply(project: Project) {
