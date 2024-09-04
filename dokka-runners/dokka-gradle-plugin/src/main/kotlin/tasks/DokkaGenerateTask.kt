@@ -16,8 +16,8 @@ import org.gradle.kotlin.dsl.submit
 import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.gradle.DokkaBasePlugin.Companion.jsonMapper
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaGeneratorParametersSpec
-import org.jetbrains.dokka.gradle.dokka.parameters.builders.DokkaParametersBuilder
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaGeneratorParametersSpec
+import org.jetbrains.dokka.gradle.engine.parameters.builders.DokkaParametersBuilder
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
 import org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
@@ -44,7 +44,7 @@ constructor(
 
     /**
      * Configurations for Dokka Generator Plugins. Must be provided from
-     * [org.jetbrains.dokka.gradle.dokka.DokkaPublication.pluginsConfiguration].
+     * [org.jetbrains.dokka.gradle.engine.DokkaPublication.pluginsConfiguration].
      */
     pluginsConfiguration: DokkaPluginParametersContainer,
 ) : DokkaBaseTask() {
@@ -69,7 +69,7 @@ constructor(
     @get:LocalState
     abstract val cacheDirectory: DirectoryProperty
 
-    /** @see org.jetbrains.dokka.gradle.dokka.DokkaPublication.enabled */
+    /** @see org.jetbrains.dokka.gradle.engine.DokkaPublication.enabled */
     @get:Input
     abstract val publicationEnabled: Property<Boolean>
 

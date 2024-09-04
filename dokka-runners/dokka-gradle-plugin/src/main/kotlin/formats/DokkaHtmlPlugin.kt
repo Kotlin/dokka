@@ -12,10 +12,10 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.registerBinding
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.dokka.gradle.dokka.plugins.DokkaHtmlPluginParameters
-import org.jetbrains.dokka.gradle.dokka.plugins.DokkaHtmlPluginParameters.Companion.DOKKA_HTML_PARAMETERS_NAME
-import org.jetbrains.dokka.gradle.dokka.plugins.DokkaVersioningPluginParameters
-import org.jetbrains.dokka.gradle.dokka.plugins.DokkaVersioningPluginParameters.Companion.DOKKA_VERSIONING_PLUGIN_PARAMETERS_NAME
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters.Companion.DOKKA_HTML_PARAMETERS_NAME
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters.Companion.DOKKA_VERSIONING_PLUGIN_PARAMETERS_NAME
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.uppercaseFirstChar
 import org.jetbrains.dokka.gradle.tasks.DokkaGeneratePublicationTask

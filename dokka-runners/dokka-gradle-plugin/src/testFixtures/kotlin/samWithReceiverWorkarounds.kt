@@ -8,9 +8,9 @@ package org.jetbrains.dokka.gradle.utils
 import org.gradle.api.*
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.DependencySet
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaPackageOptionsSpec
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceLinkSpec
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaPackageOptionsSpec
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceLinkSpec
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
 
 
 /**

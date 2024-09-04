@@ -12,7 +12,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.gradle.DokkaBasePlugin
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaModuleDescriptionKxs
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaModuleDescriptionKxs
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import java.io.File
@@ -36,7 +36,7 @@ constructor(
     private val fs: FileSystemOperations,
     /**
      * Configurations for Dokka Generator Plugins. Must be provided from
-     * [org.jetbrains.dokka.gradle.dokka.DokkaPublication.pluginsConfiguration].
+     * [org.jetbrains.dokka.gradle.engine.DokkaPublication.pluginsConfiguration].
      */
     pluginsConfiguration: DokkaPluginParametersContainer,
 ) : DokkaGenerateTask(
