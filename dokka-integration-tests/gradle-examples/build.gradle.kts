@@ -62,6 +62,7 @@ dependencies {
     testFixturesApi(libs.kotest.assertionsCore)
     testFixturesApi(libs.kotest.assertionsJson)
     testFixturesApi(libs.kotest.datatest)
+    testFixturesApi(libs.kotest.property)
 }
 
 kotlin {

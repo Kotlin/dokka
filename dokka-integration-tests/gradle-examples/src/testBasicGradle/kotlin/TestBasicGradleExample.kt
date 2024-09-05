@@ -12,12 +12,15 @@ import io.kotest.matchers.string.shouldNotContain
 import org.gradle.testkit.runner.GradleRunner
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.it.gradle.loadConfigurationCacheReportData
+import org.jetbrains.dokka.it.systemProperty
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
-import java.nio.file.Paths
-import kotlin.io.path.*
+import kotlin.io.path.Path
+import kotlin.io.path.copyToRecursively
+import kotlin.io.path.name
+import kotlin.io.path.walk
 
 class TestBasicGradleExample {
 
@@ -122,7 +125,7 @@ class TestBasicGradleExample {
                         "--stacktrace",
                         "--configuration-cache",
                     )
-            //.forwardOutput()
+                    .forwardOutput()
 
             //first build should store the configuration cache
             configCacheRunner.build {
@@ -146,9 +149,9 @@ class TestBasicGradleExample {
     }
 
     companion object {
-        private val projectTestTempDir by org.jetbrains.dokka.it.systemProperty(::Path)
-        private val exampleProjectDir by org.jetbrains.dokka.it.systemProperty(::Path)
-        private val expectedDataDir by org.jetbrains.dokka.it.systemProperty(::Path)
+        private val projectTestTempDir by systemProperty(::Path)
+        private val exampleProjectDir by systemProperty(::Path)
+        private val expectedDataDir by systemProperty(::Path)
 
         private fun initProject(
             destinationDir: Path,
@@ -165,66 +168,8 @@ class TestBasicGradleExample {
                     }
                 }
 
-                projectDir.walk()
-                    .filter { it.name == "settings.gradle.kts" }
-                    .forEach { p ->
-                        val repoLine = p.useLines { it.firstOrNull { l -> l.trim() == "repositories {" } }
-                            ?: return@forEach
-                        val ind = repoLine.substringBefore("repositories {")
-                        p.writeText(
-                            p.readText().replace(
-                                "repositories {",
-                                "repositories {\n${mavenRepositories.prependIndent(ind)}\n",
-                            )
-                        )
-                    }
+                updateSettingsRepositories()
             }
-        }
-
-        /** file-based Maven repositories with Dokka dependencies */
-        private val devMavenRepositories: List<Path> by org.jetbrains.dokka.it.systemProperty { repos ->
-            repos.split(",").map { Paths.get(it) }
-        }
-
-        private val dokkaVersionOverride: String? by org.jetbrains.dokka.it.optionalSystemProperty()
-        private val dokkaVersion: String by org.jetbrains.dokka.it.systemProperty { dokkaVersionOverride ?: it }
-
-        private val mavenRepositories: String by lazy {
-            val reposSpecs = if (dokkaVersionOverride != null) {
-                println("Dokka version overridden with $dokkaVersionOverride")
-                // if `DOKKA_VERSION_OVERRIDE` environment variable is provided,
-                // we allow running tests on a custom Dokka version from specific repositories
-                """
-                maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/test"),
-                maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev"),
-                mavenCentral(),
-                mavenLocal()
-                """.trimIndent()
-            } else {
-                // otherwise - use locally published versions via `devMavenPublish`
-                devMavenRepositories.withIndex().joinToString(",\n") { (i, repoPath) ->
-                    // Exclusive repository containing local Dokka artifacts.
-                    // Must be compatible with both Groovy and Kotlin DSL.
-                    """
-                    |maven {
-                    |    setUrl("${repoPath.invariantSeparatorsPathString}")
-                    |    name = "DokkaDevMavenRepo${i}"
-                    |}
-                    """.trimMargin()
-                }
-            }
-
-            """
-            |exclusiveContent {
-            |    forRepositories(
-            |      $reposSpecs
-            |    )
-            |    filter {
-            |        includeGroup("org.jetbrains.dokka")
-            |    }
-            |}
-            |
-            """.trimMargin()
         }
     }
 }
