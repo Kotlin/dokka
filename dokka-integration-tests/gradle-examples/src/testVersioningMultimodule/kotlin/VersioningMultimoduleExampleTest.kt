@@ -38,7 +38,7 @@ class VersioningMultimoduleExampleTest {
         fun `expect DGP can generate HTML`() {
             exampleProject.runner
                 .addArguments(
-                    ":dokkaGenerate",
+                    ":docs:dokkaGenerate",
                     "--stacktrace",
                 )
                 .forwardOutput()
@@ -81,8 +81,7 @@ class VersioningMultimoduleExampleTest {
         fun `expect DGP is compatible with Gradle Build Cache`() {
             exampleProject.runner
                 .addArguments(
-                    "clean",
-                    ":dokkaGenerate",
+                    ":docs:dokkaGenerate",
                     "--stacktrace",
                 )
                 .forwardOutput()
@@ -92,15 +91,15 @@ class VersioningMultimoduleExampleTest {
 
             exampleProject.runner
                 .addArguments(
-                    ":dokkaGenerate",
+                    ":docs:dokkaGenerate",
                     "--stacktrace",
                     "--build-cache",
                 )
                 .forwardOutput()
                 .build {
                     output shouldContainAll listOf(
-                        "> Task :dokkaGenerateModuleHtml UP-TO-DATE",
-                        "> Task :dokkaGenerate UP-TO-DATE",
+                        "> Task :docs:dokkaGenerateModuleHtml UP-TO-DATE",
+                        "> Task :docs:dokkaGenerate UP-TO-DATE",
                         "BUILD SUCCESSFUL",
                         // expect "1 executed" because :checkKotlinGradlePluginConfigurationErrors always runs (fixed KGP in 2.0?)
                         "2 actionable tasks: 2 up-to-date",
@@ -121,7 +120,7 @@ class VersioningMultimoduleExampleTest {
             val configCacheRunner: GradleRunner =
                 exampleProject.runner
                     .addArguments(
-                        ":dokkaGenerate",
+                        ":docs:dokkaGenerate",
                         "--stacktrace",
                         "--configuration-cache",
                     )

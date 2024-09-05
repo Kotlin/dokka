@@ -38,7 +38,7 @@ class MultimoduleExampleTest {
         fun `expect DGP can generate HTML`() {
             exampleProject.runner
                 .addArguments(
-                    ":dokkaGenerate",
+                    ":docs:dokkaGenerate",
                     "--stacktrace",
                 )
                 .forwardOutput()
@@ -81,8 +81,7 @@ class MultimoduleExampleTest {
         fun `expect DGP is compatible with Gradle Build Cache`() {
             exampleProject.runner
                 .addArguments(
-                    "clean",
-                    ":dokkaGenerate",
+                    ":docs:dokkaGenerate",
                     "--stacktrace",
                 )
                 .forwardOutput()
@@ -92,7 +91,7 @@ class MultimoduleExampleTest {
 
             exampleProject.runner
                 .addArguments(
-                    ":dokkaGenerate",
+                    ":docs:dokkaGenerate",
                     "--stacktrace",
                     "--build-cache",
                 )
@@ -121,7 +120,7 @@ class MultimoduleExampleTest {
             val configCacheRunner: GradleRunner =
                 exampleProject.runner
                     .addArguments(
-                        ":dokkaGenerate",
+                        ":docs:dokkaGenerate",
                         "--stacktrace",
                         "--configuration-cache",
                     )
