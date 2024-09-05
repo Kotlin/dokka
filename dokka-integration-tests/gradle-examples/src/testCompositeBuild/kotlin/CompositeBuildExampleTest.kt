@@ -3,12 +3,15 @@
  */
 package org.jetbrains.dokka.it.gradle.examples
 
+import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import org.gradle.testkit.runner.GradleRunner
 import org.jetbrains.dokka.gradle.utils.*
+import org.jetbrains.dokka.it.gradle.loadConfigurationCacheReportData
 import org.jetbrains.dokka.it.systemProperty
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -33,7 +36,6 @@ class CompositeBuildExampleTest {
         fun `expect DGP can generate HTML`() {
             exampleProject.runner
                 .addArguments(
-                    "clean",
                     ":build",
                 )
                 .forwardOutput()
@@ -76,7 +78,6 @@ class CompositeBuildExampleTest {
         fun `expect DGP is compatible with Gradle Build Cache`() {
             exampleProject.runner
                 .addArguments(
-                    "clean",
                     ":build",
                     "--stacktrace",
                 )
@@ -117,7 +118,6 @@ class CompositeBuildExampleTest {
             val configCacheRunner: GradleRunner =
                 exampleProject.runner
                     .addArguments(
-                        "clean",
                         ":build",
                         "--stacktrace",
                         "--configuration-cache",
@@ -129,6 +129,12 @@ class CompositeBuildExampleTest {
                 output shouldContain "BUILD SUCCESSFUL"
                 output shouldContain "Configuration cache entry stored"
                 output shouldNotContain "problems were found storing the configuration cache"
+            }
+
+            val ccReport = exampleProject.loadConfigurationCacheReportData().shouldNotBeNull()
+
+            ccReport.asClue {
+                it.totalProblemCount shouldBe 0
             }
 
             // second build should reuse the configuration cache

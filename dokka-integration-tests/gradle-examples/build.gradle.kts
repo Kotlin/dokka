@@ -16,6 +16,7 @@ plugins {
     id("dokkabuild.test-integration")
     id("dokkabuild.dev-maven-publish")
     `java-test-fixtures`
+    alias(libs.plugins.kotlinxSerialization)
 }
 
 description = "Test the Dokka Gradle example projects."
@@ -26,6 +27,9 @@ dependencies {
     testFixturesApi(libs.kotlin.test)
     testFixturesApi(libs.junit.jupiterApi)
     testFixturesApi(libs.junit.jupiterParams)
+
+    testFixturesImplementation(platform(libs.kotlinxSerialization.bom))
+    testFixturesImplementation(libs.kotlinxSerialization.json)
 
     val dokkaVersion = project.version.toString()
     // We're using Gradle included-builds and dependency substitution, so we
