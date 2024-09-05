@@ -1,7 +1,7 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-package dev.adamko.dokkatoo.tests.examples
+package org.jetbrains.dokka.it.gradle.examples
 
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
@@ -19,7 +19,12 @@ import kotlin.io.path.*
 
 class CompositeBuildExampleTest {
 
-    val exampleProject = initProject(projectTestTempDir)
+    private val exampleProject = initProject(projectTestTempDir)
+
+    @Test
+    fun `check name`() {
+        exampleProjectDir.name shouldBe "composite-build-example"
+    }
 
     @Nested
     @DisplayName("verify generated HTML")
@@ -30,7 +35,6 @@ class CompositeBuildExampleTest {
                 .addArguments(
                     "clean",
                     ":build",
-                    "--stacktrace",
                 )
                 .forwardOutput()
                 .build {
@@ -145,7 +149,7 @@ class CompositeBuildExampleTest {
         ): GradleProjectTest {
 
             return GradleProjectTest(destinationDir).apply {
-                projectDir.deleteRecursively()
+                //projectDir.deleteRecursively()
                 exampleProjectDir.copyToRecursively(projectDir, overwrite = true, followLinks = false)
 
                 gradleProperties {

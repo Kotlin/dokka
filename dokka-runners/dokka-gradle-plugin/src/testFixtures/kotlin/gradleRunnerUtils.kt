@@ -39,34 +39,6 @@ inline fun GradleRunner.buildAndFail(
 fun GradleRunner.updateGradleProperties(
     arguments: GradleProjectTest.GradleProperties,
 ): GradleRunner {
-    val gradlePropertiesFile = projectDir.resolve("gradle.properties").apply {
-        if (!exists()) {
-            parentFile.mkdirs()
-            createNewFile()
-        }
-    }
-
-    val gradleProperties = Properties()
-        .loadFile(gradlePropertiesFile)
-        .entries.associate { it.key.toString() to it.value.toString() }.toMutableMap()
-
-    arguments.toGradleProperties().forEach { (k, v) ->
-        gradleProperties[k] = v
-    }
-
-    gradlePropertiesFile.writeText(
-        gradleProperties
-            .entries
-            .sortedBy { it.key }
-            .joinToString("\n", postfix = "\n") { (k, v) -> "$k=$v" }
-    )
-
-    return this
-}
-
-fun GradleRunner.updateGradlePropertiesV2(
-    arguments: GradleProjectTest.GradleProperties,
-): GradleRunner {
     projectDir.walk()
         .filter { it.name == "settings.gradle.kts" || it.name == "settings.gradle" }
         .map { it.resolveSibling("gradle.properties") }
