@@ -8,7 +8,7 @@
 
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-start;
 
   box-sizing: border-box;
@@ -18,6 +18,8 @@
   background-color: var(--color-background-nav);
 
   @media (width < $breakpoint-desktop-min) {
+    flex-wrap: wrap;
+
     height: auto;
     padding: 0;
   }
