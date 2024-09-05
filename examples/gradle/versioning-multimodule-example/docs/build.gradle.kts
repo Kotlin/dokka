@@ -8,7 +8,7 @@ dependencies {
     dokka(project(":parentProject:childProjectB"))
 
     // No version is necessary, Dokka will add it automatically
-    dokkaPluginHtml("org.jetbrains.dokka:versioning-plugin")
+    dokkaHtmlPlugin("org.jetbrains.dokka:versioning-plugin")
 }
 
 dokka {

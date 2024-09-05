@@ -12,5 +12,5 @@ dependencies {
 
     // Will apply the plugin only to the `:dokkaHtml` task
     // (Dokka will automatically add the version)
-    dokkaPluginHtml("org.jetbrains.dokka:kotlin-as-java-plugin")
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin")
 }

@@ -12,7 +12,7 @@ dependencies {
     dokka(project(":my-java-features"))
     dokka(project(":my-java-library"))
 
-    dokkaPluginHtml("org.jetbrains.dokka:templating-plugin")
+    dokkaHtmlPlugin("org.jetbrains.dokka:templating-plugin")
 }
 
 dokka {
