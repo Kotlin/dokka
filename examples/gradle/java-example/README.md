@@ -1,6 +1,6 @@
 # Java Example project
 
-This project demonstrates how Dokkatoo can be applied to a pure Java project
+This project demonstrates how Dokka Gradle Plugin can be applied to a pure Java project
 to generate documentation.
 
 This project has multiple modules.
@@ -28,4 +28,5 @@ must be applied for Java sources to be rendered as Java.
 
 This example applies the `org.jetbrains.dokka:kotlin-as-java-plugin` Dokka Plugin
 in the convention
-[`./buildSrc/src/main/kotlin/dokka-conventions.gradle.kts` convention plugin](buildSrc/src/main/kotlin/dokka-convention.gradle.kts).
+[
+`./buildSrc/src/main/kotlin/dokka-conventions.gradle.kts` convention plugin](buildSrc/src/main/kotlin/dokka-convention.gradle.kts).

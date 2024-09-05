@@ -1,18 +1,18 @@
 rootProject.name = "docs"
 
 pluginManagement {
-  includeBuild("../build-logic")
-  repositories {
-    mavenCentral()
-    gradlePluginPortal()
-  }
+    includeBuild("../build-logic")
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
 }
 
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
-  repositories {
-    mavenCentral()
-  }
+    repositories {
+        mavenCentral()
+    }
 }
 
 includeBuild("../module-kakapo")

@@ -7,18 +7,18 @@
  * You may need to override it and find what works best for your case.
  */
 :root {
-    --dokka-logo-image-url: url('../images/ktor-logo.png');
-    --dokka-logo-height: 125px;
-    --dokka-logo-width: 50px;
+  --dokka-logo-image-url: url('../images/ktor-logo.png');
+  --dokka-logo-height: 125px;
+  --dokka-logo-width: 50px;
 }
 
 /* link custom rules styles */
 .library-name--link {
-    /* ... */
+  /* ... */
 }
 
 /* logo custom rules styles */
 .library-name--link::before {
-    background-position: left;
-    width: 52px;
+  background-position: left;
+  width: 52px;
 }

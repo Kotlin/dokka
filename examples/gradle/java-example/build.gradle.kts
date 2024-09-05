@@ -3,18 +3,18 @@
  */
 
 plugins {
-  base
-  `dokka-convention`
+    base
+    `dokka-convention`
 }
 
 dependencies {
-  dokkatoo(project(":my-java-application"))
-  dokkatoo(project(":my-java-features"))
-  dokkatoo(project(":my-java-library"))
+    dokka(project(":my-java-application"))
+    dokka(project(":my-java-features"))
+    dokka(project(":my-java-library"))
 
-  dokkatooPluginHtml("org.jetbrains.dokka:templating-plugin")
+    dokkaPluginHtml("org.jetbrains.dokka:templating-plugin")
 }
 
 dokka {
-  moduleName.set("My Java Project")
+    moduleName.set("My Java Project")
 }

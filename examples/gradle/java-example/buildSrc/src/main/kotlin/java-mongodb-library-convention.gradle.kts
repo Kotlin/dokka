@@ -1,15 +1,15 @@
 plugins {
-  id("java-library-convention")
+    id("java-library-convention")
 }
 
 val mongodbSourceSet = sourceSets.create("mongodbSupport") {
-  java {
-    srcDir("src/mongodb/java")
-  }
+    java {
+        srcDir("src/mongodb/java")
+    }
 }
 
 java {
-  registerFeature("mongodbSupport") {
-    usingSourceSet(mongodbSourceSet)
-  }
+    registerFeature("mongodbSupport") {
+        usingSourceSet(mongodbSourceSet)
+    }
 }

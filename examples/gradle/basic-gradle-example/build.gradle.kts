@@ -1,13 +1,13 @@
 plugins {
     kotlin("jvm") version "1.9.23"
-    id("dev.adamko.dokkatoo") version "2.4.0-SNAPSHOT"
+    id("org.jetbrains.dokka") version "2.0.20-SNAPSHOT"
 }
 
 dokka {
     // used as project name in the header
     moduleName.set("Dokka Gradle Example")
 
-    dokkatooSourceSets.main {
+    dokkaSourceSets.main {
 
         // contains descriptions for the module and the packages
         includes.from("Module.md")

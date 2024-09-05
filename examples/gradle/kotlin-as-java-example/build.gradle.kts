@@ -3,8 +3,8 @@
  */
 
 plugins {
-    kotlin("jvm") version "1.9.23"
-    id("dev.adamko.dokkatoo") version "2.4.0-SNAPSHOT"
+    kotlin("jvm") version "1.9.25"
+    id("org.jetbrains.dokka") version "2.0.20-SNAPSHOT"
 }
 
 dependencies {
@@ -12,5 +12,5 @@ dependencies {
 
     // Will apply the plugin only to the `:dokkaHtml` task
     // (Dokka will automatically add the version)
-    dokkatooPlugin("org.jetbrains.dokka:kotlin-as-java-plugin")
+    dokkaPluginHtml("org.jetbrains.dokka:kotlin-as-java-plugin")
 }

@@ -1,7 +1,6 @@
-rootProject.name = "module-kea"
+rootProject.name = "multimodule-example"
 
 pluginManagement {
-    includeBuild("../build-logic")
     repositories {
         mavenCentral()
         gradlePluginPortal()
@@ -14,3 +13,7 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+
+include(":parentProject")
+include(":parentProject:childProjectA")
+include(":parentProject:childProjectB")

@@ -1,7 +1,7 @@
 plugins {
-  kotlin("jvm")
+    kotlin("jvm")
 }
 
 kotlin {
-  jvmToolchain(11)
+    jvmToolchain(11)
 }

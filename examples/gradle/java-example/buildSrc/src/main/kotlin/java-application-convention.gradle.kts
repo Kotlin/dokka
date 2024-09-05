@@ -1,5 +1,5 @@
 plugins {
-  java
-  application
-  id("java-base-convention")
+    java
+    application
+    id("java-base-convention")
 }

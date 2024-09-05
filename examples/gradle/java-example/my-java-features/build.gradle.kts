@@ -1,20 +1,20 @@
 plugins {
-  `java-mongodb-library-convention`
-  `dokka-convention`
+    `java-mongodb-library-convention`
+    `dokka-convention`
 }
 
 dokka {
-  dokkatooSourceSets.configureEach {
-    includes.from("Module.md")
-  }
+    dokkaSourceSets.configureEach {
+        includes.from("Module.md")
+    }
 
-  dokkatooSourceSets.javaMain {
-    displayName = "Java"
-  }
+    dokkaSourceSets.javaMain {
+        displayName = "Java"
+    }
 
-  // non-main source sets are suppressed by default
-  dokkatooSourceSets.javaMongodbSupport {
-    suppress = false
-    displayName = "MongoDB"
-  }
+    // non-main source sets are suppressed by default
+    dokkaSourceSets.javaMongodbSupport {
+        suppress = false
+        displayName = "MongoDB"
+    }
 }

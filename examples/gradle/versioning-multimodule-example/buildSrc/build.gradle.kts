@@ -1,8 +1,9 @@
 plugins {
-  `kotlin-dsl`
+    `kotlin-dsl`
 }
 
 dependencies {
-  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.23")
-  implementation("dev.adamko.dokkatoo:dokkatoo-plugin:2.4.0-SNAPSHOT")
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.25")
+    val dokkaVersion = providers.gradleProperty("dokkaVersion").getOrElse("2.0.20-SNAPSHOT")
+    implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
 }

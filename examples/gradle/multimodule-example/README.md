@@ -1,9 +1,9 @@
 # Dokka MultiModule example
 
-This example demonstrates how to apply and configure Dokka in a 
+This example demonstrates how to apply and configure Dokka in a
 [multi-project build](https://docs.gradle.org/current/userguide/multi_project_builds.html).
 
-You can also learn how to set Dokka's version in [gradle.properties](gradle.properties) using `pluginManagement` 
+You can also learn how to set Dokka's version in [gradle.properties](gradle.properties) using `pluginManagement`
 configuration block in [settings.gradle.kts](settings.gradle.kts).
 
 ____

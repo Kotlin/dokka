@@ -5,18 +5,18 @@
 rootProject.name = "composite-build-example"
 
 pluginManagement {
-  includeBuild("build-logic")
-  repositories {
-    mavenCentral()
-    gradlePluginPortal()
-  }
+    includeBuild("build-logic")
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
 }
 
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
-  repositories {
-    mavenCentral()
-  }
+    repositories {
+        mavenCentral()
+    }
 }
 
 includeBuild("docs")

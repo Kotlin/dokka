@@ -4,8 +4,8 @@ plugins {
 }
 
 dependencies {
-    dokkatoo(project(":parentProject:childProjectA"))
-    dokkatoo(project(":parentProject:childProjectB"))
+    dokka(project(":parentProject:childProjectA"))
+    dokka(project(":parentProject:childProjectB"))
 }
 
 dokka {

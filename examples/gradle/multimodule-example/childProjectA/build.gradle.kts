@@ -4,7 +4,7 @@ plugins {
 }
 
 dokka {
-    dokkatooSourceSets.configureEach {
+    dokkaSourceSets.configureEach {
         includes.from("ModuleA.md")
     }
 }

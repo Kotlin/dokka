@@ -4,10 +4,11 @@ plugins {
 }
 
 dependencies {
-    dokkatoo(project(":parentProject:childProjectA"))
-    dokkatoo(project(":parentProject:childProjectB"))
+    dokka(project(":parentProject:childProjectA"))
+    dokka(project(":parentProject:childProjectB"))
 
-    dokkatooPluginHtml("org.jetbrains.dokka:versioning-plugin") // Dokkatoo will automatically add the version
+    // No version is necessary, Dokka will add it automatically
+    dokkaPluginHtml("org.jetbrains.dokka:versioning-plugin")
 }
 
 dokka {

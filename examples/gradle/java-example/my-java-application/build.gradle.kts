@@ -1,18 +1,18 @@
 plugins {
-  `java-application-convention`
-  `dokka-convention`
+    `java-application-convention`
+    `dokka-convention`
 }
 
 dependencies {
-  implementation(project(":my-java-library"))
+    implementation(project(":my-java-library"))
 }
 
 dokka {
-  dokkatooSourceSets.configureEach {
-    includes.from("Module.md")
-  }
+    dokkaSourceSets.configureEach {
+        includes.from("Module.md")
+    }
 }
 
 application {
-  mainClass = "demo.MyJavaApplication"
+    mainClass = "demo.MyJavaApplication"
 }

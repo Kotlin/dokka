@@ -1,9 +1,9 @@
 plugins {
-  `java-base`
+    `java-base`
 }
 
 java {
-  toolchain {
-    languageVersion = JavaLanguageVersion.of(17)
-  }
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }

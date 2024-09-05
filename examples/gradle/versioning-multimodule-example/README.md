@@ -1,6 +1,7 @@
 # Dokka Versioning MultiModule example
 
-This example demonstrates configuration of Dokka's [versioning plugin](../../../dokka-subprojects/plugin-versioning), which
+This example demonstrates configuration of Dokka's [versioning plugin](../../../dokka-subprojects/plugin-versioning),
+which
 allows readers to navigate through different versions of your API reference documentation.
 
 The example contains some code that exists only in the current documentation version `1.0`. You will not see

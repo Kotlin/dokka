@@ -1,4 +1,4 @@
 plugins {
-  id("java-base-convention")
-  `java-library`
+    id("java-base-convention")
+    `java-library`
 }

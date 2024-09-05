@@ -1,10 +1,10 @@
 plugins {
-    `java-library-convention`
+    kotlin("jvm")
     `dokka-convention`
 }
 
 dokka {
     dokkaSourceSets.configureEach {
-        includes.from("Module.md")
+        includes.from("ModuleB.md")
     }
 }
