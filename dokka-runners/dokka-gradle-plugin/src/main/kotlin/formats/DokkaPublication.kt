@@ -46,7 +46,9 @@ constructor(
 
     abstract val moduleVersion: Property<String>
 
-    abstract val outputDir: DirectoryProperty
+    abstract val outputDirectory: DirectoryProperty
+
+    abstract val moduleOutputDirectory: DirectoryProperty
 
     abstract val cacheRoot: DirectoryProperty
 
