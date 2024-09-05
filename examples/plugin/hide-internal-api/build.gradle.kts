@@ -3,7 +3,6 @@
  */
 
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 plugins {
@@ -22,7 +21,6 @@ repositories {
 
 val dokkaVersion: String by project
 dependencies {
-
     compileOnly("org.jetbrains.dokka:dokka-core:$dokkaVersion")
     implementation("org.jetbrains.dokka:dokka-base:$dokkaVersion")
 
@@ -68,7 +66,7 @@ publishing {
                 licenses {
                     license {
                         name.set("The Apache Software License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
                         distribution.set("repo")
                     }
                 }
@@ -78,7 +76,7 @@ publishing {
                         id.set("JetBrains")
                         name.set("JetBrains Team")
                         organization.set("JetBrains")
-                        organizationUrl.set("http://www.jetbrains.com")
+                        organizationUrl.set("https://www.jetbrains.com")
                     }
                 }
 

@@ -13,6 +13,7 @@ To learn how to install and debug it locally,
 
 ___
 
-Generally, you can use this project to get an idea of how to create Dokka plugins as it covers the basics of getting started.
+Generally, you can use this project to get an idea of how to create Dokka plugins as it covers the basics of getting
+started.
 
 This project was created from the [Dokka plugin template](https://github.com/Kotlin/dokka-plugin-template).
