@@ -2,10 +2,11 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 import './styles.scss';
+import { DESKTOP_MIN_WIDTH, getScreenType } from '../utils';
 
-const DESKTOP_MIN_WIDTH = 900;
 const TAGS_MARGIN = 4;
-const DROPDOWN_BUTTON_WIDTH = 40;
+const DROPDOWN_BUTTON_WIDTH_WITH_MARGIN = 44;
+const THRESHOLD_GAP = 10;
 
 /**
  * Filter section items are tags with platform names, they should fit in one line.
@@ -24,6 +25,10 @@ function displayItemAsTag(item: FilterSectionItem): void {
 function displayItemAsOption(item: FilterSectionItem): void {
   item.tag.setAttribute('style', 'display: none');
   item.option.removeAttribute('style');
+}
+
+function getTagsWidths(items: FilterSectionItem[]): number[] {
+  return items.map(({ tag }) => tag.getBoundingClientRect().width);
 }
 
 function initFilterSection(): void {
@@ -58,7 +63,7 @@ function initFilterSection(): void {
   /**
    * Saved widths of each tag while they were visible.
    * */
-  const tagsWidths: number[] = items.map(({ tag }) => tag.getBoundingClientRect().width);
+  let tagsWidths: number[] = items.map(({ tag }) => tag.getBoundingClientRect().width);
 
   /**
    * According to the design, filter section tags should fit between library version and navigation buttons.
@@ -84,7 +89,7 @@ function initFilterSection(): void {
       dropdownButton.removeAttribute('style');
       return;
     }
-    const availableWidth = getAvailableWidthForFilterSection() - DROPDOWN_BUTTON_WIDTH;
+    const availableWidth = getAvailableWidthForFilterSection() - DROPDOWN_BUTTON_WIDTH_WITH_MARGIN - THRESHOLD_GAP;
     let accumulatedWidth = 0;
     dropdownButton.setAttribute('style', 'display: none');
     items.forEach((item, index) => {
@@ -96,9 +101,18 @@ function initFilterSection(): void {
         dropdownButton.removeAttribute('style');
       }
     });
+    filterSection?.classList.remove('filter-section_loading');
   }
 
+  let prevScreenType = getScreenType();
+
   const resizeObserver = new ResizeObserver(() => {
+    const nextScreenType = getScreenType();
+    if (prevScreenType !== nextScreenType) {
+      items.forEach(displayItemAsTag);
+      tagsWidths = getTagsWidths(items);
+    }
+    prevScreenType = nextScreenType;
     displayFilterSectionItems();
     resizeObserver.unobserve(navigation);
   });

@@ -7,13 +7,22 @@
   z-index: 1;
 
   display: flex;
+
   align-items: center;
   flex-wrap: wrap;
+  justify-content: flex-end;
+
+  max-height: 40px;
 
   margin-right: 12px;
   gap: 2px;
 
+  &_loading {
+    overflow: hidden;
+  }
+
   @media (width < $breakpoint-desktop-min) {
+    max-height: unset;
     margin-right: 0;
 
     & > :not(.dropdown) {

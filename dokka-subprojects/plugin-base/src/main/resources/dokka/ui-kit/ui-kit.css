@@ -429,6 +429,7 @@
     right: 0;
     height: 100vh;
     max-height: unset;
+    padding: 0;
     border: none;
   }
 }
@@ -571,12 +572,19 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: flex-end;
+  max-height: 40px;
   margin-right: 12px;
   gap: 2px;
 }
 
+.filter-section_loading {
+  overflow: hidden;
+}
+
 @media (width < 900px) {
   .filter-section {
+    max-height: unset;
     margin-right: 0;
   }
   .filter-section > :not(.dropdown) {
@@ -1072,7 +1080,7 @@
   z-index: 4;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-start;
   box-sizing: border-box;
   padding: 12px var(--size-m1);
@@ -1082,6 +1090,7 @@
 
 @media (width < 900px) {
   .navigation {
+    flex-wrap: wrap;
     height: auto;
     padding: 0;
   }
@@ -1203,6 +1212,7 @@
   z-index: 0;
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
   justify-content: center;
   width: 40px;
   height: 40px;
@@ -1596,6 +1606,7 @@
 .section-tab, .platform-hinted > .platform-bookmarks-row > .platform-bookmark {
   margin: 0 8px;
   padding: 11px 3px;
+  text-transform: capitalize;
   cursor: pointer;
   color: var(--inactive-section-color);
   border: 0;
