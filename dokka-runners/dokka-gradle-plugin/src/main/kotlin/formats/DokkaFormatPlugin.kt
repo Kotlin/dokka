@@ -85,7 +85,6 @@ abstract class DokkaFormatPlugin(
             val dokkaTasks = DokkaFormatTasks(
                 project = target,
                 publication = publication,
-                dokkaExtension = dokkaExtension,
                 formatDependencies = formatDependencies,
                 providers = providers,
             )

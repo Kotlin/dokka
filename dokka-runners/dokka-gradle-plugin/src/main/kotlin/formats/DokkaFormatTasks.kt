@@ -7,7 +7,6 @@ import org.gradle.api.Project
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.register
-import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.dependencies.FormatDependenciesManager
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.configuring
@@ -21,7 +20,6 @@ import org.jetbrains.dokka.gradle.tasks.TaskNames
 class DokkaFormatTasks(
     project: Project,
     private val publication: DokkaPublication,
-    private val dokkaExtension: DokkaExtension,
     private val formatDependencies: FormatDependenciesManager,
 
     private val providers: ProviderFactory,
@@ -59,7 +57,7 @@ class DokkaFormatTasks(
         ).configuring {
             description = "Executes the Dokka Generator, generating the $formatName publication"
 
-            outputDirectory.convention(dokkaExtension.dokkaPublicationDirectory.dir(formatName))
+            outputDirectory.convention(publication.outputDirectory)
 
             applyFormatSpecificConfiguration()
         }
@@ -71,7 +69,7 @@ class DokkaFormatTasks(
         ).configuring {
             description = "Executes the Dokka Generator, generating a $formatName module"
 
-            outputDirectory.convention(dokkaExtension.dokkaModuleDirectory.dir(formatName))
+            outputDirectory.convention(publication.moduleOutputDirectory)
 
             applyFormatSpecificConfiguration()
         }
