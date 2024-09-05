@@ -21,92 +21,6 @@ class CompositeBuildExampleTest {
 
     val exampleProject = initProject(projectTestTempDir)
 
-    companion object {
-        private val projectTestTempDir by systemProperty(::Path)
-        private val exampleProjectDir by systemProperty(::Path)
-        private val expectedDataDir by systemProperty(::Path)
-
-        private fun initProject(
-            destinationDir: Path,
-        ): GradleProjectTest {
-            //destinationDir.deleteRecursively()
-
-            return GradleProjectTest(destinationDir).apply {
-                exampleProjectDir.copyToRecursively(projectDir, overwrite = true, followLinks = false)
-
-                gradleProperties {
-                    dokka {
-                        v2Plugin = true
-                        v2MigrationHelpers = false
-                        v2PluginNoWarn = true
-                    }
-                }
-
-                projectDir.walk()
-                    .filter { it.name == "settings.gradle.kts" }
-                    .forEach { p ->
-                        val repoLine = p.useLines { it.firstOrNull { l -> l.trim() == "repositories {" } }
-                            ?: return@forEach
-                        val ind = repoLine.substringBefore("repositories {")
-                        p.writeText(
-                            p.readText().replace(
-                                "repositories {",
-                                "repositories {\n${mavenRepositories.prependIndent(ind)}\n",
-                            )
-                        )
-                    }
-            }
-        }
-
-
-        /** file-based Maven repositories with Dokka dependencies */
-        private val devMavenRepositories: List<Path> by systemProperty { repos ->
-            repos.split(",").map { Paths.get(it) }
-        }
-
-        private val dokkaVersionOverride: String? by org.jetbrains.dokka.it.optionalSystemProperty()
-        private val dokkaVersion: String by systemProperty { dokkaVersionOverride ?: it }
-
-        private val mavenRepositories: String by lazy {
-            val reposSpecs = if (dokkaVersionOverride != null) {
-                println("Dokka version overridden with $dokkaVersionOverride")
-                // if `DOKKA_VERSION_OVERRIDE` environment variable is provided,
-                // we allow running tests on a custom Dokka version from specific repositories
-                """
-                maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/test"),
-                maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev"),
-                mavenCentral(),
-                mavenLocal()
-                """.trimIndent()
-            } else {
-                // otherwise - use locally published versions via `devMavenPublish`
-                devMavenRepositories.withIndex().joinToString(",\n") { (i, repoPath) ->
-                    // Exclusive repository containing local Dokka artifacts.
-                    // Must be compatible with both Groovy and Kotlin DSL.
-                    """
-                    |maven {
-                    |    setUrl("${repoPath.invariantSeparatorsPathString}")
-                    |    name = "DokkaDevMavenRepo${i}"
-                    |}
-                    """.trimMargin()
-                }
-            }
-
-            """
-            |exclusiveContent {
-            |    forRepositories(
-            |      $reposSpecs
-            |    )
-            |    filter {
-            |        includeGroup("org.jetbrains.dokka")
-            |    }
-            |}
-            |
-            """.trimMargin()
-        }
-    }
-
-
     @Nested
     @DisplayName("verify generated HTML")
     inner class Html {
@@ -218,6 +132,90 @@ class CompositeBuildExampleTest {
                 output shouldContain "BUILD SUCCESSFUL"
                 output shouldContain "Configuration cache entry reused"
             }
+        }
+    }
+
+    companion object {
+        private val projectTestTempDir by systemProperty(::Path)
+        private val exampleProjectDir by systemProperty(::Path)
+        private val expectedDataDir by systemProperty(::Path)
+
+        private fun initProject(
+            destinationDir: Path,
+        ): GradleProjectTest {
+
+            return GradleProjectTest(destinationDir).apply {
+                projectDir.deleteRecursively()
+                exampleProjectDir.copyToRecursively(projectDir, overwrite = true, followLinks = false)
+
+                gradleProperties {
+                    dokka {
+                        v2Plugin = true
+                        v2MigrationHelpers = false
+                        v2PluginNoWarn = true
+                    }
+                }
+
+                projectDir.walk()
+                    .filter { it.name == "settings.gradle.kts" }
+                    .forEach { p ->
+                        val repoLine = p.useLines { it.firstOrNull { l -> l.trim() == "repositories {" } }
+                            ?: return@forEach
+                        val ind = repoLine.substringBefore("repositories {")
+                        p.writeText(
+                            p.readText().replace(
+                                "repositories {",
+                                "repositories {\n${mavenRepositories.prependIndent(ind)}\n",
+                            )
+                        )
+                    }
+            }
+        }
+
+        /** file-based Maven repositories with Dokka dependencies */
+        private val devMavenRepositories: List<Path> by systemProperty { repos ->
+            repos.split(",").map { Paths.get(it) }
+        }
+
+        private val dokkaVersionOverride: String? by org.jetbrains.dokka.it.optionalSystemProperty()
+        private val dokkaVersion: String by systemProperty { dokkaVersionOverride ?: it }
+
+        private val mavenRepositories: String by lazy {
+            val reposSpecs = if (dokkaVersionOverride != null) {
+                println("Dokka version overridden with $dokkaVersionOverride")
+                // if `DOKKA_VERSION_OVERRIDE` environment variable is provided,
+                // we allow running tests on a custom Dokka version from specific repositories
+                """
+                maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/test"),
+                maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev"),
+                mavenCentral(),
+                mavenLocal()
+                """.trimIndent()
+            } else {
+                // otherwise - use locally published versions via `devMavenPublish`
+                devMavenRepositories.withIndex().joinToString(",\n") { (i, repoPath) ->
+                    // Exclusive repository containing local Dokka artifacts.
+                    // Must be compatible with both Groovy and Kotlin DSL.
+                    """
+                    |maven {
+                    |    setUrl("${repoPath.invariantSeparatorsPathString}")
+                    |    name = "DokkaDevMavenRepo${i}"
+                    |}
+                    """.trimMargin()
+                }
+            }
+
+            """
+            |exclusiveContent {
+            |    forRepositories(
+            |      $reposSpecs
+            |    )
+            |    filter {
+            |        includeGroup("org.jetbrains.dokka")
+            |    }
+            |}
+            |
+            """.trimMargin()
         }
     }
 }
