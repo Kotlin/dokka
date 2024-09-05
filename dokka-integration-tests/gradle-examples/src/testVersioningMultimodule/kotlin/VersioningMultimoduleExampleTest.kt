@@ -51,7 +51,7 @@ class VersioningMultimoduleExampleTest {
         @DisplayName("expect Dokka HTML matches expected data")
         inner class ExpectedData {
             private val exampleDataDir = expectedDataDir.resolve("html")
-            private val dokkaHtmlDir = exampleProject.projectDir.resolve("build/dokka/html")
+            private val dokkaHtmlDir = exampleProject.projectDir.resolve("docs/build/dokka/html")
 
             @Test
             fun `expect file trees are the same`() {

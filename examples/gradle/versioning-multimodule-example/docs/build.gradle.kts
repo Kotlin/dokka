@@ -4,8 +4,8 @@ plugins {
 }
 
 dependencies {
-    dokka(project(":parentProject:childProjectA"))
-    dokka(project(":parentProject:childProjectB"))
+    dokka(project(":childProjectA"))
+    dokka(project(":childProjectB"))
 
     // No version is necessary, Dokka will add it automatically
     dokkaHtmlPlugin("org.jetbrains.dokka:versioning-plugin")
@@ -16,8 +16,7 @@ dokka {
 }
 
 val currentVersion = "1.0"
-val previousVersionsDirectory: Directory =
-    rootProject.layout.projectDirectory.dir("previousDocVersions")
+val previousVersionsDirectory: Directory = layout.projectDirectory.dir("previousDocVersions")
 
 dokka {
     pluginsConfiguration {

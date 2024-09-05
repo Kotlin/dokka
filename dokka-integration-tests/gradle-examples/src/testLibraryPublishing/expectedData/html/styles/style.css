@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @import url('./font-jb-sans-auto.css');
@@ -29,7 +29,7 @@
     --background-color: var(--default-white);
     --dark-mode-and-search-icon-color: var(--default-white);
     --color-dark: #27282c;
-    --default-font-family: JetBrains Sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI,Roboto, Oxygen, Ubuntu,Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+    --default-font-family: JetBrains Sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
     --default-monospace-font-family: JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
     --default-font-size: 15px;
     --average-color: var(--color-dark);
@@ -85,6 +85,7 @@ html, body {
     height: 100%;
     width: 100%;
 }
+
 /* /--- root styles --- */
 
 /* --- global tags styles --- */
@@ -179,6 +180,7 @@ tbody > tr {
 td:first-child {
     width: 20vw;
 }
+
 /* /---  global tags styles --- */
 
 /* ---  utils classes --- */
@@ -210,6 +212,7 @@ td:first-child {
     clear: both;
     height: 0;
 }
+
 /* /---  utils classes --- */
 
 /* ---dark theme --- */
@@ -237,6 +240,7 @@ td:first-child {
 
     --sidemenu-section-active-color: var(--color-dark);
 }
+
 /* /---dark theme --- */
 
 .root {
@@ -313,6 +317,7 @@ td:first-child {
     height: 28px;
     width: 28px;
 }
+
 /* /--- Navigation MENU --- */
 
 .library-version {
@@ -320,7 +325,7 @@ td:first-child {
     top: -4px;
     margin-left: 3px;
 
-    color: rgba(255,255,255,.7);
+    color: rgba(255, 255, 255, .7);
     font-size: 13px;
     font-weight: normal;
     line-height: 16px;
@@ -339,6 +344,7 @@ td:first-child {
         padding: 5px 0 5px;
     }
 }
+
 /* --- Navigation controls --- */
 .navigation-controls {
     display: flex;
@@ -403,6 +409,7 @@ td:first-child {
 .navigation .platform-selector:not([data-active]) {
     color: #fff;
 }
+
 /* /--- Navigation controls --- */
 /* /--- Navigation styles --- */
 
@@ -472,6 +479,7 @@ td:first-child {
     padding-top: 22px;
     padding-bottom: 16px;
 }
+
 /* /--- Layout styles --- */
 
 /* --- Main Content styles --- */
@@ -497,6 +505,7 @@ td:first-child {
 .main-content :is(h1, h2) {
     font-weight: 530;
 }
+
 /* /--- Main Content styles --- */
 
 /* /--- Breadcrumbs styles --- */
@@ -513,57 +522,8 @@ td:first-child {
 .breadcrumbs .current {
     color: var(--default-font-color);
 }
+
 /* /--- Breadcrumbs styles --- */
-
-.tabs-section,
-.platform-hinted > .platform-bookmarks-row {
-    margin-left: -8px;
-    margin-right: -8px;
-}
-
-.section-tab,
-.platform-hinted > .platform-bookmarks-row > .platform-bookmark {
-    border: 0;
-    padding: 11px 3px;
-    margin: 0 8px;
-    cursor: pointer;
-    outline: none;
-    font-size: var(--default-font-size);
-    background-color: transparent;
-    color: var(--inactive-section-color);
-    border-bottom: 1px solid var(--inactive-tab-border-color);
-}
-
-.platform-hinted > .platform-bookmarks-row {
-    margin-bottom: 16px;
-}
-
-.no-js .platform-bookmarks-row + .sourceset-dependent-content {
-    margin-top: 8px;
-}
-
-.no-js .platform-bookmarks-row + .sourceset-dependent-content:last-of-type {
-    margin-top: 0;
-}
-
-.section-tab:hover {
-    color: var(--default-font-color);
-    border-bottom: 2px solid var(--default-font-color);
-}
-
-.section-tab[data-active=''] {
-    color: var(--active-section-color);
-    border-bottom: 2px solid var(--active-tab-border-color);
-}
-
-.tabs-section-body > div {
-    margin-top: 12px;
-}
-
-.tabs-section-body .with-platform-tabs {
-    padding-top: 12px;
-    padding-bottom: 12px;
-}
 
 .cover > .platform-hinted {
     padding-bottom: 12px;
@@ -797,6 +757,8 @@ code:not(.block) {
     position: absolute;
     top: 8px;
     right: 8px;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .sideMenuPart > .overview {
@@ -1006,7 +968,7 @@ h1.cover {
     .UnderCoverText table {
         display: block;
         word-break: normal;
-        overflow:  auto;
+        overflow: auto;
     }
 }
 
@@ -1019,6 +981,8 @@ h1.cover {
     font-size: inherit;
     line-height: inherit;
     transition: color .1s, border-color .1s;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .main-content a:hover {
@@ -1038,7 +1002,7 @@ p.paragraph img {
 
 .deprecation-content {
     margin: 20px 10px;
-    border:1px solid var(--border-color);
+    border: 1px solid var(--border-color);
     padding: 13px 15px 16px 15px;
 }
 
@@ -1217,38 +1181,6 @@ td.content {
     display: inline-flex;
 }
 
-.platform-hinted {
-    flex: auto;
-    display: block;
-}
-
-.platform-hinted > .platform-bookmarks-row > .platform-bookmark {
-    min-width: 64px;
-    background: inherit;
-    flex: none;
-    order: 5;
-    align-self: flex-start;
-}
-
-.platform-hinted > .platform-bookmarks-row > .platform-bookmark:hover {
-    color: var(--default-font-color);
-    border-bottom: 2px solid var(--default-font-color);
-}
-
-.platform-hinted > .platform-bookmarks-row > .platform-bookmark[data-active=''] {
-    border-bottom: 2px solid var(--active-tab-border-color);
-    color: var(--active-section-color);
-}
-
-.no-js .platform-bookmarks-row, .no-js .tabs-section {
-    display: none;
-}
-
-.js .platform-hinted > .content:not([data-active]),
-.js .tabs-section-body *[data-togglable]:not([data-active]) {
-    display: none;
-}
-
 /* Work around an issue: https://github.com/JetBrains/kotlin-playground/issues/91
 Applies for main description blocks with platform tabs.
 Just in case of possible performance degradation it excluding tabs with briefs on classlike page */
@@ -1357,6 +1289,7 @@ Just in case of possible performance degradation it excluding tabs with briefs o
     .keyValue {
         grid-template-columns: 20% 80%;
     }
+
     .keyValue > div:first-child {
         word-break: break-word;
     }
@@ -1428,46 +1361,52 @@ div.runnablesample {
     background-color: var(--footer-background);
 }
 
-.footer span.go-to-top-icon {
-    border-radius: 2em;
-    padding: 11px 10px !important;
+.footer--button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     background-color: var(--footer-go-to-top-color);
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    font-size: 0;
+    line-height: 0;
+    transition: background-color 200ms ease-in-out;
+    will-change: background-color;
 }
 
-.footer span.go-to-top-icon > a::before {
-    content: url("../images/go-to-top-icon.svg");
+.footer--button:hover {
+    opacity: 0.9;
 }
 
-.footer > span:first-child {
+.footer--button_go-to-top {
+    background-image: url("../images/go-to-top-icon.svg");
     margin-left: var(--horizontal-spacing-for-content);
-    padding-left: 0;
+    margin-right: 8px;
 }
 
-.footer > span:last-child {
-    margin-right: var(--horizontal-spacing-for-content);
-    padding-right: 0;
-}
-
-.footer > span {
-    padding: 0 16px;
-}
-
-.footer a {
+.footer--link {
+    display: inline-flex;
+    align-items: center;
     color: var(--breadcrumb-font-color);
 }
 
-.footer span.go-to-top-icon > #go-to-top-link {
-    padding: 0;
-    border: none;
+.footer--link_external:after {
+    content: '';
+    width: 12px;
+    height: 12px;
+    margin-left: 4px;
+    margin-right: var(--horizontal-spacing-for-content);
+    background-image: url("../images/footer-go-to-link.svg");
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
 }
 
-.footer .padded-icon {
-    padding-left: 0.5em;
-}
-
-.footer .padded-icon::before {
-    content: url("../images/footer-go-to-link.svg");
-}
 /* /--- footer --- */
 
 /* Logo styles */
@@ -1498,12 +1437,5 @@ div.runnablesample {
         display: none;
     }
 }
-/* / Logo styles */
 
-/*
-the hack to hide the headers inside tabs for a package page because each tab
-has only one header, and the header text is the same as the tab name, so no point in showing it
-*/
-.main-content[data-page-type="package"] .tabs-section-body h2 {
-    display: none;
-}
+/* / Logo styles */

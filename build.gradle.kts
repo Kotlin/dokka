@@ -120,9 +120,9 @@ idea {
                 "dokka-integration-tests/gradle-examples/src/testFixtures/expectedData",
                 "dokka-integration-tests/gradle-examples/src/testJava/expectedData",
                 "dokka-integration-tests/gradle-examples/src/testKotlinAsJava/expectedData",
-                "dokka-integration-tests/gradle-examples/src/testKotlinMultimodule/expectedData",
                 "dokka-integration-tests/gradle-examples/src/testKotlinMultiplatform/expectedData",
                 "dokka-integration-tests/gradle-examples/src/testLibraryPublishing/expectedData",
+                "dokka-integration-tests/gradle-examples/src/testMultimodule/expectedData",
                 "dokka-integration-tests/gradle-examples/src/testVersioningMultimodule/expectedData",
             )
         )

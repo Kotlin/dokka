@@ -31,6 +31,7 @@ data class ConfigurationCacheReportData(
     @Serializable
     data class Trace(
         val kind: String,
+        val type: String? = null,
         val location: String? = null,
     )
 
