@@ -1,0 +1,11 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:demo////PointingToDeclaration/kotlin-as-java-example/demo/index.html
+$dokka.location:demo/Greeter///PointingToDeclaration/kotlin-as-java-example/demo/-greeter/index.html
+$dokka.location:demo/Greeter/Greeter/#kotlin.String/PointingToDeclaration/kotlin-as-java-example/demo/-greeter/-greeter.html
+$dokka.location:demo/Greeter/getName/#/PointingToDeclaration/kotlin-as-java-example/demo/-greeter/get-name.html
+$dokka.location:demo/Greeter/greet/#/PointingToDeclaration/kotlin-as-java-example/demo/-greeter/greet.html
+$dokka.location:demo/HelloWorldKt///PointingToDeclaration/kotlin-as-java-example/demo/-hello-world-kt/index.html
+$dokka.location:demo/HelloWorldKt/main/#kotlin.Array[kotlin.String]/PointingToDeclaration/kotlin-as-java-example/demo/-hello-world-kt/main.html
+demo
+

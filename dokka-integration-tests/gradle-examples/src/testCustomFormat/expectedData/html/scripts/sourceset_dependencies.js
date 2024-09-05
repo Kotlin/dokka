@@ -1,1 +1,1 @@
-sourceset_dependencies = '{":/main":[]}'
+sourceset_dependencies='{":/main":[]}'
