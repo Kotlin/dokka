@@ -7,11 +7,13 @@ plugins {
 version = "1.0.0"
 group = "demo"
 
-val dokkaJavadocJar by tasks.registering(Jar::class) {
-    description = "A Javadoc JAR containing Dokka Javadoc"
-    from(tasks.dokkaGeneratePublicationJavadoc.flatMap { it.outputDirectory })
-    archiveClassifier.set("javadoc")
-}
+
+// TODO re-add Javadoc into DGPv2
+//val dokkaJavadocJar by tasks.registering(Jar::class) {
+//    description = "A Javadoc JAR containing Dokka Javadoc"
+//    from(tasks.dokkaGeneratePublicationJavadoc.flatMap { it.outputDirectory })
+//    archiveClassifier.set("javadoc")
+//}
 
 val dokkaHtmlJar by tasks.registering(Jar::class) {
     description = "A HTML Documentation JAR containing Dokka HTML"
@@ -23,7 +25,7 @@ publishing {
     publications {
         register<MavenPublication>("library") {
             from(components["java"])
-            artifact(dokkaJavadocJar)
+            //artifact(dokkaJavadocJar)
             artifact(dokkaHtmlJar)
         }
     }
