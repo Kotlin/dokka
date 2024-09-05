@@ -6,6 +6,7 @@ package org.jetbrains.dokka.gradle.utils
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.BuildTask
 import org.gradle.testkit.runner.GradleRunner
+import java.io.File
 import java.util.*
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -45,9 +46,9 @@ fun GradleRunner.updateGradleProperties(
         }
     }
 
-    val gradleProperties = Properties().apply {
-        load(gradlePropertiesFile.inputStream())
-    }.entries.associate { it.key.toString() to it.value.toString() }.toMutableMap()
+    val gradleProperties = Properties()
+        .loadFile(gradlePropertiesFile)
+        .entries.associate { it.key.toString() to it.value.toString() }.toMutableMap()
 
     arguments.toGradleProperties().forEach { (k, v) ->
         gradleProperties[k] = v
@@ -59,6 +60,43 @@ fun GradleRunner.updateGradleProperties(
             .sortedBy { it.key }
             .joinToString("\n", postfix = "\n") { (k, v) -> "$k=$v" }
     )
+
+    return this
+}
+
+fun GradleRunner.updateGradlePropertiesV2(
+    arguments: GradleProjectTest.GradleProperties,
+): GradleRunner {
+    projectDir.walk()
+        .filter { it.name == "settings.gradle.kts" || it.name == "settings.gradle" }
+        .map { it.resolveSibling("gradle.properties") }
+        .forEach { gradlePropertiesFile ->
+
+            gradlePropertiesFile.apply {
+                if (!exists()) {
+                    parentFile.mkdirs()
+                    createNewFile()
+                }
+            }
+
+            val gradleProperties = Properties()
+                .apply { gradlePropertiesFile.inputStream().use { load(it) } }
+                .entries
+                .associate { it.key.toString() to it.value.toString() }
+                .toMutableMap()
+
+            arguments.toGradleProperties().forEach { (k, v) ->
+                gradleProperties[k] = v
+            }
+
+            gradlePropertiesFile.writeText(
+                buildString {
+                    gradleProperties.entries
+                        .sortedBy { it.key }
+                        .forEach { (k, v) -> appendLine("$k=$v") }
+                }
+            )
+        }
 
     return this
 }
@@ -86,3 +124,9 @@ fun GradleRunner.addArguments(
  */
 val BuildTask.name: String
     get() = path.substringAfterLast(':')
+
+
+private fun Properties.loadFile(file: File): Properties {
+    file.reader().use { load(it) }
+    return this
+}

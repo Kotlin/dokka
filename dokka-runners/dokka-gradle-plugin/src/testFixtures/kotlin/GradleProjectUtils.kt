@@ -4,8 +4,8 @@
 package org.jetbrains.dokka.gradle.utils
 
 import org.gradle.api.Project
-import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.V2_PLUGIN_ENABLED_FLAG
-import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.V2_PLUGIN_NO_WARN_FLAG
+import org.jetbrains.dokka.gradle.internal.V2_PLUGIN_ENABLED_FLAG
+import org.jetbrains.dokka.gradle.internal.V2_PLUGIN_NO_WARN_FLAG
 
 fun Project.enableV2Plugin(
     suppressV2Message: Boolean = true

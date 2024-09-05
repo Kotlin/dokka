@@ -4,6 +4,7 @@
 
 plugins {
     id("dokkabuild.base")
+    idea
 }
 
 val publishedIncludedBuilds = listOf("runner-cli", "dokka-gradle-plugin", "runner-maven-plugin")
@@ -102,6 +103,28 @@ tasks.wrapper {
                     "https\\://services.gradle.org/",
                     "https\\://cache-redirector.jetbrains.com/services.gradle.org/",
                 )
+        )
+    }
+}
+
+idea {
+    module {
+        excludeDirs.addAll(
+            files(
+                "dokka-runners/dokka-gradle-plugin/.kotlin",
+                "dokka-runners/dokka-gradle-plugin/src/testFunctional/resources/KotlinDslAccessorsTest/",
+
+                "dokka-integration-tests/gradle-examples/src/testBasicGradle/expectedData",
+                "dokka-integration-tests/gradle-examples/src/testCompositeBuild/expectedData",
+                "dokka-integration-tests/gradle-examples/src/testCustomFormat/expectedData",
+                "dokka-integration-tests/gradle-examples/src/testFixtures/expectedData",
+                "dokka-integration-tests/gradle-examples/src/testJava/expectedData",
+                "dokka-integration-tests/gradle-examples/src/testKotlinAsJava/expectedData",
+                "dokka-integration-tests/gradle-examples/src/testKotlinMultimodule/expectedData",
+                "dokka-integration-tests/gradle-examples/src/testKotlinMultiplatform/expectedData",
+                "dokka-integration-tests/gradle-examples/src/testLibraryPublishing/expectedData",
+                "dokka-integration-tests/gradle-examples/src/testVersioningMultimodule/expectedData",
+            )
         )
     }
 }

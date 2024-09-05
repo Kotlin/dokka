@@ -46,6 +46,7 @@ includeBuild("../.") // depend on the root project, so integration-tests can dep
 include(
     ":cli",
     ":gradle",
+    ":gradle-examples",
     ":maven",
     ":utilities",
 )
