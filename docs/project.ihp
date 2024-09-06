@@ -1,12 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE ihp SYSTEM "https://resources.jetbrains.com/stardust/ihp.dtd">
-
 <ihp version="2.0">
     <module name="dokka"/>
     <topics dir="topics"/>
     <images dir="images"/>
     <vars src="v.list"/>
-    <product src="dokka.tree" version="%dokkaVersion%" />
     <settings>
         <default-property element-name="toc-element" property-name="show-structure-depth" value="2"/>
     </settings>
