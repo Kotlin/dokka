@@ -271,7 +271,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
     <def title="suppressObviousFunctions">
         <p>Whether to suppress obvious functions.</p>
         <p>
-            A function is considered to be obvious if it is:
+            A function is considered to be obvious if it is:</p>
             <list>
                 <li>
                     Inherited from <code>kotlin.Any</code>, <code>Kotlin.Enum</code>, <code>java.lang.Object</code> or
@@ -282,7 +282,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
                     <code>dataClass.componentN</code> or <code>dataClass.copy</code>.
                 </li>
             </list>
-        </p>
+        <p></p>
         <p>Default: <code>true</code></p>
     </def>
     <def title="suppressInheritedMembers">
@@ -425,7 +425,7 @@ How to configure Kotlin
         </p>
         <p>This can be configured on per-package basis.</p>
         <p>
-            Possible values:
+            Possible values:</p>
             <list>
                 <li><code>PUBLIC</code></li>
                 <li><code>PRIVATE</code></li>
@@ -433,7 +433,7 @@ How to configure Kotlin
                 <li><code>INTERNAL</code></li>
                 <li><code>PACKAGE</code></li>
             </list>
-        </p>
+        <p></p>
         <p>Default: <code>PUBLIC</code></p>
     </def>
     <def title="reportUndocumented">
@@ -510,14 +510,14 @@ How to configure Kotlin
             <a href="https://kotlinlang.org/docs/kotlin-doc.html#sample-identifier">@sample</a> environment.
         </p>
         <p>
-            Possible values:
+            Possible values:</p>
             <list>
                 <li><code>jvm</code></li>
                 <li><code>common</code></li>
                 <li><code>js</code></li>
                 <li><code>native</code></li>
             </list>
-        </p>
+        <p></p>
     </def>
     <def title="sourceRoots">
         <p>
@@ -601,13 +601,13 @@ You can configure source links for all source sets together at the same time, or
             is <code>#L10</code>.
         </p>
         <p>
-            Suffixes used by popular services:
+            Suffixes used by popular services:</p>
             <list>
                 <li>GitHub: <code>#L</code></li>
                 <li>GitLab: <code>#L</code></li>
                 <li>Bitbucket: <code>#lines-</code></li>
             </list>
-        </p>
+        <p></p>
         <p>Default: empty (no suffix)</p>
     </def>
 </deflist>
