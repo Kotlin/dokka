@@ -46,9 +46,8 @@ constructor(
 
     abstract val moduleVersion: Property<String>
 
+    /** Output directory for the finished Dokka publication. */
     abstract val outputDirectory: DirectoryProperty
-
-    abstract val moduleOutputDirectory: DirectoryProperty
 
     abstract val cacheRoot: DirectoryProperty
 
@@ -64,4 +63,7 @@ constructor(
 
     // TODO probably not needed any more, since Dokka Generator now runs in an isolated JVM process
     abstract val finalizeCoroutines: Property<Boolean>
+
+    /** Output directory for the partial Dokka module. */
+    internal abstract val moduleOutputDirectory: DirectoryProperty
 }

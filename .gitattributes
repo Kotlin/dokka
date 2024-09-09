@@ -15,7 +15,6 @@
 # Documentation
 *.md              text diff=markdown
 *.txt             text
-LICENSE           text
 
 # JVM
 *.java          text diff=java
@@ -37,7 +36,7 @@ gradlew         text eol=lf
 # SVG treated as an asset (binary) by default.
 *.svg             text
 
-# Exclude external libs from GitHub language stats https://github.com/github/linguist/blob/v7.24.1/docs/overrides.md
+# Exclude external libs from GitHub language stats https://github.com/github/linguist/blob/v8.0.0/docs/overrides.md
 docs/**                                                             linguist-documentation
 docs-developer/**                                                   linguist-documentation
 examples/**                                                         linguist-documentation

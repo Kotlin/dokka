@@ -109,9 +109,15 @@ tasks.wrapper {
 
 idea {
     module {
+        // Mark directories as excluded so that they don't appear in IntelliJ's global search.
         excludeDirs.addAll(
             files(
+                ".idea",
+                ".husky",
+                ".kotlin",
                 "dokka-runners/dokka-gradle-plugin/.kotlin",
+                "dokka-runners/runner-cli/.kotlin",
+                "dokka-runners/runner-maven-plugin/.kotlin",
                 "dokka-runners/dokka-gradle-plugin/src/testFunctional/resources/KotlinDslAccessorsTest/",
 
                 "dokka-integration-tests/gradle-examples/src/testBasicGradle/expectedData",
