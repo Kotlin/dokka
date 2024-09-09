@@ -14,6 +14,6 @@ dependencyResolutionManagement {
     }
 }
 
-include(":parentProject")
-include(":parentProject:childProjectA")
-include(":parentProject:childProjectB")
+include(":docs")
+include(":childProjectA")
+include(":childProjectB")

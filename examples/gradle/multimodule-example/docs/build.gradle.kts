@@ -12,6 +12,6 @@ dokka {
     moduleName.set("Dokka MultiModule Example")
 
     dokkaPublications.html {
-        includes.from("allmodules.md")
+        includes.from("DocsModule.md")
     }
 }
