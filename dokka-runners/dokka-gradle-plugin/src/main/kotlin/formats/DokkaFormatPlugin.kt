@@ -4,7 +4,6 @@
 package org.jetbrains.dokka.gradle.formats
 
 import org.gradle.api.Action
-import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -92,7 +91,6 @@ abstract class DokkaFormatPlugin(
 
             formatDependencies.moduleOutputDirectories
                 .outgoing
-                .get()
                 .outgoing
                 .artifact(dokkaTasks.generateModule.map { it.outputDirectory }) {
                     builtBy(dokkaTasks.generateModule)
@@ -129,17 +127,15 @@ abstract class DokkaFormatPlugin(
                 listOf(
                     formatDependencies.dokkaPluginsIntransitiveClasspathResolver,
                     formatDependencies.dokkaGeneratorClasspathResolver,
-                ).forEach { dependenciesContainer: NamedDomainObjectProvider<Configuration> ->
+                ).forEach { dependenciesContainer: Configuration ->
                     // Add a version if one is missing, which will allow defining a org.jetbrains.dokka
                     // dependency without a version.
                     // (It would be nice to do this with a virtual-platform, but Gradle is bugged:
                     // https://github.com/gradle/gradle/issues/27435)
-                    dependenciesContainer.configure {
-                        resolutionStrategy.eachDependency {
-                            if (requested.group == "org.jetbrains.dokka" && requested.version.isNullOrBlank()) {
-                                logger.info("adding version of dokka dependency '$requested'")
-                                useVersion(dokkaExtension.versions.jetbrainsDokka.get())
-                            }
+                    dependenciesContainer.resolutionStrategy.eachDependency {
+                        if (requested.group == "org.jetbrains.dokka" && requested.version.isNullOrBlank()) {
+                            logger.info("adding version of dokka dependency '$requested'")
+                            useVersion(dokkaExtension.versions.jetbrainsDokka.get())
                         }
                     }
                 }
