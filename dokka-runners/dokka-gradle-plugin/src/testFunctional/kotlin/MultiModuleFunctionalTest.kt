@@ -165,10 +165,22 @@ class MultiModuleFunctionalTest : FunSpec({
 
         context("build cache relocation") {
 
-            val originalProject = initMultiModuleProject("build-cache-relocation/original/")
+            val originalProject = initMultiModuleProject("build-cache-relocation/original/") {
+                buildGradleKts += """
+                    dokka {
+                        moduleName.set("demo-project")
+                    }
+                    """.trimIndent()
+            }
             // Create the _same_ project in a different dir, to verify that the build cache
             // can be re-used and doesn't have path-sensitive inputs/outputs.
-            val relocatedProject = initMultiModuleProject("build-cache-relocation/relocated/project/")
+            val relocatedProject = initMultiModuleProject("build-cache-relocation/relocated/project/") {
+                buildGradleKts += """
+                    dokka {
+                        moduleName.set("demo-project")
+                    }
+                    """.trimIndent()
+            }
 
             // create custom build cache dir, so it's easier to control, specify, and clean-up
             val buildCacheDir = originalProject.projectDir.resolve("build-cache")

@@ -10,6 +10,7 @@ import org.jetbrains.dokka.gradle.utils.*
 
 fun TestScope.initMultiModuleProject(
     testName: String,
+    rootProjectName: String? = null,
     config: GradleProjectTest.() -> Unit = {},
 ): GradleProjectTest {
 
@@ -19,7 +20,10 @@ fun TestScope.initMultiModuleProject(
         .substringAfter("org.jetbrains.dokka.gradle.") // drop the package name
         .replaceNonAlphaNumeric()
 
-    return gradleKtsProjectTest("$baseDirName/multi-module-hello-goodbye/$testName") {
+    return gradleKtsProjectTest(
+        projectLocation = "$baseDirName/multi-module-hello-goodbye/$testName",
+        rootProjectName = rootProjectName,
+    ) {
 
         settingsGradleKts += """
             |

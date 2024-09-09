@@ -112,7 +112,7 @@ class DokkaPluginFunctionalTest : FunSpec({
                         |[Internal Dokka Configuration] Provides Dokka $format ModuleOutputDirectories files for consumption by other subprojects.
                         |
                         |Capabilities
-                        |    - :test:unspecified (default capability)
+                        |    - :DokkaPluginFunctionalTest:unspecified (default capability)
                         |Attributes
                         |    - org.gradle.usage                     = org.jetbrains.dokka
                         |    - org.jetbrains.dokka.format           = $format

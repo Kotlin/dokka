@@ -9,8 +9,8 @@ import org.gradle.api.provider.ValueSource
 import org.gradle.api.provider.ValueSourceParameters
 import org.gradle.api.tasks.Console
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.UntrackedTask
 import org.gradle.kotlin.dsl.of
-import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.appendPath
 import org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask.Companion.ENABLE_TASK_PROPERTY_NAME
@@ -36,7 +36,7 @@ import javax.inject.Inject
  * † For some reason, the only doc page for the built-in server I could find is for PhpStorm,
  * but the built-in server is also available in IntelliJ IDEA.
  */
-@DisableCachingByDefault(because = "logging-only task")
+@UntrackedTask(because = "logging-only task")
 abstract class LogHtmlPublicationLinkTask
 @Inject
 @DokkaInternalApi
@@ -44,18 +44,26 @@ constructor(
     providers: ProviderFactory
 ) : DokkaBaseTask() {
 
+    /**
+     * A localhost server, for serving Dokka HTML.
+     *
+     * A server is required because Dokka HTML uses JavaScript.
+     */
     @get:Console
     abstract val serverUri: Property<String>
 
     /**
-     * Path to the `index.html` of the publication. Will be appended to [serverUri].
+     * Path to the `index.html` of the publication, relative to the root directory,
+     * prepended with the IntelliJ project name.
      *
-     * The IntelliJ built-in server requires a relative path originating from the _parent_ directory
+     * The path will be appended to [serverUri].
+     *
+     * The IntelliJ built-in server requires a relative path originating from the root directory
      * of the IntelliJ project.
      *
      * For example,
      *
-     * * given an IntelliJ project path of
+     * * given an IntelliJ project named `MyProject` located in a directory:
      *    ```
      *    /Users/rachel/projects/my-project/
      *    ```
@@ -63,13 +71,13 @@ constructor(
      *    ```
      *    /Users/rachel/projects/my-project/docs/build/dokka/html/index.html
      *    ````
-     * * then IntelliJ requires [indexHtmlPath] is
+     * * then [indexHtmlPath] must be
      *    ```
-     *    my-project/docs/build/dokka/html/index.html
+     *    docs/build/dokka/html/index.html
      *    ```
      * * so that (assuming [serverUri] is `http://localhost:63342`) the logged URL is
      *    ```
-     *    http://localhost:63342/my-project/docs/build/dokka/html/index.html
+     *    http://localhost:63342/MyProject/docs/build/dokka/html/index.html
      *    ```
      */
     @get:Console
