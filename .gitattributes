@@ -41,8 +41,8 @@ docs/**                                                             linguist-doc
 docs-developer/**                                                   linguist-documentation
 examples/**                                                         linguist-documentation
 dokka-integration-tests/gradle/projects/**                          linguist-documentation
-dokka-integration-tests/gradle-examples/src/test*/expectedData/**   linguist-documentation
 
+dokka-integration-tests/gradle-examples/src/test*/expectedData/**                         linguist-generated
 dokka-runners/dokka-gradle-plugin/src/testFunctional/resources/KotlinDslAccessorsTest/**  linguist-generated
 
 # Tell Git not to export certain files or directories when generating an archive.
