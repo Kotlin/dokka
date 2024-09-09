@@ -4,6 +4,7 @@
 package org.jetbrains.dokka.gradle.internal
 
 import org.gradle.TaskExecutionRequest
+import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.logging.Logging
@@ -80,21 +81,22 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
 
     private fun logV1PluginMessage() {
         if (primaryService) {
-            logger.warn("warning: Dokka Gradle Plugin V1 mode is enabled")
             logger.warn(
                 """
-                |Dokka Gradle Plugin V1 mode is deprecated, and will be removed in Dokka version 2.1.0
+                |⚠ Warning: Dokka Gradle Plugin V1 mode is enabled
                 |
-                |Please migrate Dokka Gradle Plugin to V2. This will require updating your project.
-                |To get started check out the Dokka Gradle Plugin Migration guide
-                |    https://kotl.in/dokka-gradle-migration
+                |  V1 mode is deprecated, and will be removed in Dokka version 2.1.0
                 |
-                |Once you have prepared your project, enable V2 by adding
-                |    $V2_PLUGIN_ENABLED_FLAG=true
-                |to your project's `gradle.properties`
+                |  Please migrate Dokka Gradle Plugin to V2. This will require updating your project.
+                |  To get started check out the Dokka Gradle Plugin Migration guide
+                |      https://kotl.in/dokka-gradle-migration
                 |
-                |Please report any feedback or problems to Dokka GitHub Issues
-                |    https://github.com/Kotlin/dokka/issues/
+                |  Once you have prepared your project, enable V2 by adding
+                |      $V2_PLUGIN_ENABLED_FLAG=true
+                |  to your project's `gradle.properties`
+                |
+                |  Please report any feedback or problems to Dokka GitHub Issues
+                |      https://github.com/Kotlin/dokka/issues/
                 """.trimMargin().surroundWithBorder()
             )
         }
@@ -106,16 +108,16 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 """
                 |Dokka Gradle Plugin V2 is enabled ♡
                 |
-                |We would appreciate your feedback!
-                |Please report any feedback or problems to Dokka GitHub Issues
-                |    https://github.com/Kotlin/dokka/issues/
+                |  We would appreciate your feedback!
+                |  Please report any feedback or problems to Dokka GitHub Issues
+                |      https://github.com/Kotlin/dokka/issues/
                 |
-                |If you need help or advice, check out the migration guide
-                |    https://kotl.in/dokka-gradle-migration
+                |  If you need help or advice, check out the migration guide
+                |      https://kotl.in/dokka-gradle-migration
                 |
-                |You can suppress this message by adding
-                |    $V2_PLUGIN_NO_WARN_FLAG=true
-                |to your project's `gradle.properties`
+                |  You can suppress this message by adding
+                |      $V2_PLUGIN_NO_WARN_FLAG=true
+                |  to your project's `gradle.properties`
                 """.trimMargin().surroundWithBorder()
             )
         }
@@ -166,11 +168,123 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
     companion object {
         private val logger = Logging.getLogger(PluginFeaturesService::class.java)
 
+        /** @see [PluginFeaturesService.v2PluginEnabled] */
+        internal const val V2_PLUGIN_ENABLED_FLAG =
+            "org.jetbrains.dokka.experimental.gradlePlugin.enableV2"
+
+        /** @see [PluginFeaturesService.v2PluginNoWarn] */
+        internal const val V2_PLUGIN_NO_WARN_FLAG =
+            "$V2_PLUGIN_ENABLED_FLAG.nowarn"
+
+        /** The same as [V2_PLUGIN_NO_WARN_FLAG], but it doesn't trigger spell-checks. */
+        private const val V2_PLUGIN_NO_WARN_FLAG_PRETTY =
+            "$V2_PLUGIN_ENABLED_FLAG.noWarn"
+
+        private const val V2_PLUGIN_MIGRATION_HELPERS_FLAG =
+            "org.jetbrains.dokka.experimental.gradlePlugin.enableV2MigrationHelpers"
+
+        private const val K2_ANALYSIS_ENABLED_FLAG =
+            "org.jetbrains.dokka.experimental.tryK2"
+
+        private const val K2_ANALYSIS_NO_WARN_FLAG =
+            "$K2_ANALYSIS_ENABLED_FLAG.nowarn"
+
+        private const val K2_ANALYSIS_NO_WARN_FLAG_PRETTY =
+            "$K2_ANALYSIS_ENABLED_FLAG.noWarn"
+
         /**
          * Register a new [PluginFeaturesService], or get an existing instance.
          */
         val Project.pluginFeaturesService: PluginFeaturesService
-            get() = project.getOrCreateService()
+            get() = getOrCreateService(project)
+
+        private fun getOrCreateService(project: Project): PluginFeaturesService {
+            val configureServiceParams = project.serviceParamsConfiguration()
+
+            return try {
+                project.gradle.sharedServices.registerIfAbsent(PluginFeaturesService::class) {
+                    parameters(configureServiceParams)
+                    // This service was successfully registered, so it is considered 'primary'.
+                    parameters.primaryService.set(true)
+                }.get()
+            } catch (ex: ClassCastException) {
+                try {
+                    // Recover from Gradle bug: re-register the service, but don't mark it as 'primary'.
+                    project.gradle.sharedServices.registerIfAbsent(
+                        PluginFeaturesService::class,
+                        classLoaderScoped = true,
+                    ) {
+                        parameters(configureServiceParams)
+                        parameters.primaryService.set(false)
+                    }.get()
+                } catch (ex: ClassCastException) {
+                    throw GradleException(
+                        "Failed to register BuildService. Please report this problem https://github.com/gradle/gradle/issues/17559",
+                        ex
+                    )
+                }
+            }
+        }
+
+        private fun Project.serviceParamsConfiguration(): Action<Params> = Action {
+            v2PluginEnabled.set(getFlag(V2_PLUGIN_ENABLED_FLAG))
+            v2PluginNoWarn.set(getFlag(V2_PLUGIN_NO_WARN_FLAG_PRETTY).orElse(getFlag(V2_PLUGIN_NO_WARN_FLAG)))
+            v2PluginMigrationHelpersEnabled.set(getFlag(V2_PLUGIN_MIGRATION_HELPERS_FLAG))
+            k2AnalysisEnabled.set(getFlag(K2_ANALYSIS_ENABLED_FLAG))
+            k2AnalysisNoWarn.set(
+                getFlag(K2_ANALYSIS_NO_WARN_FLAG_PRETTY)
+                    .orElse(getFlag(K2_ANALYSIS_NO_WARN_FLAG))
+            )
+
+            try {
+                if (project.isGradleGeneratingAccessors()) {
+                    logger.info("Gradle is generating accessors. Discovering Dokka Gradle Plugin flags manually. ${gradle.rootProject.name} | ${gradle.rootProject.rootDir}")
+
+                    // Disable all warnings, regardless of the discovered flag values.
+                    // Log messages will be printed too soon and aren't useful for users.
+                    v2PluginNoWarn.set(true)
+
+                    // Because Gradle is generating accessors, it won't give us access to Gradle properties
+                    // defined for the main project. So, we must discover `gradle.properties` ourselves.
+                    val propertiesFile = findGradlePropertiesFile()
+
+                    val properties = Properties().apply {
+                        propertiesFile?.reader()?.use { reader ->
+                            load(reader)
+                        }
+                    }
+
+                    // These are the only flags that are important when Gradle is generating accessors,
+                    // because they control what accessors DGP registers.
+                    properties[V2_PLUGIN_ENABLED_FLAG]?.toString()?.toBoolean()?.let {
+                        v2PluginEnabled.set(it)
+                    }
+                    properties[V2_PLUGIN_MIGRATION_HELPERS_FLAG]?.toString()?.toBoolean()?.let {
+                        v2PluginMigrationHelpersEnabled.set(it)
+                    }
+                }
+            } catch (t: Throwable) {
+                // Ignore all errors.
+                // This is just a temporary util. It doesn't need to be stable long-term,
+                // and we don't want to risk breaking people's projects.
+            }
+        }
+
+        /** Find a flag for [PluginFeaturesService]. */
+        private fun Project.getFlag(flag: String): Provider<Boolean> =
+            providers
+                .gradleProperty(flag)
+                .forUseAtConfigurationTimeCompat()
+                .orElse(
+                    // Note: Enabling/disabling features via extra-properties is only intended for unit tests.
+                    // (Because org.gradle.testfixtures.ProjectBuilder doesn't support mocking Gradle properties.
+                    // But maybe soon! https://github.com/gradle/gradle/pull/30002)
+                    project
+                        .provider { project.extra.properties[flag]?.toString() }
+                        .forUseAtConfigurationTimeCompat()
+                )
+                .map(String::toBoolean)
+
 
         /**
          * Draw a pretty ascii border around some text.
@@ -193,165 +307,6 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
     }
 }
 
-/** @see [PluginFeaturesService.v2PluginEnabled] */
-internal const val V2_PLUGIN_ENABLED_FLAG =
-    "org.jetbrains.dokka.experimental.gradlePlugin.enableV2"
-
-/** @see [PluginFeaturesService.v2PluginNoWarn] */
-internal const val V2_PLUGIN_NO_WARN_FLAG =
-    "$V2_PLUGIN_ENABLED_FLAG.nowarn"
-
-/** The same as [V2_PLUGIN_NO_WARN_FLAG], but it doesn't trigger spell-checks. */
-private const val V2_PLUGIN_NO_WARN_FLAG_PRETTY =
-    "$V2_PLUGIN_ENABLED_FLAG.noWarn"
-
-private const val V2_PLUGIN_MIGRATION_HELPERS_FLAG =
-    "org.jetbrains.dokka.experimental.gradlePlugin.enableV2MigrationHelpers"
-
-private const val K2_ANALYSIS_ENABLED_FLAG =
-    "org.jetbrains.dokka.experimental.tryK2"
-
-private const val K2_ANALYSIS_NO_WARN_FLAG =
-    "$K2_ANALYSIS_ENABLED_FLAG.nowarn"
-
-private const val K2_ANALYSIS_NO_WARN_FLAG_PRETTY =
-    "$K2_ANALYSIS_ENABLED_FLAG.noWarn"
-
-
-private fun Project.getOrCreateService(): PluginFeaturesService {
-    val configureServiceParams = project.configureServiceParams()
-
-    return try {
-        gradle.sharedServices.registerIfAbsent(PluginFeaturesService::class) {
-            parameters(configureServiceParams)
-            // This service was successfully registered, so it is considered 'primary'.
-            parameters.primaryService.set(true)
-        }.get()
-    } catch (ex: ClassCastException) {
-        try {
-            // Recover from Gradle bug: re-register the service, but don't mark it as 'primary'.
-            gradle.sharedServices.registerIfAbsent(
-                PluginFeaturesService::class,
-                classLoaderScoped = true,
-            ) {
-                parameters(configureServiceParams)
-                parameters.primaryService.set(false)
-            }.get()
-        } catch (ex: ClassCastException) {
-            throw GradleException(
-                "Failed to register BuildService. Please report this problem https://github.com/gradle/gradle/issues/17559",
-                ex
-            )
-        }
-    }
-}
-
-
-private fun Project.configureServiceParams(): PluginFeaturesService.Params.() -> Unit {
-    return {
-        v2PluginEnabled.set(getFlag(V2_PLUGIN_ENABLED_FLAG))
-        v2PluginNoWarn.set(getFlag(V2_PLUGIN_NO_WARN_FLAG_PRETTY).orElse(getFlag(V2_PLUGIN_NO_WARN_FLAG)))
-        v2PluginMigrationHelpersEnabled.set(getFlag(V2_PLUGIN_MIGRATION_HELPERS_FLAG))
-        k2AnalysisEnabled.set(getFlag(K2_ANALYSIS_ENABLED_FLAG))
-        k2AnalysisNoWarn.set(
-            getFlag(K2_ANALYSIS_NO_WARN_FLAG_PRETTY)
-                .orElse(getFlag(K2_ANALYSIS_NO_WARN_FLAG))
-        )
-
-        try {
-            if (project.isGradleGeneratingAccessors()) {
-                logger.info("Gradle is generating accessors. Discovering Dokka Gradle Plugin flags manually. ${gradle.rootProject.name} | ${gradle.rootProject.rootDir}")
-
-                // Disable all warnings, regardless of the discovered flag values.
-                // Log messages will be printed too soon and aren't useful for users.
-                v2PluginNoWarn.set(true)
-
-                // Because Gradle is generating accessors, we don't have access to the regular Gradle properties.
-                // So, we must discover `gradle.properties`.
-                val propertiesFile = findGradlePropertiesFile()
-
-                val properties = Properties().apply {
-                    propertiesFile?.reader()?.use { reader ->
-                        load(reader)
-                    }
-                }
-
-                properties[V2_PLUGIN_ENABLED_FLAG]?.toString()?.toBoolean()?.let {
-                    v2PluginEnabled.set(it)
-                }
-
-                properties[V2_PLUGIN_MIGRATION_HELPERS_FLAG]?.toString()?.toBoolean()?.let {
-                    v2PluginMigrationHelpersEnabled.set(it)
-                }
-            }
-        } catch (t: Throwable) {
-            // Ignore all errors.
-            // This is just a temporary util. It doesn't need to be stable long-term,
-            // and we don't want to risk breaking people's projects.
-        }
-    }
-}
-
-/**
- * Obtain a flag for [PluginFeaturesService].
- */
-private fun Project.getFlag(flag: String): Provider<Boolean> =
-    providers
-        .gradleProperty(flag)
-        .forUseAtConfigurationTimeCompat()
-        .orElse(
-            // Note: Enabling/disabling features via extra-properties is only intended for unit tests.
-            // (Because org.gradle.testfixtures.ProjectBuilder doesn't support mocking Gradle properties.
-            // But maybe soon! https://github.com/gradle/gradle/pull/30002)
-            project
-                .provider { project.extra.properties[flag]?.toString() }
-                .forUseAtConfigurationTimeCompat()
-        )
-        .map(String::toBoolean)
-
-
-/**
- * Walk up the file tree until we discover a `gradle.properties` file.
- */
-private fun Project.findGradlePropertiesFile(): File? {
-    return generateSequence(project.projectDir) { it.parentFile }
-        .takeWhile { it != it.parentFile && it.exists() }
-        .take(50) // add an arbitrary limit, just in case
-
-        // Drop directories until we're in the real project dir:
-        // ${realProjectDir}/build/tmp/generatePrecompiledScriptPluginAccessors/accessors1231321/$tempProject
-        //    ^5              ^4   ^3        ^2                                     ^1
-        .drop(5)
-
-        // Only scan while the directory is probably a Gradle directory,
-        // to prevent scanning upwards indefinitely.
-        // In particular, avoid a nested project reading properties from an outer, but disconnected, project.
-        .takeWhile { dir ->
-            fun dirHasGradleFile(): Boolean =
-                setOf(
-                    "build.gradle",
-                    "build.gradle.kts",
-                    "settings.gradle",
-                    "settings.gradle.kts",
-                ).any {
-                    dir.resolve(it).run { exists() && isFile }
-                }
-
-            fun dirHasGradleDir(): Boolean =
-                setOf(
-                    ".gradle",
-                    "build",
-                    "gradle",
-                ).any {
-                    dir.resolve(it).run { exists() && isDirectory }
-                }
-
-            dirHasGradleDir() || dirHasGradleFile()
-        }
-
-        .map { it.resolve("gradle.properties") }
-        .firstOrNull { it.exists() }
-}
 
 /**
  * Determine if Gradle is generating DSL script accessors for precompiled script plugins.
@@ -370,7 +325,7 @@ private fun Project.isGradleGeneratingAccessors(): Boolean {
 
     /**
      * When a Gradle build is executed with no requested tasks and no arguments then
-     * Gradle runs 'default' tasks.
+     * Gradle runs a single 'default' task that has no values.
      */
     fun TaskExecutionRequest.isDefaultTask(): Boolean =
         projectPath == null && args.isEmpty() && rootDir == null
@@ -382,4 +337,27 @@ private fun Project.isGradleGeneratingAccessors(): Boolean {
     return rootProjectPath
         .substringBeforeLast("/")
         .endsWith("build/tmp/generatePrecompiledScriptPluginAccessors")
+}
+
+
+/**
+ * Walk up the file tree until we discover a `gradle.properties` file.
+ */
+private fun Project.findGradlePropertiesFile(): File? {
+
+    // Walk up the file tree until we discover a directory containing Gradle wrapper files.
+    val rootProjectDirectory = generateSequence(project.projectDir) { it.parentFile }
+        .takeWhile { it != it.parentFile && it.exists() }
+
+        // Add an arbitrary limit, just in case something goes wrong
+        .take(50)
+
+        .firstOrNull { dir ->
+            fun dirHasFile(named: String): Boolean = dir.resolve(named).run { exists() && isFile }
+            dirHasFile(named = "gradlew") || dirHasFile(named = "gradlew.bat")
+        }
+
+    return rootProjectDirectory
+        ?.resolve("gradle.properties")
+        ?.takeIf { it.exists() && it.isFile }
 }
