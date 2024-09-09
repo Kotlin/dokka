@@ -17,10 +17,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
-import kotlin.io.path.Path
-import kotlin.io.path.copyToRecursively
-import kotlin.io.path.name
-import kotlin.io.path.walk
+import kotlin.io.path.*
 
 class MultimoduleExampleTest {
 
@@ -31,46 +28,37 @@ class MultimoduleExampleTest {
         exampleProjectDir.name shouldBe "multimodule-example"
     }
 
-    @Nested
-    @DisplayName("verify generated HTML")
-    inner class Html {
-        @Test
-        fun `expect DGP can generate HTML`() {
-            exampleProject.runner
-                .addArguments(
-                    ":docs:dokkaGenerate",
-                    "--stacktrace",
-                )
-                .forwardOutput()
-                .build {
-                    output shouldContain "BUILD SUCCESSFUL"
-                }
+    @Test
+    fun `expect DGP can generate HTML`() {
+        exampleProject.runner
+            .addArguments(
+                ":docs:dokkaGenerate",
+                "--stacktrace",
+            )
+            .forwardOutput()
+            .build {
+                output shouldContain "BUILD SUCCESSFUL"
+            }
+
+        val exampleDataDir = expectedDataDir.resolve("html")
+        val dokkaHtmlDir = exampleProject.projectDir.resolve("docs/build/dokka/html")
+
+        withClue("expect file trees are the same") {
+            val expectedFileTree = exampleDataDir.toTreeString()
+            val actualFileTree = dokkaHtmlDir.toTreeString()
+            println((actualFileTree to expectedFileTree).sideBySide())
+            expectedFileTree shouldBe actualFileTree
         }
 
-        @Nested
-        @DisplayName("expect Dokka HTML matches expected data")
-        inner class ExpectedData {
-            private val exampleDataDir = expectedDataDir.resolve("html")
-            private val dokkaHtmlDir = exampleProject.projectDir.resolve("build/dokka/html")
-
-            @Test
-            fun `expect file trees are the same`() {
-                val expectedFileTree = exampleDataDir.toTreeString()
-                val actualFileTree = dokkaHtmlDir.toTreeString()
-                println((actualFileTree to expectedFileTree).sideBySide())
-                expectedFileTree shouldBe actualFileTree
-            }
-
-            @Test
-            fun `expect directories are the same`() {
-                withClue(
-                    "dokkaHtmlDir[${dokkaHtmlDir.walk().toList()}], " +
-                            "exampleDataDir[${exampleDataDir.walk().toList()}]"
-                ) {
-                    dokkaHtmlDir.shouldHaveSameStructureAs(exampleDataDir, skipEmptyDirs = true)
-                    dokkaHtmlDir.shouldHaveSameStructureAndContentAs(exampleDataDir, skipEmptyDirs = true)
-                }
-            }
+        withClue({
+            """
+            expect directories are the same
+                dokkaHtmlDir   ${dokkaHtmlDir.walk().toList()}
+                exampleDataDir ${exampleDataDir.walk().toList()}
+            """.trimIndent()
+        }) {
+            dokkaHtmlDir.shouldHaveSameStructureAs(exampleDataDir, skipEmptyDirs = true)
+            dokkaHtmlDir.shouldHaveSameStructureAndContentAs(exampleDataDir, skipEmptyDirs = true)
         }
     }
 
@@ -98,11 +86,14 @@ class MultimoduleExampleTest {
                 .forwardOutput()
                 .build {
                     output shouldContainAll listOf(
-                        "> Task :dokkaGenerateModuleHtml UP-TO-DATE",
-                        "> Task :dokkaGenerate UP-TO-DATE",
+                        "> Task :docs:dokkaGenerateModuleHtml UP-TO-DATE",
+                        "> Task :childProjectA:dokkaGenerateModuleHtml UP-TO-DATE",
+                        "> Task :childProjectB:dokkaGenerateModuleHtml UP-TO-DATE",
+                        "> Task :docs:dokkaGeneratePublicationHtml UP-TO-DATE",
+                        "> Task :docs:dokkaGenerate UP-TO-DATE",
                         "BUILD SUCCESSFUL",
                         // expect "1 executed" because :checkKotlinGradlePluginConfigurationErrors always runs (fixed KGP in 2.0?)
-                        "2 actionable tasks: 2 up-to-date",
+                        "14 actionable tasks: 1 executed, 13 up-to-date",
                     )
                 }
         }
@@ -155,6 +146,7 @@ class MultimoduleExampleTest {
         private fun initProject(
             destinationDir: Path,
         ): GradleProjectTest {
+            destinationDir.deleteRecursively()
 
             return GradleProjectTest(destinationDir).apply {
                 exampleProjectDir.copyToRecursively(projectDir, overwrite = true, followLinks = false)

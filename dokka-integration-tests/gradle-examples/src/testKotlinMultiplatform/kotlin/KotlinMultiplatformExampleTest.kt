@@ -17,10 +17,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
-import kotlin.io.path.Path
-import kotlin.io.path.copyToRecursively
-import kotlin.io.path.name
-import kotlin.io.path.walk
+import kotlin.io.path.*
 
 class KotlinMultiplatformExampleTest {
 
@@ -31,46 +28,37 @@ class KotlinMultiplatformExampleTest {
         exampleProjectDir.name shouldBe "kotlin-multiplatform-example"
     }
 
-    @Nested
-    @DisplayName("verify generated HTML")
-    inner class Html {
-        @Test
-        fun `expect DGP can generate HTML`() {
-            exampleProject.runner
-                .addArguments(
-                    ":dokkaGenerate",
-                    "--stacktrace",
-                )
-                .forwardOutput()
-                .build {
-                    output shouldContain "BUILD SUCCESSFUL"
-                }
+    @Test
+    fun `expect DGP can generate HTML`() {
+        exampleProject.runner
+            .addArguments(
+                ":dokkaGenerate",
+                "--stacktrace",
+            )
+            .forwardOutput()
+            .build {
+                output shouldContain "BUILD SUCCESSFUL"
+            }
+
+        val exampleDataDir = expectedDataDir.resolve("html")
+        val dokkaHtmlDir = exampleProject.projectDir.resolve("build/dokka/html")
+
+        withClue("expect file trees are the same") {
+            val expectedFileTree = exampleDataDir.toTreeString()
+            val actualFileTree = dokkaHtmlDir.toTreeString()
+            println((actualFileTree to expectedFileTree).sideBySide())
+            expectedFileTree shouldBe actualFileTree
         }
 
-        @Nested
-        @DisplayName("expect Dokka HTML matches expected data")
-        inner class ExpectedData {
-            private val exampleDataDir = expectedDataDir.resolve("html")
-            private val dokkaHtmlDir = exampleProject.projectDir.resolve("build/dokka/html")
-
-            @Test
-            fun `expect file trees are the same`() {
-                val expectedFileTree = exampleDataDir.toTreeString()
-                val actualFileTree = dokkaHtmlDir.toTreeString()
-                println((actualFileTree to expectedFileTree).sideBySide())
-                expectedFileTree shouldBe actualFileTree
-            }
-
-            @Test
-            fun `expect directories are the same`() {
-                withClue(
-                    "dokkaHtmlDir[${dokkaHtmlDir.walk().toList()}], " +
-                            "exampleDataDir[${exampleDataDir.walk().toList()}]"
-                ) {
-                    dokkaHtmlDir.shouldHaveSameStructureAs(exampleDataDir, skipEmptyDirs = true)
-                    dokkaHtmlDir.shouldHaveSameStructureAndContentAs(exampleDataDir, skipEmptyDirs = true)
-                }
-            }
+        withClue({
+            """
+            expect directories are the same
+                dokkaHtmlDir   ${dokkaHtmlDir.walk().toList()}
+                exampleDataDir ${exampleDataDir.walk().toList()}
+            """.trimIndent()
+        }) {
+            dokkaHtmlDir.shouldHaveSameStructureAs(exampleDataDir, skipEmptyDirs = true)
+            dokkaHtmlDir.shouldHaveSameStructureAndContentAs(exampleDataDir, skipEmptyDirs = true)
         }
     }
 
@@ -156,6 +144,7 @@ class KotlinMultiplatformExampleTest {
         private fun initProject(
             destinationDir: Path,
         ): GradleProjectTest {
+            destinationDir.deleteRecursively()
 
             return GradleProjectTest(destinationDir).apply {
                 exampleProjectDir.copyToRecursively(projectDir, overwrite = true, followLinks = false)
