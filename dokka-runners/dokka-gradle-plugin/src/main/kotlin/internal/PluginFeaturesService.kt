@@ -3,6 +3,7 @@
  */
 package org.jetbrains.dokka.gradle.internal
 
+import org.gradle.TaskExecutionRequest
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -12,6 +13,8 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import org.gradle.kotlin.dsl.extra
+import java.io.File
+import java.util.*
 
 /**
  * Internal utility service for managing Dokka Plugin features and warnings.
@@ -193,43 +196,81 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
          * Register a new [PluginFeaturesService], or get an existing instance.
          */
         val Project.pluginFeaturesService: PluginFeaturesService
-            get() {
-                val setFlags = Action<Params> {
-                    v2PluginEnabled.set(getFlag(V2_PLUGIN_ENABLED_FLAG))
-                    v2PluginNoWarn.set(getFlag(V2_PLUGIN_NO_WARN_FLAG_PRETTY).orElse(getFlag(V2_PLUGIN_NO_WARN_FLAG)))
-                    v2PluginMigrationHelpersEnabled.set(getFlag(V2_PLUGIN_MIGRATION_HELPERS_FLAG))
-                    k2AnalysisEnabled.set(getFlag(K2_ANALYSIS_ENABLED_FLAG))
-                    k2AnalysisNoWarn.set(
-                        getFlag(K2_ANALYSIS_NO_WARN_FLAG_PRETTY)
-                            .orElse(getFlag(K2_ANALYSIS_NO_WARN_FLAG))
-                    )
-                }
+            get() = getOrCreateService(project)
 
-                return try {
-                    gradle.sharedServices.registerIfAbsent(PluginFeaturesService::class) {
-                        parameters(setFlags)
-                        // This service was successfully registered, so it is considered 'primary'.
-                        parameters.primaryService.set(true)
+        private fun getOrCreateService(project: Project): PluginFeaturesService {
+            val configureServiceParams = project.serviceParamsConfiguration()
+
+            return try {
+                project.gradle.sharedServices.registerIfAbsent(PluginFeaturesService::class) {
+                    parameters(configureServiceParams)
+                    // This service was successfully registered, so it is considered 'primary'.
+                    parameters.primaryService.set(true)
+                }.get()
+            } catch (ex: ClassCastException) {
+                try {
+                    // Recover from Gradle bug: re-register the service, but don't mark it as 'primary'.
+                    project.gradle.sharedServices.registerIfAbsent(
+                        PluginFeaturesService::class,
+                        classLoaderScoped = true,
+                    ) {
+                        parameters(configureServiceParams)
+                        parameters.primaryService.set(false)
                     }.get()
                 } catch (ex: ClassCastException) {
-                    try {
-                        // Recover from Gradle bug: re-register the service, but don't mark it as 'primary'.
-                        gradle.sharedServices.registerIfAbsent(
-                            PluginFeaturesService::class,
-                            classLoaderScoped = true,
-                        ) {
-                            parameters(setFlags)
-                            parameters.primaryService.set(false)
-                        }.get()
-                    } catch (ex: ClassCastException) {
-                        throw GradleException(
-                            "Failed to register BuildService. Please report this problem https://github.com/gradle/gradle/issues/17559",
-                            ex
-                        )
-                    }
+                    throw GradleException(
+                        "Failed to register BuildService. Please report this problem https://github.com/gradle/gradle/issues/17559",
+                        ex
+                    )
                 }
             }
+        }
 
+        private fun Project.serviceParamsConfiguration(): Action<Params> = Action {
+            v2PluginEnabled.set(getFlag(V2_PLUGIN_ENABLED_FLAG))
+            v2PluginNoWarn.set(getFlag(V2_PLUGIN_NO_WARN_FLAG_PRETTY).orElse(getFlag(V2_PLUGIN_NO_WARN_FLAG)))
+            v2PluginMigrationHelpersEnabled.set(getFlag(V2_PLUGIN_MIGRATION_HELPERS_FLAG))
+            k2AnalysisEnabled.set(getFlag(K2_ANALYSIS_ENABLED_FLAG))
+            k2AnalysisNoWarn.set(
+                getFlag(K2_ANALYSIS_NO_WARN_FLAG_PRETTY)
+                    .orElse(getFlag(K2_ANALYSIS_NO_WARN_FLAG))
+            )
+
+            try {
+                if (project.isGradleGeneratingAccessors()) {
+                    logger.info("Gradle is generating accessors. Discovering Dokka Gradle Plugin flags manually. ${gradle.rootProject.name} | ${gradle.rootProject.rootDir}")
+
+                    // Disable all warnings, regardless of the discovered flag values.
+                    // Log messages will be printed too soon and aren't useful for users.
+                    v2PluginNoWarn.set(true)
+
+                    // Because Gradle is generating accessors, it won't give us access to Gradle properties
+                    // defined for the main project. So, we must discover `gradle.properties` ourselves.
+                    val propertiesFile = findGradlePropertiesFile()
+
+                    val properties = Properties().apply {
+                        propertiesFile?.reader()?.use { reader ->
+                            load(reader)
+                        }
+                    }
+
+                    // These are the only flags that are important when Gradle is generating accessors,
+                    // because they control what accessors DGP registers.
+                    properties[V2_PLUGIN_ENABLED_FLAG]?.toString()?.toBoolean()?.let {
+                        v2PluginEnabled.set(it)
+                    }
+                    properties[V2_PLUGIN_MIGRATION_HELPERS_FLAG]?.toString()?.toBoolean()?.let {
+                        v2PluginMigrationHelpersEnabled.set(it)
+                    }
+                }
+            } catch (t: Throwable) {
+                // Ignore all errors.
+                // This is just a temporary util. It doesn't need to be stable long-term,
+                // and we don't want to risk breaking people's projects.
+            }
+        }
+
+        /** Find a flag for [PluginFeaturesService]. */
         private fun Project.getFlag(flag: String): Provider<Boolean> =
             providers
                 .gradleProperty(flag)
@@ -243,6 +284,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                         .forUseAtConfigurationTimeCompat()
                 )
                 .map(String::toBoolean)
+
 
         /**
          * Draw a pretty ascii border around some text.
@@ -263,4 +305,59 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
             }
         }
     }
+}
+
+
+/**
+ * Determine if Gradle is generating DSL script accessors for precompiled script plugins.
+ *
+ * When Gradle generates accessors, it creates an empty project in a temporary directory and runs no tasks.
+ * So, we can guess whether Gradle is generating accessors based on this information.
+ */
+private fun Project.isGradleGeneratingAccessors(): Boolean {
+    if (gradle.rootProject.name != "gradle-kotlin-dsl-accessors") {
+        return false
+    }
+
+    if (gradle.taskGraph.allTasks.isNotEmpty()) {
+        return false
+    }
+
+    /**
+     * When a Gradle build is executed with no requested tasks and no arguments then
+     * Gradle runs a single 'default' task that has no values.
+     */
+    fun TaskExecutionRequest.isDefaultTask(): Boolean =
+        projectPath == null && args.isEmpty() && rootDir == null
+
+    val taskRequest = gradle.startParameter.taskRequests.singleOrNull() ?: return false
+    if (!taskRequest.isDefaultTask()) return false
+
+    val rootProjectPath = gradle.rootProject.rootDir.invariantSeparatorsPath
+    return rootProjectPath
+        .substringBeforeLast("/")
+        .endsWith("build/tmp/generatePrecompiledScriptPluginAccessors")
+}
+
+
+/**
+ * Walk up the file tree until we discover a `gradle.properties` file.
+ */
+private fun Project.findGradlePropertiesFile(): File? {
+
+    // Walk up the file tree until we discover a directory containing Gradle wrapper files.
+    val rootProjectDirectory = generateSequence(project.projectDir) { it.parentFile }
+        .takeWhile { it != it.parentFile && it.exists() }
+
+        // Add an arbitrary limit, just in case something goes wrong
+        .take(50)
+
+        .firstOrNull { dir ->
+            fun dirHasFile(named: String): Boolean = dir.resolve(named).run { exists() && isFile }
+            dirHasFile(named = "gradlew") || dirHasFile(named = "gradlew.bat")
+        }
+
+    return rootProjectDirectory
+        ?.resolve("gradle.properties")
+        ?.takeIf { it.exists() && it.isFile }
 }
