@@ -1,4 +1,49 @@
-* text=auto eol=lf
+# https://help.github.com/articles/dealing-with-line-endings/
+# https://github.com/alexkaratarakis/gitattributes
 
-gradlew binary
-gradlew.bat binary
+* text=auto eol=lf
+# The above will handle all files NOT found below
+
+*.json            text
+*.toml            text
+*.xml             text
+*.yaml            text
+*.yml             text
+.editorconfig     text
+.env              text
+
+# Documentation
+*.md              text diff=markdown
+*.txt             text
+
+# JVM
+*.java          text diff=java
+*.kt            text diff=kotlin
+*.kts           text diff=kotlin
+*.properties    text
+*.jar           binary
+
+
+# Linux start script should use lf
+gradlew         text eol=lf
+*.bash          text eol=lf
+*.sh            text eol=lf
+
+# These are Windows script files and should use crlf
+*.bat             text eol=crlf
+*.cmd             text eol=crlf
+
+# SVG treated as an asset (binary) by default.
+*.svg             text
+
+# Exclude external libs from GitHub language stats https://github.com/github/linguist/blob/v8.0.0/docs/overrides.md
+docs/**                                                             linguist-documentation
+docs-developer/**                                                   linguist-documentation
+examples/**                                                         linguist-documentation
+dokka-integration-tests/gradle/projects/**                          linguist-documentation
+
+# Tell Git not to export certain files or directories when generating an archive.
+# Since an archive doesn't contain git data, also exclude git metadata files.
+.gitattributes export-ignore
+.gitignore     export-ignore
+.gitkeep       export-ignore
