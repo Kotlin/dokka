@@ -1,0 +1,13 @@
+
+- [ ] Parameterise over Gradle version
+- [ ] Parameterise over KGP version
+- [ ] Parameterise over AGP version
+- [ ] Parameterise Dokka version
+- [ ] Parameterise K1/K2 analysis mode
+- [ ] separate test dir for each test
+- [ ] deduplicate repetitive test logic, e.g. extract CC report test, expected/actual HTML test
+- [ ] Move tests into single source set, breaking them up isn't so useful, and makes navigation & code re-use harder.
+- [ ] Create a JUnit extension that dynamically generates projects for testing.
+  - Each generated project should have a distinct test directory
+  - Generate exhaustive Gradle/KGP/analysis variables.
+  - Dynamically `@Tag` each test according to the variables.
