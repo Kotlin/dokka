@@ -108,11 +108,12 @@ constructor(
             doFirst("check all-modules-page-plugin is present", moduleAggregationCheck)
         }
 
-        formatDependencies.dokkaPublicationPluginClasspathApiOnly.configure {
-            dependencies.addLater(dokkaExtension.versions.jetbrainsDokka.map { v ->
+        formatDependencies.dokkaPublicationPluginClasspathApiOnly
+            .dependencies
+            .addLater(dokkaExtension.versions.jetbrainsDokka.map { v ->
                 project.dependencies.create("org.jetbrains.dokka:all-modules-page-plugin:$v")
             })
-        }
+
     }
 
     /**

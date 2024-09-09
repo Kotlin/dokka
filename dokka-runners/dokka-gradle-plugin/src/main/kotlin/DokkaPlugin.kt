@@ -9,6 +9,7 @@ import org.gradle.kotlin.dsl.apply
 import org.jetbrains.dokka.gradle.formats.DokkaHtmlPlugin
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.pluginFeaturesService
+import org.jetbrains.dokka.gradle.internal.addV2MigrationHelpers
 import javax.inject.Inject
 import org.jetbrains.dokka.gradle.DokkaClassicPlugin as ClassicDokkaPlugin
 
@@ -40,6 +41,10 @@ constructor() : Plugin<Project> {
             apply(type = DokkaBasePlugin::class)
             // auto-apply the HTML plugin
             apply(type = DokkaHtmlPlugin::class)
+        }
+
+        if (project.pluginFeaturesService.v2PluginMigrationHelpersEnabled) {
+            addV2MigrationHelpers(project)
         }
     }
 

@@ -7,6 +7,9 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.BuildTask
 import org.gradle.testkit.runner.GradleRunner
 import java.util.*
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 
 /** Edit environment variables in the Gradle Runner */
@@ -18,9 +21,13 @@ fun GradleRunner.withEnvironment(build: MutableMap<String, String?>.() -> Unit):
 }
 
 
+@OptIn(ExperimentalContracts::class)
 inline fun GradleRunner.build(
     handleResult: BuildResult.() -> Unit
-): Unit = build().let(handleResult)
+) {
+    contract { callsInPlace(handleResult, InvocationKind.EXACTLY_ONCE) }
+    build().let(handleResult)
+}
 
 
 inline fun GradleRunner.buildAndFail(
@@ -63,9 +70,16 @@ fun GradleRunner.updateGradleProperties(
  */
 fun GradleRunner.addArguments(
     vararg arguments: String
+): GradleRunner = addArguments(arguments.asList())
+
+/**
+ * Helper function to _append_ [arguments] to any existing
+ * [GradleRunner arguments][GradleRunner.getArguments].
+ */
+fun GradleRunner.addArguments(
+    arguments: List<String>,
 ): GradleRunner =
     withArguments(this@addArguments.arguments + arguments)
-
 
 /**
  * Get the name of the task, without the leading [BuildTask.getPath].

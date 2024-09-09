@@ -356,3 +356,14 @@ internal fun <T : BuildService<P>, P : BuildServiceParameters> BuildServiceRegis
         }
     return registerIfAbsent(serviceName, serviceClass, configureAction)
 }
+
+/**
+ * Suffix tag to indicate that a [Configuration] is internal, and is intended for users.
+ *
+ * Dokka has a lot of Configurations, so this helps with deciphering which Configuration to use in
+ * a build scripts `dependencies {}` block.
+ */
+internal const val INTERNAL_CONF_NAME_TAG = "~internal"
+
+
+internal const val INTERNAL_CONF_DESCRIPTION_TAG = "[Internal Dokka Configuration]"
