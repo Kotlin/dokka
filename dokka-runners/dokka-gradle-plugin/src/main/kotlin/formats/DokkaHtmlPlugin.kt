@@ -67,6 +67,13 @@ constructor(
     }
 
     private fun DokkaFormatPluginContext.configureHtmlUrlLogging() {
+        project.tasks.withType<LogHtmlPublicationLinkTask>().configureEach {
+            // The default port of IntelliJ's built-in server is defined in the docs
+            // https://www.jetbrains.com/help/idea/settings-debugger.html#24aabda8
+            // IntelliJ always uses port 63342, but users might configure an additional port.
+            serverUri.convention("http://localhost:63342")
+        }
+
         val logHtmlUrlTask = registerLogHtmlUrlTask()
 
         dokkaTasks.generatePublication.configure {
@@ -82,18 +89,19 @@ constructor(
         val indexHtmlFile = generatePublicationTask
             .flatMap { it.outputDirectory.file("index.html") }
 
-        val indexHtmlPath = indexHtmlFile.map { indexHtml ->
-            indexHtml.asFile
-                .relativeTo(project.rootDir.parentFile)
-                .invariantSeparatorsPath
+        val projectName = providers.provider { project.rootProject.name }
+
+        val indexHtmlPath = providers.zip(
+            projectName,
+            indexHtmlFile,
+        ) { name, indexHtml ->
+            val relativePath = indexHtml.asFile.relativeTo(project.rootDir)
+            "${name}/${relativePath.invariantSeparatorsPath}"
         }
 
         return project.tasks.register<LogHtmlPublicationLinkTask>(
             "logLink" + generatePublicationTask.name.uppercaseFirstChar()
         ) {
-            // default port of IntelliJ built-in server is defined in the docs
-            // https://www.jetbrains.com/help/idea/settings-debugger.html#24aabda8
-            serverUri.convention("http://localhost:63342")
             this.indexHtmlPath.convention(indexHtmlPath)
         }
     }
@@ -162,7 +170,7 @@ constructor(
                 logger.warn(/* language=text */ """
                     |[${task.path}] org.jetbrains.dokka:all-modules-page-plugin is missing.
                     |
-                    |Publication '$moduleName' in has $modulesCount modules, but
+                    |Dokka Publication '$moduleName' has $modulesCount Dokka modules, but
                     |the Dokka Generator plugins classpath does not contain 
                     |   org.jetbrains.dokka:all-modules-page-plugin
                     |which is required for aggregating Dokka HTML modules.
