@@ -8,7 +8,6 @@ import org.gradle.api.Task
 import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.ProviderFactory
-import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.registerBinding
 import org.gradle.kotlin.dsl.withType
@@ -66,43 +65,29 @@ constructor(
         }
     }
 
+    /** Register a [LogHtmlPublicationLinkTask] task. */
     private fun DokkaFormatPluginContext.configureHtmlUrlLogging() {
-        project.tasks.withType<LogHtmlPublicationLinkTask>().configureEach {
+        val indexHtmlFile = dokkaTasks.generatePublication
+            .flatMap { it.outputDirectory.file("index.html") }
+
+        val indexHtmlPath = indexHtmlFile.map { indexHtml ->
+            val rootProjectName = project.rootProject.name
+            val relativePath = indexHtml.asFile.relativeTo(project.rootDir)
+            "${rootProjectName}/${relativePath.invariantSeparatorsPath}"
+        }
+
+        val logHtmlUrlTask = project.tasks.register<LogHtmlPublicationLinkTask>(
+            "logLink" + dokkaTasks.generatePublication.name.uppercaseFirstChar()
+        ) {
             // The default port of IntelliJ's built-in server is defined in the docs
             // https://www.jetbrains.com/help/idea/settings-debugger.html#24aabda8
             // IntelliJ always uses port 63342, but users might configure an additional port.
-            serverUri.convention("http://localhost:63342")
+            this.serverUri.convention("http://localhost:63342")
+            this.indexHtmlPath.convention(indexHtmlPath)
         }
-
-        val logHtmlUrlTask = registerLogHtmlUrlTask()
 
         dokkaTasks.generatePublication.configure {
             finalizedBy(logHtmlUrlTask)
-        }
-    }
-
-    private fun DokkaFormatPluginContext.registerLogHtmlUrlTask():
-            TaskProvider<LogHtmlPublicationLinkTask> {
-
-        val generatePublicationTask = dokkaTasks.generatePublication
-
-        val indexHtmlFile = generatePublicationTask
-            .flatMap { it.outputDirectory.file("index.html") }
-
-        val projectName = providers.provider { project.rootProject.name }
-
-        val indexHtmlPath = providers.zip(
-            projectName,
-            indexHtmlFile,
-        ) { name, indexHtml ->
-            val relativePath = indexHtml.asFile.relativeTo(project.rootDir)
-            "${name}/${relativePath.invariantSeparatorsPath}"
-        }
-
-        return project.tasks.register<LogHtmlPublicationLinkTask>(
-            "logLink" + generatePublicationTask.name.uppercaseFirstChar()
-        ) {
-            this.indexHtmlPath.convention(indexHtmlPath)
         }
     }
 
