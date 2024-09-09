@@ -187,20 +187,26 @@ class GradleProjectTest(
  * Builder for testing a Gradle project that uses Kotlin script DSL and creates default
  * `settings.gradle.kts` and `gradle.properties` files.
  *
- * @param[testProjectName] the path of the project directory, relative to [baseDir
+ * @param[projectLocation] the path of the project directory, relative to [baseDir]
+ * @param[rootProjectName] the name of the Gradle project, configured in the `settings.gradle.kts`
  */
 fun gradleKtsProjectTest(
-    testProjectName: String,
+    projectLocation: String,
+    rootProjectName: String? = null,
     baseDir: Path = GradleProjectTest.funcTestTempDir,
     build: GradleProjectTest.() -> Unit,
 ): GradleProjectTest {
+
+    val rootProjectNameValue: String = rootProjectName
+        ?: projectLocation.removeSuffix("/").substringAfterLast('/')
+
     return gradleProjectTest(
-        testProjectName = testProjectName,
+        testProjectName = rootProjectNameValue,
         baseDir = baseDir,
     ) {
 
         settingsGradleKts = """
-            |rootProject.name = "test"
+            |rootProject.name = "$rootProjectNameValue"
             |
             |${settingsRepositories()}
             |
@@ -214,19 +220,24 @@ fun gradleKtsProjectTest(
  * Builder for testing a Gradle project that uses Groovy script and creates default,
  * `settings.gradle`, and `gradle.properties` files.
  *
- * @param[testProjectName] the name of the test, which should be distinct across the project
+ * @param[projectLocation] the path of the project directory, relative to [baseDir]
+ * @param[rootProjectName] the name of the Gradle project, configured in the `settings.gradle`
  */
 fun gradleGroovyProjectTest(
-    testProjectName: String,
+    projectLocation: String,
+    rootProjectName: String? = null,
     baseDir: Path = GradleProjectTest.funcTestTempDir,
     build: GradleProjectTest.() -> Unit,
 ): GradleProjectTest {
+    val rootProjectNameValue: String = rootProjectName
+        ?: projectLocation.removeSuffix("/").substringAfterLast('/')
+
     return gradleProjectTest(
-        testProjectName = testProjectName,
+        testProjectName = rootProjectNameValue,
         baseDir = baseDir,
     ) {
         settingsGradle = """
-            |rootProject.name = "test"
+            |rootProject.name = "$rootProjectNameValue"
             |
             |${settingsRepositories()}
             |
