@@ -14,6 +14,7 @@ import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.model.WithScope
 import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.model.doc.Deprecated
 import org.jetbrains.dokka.model.orEmpty
 import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.dokka.pages.ContentKind
@@ -26,7 +27,7 @@ import kotlin.reflect.full.isSubclassOf
 internal const val KDOC_TAG_HEADER_LEVEL = 4
 
 private val unnamedTagsExceptions: Set<KClass<out TagWrapper>> =
-    setOf(Property::class, Description::class, Constructor::class, Param::class, See::class)
+    setOf(Property::class, Description::class, Constructor::class, Param::class, See::class, Deprecated::class)
 
 internal fun PageContentBuilder.DocumentableContentBuilder.descriptionSectionContent(
     documentable: Documentable,

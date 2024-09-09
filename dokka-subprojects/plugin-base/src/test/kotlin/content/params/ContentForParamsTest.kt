@@ -266,6 +266,7 @@ class ContentForParamsTest : BaseAbstractTest() {
             | * {@link java.util.HashMap#containsKey(java.lang.Object) FragmentManager#setFragmentResultListener(String, LifecycleOwner,
             | * FragmentResultListener)}.
             | */
+            | @Deprecated
             | public class DocGenProcessor {
             |    public String setTargetFragment(){
             |            return "";
@@ -284,23 +285,29 @@ class ContentForParamsTest : BaseAbstractTest() {
                                 skipAllNotMatching() //Signature
                             }
                             group {
+                                header(3) {
+                                    +"Deprecated"
+                                }
+                                group {
+                                    group {
+                                        group {
+                                            +"Instead of using a target fragment to pass results, the fragment requesting a result should use "
+                                            link { +"FragmentManager#setFragmentResult(String, Bundle)" }
+                                            +" to deliver results to "
+                                            link { +"FragmentResultListener" }
+                                            +" instances registered by other fragments via "
+                                            link { +"FragmentManager#setFragmentResultListener(String, LifecycleOwner, FragmentResultListener)" }
+                                            +"."
+                                        }
+                                    }
+                                }
+                            }
+                            group {
                                 comment {
                                     +"Return the target fragment set by "
                                     link { +"setTargetFragment" }
                                     +" or "
                                     link { +"setTargetFragment" }
-                                    +"."
-                                }
-                            }
-                            group {
-                                header(4) { +"Deprecated" }
-                                comment {
-                                    +"Instead of using a target fragment to pass results, the fragment requesting a result should use "
-                                    link { +"FragmentManager#setFragmentResult(String, Bundle)" }
-                                    +" to deliver results to "
-                                    link { +"FragmentResultListener" }
-                                    +" instances registered by other fragments via "
-                                    link { +"FragmentManager#setFragmentResultListener(String, LifecycleOwner, FragmentResultListener)" }
                                     +"."
                                 }
                             }
@@ -323,6 +330,7 @@ class ContentForParamsTest : BaseAbstractTest() {
             | * <a href="https://developer.android.com/guide/navigation/navigation-swipe-view ">
             | *    TabLayout and ViewPager</a> instead.
             | */
+            | @Deprecated
             | public class DocGenProcessor { }
             """.trimIndent(), testConfiguration
         ) {
@@ -337,11 +345,17 @@ class ContentForParamsTest : BaseAbstractTest() {
                                 skipAllNotMatching() //Signature
                             }
                             group {
-                                header(4) { +"Deprecated" }
-                                comment {
-                                    +"Use "
-                                    link { +"TabLayout and ViewPager" }
-                                    +" instead."
+                                header(3) {
+                                    +"Deprecated"
+                                }
+                                group {
+                                    group {
+                                        group {
+                                            +"Use "
+                                            link { +"TabLayout and ViewPager" }
+                                            +" instead."
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -372,6 +386,7 @@ class ContentForParamsTest : BaseAbstractTest() {
             | * {@link java.util.HashMap } to automatically retain the Fragment's
             | * non configuration state.
             | */
+            | @Deprecated
             | public class DocGenProcessor { }
             """.trimIndent(), testConfiguration
         ) {
@@ -386,6 +401,22 @@ class ContentForParamsTest : BaseAbstractTest() {
                                 skipAllNotMatching() //Signature
                             }
                             group {
+                                header(3) {
+                                    +"Deprecated"
+                                }
+                                group {
+                                    group {
+                                        group {
+                                            +"Have your "
+                                            link { +"FragmentHostCallback" }
+                                            +" implement "
+                                            link { +"java.util.HashMap" }
+                                            +" to automatically retain the Fragment's non configuration state."
+                                        }
+                                    }
+                                }
+                            }
+                            group {
                                 comment {
                                     group {
                                         +"FragmentManagerNonConfig stores the retained instance fragments across activity recreation events. "
@@ -397,16 +428,6 @@ class ContentForParamsTest : BaseAbstractTest() {
                                         link { +"FragmentController#restoreAllState(Parcelable, FragmentManagerNonConfig)" }
                                         +"."
                                     }
-                                }
-                            }
-                            group {
-                                header(4) { +"Deprecated" }
-                                comment {
-                                    +"Have your "
-                                    link { +"FragmentHostCallback" }
-                                    +" implement "
-                                    link { +"java.util.HashMap" }
-                                    +" to automatically retain the Fragment's non configuration state."
                                 }
                             }
                         }
