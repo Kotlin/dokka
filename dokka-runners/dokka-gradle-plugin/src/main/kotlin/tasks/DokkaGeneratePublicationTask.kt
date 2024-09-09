@@ -32,7 +32,7 @@ constructor(
     private val fs: FileSystemOperations,
     /**
      * Configurations for Dokka Generator Plugins. Must be provided from
-     * [org.jetbrains.dokka.gradle.dokka.DokkaPublication.pluginsConfiguration].
+     * [org.jetbrains.dokka.gradle.engine.DokkaPublication.pluginsConfiguration].
      */
     pluginsConfiguration: DokkaPluginParametersContainer,
 ) : DokkaGenerateTask(

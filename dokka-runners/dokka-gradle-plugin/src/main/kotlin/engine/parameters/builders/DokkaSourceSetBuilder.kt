@@ -1,14 +1,14 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-package org.jetbrains.dokka.gradle.dokka.parameters.builders
+package org.jetbrains.dokka.gradle.engine.parameters.builders
 
 
 import org.gradle.api.logging.Logging
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.gradle.dokka.parameters.*
-import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform.Companion.dokkaType
-import org.jetbrains.dokka.gradle.dokka.parameters.VisibilityModifier.Companion.dokkaType
+import org.jetbrains.dokka.gradle.engine.parameters.*
+import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform.Companion.dokkaType
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier.Companion.dokkaType
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.mapNotNullToSet
 import org.jetbrains.dokka.gradle.internal.mapToSet
