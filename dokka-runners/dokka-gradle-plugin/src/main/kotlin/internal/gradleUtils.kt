@@ -24,7 +24,7 @@ import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.*
 import org.gradle.util.GradleVersion
-import org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmName
 
@@ -367,3 +367,23 @@ internal const val INTERNAL_CONF_NAME_TAG = "~internal"
 
 
 internal const val INTERNAL_CONF_DESCRIPTION_TAG = "[Internal Dokka Configuration]"
+
+
+/**
+ * Get the root project name.
+ *
+ * This function will try to be compatible with
+ * [Isolated Projects](https://docs.gradle.org/current/userguide/isolated_projects.html).
+ */
+internal fun Project.rootProjectName(): String {
+    return when {
+        CurrentGradleVersion >= "8.8" -> {
+            @Suppress("UnstableApiUsage")
+            isolated.rootProject.name
+        }
+
+        else -> {
+            rootProject.name
+        }
+    }
+}

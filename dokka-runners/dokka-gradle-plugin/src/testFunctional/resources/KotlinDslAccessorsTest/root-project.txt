@@ -1950,19 +1950,19 @@ fun DependencyHandler.`dokka`(
 fun DependencyHandler.`dokka`(dependencyNotation: Any): Dependency? =
     add("dokka", dependencyNotation)
 
-fun org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec>.`ext`(configure: Action<org.gradle.api.plugins.ExtraPropertiesExtension>): Unit =
+fun org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec>.`ext`(configure: Action<org.gradle.api.plugins.ExtraPropertiesExtension>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("ext", configure)
 
-fun org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec>.`html`(configure: Action<org.jetbrains.dokka.gradle.dokka.plugins.DokkaHtmlPluginParameters>): Unit =
+fun org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec>.`html`(configure: Action<org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("html", configure)
 
-fun org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec>.`versioning`(configure: Action<org.jetbrains.dokka.gradle.dokka.plugins.DokkaVersioningPluginParameters>): Unit =
+fun org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec>.`versioning`(configure: Action<org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("versioning", configure)
 
-fun org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.DokkaPublication>.`ext`(configure: Action<org.gradle.api.plugins.ExtraPropertiesExtension>): Unit =
+fun org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec>.`ext`(configure: Action<org.gradle.api.plugins.ExtraPropertiesExtension>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("ext", configure)
 
-fun org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec>.`ext`(configure: Action<org.gradle.api.plugins.ExtraPropertiesExtension>): Unit =
+fun org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.formats.DokkaPublication>.`ext`(configure: Action<org.gradle.api.plugins.ExtraPropertiesExtension>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("ext", configure)
 
 fun org.gradle.api.Project.`dokka`(configure: Action<org.jetbrains.dokka.gradle.DokkaExtension>): Unit =
@@ -1971,25 +1971,25 @@ fun org.gradle.api.Project.`dokka`(configure: Action<org.jetbrains.dokka.gradle.
 fun org.jetbrains.dokka.gradle.DokkaExtension.Versions.`ext`(configure: Action<org.gradle.api.plugins.ExtraPropertiesExtension>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("ext", configure)
 
-fun org.jetbrains.dokka.gradle.DokkaExtension.`dokkaPublications`(configure: Action<org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.DokkaPublication>>): Unit =
+fun org.jetbrains.dokka.gradle.DokkaExtension.`dokkaPublications`(configure: Action<org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.formats.DokkaPublication>>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("dokkaPublications", configure)
 
-fun org.jetbrains.dokka.gradle.DokkaExtension.`dokkaSourceSets`(configure: Action<org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec>>): Unit =
+fun org.jetbrains.dokka.gradle.DokkaExtension.`dokkaSourceSets`(configure: Action<org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec>>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("dokkaSourceSets", configure)
 
 fun org.jetbrains.dokka.gradle.DokkaExtension.`ext`(configure: Action<org.gradle.api.plugins.ExtraPropertiesExtension>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("ext", configure)
 
-fun org.jetbrains.dokka.gradle.DokkaExtension.`pluginsConfiguration`(configure: Action<org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec>>): Unit =
+fun org.jetbrains.dokka.gradle.DokkaExtension.`pluginsConfiguration`(configure: Action<org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec>>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("pluginsConfiguration", configure)
 
 fun org.jetbrains.dokka.gradle.DokkaExtension.`versions`(configure: Action<org.jetbrains.dokka.gradle.DokkaExtension.Versions>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("versions", configure)
 
-fun org.jetbrains.dokka.gradle.dokka.plugins.DokkaHtmlPluginParameters.`ext`(configure: Action<org.gradle.api.plugins.ExtraPropertiesExtension>): Unit =
+fun org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters.`ext`(configure: Action<org.gradle.api.plugins.ExtraPropertiesExtension>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("ext", configure)
 
-fun org.jetbrains.dokka.gradle.dokka.plugins.DokkaVersioningPluginParameters.`ext`(configure: Action<org.gradle.api.plugins.ExtraPropertiesExtension>): Unit =
+fun org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters.`ext`(configure: Action<org.gradle.api.plugins.ExtraPropertiesExtension>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("ext", configure)
 
 val TaskContainer.`dokkaGenerateModuleHtml`: TaskProvider<org.jetbrains.dokka.gradle.tasks.DokkaGenerateModuleTask>
@@ -2049,14 +2049,14 @@ val TaskContainer.`dokkaJekyll`: TaskProvider<org.jetbrains.dokka.gradle.DokkaTa
 val TaskContainer.`logLinkDokkaGeneratePublicationHtml`: TaskProvider<org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask>
     get() = named<org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask>("logLinkDokkaGeneratePublicationHtml")
 
-val org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec>.`ext`: org.gradle.api.plugins.ExtraPropertiesExtension get() =
+val org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec>.`ext`: org.gradle.api.plugins.ExtraPropertiesExtension get() =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("ext") as org.gradle.api.plugins.ExtraPropertiesExtension
 
-val org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec>.`html`: org.jetbrains.dokka.gradle.dokka.plugins.DokkaHtmlPluginParameters get() =
-    (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("html") as org.jetbrains.dokka.gradle.dokka.plugins.DokkaHtmlPluginParameters
+val org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec>.`html`: org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters get() =
+    (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("html") as org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
 
-val org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec>.`versioning`: org.jetbrains.dokka.gradle.dokka.plugins.DokkaVersioningPluginParameters get() =
-    (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("versioning") as org.jetbrains.dokka.gradle.dokka.plugins.DokkaVersioningPluginParameters
+val org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec>.`versioning`: org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters get() =
+    (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("versioning") as org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters
 
 val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaGfmMultiModulePlugin`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
     get() = named<org.gradle.api.artifacts.Configuration>("dokkaGfmMultiModulePlugin")
@@ -2154,26 +2154,26 @@ val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configura
 val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokka`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
     get() = named<org.gradle.api.artifacts.Configuration>("dokka")
 
-val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.DokkaPublication>.`ext`: org.gradle.api.plugins.ExtraPropertiesExtension get() =
+val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec>.`ext`: org.gradle.api.plugins.ExtraPropertiesExtension get() =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("ext") as org.gradle.api.plugins.ExtraPropertiesExtension
 
-val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.DokkaPublication>.`html`: NamedDomainObjectProvider<org.jetbrains.dokka.gradle.dokka.DokkaPublication>
-    get() = named<org.jetbrains.dokka.gradle.dokka.DokkaPublication>("html")
+val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec>.`javaMain`: NamedDomainObjectProvider<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec>
+    get() = named<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec>("javaMain")
 
-val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec>.`ext`: org.gradle.api.plugins.ExtraPropertiesExtension get() =
+val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec>.`javaTest`: NamedDomainObjectProvider<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec>
+    get() = named<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec>("javaTest")
+
+val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec>.`main`: NamedDomainObjectProvider<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec>
+    get() = named<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec>("main")
+
+val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec>.`test`: NamedDomainObjectProvider<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec>
+    get() = named<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec>("test")
+
+val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.formats.DokkaPublication>.`ext`: org.gradle.api.plugins.ExtraPropertiesExtension get() =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("ext") as org.gradle.api.plugins.ExtraPropertiesExtension
 
-val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec>.`javaMain`: NamedDomainObjectProvider<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec>
-    get() = named<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec>("javaMain")
-
-val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec>.`javaTest`: NamedDomainObjectProvider<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec>
-    get() = named<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec>("javaTest")
-
-val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec>.`main`: NamedDomainObjectProvider<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec>
-    get() = named<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec>("main")
-
-val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec>.`test`: NamedDomainObjectProvider<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec>
-    get() = named<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec>("test")
+val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.formats.DokkaPublication>.`html`: NamedDomainObjectProvider<org.jetbrains.dokka.gradle.formats.DokkaPublication>
+    get() = named<org.jetbrains.dokka.gradle.formats.DokkaPublication>("html")
 
 val org.gradle.api.Project.`dokka`: org.jetbrains.dokka.gradle.DokkaExtension get() =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("dokka") as org.jetbrains.dokka.gradle.DokkaExtension
@@ -2181,23 +2181,23 @@ val org.gradle.api.Project.`dokka`: org.jetbrains.dokka.gradle.DokkaExtension ge
 val org.jetbrains.dokka.gradle.DokkaExtension.Versions.`ext`: org.gradle.api.plugins.ExtraPropertiesExtension get() =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("ext") as org.gradle.api.plugins.ExtraPropertiesExtension
 
-val org.jetbrains.dokka.gradle.DokkaExtension.`dokkaPublications`: org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.DokkaPublication> get() =
-    (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("dokkaPublications") as org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.DokkaPublication>
+val org.jetbrains.dokka.gradle.DokkaExtension.`dokkaPublications`: org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.formats.DokkaPublication> get() =
+    (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("dokkaPublications") as org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.formats.DokkaPublication>
 
-val org.jetbrains.dokka.gradle.DokkaExtension.`dokkaSourceSets`: org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec> get() =
-    (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("dokkaSourceSets") as org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec>
+val org.jetbrains.dokka.gradle.DokkaExtension.`dokkaSourceSets`: org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec> get() =
+    (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("dokkaSourceSets") as org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec>
 
 val org.jetbrains.dokka.gradle.DokkaExtension.`ext`: org.gradle.api.plugins.ExtraPropertiesExtension get() =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("ext") as org.gradle.api.plugins.ExtraPropertiesExtension
 
-val org.jetbrains.dokka.gradle.DokkaExtension.`pluginsConfiguration`: org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec> get() =
-    (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("pluginsConfiguration") as org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec>
+val org.jetbrains.dokka.gradle.DokkaExtension.`pluginsConfiguration`: org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec> get() =
+    (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("pluginsConfiguration") as org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec>
 
 val org.jetbrains.dokka.gradle.DokkaExtension.`versions`: org.jetbrains.dokka.gradle.DokkaExtension.Versions get() =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("versions") as org.jetbrains.dokka.gradle.DokkaExtension.Versions
 
-val org.jetbrains.dokka.gradle.dokka.plugins.DokkaHtmlPluginParameters.`ext`: org.gradle.api.plugins.ExtraPropertiesExtension get() =
+val org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters.`ext`: org.gradle.api.plugins.ExtraPropertiesExtension get() =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("ext") as org.gradle.api.plugins.ExtraPropertiesExtension
 
-val org.jetbrains.dokka.gradle.dokka.plugins.DokkaVersioningPluginParameters.`ext`: org.gradle.api.plugins.ExtraPropertiesExtension get() =
+val org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters.`ext`: org.gradle.api.plugins.ExtraPropertiesExtension get() =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("ext") as org.gradle.api.plugins.ExtraPropertiesExtension

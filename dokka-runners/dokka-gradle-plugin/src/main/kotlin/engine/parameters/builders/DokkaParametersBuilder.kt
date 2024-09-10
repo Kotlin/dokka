@@ -1,7 +1,7 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-package org.jetbrains.dokka.gradle.dokka.parameters.builders
+package org.jetbrains.dokka.gradle.engine.parameters.builders
 
 import org.gradle.api.Project
 import org.gradle.api.file.ArchiveOperations
@@ -10,9 +10,9 @@ import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.gradle.DokkaBasePlugin
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaGeneratorParametersSpec
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaModuleDescriptionKxs
-import org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaGeneratorParametersSpec
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaModuleDescriptionKxs
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec
 import org.jetbrains.dokka.gradle.formats.DokkaHtmlPlugin.Companion.extractDokkaPluginMarkers
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import java.io.File
