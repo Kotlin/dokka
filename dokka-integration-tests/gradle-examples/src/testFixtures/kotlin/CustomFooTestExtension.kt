@@ -27,23 +27,33 @@ data class DokkaGradlePluginTestParameters(
     val gradleVersion: String,
     val kgpVersion: String,
     val analysisMode: String,
-)
+) {
 
-fun a () {
-val agpVersions = Exhaustive.of("")
-val gradleVersions = Exhaustive.of("")
-val kgpVersions = Exhaustive.of("")
+    fun isValid() {
+
+    }
+
+}
+
+// junit.jupiter.tempdir.cleanup.mode.default
+
+fun a() {
+    val agpVersions = Exhaustive.of("")
+    val gradleVersions = Exhaustive.of("")
+    val kgpVersions = Exhaustive.of("")
+    val analysisMode = Exhaustive.of("")
 
     val params = Arb.bind(
         agpVersions,
         gradleVersions,
         kgpVersions,
-    ) {  agp , gradle, kgp ->
+        analysisMode,
+    ) { agp, gradle, kgp, analysis ->
         DokkaGradlePluginTestParameters(
             agpVersion = agp,
-            gradleVersion = "",
-            kgpVersion = "",
-            analysisMode = "",
+            gradleVersion = gradle,
+            kgpVersion = kgp,
+            analysisMode = analysis,
         )
     }
 }
@@ -67,7 +77,7 @@ enum class FooParameter {
     DEFAULT
 }
 
-class CustomFooTestExtension :  ParameterResolver, TestInstancePostProcessor, BeforeEachCallback {
+class CustomFooTestExtension : ParameterResolver, TestInstancePostProcessor, BeforeEachCallback {
 
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
         return parameterContext.parameter.type == Foo::class.java
@@ -115,4 +125,30 @@ class CustomFooTestExtension :  ParameterResolver, TestInstancePostProcessor, Be
     override fun postProcessTestInstance(testInstance: Any, context: ExtensionContext) {
         // Implement any additional instance post-processing logic if needed
     }
+}
+
+
+data class SemVer(
+    val major: Int,
+    val minor: Int,
+    val patch: Int,
+) : Comparable<SemVer> {
+    override fun compareTo(other: SemVer): Int {
+        return when {
+            major != other.major -> major.compareTo(other.major)
+            minor != other.minor -> minor.compareTo(other.minor)
+            patch != other.patch -> patch.compareTo(other.patch)
+            else -> 0
+        }
+    }
+}
+
+fun SemVer(version: String): SemVer {
+    val split = version
+        .split('.')
+        .map { it.toInt() }
+
+    require(split.size == 3) { "Version '$version' is not SemVer" }
+    val (major, minor, patch) = split
+    return SemVer(major, minor, patch)
 }
