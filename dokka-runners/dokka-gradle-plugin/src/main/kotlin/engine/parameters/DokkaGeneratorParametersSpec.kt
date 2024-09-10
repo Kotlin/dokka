@@ -27,7 +27,7 @@ constructor(
     objects: ObjectFactory,
     /**
      * Configurations for Dokka Generator Plugins. Must be provided from
-     * [org.jetbrains.dokka.gradle.engine.DokkaPublication.pluginsConfiguration].
+     * [org.jetbrains.dokka.gradle.formats.DokkaPublication.pluginsConfiguration].
      */
     @get:Nested
     val pluginsConfiguration: DokkaPluginParametersContainer,
@@ -69,7 +69,7 @@ constructor(
     /**
      * Classpath that contains the Dokka Generator Plugins used to modify this publication.
      *
-     * The plugins should be configured in [org.jetbrains.dokka.gradle.engine.DokkaPublication.pluginsConfiguration].
+     * The plugins should be configured in [org.jetbrains.dokka.gradle.formats.DokkaPublication.pluginsConfiguration].
      */
     @get:InputFiles
     @get:Classpath
