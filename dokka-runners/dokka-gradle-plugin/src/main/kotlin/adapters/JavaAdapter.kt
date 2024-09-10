@@ -18,8 +18,8 @@ import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.dokka.gradle.DokkaExtension
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
-import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.PluginId
 import org.jetbrains.dokka.gradle.internal.or

@@ -200,7 +200,7 @@ class FormatDependenciesManager(
      * - module output directory
      * - module includes directory
      *
-     * @see org.jetbrains.dokka.gradle.dokka.parameters.DokkaModuleDescriptionKxs
+     * @see org.jetbrains.dokka.gradle.engine.parameters.DokkaModuleDescriptionKxs
      * @see org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription.sourceOutputDirectory
      */
     val moduleOutputDirectories: ModuleComponentDependencies =

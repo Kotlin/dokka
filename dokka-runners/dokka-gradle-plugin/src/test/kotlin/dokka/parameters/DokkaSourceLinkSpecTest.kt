@@ -1,7 +1,7 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-package org.jetbrains.dokka.gradle.dokka.parameters
+package org.jetbrains.dokka.gradle.engine.parameters
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

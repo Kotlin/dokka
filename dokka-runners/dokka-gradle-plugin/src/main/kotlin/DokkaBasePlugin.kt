@@ -24,9 +24,9 @@ import org.jetbrains.dokka.gradle.dependencies.BaseDependencyManager
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaClasspathAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaFormatAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaModuleComponentAttribute
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
-import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform
-import org.jetbrains.dokka.gradle.dokka.parameters.VisibilityModifier
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import org.jetbrains.dokka.gradle.internal.*
 import org.jetbrains.dokka.gradle.tasks.DokkaBaseTask
 import org.jetbrains.dokka.gradle.tasks.DokkaGenerateModuleTask

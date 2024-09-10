@@ -13,8 +13,8 @@ import org.gradle.api.tasks.Nested
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.gradle.dependencies.BaseDependencyManager
-import org.jetbrains.dokka.gradle.dokka.DokkaPublication
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.formats.DokkaPublication
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.internal.*
 import org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
 import org.jetbrains.dokka.gradle.workers.ProcessIsolation

@@ -1,7 +1,7 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-package org.jetbrains.dokka.gradle.dokka
+package org.jetbrains.dokka.gradle.formats
 
 import org.gradle.api.Named
 import org.gradle.api.file.ConfigurableFileCollection
@@ -15,12 +15,11 @@ import java.io.Serializable
 import javax.inject.Inject
 
 /**
- * A [DokkaPublication] describes a single Dokka output.
+ * A [DokkaPublication] controls the output running the Dokka Generator.
  *
- * Each Publication has its own set of Gradle tasks and [org.gradle.api.artifacts.Configuration]s.
+ * The output format (for example, HTML) is determined by the Dokka Plugins that are present.
  *
- * The type of site is determined by the Dokka Plugins. By default, an HTML site will be generated.
- * By default, Dokka will create publications for HTML, Jekyll, and GitHub Flavoured Markdown.
+ * Each Dokka Publication has its own set of Gradle tasks and [org.gradle.api.artifacts.Configuration]s.
  */
 abstract class DokkaPublication
 @DokkaInternalApi

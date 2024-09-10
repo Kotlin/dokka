@@ -24,7 +24,7 @@ import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.*
 import org.gradle.util.GradleVersion
-import org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmName
 

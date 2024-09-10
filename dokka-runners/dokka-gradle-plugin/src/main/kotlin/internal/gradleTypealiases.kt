@@ -4,7 +4,7 @@
 package org.jetbrains.dokka.gradle.internal
 
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer
-import org.jetbrains.dokka.gradle.dokka.plugins.DokkaPluginParametersBaseSpec
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec
 
 /** Container for all [Dokka Plugin parameters][DokkaPluginParametersBaseSpec]. */
 typealias DokkaPluginParametersContainer =

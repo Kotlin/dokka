@@ -1,7 +1,7 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-package org.jetbrains.dokka.gradle.dokka.parameters
+package org.jetbrains.dokka.gradle.engine.parameters
 
 import org.gradle.api.Named
 import org.gradle.api.provider.Property
@@ -111,9 +111,9 @@ constructor(
      *
      * Defaults to `true`.
      *
-     * @see org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec.enableKotlinStdLibDocumentationLink
-     * @see org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec.enableJdkDocumentationLink
-     * @see org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec.enableAndroidDocumentationLink
+     * @see org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec.enableKotlinStdLibDocumentationLink
+     * @see org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec.enableJdkDocumentationLink
+     * @see org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec.enableAndroidDocumentationLink
      */
     @get:Input
     abstract val enabled: Property<Boolean>

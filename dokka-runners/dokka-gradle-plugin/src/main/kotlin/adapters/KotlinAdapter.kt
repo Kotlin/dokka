@@ -20,10 +20,10 @@ import org.gradle.kotlin.dsl.*
 import org.jetbrains.dokka.gradle.DokkaBasePlugin
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.adapters.KotlinAdapter.Companion.currentKotlinToolingVersion
-import org.jetbrains.dokka.gradle.dokka.parameters.SourceSetIdSpec
-import org.jetbrains.dokka.gradle.dokka.parameters.SourceSetIdSpec.Companion.dokkaSourceSetIdSpec
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
-import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform
+import org.jetbrains.dokka.gradle.engine.parameters.SourceSetIdSpec
+import org.jetbrains.dokka.gradle.engine.parameters.SourceSetIdSpec.Companion.dokkaSourceSetIdSpec
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.internal.*
 import org.jetbrains.kotlin.commonizer.KonanDistribution
 import org.jetbrains.kotlin.commonizer.platformLibsDir
