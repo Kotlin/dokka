@@ -1,7 +1,7 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-package org.jetbrains.dokka.gradle.dokka.parameters
+package org.jetbrains.dokka.gradle.engine.parameters
 
 import kotlinx.serialization.Serializable
 import org.gradle.kotlin.dsl.java
@@ -20,7 +20,7 @@ import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
  *
  * All other configuration data classes also implement [java.io.Serializable] via their parent interfaces.
  *
- * @see org.jetbrains.dokka.gradle.dokka.parameters.DokkaModuleDescriptionKxs
+ * @see org.jetbrains.dokka.gradle.engine.parameters.DokkaModuleDescriptionKxs
  * @see org.jetbrains.dokka.DokkaModuleDescriptionImpl
  */
 @Serializable

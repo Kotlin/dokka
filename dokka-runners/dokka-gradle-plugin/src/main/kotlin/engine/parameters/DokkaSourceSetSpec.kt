@@ -1,7 +1,7 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-package org.jetbrains.dokka.gradle.dokka.parameters
+package org.jetbrains.dokka.gradle.engine.parameters
 
 import org.gradle.api.Action
 import org.gradle.api.DomainObjectSet
@@ -16,7 +16,7 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.java
 import org.gradle.kotlin.dsl.newInstance
-import org.jetbrains.dokka.gradle.dokka.parameters.SourceSetIdSpec.Companion.dokkaSourceSetIdSpec
+import org.jetbrains.dokka.gradle.engine.parameters.SourceSetIdSpec.Companion.dokkaSourceSetIdSpec
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.adding
 import org.jetbrains.dokka.gradle.internal.domainObjectContainer
