@@ -375,22 +375,23 @@ private fun Project.isGradleGeneratingAccessors(): Boolean {
 
 /**
  * Walk up the file tree until we discover a `gradle.properties` file.
+ *
+ * Note that this function will harm Configuration Cache, because it accesses files during the configuration phase.
+ * It must only be used
  */
 private fun Project.findGradlePropertiesFile(): File? {
-
-    // Walk up the file tree until we discover a directory containing Gradle wrapper files.
-    val rootProjectDirectory = generateSequence(project.projectDir) { it.parentFile }
+    return generateSequence(project.projectDir) { it.parentFile }
         .takeWhile { it != it.parentFile && it.exists() }
 
-        // Add an arbitrary limit, just in case something goes wrong
+        // Add an arbitrary limit to stop infinite scanning, just in case something goes wrong
         .take(50)
 
-        .firstOrNull { dir ->
-            fun dirHasFile(named: String): Boolean = dir.resolve(named).run { exists() && isFile }
-            dirHasFile(named = "gradlew") || dirHasFile(named = "gradlew.bat")
-        }
+        // Skip the first 5 directories, to get to the actual project directory.
+        // <actual project dir>/build/tmp/generatePrecompiledScriptPluginAccessors/accessors373648437747350006
+        //   ^5                  ^4    ^3                  ^2                                ^1
+        .drop(5)
 
-    return rootProjectDirectory
-        ?.resolve("gradle.properties")
-        ?.takeIf { it.exists() && it.isFile }
+        .map { it.resolve("gradle.properties") }
+
+        .firstOrNull { it.exists() && it.isFile }
 }
