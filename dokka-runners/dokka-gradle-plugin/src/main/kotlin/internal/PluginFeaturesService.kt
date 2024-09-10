@@ -199,7 +199,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
             get() = getOrCreateService(project)
 
         private fun getOrCreateService(project: Project): PluginFeaturesService {
-            val configureServiceParams = project.serviceParamsConfiguration()
+            val configureServiceParams = serviceParamsConfiguration(project)
 
             return try {
                 project.gradle.sharedServices.registerIfAbsent(PluginFeaturesService::class) {
@@ -226,19 +226,65 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
             }
         }
 
-        private fun Project.serviceParamsConfiguration(): Action<Params> = Action {
-            v2PluginEnabled.set(getFlag(V2_PLUGIN_ENABLED_FLAG))
-            v2PluginNoWarn.set(getFlag(V2_PLUGIN_NO_WARN_FLAG_PRETTY).orElse(getFlag(V2_PLUGIN_NO_WARN_FLAG)))
-            v2PluginMigrationHelpersEnabled.set(getFlag(V2_PLUGIN_MIGRATION_HELPERS_FLAG))
-            k2AnalysisEnabled.set(getFlag(K2_ANALYSIS_ENABLED_FLAG))
-            k2AnalysisNoWarn.set(
-                getFlag(K2_ANALYSIS_NO_WARN_FLAG_PRETTY)
-                    .orElse(getFlag(K2_ANALYSIS_NO_WARN_FLAG))
-            )
+        /**
+         * Return an [Action] that will configure [PluginFeaturesService.Params], based on detected plugin flags.
+         */
+        private fun serviceParamsConfiguration(
+            project: Project
+        ): Action<Params> {
 
+            /** Find a flag for [PluginFeaturesService]. */
+            fun getFlag(flag: String): Provider<Boolean> =
+                project.providers
+                    .gradleProperty(flag)
+                    .forUseAtConfigurationTimeCompat()
+                    .orElse(
+                        // Note: Enabling/disabling features via extra-properties is only intended for unit tests.
+                        // (Because org.gradle.testfixtures.ProjectBuilder doesn't support mocking Gradle properties.
+                        // But maybe soon! https://github.com/gradle/gradle/pull/30002)
+                        project
+                            .provider { project.extra.properties[flag]?.toString() }
+                            .forUseAtConfigurationTimeCompat()
+                    )
+                    .map(String::toBoolean)
+
+
+            return Action {
+                v2PluginEnabled.set(getFlag(V2_PLUGIN_ENABLED_FLAG))
+                v2PluginNoWarn.set(getFlag(V2_PLUGIN_NO_WARN_FLAG_PRETTY).orElse(getFlag(V2_PLUGIN_NO_WARN_FLAG)))
+                v2PluginMigrationHelpersEnabled.set(getFlag(V2_PLUGIN_MIGRATION_HELPERS_FLAG))
+                k2AnalysisEnabled.set(getFlag(K2_ANALYSIS_ENABLED_FLAG))
+                k2AnalysisNoWarn.set(
+                    getFlag(K2_ANALYSIS_NO_WARN_FLAG_PRETTY)
+                        .orElse(getFlag(K2_ANALYSIS_NO_WARN_FLAG))
+                )
+
+                configureParamsDuringAccessorsGeneration(project)
+            }
+        }
+
+        /**
+         * We use a Gradle flag to control whether DGP is in v1 or v2 mode.
+         * This flag dynamically changes the behaviour of DGP at runtime.
+         *
+         * However, there is a particular situation where this flag can't be detected:
+         * When Dokka is applied to a precompiled script plugin and Gradle generates Kotlin DSL accessors.
+         *
+         * When Gradle is generating such accessors, it creates a temporary project, totally disconnected
+         * from the main build. The temporary project has no access to any Gradle properties.
+         * As such, no Dokka flags can be detected, resulting in unexpected behaviour.
+         *
+         * We work around this by first detecting when Gradle is generating accessors
+         * (see [isGradleGeneratingAccessors]), and secondly by manually discovering a suitable
+         * `gradle.properties` file (see [findGradlePropertiesFile]) and reading its values.
+         *
+         * This is a workaround and can be removed with DGPv1
+         * https://youtrack.jetbrains.com/issue/KT-71027/
+         */
+        private fun Params.configureParamsDuringAccessorsGeneration(project: Project) {
             try {
                 if (project.isGradleGeneratingAccessors()) {
-                    logger.info("Gradle is generating accessors. Discovering Dokka Gradle Plugin flags manually. ${gradle.rootProject.name} | ${gradle.rootProject.rootDir}")
+                    logger.info("Gradle is generating accessors. Discovering Dokka Gradle Plugin flags manually. ${project.gradle.rootProject.name} | ${project.gradle.rootProject.rootDir}")
 
                     // Disable all warnings, regardless of the discovered flag values.
                     // Log messages will be printed too soon and aren't useful for users.
@@ -246,7 +292,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
 
                     // Because Gradle is generating accessors, it won't give us access to Gradle properties
                     // defined for the main project. So, we must discover `gradle.properties` ourselves.
-                    val propertiesFile = findGradlePropertiesFile()
+                    val propertiesFile = project.findGradlePropertiesFile()
 
                     val properties = Properties().apply {
                         propertiesFile?.reader()?.use { reader ->
@@ -269,22 +315,6 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 // and we don't want to risk breaking people's projects.
             }
         }
-
-        /** Find a flag for [PluginFeaturesService]. */
-        private fun Project.getFlag(flag: String): Provider<Boolean> =
-            providers
-                .gradleProperty(flag)
-                .forUseAtConfigurationTimeCompat()
-                .orElse(
-                    // Note: Enabling/disabling features via extra-properties is only intended for unit tests.
-                    // (Because org.gradle.testfixtures.ProjectBuilder doesn't support mocking Gradle properties.
-                    // But maybe soon! https://github.com/gradle/gradle/pull/30002)
-                    project
-                        .provider { project.extra.properties[flag]?.toString() }
-                        .forUseAtConfigurationTimeCompat()
-                )
-                .map(String::toBoolean)
-
 
         /**
          * Draw a pretty ascii border around some text.
@@ -333,6 +363,9 @@ private fun Project.isGradleGeneratingAccessors(): Boolean {
     val taskRequest = gradle.startParameter.taskRequests.singleOrNull() ?: return false
     if (!taskRequest.isDefaultTask()) return false
 
+    // Gradle generates accessors in a temporary project in a temporary directory, e.g.
+    //    `build-logic/build/tmp/generatePrecompiledScriptPluginAccessors/accessors373648437747350006`
+    // The last directory has a random name, so we can drop that and check if the other segments match.
     val rootProjectPath = gradle.rootProject.rootDir.invariantSeparatorsPath
     return rootProjectPath
         .substringBeforeLast("/")
