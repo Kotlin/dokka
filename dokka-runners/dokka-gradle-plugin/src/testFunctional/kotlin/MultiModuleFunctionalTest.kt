@@ -488,16 +488,22 @@ class MultiModuleFunctionalTest : FunSpec({
                         .filter { it.startsWith("> Task :") }
                         .shouldContainAll(
                             "> Task :clean",
-                            "> Task :dokkaGenerate",
-                            "> Task :dokkaGenerateModuleHtml",
-                            "> Task :dokkaGeneratePublicationHtml",
                             "> Task :subproject-goodbye:clean",
-                            "> Task :subproject-goodbye:dokkaGenerateModuleHtml",
-                            "> Task :subproject-hello:dokkaGenerateModuleJavadoc",
-                            "> Task :dokkaGenerateModuleJavadoc",
+                            "> Task :subproject-hello:clean",
+
+                            "> Task :dokkaGenerate",
+
+                            "> Task :dokkaGeneratePublicationHtml",
                             "> Task :dokkaGeneratePublicationJavadoc",
-                            "> Task :subproject-goodbye:dokkaGenerateModuleJavadoc",
+
+                            "> Task :dokkaGenerateModuleHtml",
+                            "> Task :dokkaGenerateModuleJavadoc",
+
+                            "> Task :subproject-hello:dokkaGenerateModuleHtml",
                             "> Task :subproject-hello:dokkaGenerateModuleJavadoc",
+
+                            "> Task :subproject-goodbye:dokkaGenerateModuleHtml",
+                            "> Task :subproject-goodbye:dokkaGenerateModuleJavadoc",
                         )
                 }
         }
