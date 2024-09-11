@@ -135,7 +135,7 @@ gradlePlugin {
             Successful integration with tools that accept Java's Javadoc HTML as input is not guaranteed.
             You use it at your own risk.
             """.trimIndent()
-        implementationClass = "org.jetbrains.dokka.gradle.dokka.plugins.DokkaJavadocPlugin"
+        implementationClass = "org.jetbrains.dokka.gradle.formats.DokkaJavadocPlugin"
         tags.addAll("javadoc")
     }
 }

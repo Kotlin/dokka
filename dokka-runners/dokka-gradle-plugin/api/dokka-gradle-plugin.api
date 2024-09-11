@@ -523,6 +523,10 @@ public final class org/jetbrains/dokka/gradle/formats/DokkaHtmlPlugin$inlined$sa
 	public final synthetic fun execute (Ljava/lang/Object;)V
 }
 
+public abstract class org/jetbrains/dokka/gradle/formats/DokkaJavadocPlugin : org/jetbrains/dokka/gradle/formats/DokkaFormatPlugin {
+	public fun configure (Lorg/jetbrains/dokka/gradle/formats/DokkaFormatPlugin$DokkaFormatPluginContext;)V
+}
+
 public final class org/jetbrains/dokka/gradle/internal/AbstractDokkaTaskExtensionsKt {
 	public static final fun buildJsonConfiguration (Lorg/jetbrains/dokka/gradle/AbstractDokkaTask;Z)Ljava/lang/String;
 	public static synthetic fun buildJsonConfiguration$default (Lorg/jetbrains/dokka/gradle/AbstractDokkaTask;ZILjava/lang/Object;)Ljava/lang/String;

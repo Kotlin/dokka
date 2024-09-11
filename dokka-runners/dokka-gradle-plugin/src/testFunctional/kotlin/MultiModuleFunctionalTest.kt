@@ -32,6 +32,7 @@ class MultiModuleFunctionalTest : FunSpec({
         project.runner
             .addArguments(
                 ":dokkaGenerate",
+                "--stacktrace",
                 "--rerun-tasks",
             )
             .forwardOutput()
@@ -145,7 +146,7 @@ class MultiModuleFunctionalTest : FunSpec({
                         test("expect build is successful") {
                             output shouldContainAll listOf(
                                 "BUILD SUCCESSFUL",
-                                "4 actionable tasks: 4 up-to-date",
+                                "8 actionable tasks: 8 up-to-date",
                             )
                         }
 
@@ -189,6 +190,9 @@ class MultiModuleFunctionalTest : FunSpec({
                 ":dokkaGeneratePublicationHtml",
                 ":subproject-hello:dokkaGenerateModuleHtml",
                 ":subproject-goodbye:dokkaGenerateModuleHtml",
+                ":dokkaGeneratePublicationJavadoc",
+                ":subproject-hello:dokkaGenerateModuleJavadoc",
+                ":subproject-goodbye:dokkaGenerateModuleJavadoc",
             )
 
             test("setup build cache") {
@@ -215,6 +219,7 @@ class MultiModuleFunctionalTest : FunSpec({
                         .addArguments(
                             "clean",
                             "--build-cache",
+                            "--stacktrace",
                         )
                         .forwardOutput()
                         .build {
@@ -248,6 +253,7 @@ class MultiModuleFunctionalTest : FunSpec({
                         .addArguments(
                             "clean",
                             "--build-cache",
+                            "--stacktrace",
                         )
                         .forwardOutput()
                         .build {
@@ -445,6 +451,7 @@ class MultiModuleFunctionalTest : FunSpec({
                     "--no-configuration-cache",
                     "--no-build-cache",
                     "--quiet",
+                    "--stacktrace",
                 )
                 .forwardOutput()
                 .build {
@@ -460,6 +467,7 @@ class MultiModuleFunctionalTest : FunSpec({
                     "--no-configuration-cache",
                     "--no-build-cache",
                     "--no-parallel",
+                    "--stacktrace",
                     // no logging option => lifecycle log level
                 )
                 .forwardOutput()
@@ -485,8 +493,11 @@ class MultiModuleFunctionalTest : FunSpec({
                             "> Task :dokkaGeneratePublicationHtml",
                             "> Task :subproject-goodbye:clean",
                             "> Task :subproject-goodbye:dokkaGenerateModuleHtml",
-                            "> Task :subproject-hello:clean",
-                            "> Task :subproject-hello:dokkaGenerateModuleHtml",
+                            "> Task :subproject-hello:dokkaGenerateModuleJavadoc",
+                            "> Task :dokkaGenerateModuleJavadoc",
+                            "> Task :dokkaGeneratePublicationJavadoc",
+                            "> Task :subproject-goodbye:dokkaGenerateModuleJavadoc",
+                            "> Task :subproject-hello:dokkaGenerateModuleJavadoc",
                         )
                 }
         }
@@ -580,6 +591,7 @@ class MultiModuleFunctionalTest : FunSpec({
                 .addArguments(
                     ":dokkaGeneratePublicationHtml",
                     "--rerun-tasks",
+                    "--stacktrace",
                 )
                 .forwardOutput()
                 .build {
