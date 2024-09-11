@@ -6,7 +6,6 @@ package org.jetbrains.dokka.gradle
 import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -19,6 +18,7 @@ class DokkaPluginFunctionalTest : FunSpec({
         buildGradleKts = """
             |plugins {
             |  id("org.jetbrains.dokka") version "$DOKKA_VERSION"
+            |  id("org.jetbrains.dokka-javadoc") version "$DOKKA_VERSION"
             |}
             |
             |val printDeclarableConfigurations by tasks.registering {
@@ -45,9 +45,11 @@ class DokkaPluginFunctionalTest : FunSpec({
 
                     dokkaTasks.shouldContainExactly(
                         //@formatter:off
-                        "dokkaGenerate"                to "Generates Dokka publications for all formats",
-                        "dokkaGenerateModuleHtml"      to "Executes the Dokka Generator, generating a html module",
-                        "dokkaGeneratePublicationHtml" to "Executes the Dokka Generator, generating the html publication",
+                        "dokkaGenerate"                   to "Generates Dokka publications for all formats",
+                        "dokkaGenerateModuleHtml"         to "Executes the Dokka Generator, generating a html module",
+                        "dokkaGeneratePublicationHtml"    to "Executes the Dokka Generator, generating the html publication",
+                        "dokkaGenerateModuleJavadoc"      to "Executes the Dokka Generator, generating a javadoc module",
+                        "dokkaGeneratePublicationJavadoc" to "Executes the Dokka Generator, generating the javadoc publication",
                         //@formatter:on
                     )
                 }
@@ -70,13 +72,17 @@ class DokkaPluginFunctionalTest : FunSpec({
                         .map { it.trim() }
                         .sorted()
 
-                    declarableConfigurations.shouldContainExactly(
-                        "dokka",
-                        "dokkaHtmlGeneratorRuntime",
-                        "dokkaHtmlPlugin",
-                        "dokkaHtmlPublicationPlugin",
-                        "dokkaHtmlPublicationPluginApiOnly~internal",
-                        "dokkaPlugin",
+                    declarableConfigurations.shouldContainExactlyInAnyOrder(
+                        buildList {
+                            add("dokka")
+                            add("dokkaPlugin")
+                            expectedFormats.forEach {
+                                add("dokka${it}GeneratorRuntime")
+                                add("dokka${it}Plugin")
+                                add("dokka${it}PublicationPlugin")
+                                add("dokka${it}PublicationPluginApiOnly~internal")
+                            }
+                        }
                     )
                 }
             }
@@ -223,10 +229,8 @@ class DokkaPluginFunctionalTest : FunSpec({
          * The output formats that Dokka supports.
          */
         private val expectedFormats = listOf(
-            //"Gfm",
             "Html",
-            //"Javadoc",
-            //"Jekyll",
+            "Javadoc",
         )
 
         /**
@@ -284,6 +288,5 @@ class DokkaPluginFunctionalTest : FunSpec({
                 .filterNot { it.startsWith("Consumable configurations with identical capabilities within a project") }
                 .joinToString("\n")
         }
-
     }
 }

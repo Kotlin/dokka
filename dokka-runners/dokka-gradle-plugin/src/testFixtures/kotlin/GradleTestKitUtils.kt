@@ -338,6 +338,7 @@ interface ProjectDirectoryScope {
         |  )
         |  filter {
         |    includeGroup("org.jetbrains.dokka")
+        |    includeGroup("org.jetbrains.dokka-javadoc")
         |  }
         |}
     """.trimMargin()

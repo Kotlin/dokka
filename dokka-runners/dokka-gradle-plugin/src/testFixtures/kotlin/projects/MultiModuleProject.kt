@@ -38,6 +38,7 @@ fun TestScope.initMultiModuleProject(
             |  // with ClassNotFound KotlinPluginExtension... very weird
             |  kotlin("jvm") version embeddedKotlinVersion apply false
             |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
+            |  id("org.jetbrains.dokka-javadoc") version "${DokkaConstants.DOKKA_VERSION}"
             |}
             |
             |dependencies {
@@ -52,6 +53,7 @@ fun TestScope.initMultiModuleProject(
                 |plugins {
                 |  kotlin("jvm") version embeddedKotlinVersion
                 |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
+                |  id("org.jetbrains.dokka-javadoc") version "${DokkaConstants.DOKKA_VERSION}"
                 |}
                 |
                 """.trimMargin()
@@ -79,6 +81,7 @@ fun TestScope.initMultiModuleProject(
                 |plugins {
                 |  kotlin("jvm") version embeddedKotlinVersion
                 |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
+                |  id("org.jetbrains.dokka-javadoc") version "${DokkaConstants.DOKKA_VERSION}"
                 |}
                 |
                 """.trimMargin()
