@@ -91,16 +91,23 @@ function initFilterSection(): void {
     }
     const availableWidth = getAvailableWidthForFilterSection() - DROPDOWN_BUTTON_WIDTH_WITH_MARGIN - THRESHOLD_GAP;
     let accumulatedWidth = 0;
-    dropdownButton.setAttribute('style', 'display: none');
+    dropdownButton.removeAttribute('style');
+    let areTagsDisplayed = false;
     items.forEach((item, index) => {
       accumulatedWidth += tagsWidths[index] + TAGS_MARGIN;
       if (accumulatedWidth < availableWidth) {
         displayItemAsTag(item);
+        areTagsDisplayed = true;
       } else {
         displayItemAsOption(item);
-        dropdownButton.removeAttribute('style');
+        dropdownButton.setAttribute('style', 'display: block');
       }
     });
+    if (areTagsDisplayed) {
+      dropdownButton.firstElementChild?.classList.remove('filter-section--dropdown-toggle_as-filters');
+    } else {
+      dropdownButton.firstElementChild?.classList.add('filter-section--dropdown-toggle_as-filters');
+    }
     filterSection?.classList.remove('filter-section_loading');
   }
 
