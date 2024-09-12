@@ -21,6 +21,24 @@
     overflow: hidden;
   }
 
+  &--dropdown {
+    @media (width >= $breakpoint-desktop-min) {
+      display: none;
+    }
+  }
+
+  &--dropdown-toggle_as-filters {
+    min-width: 40px;
+
+    background-image: url('../_assets/filter.svg');
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+
+    &::after {
+      display: none;
+    }
+  }
+
   @media (width < $breakpoint-desktop-min) {
     max-height: unset;
     margin-right: 0;
