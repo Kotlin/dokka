@@ -122,7 +122,7 @@
 }
 
 .button:focus-visible {
-  outline: 4px solid var(--color-key-blue-05);
+  outline: var(--focus-outline);
 }
 
 .theme-dark .button {
@@ -305,7 +305,7 @@
 }
 
 .checkbox--input:focus-visible {
-  outline: 4px solid var(--color-key-blue-05);
+  outline: var(--focus-outline);
 }
 /*!
  * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -462,7 +462,7 @@
 
 .dropdown--option:focus-visible {
   z-index: 1;
-  outline: 4px solid var(--color-key-blue-05);
+  outline: var(--focus-outline);
 }
 
 .dropdown--option_active {
@@ -1890,6 +1890,7 @@
 
 :root {
   --color-background: var(--color-background-page);
+  --focus-outline: var(--focus-outline);
 }
 
 .theme-dark {
