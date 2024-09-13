@@ -3,6 +3,7 @@
  */
 import './styles.scss';
 import { hasAncestorWithClass } from '../utils';
+import { FocusTrap } from './focus-trap';
 
 // page objects selectors
 const DROPDOWN = '[data-role="dropdown"]';
@@ -11,11 +12,12 @@ const DROPDOWN_LIST = '[data-role="dropdown-listbox"]';
 
 function initDropdowns(): void {
   const dropdowns = document.querySelectorAll(DROPDOWN);
-  dropdowns.forEach((dropdown: Element) =>
+  dropdowns.forEach((dropdown: Element) => {
     dropdown.querySelectorAll(DROPDOWN_TOGGLE)?.forEach((button: Element) => {
       button.addEventListener('click', (event) => onToggleDropdown(event, dropdown));
-    })
-  );
+    });
+    addKeyboardNavigation(dropdown as HTMLElement);
+  });
 }
 
 function onToggleDropdown(_: Event, dropdown: Element): void {
@@ -44,6 +46,16 @@ function handleOutsideClick(event: MouseEvent): void {
       dropdown.parentNode?.querySelector('.dropdown--list')?.classList.remove('dropdown--list_expanded');
     });
   }
+}
+
+function addKeyboardNavigation(dropdown: HTMLElement): void {
+  new FocusTrap(dropdown);
+  dropdown.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+      onToggleDropdown(event, dropdown);
+      (dropdown.querySelector(DROPDOWN_TOGGLE) as HTMLElement)?.focus();
+    }
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
