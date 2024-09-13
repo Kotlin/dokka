@@ -156,6 +156,7 @@ declare global {
   };
 
   function refreshFiltering(): void;
+  function refreshSourcesetsCache(): void;
 }
 
 /**
@@ -170,4 +171,5 @@ function toggleFilterForOption(option: Element): void {
     filteringContext.activeFilters.splice(index, 1);
   }
   refreshFiltering();
+  refreshSourcesetsCache();
 }
