@@ -54,6 +54,10 @@
     background-color: var(--color-w10);
   }
 
+  &:focus-visible {
+    outline: var(--focus-outline);
+  }
+
   @media (width < $breakpoint-desktop-min) {
     width: 52px;
     height: 52px;

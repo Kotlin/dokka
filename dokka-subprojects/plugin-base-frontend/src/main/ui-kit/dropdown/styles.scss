@@ -79,7 +79,7 @@
     &:focus-visible {
       z-index: 1;
 
-      outline: 4px solid var(--color-key-blue-05);
+      outline: var(--focus-outline);
     }
 
     &_active {
