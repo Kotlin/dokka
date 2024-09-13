@@ -274,6 +274,11 @@ function removeSourcesetFilterFromCache(sourceset) {
     }
 }
 
+function refreshSourcesetsCache() {
+    safeLocalStorage.setItem('inactive-filters', JSON.stringify(filteringContext.restrictedDependencies.filter(p => -1 === filteringContext.activeFilters.indexOf(p))))
+}
+
+
 function togglePlatformDependent(e, container) {
     let target = e.target
     if (target.tagName !== 'BUTTON') return;
