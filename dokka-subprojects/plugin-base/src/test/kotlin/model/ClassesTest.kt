@@ -472,6 +472,7 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
     }
 
     @Test
+    @OnlyDescriptors("#3787")
     fun nestedGenericClasses() {
         inlineModelTest(
             """
