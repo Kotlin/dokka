@@ -5,6 +5,9 @@
 package org.jetbrains.dokka.base.renderers.html
 
 import kotlinx.html.*
+import kotlinx.html.consumers.delayed
+import kotlinx.html.consumers.onFinalizeMap
+import kotlinx.html.stream.HTMLStreamBuilder
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
@@ -315,12 +318,12 @@ public open class HtmlRenderer(
     ): List<Pair<DisplaySourceSet, String>> {
         var counter = 0
         return nodes.toList().map { (sourceSet, elements) ->
-            val htmlContent = createHTML(prettyPrint = false).prepareForTemplates().div {
+            val htmlContent = createSmallHTML(prettyPrint = false).prepareForTemplates().div {
                 elements.forEach {
                     buildContentNode(it, pageContext, sourceSet)
                 }
             }.stripDiv()
-            sourceSet to createHTML(prettyPrint = false).prepareForTemplates()
+            sourceSet to createSmallHTML(prettyPrint = false).prepareForTemplates()
                 .div(classes = "content sourceset-dependent-content") {
                     if (counter++ == 0) attributes["data-active"] = ""
                     attributes["data-togglable"] = sourceSet.sourceSetIDs.merged.toString()
@@ -344,14 +347,14 @@ public open class HtmlRenderer(
                 val distinct =
                     groupDivergentInstancesWithSourceSet(it.value, it.key, pageContext,
                         beforeTransformer = { instance, _, sourceSet ->
-                            createHTML(prettyPrint = false).prepareForTemplates().div {
+                            createSmallHTML(prettyPrint = false).prepareForTemplates().div {
                                 instance.before?.let { before ->
                                     buildContentNode(before, pageContext, sourceSet)
                                 }
                             }.stripDiv()
                         },
                         afterTransformer = { instance, _, sourceSet ->
-                            createHTML(prettyPrint = false).prepareForTemplates().div {
+                            createSmallHTML(prettyPrint = false).prepareForTemplates().div {
                                 instance.after?.let { after ->
                                     buildContentNode(after, pageContext, sourceSet)
                                 }
@@ -942,6 +945,13 @@ public open class HtmlRenderer(
             is MemberPage -> "member"
             else -> null
         }
+
+    // same as createHTML but creates StringBuilder of default size instead of using StringBuilder with 32kb size (default)
+    // it's useful for cases with "embedded html" f.e source-set-dependent content
+    private fun createSmallHTML(prettyPrint: Boolean = true, xhtmlCompatible: Boolean = false): TagConsumer<String> =
+        HTMLStreamBuilder(StringBuilder(), prettyPrint, xhtmlCompatible)
+            .onFinalizeMap { sb, _ -> sb.toString() }
+            .delayed()
 
     public open fun buildHtml(
         page: PageNode,
