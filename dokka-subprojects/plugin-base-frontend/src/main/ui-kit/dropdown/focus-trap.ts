@@ -12,17 +12,36 @@ export class FocusTrap {
   }
 
   private handleKeyDown(event: KeyboardEvent) {
-    if (event.key === 'Tab') {
-      const focusableElements = Array.from(this.trapElement.querySelectorAll<HTMLElement>('[role="option"]')).filter(
-        (element) => element.style.display !== 'none' && element.tabIndex !== -1
-      );
-      if (!focusableElements.length) {
-        return;
+    const navigationKeys = ['Tab', 'ArrowDown', 'ArrowUp'];
+    const focusableElements = Array.from(this.trapElement.querySelectorAll<HTMLElement>('[role="option"]')).filter(
+      (element) => element.style.display !== 'none' && element.tabIndex !== -1
+    );
+    if (!navigationKeys.includes(event.key) || focusableElements.length === 0) {
+      return;
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (event.key === 'ArrowUp') {
+      if (document.activeElement === firstElement) {
+        lastElement.focus();
+      } else {
+        const currentIndex = focusableElements.indexOf(document.activeElement as HTMLElement);
+        focusableElements[currentIndex - 1].focus();
       }
+    }
 
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
+    if (event.key === 'ArrowDown') {
+      if (document.activeElement === lastElement) {
+        firstElement.focus();
+      } else {
+        const currentIndex = focusableElements.indexOf(document.activeElement as HTMLElement);
+        focusableElements[currentIndex + 1].focus();
+      }
+    }
 
+    if (event.key === 'Tab') {
       if (event.shiftKey) {
         if (document.activeElement === firstElement) {
           lastElement.focus();
