@@ -883,6 +883,10 @@
   font: var(--font-h4);
 }
 
+.library-name--link:focus-visible {
+  outline: var(--focus-outline);
+}
+
 @media (width < 900px) {
   .library-name--link {
     height: 52px;
@@ -1248,6 +1252,10 @@
 
 .navigation-controls--btn:hover {
   background-color: var(--color-w10);
+}
+
+.navigation-controls--btn:focus-visible {
+  outline: var(--focus-outline);
 }
 
 @media (width < 900px) {
@@ -1890,7 +1898,7 @@
 
 :root {
   --color-background: var(--color-background-page);
-  --focus-outline: var(--focus-outline);
+  --focus-outline: 4px solid var(--color-key-blue-05);
 }
 
 .theme-dark {
