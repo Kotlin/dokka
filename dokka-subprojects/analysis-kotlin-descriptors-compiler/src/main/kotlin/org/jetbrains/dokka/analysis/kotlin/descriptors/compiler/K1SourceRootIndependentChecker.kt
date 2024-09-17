@@ -30,7 +30,7 @@ internal class K1SourceRootIndependentChecker(
                 val intersection = intersect(sourceRoot1, sourceRoot2)
                 if (intersection.isNotEmpty()) {
                     logger.warn("Source sets '${sourceSets[i].displayName}' and '${sourceSets[j].displayName}' have the common source roots: ${intersection.joinToString()}. Every Kotlin source file should belong to only one source set (module).\n" +
-                            "In Dokka K2 it will be an error. Also, please consider reporting your user case: https://github.com/Kotlin/dokka/issues")
+                            "In Dokka K2 it will be an error. Also, please consider reporting your user case: https://github.com/Kotlin/dokka/issues/3701")
                 }
             }
         }
