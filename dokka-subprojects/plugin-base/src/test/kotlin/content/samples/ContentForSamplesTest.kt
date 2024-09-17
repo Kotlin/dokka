@@ -50,9 +50,6 @@ class ContentForSamplesTest : BaseAbstractTest() {
                 analysisPlatform = "jvm"
                 dependentSourceSets = setOf(common.value.sourceSetID)
                 sourceRoots = listOf("src/jvmMain/kotlin/pageMerger/Test.kt")
-                samples = listOf(
-                    Paths.get("$testDataDir/samples.kt").toString(),
-                )
             }
             sourceSet {
                 name = "linuxX64"
@@ -60,9 +57,6 @@ class ContentForSamplesTest : BaseAbstractTest() {
                 analysisPlatform = "native"
                 dependentSourceSets = setOf(common.value.sourceSetID)
                 sourceRoots = listOf("src/linuxX64Main/kotlin/pageMerger/Test.kt")
-                samples = listOf(
-                    Paths.get("$testDataDir/samples.kt").toString(),
-                )
             }
         }
     }
