@@ -947,9 +947,10 @@ public open class HtmlRenderer(
         }
 
     // same as createHTML but creates StringBuilder of default size instead of using StringBuilder with 32kb size (default)
-    // it's useful for cases with "embedded html" f.e source-set-dependent content
+    // it's useful for cases with "embedded html" f.e source-set-dependent content.
+    // capacity of the StringBuilder was selected after experiments based on generating documentation for kotlin-stdlib
     private fun createSmallHTML(prettyPrint: Boolean = true, xhtmlCompatible: Boolean = false): TagConsumer<String> =
-        HTMLStreamBuilder(StringBuilder(), prettyPrint, xhtmlCompatible)
+        HTMLStreamBuilder(StringBuilder(256), prettyPrint, xhtmlCompatible)
             .onFinalizeMap { sb, _ -> sb.toString() }
             .delayed()
 
