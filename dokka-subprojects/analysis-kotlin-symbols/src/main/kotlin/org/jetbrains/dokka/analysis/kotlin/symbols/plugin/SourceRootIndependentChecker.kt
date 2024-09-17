@@ -37,7 +37,7 @@ internal class SourceRootIndependentChecker(
                 //check sample roots
                 val sampleIntersection = intersect(sourceSets[i].samples, sourceSets[j].samples)
                 if (sampleIntersection.isNotEmpty()) {
-                    messages += "Source sets '${sourceSets[i].displayName}' and '${sourceSets[j].displayName}' have the common sample roots: ${intersection.joinToString()}. Every Kotlin source file should belong to only one source set (module). \n" +
+                    messages += "Source sets '${sourceSets[i].displayName}' and '${sourceSets[j].displayName}' have the common sample roots: ${sampleIntersection.joinToString()}. Every Kotlin source file should belong to only one source set (module). \n" +
                             "Also, please consider reporting your user case: https://github.com/Kotlin/dokka/issues/3701"
                 }
             }

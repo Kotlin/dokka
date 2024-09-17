@@ -34,7 +34,7 @@ internal class K1SourceRootIndependentChecker(
                 //check sample roots
                 val sampleIntersection = intersect(sourceSets[i].samples, sourceSets[j].samples)
                 if (sampleIntersection.isNotEmpty()) {
-                    logger.warn("Source sets '${sourceSets[i].displayName}' and '${sourceSets[j].displayName}' have the common sample roots: ${intersection.joinToString()}. Every Kotlin source file should belong to only one source set (module).\n" +
+                    logger.warn("Source sets '${sourceSets[i].displayName}' and '${sourceSets[j].displayName}' have the common sample roots: ${sampleIntersection.joinToString()}. Every Kotlin source file should belong to only one source set (module).\n" +
                             "In Dokka K2 it will be an error. Also, please consider reporting your user case: https://github.com/Kotlin/dokka/issues/3701")
                 }
             }
