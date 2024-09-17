@@ -39,8 +39,6 @@ private fun initProjectWithBuildSrcConvention(
 
         buildGradleKts = """
             |plugins {
-            |  // Kotlin plugin shouldn't be necessary here, but without it Dokka errors
-            |  // with ClassNotFound KotlinPluginExtension... very weird
             |  kotlin("jvm") version embeddedKotlinVersion
             |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
             |}
