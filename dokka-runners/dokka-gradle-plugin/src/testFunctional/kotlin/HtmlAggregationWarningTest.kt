@@ -59,7 +59,7 @@ class HtmlAggregationWarningTest : FunSpec({
         private val expectedWarning = /* language=text */ """
             |[:dokkaGeneratePublicationHtml] org.jetbrains.dokka:all-modules-page-plugin is missing.
             |
-            |Publication 'test' in has 2 modules, but
+            |Dokka Publication 'no-all-pages-plugin' has 2 Dokka modules, but
             |the Dokka Generator plugins classpath does not contain 
             |   org.jetbrains.dokka:all-modules-page-plugin
             |which is required for aggregating Dokka HTML modules.

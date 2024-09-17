@@ -28,7 +28,7 @@ internal fun addV2MigrationHelpers(
     project.configurations.createDokkaDefaultRuntimeConfiguration()
 
     setupDokkaTasks(project, "GFM")
-    setupDokkaTasks(project, "Javadoc", multiModuleTaskSupported = false)
+    setupDokkaTasks(project, "Javadoc", createDokkaPluginFormatConfiguration = false, multiModuleTaskSupported = false)
     setupDokkaTasks(project, "Jekyll")
     setupDokkaTasks(project, "HTML", createDokkaPluginFormatConfiguration = false)
 

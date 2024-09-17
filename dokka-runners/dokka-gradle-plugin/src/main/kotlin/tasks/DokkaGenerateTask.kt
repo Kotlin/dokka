@@ -44,7 +44,7 @@ constructor(
 
     /**
      * Configurations for Dokka Generator Plugins. Must be provided from
-     * [org.jetbrains.dokka.gradle.engine.DokkaPublication.pluginsConfiguration].
+     * [org.jetbrains.dokka.gradle.formats.DokkaPublication.pluginsConfiguration].
      */
     pluginsConfiguration: DokkaPluginParametersContainer,
 ) : DokkaBaseTask() {
@@ -69,7 +69,7 @@ constructor(
     @get:LocalState
     abstract val cacheDirectory: DirectoryProperty
 
-    /** @see org.jetbrains.dokka.gradle.engine.DokkaPublication.enabled */
+    /** @see org.jetbrains.dokka.gradle.formats.DokkaPublication.enabled */
     @get:Input
     abstract val publicationEnabled: Property<Boolean>
 

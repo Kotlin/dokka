@@ -367,3 +367,23 @@ internal const val INTERNAL_CONF_NAME_TAG = "~internal"
 
 
 internal const val INTERNAL_CONF_DESCRIPTION_TAG = "[Internal Dokka Configuration]"
+
+
+/**
+ * Get the root project name.
+ *
+ * This function will try to be compatible with
+ * [Isolated Projects](https://docs.gradle.org/current/userguide/isolated_projects.html).
+ */
+internal fun Project.rootProjectName(): String {
+    return when {
+        CurrentGradleVersion >= "8.8" -> {
+            @Suppress("UnstableApiUsage")
+            isolated.rootProject.name
+        }
+
+        else -> {
+            rootProject.name
+        }
+    }
+}

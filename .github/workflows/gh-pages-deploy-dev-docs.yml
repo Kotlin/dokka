@@ -22,9 +22,9 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v3
+      - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-home-cache-cleanup: true
+          develocity-access-key: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
       - name: Get current Dokka version
         run: echo "DOKKA_VERSION=`./gradlew :properties | grep '^version:.*' | cut -d ' ' -f 2`" >> $GITHUB_ENV
         working-directory: ./dokka
