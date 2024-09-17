@@ -347,18 +347,18 @@ public open class HtmlRenderer(
                 val distinct =
                     groupDivergentInstancesWithSourceSet(it.value, it.key, pageContext,
                         beforeTransformer = { instance, _, sourceSet ->
-                            createSmallHTML(prettyPrint = false).prepareForTemplates().div {
-                                instance.before?.let { before ->
+                            instance.before?.let { before ->
+                                createSmallHTML(prettyPrint = false).prepareForTemplates().div {
                                     buildContentNode(before, pageContext, sourceSet)
-                                }
-                            }.stripDiv()
+                                }.stripDiv()
+                            } ?: ""
                         },
                         afterTransformer = { instance, _, sourceSet ->
-                            createSmallHTML(prettyPrint = false).prepareForTemplates().div {
-                                instance.after?.let { after ->
+                            instance.after?.let { after ->
+                                createSmallHTML(prettyPrint = false).prepareForTemplates().div {
                                     buildContentNode(after, pageContext, sourceSet)
-                                }
-                            }.stripDiv()
+                                }.stripDiv()
+                            } ?: ""
                         })
 
                 val isPageWithOverloadedMembers = pageContext is MemberPage && pageContext.documentables().size > 1
