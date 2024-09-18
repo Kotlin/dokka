@@ -32,7 +32,7 @@ jobs:
           develocity-access-key: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
       - name: Run tests
         run: >
-          ./gradlew test --stacktrace --continue 
+          ./gradlew check --stacktrace --continue 
           "-Porg.jetbrains.dokka.javaToolchain.testLauncher=${{ env.JAVA_TEST_VERSION }}"
       - name: Upload build reports
         if: failure()
