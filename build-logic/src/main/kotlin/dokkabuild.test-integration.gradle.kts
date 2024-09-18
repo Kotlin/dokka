@@ -22,9 +22,8 @@ val integrationTest by tasks.registering {
 }
 
 tasks.withType<Test>().configureEach {
-    onlyIf("property `org.jetbrains.dokka.integration_test.skip` != true") {
-        !dokkaBuild.integrationTestSkip.get()
-    }
+    val integrationTestSkip = dokkaBuild.integrationTestSkip
+    onlyIf("property `org.jetbrains.dokka.integration_test.skip` != true") { !integrationTestSkip.get() }
 
     setForkEvery(1)
     maxHeapSize = "2G"
