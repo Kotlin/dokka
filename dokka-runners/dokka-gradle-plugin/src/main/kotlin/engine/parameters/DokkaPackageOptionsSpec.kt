@@ -1,5 +1,3 @@
-@file:Suppress("FunctionName")
-
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
@@ -20,6 +18,7 @@ import java.io.Serializable
  * ```kotlin
  * tasks.dokkaHtml {
  *     dokkaSourceSets.configureEach {
+ *         // create a new perPackageOption
  *         perPackageOption {
  *             matchingRegex.set(".*internal.*")
  *             suppress.set(true)

@@ -214,6 +214,7 @@ constructor(
                 suppress.convention(false)
                 skipDeprecated.convention(false)
                 reportUndocumented.convention(false)
+                documentedVisibilities.convention(listOf(VisibilityModifier.Public))
             }
 
             externalDocumentationLinks {

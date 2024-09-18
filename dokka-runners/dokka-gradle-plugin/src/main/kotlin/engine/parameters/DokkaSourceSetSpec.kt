@@ -214,9 +214,11 @@ constructor(
     abstract val sourceLinks: DomainObjectSet<DokkaSourceLinkSpec>
 
     /**
-     * Allows to customize documentation generation options on a per-package basis.
+     * Allows customising documentation generation options on a per-package basis.
      *
-     * @see DokkaPackageOptionsSpec for details
+     * Use the [perPackageOptions] function to add a new item.
+     *
+     * @see DokkaPackageOptionsSpec
      */
     @get:Nested
     abstract val perPackageOptions: DomainObjectSet<DokkaPackageOptionsSpec>

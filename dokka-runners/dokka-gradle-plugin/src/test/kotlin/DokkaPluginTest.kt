@@ -3,13 +3,17 @@
  */
 package org.jetbrains.dokka.gradle
 
+import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeSingleton
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.hasPlugin
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import org.jetbrains.dokka.gradle.utils.create_
 import org.jetbrains.dokka.gradle.utils.enableV2Plugin
 
@@ -31,14 +35,14 @@ class DokkaPluginTest : FunSpec({
         project.plugins.hasPlugin(DokkaPlugin::class) shouldBe true
     }
 
-    context("Dokkatoo property conventions") {
+    context("Dokka property conventions") {
         val project = ProjectBuilder.builder().build()
             .enableV2Plugin()
         project.plugins.apply("org.jetbrains.dokka")
 
         val extension = project.extensions.getByType<DokkaExtension>()
 
-        context("DokkatooSourceSets") {
+        context("DokkaSourceSets") {
             val testSourceSet = extension.dokkaSourceSets.create_("Test") {
                 externalDocumentationLinks.create_("gradle") {
                     url("https://docs.gradle.org/7.6.1/javadoc")
@@ -78,6 +82,36 @@ class DokkaPluginTest : FunSpec({
                     val gradleDocLink = testSourceSet.externalDocumentationLinks.getByName("gradle")
                     gradleDocLink.packageListUrl.get()
                         .toString() shouldBe "https://docs.gradle.org/7.6.1/javadoc/package-list"
+                }
+            }
+
+            context("perPackageOptions") {
+                test("new element should have expected convention values") {
+
+                    // perPackageOptions aren't named, so we can't create and fetch a specific element.
+                    // Instead, clear all other elements and create a new one, then fetch the first.
+                    testSourceSet.perPackageOptions.clear()
+                    testSourceSet.perPackageOption { }
+
+                    val perPackageOption = testSourceSet.perPackageOptions
+                        .shouldBeSingleton()
+                        .single()
+
+                    withClue("matchingRegex") {
+                        perPackageOption.matchingRegex.orNull shouldBe ".*"
+                    }
+                    withClue("suppress") {
+                        perPackageOption.suppress.orNull shouldBe false
+                    }
+                    withClue("skipDeprecated") {
+                        perPackageOption.skipDeprecated.orNull shouldBe false
+                    }
+                    withClue("reportUndocumented") {
+                        perPackageOption.reportUndocumented.orNull shouldBe false
+                    }
+                    withClue("documentedVisibilities") {
+                        perPackageOption.documentedVisibilities.orNull.shouldContainExactly(VisibilityModifier.Public)
+                    }
                 }
             }
         }
