@@ -63,11 +63,9 @@ private fun setupDokkaTasks(
 
     /** @see org.jetbrains.dokka.gradle.maybeCreateDokkaPluginConfiguration */
     fun ConfigurationContainer.createDokkaPluginConfiguration(taskName: String) {
-        if (createDokkaPluginFormatConfiguration) {
-            create("${taskName}Plugin") {
-                declarable()
-                deprecate(replaceWith = newConfs.pluginsClasspath)
-            }
+        create("${taskName}Plugin") {
+            declarable()
+            deprecate(replaceWith = newConfs.pluginsClasspath)
         }
     }
 
@@ -79,8 +77,11 @@ private fun setupDokkaTasks(
         }
     }
 
-    project.configurations.createDokkaPluginConfiguration(taskName = baseTaskName)
-    project.configurations.createDokkaRuntimeConfiguration(taskName = baseTaskName)
+    if (createDokkaPluginFormatConfiguration) {
+        // Don't create dokka${Format}Plugin Configurations, v2 will create Configurations with the same name and purpose.
+        project.configurations.createDokkaPluginConfiguration(taskName = baseTaskName)
+        project.configurations.createDokkaRuntimeConfiguration(taskName = baseTaskName)
+    }
 
     project.tasks.register<DokkaTask>(baseTaskName) {
         description = "$taskDesc Generates documentation in '$format' format."
@@ -119,7 +120,7 @@ private fun ConfigurationContainer.createDokkaDefaultRuntimeConfiguration(): Con
     return create("dokkaRuntime") {
         description = "[⚠ V1 Configurations are disabled] Classpath used to execute the Dokka Generator."
         declarable()
-        deprecate(DependencyContainerNames("html").generatorClasspath)
+        deprecate(DependencyContainerNames("").generatorClasspath)
     }
 }
 

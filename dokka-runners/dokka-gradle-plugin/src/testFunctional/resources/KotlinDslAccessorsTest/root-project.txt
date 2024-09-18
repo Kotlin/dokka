@@ -1,1103 +1,3 @@
-@Deprecated(message = "The dokkaGfmMultiModulePlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaGfmMultiModulePlugin`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaGfmMultiModulePlugin", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaGfmMultiModulePlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyConstraintHandler.`dokkaGfmMultiModulePlugin`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaGfmMultiModulePlugin", constraintNotation)
-
-@Deprecated(message = "The dokkaGfmMultiModulePlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyConstraintHandler.`dokkaGfmMultiModulePlugin`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaGfmMultiModulePlugin", constraintNotation, block)
-
-@Deprecated(message = "The dokkaGfmMultiModulePlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyHandler.`dokkaGfmMultiModulePlugin`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaGfmMultiModulePlugin", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmMultiModulePlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyHandler.`dokkaGfmMultiModulePlugin`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaGfmMultiModulePlugin", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmMultiModulePlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyHandler.`dokkaGfmMultiModulePlugin`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaGfmMultiModulePlugin", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaGfmMultiModulePlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyHandler.`dokkaGfmMultiModulePlugin`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaGfmMultiModulePlugin", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmMultiModulePlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyHandler.`dokkaGfmMultiModulePlugin`(dependencyNotation: Any): Dependency? =
-    add("dokkaGfmMultiModulePlugin", dependencyNotation)
-
-@Deprecated(message = "The dokkaGfmMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaGfmMultiModuleRuntime`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaGfmMultiModuleRuntime", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaGfmMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaGfmMultiModuleRuntime`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaGfmMultiModuleRuntime", constraintNotation)
-
-@Deprecated(message = "The dokkaGfmMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaGfmMultiModuleRuntime`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaGfmMultiModuleRuntime", constraintNotation, block)
-
-@Deprecated(message = "The dokkaGfmMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaGfmMultiModuleRuntime`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaGfmMultiModuleRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaGfmMultiModuleRuntime`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaGfmMultiModuleRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaGfmMultiModuleRuntime`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaGfmMultiModuleRuntime", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaGfmMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaGfmMultiModuleRuntime`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaGfmMultiModuleRuntime", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaGfmMultiModuleRuntime`(dependencyNotation: Any): Dependency? =
-    add("dokkaGfmMultiModuleRuntime", dependencyNotation)
-
-@Deprecated(message = "The dokkaGfmPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaGfmPartialPlugin`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaGfmPartialPlugin", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaGfmPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyConstraintHandler.`dokkaGfmPartialPlugin`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaGfmPartialPlugin", constraintNotation)
-
-@Deprecated(message = "The dokkaGfmPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyConstraintHandler.`dokkaGfmPartialPlugin`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaGfmPartialPlugin", constraintNotation, block)
-
-@Deprecated(message = "The dokkaGfmPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyHandler.`dokkaGfmPartialPlugin`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaGfmPartialPlugin", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyHandler.`dokkaGfmPartialPlugin`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaGfmPartialPlugin", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyHandler.`dokkaGfmPartialPlugin`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaGfmPartialPlugin", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaGfmPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyHandler.`dokkaGfmPartialPlugin`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaGfmPartialPlugin", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyHandler.`dokkaGfmPartialPlugin`(dependencyNotation: Any): Dependency? =
-    add("dokkaGfmPartialPlugin", dependencyNotation)
-
-@Deprecated(message = "The dokkaGfmPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaGfmPartialRuntime`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaGfmPartialRuntime", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaGfmPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaGfmPartialRuntime`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaGfmPartialRuntime", constraintNotation)
-
-@Deprecated(message = "The dokkaGfmPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaGfmPartialRuntime`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaGfmPartialRuntime", constraintNotation, block)
-
-@Deprecated(message = "The dokkaGfmPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaGfmPartialRuntime`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaGfmPartialRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaGfmPartialRuntime`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaGfmPartialRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaGfmPartialRuntime`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaGfmPartialRuntime", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaGfmPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaGfmPartialRuntime`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaGfmPartialRuntime", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaGfmPartialRuntime`(dependencyNotation: Any): Dependency? =
-    add("dokkaGfmPartialRuntime", dependencyNotation)
-
-@Deprecated(message = "The dokkaGfmPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaGfmPlugin`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaGfmPlugin", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaGfmPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyConstraintHandler.`dokkaGfmPlugin`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaGfmPlugin", constraintNotation)
-
-@Deprecated(message = "The dokkaGfmPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyConstraintHandler.`dokkaGfmPlugin`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaGfmPlugin", constraintNotation, block)
-
-@Deprecated(message = "The dokkaGfmPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyHandler.`dokkaGfmPlugin`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaGfmPlugin", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyHandler.`dokkaGfmPlugin`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaGfmPlugin", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyHandler.`dokkaGfmPlugin`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaGfmPlugin", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaGfmPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyHandler.`dokkaGfmPlugin`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaGfmPlugin", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmPlugin' configuration instead.")
-fun DependencyHandler.`dokkaGfmPlugin`(dependencyNotation: Any): Dependency? =
-    add("dokkaGfmPlugin", dependencyNotation)
-
-@Deprecated(message = "The dokkaGfmRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaGfmRuntime`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaGfmRuntime", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaGfmRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaGfmRuntime`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaGfmRuntime", constraintNotation)
-
-@Deprecated(message = "The dokkaGfmRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaGfmRuntime`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaGfmRuntime", constraintNotation, block)
-
-@Deprecated(message = "The dokkaGfmRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaGfmRuntime`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaGfmRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaGfmRuntime`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaGfmRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaGfmRuntime`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaGfmRuntime", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaGfmRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaGfmRuntime`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaGfmRuntime", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaGfmRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaGfmGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaGfmRuntime`(dependencyNotation: Any): Dependency? =
-    add("dokkaGfmRuntime", dependencyNotation)
-
-@Deprecated(message = "The dokkaHtmlMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlMultiModuleRuntime`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaHtmlMultiModuleRuntime", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaHtmlMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaHtmlMultiModuleRuntime`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaHtmlMultiModuleRuntime", constraintNotation)
-
-@Deprecated(message = "The dokkaHtmlMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaHtmlMultiModuleRuntime`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaHtmlMultiModuleRuntime", constraintNotation, block)
-
-@Deprecated(message = "The dokkaHtmlMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaHtmlMultiModuleRuntime`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlMultiModuleRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaHtmlMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaHtmlMultiModuleRuntime`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlMultiModuleRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaHtmlMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaHtmlMultiModuleRuntime`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaHtmlMultiModuleRuntime", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaHtmlMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaHtmlMultiModuleRuntime`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaHtmlMultiModuleRuntime", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaHtmlMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaHtmlMultiModuleRuntime`(dependencyNotation: Any): Dependency? =
-    add("dokkaHtmlMultiModuleRuntime", dependencyNotation)
-
-@Deprecated(message = "The dokkaHtmlPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlPartialRuntime`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaHtmlPartialRuntime", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaHtmlPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaHtmlPartialRuntime`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaHtmlPartialRuntime", constraintNotation)
-
-@Deprecated(message = "The dokkaHtmlPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaHtmlPartialRuntime`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaHtmlPartialRuntime", constraintNotation, block)
-
-@Deprecated(message = "The dokkaHtmlPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaHtmlPartialRuntime`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlPartialRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaHtmlPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaHtmlPartialRuntime`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlPartialRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaHtmlPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaHtmlPartialRuntime`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaHtmlPartialRuntime", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaHtmlPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaHtmlPartialRuntime`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaHtmlPartialRuntime", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaHtmlPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaHtmlPartialRuntime`(dependencyNotation: Any): Dependency? =
-    add("dokkaHtmlPartialRuntime", dependencyNotation)
-
-@Deprecated(message = "The dokkaHtmlRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlRuntime`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaHtmlRuntime", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaHtmlRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaHtmlRuntime`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaHtmlRuntime", constraintNotation)
-
-@Deprecated(message = "The dokkaHtmlRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaHtmlRuntime`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaHtmlRuntime", constraintNotation, block)
-
-@Deprecated(message = "The dokkaHtmlRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaHtmlRuntime`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaHtmlRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaHtmlRuntime`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaHtmlRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaHtmlRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaHtmlRuntime`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaHtmlRuntime", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaHtmlRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaHtmlRuntime`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaHtmlRuntime", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaHtmlRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaHtmlRuntime`(dependencyNotation: Any): Dependency? =
-    add("dokkaHtmlRuntime", dependencyNotation)
-
-@Deprecated(message = "The dokkaJavadocPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocPlugin' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaJavadocPartialPlugin`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaJavadocPartialPlugin", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaJavadocPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocPlugin' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJavadocPartialPlugin`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaJavadocPartialPlugin", constraintNotation)
-
-@Deprecated(message = "The dokkaJavadocPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocPlugin' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJavadocPartialPlugin`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaJavadocPartialPlugin", constraintNotation, block)
-
-@Deprecated(message = "The dokkaJavadocPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJavadocPartialPlugin`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJavadocPartialPlugin", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJavadocPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJavadocPartialPlugin`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJavadocPartialPlugin", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJavadocPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJavadocPartialPlugin`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaJavadocPartialPlugin", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaJavadocPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJavadocPartialPlugin`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaJavadocPartialPlugin", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJavadocPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJavadocPartialPlugin`(dependencyNotation: Any): Dependency? =
-    add("dokkaJavadocPartialPlugin", dependencyNotation)
-
-@Deprecated(message = "The dokkaJavadocPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocGeneratorRuntime' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaJavadocPartialRuntime`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaJavadocPartialRuntime", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaJavadocPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJavadocPartialRuntime`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaJavadocPartialRuntime", constraintNotation)
-
-@Deprecated(message = "The dokkaJavadocPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJavadocPartialRuntime`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaJavadocPartialRuntime", constraintNotation, block)
-
-@Deprecated(message = "The dokkaJavadocPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJavadocPartialRuntime`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJavadocPartialRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJavadocPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJavadocPartialRuntime`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJavadocPartialRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJavadocPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJavadocPartialRuntime`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaJavadocPartialRuntime", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaJavadocPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJavadocPartialRuntime`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaJavadocPartialRuntime", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJavadocPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJavadocPartialRuntime`(dependencyNotation: Any): Dependency? =
-    add("dokkaJavadocPartialRuntime", dependencyNotation)
-
-@Deprecated(message = "The dokkaJavadocPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocPlugin' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaJavadocPlugin`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaJavadocPlugin", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaJavadocPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocPlugin' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJavadocPlugin`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaJavadocPlugin", constraintNotation)
-
-@Deprecated(message = "The dokkaJavadocPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocPlugin' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJavadocPlugin`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaJavadocPlugin", constraintNotation, block)
-
-@Deprecated(message = "The dokkaJavadocPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJavadocPlugin`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJavadocPlugin", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJavadocPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJavadocPlugin`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJavadocPlugin", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJavadocPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJavadocPlugin`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaJavadocPlugin", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaJavadocPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJavadocPlugin`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaJavadocPlugin", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJavadocPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJavadocPlugin`(dependencyNotation: Any): Dependency? =
-    add("dokkaJavadocPlugin", dependencyNotation)
-
-@Deprecated(message = "The dokkaJavadocRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocGeneratorRuntime' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaJavadocRuntime`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaJavadocRuntime", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaJavadocRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJavadocRuntime`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaJavadocRuntime", constraintNotation)
-
-@Deprecated(message = "The dokkaJavadocRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJavadocRuntime`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaJavadocRuntime", constraintNotation, block)
-
-@Deprecated(message = "The dokkaJavadocRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJavadocRuntime`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJavadocRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJavadocRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJavadocRuntime`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJavadocRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJavadocRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJavadocRuntime`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaJavadocRuntime", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaJavadocRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJavadocRuntime`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaJavadocRuntime", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJavadocRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJavadocGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJavadocRuntime`(dependencyNotation: Any): Dependency? =
-    add("dokkaJavadocRuntime", dependencyNotation)
-
-@Deprecated(message = "The dokkaJekyllMultiModulePlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaJekyllMultiModulePlugin`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaJekyllMultiModulePlugin", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaJekyllMultiModulePlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJekyllMultiModulePlugin`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaJekyllMultiModulePlugin", constraintNotation)
-
-@Deprecated(message = "The dokkaJekyllMultiModulePlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJekyllMultiModulePlugin`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaJekyllMultiModulePlugin", constraintNotation, block)
-
-@Deprecated(message = "The dokkaJekyllMultiModulePlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJekyllMultiModulePlugin`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJekyllMultiModulePlugin", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllMultiModulePlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJekyllMultiModulePlugin`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJekyllMultiModulePlugin", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllMultiModulePlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJekyllMultiModulePlugin`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaJekyllMultiModulePlugin", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaJekyllMultiModulePlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJekyllMultiModulePlugin`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaJekyllMultiModulePlugin", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllMultiModulePlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJekyllMultiModulePlugin`(dependencyNotation: Any): Dependency? =
-    add("dokkaJekyllMultiModulePlugin", dependencyNotation)
-
-@Deprecated(message = "The dokkaJekyllMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaJekyllMultiModuleRuntime`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaJekyllMultiModuleRuntime", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaJekyllMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJekyllMultiModuleRuntime`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaJekyllMultiModuleRuntime", constraintNotation)
-
-@Deprecated(message = "The dokkaJekyllMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJekyllMultiModuleRuntime`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaJekyllMultiModuleRuntime", constraintNotation, block)
-
-@Deprecated(message = "The dokkaJekyllMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJekyllMultiModuleRuntime`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJekyllMultiModuleRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJekyllMultiModuleRuntime`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJekyllMultiModuleRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJekyllMultiModuleRuntime`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaJekyllMultiModuleRuntime", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaJekyllMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJekyllMultiModuleRuntime`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaJekyllMultiModuleRuntime", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllMultiModuleRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJekyllMultiModuleRuntime`(dependencyNotation: Any): Dependency? =
-    add("dokkaJekyllMultiModuleRuntime", dependencyNotation)
-
-@Deprecated(message = "The dokkaJekyllPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaJekyllPartialPlugin`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaJekyllPartialPlugin", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaJekyllPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJekyllPartialPlugin`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaJekyllPartialPlugin", constraintNotation)
-
-@Deprecated(message = "The dokkaJekyllPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJekyllPartialPlugin`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaJekyllPartialPlugin", constraintNotation, block)
-
-@Deprecated(message = "The dokkaJekyllPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJekyllPartialPlugin`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJekyllPartialPlugin", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJekyllPartialPlugin`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJekyllPartialPlugin", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJekyllPartialPlugin`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaJekyllPartialPlugin", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaJekyllPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJekyllPartialPlugin`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaJekyllPartialPlugin", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllPartialPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJekyllPartialPlugin`(dependencyNotation: Any): Dependency? =
-    add("dokkaJekyllPartialPlugin", dependencyNotation)
-
-@Deprecated(message = "The dokkaJekyllPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaJekyllPartialRuntime`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaJekyllPartialRuntime", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaJekyllPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJekyllPartialRuntime`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaJekyllPartialRuntime", constraintNotation)
-
-@Deprecated(message = "The dokkaJekyllPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJekyllPartialRuntime`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaJekyllPartialRuntime", constraintNotation, block)
-
-@Deprecated(message = "The dokkaJekyllPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJekyllPartialRuntime`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJekyllPartialRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJekyllPartialRuntime`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJekyllPartialRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJekyllPartialRuntime`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaJekyllPartialRuntime", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaJekyllPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJekyllPartialRuntime`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaJekyllPartialRuntime", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllPartialRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJekyllPartialRuntime`(dependencyNotation: Any): Dependency? =
-    add("dokkaJekyllPartialRuntime", dependencyNotation)
-
-@Deprecated(message = "The dokkaJekyllPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaJekyllPlugin`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaJekyllPlugin", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaJekyllPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJekyllPlugin`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaJekyllPlugin", constraintNotation)
-
-@Deprecated(message = "The dokkaJekyllPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJekyllPlugin`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaJekyllPlugin", constraintNotation, block)
-
-@Deprecated(message = "The dokkaJekyllPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJekyllPlugin`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJekyllPlugin", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJekyllPlugin`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJekyllPlugin", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJekyllPlugin`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaJekyllPlugin", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaJekyllPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJekyllPlugin`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaJekyllPlugin", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllPlugin configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllPlugin' configuration instead.")
-fun DependencyHandler.`dokkaJekyllPlugin`(dependencyNotation: Any): Dependency? =
-    add("dokkaJekyllPlugin", dependencyNotation)
-
-@Deprecated(message = "The dokkaJekyllRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaJekyllRuntime`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaJekyllRuntime", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaJekyllRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJekyllRuntime`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaJekyllRuntime", constraintNotation)
-
-@Deprecated(message = "The dokkaJekyllRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaJekyllRuntime`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaJekyllRuntime", constraintNotation, block)
-
-@Deprecated(message = "The dokkaJekyllRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJekyllRuntime`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJekyllRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJekyllRuntime`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaJekyllRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJekyllRuntime`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaJekyllRuntime", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaJekyllRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJekyllRuntime`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaJekyllRuntime", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaJekyllRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaJekyllGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaJekyllRuntime`(dependencyNotation: Any): Dependency? =
-    add("dokkaJekyllRuntime", dependencyNotation)
-
-@Deprecated(message = "The dokkaRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun <T : ModuleDependency> DependencyHandler.`dokkaRuntime`(
-    dependency: T,
-    dependencyConfiguration: T.() -> Unit
-): T = add("dokkaRuntime", dependency, dependencyConfiguration)
-
-@Deprecated(message = "The dokkaRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaRuntime`(constraintNotation: Any): DependencyConstraint =
-    add("dokkaRuntime", constraintNotation)
-
-@Deprecated(message = "The dokkaRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyConstraintHandler.`dokkaRuntime`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
-    add("dokkaRuntime", constraintNotation, block)
-
-@Deprecated(message = "The dokkaRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaRuntime`(
-    dependencyNotation: Provider<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaRuntime`(
-    dependencyNotation: ProviderConvertible<*>,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): Unit = addConfiguredDependencyTo(
-    this, "dokkaRuntime", dependencyNotation, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaRuntime`(
-    dependencyNotation: String,
-    dependencyConfiguration: Action<ExternalModuleDependency>
-): ExternalModuleDependency = addDependencyTo(
-    this, "dokkaRuntime", dependencyNotation, dependencyConfiguration
-) as ExternalModuleDependency
-
-@Deprecated(message = "The dokkaRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaRuntime`(
-    group: String,
-    name: String,
-    version: String? = null,
-    configuration: String? = null,
-    classifier: String? = null,
-    ext: String? = null,
-    dependencyConfiguration: Action<ExternalModuleDependency>? = null
-): ExternalModuleDependency = addExternalModuleDependencyTo(
-    this, "dokkaRuntime", group, name, version, configuration, classifier, ext, dependencyConfiguration
-)
-
-@Deprecated(message = "The dokkaRuntime configuration has been deprecated for dependency declaration. Please use the 'dokkaHtmlGeneratorRuntime' configuration instead.")
-fun DependencyHandler.`dokkaRuntime`(dependencyNotation: Any): Dependency? =
-    add("dokkaRuntime", dependencyNotation)
-
 fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlGeneratorRuntimeResolver~internal`(
     dependency: T,
     dependencyConfiguration: T.() -> Unit
@@ -1148,6 +48,56 @@ fun <T : ModuleDependency> DependencyHandler.`dokkaHtmlPublicationPlugin`(
     dependencyConfiguration: T.() -> Unit
 ): T = add("dokkaHtmlPublicationPlugin", dependency, dependencyConfiguration)
 
+fun <T : ModuleDependency> DependencyHandler.`dokkaJavadocGeneratorRuntimeResolver~internal`(
+    dependency: T,
+    dependencyConfiguration: T.() -> Unit
+): T = add("dokkaJavadocGeneratorRuntimeResolver~internal", dependency, dependencyConfiguration)
+
+fun <T : ModuleDependency> DependencyHandler.`dokkaJavadocGeneratorRuntime`(
+    dependency: T,
+    dependencyConfiguration: T.() -> Unit
+): T = add("dokkaJavadocGeneratorRuntime", dependency, dependencyConfiguration)
+
+fun <T : ModuleDependency> DependencyHandler.`dokkaJavadocModuleOutputDirectoriesConsumable~internal`(
+    dependency: T,
+    dependencyConfiguration: T.() -> Unit
+): T = add("dokkaJavadocModuleOutputDirectoriesConsumable~internal", dependency, dependencyConfiguration)
+
+fun <T : ModuleDependency> DependencyHandler.`dokkaJavadocModuleOutputDirectoriesResolver~internal`(
+    dependency: T,
+    dependencyConfiguration: T.() -> Unit
+): T = add("dokkaJavadocModuleOutputDirectoriesResolver~internal", dependency, dependencyConfiguration)
+
+fun <T : ModuleDependency> DependencyHandler.`dokkaJavadocPluginIntransitiveResolver~internal`(
+    dependency: T,
+    dependencyConfiguration: T.() -> Unit
+): T = add("dokkaJavadocPluginIntransitiveResolver~internal", dependency, dependencyConfiguration)
+
+fun <T : ModuleDependency> DependencyHandler.`dokkaJavadocPlugin`(
+    dependency: T,
+    dependencyConfiguration: T.() -> Unit
+): T = add("dokkaJavadocPlugin", dependency, dependencyConfiguration)
+
+fun <T : ModuleDependency> DependencyHandler.`dokkaJavadocPublicationPluginApiOnlyConsumable~internal`(
+    dependency: T,
+    dependencyConfiguration: T.() -> Unit
+): T = add("dokkaJavadocPublicationPluginApiOnlyConsumable~internal", dependency, dependencyConfiguration)
+
+fun <T : ModuleDependency> DependencyHandler.`dokkaJavadocPublicationPluginApiOnly~internal`(
+    dependency: T,
+    dependencyConfiguration: T.() -> Unit
+): T = add("dokkaJavadocPublicationPluginApiOnly~internal", dependency, dependencyConfiguration)
+
+fun <T : ModuleDependency> DependencyHandler.`dokkaJavadocPublicationPluginResolver~internal`(
+    dependency: T,
+    dependencyConfiguration: T.() -> Unit
+): T = add("dokkaJavadocPublicationPluginResolver~internal", dependency, dependencyConfiguration)
+
+fun <T : ModuleDependency> DependencyHandler.`dokkaJavadocPublicationPlugin`(
+    dependency: T,
+    dependencyConfiguration: T.() -> Unit
+): T = add("dokkaJavadocPublicationPlugin", dependency, dependencyConfiguration)
+
 fun <T : ModuleDependency> DependencyHandler.`dokkaPlugin`(
     dependency: T,
     dependencyConfiguration: T.() -> Unit
@@ -1157,60 +107,6 @@ fun <T : ModuleDependency> DependencyHandler.`dokka`(
     dependency: T,
     dependencyConfiguration: T.() -> Unit
 ): T = add("dokka", dependency, dependencyConfiguration)
-
-fun ArtifactHandler.`dokkaGfmMultiModulePlugin`(
-    artifactNotation: Any,
-    configureAction:  ConfigurablePublishArtifact.() -> Unit
-): PublishArtifact =
-    add("dokkaGfmMultiModulePlugin", artifactNotation, configureAction)
-
-fun ArtifactHandler.`dokkaGfmMultiModulePlugin`(artifactNotation: Any): PublishArtifact =
-    add("dokkaGfmMultiModulePlugin", artifactNotation)
-
-fun ArtifactHandler.`dokkaGfmMultiModuleRuntime`(
-    artifactNotation: Any,
-    configureAction:  ConfigurablePublishArtifact.() -> Unit
-): PublishArtifact =
-    add("dokkaGfmMultiModuleRuntime", artifactNotation, configureAction)
-
-fun ArtifactHandler.`dokkaGfmMultiModuleRuntime`(artifactNotation: Any): PublishArtifact =
-    add("dokkaGfmMultiModuleRuntime", artifactNotation)
-
-fun ArtifactHandler.`dokkaGfmPartialPlugin`(
-    artifactNotation: Any,
-    configureAction:  ConfigurablePublishArtifact.() -> Unit
-): PublishArtifact =
-    add("dokkaGfmPartialPlugin", artifactNotation, configureAction)
-
-fun ArtifactHandler.`dokkaGfmPartialPlugin`(artifactNotation: Any): PublishArtifact =
-    add("dokkaGfmPartialPlugin", artifactNotation)
-
-fun ArtifactHandler.`dokkaGfmPartialRuntime`(
-    artifactNotation: Any,
-    configureAction:  ConfigurablePublishArtifact.() -> Unit
-): PublishArtifact =
-    add("dokkaGfmPartialRuntime", artifactNotation, configureAction)
-
-fun ArtifactHandler.`dokkaGfmPartialRuntime`(artifactNotation: Any): PublishArtifact =
-    add("dokkaGfmPartialRuntime", artifactNotation)
-
-fun ArtifactHandler.`dokkaGfmPlugin`(
-    artifactNotation: Any,
-    configureAction:  ConfigurablePublishArtifact.() -> Unit
-): PublishArtifact =
-    add("dokkaGfmPlugin", artifactNotation, configureAction)
-
-fun ArtifactHandler.`dokkaGfmPlugin`(artifactNotation: Any): PublishArtifact =
-    add("dokkaGfmPlugin", artifactNotation)
-
-fun ArtifactHandler.`dokkaGfmRuntime`(
-    artifactNotation: Any,
-    configureAction:  ConfigurablePublishArtifact.() -> Unit
-): PublishArtifact =
-    add("dokkaGfmRuntime", artifactNotation, configureAction)
-
-fun ArtifactHandler.`dokkaGfmRuntime`(artifactNotation: Any): PublishArtifact =
-    add("dokkaGfmRuntime", artifactNotation)
 
 fun ArtifactHandler.`dokkaHtmlGeneratorRuntimeResolver~internal`(
     artifactNotation: Any,
@@ -1247,24 +143,6 @@ fun ArtifactHandler.`dokkaHtmlModuleOutputDirectoriesResolver~internal`(
 
 fun ArtifactHandler.`dokkaHtmlModuleOutputDirectoriesResolver~internal`(artifactNotation: Any): PublishArtifact =
     add("dokkaHtmlModuleOutputDirectoriesResolver~internal", artifactNotation)
-
-fun ArtifactHandler.`dokkaHtmlMultiModuleRuntime`(
-    artifactNotation: Any,
-    configureAction:  ConfigurablePublishArtifact.() -> Unit
-): PublishArtifact =
-    add("dokkaHtmlMultiModuleRuntime", artifactNotation, configureAction)
-
-fun ArtifactHandler.`dokkaHtmlMultiModuleRuntime`(artifactNotation: Any): PublishArtifact =
-    add("dokkaHtmlMultiModuleRuntime", artifactNotation)
-
-fun ArtifactHandler.`dokkaHtmlPartialRuntime`(
-    artifactNotation: Any,
-    configureAction:  ConfigurablePublishArtifact.() -> Unit
-): PublishArtifact =
-    add("dokkaHtmlPartialRuntime", artifactNotation, configureAction)
-
-fun ArtifactHandler.`dokkaHtmlPartialRuntime`(artifactNotation: Any): PublishArtifact =
-    add("dokkaHtmlPartialRuntime", artifactNotation)
 
 fun ArtifactHandler.`dokkaHtmlPluginIntransitiveResolver~internal`(
     artifactNotation: Any,
@@ -1320,32 +198,50 @@ fun ArtifactHandler.`dokkaHtmlPublicationPlugin`(
 fun ArtifactHandler.`dokkaHtmlPublicationPlugin`(artifactNotation: Any): PublishArtifact =
     add("dokkaHtmlPublicationPlugin", artifactNotation)
 
-fun ArtifactHandler.`dokkaHtmlRuntime`(
+fun ArtifactHandler.`dokkaJavadocGeneratorRuntimeResolver~internal`(
     artifactNotation: Any,
     configureAction:  ConfigurablePublishArtifact.() -> Unit
 ): PublishArtifact =
-    add("dokkaHtmlRuntime", artifactNotation, configureAction)
+    add("dokkaJavadocGeneratorRuntimeResolver~internal", artifactNotation, configureAction)
 
-fun ArtifactHandler.`dokkaHtmlRuntime`(artifactNotation: Any): PublishArtifact =
-    add("dokkaHtmlRuntime", artifactNotation)
+fun ArtifactHandler.`dokkaJavadocGeneratorRuntimeResolver~internal`(artifactNotation: Any): PublishArtifact =
+    add("dokkaJavadocGeneratorRuntimeResolver~internal", artifactNotation)
 
-fun ArtifactHandler.`dokkaJavadocPartialPlugin`(
+fun ArtifactHandler.`dokkaJavadocGeneratorRuntime`(
     artifactNotation: Any,
     configureAction:  ConfigurablePublishArtifact.() -> Unit
 ): PublishArtifact =
-    add("dokkaJavadocPartialPlugin", artifactNotation, configureAction)
+    add("dokkaJavadocGeneratorRuntime", artifactNotation, configureAction)
 
-fun ArtifactHandler.`dokkaJavadocPartialPlugin`(artifactNotation: Any): PublishArtifact =
-    add("dokkaJavadocPartialPlugin", artifactNotation)
+fun ArtifactHandler.`dokkaJavadocGeneratorRuntime`(artifactNotation: Any): PublishArtifact =
+    add("dokkaJavadocGeneratorRuntime", artifactNotation)
 
-fun ArtifactHandler.`dokkaJavadocPartialRuntime`(
+fun ArtifactHandler.`dokkaJavadocModuleOutputDirectoriesConsumable~internal`(
     artifactNotation: Any,
     configureAction:  ConfigurablePublishArtifact.() -> Unit
 ): PublishArtifact =
-    add("dokkaJavadocPartialRuntime", artifactNotation, configureAction)
+    add("dokkaJavadocModuleOutputDirectoriesConsumable~internal", artifactNotation, configureAction)
 
-fun ArtifactHandler.`dokkaJavadocPartialRuntime`(artifactNotation: Any): PublishArtifact =
-    add("dokkaJavadocPartialRuntime", artifactNotation)
+fun ArtifactHandler.`dokkaJavadocModuleOutputDirectoriesConsumable~internal`(artifactNotation: Any): PublishArtifact =
+    add("dokkaJavadocModuleOutputDirectoriesConsumable~internal", artifactNotation)
+
+fun ArtifactHandler.`dokkaJavadocModuleOutputDirectoriesResolver~internal`(
+    artifactNotation: Any,
+    configureAction:  ConfigurablePublishArtifact.() -> Unit
+): PublishArtifact =
+    add("dokkaJavadocModuleOutputDirectoriesResolver~internal", artifactNotation, configureAction)
+
+fun ArtifactHandler.`dokkaJavadocModuleOutputDirectoriesResolver~internal`(artifactNotation: Any): PublishArtifact =
+    add("dokkaJavadocModuleOutputDirectoriesResolver~internal", artifactNotation)
+
+fun ArtifactHandler.`dokkaJavadocPluginIntransitiveResolver~internal`(
+    artifactNotation: Any,
+    configureAction:  ConfigurablePublishArtifact.() -> Unit
+): PublishArtifact =
+    add("dokkaJavadocPluginIntransitiveResolver~internal", artifactNotation, configureAction)
+
+fun ArtifactHandler.`dokkaJavadocPluginIntransitiveResolver~internal`(artifactNotation: Any): PublishArtifact =
+    add("dokkaJavadocPluginIntransitiveResolver~internal", artifactNotation)
 
 fun ArtifactHandler.`dokkaJavadocPlugin`(
     artifactNotation: Any,
@@ -1356,68 +252,41 @@ fun ArtifactHandler.`dokkaJavadocPlugin`(
 fun ArtifactHandler.`dokkaJavadocPlugin`(artifactNotation: Any): PublishArtifact =
     add("dokkaJavadocPlugin", artifactNotation)
 
-fun ArtifactHandler.`dokkaJavadocRuntime`(
+fun ArtifactHandler.`dokkaJavadocPublicationPluginApiOnlyConsumable~internal`(
     artifactNotation: Any,
     configureAction:  ConfigurablePublishArtifact.() -> Unit
 ): PublishArtifact =
-    add("dokkaJavadocRuntime", artifactNotation, configureAction)
+    add("dokkaJavadocPublicationPluginApiOnlyConsumable~internal", artifactNotation, configureAction)
 
-fun ArtifactHandler.`dokkaJavadocRuntime`(artifactNotation: Any): PublishArtifact =
-    add("dokkaJavadocRuntime", artifactNotation)
+fun ArtifactHandler.`dokkaJavadocPublicationPluginApiOnlyConsumable~internal`(artifactNotation: Any): PublishArtifact =
+    add("dokkaJavadocPublicationPluginApiOnlyConsumable~internal", artifactNotation)
 
-fun ArtifactHandler.`dokkaJekyllMultiModulePlugin`(
+fun ArtifactHandler.`dokkaJavadocPublicationPluginApiOnly~internal`(
     artifactNotation: Any,
     configureAction:  ConfigurablePublishArtifact.() -> Unit
 ): PublishArtifact =
-    add("dokkaJekyllMultiModulePlugin", artifactNotation, configureAction)
+    add("dokkaJavadocPublicationPluginApiOnly~internal", artifactNotation, configureAction)
 
-fun ArtifactHandler.`dokkaJekyllMultiModulePlugin`(artifactNotation: Any): PublishArtifact =
-    add("dokkaJekyllMultiModulePlugin", artifactNotation)
+fun ArtifactHandler.`dokkaJavadocPublicationPluginApiOnly~internal`(artifactNotation: Any): PublishArtifact =
+    add("dokkaJavadocPublicationPluginApiOnly~internal", artifactNotation)
 
-fun ArtifactHandler.`dokkaJekyllMultiModuleRuntime`(
+fun ArtifactHandler.`dokkaJavadocPublicationPluginResolver~internal`(
     artifactNotation: Any,
     configureAction:  ConfigurablePublishArtifact.() -> Unit
 ): PublishArtifact =
-    add("dokkaJekyllMultiModuleRuntime", artifactNotation, configureAction)
+    add("dokkaJavadocPublicationPluginResolver~internal", artifactNotation, configureAction)
 
-fun ArtifactHandler.`dokkaJekyllMultiModuleRuntime`(artifactNotation: Any): PublishArtifact =
-    add("dokkaJekyllMultiModuleRuntime", artifactNotation)
+fun ArtifactHandler.`dokkaJavadocPublicationPluginResolver~internal`(artifactNotation: Any): PublishArtifact =
+    add("dokkaJavadocPublicationPluginResolver~internal", artifactNotation)
 
-fun ArtifactHandler.`dokkaJekyllPartialPlugin`(
+fun ArtifactHandler.`dokkaJavadocPublicationPlugin`(
     artifactNotation: Any,
     configureAction:  ConfigurablePublishArtifact.() -> Unit
 ): PublishArtifact =
-    add("dokkaJekyllPartialPlugin", artifactNotation, configureAction)
+    add("dokkaJavadocPublicationPlugin", artifactNotation, configureAction)
 
-fun ArtifactHandler.`dokkaJekyllPartialPlugin`(artifactNotation: Any): PublishArtifact =
-    add("dokkaJekyllPartialPlugin", artifactNotation)
-
-fun ArtifactHandler.`dokkaJekyllPartialRuntime`(
-    artifactNotation: Any,
-    configureAction:  ConfigurablePublishArtifact.() -> Unit
-): PublishArtifact =
-    add("dokkaJekyllPartialRuntime", artifactNotation, configureAction)
-
-fun ArtifactHandler.`dokkaJekyllPartialRuntime`(artifactNotation: Any): PublishArtifact =
-    add("dokkaJekyllPartialRuntime", artifactNotation)
-
-fun ArtifactHandler.`dokkaJekyllPlugin`(
-    artifactNotation: Any,
-    configureAction:  ConfigurablePublishArtifact.() -> Unit
-): PublishArtifact =
-    add("dokkaJekyllPlugin", artifactNotation, configureAction)
-
-fun ArtifactHandler.`dokkaJekyllPlugin`(artifactNotation: Any): PublishArtifact =
-    add("dokkaJekyllPlugin", artifactNotation)
-
-fun ArtifactHandler.`dokkaJekyllRuntime`(
-    artifactNotation: Any,
-    configureAction:  ConfigurablePublishArtifact.() -> Unit
-): PublishArtifact =
-    add("dokkaJekyllRuntime", artifactNotation, configureAction)
-
-fun ArtifactHandler.`dokkaJekyllRuntime`(artifactNotation: Any): PublishArtifact =
-    add("dokkaJekyllRuntime", artifactNotation)
+fun ArtifactHandler.`dokkaJavadocPublicationPlugin`(artifactNotation: Any): PublishArtifact =
+    add("dokkaJavadocPublicationPlugin", artifactNotation)
 
 fun ArtifactHandler.`dokkaPlugin`(
     artifactNotation: Any,
@@ -1427,15 +296,6 @@ fun ArtifactHandler.`dokkaPlugin`(
 
 fun ArtifactHandler.`dokkaPlugin`(artifactNotation: Any): PublishArtifact =
     add("dokkaPlugin", artifactNotation)
-
-fun ArtifactHandler.`dokkaRuntime`(
-    artifactNotation: Any,
-    configureAction:  ConfigurablePublishArtifact.() -> Unit
-): PublishArtifact =
-    add("dokkaRuntime", artifactNotation, configureAction)
-
-fun ArtifactHandler.`dokkaRuntime`(artifactNotation: Any): PublishArtifact =
-    add("dokkaRuntime", artifactNotation)
 
 fun ArtifactHandler.`dokka`(
     artifactNotation: Any,
@@ -1505,6 +365,66 @@ fun DependencyConstraintHandler.`dokkaHtmlPublicationPlugin`(constraintNotation:
 
 fun DependencyConstraintHandler.`dokkaHtmlPublicationPlugin`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
     add("dokkaHtmlPublicationPlugin", constraintNotation, block)
+
+fun DependencyConstraintHandler.`dokkaJavadocGeneratorRuntimeResolver~internal`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaJavadocGeneratorRuntimeResolver~internal", constraintNotation)
+
+fun DependencyConstraintHandler.`dokkaJavadocGeneratorRuntimeResolver~internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaJavadocGeneratorRuntimeResolver~internal", constraintNotation, block)
+
+fun DependencyConstraintHandler.`dokkaJavadocGeneratorRuntime`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaJavadocGeneratorRuntime", constraintNotation)
+
+fun DependencyConstraintHandler.`dokkaJavadocGeneratorRuntime`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaJavadocGeneratorRuntime", constraintNotation, block)
+
+fun DependencyConstraintHandler.`dokkaJavadocModuleOutputDirectoriesConsumable~internal`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaJavadocModuleOutputDirectoriesConsumable~internal", constraintNotation)
+
+fun DependencyConstraintHandler.`dokkaJavadocModuleOutputDirectoriesConsumable~internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaJavadocModuleOutputDirectoriesConsumable~internal", constraintNotation, block)
+
+fun DependencyConstraintHandler.`dokkaJavadocModuleOutputDirectoriesResolver~internal`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaJavadocModuleOutputDirectoriesResolver~internal", constraintNotation)
+
+fun DependencyConstraintHandler.`dokkaJavadocModuleOutputDirectoriesResolver~internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaJavadocModuleOutputDirectoriesResolver~internal", constraintNotation, block)
+
+fun DependencyConstraintHandler.`dokkaJavadocPluginIntransitiveResolver~internal`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaJavadocPluginIntransitiveResolver~internal", constraintNotation)
+
+fun DependencyConstraintHandler.`dokkaJavadocPluginIntransitiveResolver~internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaJavadocPluginIntransitiveResolver~internal", constraintNotation, block)
+
+fun DependencyConstraintHandler.`dokkaJavadocPlugin`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaJavadocPlugin", constraintNotation)
+
+fun DependencyConstraintHandler.`dokkaJavadocPlugin`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaJavadocPlugin", constraintNotation, block)
+
+fun DependencyConstraintHandler.`dokkaJavadocPublicationPluginApiOnlyConsumable~internal`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaJavadocPublicationPluginApiOnlyConsumable~internal", constraintNotation)
+
+fun DependencyConstraintHandler.`dokkaJavadocPublicationPluginApiOnlyConsumable~internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaJavadocPublicationPluginApiOnlyConsumable~internal", constraintNotation, block)
+
+fun DependencyConstraintHandler.`dokkaJavadocPublicationPluginApiOnly~internal`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaJavadocPublicationPluginApiOnly~internal", constraintNotation)
+
+fun DependencyConstraintHandler.`dokkaJavadocPublicationPluginApiOnly~internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaJavadocPublicationPluginApiOnly~internal", constraintNotation, block)
+
+fun DependencyConstraintHandler.`dokkaJavadocPublicationPluginResolver~internal`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaJavadocPublicationPluginResolver~internal", constraintNotation)
+
+fun DependencyConstraintHandler.`dokkaJavadocPublicationPluginResolver~internal`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaJavadocPublicationPluginResolver~internal", constraintNotation, block)
+
+fun DependencyConstraintHandler.`dokkaJavadocPublicationPlugin`(constraintNotation: Any): DependencyConstraint =
+    add("dokkaJavadocPublicationPlugin", constraintNotation)
+
+fun DependencyConstraintHandler.`dokkaJavadocPublicationPlugin`(constraintNotation: Any, block: DependencyConstraint.() -> Unit): DependencyConstraint =
+    add("dokkaJavadocPublicationPlugin", constraintNotation, block)
 
 fun DependencyConstraintHandler.`dokkaPlugin`(constraintNotation: Any): DependencyConstraint =
     add("dokkaPlugin", constraintNotation)
@@ -1878,6 +798,366 @@ fun DependencyHandler.`dokkaHtmlPublicationPlugin`(
 fun DependencyHandler.`dokkaHtmlPublicationPlugin`(dependencyNotation: Any): Dependency? =
     add("dokkaHtmlPublicationPlugin", dependencyNotation)
 
+fun DependencyHandler.`dokkaJavadocGeneratorRuntimeResolver~internal`(
+    dependencyNotation: Provider<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocGeneratorRuntimeResolver~internal", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocGeneratorRuntimeResolver~internal`(
+    dependencyNotation: ProviderConvertible<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocGeneratorRuntimeResolver~internal", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocGeneratorRuntimeResolver~internal`(
+    dependencyNotation: String,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): ExternalModuleDependency = addDependencyTo(
+    this, "dokkaJavadocGeneratorRuntimeResolver~internal", dependencyNotation, dependencyConfiguration
+) as ExternalModuleDependency
+
+fun DependencyHandler.`dokkaJavadocGeneratorRuntimeResolver~internal`(
+    group: String,
+    name: String,
+    version: String? = null,
+    configuration: String? = null,
+    classifier: String? = null,
+    ext: String? = null,
+    dependencyConfiguration: Action<ExternalModuleDependency>? = null
+): ExternalModuleDependency = addExternalModuleDependencyTo(
+    this, "dokkaJavadocGeneratorRuntimeResolver~internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocGeneratorRuntimeResolver~internal`(dependencyNotation: Any): Dependency? =
+    add("dokkaJavadocGeneratorRuntimeResolver~internal", dependencyNotation)
+
+fun DependencyHandler.`dokkaJavadocGeneratorRuntime`(
+    dependencyNotation: Provider<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocGeneratorRuntime", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocGeneratorRuntime`(
+    dependencyNotation: ProviderConvertible<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocGeneratorRuntime", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocGeneratorRuntime`(
+    dependencyNotation: String,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): ExternalModuleDependency = addDependencyTo(
+    this, "dokkaJavadocGeneratorRuntime", dependencyNotation, dependencyConfiguration
+) as ExternalModuleDependency
+
+fun DependencyHandler.`dokkaJavadocGeneratorRuntime`(
+    group: String,
+    name: String,
+    version: String? = null,
+    configuration: String? = null,
+    classifier: String? = null,
+    ext: String? = null,
+    dependencyConfiguration: Action<ExternalModuleDependency>? = null
+): ExternalModuleDependency = addExternalModuleDependencyTo(
+    this, "dokkaJavadocGeneratorRuntime", group, name, version, configuration, classifier, ext, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocGeneratorRuntime`(dependencyNotation: Any): Dependency? =
+    add("dokkaJavadocGeneratorRuntime", dependencyNotation)
+
+fun DependencyHandler.`dokkaJavadocModuleOutputDirectoriesConsumable~internal`(
+    dependencyNotation: Provider<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocModuleOutputDirectoriesConsumable~internal", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocModuleOutputDirectoriesConsumable~internal`(
+    dependencyNotation: ProviderConvertible<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocModuleOutputDirectoriesConsumable~internal", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocModuleOutputDirectoriesConsumable~internal`(
+    dependencyNotation: String,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): ExternalModuleDependency = addDependencyTo(
+    this, "dokkaJavadocModuleOutputDirectoriesConsumable~internal", dependencyNotation, dependencyConfiguration
+) as ExternalModuleDependency
+
+fun DependencyHandler.`dokkaJavadocModuleOutputDirectoriesConsumable~internal`(
+    group: String,
+    name: String,
+    version: String? = null,
+    configuration: String? = null,
+    classifier: String? = null,
+    ext: String? = null,
+    dependencyConfiguration: Action<ExternalModuleDependency>? = null
+): ExternalModuleDependency = addExternalModuleDependencyTo(
+    this, "dokkaJavadocModuleOutputDirectoriesConsumable~internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocModuleOutputDirectoriesConsumable~internal`(dependencyNotation: Any): Dependency? =
+    add("dokkaJavadocModuleOutputDirectoriesConsumable~internal", dependencyNotation)
+
+fun DependencyHandler.`dokkaJavadocModuleOutputDirectoriesResolver~internal`(
+    dependencyNotation: Provider<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocModuleOutputDirectoriesResolver~internal", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocModuleOutputDirectoriesResolver~internal`(
+    dependencyNotation: ProviderConvertible<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocModuleOutputDirectoriesResolver~internal", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocModuleOutputDirectoriesResolver~internal`(
+    dependencyNotation: String,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): ExternalModuleDependency = addDependencyTo(
+    this, "dokkaJavadocModuleOutputDirectoriesResolver~internal", dependencyNotation, dependencyConfiguration
+) as ExternalModuleDependency
+
+fun DependencyHandler.`dokkaJavadocModuleOutputDirectoriesResolver~internal`(
+    group: String,
+    name: String,
+    version: String? = null,
+    configuration: String? = null,
+    classifier: String? = null,
+    ext: String? = null,
+    dependencyConfiguration: Action<ExternalModuleDependency>? = null
+): ExternalModuleDependency = addExternalModuleDependencyTo(
+    this, "dokkaJavadocModuleOutputDirectoriesResolver~internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocModuleOutputDirectoriesResolver~internal`(dependencyNotation: Any): Dependency? =
+    add("dokkaJavadocModuleOutputDirectoriesResolver~internal", dependencyNotation)
+
+fun DependencyHandler.`dokkaJavadocPluginIntransitiveResolver~internal`(
+    dependencyNotation: Provider<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocPluginIntransitiveResolver~internal", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPluginIntransitiveResolver~internal`(
+    dependencyNotation: ProviderConvertible<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocPluginIntransitiveResolver~internal", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPluginIntransitiveResolver~internal`(
+    dependencyNotation: String,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): ExternalModuleDependency = addDependencyTo(
+    this, "dokkaJavadocPluginIntransitiveResolver~internal", dependencyNotation, dependencyConfiguration
+) as ExternalModuleDependency
+
+fun DependencyHandler.`dokkaJavadocPluginIntransitiveResolver~internal`(
+    group: String,
+    name: String,
+    version: String? = null,
+    configuration: String? = null,
+    classifier: String? = null,
+    ext: String? = null,
+    dependencyConfiguration: Action<ExternalModuleDependency>? = null
+): ExternalModuleDependency = addExternalModuleDependencyTo(
+    this, "dokkaJavadocPluginIntransitiveResolver~internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPluginIntransitiveResolver~internal`(dependencyNotation: Any): Dependency? =
+    add("dokkaJavadocPluginIntransitiveResolver~internal", dependencyNotation)
+
+fun DependencyHandler.`dokkaJavadocPlugin`(
+    dependencyNotation: Provider<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocPlugin", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPlugin`(
+    dependencyNotation: ProviderConvertible<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocPlugin", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPlugin`(
+    dependencyNotation: String,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): ExternalModuleDependency = addDependencyTo(
+    this, "dokkaJavadocPlugin", dependencyNotation, dependencyConfiguration
+) as ExternalModuleDependency
+
+fun DependencyHandler.`dokkaJavadocPlugin`(
+    group: String,
+    name: String,
+    version: String? = null,
+    configuration: String? = null,
+    classifier: String? = null,
+    ext: String? = null,
+    dependencyConfiguration: Action<ExternalModuleDependency>? = null
+): ExternalModuleDependency = addExternalModuleDependencyTo(
+    this, "dokkaJavadocPlugin", group, name, version, configuration, classifier, ext, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPlugin`(dependencyNotation: Any): Dependency? =
+    add("dokkaJavadocPlugin", dependencyNotation)
+
+fun DependencyHandler.`dokkaJavadocPublicationPluginApiOnlyConsumable~internal`(
+    dependencyNotation: Provider<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocPublicationPluginApiOnlyConsumable~internal", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPublicationPluginApiOnlyConsumable~internal`(
+    dependencyNotation: ProviderConvertible<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocPublicationPluginApiOnlyConsumable~internal", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPublicationPluginApiOnlyConsumable~internal`(
+    dependencyNotation: String,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): ExternalModuleDependency = addDependencyTo(
+    this, "dokkaJavadocPublicationPluginApiOnlyConsumable~internal", dependencyNotation, dependencyConfiguration
+) as ExternalModuleDependency
+
+fun DependencyHandler.`dokkaJavadocPublicationPluginApiOnlyConsumable~internal`(
+    group: String,
+    name: String,
+    version: String? = null,
+    configuration: String? = null,
+    classifier: String? = null,
+    ext: String? = null,
+    dependencyConfiguration: Action<ExternalModuleDependency>? = null
+): ExternalModuleDependency = addExternalModuleDependencyTo(
+    this, "dokkaJavadocPublicationPluginApiOnlyConsumable~internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPublicationPluginApiOnlyConsumable~internal`(dependencyNotation: Any): Dependency? =
+    add("dokkaJavadocPublicationPluginApiOnlyConsumable~internal", dependencyNotation)
+
+fun DependencyHandler.`dokkaJavadocPublicationPluginApiOnly~internal`(
+    dependencyNotation: Provider<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocPublicationPluginApiOnly~internal", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPublicationPluginApiOnly~internal`(
+    dependencyNotation: ProviderConvertible<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocPublicationPluginApiOnly~internal", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPublicationPluginApiOnly~internal`(
+    dependencyNotation: String,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): ExternalModuleDependency = addDependencyTo(
+    this, "dokkaJavadocPublicationPluginApiOnly~internal", dependencyNotation, dependencyConfiguration
+) as ExternalModuleDependency
+
+fun DependencyHandler.`dokkaJavadocPublicationPluginApiOnly~internal`(
+    group: String,
+    name: String,
+    version: String? = null,
+    configuration: String? = null,
+    classifier: String? = null,
+    ext: String? = null,
+    dependencyConfiguration: Action<ExternalModuleDependency>? = null
+): ExternalModuleDependency = addExternalModuleDependencyTo(
+    this, "dokkaJavadocPublicationPluginApiOnly~internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPublicationPluginApiOnly~internal`(dependencyNotation: Any): Dependency? =
+    add("dokkaJavadocPublicationPluginApiOnly~internal", dependencyNotation)
+
+fun DependencyHandler.`dokkaJavadocPublicationPluginResolver~internal`(
+    dependencyNotation: Provider<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocPublicationPluginResolver~internal", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPublicationPluginResolver~internal`(
+    dependencyNotation: ProviderConvertible<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocPublicationPluginResolver~internal", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPublicationPluginResolver~internal`(
+    dependencyNotation: String,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): ExternalModuleDependency = addDependencyTo(
+    this, "dokkaJavadocPublicationPluginResolver~internal", dependencyNotation, dependencyConfiguration
+) as ExternalModuleDependency
+
+fun DependencyHandler.`dokkaJavadocPublicationPluginResolver~internal`(
+    group: String,
+    name: String,
+    version: String? = null,
+    configuration: String? = null,
+    classifier: String? = null,
+    ext: String? = null,
+    dependencyConfiguration: Action<ExternalModuleDependency>? = null
+): ExternalModuleDependency = addExternalModuleDependencyTo(
+    this, "dokkaJavadocPublicationPluginResolver~internal", group, name, version, configuration, classifier, ext, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPublicationPluginResolver~internal`(dependencyNotation: Any): Dependency? =
+    add("dokkaJavadocPublicationPluginResolver~internal", dependencyNotation)
+
+fun DependencyHandler.`dokkaJavadocPublicationPlugin`(
+    dependencyNotation: Provider<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocPublicationPlugin", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPublicationPlugin`(
+    dependencyNotation: ProviderConvertible<*>,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): Unit = addConfiguredDependencyTo(
+    this, "dokkaJavadocPublicationPlugin", dependencyNotation, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPublicationPlugin`(
+    dependencyNotation: String,
+    dependencyConfiguration: Action<ExternalModuleDependency>
+): ExternalModuleDependency = addDependencyTo(
+    this, "dokkaJavadocPublicationPlugin", dependencyNotation, dependencyConfiguration
+) as ExternalModuleDependency
+
+fun DependencyHandler.`dokkaJavadocPublicationPlugin`(
+    group: String,
+    name: String,
+    version: String? = null,
+    configuration: String? = null,
+    classifier: String? = null,
+    ext: String? = null,
+    dependencyConfiguration: Action<ExternalModuleDependency>? = null
+): ExternalModuleDependency = addExternalModuleDependencyTo(
+    this, "dokkaJavadocPublicationPlugin", group, name, version, configuration, classifier, ext, dependencyConfiguration
+)
+
+fun DependencyHandler.`dokkaJavadocPublicationPlugin`(dependencyNotation: Any): Dependency? =
+    add("dokkaJavadocPublicationPlugin", dependencyNotation)
+
 fun DependencyHandler.`dokkaPlugin`(
     dependencyNotation: Provider<*>,
     dependencyConfiguration: Action<ExternalModuleDependency>
@@ -1995,56 +1275,17 @@ fun org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters.`e
 val TaskContainer.`dokkaGenerateModuleHtml`: TaskProvider<org.jetbrains.dokka.gradle.tasks.DokkaGenerateModuleTask>
     get() = named<org.jetbrains.dokka.gradle.tasks.DokkaGenerateModuleTask>("dokkaGenerateModuleHtml")
 
+val TaskContainer.`dokkaGenerateModuleJavadoc`: TaskProvider<org.jetbrains.dokka.gradle.tasks.DokkaGenerateModuleTask>
+    get() = named<org.jetbrains.dokka.gradle.tasks.DokkaGenerateModuleTask>("dokkaGenerateModuleJavadoc")
+
 val TaskContainer.`dokkaGeneratePublicationHtml`: TaskProvider<org.jetbrains.dokka.gradle.tasks.DokkaGeneratePublicationTask>
     get() = named<org.jetbrains.dokka.gradle.tasks.DokkaGeneratePublicationTask>("dokkaGeneratePublicationHtml")
 
+val TaskContainer.`dokkaGeneratePublicationJavadoc`: TaskProvider<org.jetbrains.dokka.gradle.tasks.DokkaGeneratePublicationTask>
+    get() = named<org.jetbrains.dokka.gradle.tasks.DokkaGeneratePublicationTask>("dokkaGeneratePublicationJavadoc")
+
 val TaskContainer.`dokkaGenerate`: TaskProvider<org.jetbrains.dokka.gradle.tasks.DokkaBaseTask>
     get() = named<org.jetbrains.dokka.gradle.tasks.DokkaBaseTask>("dokkaGenerate")
-
-val TaskContainer.`dokkaGfmCollector`: TaskProvider<org.jetbrains.dokka.gradle.DokkaCollectorTask>
-    get() = named<org.jetbrains.dokka.gradle.DokkaCollectorTask>("dokkaGfmCollector")
-
-val TaskContainer.`dokkaGfmMultiModule`: TaskProvider<org.jetbrains.dokka.gradle.DokkaMultiModuleTask>
-    get() = named<org.jetbrains.dokka.gradle.DokkaMultiModuleTask>("dokkaGfmMultiModule")
-
-val TaskContainer.`dokkaGfmPartial`: TaskProvider<org.jetbrains.dokka.gradle.DokkaTaskPartial>
-    get() = named<org.jetbrains.dokka.gradle.DokkaTaskPartial>("dokkaGfmPartial")
-
-val TaskContainer.`dokkaGfm`: TaskProvider<org.jetbrains.dokka.gradle.DokkaTask>
-    get() = named<org.jetbrains.dokka.gradle.DokkaTask>("dokkaGfm")
-
-val TaskContainer.`dokkaHtmlCollector`: TaskProvider<org.jetbrains.dokka.gradle.DokkaCollectorTask>
-    get() = named<org.jetbrains.dokka.gradle.DokkaCollectorTask>("dokkaHtmlCollector")
-
-val TaskContainer.`dokkaHtmlMultiModule`: TaskProvider<org.jetbrains.dokka.gradle.DokkaMultiModuleTask>
-    get() = named<org.jetbrains.dokka.gradle.DokkaMultiModuleTask>("dokkaHtmlMultiModule")
-
-val TaskContainer.`dokkaHtmlPartial`: TaskProvider<org.jetbrains.dokka.gradle.DokkaTaskPartial>
-    get() = named<org.jetbrains.dokka.gradle.DokkaTaskPartial>("dokkaHtmlPartial")
-
-val TaskContainer.`dokkaHtml`: TaskProvider<org.jetbrains.dokka.gradle.DokkaTask>
-    get() = named<org.jetbrains.dokka.gradle.DokkaTask>("dokkaHtml")
-
-val TaskContainer.`dokkaJavadocCollector`: TaskProvider<org.jetbrains.dokka.gradle.DokkaCollectorTask>
-    get() = named<org.jetbrains.dokka.gradle.DokkaCollectorTask>("dokkaJavadocCollector")
-
-val TaskContainer.`dokkaJavadocPartial`: TaskProvider<org.jetbrains.dokka.gradle.DokkaTaskPartial>
-    get() = named<org.jetbrains.dokka.gradle.DokkaTaskPartial>("dokkaJavadocPartial")
-
-val TaskContainer.`dokkaJavadoc`: TaskProvider<org.jetbrains.dokka.gradle.DokkaTask>
-    get() = named<org.jetbrains.dokka.gradle.DokkaTask>("dokkaJavadoc")
-
-val TaskContainer.`dokkaJekyllCollector`: TaskProvider<org.jetbrains.dokka.gradle.DokkaCollectorTask>
-    get() = named<org.jetbrains.dokka.gradle.DokkaCollectorTask>("dokkaJekyllCollector")
-
-val TaskContainer.`dokkaJekyllMultiModule`: TaskProvider<org.jetbrains.dokka.gradle.DokkaMultiModuleTask>
-    get() = named<org.jetbrains.dokka.gradle.DokkaMultiModuleTask>("dokkaJekyllMultiModule")
-
-val TaskContainer.`dokkaJekyllPartial`: TaskProvider<org.jetbrains.dokka.gradle.DokkaTaskPartial>
-    get() = named<org.jetbrains.dokka.gradle.DokkaTaskPartial>("dokkaJekyllPartial")
-
-val TaskContainer.`dokkaJekyll`: TaskProvider<org.jetbrains.dokka.gradle.DokkaTask>
-    get() = named<org.jetbrains.dokka.gradle.DokkaTask>("dokkaJekyll")
 
 val TaskContainer.`logLinkDokkaGeneratePublicationHtml`: TaskProvider<org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask>
     get() = named<org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask>("logLinkDokkaGeneratePublicationHtml")
@@ -2058,24 +1299,6 @@ val org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokk
 val org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec>.`versioning`: org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters get() =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("versioning") as org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters
 
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaGfmMultiModulePlugin`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaGfmMultiModulePlugin")
-
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaGfmMultiModuleRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaGfmMultiModuleRuntime")
-
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaGfmPartialPlugin`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaGfmPartialPlugin")
-
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaGfmPartialRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaGfmPartialRuntime")
-
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaGfmPlugin`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaGfmPlugin")
-
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaGfmRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaGfmRuntime")
-
 val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlGeneratorRuntimeResolver~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
     get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlGeneratorRuntimeResolver~internal")
 
@@ -2087,12 +1310,6 @@ val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configura
 
 val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlModuleOutputDirectoriesResolver~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
     get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlModuleOutputDirectoriesResolver~internal")
-
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlMultiModuleRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlMultiModuleRuntime")
-
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlPartialRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlPartialRuntime")
 
 val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlPluginIntransitiveResolver~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
     get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlPluginIntransitiveResolver~internal")
@@ -2112,44 +1329,38 @@ val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configura
 val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlPublicationPlugin`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
     get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlPublicationPlugin")
 
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaHtmlRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaHtmlRuntime")
+val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJavadocGeneratorRuntimeResolver~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
+    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJavadocGeneratorRuntimeResolver~internal")
 
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJavadocPartialPlugin`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJavadocPartialPlugin")
+val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJavadocGeneratorRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
+    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJavadocGeneratorRuntime")
 
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJavadocPartialRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJavadocPartialRuntime")
+val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJavadocModuleOutputDirectoriesConsumable~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
+    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJavadocModuleOutputDirectoriesConsumable~internal")
+
+val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJavadocModuleOutputDirectoriesResolver~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
+    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJavadocModuleOutputDirectoriesResolver~internal")
+
+val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJavadocPluginIntransitiveResolver~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
+    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJavadocPluginIntransitiveResolver~internal")
 
 val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJavadocPlugin`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
     get() = named<org.gradle.api.artifacts.Configuration>("dokkaJavadocPlugin")
 
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJavadocRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJavadocRuntime")
+val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJavadocPublicationPluginApiOnlyConsumable~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
+    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJavadocPublicationPluginApiOnlyConsumable~internal")
 
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJekyllMultiModulePlugin`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJekyllMultiModulePlugin")
+val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJavadocPublicationPluginApiOnly~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
+    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJavadocPublicationPluginApiOnly~internal")
 
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJekyllMultiModuleRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJekyllMultiModuleRuntime")
+val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJavadocPublicationPluginResolver~internal`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
+    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJavadocPublicationPluginResolver~internal")
 
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJekyllPartialPlugin`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJekyllPartialPlugin")
-
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJekyllPartialRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJekyllPartialRuntime")
-
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJekyllPlugin`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJekyllPlugin")
-
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJekyllRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJekyllRuntime")
+val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaJavadocPublicationPlugin`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
+    get() = named<org.gradle.api.artifacts.Configuration>("dokkaJavadocPublicationPlugin")
 
 val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaPlugin`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
     get() = named<org.gradle.api.artifacts.Configuration>("dokkaPlugin")
-
-val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokkaRuntime`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
-    get() = named<org.gradle.api.artifacts.Configuration>("dokkaRuntime")
 
 val org.gradle.api.NamedDomainObjectContainer<org.gradle.api.artifacts.Configuration>.`dokka`: NamedDomainObjectProvider<org.gradle.api.artifacts.Configuration>
     get() = named<org.gradle.api.artifacts.Configuration>("dokka")
@@ -2174,6 +1385,9 @@ val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.formats
 
 val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.formats.DokkaPublication>.`html`: NamedDomainObjectProvider<org.jetbrains.dokka.gradle.formats.DokkaPublication>
     get() = named<org.jetbrains.dokka.gradle.formats.DokkaPublication>("html")
+
+val org.gradle.api.NamedDomainObjectContainer<org.jetbrains.dokka.gradle.formats.DokkaPublication>.`javadoc`: NamedDomainObjectProvider<org.jetbrains.dokka.gradle.formats.DokkaPublication>
+    get() = named<org.jetbrains.dokka.gradle.formats.DokkaPublication>("javadoc")
 
 val org.gradle.api.Project.`dokka`: org.jetbrains.dokka.gradle.DokkaExtension get() =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("dokka") as org.jetbrains.dokka.gradle.DokkaExtension

@@ -25,7 +25,14 @@ import kotlin.test.assertEquals
 class KotlinDslAccessorsTest : FunSpec({
 
     context("Kotlin DSL generated accessors") {
-        val project = initMultiModuleProject("KotlinDslAccessorsTest")
+        val project = initMultiModuleProject("KotlinDslAccessorsTest") {
+            gradleProperties {
+                dokka {
+                    v2Plugin = false
+                    v2MigrationHelpers = false
+                }
+            }
+        }
 
         /**
          * Verify the current accessors match the dumped accessors.
@@ -41,11 +48,11 @@ class KotlinDslAccessorsTest : FunSpec({
         ) {
             test("generated from project ${actualAccessors.projectPath} should match $expected") {
 
-                val expectedAccessors = resourceAsString(expected).trim()
+                val expectedAccessors = resourceAsString(expected)
 
                 assertEquals(
-                    expected = expectedAccessors,
-                    actual = actualAccessors.joined,
+                    expected = expectedAccessors.trim(),
+                    actual = actualAccessors.joined.trim(),
                     message = """
                         Task ${actualAccessors.projectPath} generated unexpected accessors.
                            Actual:   ${actualAccessors.file.toUri()}
@@ -168,7 +175,8 @@ private class GeneratedDokkaAccessors(
     val list: List<String>,
     projectDir: Path,
 ) {
-    val joined: String = list.joinToString("\n\n")
+    val joined: String = list.joinToString(separator = "\n\n", postfix = "\n")
+
     val file: Path = projectDir.resolve("dokka-accessors-${System.currentTimeMillis()}.txt").apply {
         writeText(joined)
     }
@@ -213,6 +221,7 @@ private fun GradleProjectTest.generateDokkaAccessors(
             buildList {
                 add(org.gradle.util.Path.path(projectPath).relativePath("kotlinDslAccessorsReport").toString())
                 add("--quiet")
+                add("-Porg.jetbrains.dokka.experimental.gradlePlugin.enableV2=true")
                 enableV2MigrationHelpers?.let {
                     add("-Porg.jetbrains.dokka.experimental.gradlePlugin.enableV2MigrationHelpers=$it")
                 }
