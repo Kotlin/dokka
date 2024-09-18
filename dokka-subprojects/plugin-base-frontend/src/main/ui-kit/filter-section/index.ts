@@ -39,7 +39,7 @@ function initFilterSection(): void {
   const dropdownButton = document.getElementById('filter-section-dropdown');
 
   if (!navigation || !libraryVersion || !filterSection || !firstButtonAfterFilterSection || !dropdownButton) {
-    console.error('Navbar elements are not found');
+    console.warn('Dokka: filter section is not found');
     return;
   }
 
@@ -47,11 +47,11 @@ function initFilterSection(): void {
   const tags = filterSection?.querySelectorAll('.platform-selector');
 
   if (!tags || !options) {
-    console.error('Filter section items are not found');
+    console.warn('Dokka: filter section items are not found');
     return;
   }
   if (tags.length !== options.length) {
-    console.error('Filter section items are not equal');
+    console.warn('Dokka: filter section items are not equal');
     return;
   }
 

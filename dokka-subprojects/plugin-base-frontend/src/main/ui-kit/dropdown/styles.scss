@@ -19,7 +19,7 @@
 
     display: none;
 
-    overflow-y: scroll;
+    overflow-y: auto;
 
     min-width: 272px;
     max-width: 360px;
@@ -58,7 +58,7 @@
 
     display: block;
 
-    padding: var(--size-s2) 44px;
+    padding: var(--size-s2) var(--size-s3);
 
     list-style-type: none;
 
@@ -82,11 +82,25 @@
       outline: var(--focus-outline);
     }
 
+    &:visited {
+      color: var(--color-text-nav-dt);
+    }
+
     &_active {
       background-color: var(--color-key-blue);
 
       &:hover {
         background-color: lighten(rgb(48, 127, 255), 10%); // color-key-blue
+      }
+    }
+
+    &_link {
+      text-decoration: none;
+
+      color: var(--color-text-nav-dt);
+
+      &:focus-visible {
+        outline: var(--focus-outline);
       }
     }
 
