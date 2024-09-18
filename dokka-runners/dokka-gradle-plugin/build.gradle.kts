@@ -213,10 +213,6 @@ apiValidation {
 val generateDokkaGradlePluginConstants by tasks.registering(GenerateDokkaGradlePluginConstants::class) {
     val dokkaPluginConstants = objects.mapProperty<String, String>().apply {
         put("DOKKA_VERSION", project.version.toString())
-        put("DOKKA_DEPENDENCY_VERSION_KOTLINX_HTML", libs.versions.kotlinx.html)
-        put("DOKKA_DEPENDENCY_VERSION_KOTLINX_COROUTINES", libs.versions.kotlinx.coroutines)
-        put("DOKKA_DEPENDENCY_VERSION_FREEMARKER", libs.versions.freemarker)
-        put("DOKKA_DEPENDENCY_VERSION_JETBRAINS_MARKDOWN", libs.versions.jetbrains.markdown)
     }
 
     properties.set(dokkaPluginConstants)

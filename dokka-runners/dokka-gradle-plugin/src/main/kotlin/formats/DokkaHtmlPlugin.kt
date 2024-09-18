@@ -104,10 +104,9 @@ constructor(
 
         formatDependencies.dokkaPublicationPluginClasspathApiOnly
             .dependencies
-            .addLater(dokkaExtension.versions.jetbrainsDokka.map { v ->
+            .addLater(dokkaExtension.dokkaEngineVersion.map { v ->
                 project.dependencies.create("org.jetbrains.dokka:all-modules-page-plugin:$v")
             })
-
     }
 
     /**
