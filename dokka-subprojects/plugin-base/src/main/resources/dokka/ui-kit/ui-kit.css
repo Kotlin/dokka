@@ -413,7 +413,7 @@
   top: 44px;
   right: 0;
   display: none;
-  overflow-y: scroll;
+  overflow-y: auto;
   min-width: 272px;
   max-width: 360px;
   max-height: 400px;
@@ -446,7 +446,7 @@
 .dropdown--option {
   position: relative;
   display: block;
-  padding: var(--size-s2) 44px;
+  padding: var(--size-s2) var(--size-s3);
   list-style-type: none;
   cursor: pointer;
   letter-spacing: -0.03em;
@@ -465,12 +465,25 @@
   outline: var(--focus-outline);
 }
 
+.dropdown--option:visited {
+  color: var(--color-text-nav-dt);
+}
+
 .dropdown--option_active {
   background-color: var(--color-key-blue);
 }
 
 .dropdown--option_active:hover {
   background-color: #639fff;
+}
+
+.dropdown--option_link {
+  text-decoration: none;
+  color: var(--color-text-nav-dt);
+}
+
+.dropdown--option_link:focus-visible {
+  outline: var(--focus-outline);
 }
 
 .dropdown--option .checkbox {
@@ -1374,12 +1387,23 @@
 .platform-tag {
   --platform-tag-color: #bababb;
   padding: 10px 12px;
-  cursor: pointer;
   letter-spacing: -0.03em;
   text-transform: capitalize;
   border: 0 none;
   border-radius: var(--size-s1);
   font: var(--font-text-s);
+}
+
+button.platform-tag {
+  cursor: pointer;
+}
+
+button.platform-tag:focus-visible {
+  outline: var(--focus-outline);
+}
+
+.platform-selector-option {
+  padding-left: 44px;
 }
 
 .platform-tag.js-like, .platform-selector-option.js-like, .platform-tag.jvm-like, .platform-selector-option.jvm-like, .platform-tag.wasm-like, .platform-selector-option.wasm-like {
