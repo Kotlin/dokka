@@ -7,6 +7,7 @@ package org.jetbrains.dokka.base.renderers.html.innerTemplating
 import freemarker.core.Environment
 import freemarker.template.*
 import kotlinx.html.*
+import kotlinx.html.stream.appendHTML
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.DokkaBase
@@ -102,10 +103,9 @@ public class DefaultTemplateModelFactory(
     private val String.isAbsolute: Boolean
         get() = URI(this).isAbsolute
 
-    private fun Appendable.resourcesForPage(pathToRoot: String, resources: List<String>): Unit =
-        resources.forEach { resource ->
-
-            val resourceHtml = with(createHTML()) {
+    private fun Appendable.resourcesForPage(pathToRoot: String, resources: List<String>) {
+        with(appendHTML()) {
+            resources.forEach { resource ->
                 when {
 
                     resource.URIExtension == "css" ->
@@ -126,13 +126,10 @@ public class DefaultTemplateModelFactory(
                         }
 
                     resource.isImage() -> link(href = if (resource.isAbsolute) resource else "$pathToRoot$resource")
-                    else -> null
                 }
             }
-            if (resourceHtml != null) {
-                append(resourceHtml)
-            }
         }
+    }
 
 }
 
