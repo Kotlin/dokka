@@ -15,7 +15,6 @@ import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.*
@@ -134,8 +133,9 @@ abstract class DokkaFormatPlugin(
                     // https://github.com/gradle/gradle/issues/27435)
                     dependenciesContainer.resolutionStrategy.eachDependency {
                         if (requested.group == "org.jetbrains.dokka" && requested.version.isNullOrBlank()) {
-                            logger.info("adding version of dokka dependency '$requested'")
-                            useVersion(dokkaExtension.versions.jetbrainsDokka.get())
+                            val dokkaVersion = dokkaExtension.dokkaEngineVersion.get()
+                            logger.info("[${context.project.path}] adding Dokka version $dokkaVersion to dependency '$requested'")
+                            useVersion(dokkaVersion)
                         }
                     }
                 }
@@ -164,7 +164,7 @@ abstract class DokkaFormatPlugin(
 
         /** Create a [Dependency] for a Dokka module */
         fun DependencyHandler.dokka(module: String): Provider<Dependency> =
-            dokkaExtension.versions.jetbrainsDokka.map { version -> create("org.jetbrains.dokka:$module:$version") }
+            dokkaExtension.dokkaEngineVersion.map { version -> create("org.jetbrains.dokka:$module:$version") }
 
         private fun AttributeContainer.dokkaPluginsClasspath() {
             attribute(DokkaFormatAttribute, formatDependencies.formatAttributes.format.name)
@@ -211,27 +211,17 @@ abstract class DokkaFormatPlugin(
 
     private fun DokkaFormatPluginContext.addDefaultDokkaDependencies() {
         project.dependencies {
-            /** lazily create a [Dependency] with the provided [version] */
-            infix fun String.version(version: Property<String>): Provider<Dependency> =
-                version.map { v -> create("$this:$v") }
+            dokkaPlugin(dokka("templating-plugin"))
+            dokkaPlugin(dokka("dokka-base"))
 
-            with(dokkaExtension.versions) {
-                dokkaPlugin(dokka("templating-plugin"))
-                dokkaPlugin(dokka("dokka-base"))
-
-                dokkaGenerator(
-                    if (project.pluginFeaturesService.enableK2Analysis) {
-                        dokka("analysis-kotlin-symbols") // K2 analysis
-                    } else {
-                        dokka("analysis-kotlin-descriptors") // K1 analysis
-                    }
-                )
-                dokkaGenerator(dokka("dokka-core"))
-                dokkaGenerator("org.freemarker:freemarker" version freemarker)
-                dokkaGenerator("org.jetbrains:markdown" version jetbrainsMarkdown)
-                dokkaGenerator("org.jetbrains.kotlinx:kotlinx-coroutines-core" version kotlinxCoroutines)
-                dokkaGenerator("org.jetbrains.kotlinx:kotlinx-html" version kotlinxHtml)
-            }
+            dokkaGenerator(
+                if (project.pluginFeaturesService.enableK2Analysis) {
+                    dokka("analysis-kotlin-symbols") // K2 analysis
+                } else {
+                    dokka("analysis-kotlin-descriptors") // K1 analysis
+                }
+            )
+            dokkaGenerator(dokka("dokka-core"))
         }
     }
 

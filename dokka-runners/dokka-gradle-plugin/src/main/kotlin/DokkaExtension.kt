@@ -122,24 +122,12 @@ constructor(
         extensions.adding("pluginsConfiguration", objects.dokkaPluginParametersContainer())
 
     /**
-     * Versions of dependencies that Dokka Gradle Plugin will use to run Dokka Generator.
+     * The default version of Dokka dependencies that are used at runtime during generation.
      *
-     * These versions can be set to change the versions of dependencies that Dokka Gradle Plugin uses by default,
-     * or can be read to align versions.
+     * This value defaults to the current Dokka Gradle Plugin version, but can be overridden
+     * if you want to use a newer or older version of Dokka at runtime.
      */
-    val versions: Versions = extensions.adding("versions", objects.newInstance())
-
-    interface Versions : ExtensionAware {
-
-        /** Default version used for Dokka dependencies */
-        val jetbrainsDokka: Property<String>
-        val jetbrainsMarkdown: Property<String>
-        val freemarker: Property<String>
-        val kotlinxHtml: Property<String>
-        val kotlinxCoroutines: Property<String>
-
-        companion object
-    }
+    abstract val dokkaEngineVersion: Property<String>
 
     /**
      * Dokka Gradle Plugin runs Dokka Generator in a separate

@@ -80,6 +80,7 @@ public abstract class org/jetbrains/dokka/gradle/DokkaExtension : java/io/Serial
 	public final fun ProcessIsolation (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$Process;
 	public static synthetic fun ProcessIsolation$default (Lorg/jetbrains/dokka/gradle/DokkaExtension;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$Process;
 	public abstract fun getDokkaCacheDirectory ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getDokkaEngineVersion ()Lorg/gradle/api/provider/Property;
 	public abstract fun getDokkaGeneratorIsolation ()Lorg/gradle/api/provider/Property;
 	public abstract fun getDokkaModuleDirectory ()Lorg/gradle/api/file/DirectoryProperty;
 	public abstract fun getDokkaPublicationDirectory ()Lorg/gradle/api/file/DirectoryProperty;
@@ -90,19 +91,6 @@ public abstract class org/jetbrains/dokka/gradle/DokkaExtension : java/io/Serial
 	public abstract fun getModuleVersion ()Lorg/gradle/api/provider/Property;
 	public final fun getPluginsConfiguration ()Lorg/gradle/api/ExtensiblePolymorphicDomainObjectContainer;
 	public abstract fun getSourceSetScopeDefault ()Lorg/gradle/api/provider/Property;
-	public final fun getVersions ()Lorg/jetbrains/dokka/gradle/DokkaExtension$Versions;
-}
-
-public abstract interface class org/jetbrains/dokka/gradle/DokkaExtension$Versions : org/gradle/api/plugins/ExtensionAware {
-	public static final field Companion Lorg/jetbrains/dokka/gradle/DokkaExtension$Versions$Companion;
-	public abstract fun getFreemarker ()Lorg/gradle/api/provider/Property;
-	public abstract fun getJetbrainsDokka ()Lorg/gradle/api/provider/Property;
-	public abstract fun getJetbrainsMarkdown ()Lorg/gradle/api/provider/Property;
-	public abstract fun getKotlinxCoroutines ()Lorg/gradle/api/provider/Property;
-	public abstract fun getKotlinxHtml ()Lorg/gradle/api/provider/Property;
-}
-
-public final class org/jetbrains/dokka/gradle/DokkaExtension$Versions$Companion {
 }
 
 public abstract interface class org/jetbrains/dokka/gradle/DokkaMultiModuleFileLayout {
