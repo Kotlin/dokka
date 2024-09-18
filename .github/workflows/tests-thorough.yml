@@ -31,6 +31,7 @@ jobs:
       - name: Run tests
         run: >
           ./gradlew check --stacktrace --continue
+          "-Porg.jetbrains.dokka.integration_test.skip=true"
           "-Porg.jetbrains.dokka.javaToolchain.testLauncher=${{ matrix.javaVersion }}"
       - name: Upload build reports
         if: failure()
