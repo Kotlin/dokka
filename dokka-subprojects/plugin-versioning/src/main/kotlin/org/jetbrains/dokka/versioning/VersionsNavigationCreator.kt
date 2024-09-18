@@ -5,8 +5,11 @@
 package org.jetbrains.dokka.versioning
 
 import kotlinx.html.a
+import kotlinx.html.button
 import kotlinx.html.div
+import kotlinx.html.li
 import kotlinx.html.stream.appendHTML
+import kotlinx.html.ul
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.plugability.plugin
@@ -49,33 +52,54 @@ public class HtmlVersionsNavigationCreator(
             .let { versions -> versionsOrdering.order(versions.keys.toList()).map { it to versions[it] } }
             .takeIf { it.isNotEmpty() }
             ?.let { orderedVersions ->
-                StringBuilder().appendHTML().div(classes = "versions-dropdown") {
+                StringBuilder().appendHTML().div(classes = "dropdown versions-dropdown") {
+                    attributes["data-role"] = "dropdown"
                     val activeVersion = getActiveVersion(position)
-                    val relativePosition: String  = activeVersion?.value?.let { output.toRelativeString(it) } ?: "index.html"
-                    div(classes = "versions-dropdown-button") {
+                    val relativePosition: String =
+                        activeVersion?.value?.let { output.toRelativeString(it) } ?: "index.html"
+                    button(classes = "button button_dropdown") {
+                        attributes["role"] = "combobox"
+                        attributes["data-role"] = "dropdown-toggle"
+                        attributes["aria-controls"] = "versions-listbox"
+                        attributes["aria-haspopup"] = "listbox"
+                        attributes["aria-expanded"] = "false"
+                        attributes["aria-label"] = "Select version"
                         activeVersion?.key?.let { text(it) }
                     }
-                    div(classes = "versions-dropdown-data") {
+                    ul(classes = "dropdown--list") {
+                        attributes["role"] = "listbox"
+                        attributes["data-role"] = "dropdown-listbox"
+                        attributes["aria-label"] = "Versions"
+                        attributes["id"] = "versions-listbox"
                         orderedVersions.forEach { (version, path) ->
-                            if (version == activeVersion?.key) {
-                                a(href = output.name) { text(version) }
-                            } else {
-                                val isExistsFile =
-                                    if (version == versioningStorage.currentVersion.name)
-                                        path?.resolve(relativePosition)?.exists() == true
-                                    else
-                                        versioningStorage.previousVersions[version]?.src?.resolve(relativePosition)
-                                            ?.exists() == true
-
-                                val absolutePath =
-                                    if (isExistsFile)
-                                        path?.resolve(relativePosition)
-                                    else
-                                        versioningStorage.currentVersion.dir.resolve("not-found-version.html")
-
-                                a(href = absolutePath?.toRelativeString(position) +
-                                        if (!isExistsFile) "?v=" + version.urlEncoded() else "") {
+                            li {
+                                if (version == activeVersion?.key) {
+                                    a(classes = "dropdown--option dropdown--option-link", href = output.name) {
+                                        attributes["role"] = "option"
                                         text(version)
+                                    }
+                                } else {
+                                    val isExistsFile =
+                                        if (version == versioningStorage.currentVersion.name)
+                                            path?.resolve(relativePosition)?.exists() == true
+                                        else
+                                            versioningStorage.previousVersions[version]?.src?.resolve(relativePosition)
+                                                ?.exists() == true
+
+                                    val absolutePath =
+                                        if (isExistsFile)
+                                            path?.resolve(relativePosition)
+                                        else
+                                            versioningStorage.currentVersion.dir.resolve("not-found-version.html")
+
+                                    a(
+                                        classes = "dropdown--option dropdown--option-link",
+                                        href = absolutePath?.toRelativeString(position) +
+                                                if (!isExistsFile) "?v=" + version.urlEncoded() else ""
+                                    ) {
+                                        attributes["role"] = "option"
+                                        text(version)
+                                    }
                                 }
                             }
                         }
