@@ -104,14 +104,8 @@ constructor(
             dokkaModuleDirectory.convention(layout.buildDirectory.dir("dokka-module"))
 //            @Suppress("DEPRECATION")
 //            dokkaConfigurationsDirectory.convention(layout.buildDirectory.dir("dokka-config"))
-        }
 
-        dokkaExtension.versions {
-            jetbrainsDokka.convention(DokkaConstants.DOKKA_VERSION)
-            jetbrainsMarkdown.convention(DokkaConstants.DOKKA_DEPENDENCY_VERSION_JETBRAINS_MARKDOWN)
-            freemarker.convention(DokkaConstants.DOKKA_DEPENDENCY_VERSION_FREEMARKER)
-            kotlinxHtml.convention(DokkaConstants.DOKKA_DEPENDENCY_VERSION_KOTLINX_HTML)
-            kotlinxCoroutines.convention(DokkaConstants.DOKKA_DEPENDENCY_VERSION_KOTLINX_COROUTINES)
+            dokkaEngineVersion.convention(DokkaConstants.DOKKA_VERSION)
         }
 
         dokkaExtension.dokkaGeneratorIsolation.convention(
