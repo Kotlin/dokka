@@ -6,13 +6,11 @@ package org.jetbrains.dokka.gradle.utils
 import org.gradle.api.logging.LogLevel
 import org.gradle.testkit.runner.GradleRunner
 import org.intellij.lang.annotations.Language
-import org.jetbrains.dokka.gradle.utils.GradleProjectTest.Companion.dokkaVersionOverride
+import org.jetbrains.dokka.gradle.utils.GradleProjectTest.Companion.settingsRepositories
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
-import kotlin.io.path.Path
-import kotlin.io.path.invariantSeparatorsPathString
-import kotlin.io.path.readText
+import kotlin.io.path.*
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -141,7 +139,7 @@ class GradleProjectTest(
                 putNotNull("org.gradle.configureondemand", configureOnDemand)
                 putNotNull("org.gradle.continue", continueOnFailure)
                 putNotNull("org.gradle.daemon.idletimeout", daemonIdleTimeout?.inWholeMilliseconds)
-                putNotNull("org.gradle.priority", daemonSchedulingPriority?.name?.lowercase())
+                putNotNull("org.gradle.priority", daemonSchedulingPriority)
                 putNotNull("org.gradle.debug", debug)
                 putNotNull("org.gradle.logging.level", logLevel?.name?.lowercase())
                 putNotNull("org.gradle.workers.max", maxWorkers)
@@ -165,11 +163,32 @@ class GradleProjectTest(
             .withProjectDir(projectDir.toFile())
             .updateGradleProperties(gradleProperties)
 
+    /**
+     * Update all repositories in any `settings.gradle(.kts)` file.
+     *
+     * All `repositories {}` will be modified to add the dev maven repos, [mavenRepositories].
+     */
+    fun updateSettingsRepositories() {
+        projectDir.walk()
+            .filter { it.name == "settings.gradle.kts" || it.name == "settings.gradle" }
+            .forEach { p ->
+                val repoLine = p.useLines { it.firstOrNull { l -> l.trim() == "repositories {" } }
+                    ?: return@forEach
+                val ind = repoLine.substringBefore("repositories {")
+                p.writeText(
+                    p.readText().replace(
+                        "repositories {",
+                        "repositories {\n${mavenRepositories.prependIndent(ind)}\n",
+                    )
+                )
+            }
+    }
+
     companion object {
-        val dokkaVersionOverride: String? by optionalSystemProperty()
+        private val dokkaVersionOverride: String? by optionalSystemProperty()
 
         /** file-based Maven repositories with Dokka dependencies */
-        val devMavenRepositories: List<Path> by systemProperty { repos ->
+        private val devMavenRepositories: List<Path> by systemProperty { repos ->
             repos.split(",").map { Path(it) }
         }
 
@@ -178,6 +197,69 @@ class GradleProjectTest(
         /** Temporary directory for the functional tests */
         val funcTestTempDir: Path by lazy {
             projectTestTempDir.resolve("functional-tests")
+        }
+
+        fun settingsRepositories(): String {
+            val dokkaTestRepo = mavenRepositories
+
+            return """
+                |pluginManagement {
+                |  repositories {
+                |${dokkaTestRepo.prependIndent("    ")}
+                |    mavenCentral()
+                |    gradlePluginPortal()
+                |  }
+                |}
+                |
+                |@Suppress("UnstableApiUsage")
+                |dependencyResolutionManagement {
+                |  repositories {
+                |${dokkaTestRepo.prependIndent("    ")}
+                |    mavenCentral()
+                |  }
+                |}
+                |
+              """.trimMargin()
+        }
+
+
+        val mavenRepositories: String by lazy {
+            val reposSpecs = if (dokkaVersionOverride != null) {
+                println("Dokka version overridden with $dokkaVersionOverride")
+                // if `DOKKA_VERSION_OVERRIDE` environment variable is provided,
+                // we allow running tests on a custom Dokka version from specific repositories
+                """
+                maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/test"),
+                maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev"),
+                mavenCentral(),
+                mavenLocal()
+                """.trimIndent()
+            } else {
+                // otherwise - use locally published versions via `devMavenPublish`
+                GradleProjectTest.devMavenRepositories.withIndex().joinToString(",\n") { (i, repoPath) ->
+                    // Exclusive repository containing local Dokka artifacts.
+                    // Must be compatible with both Groovy and Kotlin DSL.
+                    """
+                    |maven {
+                    |    setUrl("${repoPath.invariantSeparatorsPathString}")
+                    |    name = "DokkaDevMavenRepo${i}"
+                    |}
+                    """.trimMargin()
+                }
+            }
+
+            """
+            |exclusiveContent {
+            |    forRepositories(
+            |      $reposSpecs
+            |    )
+            |    filter {
+            |        includeGroup("org.jetbrains.dokka")
+            |        includeGroup("org.jetbrains.dokka-javadoc")
+            |    }
+            |}
+            |
+            """.trimMargin()
         }
     }
 }
@@ -299,69 +381,6 @@ annotation class ProjectDirectoryDsl
 @ProjectDirectoryDsl
 interface ProjectDirectoryScope {
     val projectDir: Path
-
-    @Language("kts")
-    fun settingsRepositories(): String {
-        val reposSpecs = if (dokkaVersionOverride != null) {
-            println("Dokka version overridden with $dokkaVersionOverride")
-            // if `DOKKA_VERSION_OVERRIDE` environment variable is provided,
-            //  we allow running tests on a custom Dokka version from specific repositories
-            """
-            maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/test"),
-            maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev"),
-            mavenCentral(),
-            mavenLocal()
-            """.trimIndent()
-        } else {
-            // otherwise - use locally published versions via `devMavenPublish`
-            GradleProjectTest.devMavenRepositories.withIndex().joinToString(",\n") { (i, repoPath) ->
-                // Exclusive repository containing local Dokka artifacts.
-                // Must be compatible with both Groovy and Kotlin DSL.
-                /* language=kts */
-                """
-                |maven {
-                |    setUrl("${repoPath.invariantSeparatorsPathString}")
-                |    name = "DokkaDevMavenRepo${i}"
-                |}
-                """.trimMargin()
-            }
-        }
-
-
-        // must be compatible with both Kotlin DSL and Groovy DSL
-
-        @Language("kts")
-        val dokkaTestRepo = """
-        |exclusiveContent {
-        |  forRepositories(
-        |${reposSpecs.prependIndent("   ")}
-        |  )
-        |  filter {
-        |    includeGroup("org.jetbrains.dokka")
-        |    includeGroup("org.jetbrains.dokka-javadoc")
-        |  }
-        |}
-    """.trimMargin()
-
-        return """
-        |pluginManagement {
-        |  repositories {
-        |${dokkaTestRepo.prependIndent("    ")}
-        |    mavenCentral()
-        |    gradlePluginPortal()
-        |  }
-        |}
-        |
-        |@Suppress("UnstableApiUsage")
-        |dependencyResolutionManagement {
-        |  repositories {
-        |${dokkaTestRepo.prependIndent("    ")}
-        |    mavenCentral()
-        |  }
-        |}
-        |
-      """.trimMargin()
-    }
 }
 
 private data class ProjectDirectoryScopeImpl(

@@ -1,0 +1,10 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:demo////PointingToDeclaration/-dokka -gradle -example/demo/index.html
+$dokka.location:demo//main/#kotlin.Array[kotlin.String]/PointingToDeclaration/-dokka -gradle -example/demo/main.html
+$dokka.location:demo/Greeter///PointingToDeclaration/-dokka -gradle -example/demo/-greeter/index.html
+$dokka.location:demo/Greeter/Greeter/#kotlin.String/PointingToDeclaration/-dokka -gradle -example/demo/-greeter/-greeter.html
+$dokka.location:demo/Greeter/greet/#/PointingToDeclaration/-dokka -gradle -example/demo/-greeter/greet.html
+$dokka.location:demo/Greeter/name/#/PointingToDeclaration/-dokka -gradle -example/demo/-greeter/name.html
+demo
+
