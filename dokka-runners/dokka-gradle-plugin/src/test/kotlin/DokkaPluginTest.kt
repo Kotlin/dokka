@@ -83,6 +83,29 @@ class DokkaPluginTest : FunSpec({
                     gradleDocLink.packageListUrl.get()
                         .toString() shouldBe "https://docs.gradle.org/7.6.1/javadoc/package-list"
                 }
+
+                test("externalDocumentationLinks should be enabled by default") {
+                    val fooLink = testSourceSet.externalDocumentationLinks.create("foo")
+                    fooLink.enabled.orNull shouldBe true
+                }
+
+                test("kotlinStdlib externalDocumentationLink should be disabled when DokkaSourceSetSpec.enableKotlinStdLibDocumentationLink is disabled") {
+                    testSourceSet.enableKotlinStdLibDocumentationLink.set(false)
+                    val kotlinStdlib = testSourceSet.externalDocumentationLinks.getByName("kotlinStdlib")
+                    kotlinStdlib.enabled.orNull shouldBe false
+                }
+
+                context("Android externalDocumentationLinks should be disabled when DokkaSourceSetSpec.enableAndroidDocumentationLink is disabled") {
+                    testSourceSet.enableAndroidDocumentationLink.set(false)
+                    test("androidSdk") {
+                        val androidSdk = testSourceSet.externalDocumentationLinks.getByName("androidSdk")
+                        androidSdk.enabled.orNull shouldBe false
+                    }
+                    test("androidX") {
+                        val androidX = testSourceSet.externalDocumentationLinks.getByName("androidX")
+                        androidX.enabled.orNull shouldBe false
+                    }
+                }
             }
 
             context("perPackageOptions") {

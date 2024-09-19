@@ -310,9 +310,11 @@ constructor(
      * Whether to generate external documentation links for Android SDK API reference when
      * declarations from it are used.
      *
-     * Only relevant in Android projects, ignored otherwise.
+     * Only relevant in Android projects, and will be automatically disabled otherwise.
      *
-     * Default is `false`, meaning links will not be generated.
+     * The default value is automatically determined.
+     * If [analysisPlatform] is set to [KotlinPlatform.AndroidJVM], then the value will be `true`.
+     * Otherwise, the value defaults to `false`.
      *
      * @see externalDocumentationLinks
      */
