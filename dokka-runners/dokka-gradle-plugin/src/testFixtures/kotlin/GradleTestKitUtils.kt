@@ -61,8 +61,10 @@ class GradleProjectTest(
             var daemonIdleTimeout: Duration? = 30.seconds,
             /**
              * Specifies the scheduling priority for the Gradle daemon and all processes launched by it.
+             *
+             * Valid values are `low` and `normal`, or set as `null` to set no value.
              */
-            var daemonSchedulingPriority: SchedulingPriority? = SchedulingPriority.Low,
+            var daemonSchedulingPriority: String? = "low",
             var maxWorkers: Int? = null,
             val jvmArgs: JvmArgs = JvmArgs(),
 
@@ -72,8 +74,6 @@ class GradleProjectTest(
             // org.gradle.vfs.verbose=(true,false)
             // org.gradle.vfs.watch=(true,false)
         ) {
-            enum class SchedulingPriority { Low, Normal }
-
             fun jvm(config: JvmArgs.() -> Unit): Unit = jvmArgs.config()
         }
 
