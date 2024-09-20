@@ -27,4 +27,11 @@
   .theme-dark & {
     background-color: var(--color-background-nav-dt);
   }
+
+  & .button {
+    @media (width < $breakpoint-desktop-min) {
+      min-width: 52px;
+      height: 52px;
+    }
+  }
 }
