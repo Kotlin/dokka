@@ -1,7 +1,7 @@
 [//]: # (title: Migrate to Dokka Gradle plugin v2)
 
 > The Dokka Gradle plugin v2 is an [experimental](https://kotlinlang.org/docs/components-stability.html#stability-levels-explained) feature. 
-> It may be changed at any time. We appreciate your feedback in [GitHub](https://github.com/Kotlin/dokka/issues).
+> It may be changed at any time. We appreciate your feedback on [GitHub](https://github.com/Kotlin/dokka/issues).
 >
 {type="warning"}
 
@@ -15,13 +15,13 @@ From Dokka 2.0.0, you can try the Dokka Gradle plugin v2, the new version of DGP
 DGP v2 introduces significant improvements to DGP, aligning more closely with Gradle best practices. Key improvements are:
 
 * Adoption of Gradle types, leading to better performance.
-* Use of intuitive top-level DSL configuration instead of low-level task-based setups, simplifying the build scripts and their readability.
+* Use of intuitive top-level DSL configuration instead of low-level task-based setup, simplifying the build scripts and their readability.
 * More declarative approach to documentation aggregation, making multi-project documentation easier to manage.
 * Plugin configuration is now typesafe, improving the reliability and maintainability of your build scripts.
 
 ## Before you start
 
-Before diving into your project migration, complete the following preparatory steps according to your project.
+Before starting the migration, complete the following steps.
 
 ### Verify supported versions
 
@@ -29,9 +29,9 @@ Ensure your project meets the minimum version requirements:
 
 | **Tool**              | **Version**   |
 |-----------------------|---------------|
-| Gradle                | 7.6 or higher |
-| Android Gradle plugin | 7.0 or higher |
-| Kotlin Gradle plugin  | 1.9 or higher |
+| [Gradle](https://docs.gradle.org/current/userguide/upgrading_version_8.html)                | 7.6 or higher |
+| [Android Gradle plugin](https://developer.android.com/build/agp-upgrade-assistant) | 7.0 or higher |
+| [Kotlin Gradle plugin](https://kotlinlang.org/docs/gradle-configure-project.html)  | 1.9 or higher |
 
 ### Enable the new Dokka Gradle plugin
 
@@ -44,10 +44,12 @@ Ensure your project meets the minimum version requirements:
    }
    ```
 
-   > In DGP v2, this plugin ID outputs HTML by default. For more information about getting Javadoc output, see 
+   > The default output format for DGP v2 is HTML. For more information about getting Javadoc output, see 
    > [Select documentation output format](#select-documentation-output-format).
    >
    {type="tip"}
+
+   Alternatively, you can use [version catalog](https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog) to enable the Dokka Gradle plugin v2.
 
 2. In the project's `gradle.properties` file, set the following opt-in flag with helpers to activate the new plugin version:
 
@@ -57,19 +59,21 @@ Ensure your project meets the minimum version requirements:
 
    If your project does not have a `gradle.properties` file, create one in the root directory of your project.
 
-3. In the Gradle tool window, click the **Reload** button to sync the project in IntelliJ IDEA. This ensures the new 
-   DSL options and plugin configurations are properly applied.
+3. Sync your project with Gradle to ensure the new plugin is properly applied:
+
+   * If you use IntelliJ IDEA, click the **Reload** button from the Gradle tool window.
+   * If you use Android Studio, select **File** | **Sync Project with Gradle Files**.
 
 ## Migrate your project
 
-After updating the Dokka Gradle plugin to v2, follow the migration steps that accommodate your project requirements.
+After updating the Dokka Gradle plugin to v2, follow the migration steps applicable to your project.
 
 ### Adjust configuration options
 
 DGP v2 introduces some changes in the Gradle configuration options. In the `build.gradle.kts` file, adjust the configuration 
-options applicable to your project setup: 
+options according to your project setup: 
 
-* **New top-level DSL configuration:** Replace the old configuration syntax that uses multiple tasks and blocks with the 
+* **New top-level DSL configuration:** Replace the old configuration syntax with the 
   new top-level `dokka {}` DSL configuration. For example:
 
   Previous configuration:
@@ -141,8 +145,8 @@ options applicable to your project setup:
   )
   ```
 
-* **External documentation link:** The source link configuration has changed to accommodate Java and Gradle deprecations. 
-  The remote URL is now specified using `URI` instead of `URL`.
+* **External documentation link:** The source link configuration has [changed](https://docs.gradle.org/current/userguide/upgrading_version_8.html#deprecated_invalid_url_decoding). 
+    The remote URL is now specified using `URI` instead of `URL`.
 
   Previous configuration:
   
@@ -211,7 +215,7 @@ Follow the steps below to properly share Dokka configuration in multi-module pro
     }   
     ```
    
-4. Create a `buildSrc/src/main/kotlin/dokka-convention.gradle.kts` directory to host the convention plugin.
+4. Create a `buildSrc/src/main/kotlin/dokka-convention.gradle.kts` file to host the [convention plugin](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:convention_plugins).
 5. In the `dokka-convention.gradle.kts` file, add the following snippet:
 
     ```kotlin
@@ -222,7 +226,7 @@ Follow the steps below to properly share Dokka configuration in multi-module pro
 
    In the code above, you don't need to specify a Dokka version. The version is set in `buildSrc/build.gradle.kts`   
 
-6. Apply the Dokka convention plugin to your modules (subprojects). Add the convention plugin ID to each subproject's
+6. Apply the Dokka convention plugin to your modules (subprojects). Add the convention plugin to each subproject's
    `build.gradle.kts` file:
 
     ```kotlin
@@ -233,7 +237,8 @@ Follow the steps below to properly share Dokka configuration in multi-module pro
 
 #### Multi-module projects with convention plugins
 
-1. Create a dedicated Dokka [convention plugin](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:convention_plugins) that encapsulates your Dokka configuration.
+1. Create a dedicated Dokka [convention plugin](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:convention_plugins) that encapsulates your Dokka [configuration](#adjust-configuration-options),
+   such as Dokka source sets, output formats, visibility settings, and more.
 2. In the `build.gradle.kts` file of each module (subproject), apply your Dokka convention plugin:
  
    ```kotlin
@@ -259,7 +264,7 @@ Dokka can aggregate the documentation from multiple modules (subprojects) into a
 As explained in [Multi-module projects with convention plugins](#multi-module-projects-with-convention-plugins),
 you must apply the Dokka plugin to all documentable subprojects before aggregating the documentation.
 
-Aggregation in DGP v2 is more straightforward. Instead of tasks, now it uses the `dependencies{}` block in any `build.gradle.kts` file.
+Aggregation in DGP v2 now uses the `dependencies{}` block in any `build.gradle.kts` file instead of tasks.
 
 Previous aggregation:
 
@@ -317,7 +322,19 @@ After running the `dokkaGenerate` task, the generated API documentation is avail
 
 With DGP v2, you can choose to generate the API documentation in HTML, Javadoc, or both formats at the same time:
 
-1. Place the corresponding plugin `id` in the `plugins{}` block of your project's `build.gradle.kts` file.
+1. Place the corresponding plugin `id` in the `plugins{}` block of your project's `build.gradle.kts` file:
+
+   ```kotlin
+   plugins {
+       // Generates HTML documentation
+       id("org.jetbrains.dokka") version "2.0.0"
+       // OR
+       // Generates Javadoc documentation
+       id("org.jetbrains.dokka-javadoc") version "2.0.0"
+       // Keeping both plugin IDs generates both formats
+   }
+   ```
+
 2. Run the corresponding Gradle task.
 
 Here's a list of the plugin `id` and Gradle task that correspond to each format:
