@@ -14,7 +14,7 @@
                         aria-label="Toggle source sets"
                 ></button>
                 <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
-                    <div class="filter-section--header"><span>Platform filter</span>
+                    <div class="dropdown--header"><span>Platform filter</span>
                         <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
                             <i class="ui-kit-icon ui-kit-icon_cross"></i>
                         </button>
@@ -30,7 +30,7 @@
                         </li>
                     </#list>
                 </ul>
-                <div class="filter-section--overlay" id="filter-section-overlay"></div>
+                <div class="dropdown--overlay"></div>
             </div>
         </div>
     </#if>
