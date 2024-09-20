@@ -45,7 +45,6 @@ buildCache {
         }
     }
     remote(develocity.buildCache) {
-        server = "https://ge.jetbrains.com/cache/"
         isPush = buildCachePushEnabled.get()
     }
 }
