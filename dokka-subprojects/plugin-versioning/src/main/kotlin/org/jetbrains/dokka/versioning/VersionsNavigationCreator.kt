@@ -7,7 +7,9 @@ package org.jetbrains.dokka.versioning
 import kotlinx.html.a
 import kotlinx.html.button
 import kotlinx.html.div
+import kotlinx.html.i
 import kotlinx.html.li
+import kotlinx.html.span
 import kotlinx.html.stream.appendHTML
 import kotlinx.html.ul
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -71,6 +73,14 @@ public class HtmlVersionsNavigationCreator(
                         attributes["data-role"] = "dropdown-listbox"
                         attributes["aria-label"] = "Versions"
                         attributes["id"] = "versions-listbox"
+                        div(classes = "dropdown--header") {
+                            span { text("Select version") }
+                            button(classes = "button") {
+                                attributes["data-role"] = "dropdown-toggle"
+                                attributes["aria-label"] = "Close versions selection"
+                                i(classes = "ui-kit-icon ui-kit-icon_cross") {}
+                            }
+                        }
                         orderedVersions.forEach { (version, path) ->
                             li {
                                 if (version == activeVersion?.key) {
@@ -104,6 +114,7 @@ public class HtmlVersionsNavigationCreator(
                             }
                         }
                     }
+                    div(classes = "dropdown--overlay") {}
                 }.toString()
             }.orEmpty()
     }
