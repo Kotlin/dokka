@@ -4,6 +4,7 @@
 
 .versions-dropdown {
   margin-left: var(--size-s2);
+  white-space: nowrap;
 }
 
 @media (width < 900px) {
@@ -12,9 +13,11 @@
   }
 }
 
-.versions-dropdown .dropdown--list {
-  top: 40px;
-  min-width: 50px;
+@media (width >= 900px) {
+  .versions-dropdown .dropdown--list {
+    min-width: 50px;
+    top: 40px;
+  }
 }
 
 .no-js .versions-dropdown:hover .dropdown--list {
