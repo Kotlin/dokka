@@ -5,17 +5,32 @@
 @import '../../ui-kit/_tokens/index';
 
 $font-color: rgba(255, 255, 255, 0.96);
-$secondary-font-color: rgba(255, 255, 255, 0.70);
+$secondary-font-color: rgba(255, 255, 255, 0.7);
 
 #pages-search {
+  width: 40px;
+  height: 40px;
   padding: 0;
 
   cursor: pointer;
 
   border: none;
+  border-radius: var(--size-s1);
+
   background: transparent;
 
   font-size: 0;
+
+  &:focus-visible {
+    outline: var(--focus-outline);
+  }
+}
+
+@media (width < 900px) {
+  #pages-search {
+    width: 52px;
+    height: 52px;
+  }
 }
 
 .search {
@@ -49,18 +64,18 @@ $secondary-font-color: rgba(255, 255, 255, 0.70);
 
   background-color: #27282c !important;
 
-
   [class^='filterWrapper'] {
     border-bottom: 1px solid hsla(0deg, 0%, 100%, 0.2);
   }
 
   input {
-    color: #ffffff;
+    height: 32px;
 
-    font-weight: normal !important;
+    color: #fff;
+
     font-size: 16px;
 
-    height: 32px;
+    font-weight: normal !important;
   }
 
   span[data-test-custom='ring-select-popup-filter-icon'] {
@@ -69,11 +84,13 @@ $secondary-font-color: rgba(255, 255, 255, 0.70);
 
   button[data-test='ring-input-clear'] {
     color: #fff !important;
+
     span {
       display: none;
     }
-    &:after {
-      content: "Clear";
+
+    &::after {
+      content: 'Clear';
     }
   }
 }
@@ -86,45 +103,51 @@ $secondary-font-color: rgba(255, 255, 255, 0.70);
 
 .template-wrapper {
   display: flex;
+  overflow: hidden;
   flex-direction: column;
-  padding: 4px 24px;
 
   height: auto;
+  padding: 4px 24px;
   grid-template-columns: auto auto;
-  overflow: hidden;
 
   strong {
     color: $font-color;
-    background: rgba(48,127,255,0.3);
+    background: rgba(48, 127, 255, 0.3);
   }
 }
 
 .template-title {
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 24px;
-  word-break: break-all;
-  white-space: normal;
   display: -webkit-box;
+  overflow: hidden;
+
+  white-space: normal;
+  word-break: break-all;
+
+  color: #fff;
+
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
-  overflow: hidden;
 }
 
 .template-description {
-    display: block;
-    color: $secondary-font-color;
-    justify-self: end;
-    font-weight: normal;
-    font-size: 14px;
-    line-height: 20px;
-    word-break: break-all;
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    overflow: hidden;
+  display: block;
+  display: -webkit-box;
+  overflow: hidden;
+
+  white-space: normal;
+  word-break: break-all;
+
+  color: $secondary-font-color;
+
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 20px;
+  justify-self: end;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 @media screen and (width <= 759px) {
