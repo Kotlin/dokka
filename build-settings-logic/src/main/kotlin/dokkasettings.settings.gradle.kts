@@ -2,55 +2,20 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import org.gradle.api.initialization.resolve.RepositoriesMode.PREFER_SETTINGS
+// Based on https://github.com/JetBrains/kotlin/blob/c20f644ee4cd8d28b39b12ea5304b68c5639e531/repo/gradle-settings-conventions/develocity/src/main/kotlin/develocity.settings.gradle.kts
+// Because Dokka uses Composite Builds, Build Cache must be configured consistently on:
+// - the root settings.gradle.kts,
+// - and the settings.gradle.kts of any projects added with `pluginManagement { includedBuild("...") }`
+// The Content of this file should be kept in sync with the content at the end of:
+//   `build-settings-logic/settings.gradle.kts`
+// useful links:
+// - develocity: https://docs.gradle.com/develocity/gradle-plugin/
+// - build cache: https://docs.gradle.org/8.4/userguide/build_cache.html#sec:build_cache_composite
 
-rootProject.name = "build-settings-logic"
-
-pluginManagement {
-    repositories {
-        maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2") {
-            name = "MavenCentral-JBCache"
-        }
-        maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2") {
-            name = "GradlePluginPortal-JBCache"
-        }
-    }
-}
-
-@Suppress("UnstableApiUsage")
-dependencyResolutionManagement {
-    repositoriesMode = PREFER_SETTINGS
-    repositories {
-        maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2") {
-            name = "MavenCentral-JBCache"
-        }
-        maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2") {
-            name = "GradlePluginPortal-JBCache"
-        }
-    }
-
-    versionCatalogs {
-        create("libs") {
-            from(files("../gradle/libs.versions.toml"))
-        }
-    }
-}
-
-// We have to make sure the build-cache config is consistent in the settings.gradle.kts
-// files of all projects. The natural way to share logic is with a convention plugin,
-// but we can't apply a convention plugin in build-settings-logic to itself, so we just copy it.
-// We could publish build-settings-logic to a Maven repo? But this is quicker and easier.
-// The following content should be kept in sync with the content of:
-//   `src/main/kotlin/dokkasettings.settings.gradle.kts`
-// The only difference with the script above is explicitly specified versions
-
-//region copy of src/main/kotlin/dokkasettings.settings.gradle.kts
-
-// version should be kept in sync with `gradle/libs.versions.toml`
 plugins {
-    id("com.gradle.develocity") version "3.17.6"
-    id("com.gradle.common-custom-user-data-gradle-plugin") version "2.0.2" apply false
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.7.0"
+    id("com.gradle.develocity")
+    id("com.gradle.common-custom-user-data-gradle-plugin") apply false
+    id("org.gradle.toolchains.foojay-resolver-convention")
 }
 
 //region properties
@@ -139,6 +104,4 @@ buildCache {
         isPush = buildCachePushEnabled.get()
     }
 }
-//endregion
-
 //endregion
