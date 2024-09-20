@@ -39,7 +39,7 @@ function toggleDropdownList(list: Element | null): void {
 
 function handleOutsideClick(event: MouseEvent): void {
   const target = event.target as HTMLElement;
-  if (!hasAncestorWithClass(target, 'dropdown') || target.id === 'filter-section-overlay') {
+  if (!hasAncestorWithClass(target, 'dropdown') || target.className === 'dropdown--overlay') {
     const dropdowns = document.querySelectorAll('.button_dropdown');
     dropdowns.forEach((dropdown) => {
       dropdown.classList.remove('button_dropdown_active');
