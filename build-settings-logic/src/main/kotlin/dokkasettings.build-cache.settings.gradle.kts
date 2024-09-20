@@ -32,15 +32,9 @@ val buildCacheLocalEnabled: Provider<Boolean> =
         .orElse(!buildingOnCi)
 val buildCacheLocalDirectory: Provider<String> =
     dokkaProperty("build.cache.local.directory")
-val buildCacheUrl: Provider<String> =
-    dokkaProperty("build.cache.url").map(String::trim)
 val buildCachePushEnabled: Provider<Boolean> =
     dokkaProperty("build.cache.push", String::toBoolean)
         .orElse(buildingOnTeamCity)
-val buildCacheUser: Provider<String> =
-    dokkaProperty("build.cache.user")
-val buildCachePassword: Provider<String> =
-    dokkaProperty("build.cache.password")
 //endregion
 
 buildCache {
@@ -50,15 +44,8 @@ buildCache {
             directory = buildCacheLocalDirectory.get()
         }
     }
-    remote<HttpBuildCache> {
-        url = uri("https://ge.jetbrains.com/cache/")
+    remote(develocity.buildCache) {
+        server = "https://ge.jetbrains.com/cache/"
         isPush = buildCachePushEnabled.get()
-
-        if (buildCacheUser.isPresent &&
-            buildCachePassword.isPresent
-        ) {
-            credentials.username = buildCacheUser.get()
-            credentials.password = buildCachePassword.get()
-        }
     }
 }
