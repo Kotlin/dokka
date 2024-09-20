@@ -105,9 +105,4 @@
       filter: invert(0);
     }
   }
-
-  @media (width < $breakpoint-desktop-min) {
-    width: 52px;
-    height: 52px;
-  }
 }

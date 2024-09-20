@@ -178,13 +178,6 @@
   transform: rotate(-180deg);
   filter: invert(0);
 }
-
-@media (width < 900px) {
-  .button {
-    width: 52px;
-    height: 52px;
-  }
-}
 /*!
  * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */ /*!
@@ -489,6 +482,48 @@
 .dropdown--option .checkbox {
   pointer-events: none;
 }
+
+.dropdown--overlay {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  content: "";
+  background-color: rgba(137, 137, 137, 0.5);
+}
+
+.dropdown--list_expanded + .dropdown--overlay {
+  display: block;
+}
+
+@media (width >= 900px) {
+  .dropdown--list_expanded + .dropdown--overlay {
+    display: none;
+  }
+}
+.dropdown--header {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: var(--size-s3);
+  color: var(--color-w70);
+  border-bottom: 1px solid #56565f;
+  background-color: var(--color-background-nav-dt);
+}
+
+@media (width >= 900px) {
+  .dropdown--header {
+    display: none;
+  }
+}
 /*!
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */ /*!
@@ -625,47 +660,6 @@
     background-position: 50% 50%;
   }
   .filter-section--dropdown-toggle::after {
-    display: none;
-  }
-}
-.filter-section--header {
-  position: sticky;
-  z-index: 2;
-  top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-left: var(--size-s3);
-  color: var(--color-w70);
-  border-bottom: 1px solid #56565f;
-  background-color: var(--color-background-nav-dt);
-}
-
-@media (width >= 900px) {
-  .filter-section--header {
-    display: none;
-  }
-}
-.filter-section--overlay {
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: none;
-  width: 100vw;
-  height: 100vh;
-  content: "";
-  background-color: rgba(137, 137, 137, 0.5);
-}
-
-.dropdown--list_expanded + .filter-section--overlay {
-  display: block;
-}
-
-@media (width >= 900px) {
-  .dropdown--list_expanded + .filter-section--overlay {
     display: none;
   }
 }
@@ -1130,6 +1124,13 @@
 }
 .theme-dark .navigation {
   background-color: var(--color-background-nav-dt);
+}
+
+@media (width < 900px) {
+  .navigation .button {
+    min-width: 52px;
+    height: 52px;
+  }
 }
 /*!
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
