@@ -74,15 +74,6 @@ class ExampleProjectsTest {
             ): GradleProjectTest {
                 return GradleProjectTest(destinationDir).apply {
                     sourceProjectDir.copyToRecursively(projectDir, overwrite = true, followLinks = false)
-
-                    gradleProperties {
-                        dokka {
-                            v2Plugin = true
-                            v2MigrationHelpers = false
-                            v2PluginNoWarn = true
-                        }
-                    }
-
                     updateSettingsRepositories()
                 }
             }
