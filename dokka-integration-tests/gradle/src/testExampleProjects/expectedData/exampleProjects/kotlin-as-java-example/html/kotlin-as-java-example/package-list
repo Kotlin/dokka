@@ -8,4 +8,3 @@ $dokka.location:demo/Greeter/greet/#/PointingToDeclaration/kotlin-as-java-examp
 $dokka.location:demo/HelloWorldKt///PointingToDeclaration/kotlin-as-java-example/demo/-hello-world-kt/index.html
 $dokka.location:demo/HelloWorldKt/main/#kotlin.Array[kotlin.String]/PointingToDeclaration/kotlin-as-java-example/demo/-hello-world-kt/main.html
 demo
-
