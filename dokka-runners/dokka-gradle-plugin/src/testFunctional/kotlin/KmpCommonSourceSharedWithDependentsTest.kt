@@ -6,7 +6,6 @@ package org.jetbrains.dokka.gradle
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.paths.shouldBeAFile
-import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.jetbrains.dokka.gradle.internal.DokkaConstants.DOKKA_VERSION
@@ -33,7 +32,7 @@ class KmpCommonSourceSharedWithDependentsTest : FunSpec({
 
                     iosX64FnFile.readText().let { text ->
                         text shouldNotContain "Error class: unknown class"
-                        text shouldContain "Error type: Unresolved type"
+                        text shouldNotContain "Error type: Unresolved type"
                     }
                 }
             }
@@ -62,6 +61,8 @@ private fun initProject(
 
         createKotlinFile(
             "src/commonMain/kotlin/CommonMainCls.kt", """
+            package a.b.c
+            
             /** commonMain class */
             class CommonMainCls
         """.trimIndent()
@@ -69,6 +70,8 @@ private fun initProject(
 
         createKotlinFile(
             "src/iosMain/kotlin/IosMainCls.kt", """
+            package a.b.c
+            
             /** iosMain class */
             class IosMainCls
         """.trimIndent()
@@ -76,6 +79,8 @@ private fun initProject(
 
         createKotlinFile(
             "src/iosX64Main/kotlin/iosX64Fn.kt", """
+            package a.b.c
+            
             /** iosX64Main function */
             fun iosX64Fn(a: CommonMainCls, b: IosMainCls) {
               println(a)
