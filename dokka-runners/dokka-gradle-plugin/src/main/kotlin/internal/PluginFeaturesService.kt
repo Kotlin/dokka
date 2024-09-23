@@ -86,6 +86,15 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
     }
 
     /**
+     * Enable some migration helpers to aid in migrating DGP from V1 to V2.
+     *
+     * @see addV2MigrationHelpers
+     */
+    internal val v2PluginMigrationHelpersEnabled: Boolean by lazy {
+        pluginMode == V2EnabledWithHelpers
+    }
+
+    /**
      * Determines the behaviour of DGP.
      *
      * If no valid value is detected then use [PluginMode.Default].
@@ -99,7 +108,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 PluginMode.Default
             }
 
-        logger.info { "Detected PluginMode: $parameterValue/$value in ${parameters.projectDisplayName.orNull} ${parameters.projectDirectory.orNull}" }
+        logger.info { "Dokka Gradle Plugin detected PluginMode:$value (from:$parameterValue) in ${parameters.projectDisplayName.orNull} ${parameters.projectDirectory.orNull}" }
 
         logPluginMessage(value)
 
@@ -196,15 +205,6 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 """.trimMargin().surroundWithBorder()
             )
         }
-    }
-
-    /**
-     * Enable some migration helpers to aid in migrating DGP from V1 to V2.
-     *
-     * @see addV2MigrationHelpers
-     */
-    internal val v2PluginMigrationHelpersEnabled: Boolean by lazy {
-        pluginMode == V2EnabledWithHelpers
     }
 
     /** Values for [pluginMode]. */
