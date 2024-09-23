@@ -221,12 +221,16 @@ abstract class KotlinAdapter @Inject constructor(
  */
 @DokkaInternalApi
 private data class KotlinCompilationDetails(
+    /** [KotlinCompilation.target] name. */
     val target: String,
+    /** [KotlinCompilation.platformType] name. */
     val kotlinPlatform: KotlinPlatform,
     val allKotlinSourceSetsNames: Set<String>,
     val publishedCompilation: Boolean,
+    /** [KotlinCompilation.defaultSourceSet] → [KotlinSourceSet.dependsOn] names. */
     val dependentSourceSetNames: Set<String>,
     val compilationClasspath: FileCollection,
+    /** [KotlinCompilation.defaultSourceSet] name. */
     val defaultSourceSetName: String,
 )
 
