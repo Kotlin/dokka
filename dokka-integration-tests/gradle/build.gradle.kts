@@ -12,9 +12,13 @@ plugins {
     id("dokkabuild.kotlin-jvm")
     id("dokkabuild.test-integration")
     id("dokkabuild.dev-maven-publish")
+    `java-test-fixtures`
+    alias(libs.plugins.kotlinxSerialization)
 }
 
 dependencies {
+    val dokkaVersion = project.version.toString()
+
     api(projects.utilities)
 
     api(libs.jsoup)
@@ -25,7 +29,22 @@ dependencies {
 
     api(gradleTestKit())
 
-    val dokkaVersion = project.version.toString()
+    testFixturesApi(libs.kotlin.test)
+    testFixturesApi(libs.junit.jupiterApi)
+    testFixturesApi(libs.junit.jupiterParams)
+
+    testFixturesApi(gradleTestKit())
+
+    testFixturesApi(testFixtures("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"))
+    testFixturesApi(platform(libs.kotest.bom))
+    testFixturesApi(libs.kotest.assertionsCore)
+    testFixturesApi(libs.kotest.assertionsJson)
+
+    testFixturesImplementation(platform(libs.kotlinxSerialization.bom))
+    testFixturesImplementation(libs.kotlinxSerialization.json)
+
+    testImplementation(testFixtures(project))
+
     // We're using Gradle included-builds and dependency substitution, so we
     // need to use the Gradle project name, *not* the published Maven artifact-id
     devPublication("org.jetbrains.dokka:plugin-all-modules-page:$dokkaVersion")
@@ -63,6 +82,7 @@ tasks.withType<Test>().configureEach {
 
     systemProperty("hostGradleUserHome", gradle.gradleUserHomeDir.invariantSeparatorsPath)
 }
+
 
 val templateSettingsGradleKts = layout.projectDirectory.file("projects/template.settings.gradle.kts")
 val templateProjectsDir = layout.projectDirectory.dir("projects")
@@ -155,8 +175,6 @@ fun registerTestProjectSuite(
                     .inputFile("templateSettingsGradleKts", templateSettingsGradleKts)
                     .withPathSensitivity(NAME_ONLY)
 
-                devMavenPublish.configureTask(this)
-
                 if (jvm != null) {
                     javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
                 }
@@ -176,4 +194,37 @@ val checkoutKotlinxSerialization by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx.serialization.git"
     commitId = "ed1b05707ec27f8864c8b42235b299bdb5e0015c"
     destination = templateProjectsDir.dir("serialization/kotlinx-serialization")
+}
+
+testing {
+    suites.withType<JvmTestSuite>().configureEach {
+        dependencies {
+            implementation(testFixtures(project()))
+        }
+        targets.configureEach {
+            testTask.configure {
+                devMavenPublish.configureTask(this)
+            }
+        }
+    }
+    val testExampleProjects by suites.registering(JvmTestSuite::class) {
+        targets.configureEach {
+            testTask.configure {
+
+                val exampleGradleProjectsDir = projectDir.resolve("../../examples/gradle-v2")
+                systemProperty
+                    .inputDirectory("exampleGradleProjectsDir", exampleGradleProjectsDir)
+                    .withPathSensitivity(RELATIVE)
+
+                val expectedDataDir = layout.projectDirectory.dir("src/testExampleProjects/expectedData")
+                systemProperty
+                    .inputDirectory("expectedDataDir", expectedDataDir)
+                    .withPathSensitivity(RELATIVE)
+            }
+        }
+    }
+}
+
+tasks.check {
+    dependsOn(testing.suites)
 }

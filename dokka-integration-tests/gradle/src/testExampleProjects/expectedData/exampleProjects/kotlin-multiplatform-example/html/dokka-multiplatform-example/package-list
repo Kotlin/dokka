@@ -1,0 +1,32 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:org.kotlintest.jdk9////PointingToDeclaration/dokka-multiplatform-example/org.kotlintest.jdk9/index.html
+$dokka.location:org.kotlintest.jdk9/CustomSourceSetFile///PointingToDeclaration/dokka-multiplatform-example/org.kotlintest.jdk9/-custom-source-set-file/index.html
+$dokka.location:org.kotlintest.jdk9/CustomSourceSetFile/CustomSourceSetFile/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintest.jdk9/-custom-source-set-file/-custom-source-set-file.html
+$dokka.location:org.kotlintest.jdk9/CustomSourceSetFile/thisIsAFunction/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintest.jdk9/-custom-source-set-file/this-is-a-function.html
+$dokka.location:org.kotlintestmpp.common////PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.common/index.html
+$dokka.location:org.kotlintestmpp.common/Foo///PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.common/-foo/index.html
+$dokka.location:org.kotlintestmpp.common/Foo/Foo/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.common/-foo/-foo.html
+$dokka.location:org.kotlintestmpp.coroutines////PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.coroutines/index.html
+$dokka.location:org.kotlintestmpp.coroutines//asyncWithDealy/kotlinx.coroutines.CoroutineScope#kotlin.Long#kotlin.coroutines.SuspendFunction0[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.coroutines/async-with-dealy.html
+$dokka.location:org.kotlintestmpp.coroutines//name/kotlinx.coroutines.CoroutineDispatcher#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.coroutines/name.html
+$dokka.location:org.kotlintestmpp.date////PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.date/index.html
+$dokka.location:org.kotlintestmpp.date//getCurrentDate/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.date/get-current-date.html
+$dokka.location:org.kotlintestmpp.date//getDate/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.date/get-date.html
+$dokka.location:org.kotlintestmpp////PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/index.html
+$dokka.location:org.kotlintestmpp//js/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/js.html
+$dokka.location:org.kotlintestmpp//jvm/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/jvm.html
+$dokka.location:org.kotlintestmpp//myExtension/kotlin.String#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/[jvm]my-extension.html
+$dokka.location:org.kotlintestmpp//printPointerRawValue/#kotlinx.cinterop.CPointer[TypeParam(bounds=[kotlinx.cinterop.CPointed])]/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/print-pointer-raw-value.html
+$dokka.location:org.kotlintestmpp//shared/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/[jvm]shared.html
+$dokka.location:org.kotlintestmpp//startConnectionPipeline/kotlinx.coroutines.CoroutineScope#kotlin.String/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/start-connection-pipeline.html
+$dokka.location:org.kotlintestmpp/JavaAnnotation///PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/-java-annotation/index.html
+$dokka.location:org.kotlintestmpp/JavaAnnotation/aliases/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/-java-annotation/aliases.html
+$dokka.location:org.kotlintestmpp/JavaAnnotation/description/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/-java-annotation/description.html
+$dokka.location:org.kotlintestmpp/JavaAnnotation/usage/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/-java-annotation/usage.html
+org.kotlintest.jdk9
+org.kotlintestmpp
+org.kotlintestmpp.common
+org.kotlintestmpp.coroutines
+org.kotlintestmpp.date
+
