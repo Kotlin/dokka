@@ -7,4 +7,3 @@ $dokka.location:demo/Greeter/Greeter/#kotlin.String/PointingToDeclaration/dokka
 $dokka.location:demo/Greeter/greet/#/PointingToDeclaration/dokka-library-publishing-example/demo/-greeter/greet.html
 $dokka.location:demo/Greeter/name/#/PointingToDeclaration/dokka-library-publishing-example/demo/-greeter/name.html
 demo
-
