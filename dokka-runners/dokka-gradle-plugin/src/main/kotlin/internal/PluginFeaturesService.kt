@@ -153,10 +153,10 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 |  We would appreciate your feedback!
                 |  Please report any feedback or problems to Dokka GitHub Issues
                 |      https://github.com/Kotlin/dokka/issues/
-                |  
+                |
                 |  If you need help or advice, check out the migration guide
                 |      https://kotl.in/dokka-gradle-migration
-                |  
+                |
                 |  You can suppress this message by adding
                 |      $PLUGIN_MODE_NO_WARN_FLAG_PRETTY=true
                 |  to your project's `gradle.properties`
