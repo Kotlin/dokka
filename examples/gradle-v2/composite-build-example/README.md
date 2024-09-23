@@ -5,7 +5,6 @@ This project demonstrates how to use Dokka Gradle Plugin to aggregate modules ac
 
 > [!WARNING]
 > HTML is the only format that correctly supports multimodule aggregation.
-> This is a limitation of Dokka.
 
 ### Summary
 
@@ -17,15 +16,13 @@ The example project has four included builds:
   represent regular Kotlin/JVM projects.
 * [`docs`](docs) aggregates the modules.
 
-### Run locally
+### Running
 
-To run locally, follow these steps.
+Run the `:docs:dokkaGenerate` Gradle task to generate documentation with the custom logo:
 
-1. In the root Dokka Gradle Plugin project directory, run `./gradlew assemble publishToTestMavenRepo`.
-2. Either open the example project in an IDE, or `cd` into it.
-3. In the example project, run `gradle build`.
-
-The docs will be generated into [`./docs/build/dokka/`](./docs/build/dokka/).
+```bash
+./gradlew :docs:dokkaGenerate
+```
 
 ## Distinct module paths
 
