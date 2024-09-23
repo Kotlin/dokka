@@ -9,10 +9,7 @@ import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.internal.deprecation.DeprecatableConfiguration
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.dokka.gradle.DokkaCollectorTask
-import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
-import org.jetbrains.dokka.gradle.DokkaTask
-import org.jetbrains.dokka.gradle.DokkaTaskPartial
+import org.jetbrains.dokka.gradle.*
 import org.jetbrains.dokka.gradle.dependencies.DependencyContainerNames
 
 /**
@@ -36,8 +33,9 @@ internal fun addV2MigrationHelpers(
 }
 
 private fun configureDokkaTaskConventions(project: Project) {
-    project.tasks.withType<DokkaTask>().configureEach {
-        group = "" // hide from users
+    project.tasks.withType<AbstractDokkaTask>().configureEach {
+        // tasks with group = "other" are hidden when running 'gradle tasks'
+        group = "other"
         onlyIf("Dokka V1 tasks are disabled due to the V2 flag being enabled") { false }
         enabled = false
         notCompatibleWithConfigurationCache("Dokka V1 tasks use deprecated Gradle features. Please migrate to Dokka Plugin V2, which fully supports Configuration Cache.")

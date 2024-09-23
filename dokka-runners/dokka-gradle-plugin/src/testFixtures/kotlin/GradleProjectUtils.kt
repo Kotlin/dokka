@@ -12,3 +12,8 @@ fun Project.enableV2Plugin(
     extensions.extraProperties.set("org.jetbrains.dokka.experimental.gradle.pluginMode.noWarn", suppressV2Message)
     return this
 }
+
+fun Project.enableV2MigrationHelpers(): Project {
+    extensions.extraProperties.set("org.jetbrains.dokka.experimental.gradlePlugin.enableV2MigrationHelpers", true)
+    return this
+}
