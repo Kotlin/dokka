@@ -5,7 +5,7 @@ To generate documentation for a Maven-based project, you can use the Maven plugi
 > Compared to the [Gradle plugin for Dokka](dokka-gradle.md), the Maven plugin has only basic features and
 > does not provide support for multi-module builds.
 > 
-{type="note"}
+{style="note"}
 
 You can play around with Dokka and see how it can be configured for a Maven project by visiting
 our [Maven example](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/examples/maven) project.
@@ -133,7 +133,7 @@ mvn dokka:dokka jar:jar@dokka-jar
 > from the `javadoc.jar`. It works well with the HTML format as demonstrated in
 > [this example](https://javadoc.io/doc/com.trib3/server/latest/index.html).
 >
-{type="tip"}
+{style="tip"}
 
 ## Configuration example
 
