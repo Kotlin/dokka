@@ -351,7 +351,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
 
                     // Disable all warnings, regardless of the discovered flag values.
                     // Log messages will be printed too soon and aren't useful for users.
-                    primaryService.set(true)
+                    primaryService.set(false)
                     pluginModeNoWarn.set(true)
 
                     // Because Gradle is generating accessors, it won't give us access to Gradle properties
