@@ -66,3 +66,17 @@ develocity {
         }
     }
 }
+
+buildCache {
+    val buildSettingsProps = dokkaBuildSettingsProperties
+
+    local {
+        isEnabled = buildSettingsProps.buildCacheLocalEnabled.get()
+        buildSettingsProps.buildCacheLocalDirectory.orNull?.let {
+            directory = it
+        }
+    }
+    remote(develocity.buildCache) {
+        isPush = buildSettingsProps.buildCachePushEnabled.get()
+    }
+}

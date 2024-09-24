@@ -1,0 +1,2 @@
+# Allow the build-settings-logic project to use its own convention plugin, to ensure the settings are consistent.
+!build-settings-logic.jar

@@ -35,6 +35,20 @@ abstract class DokkaBuildSettingsProperties @Inject constructor(
     //endregion
 
 
+    //region Gradle Build Cache
+    val buildCacheLocalEnabled: Provider<Boolean> =
+        dokkaProperty("build.cache.local.enabled", String::toBoolean)
+            .orElse(!buildingOnCi)
+
+    val buildCacheLocalDirectory: Provider<String> =
+        dokkaProperty("build.cache.local.directory")
+
+    val buildCachePushEnabled: Provider<Boolean> =
+        dokkaProperty("build.cache.push", String::toBoolean)
+            .orElse(buildingOnCi)
+    //endregion
+
+
     private fun dokkaProperty(name: String): Provider<String> =
         providers.gradleProperty("org.jetbrains.dokka.$name")
 
