@@ -126,7 +126,7 @@ class ExampleProjectsTest {
     enum class ExampleProject {
         BasicGradle,
         CompositeBuild,
-        CustomFormat,
+        CustomStyling,
         Java,
         Javadoc,
         KotlinAsJava,
@@ -142,7 +142,7 @@ class ExampleProjectsTest {
                     "basic-gradle-example" -> BasicGradle
                     "javadoc-example" -> Javadoc
                     "composite-build-example" -> CompositeBuild
-                    "custom-format-example" -> CustomFormat
+                    "custom-styling-example" -> CustomStyling
                     "java-example" -> Java
                     "kotlin-as-java-example" -> KotlinAsJava
                     "kotlin-multiplatform-example" -> KotlinMultiplatform
