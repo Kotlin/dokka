@@ -1,4 +1,4 @@
-## Dokka custom format example
+## Dokka custom styling example
 
 This example demonstrates how to override `.css` styles and add custom images as assets, allowing
 you to change the logo used in the header.
