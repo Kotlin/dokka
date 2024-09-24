@@ -31,20 +31,20 @@ class MigrationHelpersTest : FunSpec({
             test("all DGPv1 tasks should have group 'other'") {
                 val dokkaTasks = parentProjectDokkaTasks.associate { it.name to it.group }
                 dokkaTasks.shouldContainExactly(
-                    "dokkaGfm" to "other",
-                    "dokkaGfmCollector" to "other",
-                    "dokkaGfmMultiModule" to "other",
+                    "dokkaGfm" to null,
+                    "dokkaGfmCollector" to null,
+                    "dokkaGfmMultiModule" to null,
 
-                    "dokkaHtml" to "other",
-                    "dokkaHtmlCollector" to "other",
-                    "dokkaHtmlMultiModule" to "other",
+                    "dokkaHtml" to null,
+                    "dokkaHtmlCollector" to null,
+                    "dokkaHtmlMultiModule" to null,
 
-                    "dokkaJavadoc" to "other",
-                    "dokkaJavadocCollector" to "other",
+                    "dokkaJavadoc" to null,
+                    "dokkaJavadocCollector" to null,
 
-                    "dokkaJekyll" to "other",
-                    "dokkaJekyllCollector" to "other",
-                    "dokkaJekyllMultiModule" to "other",
+                    "dokkaJekyll" to null,
+                    "dokkaJekyllCollector" to null,
+                    "dokkaJekyllMultiModule" to null,
                 )
             }
             test("all DGPv1 tasks should be disabled") {
@@ -73,17 +73,17 @@ class MigrationHelpersTest : FunSpec({
             test("all DGPv1 tasks should have group 'other'") {
                 val dokkaTasks = childProjectDokkaTasks.associate { it.name to it.group }
                 dokkaTasks.shouldContainExactly(
-                    "dokkaGfm" to "other",
-                    "dokkaGfmPartial" to "other",
+                    "dokkaGfm" to null,
+                    "dokkaGfmPartial" to null,
 
-                    "dokkaHtml" to "other",
-                    "dokkaHtmlPartial" to "other",
+                    "dokkaHtml" to null,
+                    "dokkaHtmlPartial" to null,
 
-                    "dokkaJavadoc" to "other",
-                    "dokkaJavadocPartial" to "other",
+                    "dokkaJavadoc" to null,
+                    "dokkaJavadocPartial" to null,
 
-                    "dokkaJekyll" to "other",
-                    "dokkaJekyllPartial" to "other",
+                    "dokkaJekyll" to null,
+                    "dokkaJekyllPartial" to null,
                 )
             }
             test("all DGPv1 tasks should be disabled") {

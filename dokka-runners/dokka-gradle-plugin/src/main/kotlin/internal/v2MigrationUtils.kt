@@ -34,8 +34,11 @@ internal fun addV2MigrationHelpers(
 
 private fun configureDokkaTaskConventions(project: Project) {
     project.tasks.withType<AbstractDokkaTask>().configureEach {
-        // tasks with group = "other" are hidden when running 'gradle tasks'
-        group = "other"
+        // The DGPv1 tasks are only present to prevent buildscripts with references to them from breaking.
+        // The tasks are non-operable and should be hidden, to help nudge users to the DGPv2 tasks.
+        // Setting tasks with group null will hide it when running `gradle tasks`,
+        // and put it in the 'other' group in IntelliJ (which effectively hides it).
+        setGroup(null)
         onlyIf("Dokka V1 tasks are disabled due to the V2 flag being enabled") { false }
         enabled = false
         notCompatibleWithConfigurationCache("Dokka V1 tasks use deprecated Gradle features. Please migrate to Dokka Plugin V2, which fully supports Configuration Cache.")
