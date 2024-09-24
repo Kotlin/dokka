@@ -13,6 +13,8 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import org.gradle.kotlin.dsl.extra
+import org.gradle.kotlin.dsl.provideDelegate
+import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.PluginMode.*
 import java.io.File
 import java.util.*
 
@@ -25,62 +27,111 @@ import java.util.*
 internal abstract class PluginFeaturesService : BuildService<PluginFeaturesService.Params> {
 
     interface Params : BuildServiceParameters {
-        /** @see PluginFeaturesService.v2PluginEnabled */
-        val v2PluginEnabled: Property<Boolean>
-
-        /** @see [PluginFeaturesService.v2PluginNoWarn] */
-        val v2PluginNoWarn: Property<Boolean>
-
-        /** @see [PluginFeaturesService.v2PluginMigrationHelpersEnabled] */
-        val v2PluginMigrationHelpersEnabled: Property<Boolean>
-
         /** @see [PluginFeaturesService.primaryService] */
         val primaryService: Property<Boolean>
+
+        /** @see PluginFeaturesService.pluginMode */
+        val pluginMode: Property<String>
+
+        /** If `true`, suppress [pluginMode] messages. */
+        val pluginModeNoWarn: Property<Boolean>
 
         /** If `true`, enable K2 analysis. */
         val k2AnalysisEnabled: Property<Boolean>
 
-        /** If `true`, suppress the K2 analysis message. */
+        /** If `true`, suppress [k2AnalysisEnabled] messages. */
         val k2AnalysisNoWarn: Property<Boolean>
+
+        /** [Project.getDisplayName] - only used for log messages. */
+        val projectDisplayName: Property<String>
+
+        /** [Project.getProjectDir] - only used for log messages. */
+        val projectDirectory: Property<String>
     }
 
     /**
      * Designate this [BuildService] as 'primary', meaning it should log messages to users.
      * Non-primary services should not log messages.
      *
-     * Why? Because Gradle is buggy. Sometimes registering a BuildService fails.
-     * See https://github.com/gradle/gradle/issues/17559.
-     * If service registration fails then re-register the service, but with a distinct name
-     * (so it doesn't clash with the existing but inaccessible BuildService), and don't mark it as 'primary'.
+     * Why? Two reasons:
+     *
+     * 1. Sometimes registering a BuildService fails.
+     *   See https://github.com/gradle/gradle/issues/17559.
+     *   If service registration fails then re-register the service, but with a distinct name
+     *   (so it doesn't clash with the existing but inaccessible BuildService),
+     *   and don't mark it as 'primary' to avoid duplicate logging.
+     * 2. The method Gradle uses to generates accessors for pre-compiled script plugins
+     *   (see [PluginFeaturesService.Companion.configureParamsDuringAccessorsGeneration])
+     *   runs in a temporary project that is evaluated twice.
      *
      * @see org.jetbrains.dokka.gradle.internal.registerIfAbsent
      */
-    private val primaryService: Boolean get() = parameters.primaryService.getOrElse(false)
+    private val primaryService: Boolean
+        get() = parameters.primaryService.getOrElse(false)
 
     /**
      * Whether DGP should use V2 [org.jetbrains.dokka.gradle.DokkaBasePlugin].
      *
-     * Otherwise, fallback to V1 [org.jetbrains.dokka.gradle.DokkaClassicPlugin].
+     * @see pluginMode
      */
     internal val v2PluginEnabled: Boolean by lazy {
-        val v2PluginEnabled = parameters.v2PluginEnabled.getOrElse(false)
+        when (pluginMode) {
+            V1Enabled,
+                -> false
 
-        if (v2PluginEnabled) {
-            logV2PluginMessage()
-        } else {
-            logV1PluginMessage()
+            V2EnabledWithHelpers,
+            V2Enabled,
+                -> true
         }
-
-        v2PluginEnabled
     }
 
-    /** If `true`, suppress any messages regarding V2 mode. */
-    private val v2PluginNoWarn: Boolean
-        get() = parameters.v2PluginNoWarn.getOrElse(false)
+    /**
+     * Enable some migration helpers to aid in migrating DGP from V1 to V2.
+     *
+     * @see addV2MigrationHelpers
+     */
+    internal val v2PluginMigrationHelpersEnabled: Boolean by lazy {
+        pluginMode == V2EnabledWithHelpers
+    }
 
+    /**
+     * Determines the behaviour of DGP.
+     *
+     * If no valid value is detected then use [PluginMode.Default].
+     */
+    private val pluginMode: PluginMode by lazy {
+        val parameterValue = parameters.pluginMode.getOrElse(PluginMode.Default.name)
+
+        val value = PluginMode.findOrNull(parameterValue)
+            ?: run {
+                logger.warn("Invalid value for $PLUGIN_MODE_FLAG. Got '$parameterValue' but expected one of: ${PluginMode.values.map { it.name }}")
+                PluginMode.Default
+            }
+
+        logger.info { "Dokka Gradle Plugin detected PluginMode:$value (from:$parameterValue) in ${parameters.projectDisplayName.orNull} ${parameters.projectDirectory.orNull}" }
+
+        logPluginMessage(value)
+
+        value
+    }
+
+    private val pluginModeNoWarn: Boolean by lazy {
+        parameters.pluginModeNoWarn.getOrElse(false)
+    }
+
+    private fun logPluginMessage(mode: PluginMode) {
+        when (mode) {
+            V1Enabled,
+                -> logV1PluginMessage()
+
+            V2Enabled,
+            V2EnabledWithHelpers,
+                -> logV2PluginMessage()
+        }
+    }
 
     private fun logV1PluginMessage() {
-        if (primaryService) {
+        if (primaryService && !pluginModeNoWarn) {
             logger.warn(
                 """
                 |⚠ Warning: Dokka Gradle Plugin V1 mode is enabled
@@ -92,7 +143,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 |      https://kotl.in/dokka-gradle-migration
                 |
                 |  Once you have prepared your project, enable V2 by adding
-                |      $V2_PLUGIN_ENABLED_FLAG=true
+                |      $PLUGIN_MODE_FLAG=${V2EnabledWithHelpers}
                 |  to your project's `gradle.properties`
                 |
                 |  Please report any feedback or problems to Dokka GitHub Issues
@@ -103,7 +154,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
     }
 
     private fun logV2PluginMessage() {
-        if (primaryService && !v2PluginNoWarn) {
+        if (primaryService && !pluginModeNoWarn) {
             logger.lifecycle(
                 """
                 |Dokka Gradle Plugin V2 is enabled ♡
@@ -116,7 +167,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 |      https://kotl.in/dokka-gradle-migration
                 |
                 |  You can suppress this message by adding
-                |      $V2_PLUGIN_NO_WARN_FLAG=true
+                |      $PLUGIN_MODE_NO_WARN_FLAG_PRETTY=true
                 |  to your project's `gradle.properties`
                 """.trimMargin().surroundWithBorder()
             )
@@ -156,32 +207,38 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
         }
     }
 
-    /**
-     * Enable some migration helpers to aid in migrating DGP from V1 to V2.
-     *
-     * @see addV2MigrationHelpers
-     */
-    internal val v2PluginMigrationHelpersEnabled: Boolean by lazy {
-        parameters.v2PluginMigrationHelpersEnabled.getOrElse(true)
+    /** Values for [pluginMode]. */
+    private enum class PluginMode {
+        V1Enabled,
+        V2EnabledWithHelpers,
+        V2Enabled,
+        ;
+
+        companion object {
+            /** The default value, if [Params.pluginMode] is not set. */
+            val Default: PluginMode = V1Enabled
+
+            val values: Set<PluginMode> = values().toSet()
+
+            fun findOrNull(value: String): PluginMode? =
+                values.find { it.name == value }
+        }
     }
 
     companion object {
         private val logger = Logging.getLogger(PluginFeaturesService::class.java)
 
-        /** @see [PluginFeaturesService.v2PluginEnabled] */
-        internal const val V2_PLUGIN_ENABLED_FLAG =
-            "org.jetbrains.dokka.experimental.gradlePlugin.enableV2"
+        /** @see [PluginFeaturesService.pluginMode] */
+        private const val PLUGIN_MODE_FLAG =
+            "org.jetbrains.dokka.experimental.gradle.pluginMode"
 
-        /** @see [PluginFeaturesService.v2PluginNoWarn] */
-        internal const val V2_PLUGIN_NO_WARN_FLAG =
-            "$V2_PLUGIN_ENABLED_FLAG.nowarn"
+        /** @see [PluginFeaturesService.pluginModeNoWarn] */
+        private const val PLUGIN_MODE_NO_WARN_FLAG =
+            "$PLUGIN_MODE_FLAG.nowarn"
 
-        /** The same as [V2_PLUGIN_NO_WARN_FLAG], but it doesn't trigger spell-checks. */
-        private const val V2_PLUGIN_NO_WARN_FLAG_PRETTY =
-            "$V2_PLUGIN_ENABLED_FLAG.noWarn"
-
-        private const val V2_PLUGIN_MIGRATION_HELPERS_FLAG =
-            "org.jetbrains.dokka.experimental.gradlePlugin.enableV2MigrationHelpers"
+        /** The same as [PLUGIN_MODE_NO_WARN_FLAG], but it doesn't trigger spell-checks. */
+        private const val PLUGIN_MODE_NO_WARN_FLAG_PRETTY =
+            "$PLUGIN_MODE_FLAG.noWarn"
 
         private const val K2_ANALYSIS_ENABLED_FLAG =
             "org.jetbrains.dokka.experimental.tryK2"
@@ -234,7 +291,7 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
         ): Action<Params> {
 
             /** Find a flag for [PluginFeaturesService]. */
-            fun getFlag(flag: String): Provider<Boolean> =
+            fun getFlag(flag: String): Provider<String> =
                 project.providers
                     .gradleProperty(flag)
                     .forUseAtConfigurationTimeCompat()
@@ -246,17 +303,23 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                             .provider { project.extra.properties[flag]?.toString() }
                             .forUseAtConfigurationTimeCompat()
                     )
-                    .map(String::toBoolean)
-
 
             return Action {
-                v2PluginEnabled.set(getFlag(V2_PLUGIN_ENABLED_FLAG))
-                v2PluginNoWarn.set(getFlag(V2_PLUGIN_NO_WARN_FLAG_PRETTY).orElse(getFlag(V2_PLUGIN_NO_WARN_FLAG)))
-                v2PluginMigrationHelpersEnabled.set(getFlag(V2_PLUGIN_MIGRATION_HELPERS_FLAG))
-                k2AnalysisEnabled.set(getFlag(K2_ANALYSIS_ENABLED_FLAG))
+                projectDirectory.set(project.projectDir.invariantSeparatorsPath)
+                projectDisplayName.set(project.displayName)
+
+                pluginMode.set(getFlag(PLUGIN_MODE_FLAG))
+                pluginModeNoWarn.set(
+                    getFlag(PLUGIN_MODE_NO_WARN_FLAG)
+                        .orElse(getFlag(PLUGIN_MODE_NO_WARN_FLAG_PRETTY))
+                        .toBoolean()
+                )
+
+                k2AnalysisEnabled.set(getFlag(K2_ANALYSIS_ENABLED_FLAG).toBoolean())
                 k2AnalysisNoWarn.set(
                     getFlag(K2_ANALYSIS_NO_WARN_FLAG_PRETTY)
                         .orElse(getFlag(K2_ANALYSIS_NO_WARN_FLAG))
+                        .toBoolean()
                 )
 
                 configureParamsDuringAccessorsGeneration(project)
@@ -288,7 +351,8 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
 
                     // Disable all warnings, regardless of the discovered flag values.
                     // Log messages will be printed too soon and aren't useful for users.
-                    v2PluginNoWarn.set(true)
+                    primaryService.set(false)
+                    pluginModeNoWarn.set(true)
 
                     // Because Gradle is generating accessors, it won't give us access to Gradle properties
                     // defined for the main project. So, we must discover `gradle.properties` ourselves.
@@ -302,11 +366,8 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
 
                     // These are the only flags that are important when Gradle is generating accessors,
                     // because they control what accessors DGP registers.
-                    properties[V2_PLUGIN_ENABLED_FLAG]?.toString()?.toBoolean()?.let {
-                        v2PluginEnabled.set(it)
-                    }
-                    properties[V2_PLUGIN_MIGRATION_HELPERS_FLAG]?.toString()?.toBoolean()?.let {
-                        v2PluginMigrationHelpersEnabled.set(it)
+                    properties[PLUGIN_MODE_FLAG]?.toString()?.let {
+                        pluginMode.set(it)
                     }
                 }
             } catch (t: Throwable) {
