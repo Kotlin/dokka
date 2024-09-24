@@ -131,8 +131,8 @@ to learn how to use it.
 ### Android
 
 In addition to applying and configuring Dokka, you can apply Dokka's 
-[Android documentation plugin](plugins/android-documentation), which aims to improve documentation experience on the 
-Android platform:
+[Android documentation plugin](dokka-subprojects/plugin-android-documentation/README.md),
+which aims to improve documentation experience on the Android platform:
 
 <details open>
 <summary>Gradle Kotlin DSL</summary>
