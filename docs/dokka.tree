@@ -15,6 +15,6 @@
 			<toc-element topic="dokka-javadoc.md"/>
 		</toc-element>
 		<toc-element topic="dokka-plugins.md"/>
-		<toc-element toc-title="Module documentation" topic="dokka-module-and-package-docs.md"/>
+		<toc-element topic="dokka-module-and-package-docs.md"/>
 	</snippet>
 </instance-profile>
