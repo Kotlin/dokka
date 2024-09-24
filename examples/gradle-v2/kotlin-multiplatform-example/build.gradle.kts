@@ -34,10 +34,5 @@ kotlin {
 }
 
 dokka {
-    // Create a custom source set not known to the Kotlin Gradle Plugin
-    dokkaSourceSets.register("customSourceSet") {
-        jdkVersion.set(9)
-        displayName.set("custom")
-        sourceRoots.from("src/customJdk9/kotlin")
-    }
+    // Dokka can be configured here
 }
