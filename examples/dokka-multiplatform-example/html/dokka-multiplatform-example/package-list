@@ -8,7 +8,7 @@ $dokka.location:org.kotlintestmpp.common////PointingToDeclaration/dokka-multipl
 $dokka.location:org.kotlintestmpp.common/Foo///PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.common/-foo/index.html
 $dokka.location:org.kotlintestmpp.common/Foo/Foo/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.common/-foo/-foo.html
 $dokka.location:org.kotlintestmpp.coroutines////PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.coroutines/index.html
-$dokka.location:org.kotlintestmpp.coroutines//asyncWithDealy/kotlinx.coroutines.CoroutineScope#kotlin.Long#kotlin.coroutines.SuspendFunction0[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.coroutines/async-with-dealy.html
+$dokka.location:org.kotlintestmpp.coroutines//asyncWithDelay/kotlinx.coroutines.CoroutineScope#kotlin.Long#kotlin.coroutines.SuspendFunction0[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.coroutines/async-with-delay.html
 $dokka.location:org.kotlintestmpp.coroutines//name/kotlinx.coroutines.CoroutineDispatcher#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.coroutines/name.html
 $dokka.location:org.kotlintestmpp.date////PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.date/index.html
 $dokka.location:org.kotlintestmpp.date//getCurrentDate/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.date/get-current-date.html
