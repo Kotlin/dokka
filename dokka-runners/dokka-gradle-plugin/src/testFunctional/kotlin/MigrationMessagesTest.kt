@@ -11,9 +11,7 @@ import org.gradle.api.logging.LogLevel.LIFECYCLE
 import org.gradle.api.logging.LogLevel.WARN
 import org.jetbrains.dokka.gradle.utils.GradleProjectTest
 import org.jetbrains.dokka.gradle.utils.addArguments
-import org.jetbrains.dokka.gradle.utils.build
 import org.jetbrains.dokka.gradle.utils.projects.initNoConfigMultiModuleProject
-import org.jetbrains.dokka.gradle.utils.shouldNotContainAnyOf
 
 class MigrationMessagesTest : FunSpec({
     context("given multi-module project") {
