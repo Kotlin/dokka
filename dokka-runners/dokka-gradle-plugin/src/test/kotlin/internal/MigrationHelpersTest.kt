@@ -28,7 +28,7 @@ class MigrationHelpersTest : FunSpec({
 
         context("in parent project") {
             val parentProjectDokkaTasks = parentProject.tasks.withType<AbstractDokkaTask>()
-            test("all DGPv1 tasks should have group 'other'") {
+            test("all DGPv1 tasks should have group 'null'") {
                 val dokkaTasks = parentProjectDokkaTasks.associate { it.name to it.group }
                 dokkaTasks.shouldContainExactly(
                     "dokkaGfm" to null,
@@ -70,7 +70,7 @@ class MigrationHelpersTest : FunSpec({
 
         context("in child project") {
             val childProjectDokkaTasks = childProject.tasks.withType<AbstractDokkaTask>()
-            test("all DGPv1 tasks should have group 'other'") {
+            test("all DGPv1 tasks should have group 'null'") {
                 val dokkaTasks = childProjectDokkaTasks.associate { it.name to it.group }
                 dokkaTasks.shouldContainExactly(
                     "dokkaGfm" to null,
