@@ -6,7 +6,6 @@ package org.jetbrains.dokka.gradle.utils
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.BuildTask
 import org.gradle.testkit.runner.GradleRunner
-import java.util.*
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -35,7 +34,10 @@ inline fun GradleRunner.buildAndFail(
 ): Unit = buildAndFail().let(handleResult)
 
 
-fun GradleRunner.updateGradleProperties(
+/**
+ * Create, or overwrite, the `gradle.properties` file in [GradleRunner.getProjectDir].
+ */
+fun GradleRunner.writeGradleProperties(
     arguments: GradleProjectTest.GradleProperties,
 ): GradleRunner {
     val gradlePropertiesFile = projectDir.resolve("gradle.properties").apply {
@@ -45,13 +47,10 @@ fun GradleRunner.updateGradleProperties(
         }
     }
 
-    val gradleProperties = Properties().apply {
-        load(gradlePropertiesFile.inputStream())
-    }.entries.associate { it.key.toString() to it.value.toString() }.toMutableMap()
+    val gradleProperties = arguments.toGradleProperties()
 
-    arguments.toGradleProperties().forEach { (k, v) ->
-        gradleProperties[k] = v
-    }
+    // Avoid using java.util.Properties because it produces non-deterministic output (e.g. a timestamp),
+    // which negatively impacts caching.
 
     gradlePropertiesFile.writeText(
         gradleProperties

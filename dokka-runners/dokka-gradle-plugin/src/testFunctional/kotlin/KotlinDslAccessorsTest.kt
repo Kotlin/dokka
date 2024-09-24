@@ -25,14 +25,7 @@ import kotlin.test.assertEquals
 class KotlinDslAccessorsTest : FunSpec({
 
     context("Kotlin DSL generated accessors") {
-        val project = initMultiModuleProject("KotlinDslAccessorsTest") {
-            gradleProperties {
-                dokka {
-                    v2Plugin = false
-                    v2MigrationHelpers = false
-                }
-            }
-        }
+        val project = initMultiModuleProject("KotlinDslAccessorsTest")
 
         /**
          * Verify the current accessors match the dumped accessors.
@@ -208,23 +201,27 @@ private fun GradleProjectTest.generateDokkaV2MigrationHelpersAccessors(
 }
 
 /**
- * Generate Kotlin DSL Accessors by running `:` in [projectPath].
+ * Generate Kotlin DSL Accessors by running `:kotlinDslAccessorsReport` in [projectPath].
  *
  * @returns Dokka-specific accessors, and a file of all accessors (to be used in assertion failure messages.)
  */
 private fun GradleProjectTest.generateDokkaAccessors(
     projectPath: String,
-    enableV2MigrationHelpers: Boolean? = null,
+    enableV2MigrationHelpers: Boolean = false,
 ): GeneratedDokkaAccessors {
+
+    gradleProperties {
+        dokka {
+            pluginMode = if (enableV2MigrationHelpers) "V2EnabledWithHelpers" else "V2Enabled"
+            pluginModeNoWarn = true
+        }
+    }
+
     runner
         .addArguments(
             buildList {
                 add(org.gradle.util.Path.path(projectPath).relativePath("kotlinDslAccessorsReport").toString())
                 add("--quiet")
-                add("-Porg.jetbrains.dokka.experimental.gradlePlugin.enableV2=true")
-                enableV2MigrationHelpers?.let {
-                    add("-Porg.jetbrains.dokka.experimental.gradlePlugin.enableV2MigrationHelpers=$it")
-                }
             }
         )
         .build {

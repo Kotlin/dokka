@@ -86,9 +86,9 @@ class GradleProjectTest(
 
         /** Dokka specific options. */
         data class DokkaArgs(
-            var v2Plugin: Boolean? = true,
-            var v2PluginNoWarn: Boolean? = v2Plugin,
-            var v2MigrationHelpers: Boolean? = null,
+            /** @see org.jetbrains.dokka.gradle.internal.PluginFeaturesService.PluginMode */
+            var pluginMode: String? = "V2Enabled",
+            var pluginModeNoWarn: Boolean? = true,
             var k2Analysis: Boolean? = null,
             var k2AnalysisNoWarn: Boolean? = null,
             var enableLogHtmlPublicationLink: Boolean? = false,
@@ -122,9 +122,8 @@ class GradleProjectTest(
             }
 
             with(dokka) {
-                putNotNull("org.jetbrains.dokka.experimental.gradlePlugin.enableV2", v2Plugin)
-                putNotNull("org.jetbrains.dokka.experimental.gradlePlugin.enableV2.noWarn", v2PluginNoWarn)
-                putNotNull("org.jetbrains.dokka.experimental.gradlePlugin.enableV2MigrationHelpers", v2MigrationHelpers)
+                putNotNull("org.jetbrains.dokka.experimental.gradle.pluginMode", pluginMode)
+                putNotNull("org.jetbrains.dokka.experimental.gradle.pluginMode.noWarn", pluginModeNoWarn)
                 putNotNull("org.jetbrains.dokka.experimental.tryK2", k2Analysis)
                 putNotNull("org.jetbrains.dokka.experimental.tryK2.noWarn", k2AnalysisNoWarn)
                 putNotNull("org.jetbrains.dokka.gradle.enableLogHtmlPublicationLink", enableLogHtmlPublicationLink)
@@ -163,7 +162,7 @@ class GradleProjectTest(
     val runner: GradleRunner
         get() = GradleRunner.create()
             .withProjectDir(projectDir.toFile())
-            .updateGradleProperties(gradleProperties)
+            .writeGradleProperties(gradleProperties)
 
     companion object {
         val dokkaVersionOverride: String? by optionalSystemProperty()
