@@ -2,7 +2,7 @@
 
 These projects demonstrate how to use Dokka Gradle Plugin in v2 mode.
 
-To learn more about how to migrate a project Dokka Gradle Pluginv 2,
+To learn more about how to migrate a project Dokka Gradle Plugin v2,
 read the migration guide https://kotl.in/dokka-gradle-migration.
 
 | Project                                                          | Description                                                                                                                                                            |
