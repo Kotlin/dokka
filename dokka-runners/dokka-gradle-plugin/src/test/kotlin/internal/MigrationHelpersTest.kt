@@ -7,7 +7,6 @@ import io.kotest.core.spec.style.FunSpec
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.gradle.AbstractDokkaTask
-import org.jetbrains.dokka.gradle.utils.enableV2MigrationHelpers
 import org.jetbrains.dokka.gradle.utils.enableV2Plugin
 import org.jetbrains.dokka.gradle.utils.shouldContainExactly
 
@@ -16,14 +15,13 @@ class MigrationHelpersTest : FunSpec({
 
         val parentProject = ProjectBuilder.builder()
             .build()
-            .enableV2Plugin()
-            .enableV2MigrationHelpers()
+            .enableV2Plugin(v2MigrationHelpers = true)
 
         val childProject = ProjectBuilder.builder()
             .withParent(parentProject)
             .build()
             .enableV2Plugin()
-            .enableV2MigrationHelpers()
+            .enableV2Plugin(v2MigrationHelpers = true)
 
         parentProject.plugins.apply("org.jetbrains.dokka")
         childProject.plugins.apply("org.jetbrains.dokka")

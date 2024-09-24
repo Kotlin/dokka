@@ -6,14 +6,13 @@ package org.jetbrains.dokka.gradle.utils
 import org.gradle.api.Project
 
 fun Project.enableV2Plugin(
+    v2MigrationHelpers: Boolean = true,
     suppressV2Message: Boolean = true
 ): Project {
-    extensions.extraProperties.set("org.jetbrains.dokka.experimental.gradle.pluginMode", "V2Enabled")
+    extensions.extraProperties.set(
+        "org.jetbrains.dokka.experimental.gradle.pluginMode",
+        if (v2MigrationHelpers) "V2EnabledWithHelpers" else "V2Enabled",
+    )
     extensions.extraProperties.set("org.jetbrains.dokka.experimental.gradle.pluginMode.noWarn", suppressV2Message)
-    return this
-}
-
-fun Project.enableV2MigrationHelpers(): Project {
-    extensions.extraProperties.set("org.jetbrains.dokka.experimental.gradlePlugin.enableV2MigrationHelpers", true)
     return this
 }
