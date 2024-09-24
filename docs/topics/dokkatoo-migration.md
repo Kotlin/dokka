@@ -106,19 +106,19 @@ options according to your project setup:
 
   ```kotlin
   dokka {
-      moduleName = "Project Name"
+      moduleName.set("Project Name")
       dokkaSourceSets.main {
           includes.from("README.md")
           sourceLink {
-              localDirectory = file("src/main/kotlin")
-              remoteUrl = URL("https://example.com/src")
-              remoteLineSuffix = "#L"
+                  localDirectory.set(file("src/main/kotlin"))
+                  remoteUrl.set(URL("https://example.com/src"))
+                  remoteLineSuffix.set("#L")
           }
       }
       pluginsConfiguration.html {
           customStyleSheets.from("styles.css")
           customAssets.from("logo.png")
-          footerMessage = "(c) Your Company"
+          footerMessage.set("(c) Your Company")
       }
   }
   ```
@@ -129,7 +129,7 @@ options according to your project setup:
 
   ```kotlin
   import org.jetbrains.dokka.DokkaConfiguration.Visibility
-  ...
+  // ...
   documentedVisibilities.set(
       setOf(Visibility.PUBLIC)
   )  
@@ -139,7 +139,7 @@ options according to your project setup:
 
   ```kotlin
   import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
-  ...
+  // ...
   documentedVisibilities.set(
       setOf(VisibilityModifier.Public)
   )
@@ -160,7 +160,9 @@ options according to your project setup:
     remoteUrl.set(URI("https://github.com/your-repo"))  
     ```
 
-* **Custom assets:** The [`customAssets`](dokka-html.md#customize-assets) property now uses collections of files (`FileCollection`) instead of lists (`var List<File>`).
+* **Custom assets:** The [`customAssets`](dokka-html.md#customize-assets) property now uses collections of files 
+  ([`FileCollection`)](https://docs.gradle.org/8.10/userguide/lazy_configuration.html#working_with_files_in_lazy_properties) 
+  instead of lists (`var List<File>`).
 
   Previous configuration:
 
@@ -174,6 +176,28 @@ options according to your project setup:
     customAssets.from("example.png", "example2.png")
     ```
 
+* **Output directory:** Use the `dokka {}` block to specify a single output directory for all Dokka-generated documentation.
+
+    Previous configuration:
+
+    ```kotlin
+    tasks.dokkaHtml{
+        dokkaSourceSets {
+            configureEach {
+                outputDirectory.set(layout.buildDirectory.dir("dokkaDir"))
+            }
+        }
+    }
+    ```
+
+    New configuration:
+
+    ```kotlin
+    dokka {
+        dokkaPublicationDirectory.set(layout.buildDirectory.dir("dokkaDir"))
+    }
+    ```
+
 ### Share Dokka configuration across modules
 
 DPG v2 moves away from using `subprojects {}` or `allprojects {}` to share configuration across modules. In future Gradle versions, 
@@ -181,7 +205,7 @@ using these approaches will lead to errors. For more information, see [Gradle's 
 
 Follow the steps below to properly share Dokka configuration in multi-module projects with DPG v2.
 
-> For a multi-module project example, see the [Dokka GitHub repository](https://github.com/Kotlin/dokka/tree/master/examples/gradle/dokka-multimodule-example).
+> For a multi-module project example, see the [Dokka GitHub repository](https://github.com/Kotlin/dokka/tree/master/examples/gradle-v2/multimodule-example).
 >
 {type="tip"}
 
@@ -222,11 +246,16 @@ Follow the steps below to properly share Dokka configuration in multi-module pro
     plugins {
         id("org.jetbrains.dokka") 
     }
+   
+    dokka {
+    // The shared configuration goes here
+    }
     ```
 
-   In the code above, you don't need to specify a Dokka version. The version is set in `buildSrc/build.gradle.kts`   
+   You need to add the shared Dokka [configuration](#adjust-configuration-options) common to all subprojects within the `dokka {}` block.
+   Also, you don't need to specify a Dokka version. The version is already set in the `buildSrc/build.gradle.kts` file.   
 
-6. Apply the Dokka convention plugin to your modules (subprojects). Add the convention plugin to each subproject's
+6. Apply the Dokka convention plugin across your modules (subprojects) by adding it to each subproject's
    `build.gradle.kts` file:
 
     ```kotlin
@@ -261,10 +290,13 @@ Follow the steps below to properly share Dokka configuration in multi-module pro
 
 Dokka can aggregate the documentation from multiple modules (subprojects) into a single output or publication.
 
-As explained in [Multi-module projects with convention plugins](#multi-module-projects-with-convention-plugins),
+As [explained](#multi-module-projects-with-convention-plugins),
 you must apply the Dokka plugin to all documentable subprojects before aggregating the documentation.
 
-Aggregation in DGP v2 now uses the `dependencies{}` block in any `build.gradle.kts` file instead of tasks.
+Aggregation in DGP v2 now uses the `dependencies {}` block instead of tasks, and can be added in any `build.gradle.kts` file. 
+
+In DGP v1, aggregation was implicitly created in the root project. To replicate this behavior in DGP v2, add the `dependencies {}` block 
+in the `build.gradle.kts` file  of the root project.
 
 Previous aggregation:
 
@@ -303,14 +335,10 @@ New task:
 ./gradlew :dokkaGenerate
 ```
 
-In the new version, the `dokkaGenerate` task name works for both single and multi-module projects.
-
-> You can use other tasks to generate output in Javadoc or both HTML and Javadoc. For more information, see
-> [Select documentation output format](#select-documentation-output-format).
->
-{type="tip"}
-
 After running the `dokkaGenerate` task, the generated API documentation is available in the `build/dokka/` directory.
+
+In the new version, the `dokkaGenerate` task name works for both single and multi-module projects. You can use different tasks
+to generate output in HTML, Javadoc or both HTML and Javadoc. For more information, see the next section.
 
 ### Select documentation output format
 
@@ -344,6 +372,11 @@ Here's a list of the plugin `id` and Gradle task that correspond to each format:
 | Plugin `id` | `id("org.jetbrains.dokka")`    | `id("org.jetbrains.dokka-javadoc")` | Use both HTML and Javadoc plugins |
 | Gradle task | `./gradlew :dokkaGenerateHtml` | `./gradlew :dokkaGenerateJavadoc`   | `./gradlew :dokkaGenerate`        |
 
+> The `dokkaGenerate` task generates documentation in all available formats based on the applied plugins. 
+> If both the HTML and Javadoc plugins are applied, you can choose to generate only HTML format by running the `dokkaGenerateHtml` task, 
+> or only Javadoc by running the `dokkaGenerateJavadoc` task.
+> {type="tip"}
+
 ### Address deprecations and removals
 
 * **Output format support:** Dokka now only supports HTML and Javadoc output. Experimental formats like Markdown and Jekyll are no longer supported.
@@ -371,6 +404,6 @@ DGP v2 now supports Gradle build cache and configuration cache, improving build 
 
 ## What's next
 
-* Explore more [project examples](https://github.com/Kotlin/dokka/tree/master/examples) using DGP v2. 
+* Explore more [project examples](https://github.com/Kotlin/dokka/tree/master/examples/gradle-v2) using DGP v2. 
 * [Get started with Dokka](dokka-get-started.md).
 * [Learn more about Dokka plugins](dokka-plugins.md).
