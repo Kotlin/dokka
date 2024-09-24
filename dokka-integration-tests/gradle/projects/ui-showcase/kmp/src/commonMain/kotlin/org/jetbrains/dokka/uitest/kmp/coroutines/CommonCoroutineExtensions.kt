@@ -7,7 +7,7 @@ import kotlinx.coroutines.Deferred
 /**
  * Common `expect` declaration
  */
-expect fun <T> CoroutineScope.asyncWithDealy(delay: Long, block: suspend () -> T): Deferred<T>
+expect fun <T> CoroutineScope.asyncWithDelay(delay: Long, block: suspend () -> T): Deferred<T>
 
 /**
  * Common coroutine extension
