@@ -197,28 +197,22 @@ class ExampleProjectsTest {
             .build {
                 dokkaOutputDir.shouldBeADirectory()
 
-                withClue("expect file trees are the same") {
-                    val expectedFileTree = expectedDataDir.toTreeString()
-                    val actualFileTree = dokkaOutputDir.toTreeString()
-                    withClue({
-                        """
-                        expectedDataDir: ${expectedDataDir.toUri()}
-                        actualOutputDir: ${dokkaOutputDir.toUri()}
-                        """.trimIndent()
-                    }) {
-                        expectedFileTree shouldBe actualFileTree
-                    }
-                }
-
                 withClue({
                     """
-                    expect directories are the same
-                        dokkaOutputDir  ${dokkaOutputDir.walk().toList()}
-                        exampleDataDir  ${expectedDataDir.walk().toList()}
+                    expectedDataDir: ${expectedDataDir.toUri()}
+                    actualOutputDir: ${dokkaOutputDir.toUri()}
                     """.trimIndent()
                 }) {
-                    dokkaOutputDir.shouldHaveSameStructureAs(expectedDataDir, skipEmptyDirs = true)
-                    dokkaOutputDir.shouldHaveSameStructureAndContentAs(expectedDataDir, skipEmptyDirs = true)
+                    withClue("expect file trees are the same") {
+                        val expectedFileTree = expectedDataDir.toTreeString()
+                        val actualFileTree = dokkaOutputDir.toTreeString()
+                        expectedFileTree shouldBe actualFileTree
+                    }
+
+                    withClue("expect directories are the same") {
+                        dokkaOutputDir.shouldHaveSameStructureAs(expectedDataDir, skipEmptyDirs = true)
+                        dokkaOutputDir.shouldHaveSameStructureAndContentAs(expectedDataDir, skipEmptyDirs = true)
+                    }
                 }
             }
     }
