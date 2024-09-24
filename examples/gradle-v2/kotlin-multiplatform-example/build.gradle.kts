@@ -8,11 +8,22 @@ version = "1.0-SNAPSHOT"
 
 kotlin {
     jvm()
-    linuxX64()
-    macosX64()
+
     js(IR) {
         browser()
     }
+
+    macosX64()
+    macosArm64()
+
+    iosX64()
+    iosArm64()
+
+    linuxX64()
+    linuxArm64()
+
+    mingwX64()
+
     sourceSets {
         commonMain {
             dependencies {
