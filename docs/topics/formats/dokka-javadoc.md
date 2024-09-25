@@ -4,7 +4,7 @@
 > Successful integration with tools that accept Java's Javadoc HTML as input is not guaranteed.
 > **You use it at your own risk.**
 >
-{type="warning"}
+{style="warning"}
 
 Dokka's Javadoc output format is a lookalike of Java's
 [Javadoc HTML format](https://docs.oracle.com/en/java/javase/19/docs/api/index.html). 
@@ -25,7 +25,7 @@ It is open source and you can find the source code on [GitHub](https://github.co
 
 > The Javadoc format does not support multiplatform projects.
 >
-{type="warning"}
+{style="warning"}
 
 
 <tabs group="build-script">

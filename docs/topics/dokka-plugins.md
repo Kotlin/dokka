@@ -22,7 +22,7 @@ From there, the plugin extends Dokka by itself - no further action is needed.
 >
 > If you notice problems like this, it's a good idea to check which plugins are applied and what they do.
 > 
-{type="note"}
+{style="note"}
 
 Let's have a look at how you can apply the [mathjax plugin](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-mathjax)
 to your project:
@@ -49,7 +49,7 @@ dependencies {
 > When documenting [multi-project](dokka-gradle.md#multi-project-builds) builds, you need to apply Dokka plugins within
 > subprojects as well as in their parent project.
 >
-{type="note"}
+{style="note"}
 
 </tab>
 <tab title="Groovy" group-key="groovy">
@@ -73,7 +73,7 @@ dependencies {
 > When documenting [multi-project](dokka-gradle.md#multi-project-builds) builds, you need to apply Dokka plugins within
 > subprojects as well as in their parent project.
 >
-{type="note"}
+{style="note"}
 
 </tab>
 <tab title="Maven" group-key="mvn">

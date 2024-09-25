@@ -3,7 +3,7 @@
 > The Markdown output formats are still in Alpha, so you may find bugs and experience migration issues when using them.
 > **You use them at your own risk.**
 >
-{type="warning"}
+{style="warning"}
 
 Dokka is able to generate documentation in [GitHub Flavored](#gfm) and [Jekyll](#jekyll) compatible Markdown.
 
