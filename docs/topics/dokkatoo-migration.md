@@ -201,15 +201,24 @@ options according to your project setup:
 ### Share Dokka configuration across modules
 
 DPG v2 moves away from using `subprojects {}` or `allprojects {}` to share configuration across modules. In future Gradle versions, 
-using these approaches will lead to errors. For more information, see [Gradle's documentation about isolated projects](https://docs.gradle.org/current/userguide/isolated_projects.html).
+using these approaches will [lead to errors](https://docs.gradle.org/current/userguide/isolated_projects.html).
 
-Follow the steps below to properly share Dokka configuration in multi-module projects with DPG v2.
+Follow the steps below to properly share Dokka configuration in multi-module projects [with existing convention plugins](#multi-module-projects-with-convention-plugins)
+and [without convention plugins](#multi-module-projects-without-convention-plugins).
+
+After sharing the Dokka configuration, you can aggregate the documentation from multiple modules into a single output. For more information, see
+[Update documentation aggregation in multi-module projects](#update-documentation-aggregation-in-multi-module-projects).
 
 > For a multi-module project example, see the [Dokka GitHub repository](https://github.com/Kotlin/dokka/tree/master/examples/gradle-v2/multimodule-example).
 >
 {type="tip"}
 
 #### Multi-module projects without convention plugins
+
+To share the Dokka configuration in multi-module projects without convention plugins, you need to set up the `buildSrc` directory, 
+set up the convention plugin, and then apply the plugin to your modules (subprojects).
+
+##### Set up the buildSrc directory {initial-collapse-state="collapsed"}
 
 1. In your project root, create a `buildSrc` directory containing two files:
 
@@ -221,7 +230,7 @@ Follow the steps below to properly share Dokka configuration in multi-module pro
    ```kotlin
    rootProject.name = "buildSrc"
    ```
-   
+
 3. In the `buildSrc/build.gradle.kts` file, add the following snippet:
 
     ```kotlin
@@ -238,9 +247,13 @@ Follow the steps below to properly share Dokka configuration in multi-module pro
         implementation("org.jetbrains.dokka:dokka-gradle-plugin:2.0.0")
     }   
     ```
+
+##### Set up the Dokka convention plugin {initial-collapse-state="collapsed"}
+
+After setting up the `buildSrc` directory:
    
-4. Create a `buildSrc/src/main/kotlin/dokka-convention.gradle.kts` file to host the [convention plugin](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:convention_plugins).
-5. In the `dokka-convention.gradle.kts` file, add the following snippet:
+1. Create a `buildSrc/src/main/kotlin/dokka-convention.gradle.kts` file to host the [convention plugin](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:convention_plugins).
+2. In the `dokka-convention.gradle.kts` file, add the following snippet:
 
     ```kotlin
     plugins {
@@ -253,38 +266,24 @@ Follow the steps below to properly share Dokka configuration in multi-module pro
     ```
 
    You need to add the shared Dokka [configuration](#adjust-configuration-options) common to all subprojects within the `dokka {}` block.
-   Also, you don't need to specify a Dokka version. The version is already set in the `buildSrc/build.gradle.kts` file.   
+   Also, you don't need to specify a Dokka version. The version is already set in the `buildSrc/build.gradle.kts` file.
 
-6. Apply the Dokka convention plugin across your modules (subprojects) by adding it to each subproject's
-   `build.gradle.kts` file:
+##### Apply the convention plugin to your modules {initial-collapse-state="collapsed"}
 
-    ```kotlin
-    plugins {
-        id("dokka-convention")
-    }
-    ```
+Apply the Dokka convention plugin across your modules (subprojects) by adding it to each subproject's `build.gradle.kts` file:
+
+```kotlin
+plugins { 
+    id("dokka-convention")
+}
+```
 
 #### Multi-module projects with convention plugins
 
-1. Create a dedicated Dokka [convention plugin](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:convention_plugins) that encapsulates your Dokka [configuration](#adjust-configuration-options),
-   such as Dokka source sets, output formats, visibility settings, and more.
-2. In the `build.gradle.kts` file of each module (subproject), apply your Dokka convention plugin:
- 
-   ```kotlin
-   plugin {
-       id("dokka-convention")
-   }
-   ```
+If you already have convention plugins, create a dedicated Dokka convention plugin following [Gradle's documentation](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:convention_plugins).
 
-3. Aggregate the documentation (see below) from multiple modules into a single output. Add dependencies in the root `build.gradle.kts` file
-   or in the `build.gradle.kts` file from the aggregating subproject directory, if there's any:
-
-   ```kotlin
-   dependencies {
-       dokka(project(":parentProject:childProjectA"))
-       dokka(project(":parentProject:childProjectB"))
-   }
-   ```
+Then, follow the steps to [set up the Dokka convention plugin](#set-up-the-dokka-convention-plugin) and 
+[apply it across your modules](#apply-the-convention-plugin-to-your-modules).
 
 ### Update documentation aggregation in multi-module projects
 
