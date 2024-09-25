@@ -21,7 +21,7 @@ your build tool or runner:
 >
 > Locally, you can use the [built-in IntelliJ web server](https://www.jetbrains.com/help/idea/php-built-in-web-server.html).
 >
-{type="note"}
+{style="note"}
 
 ## Configuration
 

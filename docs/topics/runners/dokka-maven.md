@@ -5,7 +5,7 @@ To generate documentation for a Maven-based project, you can use the Maven plugi
 > Compared to the [Gradle plugin for Dokka](dokka-gradle.md), the Maven plugin has only basic features and
 > does not provide support for multi-module builds.
 > 
-{type="note"}
+{style="note"}
 
 You can play around with Dokka and see how it can be configured for a Maven project by visiting
 our [Maven example](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/examples/maven) project.
@@ -133,7 +133,7 @@ mvn dokka:dokka jar:jar@dokka-jar
 > from the `javadoc.jar`. It works well with the HTML format as demonstrated in
 > [this example](https://javadoc.io/doc/com.trib3/server/latest/index.html).
 >
-{type="tip"}
+{style="tip"}
 
 ## Configuration example
 
@@ -238,7 +238,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
     <def title="suppressObviousFunctions">
         <p>Whether to suppress obvious functions.</p>
         <p>
-            A function is considered to be obvious if it is:
+            A function is considered to be obvious if it is:</p>
             <list>
                 <li>
                     Inherited from <code>kotlin.Any</code>, <code>Kotlin.Enum</code>, <code>java.lang.Object</code> or 
@@ -249,7 +249,6 @@ with [all configuration options](#complete-configuration) applied at the bottom 
                     <code>dataClass.componentN</code> or <code>dataClass.copy</code>.
                 </li>
             </list>
-        </p>
         <p>Default: <code>true</code></p>
     </def>
     <def title="suppressInheritedMembers">
@@ -443,13 +442,12 @@ function in `kotlinx.coroutines`.
             to <code>#L</code> and the line number is 10, the resulting URL suffix is <code>#L10</code>.
         </p>
         <p>
-            Suffixes used by popular services:
+            Suffixes used by popular services:</p>
             <list>
             <li>GitHub: <code>#L</code></li>
             <li>GitLab: <code>#L</code></li>
             <li>Bitbucket: <code>#lines-</code></li>
             </list>
-        </p>
     </def>
 </deflist>
 
