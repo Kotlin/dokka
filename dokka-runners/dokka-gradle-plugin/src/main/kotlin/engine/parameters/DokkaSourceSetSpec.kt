@@ -9,6 +9,7 @@ import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.model.ReplacedBy
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
@@ -378,4 +379,21 @@ constructor(
             }
         )
     }
+
+    //region deprecated properties
+    /** Renamed to [enableKotlinStdLibDocumentationLink]. */
+    @Deprecated("Renamed to enableKotlinStdLibDocumentationLink", ReplaceWith("enableKotlinStdLibDocumentationLink"))
+    @get:ReplacedBy("enableKotlinStdLibDocumentationLink")
+    val noStdlibLink: Property<Boolean> by ::enableKotlinStdLibDocumentationLink
+
+    /** Renamed to [enableJdkDocumentationLink]. */
+    @Deprecated("Renamed to enableJdkDocumentationLink", ReplaceWith("enableJdkDocumentationLink"))
+    @get:ReplacedBy("enableJdkDocumentationLink")
+    val noAndroidSdkLink: Property<Boolean> by ::enableAndroidDocumentationLink
+
+    /** Renamed to [enableAndroidDocumentationLink]. */
+    @Deprecated("Renamed to enableAndroidDocumentationLink", ReplaceWith("enableAndroidDocumentationLink"))
+    @get:ReplacedBy("enableAndroidDocumentationLink")
+    val noJdkLink: Property<Boolean> by ::enableJdkDocumentationLink
+    //endregion
 }
