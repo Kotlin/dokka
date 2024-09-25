@@ -4,6 +4,7 @@
 package org.jetbrains.dokka.gradle
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldContainOnlyOnce
 import io.kotest.matchers.string.shouldNotContain
 import org.gradle.api.logging.LogLevel
@@ -74,16 +75,17 @@ class MigrationMessagesTest : FunSpec({
         }
 
         context("when V2EnabledWithHelpers DGP flag is set") {
-            val dgpFlag = "V2EnabledWithHelpers"
+            val pluginMode = "V2EnabledWithHelpers"
 
             context("and log level is WARN") {
-                val output = project.getOutput(pluginMode = dgpFlag, pluginModeNoWarn = null, logLevel = WARN)
+                val output = project.getOutput(pluginMode = pluginMode, pluginModeNoWarn = null, logLevel = WARN)
 
                 test("output should contain V2 migration helpers warning") {
                     output shouldContainOnlyOnce expectedV2MigrationWarning
                 }
                 test("output should NOT contain V2 migration helpers message") {
                     output shouldNotContain expectedV2MigrationMessage
+                    output shouldNotContain expectedV2MigrationMessage.trim().lines().first()
                 }
             }
 
@@ -91,35 +93,37 @@ class MigrationMessagesTest : FunSpec({
 
                 context("and pluginModeNoWarn is unset") {
                     val output =
-                        project.getOutput(pluginMode = dgpFlag, pluginModeNoWarn = null, logLevel = LIFECYCLE)
+                        project.getOutput(pluginMode = pluginMode, pluginModeNoWarn = null, logLevel = LIFECYCLE)
 
                     test("output should contain V2 migration helpers warning") {
                         output shouldContainOnlyOnce expectedV2MigrationWarning
                     }
                     test("output should contain V2 migration helpers message") {
                         output shouldContainOnlyOnce expectedV2MigrationMessage
+                        output shouldContainOnlyOnce expectedV2MigrationMessage.trim().lines().first()
                     }
                 }
 
                 context("and pluginModeNoWarn=true") {
                     val output =
-                        project.getOutput(pluginMode = dgpFlag, pluginModeNoWarn = true, logLevel = LIFECYCLE)
+                        project.getOutput(pluginMode = pluginMode, pluginModeNoWarn = true, logLevel = LIFECYCLE)
 
                     test("output should contain V2 migration helpers warning") {
                         output shouldContainOnlyOnce expectedV2MigrationWarning
                     }
                     test("output should NOT contain V2 migration helpers message") {
                         output shouldNotContain expectedV2MigrationMessage
+                        output shouldNotContain expectedV2MigrationMessage.trim().lines().first()
                     }
                 }
             }
         }
 
         context("when V2Enabled DGP flag is set") {
-            val dgpFlag = "V2Enabled"
+            val pluginMode = "V2Enabled"
 
             context("and log level is WARN") {
-                val output = project.getOutput(pluginMode = dgpFlag, pluginModeNoWarn = null, logLevel = WARN)
+                val output = project.getOutput(pluginMode = pluginMode, pluginModeNoWarn = null, logLevel = WARN)
 
                 test("output should NOT contain V2 message") {
                     output shouldNotContain expectedV2Message
@@ -130,16 +134,16 @@ class MigrationMessagesTest : FunSpec({
 
                 context("and pluginModeNoWarn is unset") {
                     val output =
-                        project.getOutput(pluginMode = dgpFlag, pluginModeNoWarn = null, logLevel = LIFECYCLE)
+                        project.getOutput(pluginMode = pluginMode, pluginModeNoWarn = null, logLevel = LIFECYCLE)
 
-                    test("output should NOT contain V2 message") {
-                        output shouldNotContain expectedV2Message
+                    test("output should contain V2 message") {
+                        output shouldContain expectedV2Message
                     }
                 }
 
                 context("and pluginModeNoWarn=true") {
                     val output =
-                        project.getOutput(pluginMode = dgpFlag, pluginModeNoWarn = true, logLevel = LIFECYCLE)
+                        project.getOutput(pluginMode = pluginMode, pluginModeNoWarn = true, logLevel = LIFECYCLE)
 
                     test("output should NOT contain V2 message") {
                         output shouldNotContain expectedV2Message
@@ -160,8 +164,8 @@ class MigrationMessagesTest : FunSpec({
                 this.add(":help")
                 this.add("--dry-run")
                 pluginMode?.let { this.add("-P$PLUGIN_MODE_FLAG=$it") }
-                if (logLevel != LIFECYCLE) this.add("--${logLevel.name.lowercase()}")
-                pluginModeNoWarn?.let { this.add("-P$PLUGIN_MODE_NO_WARN_FLAG_PRETTY=$it") }
+                if (logLevel != LIFECYCLE) add("--${logLevel.name.lowercase()}")
+                pluginModeNoWarn?.let { add("-P$PLUGIN_MODE_NO_WARN_FLAG_PRETTY=$it") }
             }
             return runner
                 .addArguments(args)
@@ -175,65 +179,52 @@ class MigrationMessagesTest : FunSpec({
             "org.jetbrains.dokka.experimental.gradle.pluginMode.noWarn"
 
         private val expectedV1Warning = /* language=text */ """
-            |warning: Dokka Gradle plugin V1 mode is deprecated
+            |warning: Dokka Gradle plugin V1 is deprecated
             """.trimMargin()
 
         private val expectedV1Message = /* language=text */ """
-                |Dokka Gradle plugin V1 mode is deprecated, and will be removed in Dokka version 2.1.0
-                |
-                |Please migrate to Dokka Gradle plugin V2. This will require updating your project.
-                |To learn more about migrating read the Dokka Gradle plugin v2 migration guide.
-                |    https://kotl.in/dokka-gradle-migration
-                |
-                |To enable V2 mode add
-                |    ${PLUGIN_MODE_FLAG}=V2EnabledWithHelpers
-                |into your project's `gradle.properties`
-                |
-                |We would appreciate your feedback!
-                | - Report any feedback or problems to Dokka GitHub Issues
-                |   https://github.com/Kotlin/dokka/issues/
-                | - Chat with us in #dokka in https://kotlinlang.slack.com/
-                |   (To sign up visit https://kotl.in/slack)
-                """.trimMargin().prependIndent(" > ")
+            |Dokka Gradle plugin V1 is deprecated, and will be removed in Dokka version 2.1.0
+            |Please migrate to Dokka Gradle plugin V2. This will require updating your project.
+            |To learn about migrating read the migration guide https://kotl.in/dokka-gradle-migration
+            |
+            |To start migrating to Dokka Gradle plugin V2 add
+            |    ${PLUGIN_MODE_FLAG}=V2EnabledWithHelpers
+            |into your project's `gradle.properties` file.
+            |
+            |We would appreciate your feedback!
+            | - Please report any feedback or problems https://kotl.in/dokka-issues
+            | - Chat with the community visit #dokka in https://kotlinlang.slack.com/ (To sign up visit https://kotl.in/slack)
+            """.trimMargin().prependIndent()
 
         private val expectedV2MigrationWarning = /* language=text */ """
             |warning: Dokka Gradle plugin V2 migration helpers are enabled
             """.trimMargin()
 
-        private val expectedV2MigrationMessage = /* language=text */  """
-                |Thank you for enabling Dokka Gradle plugin V2!
-                |
-                |To learn more about migrating read the Dokka Gradle plugin v2 migration guide.
-                |    https://kotl.in/dokka-gradle-migration
-                |
-                |Once you have finished migrating disable the migration helpers by adding
-                |    ${PLUGIN_MODE_FLAG}=V2Enabled
-                |to your project's `gradle.properties`
-                |
-                |We would appreciate your feedback!
-                | - Report any feedback or problems to Dokka GitHub Issues
-                |   https://github.com/Kotlin/dokka/issues/
-                | - Chat with us in #dokka in https://kotlinlang.slack.com/
-                |   (To sign up visit https://kotl.in/slack)
-                """.trimMargin().prependIndent(" > ")
-
-        private val expectedV2Message = /* language=text */
-            """
-            |Thank you for enabling Dokka Gradle plugin V2!
+        private val expectedV2MigrationMessage = /* language=text */ """
+            |Thank you for migrating to Dokka Gradle plugin V2!
+            |Migration is in progress, and helpers have been enabled.
+            |To learn about migrating read the migration guide https://kotl.in/dokka-gradle-migration
             |
-            |To learn more about migrating read the Dokka Gradle plugin v2 migration guide.
-            |    https://kotl.in/dokka-gradle-migration
+            |Once you have finished migrating disable the migration helpers by adding
+            |    ${PLUGIN_MODE_FLAG}=V2Enabled
+            |to your project's `gradle.properties` file.
             |
             |We would appreciate your feedback!
-            | - Report any feedback or problems to Dokka GitHub Issues
-            |   https://github.com/Kotlin/dokka/issues/
-            | - Chat with us in #dokka in https://kotlinlang.slack.com/
-            |   (To sign up visit https://kotl.in/slack)
+            | - Please report any feedback or problems https://kotl.in/dokka-issues
+            | - Chat with the community visit #dokka in https://kotlinlang.slack.com/ (To sign up visit https://kotl.in/slack)
+            """.trimMargin().prependIndent()
+
+        private val expectedV2Message = /* language=text */ """
+            |Thank you for enabling Dokka Gradle plugin V2!
+            |To learn about migrating read the migration guide https://kotl.in/dokka-gradle-migration
+            |
+            |We would appreciate your feedback!
+            | - Please report any feedback or problems https://kotl.in/dokka-issues
+            | - Chat with the community visit #dokka in https://kotlinlang.slack.com/ (To sign up visit https://kotl.in/slack)
             |
             |You can suppress this message by adding
             |    ${PLUGIN_MODE_NO_WARN_FLAG_PRETTY}=true
-            |to your project's `gradle.properties`
-            """.trimMargin().prependIndent(" > ")
-
+            |to your project's `gradle.properties` file.
+            """.trimMargin().prependIndent()
     }
 }

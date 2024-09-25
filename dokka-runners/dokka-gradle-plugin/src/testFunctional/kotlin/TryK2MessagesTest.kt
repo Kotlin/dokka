@@ -100,12 +100,12 @@ class TryK2MessagesTest : FunSpec({
             |It can cause build failures or generate incorrect documentation. 
             |
             |We would appreciate your feedback!
-            |Please report any feedback or problems to Dokka GitHub Issues
-            |    https://github.com/Kotlin/dokka/issues/
+            | - Please report any feedback or problems https://kotl.in/dokka-issues
+            | - Chat with the community visit #dokka in https://kotlinlang.slack.com/ (To sign up visit https://kotl.in/slack)
             |
             |You can suppress this message by adding
-            |    org.jetbrains.dokka.experimental.tryK2.nowarn=true
+            |    ${K2_ANALYSIS_NO_WARN_FLAG}=true
             |to your project's `gradle.properties`
-            """.trimMargin().prependIndent(" > ")
+            """.trimMargin().prependIndent()
     }
 }

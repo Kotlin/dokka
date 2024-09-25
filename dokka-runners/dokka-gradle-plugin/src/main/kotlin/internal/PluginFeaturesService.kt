@@ -122,32 +122,28 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
     private fun logPluginMessage(mode: PluginMode) {
         when (mode) {
             V1Enabled -> logV1PluginMessage()
-            V2Enabled -> logV2PluginMessage()
             V2EnabledWithHelpers -> logV2PluginMigrationMessage()
+            V2Enabled -> logV2PluginMessage()
         }
     }
 
     private fun logV1PluginMessage() {
         if (primaryService && !pluginModeNoWarn) {
-            logger.warn("warning: Dokka Gradle plugin V1 mode is deprecated")
+            logger.warn("warning: Dokka Gradle plugin V1 is deprecated")
             logger.lifecycle(
                 """
-                |Dokka Gradle plugin V1 mode is deprecated, and will be removed in Dokka version 2.1.0
                 |
+                |Dokka Gradle plugin V1 is deprecated, and will be removed in Dokka version 2.1.0
                 |Please migrate to Dokka Gradle plugin V2. This will require updating your project.
-                |To learn more about migrating read the Dokka Gradle plugin v2 migration guide.
-                |    https://kotl.in/dokka-gradle-migration
+                |$`To learn about migrating read the migration guide`
                 |
-                |To enable V2 mode add
+                |To start migrating to Dokka Gradle plugin V2 add
                 |    ${PLUGIN_MODE_FLAG}=${V2EnabledWithHelpers}
-                |into your project's `gradle.properties`
+                |into your project's `gradle.properties` file.
                 |
-                |We would appreciate your feedback!
-                | - Report any feedback or problems to Dokka GitHub Issues
-                |   https://github.com/Kotlin/dokka/issues/
-                | - Chat with us in #dokka in https://kotlinlang.slack.com/
-                |   (To sign up visit https://kotl.in/slack)
-                """.trimMargin().prependIndent(" > ")
+                |$`We would appreciate your feedback`
+                |
+                """.trimMargin().prependIndent()
             )
         }
     }
@@ -155,27 +151,25 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
     private fun logV2PluginMigrationMessage() {
         if (primaryService) {
             // Migration helpers are provided as a temporary solution to aid with migration to V2,
-            // and they should not be enabled long term. To encourage disabling them, always warn.
+            // and they should not be enabled long term because they are non-functional.
+            // To encourage disabling them always log a warning, regardless of the noWarn flag.
             logger.warn("warning: Dokka Gradle plugin V2 migration helpers are enabled")
         }
         if (primaryService && !pluginModeNoWarn) {
             logger.lifecycle(
                 """
-                |Thank you for enabling Dokka Gradle plugin V2!
                 |
-                |To learn more about migrating read the Dokka Gradle plugin v2 migration guide.
-                |    https://kotl.in/dokka-gradle-migration
+                |Thank you for migrating to Dokka Gradle plugin V2!
+                |Migration is in progress, and helpers have been enabled.
+                |$`To learn about migrating read the migration guide`
                 |
                 |Once you have finished migrating disable the migration helpers by adding
                 |    ${PLUGIN_MODE_FLAG}=${V2Enabled}
-                |to your project's `gradle.properties`
+                |to your project's `gradle.properties` file.
                 |
-                |We would appreciate your feedback!
-                | - Report any feedback or problems to Dokka GitHub Issues
-                |   https://github.com/Kotlin/dokka/issues/
-                | - Chat with us in #dokka in https://kotlinlang.slack.com/
-                |   (To sign up visit https://kotl.in/slack)
-                """.trimMargin().prependIndent(" > ")
+                |$`We would appreciate your feedback`
+                |
+                """.trimMargin().prependIndent()
             )
         }
     }
@@ -184,21 +178,17 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
         if (primaryService && !pluginModeNoWarn) {
             logger.lifecycle(
                 """
-                |Thank you for enabling Dokka Gradle plugin V2!
                 |
-                |To learn more about migrating read the Dokka Gradle plugin v2 migration guide.
-                |    https://kotl.in/dokka-gradle-migration
+                |Thank you for enabling Dokka Gradle plugin V2!
+                |$`To learn about migrating read the migration guide`
+                |
+                |$`We would appreciate your feedback`
                 |
                 |You can suppress this message by adding
                 |    ${PLUGIN_MODE_NO_WARN_FLAG_PRETTY}=true
-                |to your project's `gradle.properties`
+                |to your project's `gradle.properties` file.
                 |
-                |We would appreciate your feedback!
-                | - Report any feedback or problems to Dokka GitHub Issues
-                |   https://github.com/Kotlin/dokka/issues/
-                | - Chat with us in #dokka in https://kotlinlang.slack.com/
-                |   (To sign up visit https://kotl.in/slack)
-                """.trimMargin().prependIndent(" > ")
+                """.trimMargin().prependIndent()
             )
         }
     }
@@ -223,14 +213,12 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 |Dokka K2 Analysis is Experimental and is still under active development.
                 |It can cause build failures or generate incorrect documentation. 
                 |
-                |We would appreciate your feedback!
-                |Please report any feedback or problems to Dokka GitHub Issues
-                |    https://github.com/Kotlin/dokka/issues/
+                |$`We would appreciate your feedback`
                 |
                 |You can suppress this message by adding
                 |    ${K2_ANALYSIS_NO_WARN_FLAG}=true
-                |to your project's `gradle.properties`
-                """.trimMargin().prependIndent(" > ")
+                |to your project's `gradle.properties` file.
+                """.trimMargin().prependIndent()
             )
         }
     }
@@ -276,6 +264,18 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
 
         private const val K2_ANALYSIS_NO_WARN_FLAG_PRETTY =
             "$K2_ANALYSIS_ENABLED_FLAG.noWarn"
+
+        @Suppress("ObjectPrivatePropertyName")
+        private val `To learn about migrating read the migration guide` = /* language=text */ """
+            |To learn about migrating read the migration guide https://kotl.in/dokka-gradle-migration
+        """.trimMargin()
+
+        @Suppress("ObjectPrivatePropertyName")
+        private val `We would appreciate your feedback` = /* language=text */ """
+            |We would appreciate your feedback!
+            | - Please report any feedback or problems https://kotl.in/dokka-issues
+            | - Chat with the community visit #dokka in https://kotlinlang.slack.com/ (To sign up visit https://kotl.in/slack)
+        """.trimMargin()
 
         /**
          * Register a new [PluginFeaturesService], or get an existing instance.
