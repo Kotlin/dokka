@@ -9,6 +9,10 @@ import io.kotest.matchers.collections.shouldBeSingleton
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
+import io.kotest.property.Exhaustive
+import io.kotest.property.checkAll
+import io.kotest.property.exhaustive.boolean
+import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.hasPlugin
@@ -36,13 +40,12 @@ class DokkaPluginTest : FunSpec({
     }
 
     context("Dokka property conventions") {
-        val project = ProjectBuilder.builder().build()
-            .enableV2Plugin()
-        project.plugins.apply("org.jetbrains.dokka")
-
-        val extension = project.extensions.getByType<DokkaExtension>()
 
         context("DokkaSourceSets") {
+            val project = projectWithDgpV2()
+
+            val extension = project.extensions.getByType<DokkaExtension>()
+
             val testSourceSet = extension.dokkaSourceSets.create_("Test") {
                 externalDocumentationLinks.create_("gradle") {
                     url("https://docs.gradle.org/7.6.1/javadoc")
@@ -115,5 +118,74 @@ class DokkaPluginTest : FunSpec({
                 }
             }
         }
+
+        context("DokkaPublications") {
+
+            test("DokkaExtension 'suppress' settings provides convention values for DokkaPublications") {
+                val project = projectWithDgpV2()
+
+                val dokka = project.extensions.getByType<DokkaExtension>()
+
+                val publication = dokka.dokkaPublications.create("TestPublication")
+
+                checkAll(
+                    Exhaustive.boolean(),
+                    Exhaustive.boolean(),
+                ) { suppressInheritedMembersValue, suppressObviousFunctionsValue ->
+
+                    @Suppress("DEPRECATION")
+                    dokka.suppressInheritedMembers.set(suppressInheritedMembersValue)
+                    @Suppress("DEPRECATION")
+                    dokka.suppressObviousFunctions.set(suppressObviousFunctionsValue)
+
+                    withClue("suppressInheritedMembers should be $suppressInheritedMembersValue") {
+                        publication.suppressInheritedMembers.orNull shouldBe suppressInheritedMembersValue
+                    }
+                    withClue("suppressObviousFunctions should be $suppressObviousFunctionsValue") {
+                        publication.suppressObviousFunctions.orNull shouldBe suppressObviousFunctionsValue
+                    }
+                }
+            }
+
+            test("DokkaExtension 'suppress' settings convention values can be overridden by DokkaPublications") {
+                val project = projectWithDgpV2()
+
+                val dokka = project.extensions.getByType<DokkaExtension>()
+
+                val publication = dokka.dokkaPublications.create("TestPublication}")
+
+                checkAll(
+                    Exhaustive.boolean(),
+                    Exhaustive.boolean(),
+                ) { suppressInheritedMembersValue,
+                    suppressObviousFunctionsValue ->
+
+                    @Suppress("DEPRECATION")
+                    dokka.suppressInheritedMembers.set(suppressInheritedMembersValue)
+                    @Suppress("DEPRECATION")
+                    dokka.suppressObviousFunctions.set(suppressObviousFunctionsValue)
+
+                    val suppressInheritedMembersOverride = !suppressInheritedMembersValue
+                    val suppressObviousFunctionsOverride = !suppressObviousFunctionsValue
+
+                    publication.apply {
+                        suppressInheritedMembers.set(suppressInheritedMembersOverride)
+                        suppressObviousFunctions.set(suppressObviousFunctionsOverride)
+                    }
+
+                    withClue("suppressInheritedMembers should be $suppressInheritedMembersOverride") {
+                        publication.suppressInheritedMembers.orNull shouldBe suppressInheritedMembersOverride
+                    }
+                    withClue("suppressObviousFunctions should be $suppressObviousFunctionsOverride") {
+                        publication.suppressObviousFunctions.orNull shouldBe suppressObviousFunctionsOverride
+                    }
+                }
+            }
+        }
     }
 })
+
+private fun projectWithDgpV2(): Project =
+    ProjectBuilder.builder().build()
+        .enableV2Plugin()
+        .also { it.plugins.apply("org.jetbrains.dokka") }

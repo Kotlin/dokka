@@ -13,8 +13,8 @@ import org.gradle.api.tasks.Nested
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.gradle.dependencies.BaseDependencyManager
-import org.jetbrains.dokka.gradle.formats.DokkaPublication
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.formats.DokkaPublication
 import org.jetbrains.dokka.gradle.internal.*
 import org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
 import org.jetbrains.dokka.gradle.workers.ProcessIsolation
@@ -176,4 +176,42 @@ constructor(
      */
     fun ProcessIsolation(configure: ProcessIsolation.() -> Unit = {}): ProcessIsolation =
         objects.newInstance<ProcessIsolation>().apply(configure)
+
+
+    //region deprecated properties
+    /**
+     * ```
+     * dokka {
+     *   // DEPRECATED
+     *   suppressInheritedMembers.set(true)
+     *
+     *   // Replace with:
+     *   dokkaPublications.configureEach {
+     *     suppressInheritedMembers.set(true)
+     *   }
+     * }
+     * ```
+     * @see DokkaPublication.suppressInheritedMembers
+     */
+    @Deprecated("Moved to DokkaPublication#suppressInheritedMembers")
+    abstract val suppressInheritedMembers: Property<Boolean>
+
+    /**
+     * ```
+     * dokka {
+     *   // DEPRECATED
+     *   suppressObviousFunctions.set(true)
+     *
+     *   // Replace with:
+     *   dokkaPublications.configureEach {
+     *     suppressObviousFunctions.set(true)
+     *   }
+     * }
+     * ```
+     *
+     * @see DokkaPublication.suppressObviousFunctions
+     */
+    @Deprecated("Moved to DokkaPublication#suppressObviousFunctions")
+    abstract val suppressObviousFunctions: Property<Boolean>
+    //endregion
 }
