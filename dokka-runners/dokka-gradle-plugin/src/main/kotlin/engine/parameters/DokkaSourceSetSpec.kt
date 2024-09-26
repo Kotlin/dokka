@@ -398,6 +398,7 @@ constructor(
      */
     @Deprecated("Replaced with to enableKotlinStdLibDocumentationLink. The value must be inverted.", level = ERROR)
     @get:Internal
+    @Suppress("unused")
     abstract val noStdlibLink: Property<Boolean>
 
     /**
@@ -417,6 +418,7 @@ constructor(
      */
     @Deprecated("Replaced with to enableAndroidDocumentationLink. The value must be inverted.", level = ERROR)
     @get:Internal
+    @Suppress("unused")
     abstract val noAndroidSdkLink: Property<Boolean>
 
     /**
@@ -436,6 +438,7 @@ constructor(
      */
     @Deprecated("Replaced with to enableJdkDocumentationLink. The value must be inverted.", level = ERROR)
     @get:Internal
+    @Suppress("unused")
     abstract val noJdkLink: Property<Boolean>
     //endregion
 }
