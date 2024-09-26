@@ -64,11 +64,11 @@ internal class LoggerAdapter(
     @Synchronized
     private fun log(level: LoggingLevel, message: String) {
         when (level) {
-            DEBUG -> logger.info(message.prependIndent())
-            PROGRESS -> logger.info(message.prependIndent())
-            INFO -> logger.info(message.prependIndent())
-            WARN -> logger.warn(message.prependIndent())
-            ERROR -> logger.warn(message.prependIndent())
+            DEBUG -> logger.info(message.prependIndent("  "))
+            PROGRESS -> logger.info(message.prependIndent("  "))
+            INFO -> logger.info(message.prependIndent("  "))
+            WARN -> logger.warn(message.prependIndent("w:"))
+            ERROR -> logger.error(message.prependIndent("e:"))
         }
         logWriter.appendLine("[${level.name}] $message")
     }
