@@ -225,10 +225,7 @@ testing {
                     "junit.jupiter.execution.parallel.enabled",
                     dokkaBuild.isCI.map { !it },
                 )
-                systemProperty.inputProperty(
-                    "junit.jupiter.execution.parallel.mode.default",
-                    dokkaBuild.isCI.map { if (it) "SAME_THREAD" else "CONCURRENT" }
-                )
+                systemProperty("junit.jupiter.execution.parallel.mode.default", "SAME_THREAD")
             }
         }
     }
