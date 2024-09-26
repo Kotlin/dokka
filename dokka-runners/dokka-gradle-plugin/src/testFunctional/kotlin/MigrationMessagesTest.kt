@@ -161,9 +161,9 @@ class MigrationMessagesTest : FunSpec({
             logLevel: LogLevel,
         ): String {
             val args = buildList {
-                this.add(":help")
-                this.add("--dry-run")
-                pluginMode?.let { this.add("-P$PLUGIN_MODE_FLAG=$it") }
+                add(":help")
+                add("--dry-run")
+                pluginMode?.let { add("-P$PLUGIN_MODE_FLAG=$it") }
                 if (logLevel != LIFECYCLE) add("--${logLevel.name.lowercase()}")
                 pluginModeNoWarn?.let { add("-P$PLUGIN_MODE_NO_WARN_FLAG_PRETTY=$it") }
             }
