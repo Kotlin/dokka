@@ -3,7 +3,7 @@
 > The Dokka Gradle plugin v2 is an [experimental](https://kotlinlang.org/docs/components-stability.html#stability-levels-explained) feature. 
 > It may be changed at any time. We appreciate your feedback on [GitHub](https://github.com/Kotlin/dokka/issues).
 >
-{type="warning"}
+{style="warning"}
 
 The Dokka Gradle plugin (DGP) is a tool to generate comprehensive API documentation for Kotlin projects.
 
@@ -44,12 +44,12 @@ Ensure your project meets the minimum version requirements:
    }
    ```
 
+   Alternatively, you can use [version catalog](https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog) to enable the Dokka Gradle plugin v2.
+
    > The default output format for DGP v2 is HTML. For more information about getting Javadoc output, see 
    > [Select documentation output format](#select-documentation-output-format).
    >
    {type="tip"}
-
-   Alternatively, you can use [version catalog](https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog) to enable the Dokka Gradle plugin v2.
 
 2. In the project's `gradle.properties` file, set the following opt-in flag with helpers to activate the new plugin version:
 
@@ -70,7 +70,7 @@ After updating the Dokka Gradle plugin to v2, follow the migration steps applica
 
 ### Adjust configuration options
 
-DGP v2 introduces some changes in the Gradle configuration options. In the `build.gradle.kts` file, adjust the configuration 
+DGP v2 introduces some changes in the [Gradle configuration options](dokka-gradle.md#configuration-options). In the `build.gradle.kts` file, adjust the configuration 
 options according to your project setup: 
 
 * **New top-level DSL configuration:** Replace the old configuration syntax with the 
@@ -218,7 +218,7 @@ After sharing the Dokka configuration, you can aggregate the documentation from 
 To share the Dokka configuration in multi-module projects without convention plugins, you need to set up the `buildSrc` directory, 
 set up the convention plugin, and then apply the plugin to your modules (subprojects).
 
-##### Set up the buildSrc directory {initial-collapse-state="collapsed"}
+##### Set up the buildSrc directory {collapsible="true"}
 
 1. In your project root, create a `buildSrc` directory containing two files:
 
@@ -248,7 +248,7 @@ set up the convention plugin, and then apply the plugin to your modules (subproj
     }   
     ```
 
-##### Set up the Dokka convention plugin {initial-collapse-state="collapsed"}
+##### Set up the Dokka convention plugin {collapsible="true"}
 
 After setting up the `buildSrc` directory:
    
@@ -268,7 +268,7 @@ After setting up the `buildSrc` directory:
    You need to add the shared Dokka [configuration](#adjust-configuration-options) common to all subprojects within the `dokka {}` block.
    Also, you don't need to specify a Dokka version. The version is already set in the `buildSrc/build.gradle.kts` file.
 
-##### Apply the convention plugin to your modules {initial-collapse-state="collapsed"}
+##### Apply the convention plugin to your modules {collapsible="true"}
 
 Apply the Dokka convention plugin across your modules (subprojects) by adding it to each subproject's `build.gradle.kts` file:
 
@@ -289,7 +289,7 @@ Then, follow the steps to [set up the Dokka convention plugin](#set-up-the-dokka
 
 Dokka can aggregate the documentation from multiple modules (subprojects) into a single output or publication.
 
-As [explained](#multi-module-projects-with-convention-plugins),
+As [explained](#apply-the-convention-plugin-to-your-modules),
 you must apply the Dokka plugin to all documentable subprojects before aggregating the documentation.
 
 Aggregation in DGP v2 now uses the `dependencies {}` block instead of tasks, and can be added in any `build.gradle.kts` file. 
@@ -345,7 +345,7 @@ to generate output in HTML, Javadoc or both HTML and Javadoc. For more informati
 > You may find bugs and experience migration issues when using it. Successful integration with tools that accept Javadoc
 > as input is not guaranteed. Use it at your own risk.
 >
-{type="note"}
+{style="note"}
 
 With DGP v2, you can choose to generate the API documentation in HTML, Javadoc, or both formats at the same time:
 
