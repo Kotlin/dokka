@@ -12,6 +12,7 @@ import io.kotest.matchers.string.shouldEndWith
 import io.kotest.property.Exhaustive
 import io.kotest.property.checkAll
 import io.kotest.property.exhaustive.boolean
+import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.hasPlugin
@@ -19,7 +20,6 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import org.jetbrains.dokka.gradle.utils.create_
 import org.jetbrains.dokka.gradle.utils.enableV2Plugin
-import kotlin.random.nextUInt
 
 class DokkaPluginTest : FunSpec({
 
@@ -42,9 +42,7 @@ class DokkaPluginTest : FunSpec({
     context("Dokka property conventions") {
 
         context("DokkaSourceSets") {
-            val project = ProjectBuilder.builder().build()
-                .enableV2Plugin()
-                .also { it.plugins.apply("org.jetbrains.dokka") }
+            val project = projectWithDgpV2()
 
             val extension = project.extensions.getByType<DokkaExtension>()
 
@@ -123,12 +121,12 @@ class DokkaPluginTest : FunSpec({
 
         context("DokkaPublications") {
 
-            context("dokka dsl provides convention values for suppressInheritedMembers and suppressObviousFunctions") {
-                val project = ProjectBuilder.builder().build()
-                    .enableV2Plugin()
-                    .also { it.plugins.apply("org.jetbrains.dokka") }
+            test("DokkaExtension 'suppress' settings provides convention values for DokkaPublications") {
+                val project = projectWithDgpV2()
 
                 val dokka = project.extensions.getByType<DokkaExtension>()
+
+                val publication = dokka.dokkaPublications.create("TestPublication")
 
                 checkAll(
                     Exhaustive.boolean(),
@@ -140,9 +138,6 @@ class DokkaPluginTest : FunSpec({
                     @Suppress("DEPRECATION")
                     dokka.suppressObviousFunctions.set(suppressObviousFunctionsValue)
 
-                    val publication =
-                        dokka.dokkaPublications.create("TestPublication_${randomSource().random.nextUInt()}")
-
                     withClue("suppressInheritedMembers should be $suppressInheritedMembersValue") {
                         publication.suppressInheritedMembers.orNull shouldBe suppressInheritedMembersValue
                     }
@@ -152,33 +147,31 @@ class DokkaPluginTest : FunSpec({
                 }
             }
 
-            context("dokka dsl convention values for suppressInheritedMembers and suppressObviousFunctions can be overridden") {
-                val project = ProjectBuilder.builder().build()
-                    .enableV2Plugin()
-                    .also { it.plugins.apply("org.jetbrains.dokka") }
+            test("DokkaExtension 'suppress' settings convention values can be overridden by DokkaPublications") {
+                val project = projectWithDgpV2()
 
                 val dokka = project.extensions.getByType<DokkaExtension>()
+
+                val publication = dokka.dokkaPublications.create("TestPublication}")
 
                 checkAll(
                     Exhaustive.boolean(),
                     Exhaustive.boolean(),
-                    Exhaustive.boolean(),
-                    Exhaustive.boolean(),
                 ) { suppressInheritedMembersValue,
-                    suppressInheritedMembersOverride,
-                    suppressObviousFunctionsValue,
-                    suppressObviousFunctionsOverride ->
+                    suppressObviousFunctionsValue ->
 
                     @Suppress("DEPRECATION")
                     dokka.suppressInheritedMembers.set(suppressInheritedMembersValue)
                     @Suppress("DEPRECATION")
                     dokka.suppressObviousFunctions.set(suppressObviousFunctionsValue)
 
-                    val publication =
-                        dokka.dokkaPublications.create_("TestPublication_${randomSource().random.nextUInt()}") {
-                            suppressInheritedMembers.set(suppressInheritedMembersOverride)
-                            suppressObviousFunctions.set(suppressObviousFunctionsOverride)
-                        }
+                    val suppressInheritedMembersOverride = !suppressInheritedMembersValue
+                    val suppressObviousFunctionsOverride = !suppressObviousFunctionsValue
+
+                    publication.apply {
+                        suppressInheritedMembers.set(suppressInheritedMembersOverride)
+                        suppressObviousFunctions.set(suppressObviousFunctionsOverride)
+                    }
 
                     withClue("suppressInheritedMembers should be $suppressInheritedMembersOverride") {
                         publication.suppressInheritedMembers.orNull shouldBe suppressInheritedMembersOverride
@@ -191,3 +184,8 @@ class DokkaPluginTest : FunSpec({
         }
     }
 })
+
+private fun projectWithDgpV2(): Project =
+    ProjectBuilder.builder().build()
+        .enableV2Plugin()
+        .also { it.plugins.apply("org.jetbrains.dokka") }
