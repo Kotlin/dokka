@@ -49,7 +49,7 @@ Ensure your project meets the minimum version requirements:
    > The default output format for DGP v2 is HTML. For more information about getting Javadoc output, see 
    > [Select documentation output format](#select-documentation-output-format).
    >
-   {type="tip"}
+   {style="tip"}
 
 2. In the project's `gradle.properties` file, set the following opt-in flag with helpers to activate the new plugin version:
 
@@ -211,7 +211,7 @@ After sharing the Dokka configuration, you can aggregate the documentation from 
 
 > For a multi-module project example, see the [Dokka GitHub repository](https://github.com/Kotlin/dokka/tree/master/examples/gradle-v2/multimodule-example).
 >
-{type="tip"}
+{style="tip"}
 
 #### Multi-module projects without convention plugins
 
@@ -374,7 +374,8 @@ Here's a list of the plugin `id` and Gradle task that correspond to each format:
 > The `dokkaGenerate` task generates documentation in all available formats based on the applied plugins. 
 > If both the HTML and Javadoc plugins are applied, you can choose to generate only HTML format by running the `dokkaGenerateHtml` task, 
 > or only Javadoc by running the `dokkaGenerateJavadoc` task.
-> {type="tip"}
+> 
+{style="tip"}
 
 ### Address deprecations and removals
 
