@@ -123,6 +123,11 @@ constructor(
             }
         )
 
+        @Suppress("DEPRECATION")
+        dokkaExtension.suppressInheritedMembers.convention(false)
+        @Suppress("DEPRECATION")
+        dokkaExtension.suppressObviousFunctions.convention(true)
+
         dokkaExtension.dokkaSourceSets.configureDefaults(
             sourceSetScopeConvention = dokkaExtension.sourceSetScopeDefault
         )
@@ -154,8 +159,14 @@ constructor(
             offlineMode.convention(false)
             outputDirectory.convention(dokkaExtension.dokkaPublicationDirectory.dir(formatName))
             moduleOutputDirectory.convention(dokkaExtension.dokkaModuleDirectory.dir(formatName))
-            suppressInheritedMembers.convention(false)
-            suppressObviousFunctions.convention(true)
+            suppressInheritedMembers.convention(
+                @Suppress("DEPRECATION")
+                dokkaExtension.suppressInheritedMembers.orElse(false)
+            )
+            suppressObviousFunctions.convention(
+                @Suppress("DEPRECATION")
+                dokkaExtension.suppressObviousFunctions.orElse(true)
+            )
         }
     }
 

@@ -70,6 +70,7 @@ dependencies {
     testFixturesApi(libs.kotest.assertionsCore)
     testFixturesApi(libs.kotest.assertionsJson)
     testFixturesApi(libs.kotest.datatest)
+    testFixturesApi(libs.kotest.property)
 
     // don't define test dependencies here, instead define them in the testing.suites {} configuration below
 

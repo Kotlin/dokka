@@ -91,6 +91,8 @@ public abstract class org/jetbrains/dokka/gradle/DokkaExtension : java/io/Serial
 	public abstract fun getModuleVersion ()Lorg/gradle/api/provider/Property;
 	public final fun getPluginsConfiguration ()Lorg/gradle/api/ExtensiblePolymorphicDomainObjectContainer;
 	public abstract fun getSourceSetScopeDefault ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSuppressInheritedMembers ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSuppressObviousFunctions ()Lorg/gradle/api/provider/Property;
 }
 
 public abstract interface class org/jetbrains/dokka/gradle/DokkaMultiModuleFileLayout {
@@ -579,4 +581,3 @@ public abstract class org/jetbrains/dokka/gradle/workers/WorkerIsolation$Process
 	public abstract fun getSystemProperties ()Lorg/gradle/api/provider/MapProperty;
 	public fun toString ()Ljava/lang/String;
 }
-
