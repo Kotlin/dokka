@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * Logs all Dokka messages to [logWriter],
  * and redirects all messages to [logger].
  *
+ * @param logTag Prepend all [logger] messages with this tag.
  * @see org.jetbrains.dokka.DokkaGenerator
  */
 // Gradle causes OOM errors when there is a lot of console output. Logging to file is a workaround.
@@ -23,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger
 internal class LoggerAdapter(
     outputFile: File,
     private val logger: Logger,
+    private val logTag: String,
 ) : DokkaLogger, AutoCloseable {
 
     private val logWriter: Writer
@@ -64,11 +66,12 @@ internal class LoggerAdapter(
     @Synchronized
     private fun log(level: LoggingLevel, message: String) {
         when (level) {
-            DEBUG -> logger.info(message.prependIndent("  "))
-            PROGRESS -> logger.info(message.prependIndent("  "))
-            INFO -> logger.info(message.prependIndent("  "))
-            WARN -> logger.warn(message.prependIndent("w:"))
-            ERROR -> logger.error(message.prependIndent("e:"))
+            DEBUG,
+            PROGRESS,
+            INFO -> logger.info("[$logTag] " + message.prependIndent().trimStart())
+
+            WARN -> logger.warn("w: [$logTag] " + message.prependIndent().trimStart())
+            ERROR -> logger.error("e: [$logTag] " + message.prependIndent().trimStart())
         }
         logWriter.appendLine("[${level.name}] $message")
     }

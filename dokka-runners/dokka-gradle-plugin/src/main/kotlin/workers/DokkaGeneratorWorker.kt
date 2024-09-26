@@ -29,6 +29,12 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
     interface Parameters : WorkParameters {
         val dokkaParameters: Property<DokkaConfiguration>
         val logFile: RegularFileProperty
+
+        /**
+         * The [org.gradle.api.Task.getPath] of the task that invokes this worker.
+         * Only used in log messages.
+         */
+        val taskPath: Property<String>
     }
 
     override fun execute() {
@@ -61,6 +67,7 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
         LoggerAdapter(
             logFile,
             logger,
+            logTag = parameters.taskPath.get(),
         ).use { logger ->
             logger.progress("Executing DokkaGeneratorWorker with dokkaParameters: $dokkaParameters")
 
