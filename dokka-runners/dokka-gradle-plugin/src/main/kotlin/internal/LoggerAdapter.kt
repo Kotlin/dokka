@@ -3,14 +3,17 @@
  */
 package org.jetbrains.dokka.gradle.internal
 
+import org.gradle.api.logging.Logger
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.LoggingLevel
+import org.jetbrains.dokka.utilities.LoggingLevel.*
 import java.io.File
 import java.io.Writer
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Logs all Dokka messages to a file.
+ * Logs all Dokka messages to [logWriter],
+ * and redirects all messages to [logger].
  *
  * @see org.jetbrains.dokka.DokkaGenerator
  */
@@ -18,7 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger
 // https://github.com/gradle/gradle/issues/23965
 // https://github.com/gradle/gradle/issues/15621
 internal class LoggerAdapter(
-    outputFile: File
+    outputFile: File,
+    private val logger: Logger,
 ) : DokkaLogger, AutoCloseable {
 
     private val logWriter: Writer
@@ -43,22 +47,29 @@ internal class LoggerAdapter(
         get() = errorsCounter.get()
         set(value) = errorsCounter.set(value)
 
-    override fun debug(message: String) = log(LoggingLevel.DEBUG, message)
-    override fun progress(message: String) = log(LoggingLevel.PROGRESS, message)
-    override fun info(message: String) = log(LoggingLevel.INFO, message)
+    override fun debug(message: String) = log(DEBUG, message)
+    override fun progress(message: String) = log(PROGRESS, message)
+    override fun info(message: String) = log(INFO, message)
 
     override fun warn(message: String) {
         warningsCount++
-        log(LoggingLevel.WARN, message)
+        log(WARN, message)
     }
 
     override fun error(message: String) {
         errorsCount++
-        log(LoggingLevel.ERROR, message)
+        log(ERROR, message)
     }
 
     @Synchronized
     private fun log(level: LoggingLevel, message: String) {
+        when (level) {
+            DEBUG -> logger.info(message.prependIndent())
+            PROGRESS -> logger.info(message.prependIndent())
+            INFO -> logger.info(message.prependIndent())
+            WARN -> logger.warn(message.prependIndent())
+            ERROR -> logger.warn(message.prependIndent())
+        }
         logWriter.appendLine("[${level.name}] $message")
     }
 

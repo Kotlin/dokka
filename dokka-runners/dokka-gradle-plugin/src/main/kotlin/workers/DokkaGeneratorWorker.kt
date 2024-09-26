@@ -4,6 +4,8 @@
 package org.jetbrains.dokka.gradle.workers
 
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
@@ -56,7 +58,10 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
         logFile: File,
         dokkaParameters: DokkaConfiguration
     ) {
-        LoggerAdapter(logFile).use { logger ->
+        LoggerAdapter(
+            logFile,
+            logger,
+        ).use { logger ->
             logger.progress("Executing DokkaGeneratorWorker with dokkaParameters: $dokkaParameters")
 
             val generator = DokkaGenerator(dokkaParameters, logger)
@@ -69,6 +74,8 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
 
     @DokkaInternalApi
     companion object {
+        private val logger: Logger = Logging.getLogger(DokkaGeneratorWorker::class.java)
+
         // can't use kotlin.Duration or kotlin.time.measureTime {} because
         // the implementation isn't stable across Kotlin versions
         private fun measureTime(block: () -> Unit): Duration =
