@@ -581,3 +581,4 @@ public abstract class org/jetbrains/dokka/gradle/workers/WorkerIsolation$Process
 	public abstract fun getSystemProperties ()Lorg/gradle/api/provider/MapProperty;
 	public fun toString ()Ljava/lang/String;
 }
+
