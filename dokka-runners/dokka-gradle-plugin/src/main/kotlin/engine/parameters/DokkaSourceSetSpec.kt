@@ -9,7 +9,6 @@ import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.model.ReplacedBy
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
@@ -23,6 +22,7 @@ import org.jetbrains.dokka.gradle.internal.adding
 import org.jetbrains.dokka.gradle.internal.domainObjectContainer
 import java.io.Serializable
 import javax.inject.Inject
+import kotlin.DeprecationLevel.ERROR
 
 /**
  * [Source set](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) level configuration.
@@ -381,19 +381,64 @@ constructor(
     }
 
     //region deprecated properties
-    /** Renamed to [enableKotlinStdLibDocumentationLink]. */
-    @Deprecated("Renamed to enableKotlinStdLibDocumentationLink", ReplaceWith("enableKotlinStdLibDocumentationLink"))
-    @get:ReplacedBy("enableKotlinStdLibDocumentationLink")
-    val noStdlibLink: Property<Boolean> by ::enableKotlinStdLibDocumentationLink
+    /**
+     * This property is replaced with [enableKotlinStdLibDocumentationLink].
+     *
+     * **Important**: When replacing [noStdlibLink] you **must** invert the value.
+     *
+     * ```kotlin
+     * // Before:
+     * noStdlibLink.set(true)
+     *
+     * // Update the name, and set the value to `false` instead of `true`:
+     * enableKotlinStdLibDocumentationLink.set(false)
+     * ```
+     *
+     * @see enableKotlinStdLibDocumentationLink
+     */
+    @Deprecated("Replaced with to enableKotlinStdLibDocumentationLink. The value must be inverted.", level = ERROR)
+    @get:Internal
+    @Suppress("unused")
+    abstract val noStdlibLink: Property<Boolean>
 
-    /** Renamed to [enableJdkDocumentationLink]. */
-    @Deprecated("Renamed to enableJdkDocumentationLink", ReplaceWith("enableJdkDocumentationLink"))
-    @get:ReplacedBy("enableJdkDocumentationLink")
-    val noAndroidSdkLink: Property<Boolean> by ::enableAndroidDocumentationLink
+    /**
+     * This property is replaced with [enableAndroidDocumentationLink].
+     *
+     * **Important**: When replacing [noAndroidSdkLink] you **must** invert the value.
+     *
+     * ```kotlin
+     * // Before:
+     * noAndroidSdkLink.set(true)
+     *
+     * // Update the name, and set the value to `false` instead of `true`:
+     * enableAndroidDocumentationLink.set(false)
+     * ```
+     *
+     * @see enableAndroidDocumentationLink
+     */
+    @Deprecated("Replaced with to enableAndroidDocumentationLink. The value must be inverted.", level = ERROR)
+    @get:Internal
+    @Suppress("unused")
+    abstract val noAndroidSdkLink: Property<Boolean>
 
-    /** Renamed to [enableAndroidDocumentationLink]. */
-    @Deprecated("Renamed to enableAndroidDocumentationLink", ReplaceWith("enableAndroidDocumentationLink"))
-    @get:ReplacedBy("enableAndroidDocumentationLink")
-    val noJdkLink: Property<Boolean> by ::enableJdkDocumentationLink
+    /**
+     * This property is replaced with [enableJdkDocumentationLink].
+     *
+     * **Important**: When replacing [noJdkLink] you **must** invert the value.
+     *
+     * ```kotlin
+     * // Before:
+     * noJdkLink.set(true)
+     *
+     * // Update the name, and set the value to `false` instead of `true`:
+     * enableJdkDocumentationLink.set(false)
+     * ```
+     *
+     * @see enableJdkDocumentationLink
+     */
+    @Deprecated("Replaced with to enableJdkDocumentationLink. The value must be inverted.", level = ERROR)
+    @get:Internal
+    @Suppress("unused")
+    abstract val noJdkLink: Property<Boolean>
     //endregion
 }
