@@ -161,11 +161,11 @@ constructor(
             moduleOutputDirectory.convention(dokkaExtension.dokkaModuleDirectory.dir(formatName))
             suppressInheritedMembers.convention(
                 @Suppress("DEPRECATION")
-                dokkaExtension.suppressInheritedMembers.orElse(false)
+                dokkaExtension.suppressInheritedMembers
             )
             suppressObviousFunctions.convention(
                 @Suppress("DEPRECATION")
-                dokkaExtension.suppressObviousFunctions.orElse(true)
+                dokkaExtension.suppressObviousFunctions
             )
         }
     }
