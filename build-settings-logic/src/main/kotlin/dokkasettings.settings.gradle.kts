@@ -36,12 +36,9 @@ val buildScanEnabled: Provider<Boolean> =
     dokkaProperty("build.scan.enabled", String::toBoolean)
         .orElse(buildingOnCi)
 
-val BUILD_SCAN_USERNAME_DEFAULT = "<default>"
-
 /** Optionally override the default name attached to a Build Scan. */
 val buildScanUsername: Provider<String> =
     dokkaProperty("build.scan.username")
-        .orElse(BUILD_SCAN_USERNAME_DEFAULT)
         .map(String::trim)
 
 develocity {
@@ -65,6 +62,12 @@ develocity {
         }
 
         val overriddenName = buildScanUsername.orNull
+        // we need to assign properties' values to local variables to avoid issues with Gradle Configuration Cache.
+        // if we don't do it, by using those properties in `username { ... }` we catch `this` in closure
+        // and Gradle Configuration Cache doesn't allow to catch implicit `this` object
+        val buildingOnTeamCity = buildingOnTeamCity
+        val buildingOnGitHub = buildingOnGitHub
+        val buildingOnCi = buildingOnCi
         obfuscation {
             ipAddresses { _ -> listOf("0.0.0.0") }
             hostname { _ -> "concealed" }
@@ -74,8 +77,7 @@ develocity {
                     buildingOnGitHub -> "GitHub"
                     buildingOnCi -> "CI"
                     !overriddenName.isNullOrBlank() -> overriddenName
-                    overriddenName == BUILD_SCAN_USERNAME_DEFAULT -> originalUsername
-                    else -> "unknown"
+                    else -> originalUsername
                 }
             }
         }
