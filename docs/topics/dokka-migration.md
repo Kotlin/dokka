@@ -1,23 +1,23 @@
 [//]: # (title: Migrate to Dokka Gradle plugin v2)
 
-> The Dokka Gradle plugin v2 is an [experimental](https://kotlinlang.org/docs/components-stability.html#stability-levels-explained) feature. 
+> The Dokka Gradle plugin v2 is an [Experimental](https://kotlinlang.org/docs/components-stability.html#stability-levels-explained) feature. 
 > It may be changed at any time. We appreciate your feedback on [GitHub](https://github.com/Kotlin/dokka/issues).
 >
 {style="warning"}
 
-The Dokka Gradle plugin (DGP) is a tool to generate comprehensive API documentation for Kotlin projects.
+The Dokka Gradle plugin (DGP) is a tool for generating comprehensive API documentation for Kotlin projects built with Gradle.
 
 DGP seamlessly processes both Kotlin's KDoc comments and Java's Javadoc comments to extract information and create 
 structured documentation in [HTML or Javadoc](#select-documentation-output-format) format.
 
-From Dokka 2.0.0, you can try the Dokka Gradle plugin v2, the new version of DGP.
+Starting with Dokka 2.0.0, you can try the Dokka Gradle plugin v2, the new version of DGP.
 
-DGP v2 introduces significant improvements to DGP, aligning more closely with Gradle best practices. Key improvements are:
+DGP v2 introduces significant improvements to DGP, aligning more closely with Gradle best practices:
 
-* Adoption of Gradle types, leading to better performance.
-* Use of intuitive top-level DSL configuration instead of low-level task-based setup, simplifying the build scripts and their readability.
-* More declarative approach to documentation aggregation, making multi-project documentation easier to manage.
-* Plugin configuration is now typesafe, improving the reliability and maintainability of your build scripts.
+* Adopts Gradle types, which leads to better performance.
+* Uses an intuitive top-level DSL configuration instead of a low-level task-based setup, which simplifies the build scripts and their readability.
+* Takes a more declarative approach to documentation aggregation, which makes multi-project documentation easier to manage.
+* Uses a type-safe plugin configuration, which improves the reliability and maintainability of your build scripts.
 
 ## Before you start
 
@@ -25,7 +25,7 @@ Before starting the migration, complete the following steps.
 
 ### Verify supported versions
 
-Ensure your project meets the minimum version requirements:
+Ensure that your project meets the minimum version requirements:
 
 | **Tool**              | **Version**   |
 |-----------------------|---------------|
@@ -46,11 +46,6 @@ Ensure your project meets the minimum version requirements:
 
    Alternatively, you can use [version catalog](https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog) to enable the Dokka Gradle plugin v2.
 
-   > The default output format for DGP v2 is HTML. For more information about getting Javadoc output, see 
-   > [Select documentation output format](#select-documentation-output-format).
-   >
-   {style="tip"}
-
 2. In the project's `gradle.properties` file, set the following opt-in flag with helpers to activate the new plugin version:
 
    ```kotlin
@@ -61,7 +56,7 @@ Ensure your project meets the minimum version requirements:
 
 3. Sync your project with Gradle to ensure the new plugin is properly applied:
 
-   * If you use IntelliJ IDEA, click the **Reload** button from the Gradle tool window.
+   * If you use IntelliJ IDEA, click the **Reload All Gradle Projects** ![Reload button](gradle-reload-button.png){width=30}{type="joined"} button from the Gradle tool window.
    * If you use Android Studio, select **File** | **Sync Project with Gradle Files**.
 
 ## Migrate your project
@@ -110,9 +105,9 @@ options according to your project setup:
       dokkaSourceSets.main {
           includes.from("README.md")
           sourceLink {
-                  localDirectory.set(file("src/main/kotlin"))
-                  remoteUrl.set(URL("https://example.com/src"))
-                  remoteLineSuffix.set("#L")
+              localDirectory.set(file("src/main/kotlin"))
+              remoteUrl.set(URL("https://example.com/src"))
+              remoteLineSuffix.set("#L")
           }
       }
       pluginsConfiguration.html {
@@ -146,7 +141,7 @@ options according to your project setup:
   ```
 
 * **External documentation link:** The source link configuration has [changed](https://docs.gradle.org/current/userguide/upgrading_version_8.html#deprecated_invalid_url_decoding). 
-    The remote URL is now specified using `URI` instead of `URL`.
+    The remote URL is now specified using the `URI` class instead of the `URL` class.
 
   Previous configuration:
   
@@ -204,7 +199,7 @@ DPG v2 moves away from using `subprojects {}` or `allprojects {}` to share confi
 using these approaches will [lead to errors](https://docs.gradle.org/current/userguide/isolated_projects.html).
 
 Follow the steps below to properly share Dokka configuration in multi-module projects [with existing convention plugins](#multi-module-projects-with-convention-plugins)
-and [without convention plugins](#multi-module-projects-without-convention-plugins).
+or [without convention plugins](#multi-module-projects-without-convention-plugins).
 
 After sharing the Dokka configuration, you can aggregate the documentation from multiple modules into a single output. For more information, see
 [Update documentation aggregation in multi-module projects](#update-documentation-aggregation-in-multi-module-projects).
@@ -316,7 +311,7 @@ dependencies {
 
 ### Generate documentation with the updated task
 
-DGP v2 has changed the naming of the Gradle tasks to generate the API documentation.
+DGP v2 has renamed the Gradle tasks that generate the API documentation.
 
 Previous task:
 
@@ -334,7 +329,7 @@ New task:
 ./gradlew :dokkaGenerate
 ```
 
-After running the `dokkaGenerate` task, the generated API documentation is available in the `build/dokka/` directory.
+The `dokkaGenerate` task generates the API documentation in the `build/dokka/` directory.
 
 In the new version, the `dokkaGenerate` task name works for both single and multi-module projects. You can use different tasks
 to generate output in HTML, Javadoc or both HTML and Javadoc. For more information, see the next section.
@@ -347,7 +342,8 @@ to generate output in HTML, Javadoc or both HTML and Javadoc. For more informati
 >
 {style="note"}
 
-With DGP v2, you can choose to generate the API documentation in HTML, Javadoc, or both formats at the same time:
+The default output format for DGP v2 is HTML. However, you can choose to generate the API documentation in HTML, Javadoc, 
+or both formats at the same time:
 
 1. Place the corresponding plugin `id` in the `plugins{}` block of your project's `build.gradle.kts` file:
 
@@ -355,9 +351,10 @@ With DGP v2, you can choose to generate the API documentation in HTML, Javadoc, 
    plugins {
        // Generates HTML documentation
        id("org.jetbrains.dokka") version "2.0.0"
-       // OR
+       
        // Generates Javadoc documentation
        id("org.jetbrains.dokka-javadoc") version "2.0.0"
+   
        // Keeping both plugin IDs generates both formats
    }
    ```
@@ -379,8 +376,8 @@ Here's a list of the plugin `id` and Gradle task that correspond to each format:
 
 ### Address deprecations and removals
 
-* **Output format support:** Dokka now only supports HTML and Javadoc output. Experimental formats like Markdown and Jekyll are no longer supported.
-* **Collector task:** `DokkaCollectorTask` has been removed. Now, you need to separate the documentation generation for
+* **Output format support:** Dokka 2.0.0 only supports HTML and Javadoc output. Experimental formats like Markdown and Jekyll are no longer supported.
+* **Collector task:** `DokkaCollectorTask` has been removed. Now, you need to generate the documentation separately for
   each subproject and then [aggregate the documentation](#update-documentation-aggregation-in-multi-module-projects) if necessary.
 
 ## Finish up your migration
@@ -399,11 +396,11 @@ org.jetbrains.dokka.experimental.gradle.pluginMode=V2Enabled
 
 DGP v2 now supports Gradle build cache and configuration cache, improving build performance.
 
-* To enable build cache, see [Gradle build cache documentation](https://docs.gradle.org/current/userguide/build_cache.html#sec:build_cache_enable).
-* To enable configuration cache, see [Gradle configuration cache documentation](https://docs.gradle.org/current/userguide/configuration_cache.html#config_cache:usage:enable ).
+* To enable build cache, follow instructions in the [Gradle build cache documentation](https://docs.gradle.org/current/userguide/build_cache.html#sec:build_cache_enable).
+* To enable configuration cache, follow instructions in the [Gradle configuration cache documentation](https://docs.gradle.org/current/userguide/configuration_cache.html#config_cache:usage:enable ).
 
 ## What's next
 
-* Explore more [project examples](https://github.com/Kotlin/dokka/tree/master/examples/gradle-v2) using DGP v2. 
+* Explore more [DGP v2 project examples](https://github.com/Kotlin/dokka/tree/master/examples/gradle-v2). 
 * [Get started with Dokka](dokka-get-started.md).
 * [Learn more about Dokka plugins](dokka-plugins.md).
