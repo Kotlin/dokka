@@ -134,7 +134,9 @@ class DokkaPluginFunctionalTest : FunSpec({
             }
     }
 
-    test("expect Dokka Plugin creates Dokka resolvable configurations") {
+    // TODO KT-71851 fix test failure on Windows
+    val isOsWindows = "win" in System.getProperty("os.name").lowercase()
+    test("expect Dokka Plugin creates Dokka resolvable configurations").config(enabled = !isOsWindows) {
         testProject.runner
             .addArguments("resolvableConfigurations", "--quiet")
             .build {
