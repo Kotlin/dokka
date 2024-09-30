@@ -11,4 +11,4 @@ internal fun String.uppercaseFirstChar(): String =
 
 // Workaround for being forced to use Kotlin 1.4 by Gradle, but cursed by deprecation warnings from IntelliJ.
 // Remove when min supported Gradle >= 8.0
-internal fun String.lowercase(): String = toLowerCase()
+//internal fun String.lowercase(): String = toLowerCase()

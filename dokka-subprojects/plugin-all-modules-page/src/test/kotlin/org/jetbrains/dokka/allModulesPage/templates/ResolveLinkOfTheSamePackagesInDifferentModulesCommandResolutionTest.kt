@@ -102,13 +102,13 @@ class ResolveLinkOfTheSamePackagesInDifferentModulesCommandResolutionTest : Mult
 
         if (resolutionTargetInFirstModule != null) {
             val resolvedFile1 = innerModule1
-                .resolve("${resolutionTargetInFirstModule.packageName}/-${resolutionTargetInFirstModule.classNames?.toLowerCase()}/index.html")
+                .resolve("${resolutionTargetInFirstModule.packageName}/-${resolutionTargetInFirstModule.classNames?.lowercase()}/index.html")
             resolvedFile1.parentFile.mkdirs()
             resolvedFile1.createNewFile()
         }
         if (resolutionTargetInSecondModule != null) {
             val resolvedFile2 = innerModule2
-                .resolve("${resolutionTargetInSecondModule.packageName}/-${resolutionTargetInSecondModule.classNames?.toLowerCase()}/index.html")
+                .resolve("${resolutionTargetInSecondModule.packageName}/-${resolutionTargetInSecondModule.classNames?.lowercase()}/index.html")
             resolvedFile2.parentFile.mkdirs()
             resolvedFile2.createNewFile()
         }

@@ -599,7 +599,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             cleanupOutput = true
         ) {
             renderingStage = { _, _ ->
-                val methodDocumentation = "root/kotlinAsJavaPlugin/-${className.toLowerCase()}/${methodName}.html"
+                val methodDocumentation = "root/kotlinAsJavaPlugin/-${className.lowercase()}/${methodName}.html"
 
                 writerPlugin.writer.renderedContent(methodDocumentation)
                     .firstSignature()
