@@ -221,6 +221,7 @@ testing {
                     .inputDirectory("expectedDataDir", expectedDataDir)
                     .withPathSensitivity(RELATIVE)
 
+                // Disable parallel on CI. TeamCity OOMs when the tests are run in parallel.
                 systemProperty.inputProperty("junit.jupiter.execution.parallel.enabled", dokkaBuild.isCI.map { !it })
                 systemProperty("junit.jupiter.execution.parallel.mode.default", "CONCURRENT")
             }
