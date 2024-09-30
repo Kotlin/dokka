@@ -115,6 +115,7 @@ public class GlobalArguments(args: Array<String>) : DokkaConfiguration {
         description = "Prints help for nested -sourceSet configuration"
     )
 
+    @OptIn(ExperimentalStdlibApi::class)
     public val loggingLevel: LoggingLevel by parser.option(
         ArgType.Choice(toVariant = {
             when (it.uppercase().trim()) {

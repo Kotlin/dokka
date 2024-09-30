@@ -100,10 +100,10 @@ public object IndexGenerator : PageTransformer {
                     else -> null
                 }
                 if (name != null && name.isNotBlank()) {
-                    elements.getOrPut(name[0].toUpperCase(), ::mutableSetOf).add(d)
+                    elements.getOrPut(name[0].uppercaseChar(), ::mutableSetOf).add(d)
                 }
             }
-            elements.getOrPut(it.name[0].toUpperCase(), ::mutableSetOf).add(it)
+            elements.getOrPut(it.name[0].uppercaseChar(), ::mutableSetOf).add(it)
         }
         val keys = elements.keys.sortedBy { it }
         val sortedElements = elements.entries.sortedBy { (a, _) -> a }
@@ -126,7 +126,7 @@ public object IndexGenerator : PageTransformer {
             .thenBy { it.callable?.name.orEmpty() }
             .thenBy { it.callable?.signature().orEmpty() }
 
-        return compareBy<NavigableJavadocNode> { it.getId().toLowerCase() }
+        return compareBy<NavigableJavadocNode> { it.getId().lowercase() }
             .thenBy(driComparator) { it.getDRI() }
     }
 }
