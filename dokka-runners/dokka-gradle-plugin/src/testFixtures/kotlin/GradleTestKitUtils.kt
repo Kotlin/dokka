@@ -68,7 +68,7 @@ class GradleProjectTest(
             var maxWorkers: Int? = null,
             val jvmArgs: JvmArgs = JvmArgs(),
 
-            // maybe also implement these flags? Although there's suitable tests for them at present.
+            // Maybe also implement these flags? Although there's no suitable tests for them at present.
             // org.gradle.projectcachedir=(directory)
             // org.gradle.unsafe.isolated-projects=(true,false)
             // org.gradle.vfs.verbose=(true,false)
@@ -88,6 +88,7 @@ class GradleProjectTest(
         data class DokkaArgs(
             var v2Plugin: Boolean? = true,
             var v2PluginNoWarn: Boolean? = v2Plugin,
+            var v2MigrationHelpers: Boolean? = null,
             var k2Analysis: Boolean? = null,
             var k2AnalysisNoWarn: Boolean? = null,
             var enableLogHtmlPublicationLink: Boolean? = false,
@@ -123,6 +124,7 @@ class GradleProjectTest(
             with(dokka) {
                 putNotNull("org.jetbrains.dokka.experimental.gradlePlugin.enableV2", v2Plugin)
                 putNotNull("org.jetbrains.dokka.experimental.gradlePlugin.enableV2.noWarn", v2PluginNoWarn)
+                putNotNull("org.jetbrains.dokka.experimental.gradlePlugin.enableV2MigrationHelpers", v2MigrationHelpers)
                 putNotNull("org.jetbrains.dokka.experimental.tryK2", k2Analysis)
                 putNotNull("org.jetbrains.dokka.experimental.tryK2.noWarn", k2AnalysisNoWarn)
                 putNotNull("org.jetbrains.dokka.gradle.enableLogHtmlPublicationLink", enableLogHtmlPublicationLink)
@@ -185,20 +187,26 @@ class GradleProjectTest(
  * Builder for testing a Gradle project that uses Kotlin script DSL and creates default
  * `settings.gradle.kts` and `gradle.properties` files.
  *
- * @param[testProjectName] the path of the project directory, relative to [baseDir
+ * @param[projectLocation] the path of the project directory, relative to [baseDir]
+ * @param[rootProjectName] the name of the Gradle project, configured in the `settings.gradle.kts`
  */
 fun gradleKtsProjectTest(
-    testProjectName: String,
+    projectLocation: String,
+    rootProjectName: String? = null,
     baseDir: Path = GradleProjectTest.funcTestTempDir,
     build: GradleProjectTest.() -> Unit,
 ): GradleProjectTest {
+
+    val rootProjectNameValue: String = rootProjectName
+        ?: projectLocation.removeSuffix("/").substringAfterLast('/')
+
     return gradleProjectTest(
-        testProjectName = testProjectName,
+        testProjectName = rootProjectNameValue,
         baseDir = baseDir,
     ) {
 
         settingsGradleKts = """
-            |rootProject.name = "test"
+            |rootProject.name = "$rootProjectNameValue"
             |
             |${settingsRepositories()}
             |
@@ -212,19 +220,24 @@ fun gradleKtsProjectTest(
  * Builder for testing a Gradle project that uses Groovy script and creates default,
  * `settings.gradle`, and `gradle.properties` files.
  *
- * @param[testProjectName] the name of the test, which should be distinct across the project
+ * @param[projectLocation] the path of the project directory, relative to [baseDir]
+ * @param[rootProjectName] the name of the Gradle project, configured in the `settings.gradle`
  */
 fun gradleGroovyProjectTest(
-    testProjectName: String,
+    projectLocation: String,
+    rootProjectName: String? = null,
     baseDir: Path = GradleProjectTest.funcTestTempDir,
     build: GradleProjectTest.() -> Unit,
 ): GradleProjectTest {
+    val rootProjectNameValue: String = rootProjectName
+        ?: projectLocation.removeSuffix("/").substringAfterLast('/')
+
     return gradleProjectTest(
-        testProjectName = testProjectName,
+        testProjectName = rootProjectNameValue,
         baseDir = baseDir,
     ) {
         settingsGradle = """
-            |rootProject.name = "test"
+            |rootProject.name = "$rootProjectNameValue"
             |
             |${settingsRepositories()}
             |
@@ -325,6 +338,7 @@ interface ProjectDirectoryScope {
         |  )
         |  filter {
         |    includeGroup("org.jetbrains.dokka")
+        |    includeGroup("org.jetbrains.dokka-javadoc")
         |  }
         |}
     """.trimMargin()

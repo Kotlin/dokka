@@ -28,6 +28,8 @@
 
   display: inline-flex;
   align-items: center;
+
+  flex-shrink: 0;
   justify-content: center;
 
   width: 40px;
@@ -50,6 +52,10 @@
 
   &:hover {
     background-color: var(--color-w10);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-outline);
   }
 
   @media (width < $breakpoint-desktop-min) {

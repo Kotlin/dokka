@@ -8,7 +8,6 @@
 
   padding: 10px 12px;
 
-  cursor: pointer;
   letter-spacing: -0.03em;
 
   text-transform: capitalize;
@@ -20,9 +19,24 @@
   font: var(--font-text-s);
 }
 
+button.platform-tag {
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--focus-outline);
+  }
+}
+
+.platform-selector-option {
+  padding-left: 44px;
+}
+
 .platform-tag.js-like,
+.platform-selector-option.js-like,
 .platform-tag.jvm-like,
-.platform-tag.wasm-like {
+.platform-selector-option.jvm-like,
+.platform-tag.wasm-like,
+.platform-selector-option.wasm-like {
   text-transform: uppercase;
 }
 

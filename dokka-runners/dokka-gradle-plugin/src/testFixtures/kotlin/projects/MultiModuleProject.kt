@@ -10,6 +10,7 @@ import org.jetbrains.dokka.gradle.utils.*
 
 fun TestScope.initMultiModuleProject(
     testName: String,
+    rootProjectName: String? = null,
     config: GradleProjectTest.() -> Unit = {},
 ): GradleProjectTest {
 
@@ -19,7 +20,10 @@ fun TestScope.initMultiModuleProject(
         .substringAfter("org.jetbrains.dokka.gradle.") // drop the package name
         .replaceNonAlphaNumeric()
 
-    return gradleKtsProjectTest("$baseDirName/multi-module-hello-goodbye/$testName") {
+    return gradleKtsProjectTest(
+        projectLocation = "$baseDirName/multi-module-hello-goodbye/$testName",
+        rootProjectName = rootProjectName,
+    ) {
 
         settingsGradleKts += """
             |
@@ -34,6 +38,7 @@ fun TestScope.initMultiModuleProject(
             |  // with ClassNotFound KotlinPluginExtension... very weird
             |  kotlin("jvm") version embeddedKotlinVersion apply false
             |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
+            |  id("org.jetbrains.dokka-javadoc") version "${DokkaConstants.DOKKA_VERSION}"
             |}
             |
             |dependencies {
@@ -48,6 +53,7 @@ fun TestScope.initMultiModuleProject(
                 |plugins {
                 |  kotlin("jvm") version embeddedKotlinVersion
                 |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
+                |  id("org.jetbrains.dokka-javadoc") version "${DokkaConstants.DOKKA_VERSION}"
                 |}
                 |
                 """.trimMargin()
@@ -75,6 +81,7 @@ fun TestScope.initMultiModuleProject(
                 |plugins {
                 |  kotlin("jvm") version embeddedKotlinVersion
                 |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
+                |  id("org.jetbrains.dokka-javadoc") version "${DokkaConstants.DOKKA_VERSION}"
                 |}
                 |
                 """.trimMargin()

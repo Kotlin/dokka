@@ -20,6 +20,10 @@
 
   font: var(--font-h4);
 
+  &:focus-visible {
+    outline: var(--focus-outline);
+  }
+
   @media (width < $breakpoint-desktop-min) {
     height: 52px;
 

@@ -29,7 +29,7 @@ public class FileWriter(
             val dir = Paths.get(root.absolutePath, path.dropLastWhile { it != '/' }).toFile()
             withContext(Dispatchers.IO) {
                 dir.mkdirsOrFail()
-                Files.write(Paths.get(root.absolutePath, "$path$ext"), text.lines())
+                Paths.get(root.absolutePath, "$path$ext").toFile().writeText(text)
             }
         } catch (e: Throwable) {
             context.logger.error("Failed to write $this. ${e.message}")

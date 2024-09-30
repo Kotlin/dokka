@@ -19,7 +19,7 @@
 
     display: none;
 
-    overflow-y: scroll;
+    overflow-y: auto;
 
     min-width: 272px;
     max-width: 360px;
@@ -58,7 +58,7 @@
 
     display: block;
 
-    padding: var(--size-s2) 44px;
+    padding: var(--size-s2) var(--size-s3);
 
     list-style-type: none;
 
@@ -79,7 +79,11 @@
     &:focus-visible {
       z-index: 1;
 
-      outline: 4px solid var(--color-key-blue-05);
+      outline: var(--focus-outline);
+    }
+
+    &:visited {
+      color: var(--color-text-nav-dt);
     }
 
     &_active {
@@ -90,8 +94,67 @@
       }
     }
 
+    &_link {
+      text-decoration: none;
+
+      color: var(--color-text-nav-dt);
+
+      &:focus-visible {
+        outline: var(--focus-outline);
+      }
+    }
+
     & .checkbox {
       pointer-events: none;
+    }
+  }
+
+  &--overlay {
+    position: absolute;
+    z-index: 1;
+
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    display: none;
+
+    width: 100vw;
+    height: 100vh;
+
+    content: '';
+
+    background-color: rgba(137, 137, 137, 0.5);
+
+    .dropdown--list_expanded + & {
+      display: block;
+
+      @media (width >= $breakpoint-desktop-min) {
+        display: none;
+      }
+    }
+  }
+
+  &--header {
+    position: sticky;
+    z-index: 2;
+    top: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding-left: var(--size-s3);
+
+    color: var(--color-w70);
+
+    border-bottom: 1px solid lighten(rgb(50, 50, 55), 15%); // color-background-nav-dt
+
+    background-color: var(--color-background-nav-dt);
+
+    @media (width >= $breakpoint-desktop-min) {
+      display: none;
     }
   }
 }

@@ -11,3 +11,24 @@ export function hasAncestorWithClass(element: HTMLElement, className: string): b
   }
   return false;
 }
+
+export const DESKTOP_MIN_WIDTH = 900;
+export const TABLET_MIN_WIDTH = 440;
+
+export type ScreenType = 'mobile' | 'tablet' | 'desktop';
+
+export function isDesktop(): boolean {
+  return window.innerWidth >= DESKTOP_MIN_WIDTH;
+}
+
+export function isTablet(): boolean {
+  return window.innerWidth >= TABLET_MIN_WIDTH && window.innerWidth < DESKTOP_MIN_WIDTH;
+}
+
+export function isMobile(): boolean {
+  return window.innerWidth < TABLET_MIN_WIDTH;
+}
+
+export function getScreenType(): ScreenType {
+  return isMobile() ? 'mobile' : isTablet() ? 'tablet' : 'desktop';
+}

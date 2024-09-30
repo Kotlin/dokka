@@ -24,9 +24,9 @@ import org.jetbrains.dokka.gradle.dependencies.BaseDependencyManager
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaClasspathAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaFormatAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaModuleComponentAttribute
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
-import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform
-import org.jetbrains.dokka.gradle.dokka.parameters.VisibilityModifier
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import org.jetbrains.dokka.gradle.internal.*
 import org.jetbrains.dokka.gradle.tasks.DokkaBaseTask
 import org.jetbrains.dokka.gradle.tasks.DokkaGenerateModuleTask
@@ -104,14 +104,8 @@ constructor(
             dokkaModuleDirectory.convention(layout.buildDirectory.dir("dokka-module"))
 //            @Suppress("DEPRECATION")
 //            dokkaConfigurationsDirectory.convention(layout.buildDirectory.dir("dokka-config"))
-        }
 
-        dokkaExtension.versions {
-            jetbrainsDokka.convention(DokkaConstants.DOKKA_VERSION)
-            jetbrainsMarkdown.convention(DokkaConstants.DOKKA_DEPENDENCY_VERSION_JETBRAINS_MARKDOWN)
-            freemarker.convention(DokkaConstants.DOKKA_DEPENDENCY_VERSION_FREEMARKER)
-            kotlinxHtml.convention(DokkaConstants.DOKKA_DEPENDENCY_VERSION_KOTLINX_HTML)
-            kotlinxCoroutines.convention(DokkaConstants.DOKKA_DEPENDENCY_VERSION_KOTLINX_COROUTINES)
+            dokkaEngineVersion.convention(DokkaConstants.DOKKA_VERSION)
         }
 
         dokkaExtension.dokkaGeneratorIsolation.convention(
@@ -214,6 +208,7 @@ constructor(
                 suppress.convention(false)
                 skipDeprecated.convention(false)
                 reportUndocumented.convention(false)
+                documentedVisibilities.convention(listOf(VisibilityModifier.Public))
             }
 
             externalDocumentationLinks {

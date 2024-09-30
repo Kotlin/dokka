@@ -122,7 +122,7 @@
 }
 
 .button:focus-visible {
-  outline: 4px solid var(--color-key-blue-05);
+  outline: var(--focus-outline);
 }
 
 .theme-dark .button {
@@ -177,13 +177,6 @@
 .button_dropdown_active::after {
   transform: rotate(-180deg);
   filter: invert(0);
-}
-
-@media (width < 900px) {
-  .button {
-    width: 52px;
-    height: 52px;
-  }
 }
 /*!
  * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -305,7 +298,7 @@
 }
 
 .checkbox--input:focus-visible {
-  outline: 4px solid var(--color-key-blue-05);
+  outline: var(--focus-outline);
 }
 /*!
  * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -413,7 +406,7 @@
   top: 44px;
   right: 0;
   display: none;
-  overflow-y: scroll;
+  overflow-y: auto;
   min-width: 272px;
   max-width: 360px;
   max-height: 400px;
@@ -429,6 +422,7 @@
     right: 0;
     height: 100vh;
     max-height: unset;
+    padding: 0;
     border: none;
   }
 }
@@ -445,7 +439,7 @@
 .dropdown--option {
   position: relative;
   display: block;
-  padding: var(--size-s2) 44px;
+  padding: var(--size-s2) var(--size-s3);
   list-style-type: none;
   cursor: pointer;
   letter-spacing: -0.03em;
@@ -461,7 +455,11 @@
 
 .dropdown--option:focus-visible {
   z-index: 1;
-  outline: 4px solid var(--color-key-blue-05);
+  outline: var(--focus-outline);
+}
+
+.dropdown--option:visited {
+  color: var(--color-text-nav-dt);
 }
 
 .dropdown--option_active {
@@ -472,8 +470,59 @@
   background-color: #639fff;
 }
 
+.dropdown--option_link {
+  text-decoration: none;
+  color: var(--color-text-nav-dt);
+}
+
+.dropdown--option_link:focus-visible {
+  outline: var(--focus-outline);
+}
+
 .dropdown--option .checkbox {
   pointer-events: none;
+}
+
+.dropdown--overlay {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  content: "";
+  background-color: rgba(137, 137, 137, 0.5);
+}
+
+.dropdown--list_expanded + .dropdown--overlay {
+  display: block;
+}
+
+@media (width >= 900px) {
+  .dropdown--list_expanded + .dropdown--overlay {
+    display: none;
+  }
+}
+.dropdown--header {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: var(--size-s3);
+  color: var(--color-w70);
+  border-bottom: 1px solid #56565f;
+  background-color: var(--color-background-nav-dt);
+}
+
+@media (width >= 900px) {
+  .dropdown--header {
+    display: none;
+  }
 }
 /*!
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -571,12 +620,35 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: flex-end;
+  max-height: 40px;
   margin-right: 12px;
   gap: 2px;
 }
 
+.filter-section_loading {
+  overflow: hidden;
+}
+
+@media (width >= 900px) {
+  .filter-section--dropdown {
+    display: none;
+  }
+}
+.filter-section--dropdown-toggle_as-filters {
+  min-width: 40px;
+  background-image: url(assets/filter.svg);
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+}
+
+.filter-section--dropdown-toggle_as-filters::after {
+  display: none;
+}
+
 @media (width < 900px) {
   .filter-section {
+    max-height: unset;
     margin-right: 0;
   }
   .filter-section > :not(.dropdown) {
@@ -588,47 +660,6 @@
     background-position: 50% 50%;
   }
   .filter-section--dropdown-toggle::after {
-    display: none;
-  }
-}
-.filter-section--header {
-  position: sticky;
-  z-index: 2;
-  top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-left: var(--size-s3);
-  color: var(--color-w70);
-  border-bottom: 1px solid #56565f;
-  background-color: var(--color-background-nav-dt);
-}
-
-@media (width >= 900px) {
-  .filter-section--header {
-    display: none;
-  }
-}
-.filter-section--overlay {
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: none;
-  width: 100vw;
-  height: 100vh;
-  content: "";
-  background-color: rgba(137, 137, 137, 0.5);
-}
-
-.dropdown--list_expanded + .filter-section--overlay {
-  display: block;
-}
-
-@media (width >= 900px) {
-  .dropdown--list_expanded + .filter-section--overlay {
     display: none;
   }
 }
@@ -859,6 +890,10 @@
   font: var(--font-h4);
 }
 
+.library-name--link:focus-visible {
+  outline: var(--focus-outline);
+}
+
 @media (width < 900px) {
   .library-name--link {
     height: 52px;
@@ -1072,7 +1107,7 @@
   z-index: 4;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-start;
   box-sizing: border-box;
   padding: 12px var(--size-m1);
@@ -1082,12 +1117,20 @@
 
 @media (width < 900px) {
   .navigation {
+    flex-wrap: wrap;
     height: auto;
     padding: 0;
   }
 }
 .theme-dark .navigation {
   background-color: var(--color-background-nav-dt);
+}
+
+@media (width < 900px) {
+  .navigation .button {
+    min-width: 52px;
+    height: 52px;
+  }
 }
 /*!
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -1203,6 +1246,7 @@
   z-index: 0;
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
   justify-content: center;
   width: 40px;
   height: 40px;
@@ -1222,6 +1266,10 @@
 
 .navigation-controls--btn:hover {
   background-color: var(--color-w10);
+}
+
+.navigation-controls--btn:focus-visible {
+  outline: var(--focus-outline);
 }
 
 @media (width < 900px) {
@@ -1340,7 +1388,6 @@
 .platform-tag {
   --platform-tag-color: #bababb;
   padding: 10px 12px;
-  cursor: pointer;
   letter-spacing: -0.03em;
   text-transform: capitalize;
   border: 0 none;
@@ -1348,7 +1395,19 @@
   font: var(--font-text-s);
 }
 
-.platform-tag.js-like, .platform-tag.jvm-like, .platform-tag.wasm-like {
+button.platform-tag {
+  cursor: pointer;
+}
+
+button.platform-tag:focus-visible {
+  outline: var(--focus-outline);
+}
+
+.platform-selector-option {
+  padding-left: 44px;
+}
+
+.platform-tag.js-like, .platform-selector-option.js-like, .platform-tag.jvm-like, .platform-selector-option.jvm-like, .platform-tag.wasm-like, .platform-selector-option.wasm-like {
   text-transform: uppercase;
 }
 
@@ -1864,6 +1923,7 @@
 
 :root {
   --color-background: var(--color-background-page);
+  --focus-outline: 4px solid var(--color-key-blue-05);
 }
 
 .theme-dark {

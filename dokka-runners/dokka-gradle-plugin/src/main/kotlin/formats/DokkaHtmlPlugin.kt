@@ -8,15 +8,15 @@ import org.gradle.api.Task
 import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.ProviderFactory
-import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.registerBinding
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.dokka.gradle.dokka.plugins.DokkaHtmlPluginParameters
-import org.jetbrains.dokka.gradle.dokka.plugins.DokkaHtmlPluginParameters.Companion.DOKKA_HTML_PARAMETERS_NAME
-import org.jetbrains.dokka.gradle.dokka.plugins.DokkaVersioningPluginParameters
-import org.jetbrains.dokka.gradle.dokka.plugins.DokkaVersioningPluginParameters.Companion.DOKKA_VERSIONING_PLUGIN_PARAMETERS_NAME
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters.Companion.DOKKA_HTML_PARAMETERS_NAME
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters.Companion.DOKKA_VERSIONING_PLUGIN_PARAMETERS_NAME
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.rootProjectName
 import org.jetbrains.dokka.gradle.internal.uppercaseFirstChar
 import org.jetbrains.dokka.gradle.tasks.DokkaGeneratePublicationTask
 import org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask
@@ -66,35 +66,29 @@ constructor(
         }
     }
 
+    /** Register a [LogHtmlPublicationLinkTask] task. */
     private fun DokkaFormatPluginContext.configureHtmlUrlLogging() {
-        val logHtmlUrlTask = registerLogHtmlUrlTask()
-
-        dokkaTasks.generatePublication.configure {
-            finalizedBy(logHtmlUrlTask)
-        }
-    }
-
-    private fun DokkaFormatPluginContext.registerLogHtmlUrlTask():
-            TaskProvider<LogHtmlPublicationLinkTask> {
-
-        val generatePublicationTask = dokkaTasks.generatePublication
-
-        val indexHtmlFile = generatePublicationTask
+        val indexHtmlFile = dokkaTasks.generatePublication
             .flatMap { it.outputDirectory.file("index.html") }
 
         val indexHtmlPath = indexHtmlFile.map { indexHtml ->
-            indexHtml.asFile
-                .relativeTo(project.rootDir.parentFile)
-                .invariantSeparatorsPath
+            val rootProjectName = project.rootProjectName()
+            val relativePath = indexHtml.asFile.relativeTo(project.rootDir)
+            "${rootProjectName}/${relativePath.invariantSeparatorsPath}"
         }
 
-        return project.tasks.register<LogHtmlPublicationLinkTask>(
-            "logLink" + generatePublicationTask.name.uppercaseFirstChar()
+        val logHtmlUrlTask = project.tasks.register<LogHtmlPublicationLinkTask>(
+            "logLink" + dokkaTasks.generatePublication.name.uppercaseFirstChar()
         ) {
-            // default port of IntelliJ built-in server is defined in the docs
+            // The default port of IntelliJ's built-in server is defined in the docs
             // https://www.jetbrains.com/help/idea/settings-debugger.html#24aabda8
-            serverUri.convention("http://localhost:63342")
+            // IntelliJ always uses port 63342, but users might configure an additional port.
+            this.serverUri.convention("http://localhost:63342")
             this.indexHtmlPath.convention(indexHtmlPath)
+        }
+
+        dokkaTasks.generatePublication.configure {
+            finalizedBy(logHtmlUrlTask)
         }
     }
 
@@ -108,11 +102,11 @@ constructor(
             doFirst("check all-modules-page-plugin is present", moduleAggregationCheck)
         }
 
-        formatDependencies.dokkaPublicationPluginClasspathApiOnly.configure {
-            dependencies.addLater(dokkaExtension.versions.jetbrainsDokka.map { v ->
+        formatDependencies.dokkaPublicationPluginClasspathApiOnly
+            .dependencies
+            .addLater(dokkaExtension.dokkaEngineVersion.map { v ->
                 project.dependencies.create("org.jetbrains.dokka:all-modules-page-plugin:$v")
             })
-        }
     }
 
     /**
@@ -161,7 +155,7 @@ constructor(
                 logger.warn(/* language=text */ """
                     |[${task.path}] org.jetbrains.dokka:all-modules-page-plugin is missing.
                     |
-                    |Publication '$moduleName' in has $modulesCount modules, but
+                    |Dokka Publication '$moduleName' has $modulesCount Dokka modules, but
                     |the Dokka Generator plugins classpath does not contain 
                     |   org.jetbrains.dokka:all-modules-page-plugin
                     |which is required for aggregating Dokka HTML modules.
