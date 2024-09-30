@@ -12,7 +12,6 @@ plugins {
     id("dokkabuild.kotlin-jvm")
     id("dokkabuild.test-integration")
     id("dokkabuild.dev-maven-publish")
-    `java-test-fixtures`
     alias(libs.plugins.kotlinxSerialization)
 }
 
@@ -29,21 +28,13 @@ dependencies {
 
     api(gradleTestKit())
 
-    testFixturesApi(libs.kotlin.test)
-    testFixturesApi(libs.junit.jupiterApi)
-    testFixturesApi(libs.junit.jupiterParams)
+    api(testFixtures("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"))
+    api(platform(libs.kotest.bom))
+    api(libs.kotest.assertionsCore)
+    api(libs.kotest.assertionsJson)
 
-    testFixturesApi(gradleTestKit())
-
-    testFixturesApi(testFixtures("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"))
-    testFixturesApi(platform(libs.kotest.bom))
-    testFixturesApi(libs.kotest.assertionsCore)
-    testFixturesApi(libs.kotest.assertionsJson)
-
-    testFixturesImplementation(platform(libs.kotlinxSerialization.bom))
-    testFixturesImplementation(libs.kotlinxSerialization.json)
-
-    testImplementation(testFixtures(project))
+    implementation(platform(libs.kotlinxSerialization.bom))
+    implementation(libs.kotlinxSerialization.json)
 
     // We're using Gradle included-builds and dependency substitution, so we
     // need to use the Gradle project name, *not* the published Maven artifact-id
@@ -198,9 +189,6 @@ val checkoutKotlinxSerialization by tasks.registering(GitCheckoutTask::class) {
 
 testing {
     suites.withType<JvmTestSuite>().configureEach {
-        dependencies {
-            implementation(testFixtures(project()))
-        }
         targets.configureEach {
             testTask.configure {
                 devMavenPublish.configureTask(this)
