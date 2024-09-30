@@ -15,9 +15,7 @@ pluginManagement {
 }
 
 plugins {
-    id("dokkasettings.gradle-enterprise")
-    id("dokkasettings.build-cache")
-    id("dokkasettings.java-toolchains")
+    id("dokkasettings")
 }
 
 dependencyResolutionManagement {

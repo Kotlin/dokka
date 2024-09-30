@@ -38,6 +38,5 @@ dependencyResolutionManagement {
 }
 
 plugins {
-    id("dokkasettings.build-cache")
-    id("dokkasettings.java-toolchains")
+    id("dokkasettings")
 }
