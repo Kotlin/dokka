@@ -221,11 +221,8 @@ testing {
                     .inputDirectory("expectedDataDir", expectedDataDir)
                     .withPathSensitivity(RELATIVE)
 
-                systemProperty.inputProperty(
-                    "junit.jupiter.execution.parallel.enabled",
-                    dokkaBuild.isCI.map { !it },
-                )
-                systemProperty("junit.jupiter.execution.parallel.mode.default", "SAME_THREAD")
+                systemProperty.inputProperty("junit.jupiter.execution.parallel.enabled", dokkaBuild.isCI.map { !it })
+                systemProperty("junit.jupiter.execution.parallel.mode.default", "CONCURRENT")
             }
         }
     }
