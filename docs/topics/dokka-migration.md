@@ -10,7 +10,8 @@ The Dokka Gradle plugin (DGP) is a tool for generating comprehensive API documen
 DGP seamlessly processes both Kotlin's KDoc comments and Java's Javadoc comments to extract information and create 
 structured documentation in [HTML or Javadoc](#select-documentation-output-format) format.
 
-Starting with Dokka 2.0.0, you can try the Dokka Gradle plugin v2, the new version of DGP.
+Starting with Dokka 2.0.0, you can try the Dokka Gradle plugin v2, the new version of DGP. With Dokka 2.0.0, you can use
+the Dokka Gradle plugin either in v1 or v2 modes.
 
 DGP v2 introduces significant improvements to DGP, aligning more closely with Gradle best practices:
 
@@ -18,6 +19,8 @@ DGP v2 introduces significant improvements to DGP, aligning more closely with Gr
 * Uses an intuitive top-level DSL configuration instead of a low-level task-based setup, which simplifies the build scripts and their readability.
 * Takes a more declarative approach to documentation aggregation, which makes multi-project documentation easier to manage.
 * Uses a type-safe plugin configuration, which improves the reliability and maintainability of your build scripts.
+* Fully supports Gradle [configuration cache](https://docs.gradle.org/current/userguide/configuration_cache.html) and 
+  [build cache](https://docs.gradle.org/current/userguide/build_cache.html), which improves performance and simplifies build work.
 
 ## Before you start
 
@@ -52,7 +55,14 @@ Ensure that your project meets the minimum version requirements:
    org.jetbrains.dokka.experimental.gradle.pluginMode=V2EnabledWithHelpers
    ```
 
-   If your project does not have a `gradle.properties` file, create one in the root directory of your project.
+   This flag activates the DGP v2 plugin with migration helpers, which prevent compilation errors when build scripts reference
+   tasks from DGP v1 that are no longer available in DGP v2. You have to [disable](#set-the-opt-in-flag) 
+   the migration helpers after completing your migration.
+
+   > If your project does not have a `gradle.properties` file, create one in the root directory of your project.
+   >
+   {style="tip"}
+
 
 3. Sync your project with Gradle to ensure the new plugin is properly applied:
 
@@ -213,7 +223,7 @@ After sharing the Dokka configuration, you can aggregate the documentation from 
 To share the Dokka configuration in multi-module projects without convention plugins, you need to set up the `buildSrc` directory, 
 set up the convention plugin, and then apply the plugin to your modules (subprojects).
 
-##### Set up the buildSrc directory {collapsible="true"}
+##### Set up the buildSrc directory
 
 1. In your project root, create a `buildSrc` directory containing two files:
 
@@ -243,7 +253,7 @@ set up the convention plugin, and then apply the plugin to your modules (subproj
     }   
     ```
 
-##### Set up the Dokka convention plugin {collapsible="true"}
+##### Set up the Dokka convention plugin
 
 After setting up the `buildSrc` directory:
    
@@ -263,7 +273,7 @@ After setting up the `buildSrc` directory:
    You need to add the shared Dokka [configuration](#adjust-configuration-options) common to all subprojects within the `dokka {}` block.
    Also, you don't need to specify a Dokka version. The version is already set in the `buildSrc/build.gradle.kts` file.
 
-##### Apply the convention plugin to your modules {collapsible="true"}
+##### Apply the convention plugin to your modules
 
 Apply the Dokka convention plugin across your modules (subprojects) by adding it to each subproject's `build.gradle.kts` file:
 
