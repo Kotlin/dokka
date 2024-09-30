@@ -402,6 +402,9 @@ After successful migration, set the following opt-in flag without helpers in the
 org.jetbrains.dokka.experimental.gradle.pluginMode=V2Enabled
 ```
 
+If you removed references to Gradle tasks from DGP v1 that are no longer available in DGP v2, 
+you shouldn't see compilation errors related to it.
+
 ### Enable build cache and configuration cache
 
 DGP v2 now supports Gradle build cache and configuration cache, improving build performance.
