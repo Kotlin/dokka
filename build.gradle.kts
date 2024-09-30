@@ -1,8 +1,7 @@
-import dokkabuild.utils.configureGradleDaemonJvm
-
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+import dokkabuild.utils.configureGradleDaemonJvm
 
 plugins {
     id("dokkabuild.base")
