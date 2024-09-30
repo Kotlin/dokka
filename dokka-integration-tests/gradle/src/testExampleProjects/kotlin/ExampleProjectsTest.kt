@@ -9,7 +9,6 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.paths.shouldBeADirectory
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import io.kotest.matchers.string.shouldNotContain
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
 import org.jetbrains.dokka.gradle.utils.*
@@ -329,13 +328,11 @@ class ExampleProjectsTest {
         configCacheRunner.build {
             output shouldContain "BUILD SUCCESSFUL"
             output shouldContain "Configuration cache entry stored"
-            output shouldNotContain "problems were found storing the configuration cache"
-        }
 
-        val ccReport = testCase.project.loadConfigurationCacheReportData().shouldNotBeNull()
-
-        ccReport.asClue {
-            it.totalProblemCount shouldBe 0
+            val ccReport = testCase.project.loadConfigurationCacheReportData().shouldNotBeNull()
+            ccReport.asClue {
+                it.totalProblemCount shouldBe 0
+            }
         }
 
         // second build should reuse the configuration cache
