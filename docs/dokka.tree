@@ -6,6 +6,7 @@
 		<toc-element topic="dokka-get-started.md"/>
 		<toc-element toc-title="Run Dokka">
 			<toc-element topic="dokka-gradle.md"/>
+			<toc-element hidden="true" topic="dokka-migration.md"/>
 			<toc-element topic="dokka-maven.md"/>
 			<toc-element topic="dokka-cli.md"/>
 		</toc-element>
