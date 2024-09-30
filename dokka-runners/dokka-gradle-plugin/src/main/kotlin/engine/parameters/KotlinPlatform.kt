@@ -42,7 +42,7 @@ enum class KotlinPlatform(
                 return keyMatch
             }
 
-            return when (key.toLowerCase()) {
+            return when (key.lowercase()) {
                 "android" -> AndroidJVM
                 "metadata" -> Common
                 else -> error("Unrecognized platform: $key")
