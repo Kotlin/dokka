@@ -85,6 +85,8 @@ $secondary-font-color: rgba(255, 255, 255, 0.7);
 
   button[data-test='ring-input-clear'] {
     color: #fff !important;
+    top: 10px;
+    right: 6px;
 
     span {
       display: none;
