@@ -10,6 +10,7 @@ import io.kotest.matchers.paths.shouldBeADirectory
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
 import org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.it.gradle.loadConfigurationCacheReportData
@@ -247,6 +248,16 @@ class ExampleProjectsTest {
                 output shouldContain "BUILD SUCCESSFUL"
             }
 
+        // Clean local directories, to ensure tasks are loaded from build cache.
+        testCase.project.runner
+            .addArguments(
+                "clean",
+                "--stacktrace",
+            )
+            .build {
+                output shouldContain "BUILD SUCCESSFUL"
+            }
+
         // Re-run generate, and verify that the Dokka tasks are cached.
         testCase.project.runner
             .addArguments(
@@ -259,45 +270,45 @@ class ExampleProjectsTest {
 
                     ExampleProject.Javadoc -> {
                         shouldHaveTasksWithOutcome(
-                            ":dokkaGeneratePublicationJavadoc" to UP_TO_DATE,
-                            ":dokkaGenerateModuleJavadoc" to UP_TO_DATE,
+                            ":dokkaGeneratePublicationJavadoc" to FROM_CACHE,
+                            ":dokkaGenerateModuleJavadoc" to FROM_CACHE,
                             ":dokkaGenerate" to UP_TO_DATE,
                         )
                     }
 
                     ExampleProject.CompositeBuild -> {
                         shouldHaveTasksWithOutcome(
-                            ":module-kakapo:dokkaGenerateModuleHtml" to UP_TO_DATE,
-                            ":module-kea:dokkaGenerateModuleHtml" to UP_TO_DATE,
-                            ":docs:dokkaGeneratePublicationHtml" to UP_TO_DATE,
+                            ":module-kakapo:dokkaGenerateModuleHtml" to FROM_CACHE,
+                            ":module-kea:dokkaGenerateModuleHtml" to FROM_CACHE,
+                            ":docs:dokkaGeneratePublicationHtml" to FROM_CACHE,
                             ":docs:dokkaGenerate" to UP_TO_DATE,
                         )
                     }
 
                     ExampleProject.Multimodule -> {
                         shouldHaveTasksWithOutcome(
-                            ":docs:dokkaGenerateModuleHtml" to UP_TO_DATE,
-                            ":childProjectA:dokkaGenerateModuleHtml" to UP_TO_DATE,
-                            ":childProjectB:dokkaGenerateModuleHtml" to UP_TO_DATE,
-                            ":docs:dokkaGeneratePublicationHtml" to UP_TO_DATE,
+                            ":docs:dokkaGenerateModuleHtml" to FROM_CACHE,
+                            ":childProjectA:dokkaGenerateModuleHtml" to FROM_CACHE,
+                            ":childProjectB:dokkaGenerateModuleHtml" to FROM_CACHE,
+                            ":docs:dokkaGeneratePublicationHtml" to FROM_CACHE,
                             ":docs:dokkaGenerate" to UP_TO_DATE,
                         )
                     }
 
                     ExampleProject.VersioningMultimodule -> {
                         shouldHaveTasksWithOutcome(
-                            ":docs:dokkaGenerateModuleHtml" to UP_TO_DATE,
-                            ":childProjectA:dokkaGenerateModuleHtml" to UP_TO_DATE,
-                            ":childProjectB:dokkaGenerateModuleHtml" to UP_TO_DATE,
-                            ":docs:dokkaGeneratePublicationHtml" to UP_TO_DATE,
+                            ":docs:dokkaGenerateModuleHtml" to FROM_CACHE,
+                            ":childProjectA:dokkaGenerateModuleHtml" to FROM_CACHE,
+                            ":childProjectB:dokkaGenerateModuleHtml" to FROM_CACHE,
+                            ":docs:dokkaGeneratePublicationHtml" to FROM_CACHE,
                             ":docs:dokkaGenerate" to UP_TO_DATE,
                         )
                     }
 
                     else -> {
                         shouldHaveTasksWithOutcome(
-                            ":dokkaGeneratePublicationHtml" to UP_TO_DATE,
-                            ":dokkaGenerateModuleHtml" to UP_TO_DATE,
+                            ":dokkaGeneratePublicationHtml" to FROM_CACHE,
+                            ":dokkaGenerateModuleHtml" to FROM_CACHE,
                             ":dokkaGenerate" to UP_TO_DATE,
                         )
                     }
