@@ -184,7 +184,7 @@ class ExampleProjectsTest {
         val expectedDataDir = testCase.expectedDataDir.resolve(format)
         val dokkaOutputDir = testCase.dokkaOutputDir.resolve(format)
 
-        assert(expectedDataDir.exists() && expectedDataDir.isDirectory()) {
+        assert(expectedDataDir.isDirectory()) {
             "Missing expectedDataDir: ${expectedDataDir.toUri()}"
         }
 
