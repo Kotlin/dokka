@@ -15,6 +15,7 @@
         <p>Icon and label</p>
         <button class="button">
             <div class="ui-kit-icon ui-kit-icon_placeholder"></div>
+            Label
         </button>
         <p>Icon, background and label</p>
         <button class="button button_background">
