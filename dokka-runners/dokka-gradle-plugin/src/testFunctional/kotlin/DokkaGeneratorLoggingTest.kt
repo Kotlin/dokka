@@ -23,11 +23,11 @@ class DokkaGeneratorLoggingTest : FunSpec({
                     "--rerun",
                 )
                 .build {
-                    output shouldContain """
-                    > Task :dokkaGenerateModuleHtml
-                    e: [:dokkaGenerateModuleHtml] test error message
-                    w: [:dokkaGenerateModuleHtml] test warn message
-                    """.trimIndent()
+                    output.invariantNewlines() shouldContain """
+                        > Task :dokkaGenerateModuleHtml
+                        e: [:dokkaGenerateModuleHtml] test error message
+                        w: [:dokkaGenerateModuleHtml] test warn message
+                        """.trimIndent()
 
                     output.shouldNotContainAnyOf(
                         "test info message",
@@ -42,11 +42,11 @@ class DokkaGeneratorLoggingTest : FunSpec({
                     "--rerun",
                 )
                 .build {
-                    output shouldContain """
-                    > Task :dokkaGeneratePublicationHtml
-                    e: [:dokkaGeneratePublicationHtml] test error message
-                    w: [:dokkaGeneratePublicationHtml] test warn message
-                    """.trimIndent()
+                    output.invariantNewlines() shouldContain """
+                        > Task :dokkaGeneratePublicationHtml
+                        e: [:dokkaGeneratePublicationHtml] test error message
+                        w: [:dokkaGeneratePublicationHtml] test warn message
+                        """.trimIndent()
 
                     output.shouldNotContainAnyOf(
                         "test info message",
@@ -65,12 +65,12 @@ class DokkaGeneratorLoggingTest : FunSpec({
                     "--info",
                 )
                 .build {
-                    output.shouldContainAll(
-                        "e: [:dokkaGenerateModuleHtml] test error message",
-                        "w: [:dokkaGenerateModuleHtml] test warn message",
-                        "[:dokkaGenerateModuleHtml] test info message",
-                        "[:dokkaGenerateModuleHtml] test progress message",
-                    )
+                    output.invariantNewlines() shouldContain """
+                        e: [:dokkaGenerateModuleHtml] test error message
+                        w: [:dokkaGenerateModuleHtml] test warn message
+                        [:dokkaGenerateModuleHtml] test info message
+                        [:dokkaGenerateModuleHtml] test progress message
+                        """.trimIndent()
 
                     output shouldNotContain "test debug message"
                 }
@@ -82,12 +82,12 @@ class DokkaGeneratorLoggingTest : FunSpec({
                     "--info",
                 )
                 .build {
-                    output.shouldContainAll(
-                        "e: [:dokkaGeneratePublicationHtml] test error message",
-                        "w: [:dokkaGeneratePublicationHtml] test warn message",
-                        "[:dokkaGeneratePublicationHtml] test info message",
-                        "[:dokkaGeneratePublicationHtml] test progress message",
-                    )
+                    output.invariantNewlines() shouldContain """
+                        e: [:dokkaGeneratePublicationHtml] test error message
+                        w: [:dokkaGeneratePublicationHtml] test warn message
+                        [:dokkaGeneratePublicationHtml] test info message
+                        [:dokkaGeneratePublicationHtml] test progress message
+                        """.trimIndent()
 
                     output shouldNotContain "test debug message"
                 }
