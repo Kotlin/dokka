@@ -34,7 +34,7 @@ class LoggerAdapterTest {
         logFactory.eventQueue.map { it.render() }.shouldContainExactly(
             "ERROR e: [LOG-TAG] an error msg",
             "WARN w: [LOG-TAG] a warn msg",
-            "INFO [LOG-TAG] a debug msg",
+            "DEBUG [LOG-TAG] a debug msg",
             "INFO [LOG-TAG] an info msg",
             "INFO [LOG-TAG] a progress msg",
         )

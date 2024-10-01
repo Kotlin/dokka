@@ -70,11 +70,13 @@ internal class LoggerAdapter(
     @Synchronized
     private fun log(level: LoggingLevel, message: String) {
         when (level) {
-            DEBUG,
             PROGRESS,
             INFO -> logger.info("[$logTag] " + message.prependIndent().trimStart())
 
+            DEBUG -> logger.debug("[$logTag] " + message.prependIndent().trimStart())
+
             WARN -> logger.warn("w: [$logTag] " + message.prependIndent().trimStart())
+
             ERROR -> logger.error("e: [$logTag] " + message.prependIndent().trimStart())
         }
         logWriter.appendLine("[${level.name}] $message")
