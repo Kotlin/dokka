@@ -8,7 +8,7 @@
 /* --- root styles --- */
 :root {
     --default-gray: #f4f4f4;
-    --default-font-color: black;
+    --default-font-color: rgb(0, 0, 0);
     --header-font-color: var(--default-font-color);
 
     --breadcrumb-font-color: #637282;
@@ -219,7 +219,7 @@ td:first-child {
 .theme-dark {
     --background-color: #262628;
     --color-dark: #3d3d41;
-    --default-font-color: hsla(0, 0%, 100%, 0.8);
+    --default-font-color: rgba(255, 255, 255, 0.96);
     --border-color: hsla(0, 0%, 100%, 0.2);
     --code-background: hsla(0, 0%, 100%, 0.05);
     --breadcrumb-font-color: #8c8c8e;
