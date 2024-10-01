@@ -1,19 +1,18 @@
 package internal
 
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import org.jetbrains.dokka.gradle.internal.LoggerAdapter
-import org.junit.jupiter.api.Test
 import org.slf4j.event.SubstituteLoggingEvent
 import org.slf4j.helpers.NOPLogger
 import org.slf4j.helpers.SubstituteLoggerFactory
 import kotlin.io.path.createTempFile
 import kotlin.io.path.readText
 
-class LoggerAdapterTest {
+class LoggerAdapterTest : FunSpec({
 
-    @Test
-    fun testLogger() {
+    test("slf4j logger output") {
         val logFactory = SubstituteLoggerFactory()
 
         val loggerAdapter = LoggerAdapter(
@@ -40,8 +39,7 @@ class LoggerAdapterTest {
         )
     }
 
-    @Test
-    fun testLogFile() {
+    test("logfile output") {
         val logFile = createTempFile()
 
         LoggerAdapter(
@@ -69,6 +67,7 @@ class LoggerAdapterTest {
         """.trimMargin()
     }
 
+}) {
     companion object {
         private fun SubstituteLoggingEvent.render(): String = buildString {
             append("$level")
