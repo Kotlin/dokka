@@ -105,13 +105,31 @@ public class StylesInstaller(private val dokkaContext: DokkaContext) : PageTrans
 public object AssetsInstaller : PageTransformer {
     private val imagesPages = listOf(
         // ui-kit assets
+        "ui-kit/assets/abstract-class.svg",
+        "ui-kit/assets/abstract-class-kotlin.svg",
+        "ui-kit/assets/annotation.svg",
+        "ui-kit/assets/annotation-kotlin.svg",
         "ui-kit/assets/arrow-down.svg",
         "ui-kit/assets/burger.svg",
         "ui-kit/assets/checkbox-off.svg",
         "ui-kit/assets/checkbox-on.svg",
+        "ui-kit/assets/class.svg",
+        "ui-kit/assets/class-kotlin.svg",
+        "ui-kit/assets/cross.svg",
+        "ui-kit/assets/enum.svg",
+        "ui-kit/assets/enum-kotlin.svg",
+        "ui-kit/assets/exception-class.svg",
+        "ui-kit/assets/field-value.svg",
+        "ui-kit/assets/field-variable.svg",
+        "ui-kit/assets/filter.svg",
+        "ui-kit/assets/function.svg",
         "ui-kit/assets/homepage.svg",
-        "ui-kit/assets/theme-toggle.svg",
+        "ui-kit/assets/interface.svg",
+        "ui-kit/assets/interface-kotlin.svg",
+        "ui-kit/assets/object.svg",
         "ui-kit/assets/placeholder.svg",
+        "ui-kit/assets/theme-toggle.svg",
+        "ui-kit/assets/typealias-kotlin.svg",
 
         // images
         "images/arrow_down.svg",
