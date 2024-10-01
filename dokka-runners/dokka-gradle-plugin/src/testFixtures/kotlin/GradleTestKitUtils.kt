@@ -170,12 +170,12 @@ class GradleProjectTest(
     fun updateSettingsRepositories() {
         projectDir.walk()
             .filter { it.name == "settings.gradle.kts" || it.name == "settings.gradle" }
-            .forEach { p ->
-                val repoLine = p.useLines { it.firstOrNull { l -> l.trim() == "repositories {" } }
+            .forEach { settingsGradle ->
+                val repoLine = settingsGradle.useLines { it.firstOrNull { l -> l.trim() == "repositories {" } }
                     ?: return@forEach
                 val ind = repoLine.substringBefore("repositories {")
-                p.writeText(
-                    p.readText().replace(
+                settingsGradle.writeText(
+                    settingsGradle.readText().replace(
                         "repositories {",
                         "repositories {\n${mavenRepositories.prependIndent(ind)}\n",
                     )
