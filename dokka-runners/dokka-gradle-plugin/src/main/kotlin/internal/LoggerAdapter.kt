@@ -3,17 +3,21 @@
  */
 package org.jetbrains.dokka.gradle.internal
 
-import org.gradle.api.logging.Logger
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.LoggingLevel
 import org.jetbrains.dokka.utilities.LoggingLevel.*
+import org.slf4j.Logger
 import java.io.File
 import java.io.Writer
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Logs all Dokka messages to [logWriter],
- * and redirects all messages to [logger].
+ * A logger for [org.jetbrains.dokka.DokkaGenerator].
+ *
+ * All messages will be written to [logWriter] and forwarded to a Gradle [logger] (at an appropriate log level).
+ *
+ * [org.jetbrains.dokka.DokkaGenerator] makes heavy use of coroutines and parallelization,
+ * so use thread-safe practices when handling logging messages.
  *
  * @param logTag Prepend all [logger] messages with this tag.
  * @see org.jetbrains.dokka.DokkaGenerator
