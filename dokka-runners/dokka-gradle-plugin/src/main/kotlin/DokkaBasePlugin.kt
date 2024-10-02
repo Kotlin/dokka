@@ -102,9 +102,6 @@ constructor(
             sourceSetScopeDefault.convention(project.path)
             dokkaPublicationDirectory.convention(layout.buildDirectory.dir("dokka"))
             dokkaModuleDirectory.convention(layout.buildDirectory.dir("dokka-module"))
-//            @Suppress("DEPRECATION")
-//            dokkaConfigurationsDirectory.convention(layout.buildDirectory.dir("dokka-config"))
-
             dokkaEngineVersion.convention(DokkaConstants.DOKKA_VERSION)
         }
 

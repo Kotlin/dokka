@@ -45,8 +45,29 @@ constructor(
     /** Default Dokka Gradle Plugin cache directory */
     abstract val dokkaCacheDirectory: DirectoryProperty
 
+    /**
+     * The display name used to refer to the module.
+     * It is used for the table of contents, navigation, logging, etc.
+     *
+     * Default: the current project name.
+     */
     abstract val moduleName: Property<String>
+
+    /**
+     * The displayed module version.
+     *
+     * Default: the version of the current project.
+     */
     abstract val moduleVersion: Property<String>
+
+    /**
+     * A distinct relative path for the Dokka Module produced by the current project.
+     *
+     * Used in Dokka Publications to ensure the files produced by every Dokka Modules
+     * are in their own separate directories.
+     *
+     * Default: the current project's path ([org.gradle.api.Project.getPath]) as a file path.
+     */
     abstract val modulePath: Property<String>
 
     /**
@@ -83,32 +104,9 @@ constructor(
         )
 
     /**
-     * Dokka Source Sets describe the source code that should be included in a Dokka Publication.
+     * Dokka Source Sets describe the source code that should be included in the generated output.
      *
      * Dokka will not generate documentation unless there is at least there is at least one Dokka Source Set.
-     *
-     *  TODO make sure dokkaSourceSets doc is up to date...
-     *
-     * Only source sets that are contained within _this project_ should be included here.
-     * To merge source sets from other projects, use the Gradle dependencies block.
-     *
-     * ```kotlin
-     * dependencies {
-     *   // merge :other-project into this project's Dokka Configuration
-     *   dokka(project(":other-project"))
-     * }
-     * ```
-     *
-     * Or, to include other Dokka Publications as a Dokka Module use
-     *
-     * ```kotlin
-     * dependencies {
-     *   // include :other-project as a module in this project's Dokka Configuration
-     *   dokkaModule(project(":other-project"))
-     * }
-     * ```
-     *
-     * Dokka will merge Dokka Source Sets from other subprojects if...
      */
     val dokkaSourceSets: NamedDomainObjectContainer<DokkaSourceSetSpec> =
         extensions.adding("dokkaSourceSets", objects.domainObjectContainer())
@@ -134,11 +132,8 @@ constructor(
      * [Gradle Worker](https://docs.gradle.org/8.5/userguide/worker_api.html).
      *
      * You can control whether Dokka Gradle Plugin launches Dokka Generator in
-     * * a new process, using [ProcessIsolation],
-     * * or the current process with an isolated classpath, using [ClassLoaderIsolation].
-     *
-     * _Aside: Launching [without isolation][WorkerExecutor.noIsolation] is not an option, because
-     * running Dokka Generator **requires** an isolated classpath._
+     * - a new process, using [ProcessIsolation],
+     * - or the current process with an isolated classpath, using [ClassLoaderIsolation].
      *
      * ```kotlin
      * dokka {
@@ -153,6 +148,9 @@ constructor(
      * }
      * ```
      *
+     * _Aside: Launching [without isolation][WorkerExecutor.noIsolation] is not an option, because
+     * running Dokka Generator **requires** an isolated classpath._
+     *
      * @see WorkerIsolation
      * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation
      * @see org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
@@ -165,6 +163,8 @@ constructor(
      * Create a new [ClassLoaderIsolation] options instance.
      *
      * The resulting options must be set into [dokkaGeneratorIsolation].
+     *
+     * @see dokkaGeneratorIsolation
      */
     fun ClassLoaderIsolation(configure: ClassLoaderIsolation.() -> Unit = {}): ClassLoaderIsolation =
         objects.newInstance<ClassLoaderIsolation>().apply(configure)
@@ -173,6 +173,8 @@ constructor(
      * Create a new [ProcessIsolation] options.
      *
      * The resulting options instance must be set into [dokkaGeneratorIsolation].
+     *
+     * @see dokkaGeneratorIsolation
      */
     fun ProcessIsolation(configure: ProcessIsolation.() -> Unit = {}): ProcessIsolation =
         objects.newInstance<ProcessIsolation>().apply(configure)
@@ -180,6 +182,8 @@ constructor(
 
     //region deprecated properties
     /**
+     * This property has moved to be configured on each [DokkaPublication].
+     *
      * ```
      * dokka {
      *   // DEPRECATED
@@ -197,6 +201,9 @@ constructor(
     abstract val suppressInheritedMembers: Property<Boolean>
 
     /**
+     *
+     * This property has moved to be configured on each [DokkaPublication].
+     *
      * ```
      * dokka {
      *   // DEPRECATED

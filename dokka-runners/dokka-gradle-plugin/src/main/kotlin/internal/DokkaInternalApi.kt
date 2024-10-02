@@ -9,8 +9,8 @@ import kotlin.annotation.AnnotationTarget.*
 
 
 /**
- * Functionality annotated with this API is intended only for use by Dokka internal code,
- * but it has been given
+ * Functionality annotated with this API is intended only for use by the
+ * Dokka Gradle plugin, but it has been given
  * [`public` visibility](https://kotlinlang.org/docs/visibility-modifiers.html)
  * for technical reasons.
  *
@@ -23,7 +23,7 @@ import kotlin.annotation.AnnotationTarget.*
  * [the Dokka issue tracker](https://github.com/Kotlin/dokka/issues).
  */
 @RequiresOptIn(
-    message = "Internal Dokka API - may change at any time without notice",
+    message = "Internal Dokka Gradle API - may change at any time without notice",
     level = WARNING,
 )
 @Retention(BINARY)

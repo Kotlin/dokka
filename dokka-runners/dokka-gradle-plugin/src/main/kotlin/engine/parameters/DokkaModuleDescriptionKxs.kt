@@ -28,7 +28,7 @@ import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 data class DokkaModuleDescriptionKxs(
     /** @see DokkaConfiguration.DokkaModuleDescription.name */
     val name: String,
-    /** @see [org.gradle.api.Project.getPath] */
+    /** @see org.jetbrains.dokka.gradle.DokkaExtension.modulePath */
     val modulePath: String,
     /** name of the sibling directory that contains the module output */
     val moduleOutputDirName: String = "module",
