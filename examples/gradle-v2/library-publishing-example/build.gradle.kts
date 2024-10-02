@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "1.9.25"
-    id("org.jetbrains.dokka") version "2.0.20-SNAPSHOT"
-    id("org.jetbrains.dokka-javadoc") version "2.0.20-SNAPSHOT"
+    id("org.jetbrains.dokka") version "2.0.0-Beta"
+    id("org.jetbrains.dokka-javadoc") version "2.0.0-Beta"
     `maven-publish`
 }
 
