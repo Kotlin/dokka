@@ -134,7 +134,6 @@ constructor(
      * This is an internal Dokka Gradle plugin property.
      * If you find you need to set this property, please report your use-case https://kotl.in/dokka-issues.
      */
-    @DokkaInternalApi
     abstract val finalizeCoroutines: Property<Boolean>
 
     /** Output directory for the partial Dokka module. */
