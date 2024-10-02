@@ -16,6 +16,7 @@
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
+  --color-key-blue-05: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -85,58 +86,443 @@
 */
 :root {
   --hover-transition: background-color 200ms ease-in-out;
+  --rotate-transition: transform 200ms ease-in-out;
 }
 
-.filter-section {
-  z-index: 1;
+.button {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  max-height: 40px;
-  margin-right: 12px;
-  gap: 2px;
+  justify-content: center;
+  height: 40px;
+  padding: var(--size-s2) 12px;
+  cursor: pointer;
+  letter-spacing: 0.045em;
+  color: var(--color-text);
+  border: none;
+  border-radius: var(--size-s1);
+  background-color: rgba(0, 0, 0, 0);
 }
 
-.filter-section_loading {
-  overflow: hidden;
+.button:has(:first-child) {
+  gap: var(--size-s2);
+  padding: var(--size-s2);
 }
 
-@media (width >= 900px) {
-  .filter-section--dropdown {
-    display: none;
-  }
+.button:hover {
+  background-color: var(--color-b08);
 }
-.filter-section--dropdown-toggle_as-filters {
-  min-width: 40px;
-  background-image: url(assets/filter.svg);
+
+.button:active {
+  background-color: var(--color-key-blue);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.button:focus-visible {
+  outline: var(--focus-outline);
+}
+
+.theme-dark .button {
+  color: var(--color-text-dt);
+}
+
+.theme-dark .button:hover {
+  background-color: var(--color-w10);
+}
+
+.button_background {
+  background-color: var(--color-w100);
+}
+
+.theme-dark .button_background {
+  background-color: var(--color-w10);
+}
+
+.theme-dark .button_background:hover {
+  background-color: var(--color-w05);
+}
+
+.button_dropdown {
+  padding: var(--size-s2);
+}
+
+.button_dropdown::after {
+  display: block;
+  width: var(--size-m1);
+  height: var(--size-m1);
+  content: "";
+  transform: rotate(0);
+  background-image: url(assets/arrow-down.svg);
   background-repeat: no-repeat;
-  background-position: 50% 50%;
+  will-change: transform;
+  filter: invert(1);
 }
 
-.filter-section--dropdown-toggle_as-filters::after {
-  display: none;
+.theme-dark .button_dropdown::after {
+  filter: none;
+}
+
+.button_dropdown_active {
+  color: var(--color-text-dt);
+  background-color: var(--color-key-blue);
+}
+
+.button_dropdown_active:hover, .theme-dark .button_dropdown_active:hover {
+  background-color: #639fff;
+}
+
+.button_dropdown_active::after {
+  transform: rotate(-180deg);
+  filter: invert(0);
+}
+/*!
+ * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --breakpoint-desktop-min: 900px;
+  --breakpoint-tablet-max: 899px;
+  --breakpoint-tablet-min: 440px;
+  --breakpoint-mobile-max: 439px;
+  --breakpoint-mobile-min: 360px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --color-key-blue: rgb(48, 127, 255);
+  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-background-nav: rgb(39, 40, 44);
+  --color-background-nav-dt: rgb(50, 50, 55);
+  --color-background-page: rgb(255, 255, 255);
+  --color-background-page-dt: rgb(38, 38, 40);
+  --color-background-footer: rgb(235, 235, 235);
+  --color-background-footer-dt: rgb(50, 50, 55);
+  --color-text: rgb(0, 0, 0);
+  --color-text-dt: rgba(255, 255, 255, 0.96);
+  --color-text-light: rgba(0, 0, 0, 0.7);
+  --color-text-light-dt: rgba(255, 255, 255, 0.7);
+  --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w10: rgba(255, 255, 255, 0.1);
+  --color-w16: rgba(255, 255, 255, 0.16);
+  --color-w50: rgba(255, 255, 255, 0.5);
+  --color-w70: rgba(255, 255, 255, 0.7);
+  --color-w80: rgba(255, 255, 255, 0.8);
+  --color-w100: rgba(255, 255, 255, 1);
+  --color-b05: rgba(0, 0, 0, 0.05);
+  --color-b08: rgba(0, 0, 0, 0.08);
+  --color-b20: rgba(0, 0, 0, 0.2);
+  --color-b50: rgba(0, 0, 0, 0.5);
+  --color-b70: rgba(0, 0, 0, 0.7);
+  --color-cd-punctuation: rgb(153, 153, 153);
+  --color-cd-keyword: rgb(0, 51, 179);
+  --color-cd-keyword-alternative: rgba(204, 120, 50);
+  --color-cd-builtin: rgb(6, 125, 23);
+  --color-cd-builtin-alternative: rgb(231, 191, 106);
+  --color-cd-function: rgb(0, 98, 122);
+  --color-cd-function-alternative: rgb(255, 198, 109);
+  --color-cd-operator: rgb(154, 110, 58);
+  --color-cd-operator-alternative: rgb(169, 183, 198);
+  --color-cd-body: rgb(0, 0, 0);
+  --color-cd-body-alternative: rgb(169, 183, 198);
+  --color-generic: rgb(83, 157, 243);
+  --color-jvm: rgb(77, 187, 95);
+  --color-js: rgb(255, 199, 0);
+  --color-wasm: rgb(255, 255, 255);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --size-s1: 4px;
+  --size-s2: 8px;
+  --size-s3: 16px;
+  --size-m1: 24px;
+  --size-m2: 32px;
+  --size-m3: 48px;
+  --size-l1: 64px;
+  --size-l2: 72px;
+  --size-ta1: 40px;
+  --size-ta2: 52px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --font-family-default: JetBrains Sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+  --font-family-mono: JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+  --font-h1: 600 44px/44px var(--font-family-default);
+  --font-h2: 600 32px/32px var(--font-family-default);
+  --font-h3: 600 24px/24px var(--font-family-default);
+  --font-h4: 600 16px/24px var(--font-family-default);
+  --font-text-m: 400 16px/24px var(--font-family-default);
+  --font-text-s: 400 14px/20px var(--font-family-default);
+  --font-code: 400 16px/24px var(--font-family-mono);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --hover-transition: background-color 200ms ease-in-out;
+  --rotate-transition: transform 200ms ease-in-out;
+}
+
+.checkbox {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.checkbox--input {
+  position: absolute;
+  appearance: none;
+  visibility: hidden;
+}
+
+.checkbox--icon {
+  position: absolute;
+  width: var(--size-m1);
+  height: var(--size-m1);
+  margin-left: calc(-1 * var(--size-m2));
+  background-image: url(assets/checkbox-off.svg);
+}
+
+.checkbox--input:checked + .checkbox--icon {
+  background-image: url(assets/checkbox-on.svg);
+}
+
+.checkbox--input:disabled + .checkbox--icon {
+  opacity: 0.2;
+}
+
+.checkbox--input:focus-visible {
+  outline: var(--focus-outline);
+}
+/*!
+ * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --breakpoint-desktop-min: 900px;
+  --breakpoint-tablet-max: 899px;
+  --breakpoint-tablet-min: 440px;
+  --breakpoint-mobile-max: 439px;
+  --breakpoint-mobile-min: 360px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --color-key-blue: rgb(48, 127, 255);
+  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-background-nav: rgb(39, 40, 44);
+  --color-background-nav-dt: rgb(50, 50, 55);
+  --color-background-page: rgb(255, 255, 255);
+  --color-background-page-dt: rgb(38, 38, 40);
+  --color-background-footer: rgb(235, 235, 235);
+  --color-background-footer-dt: rgb(50, 50, 55);
+  --color-text: rgb(0, 0, 0);
+  --color-text-dt: rgba(255, 255, 255, 0.96);
+  --color-text-light: rgba(0, 0, 0, 0.7);
+  --color-text-light-dt: rgba(255, 255, 255, 0.7);
+  --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w10: rgba(255, 255, 255, 0.1);
+  --color-w16: rgba(255, 255, 255, 0.16);
+  --color-w50: rgba(255, 255, 255, 0.5);
+  --color-w70: rgba(255, 255, 255, 0.7);
+  --color-w80: rgba(255, 255, 255, 0.8);
+  --color-w100: rgba(255, 255, 255, 1);
+  --color-b05: rgba(0, 0, 0, 0.05);
+  --color-b08: rgba(0, 0, 0, 0.08);
+  --color-b20: rgba(0, 0, 0, 0.2);
+  --color-b50: rgba(0, 0, 0, 0.5);
+  --color-b70: rgba(0, 0, 0, 0.7);
+  --color-cd-punctuation: rgb(153, 153, 153);
+  --color-cd-keyword: rgb(0, 51, 179);
+  --color-cd-keyword-alternative: rgba(204, 120, 50);
+  --color-cd-builtin: rgb(6, 125, 23);
+  --color-cd-builtin-alternative: rgb(231, 191, 106);
+  --color-cd-function: rgb(0, 98, 122);
+  --color-cd-function-alternative: rgb(255, 198, 109);
+  --color-cd-operator: rgb(154, 110, 58);
+  --color-cd-operator-alternative: rgb(169, 183, 198);
+  --color-cd-body: rgb(0, 0, 0);
+  --color-cd-body-alternative: rgb(169, 183, 198);
+  --color-generic: rgb(83, 157, 243);
+  --color-jvm: rgb(77, 187, 95);
+  --color-js: rgb(255, 199, 0);
+  --color-wasm: rgb(255, 255, 255);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --size-s1: 4px;
+  --size-s2: 8px;
+  --size-s3: 16px;
+  --size-m1: 24px;
+  --size-m2: 32px;
+  --size-m3: 48px;
+  --size-l1: 64px;
+  --size-l2: 72px;
+  --size-ta1: 40px;
+  --size-ta2: 52px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --font-family-default: JetBrains Sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+  --font-family-mono: JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+  --font-h1: 600 44px/44px var(--font-family-default);
+  --font-h2: 600 32px/32px var(--font-family-default);
+  --font-h3: 600 24px/24px var(--font-family-default);
+  --font-h4: 600 16px/24px var(--font-family-default);
+  --font-text-m: 400 16px/24px var(--font-family-default);
+  --font-text-s: 400 14px/20px var(--font-family-default);
+  --font-code: 400 16px/24px var(--font-family-mono);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --hover-transition: background-color 200ms ease-in-out;
+  --rotate-transition: transform 200ms ease-in-out;
+}
+
+.dropdown {
+  position: relative;
 }
 
 @media (width < 900px) {
-  .filter-section {
+  .dropdown {
+    position: static;
+  }
+}
+.dropdown--list {
+  position: absolute;
+  z-index: 10;
+  top: 44px;
+  right: 0;
+  display: none;
+  overflow-y: auto;
+  min-width: 272px;
+  max-width: 360px;
+  max-height: 400px;
+  padding: 12px 0;
+  border: 1px solid #56565f;
+  background-color: var(--color-background-nav-dt);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2509803922);
+}
+
+@media (width < 900px) {
+  .dropdown--list {
+    top: 0;
+    right: 0;
+    height: 100vh;
     max-height: unset;
-    margin-right: 0;
+    padding: 0;
+    border: none;
   }
-  .filter-section > :not(.dropdown) {
-    display: none;
+}
+@media (width < 440px) {
+  .dropdown--list {
+    width: 100vw;
+    max-width: unset;
   }
-  .filter-section--dropdown-toggle {
-    background-image: url(assets/filter.svg);
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
-  }
-  .filter-section--dropdown-toggle::after {
+}
+.dropdown--list_expanded {
+  display: block;
+}
+
+.dropdown--option {
+  position: relative;
+  display: block;
+  padding: var(--size-s2) var(--size-s3);
+  list-style-type: none;
+  cursor: pointer;
+  letter-spacing: -0.03em;
+  text-transform: capitalize;
+  border: none;
+  background-color: var(--color-background-nav-dt);
+  font: var(--font-text-m);
+}
+
+.dropdown--option:hover {
+  background-color: #4a4a52;
+}
+
+.dropdown--option:focus-visible {
+  z-index: 1;
+  outline: var(--focus-outline);
+}
+
+.dropdown--option:visited {
+  color: var(--color-text-nav-dt);
+}
+
+.dropdown--option_active {
+  background-color: var(--color-key-blue);
+}
+
+.dropdown--option_active:hover {
+  background-color: #639fff;
+}
+
+.dropdown--option_link {
+  text-decoration: none;
+  color: var(--color-text-nav-dt);
+}
+
+.dropdown--option_link:focus-visible {
+  outline: var(--focus-outline);
+}
+
+.dropdown--option .checkbox {
+  pointer-events: none;
+}
+
+.dropdown--overlay {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  content: "";
+  background-color: rgba(137, 137, 137, 0.5);
+}
+
+.dropdown--list_expanded + .dropdown--overlay {
+  display: block;
+}
+
+@media (width >= 900px) {
+  .dropdown--list_expanded + .dropdown--overlay {
     display: none;
   }
 }
-.no-js .filter-section {
-  display: none;
+.dropdown--header {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: var(--size-s3);
+  color: var(--color-w70);
+  border-bottom: 1px solid #56565f;
+  background-color: var(--color-background-nav-dt);
+}
+
+@media (width >= 900px) {
+  .dropdown--header {
+    display: none;
+  }
 }
 /*!
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -226,6 +612,268 @@
 */
 :root {
   --hover-transition: background-color 200ms ease-in-out;
+  --rotate-transition: transform 200ms ease-in-out;
+}
+
+.filter-section {
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-height: 40px;
+  margin-right: 12px;
+  gap: 2px;
+}
+
+.filter-section_loading {
+  overflow: hidden;
+}
+
+@media (width >= 900px) {
+  .filter-section--dropdown {
+    display: none;
+  }
+}
+.filter-section--dropdown-toggle_as-filters {
+  min-width: 40px;
+  background-image: url(assets/filter.svg);
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+}
+
+.filter-section--dropdown-toggle_as-filters::after {
+  display: none;
+}
+
+@media (width < 900px) {
+  .filter-section {
+    max-height: unset;
+    margin-right: 0;
+  }
+  .filter-section > :not(.dropdown) {
+    display: none;
+  }
+  .filter-section--dropdown-toggle {
+    background-image: url(assets/filter.svg);
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+  }
+  .filter-section--dropdown-toggle::after {
+    display: none;
+  }
+}
+.no-js .filter-section {
+  display: none;
+}
+/*!
+ * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --breakpoint-desktop-min: 900px;
+  --breakpoint-tablet-max: 899px;
+  --breakpoint-tablet-min: 440px;
+  --breakpoint-mobile-max: 439px;
+  --breakpoint-mobile-min: 360px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --color-key-blue: rgb(48, 127, 255);
+  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-background-nav: rgb(39, 40, 44);
+  --color-background-nav-dt: rgb(50, 50, 55);
+  --color-background-page: rgb(255, 255, 255);
+  --color-background-page-dt: rgb(38, 38, 40);
+  --color-background-footer: rgb(235, 235, 235);
+  --color-background-footer-dt: rgb(50, 50, 55);
+  --color-text: rgb(0, 0, 0);
+  --color-text-dt: rgba(255, 255, 255, 0.96);
+  --color-text-light: rgba(0, 0, 0, 0.7);
+  --color-text-light-dt: rgba(255, 255, 255, 0.7);
+  --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w10: rgba(255, 255, 255, 0.1);
+  --color-w16: rgba(255, 255, 255, 0.16);
+  --color-w50: rgba(255, 255, 255, 0.5);
+  --color-w70: rgba(255, 255, 255, 0.7);
+  --color-w80: rgba(255, 255, 255, 0.8);
+  --color-w100: rgba(255, 255, 255, 1);
+  --color-b05: rgba(0, 0, 0, 0.05);
+  --color-b08: rgba(0, 0, 0, 0.08);
+  --color-b20: rgba(0, 0, 0, 0.2);
+  --color-b50: rgba(0, 0, 0, 0.5);
+  --color-b70: rgba(0, 0, 0, 0.7);
+  --color-cd-punctuation: rgb(153, 153, 153);
+  --color-cd-keyword: rgb(0, 51, 179);
+  --color-cd-keyword-alternative: rgba(204, 120, 50);
+  --color-cd-builtin: rgb(6, 125, 23);
+  --color-cd-builtin-alternative: rgb(231, 191, 106);
+  --color-cd-function: rgb(0, 98, 122);
+  --color-cd-function-alternative: rgb(255, 198, 109);
+  --color-cd-operator: rgb(154, 110, 58);
+  --color-cd-operator-alternative: rgb(169, 183, 198);
+  --color-cd-body: rgb(0, 0, 0);
+  --color-cd-body-alternative: rgb(169, 183, 198);
+  --color-generic: rgb(83, 157, 243);
+  --color-jvm: rgb(77, 187, 95);
+  --color-js: rgb(255, 199, 0);
+  --color-wasm: rgb(255, 255, 255);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --size-s1: 4px;
+  --size-s2: 8px;
+  --size-s3: 16px;
+  --size-m1: 24px;
+  --size-m2: 32px;
+  --size-m3: 48px;
+  --size-l1: 64px;
+  --size-l2: 72px;
+  --size-ta1: 40px;
+  --size-ta2: 52px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --font-family-default: JetBrains Sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+  --font-family-mono: JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+  --font-h1: 600 44px/44px var(--font-family-default);
+  --font-h2: 600 32px/32px var(--font-family-default);
+  --font-h3: 600 24px/24px var(--font-family-default);
+  --font-h4: 600 16px/24px var(--font-family-default);
+  --font-text-m: 400 16px/24px var(--font-family-default);
+  --font-text-s: 400 14px/20px var(--font-family-default);
+  --font-code: 400 16px/24px var(--font-family-mono);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --hover-transition: background-color 200ms ease-in-out;
+  --rotate-transition: transform 200ms ease-in-out;
+}
+
+.ui-kit-icon {
+  width: var(--size-m1);
+  height: var(--size-m1);
+  background-color: rgba(0, 0, 0, 0);
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-size: 24px 24px;
+  font-size: 0;
+  line-height: 0;
+  will-change: background-color;
+  filter: invert(1);
+}
+
+.theme-dark .ui-kit-icon {
+  filter: none;
+}
+
+.ui-kit-icon_arrow-down {
+  background-image: url(assets/arrow-down.svg);
+}
+
+.ui-kit-icon_placeholder {
+  background-image: url(assets/placeholder.svg);
+}
+
+.ui-kit-icon_cross {
+  background-image: url(assets/cross.svg);
+}
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/ /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --breakpoint-desktop-min: 900px;
+  --breakpoint-tablet-max: 899px;
+  --breakpoint-tablet-min: 440px;
+  --breakpoint-mobile-max: 439px;
+  --breakpoint-mobile-min: 360px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --color-key-blue: rgb(48, 127, 255);
+  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-background-nav: rgb(39, 40, 44);
+  --color-background-nav-dt: rgb(50, 50, 55);
+  --color-background-page: rgb(255, 255, 255);
+  --color-background-page-dt: rgb(38, 38, 40);
+  --color-background-footer: rgb(235, 235, 235);
+  --color-background-footer-dt: rgb(50, 50, 55);
+  --color-text: rgb(0, 0, 0);
+  --color-text-dt: rgba(255, 255, 255, 0.96);
+  --color-text-light: rgba(0, 0, 0, 0.7);
+  --color-text-light-dt: rgba(255, 255, 255, 0.7);
+  --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w10: rgba(255, 255, 255, 0.1);
+  --color-w16: rgba(255, 255, 255, 0.16);
+  --color-w50: rgba(255, 255, 255, 0.5);
+  --color-w70: rgba(255, 255, 255, 0.7);
+  --color-w80: rgba(255, 255, 255, 0.8);
+  --color-w100: rgba(255, 255, 255, 1);
+  --color-b05: rgba(0, 0, 0, 0.05);
+  --color-b08: rgba(0, 0, 0, 0.08);
+  --color-b20: rgba(0, 0, 0, 0.2);
+  --color-b50: rgba(0, 0, 0, 0.5);
+  --color-b70: rgba(0, 0, 0, 0.7);
+  --color-cd-punctuation: rgb(153, 153, 153);
+  --color-cd-keyword: rgb(0, 51, 179);
+  --color-cd-keyword-alternative: rgba(204, 120, 50);
+  --color-cd-builtin: rgb(6, 125, 23);
+  --color-cd-builtin-alternative: rgb(231, 191, 106);
+  --color-cd-function: rgb(0, 98, 122);
+  --color-cd-function-alternative: rgb(255, 198, 109);
+  --color-cd-operator: rgb(154, 110, 58);
+  --color-cd-operator-alternative: rgb(169, 183, 198);
+  --color-cd-body: rgb(0, 0, 0);
+  --color-cd-body-alternative: rgb(169, 183, 198);
+  --color-generic: rgb(83, 157, 243);
+  --color-jvm: rgb(77, 187, 95);
+  --color-js: rgb(255, 199, 0);
+  --color-wasm: rgb(255, 255, 255);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --size-s1: 4px;
+  --size-s2: 8px;
+  --size-s3: 16px;
+  --size-m1: 24px;
+  --size-m2: 32px;
+  --size-m3: 48px;
+  --size-l1: 64px;
+  --size-l2: 72px;
+  --size-ta1: 40px;
+  --size-ta2: 52px;
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --font-family-default: JetBrains Sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+  --font-family-mono: JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+  --font-h1: 600 44px/44px var(--font-family-default);
+  --font-h2: 600 32px/32px var(--font-family-default);
+  --font-h3: 600 24px/24px var(--font-family-default);
+  --font-h4: 600 16px/24px var(--font-family-default);
+  --font-text-m: 400 16px/24px var(--font-family-default);
+  --font-text-s: 400 14px/20px var(--font-family-default);
+  --font-code: 400 16px/24px var(--font-family-mono);
+} /*!
+* Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+*/
+:root {
+  --hover-transition: background-color 200ms ease-in-out;
+  --rotate-transition: transform 200ms ease-in-out;
 }
 
 :root {
@@ -740,7 +1388,7 @@
 .platform-tag {
   --platform-tag-color: #bababb;
   padding: 10px 12px;
-  cursor: pointer;
+  letter-spacing: -0.03em;
   text-transform: capitalize;
   border: 0 none;
   border-radius: var(--size-s1);
