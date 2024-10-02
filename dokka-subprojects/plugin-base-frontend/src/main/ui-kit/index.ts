@@ -2,6 +2,8 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 import * as button from './button/index';
+import * as checkbox from './checkbox/index';
+import * as dropdown from './dropdown/index';
 import * as filterSection from './filter-section/index';
 import * as icon from './icon/index';
 import * as libraryName from './library-name/index';
@@ -16,6 +18,8 @@ import './global.scss';
 
 export {
   button,
+  checkbox,
+  dropdown,
   filterSection,
   icon,
   libraryName,

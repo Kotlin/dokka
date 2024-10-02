@@ -1,7 +1,7 @@
 /*!
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-@import '../tokens/index';
+@import '../_tokens/index';
 
 :root {
   --dokka-logo-height: 28px;
@@ -20,7 +20,11 @@
 
   font: var(--font-h4);
 
-  @media (width <= $breakpoint-desktop-min) {
+  &:focus-visible {
+    outline: var(--focus-outline);
+  }
+
+  @media (width < $breakpoint-desktop-min) {
     height: 52px;
 
     margin-left: 12px;

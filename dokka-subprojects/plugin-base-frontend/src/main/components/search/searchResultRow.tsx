@@ -29,7 +29,7 @@ export const SearchResultRow: React.FC<SearchProps> = ({ searchResult }: SearchP
 
   return (
     <div className="template-wrapper">
-      <span>{out}</span>
+      <div className="template-title">{out}</div>
       <span className="template-description">{searchResult.description}</span>
     </div>
   );
