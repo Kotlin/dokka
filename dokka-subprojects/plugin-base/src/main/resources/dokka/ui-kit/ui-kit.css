@@ -444,6 +444,7 @@
   cursor: pointer;
   letter-spacing: -0.03em;
   text-transform: capitalize;
+  color: var(--color-text-nav-dt);
   border: none;
   background-color: var(--color-background-nav-dt);
   font: var(--font-text-m);
