@@ -115,7 +115,7 @@ options according to your project setup:
           includes.from("README.md")
           sourceLink {
               localDirectory.set(file("src/main/kotlin"))
-              remoteUrl.set(URL("https://example.com/src"))
+              remoteUrl("https://example.com/src")
               remoteLineSuffix.set("#L")
           }
       }
