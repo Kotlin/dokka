@@ -556,7 +556,6 @@ public abstract class org/jetbrains/dokka/gradle/tasks/DokkaGenerateTask : org/j
 
 public abstract class org/jetbrains/dokka/gradle/tasks/LogHtmlPublicationLinkTask : org/jetbrains/dokka/gradle/tasks/DokkaBaseTask {
 	public static final field Companion Lorg/jetbrains/dokka/gradle/tasks/LogHtmlPublicationLinkTask$Companion;
-	public static final field ENABLE_TASK_PROPERTY_NAME Ljava/lang/String;
 	public final fun exec ()V
 	public abstract fun getIndexHtmlPath ()Lorg/gradle/api/provider/Property;
 	public abstract fun getServerUri ()Lorg/gradle/api/provider/Property;
