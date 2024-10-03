@@ -10,13 +10,16 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.provideDelegate
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.PluginMode.*
+import org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask
 import java.io.File
 import java.util.*
+import javax.inject.Inject
 
 /**
  * Internal utility service for managing Dokka Plugin features and warnings.
@@ -24,7 +27,12 @@ import java.util.*
  * Using a [BuildService] is most useful for only logging a single warning for the whole project,
  * regardless of how many subprojects have applied DGP.
  */
-internal abstract class PluginFeaturesService : BuildService<PluginFeaturesService.Params> {
+internal abstract class PluginFeaturesService
+@DokkaInternalApi
+@Inject
+constructor(
+    providers: ProviderFactory,
+) : BuildService<PluginFeaturesService.Params> {
 
     interface Params : BuildServiceParameters {
         /** @see [PluginFeaturesService.primaryService] */
@@ -240,6 +248,29 @@ internal abstract class PluginFeaturesService : BuildService<PluginFeaturesServi
                 values.find { it.name == value }
         }
     }
+
+    /**
+     * Control whether the [LogHtmlPublicationLinkTask] task is enabled.
+     *
+     * Useful for disabling the task locally, or in CI/CD, or for tests.
+     *
+     * It can be set in any `gradle.properties` file. For example, on a single user's machine:
+     *
+     * ```properties
+     * # $GRADLE_USER_HOME/gradle.properties
+     * org.jetbrains.dokka.gradle.enabledLogHtmlPublicationLink=false
+     * ```
+     *
+     * or via an environment variable
+     *
+     * ```env
+     * ORG_GRADLE_PROJECT_org.jetbrains.dokka.gradle.enabledLogHtmlPublicationLink=false
+     * ```
+     */
+      val enableLogHtmlPublicationLink: Provider<Boolean> =
+        providers.gradleProperty("org.jetbrains.dokka.gradle.enableLogHtmlPublicationLink")
+            .toBoolean()
+            .orElse(true)
 
     companion object {
         private val logger = Logging.getLogger(PluginFeaturesService::class.java)
