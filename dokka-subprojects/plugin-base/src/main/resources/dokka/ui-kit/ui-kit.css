@@ -16,7 +16,7 @@
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
-  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-key-blue-50: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -28,6 +28,7 @@
   --color-text-light: rgba(0, 0, 0, 0.7);
   --color-text-light-dt: rgba(255, 255, 255, 0.7);
   --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w08: rgba(255, 255, 255, 0.08);
   --color-w10: rgba(255, 255, 255, 0.1);
   --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
@@ -196,7 +197,7 @@
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
-  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-key-blue-50: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -208,6 +209,7 @@
   --color-text-light: rgba(0, 0, 0, 0.7);
   --color-text-light-dt: rgba(255, 255, 255, 0.7);
   --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w08: rgba(255, 255, 255, 0.08);
   --color-w10: rgba(255, 255, 255, 0.1);
   --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
@@ -318,7 +320,7 @@
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
-  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-key-blue-50: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -330,6 +332,7 @@
   --color-text-light: rgba(0, 0, 0, 0.7);
   --color-text-light-dt: rgba(255, 255, 255, 0.7);
   --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w08: rgba(255, 255, 255, 0.08);
   --color-w10: rgba(255, 255, 255, 0.1);
   --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
@@ -543,7 +546,7 @@
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
-  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-key-blue-50: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -555,6 +558,7 @@
   --color-text-light: rgba(0, 0, 0, 0.7);
   --color-text-light-dt: rgba(255, 255, 255, 0.7);
   --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w08: rgba(255, 255, 255, 0.08);
   --color-w10: rgba(255, 255, 255, 0.1);
   --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
@@ -685,7 +689,7 @@
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
-  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-key-blue-50: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -697,6 +701,7 @@
   --color-text-light: rgba(0, 0, 0, 0.7);
   --color-text-light-dt: rgba(255, 255, 255, 0.7);
   --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w08: rgba(255, 255, 255, 0.08);
   --color-w10: rgba(255, 255, 255, 0.1);
   --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
@@ -804,7 +809,7 @@
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
-  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-key-blue-50: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -816,6 +821,7 @@
   --color-text-light: rgba(0, 0, 0, 0.7);
   --color-text-light-dt: rgba(255, 255, 255, 0.7);
   --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w08: rgba(255, 255, 255, 0.08);
   --color-w10: rgba(255, 255, 255, 0.1);
   --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
@@ -927,7 +933,7 @@
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
-  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-key-blue-50: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -939,6 +945,7 @@
   --color-text-light: rgba(0, 0, 0, 0.7);
   --color-text-light-dt: rgba(255, 255, 255, 0.7);
   --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w08: rgba(255, 255, 255, 0.08);
   --color-w10: rgba(255, 255, 255, 0.1);
   --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
@@ -1031,7 +1038,7 @@
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
-  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-key-blue-50: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -1043,6 +1050,7 @@
   --color-text-light: rgba(0, 0, 0, 0.7);
   --color-text-light-dt: rgba(255, 255, 255, 0.7);
   --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w08: rgba(255, 255, 255, 0.08);
   --color-w10: rgba(255, 255, 255, 0.1);
   --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
@@ -1151,7 +1159,7 @@
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
-  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-key-blue-50: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -1163,6 +1171,7 @@
   --color-text-light: rgba(0, 0, 0, 0.7);
   --color-text-light-dt: rgba(255, 255, 255, 0.7);
   --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w08: rgba(255, 255, 255, 0.08);
   --color-w10: rgba(255, 255, 255, 0.1);
   --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
@@ -1313,7 +1322,7 @@
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
-  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-key-blue-50: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -1325,6 +1334,7 @@
   --color-text-light: rgba(0, 0, 0, 0.7);
   --color-text-light-dt: rgba(255, 255, 255, 0.7);
   --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w08: rgba(255, 255, 255, 0.08);
   --color-w10: rgba(255, 255, 255, 0.1);
   --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
@@ -1478,7 +1488,7 @@ button.platform-tag:focus-visible {
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
-  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-key-blue-50: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -1490,6 +1500,7 @@ button.platform-tag:focus-visible {
   --color-text-light: rgba(0, 0, 0, 0.7);
   --color-text-light-dt: rgba(255, 255, 255, 0.7);
   --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w08: rgba(255, 255, 255, 0.08);
   --color-w10: rgba(255, 255, 255, 0.1);
   --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
@@ -1575,7 +1586,7 @@ button.platform-tag:focus-visible {
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
-  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-key-blue-50: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -1587,6 +1598,7 @@ button.platform-tag:focus-visible {
   --color-text-light: rgba(0, 0, 0, 0.7);
   --color-text-light-dt: rgba(255, 255, 255, 0.7);
   --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w08: rgba(255, 255, 255, 0.08);
   --color-w10: rgba(255, 255, 255, 0.1);
   --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
@@ -1748,7 +1760,7 @@ button.platform-tag:focus-visible {
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
-  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-key-blue-50: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -1760,6 +1772,7 @@ button.platform-tag:focus-visible {
   --color-text-light: rgba(0, 0, 0, 0.7);
   --color-text-light-dt: rgba(255, 255, 255, 0.7);
   --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w08: rgba(255, 255, 255, 0.08);
   --color-w10: rgba(255, 255, 255, 0.1);
   --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
@@ -1890,6 +1903,7 @@ button.platform-tag:focus-visible {
 
 .toc--button:focus-visible {
   outline: var(--focus-outline);
+  outline-offset: -4px;
 }
 
 .toc--link {
@@ -1909,6 +1923,7 @@ button.platform-tag:focus-visible {
 
 .toc--link:focus-visible {
   outline: var(--focus-outline);
+  outline-offset: -4px;
 }
 
 .toc--part[data-nesting-level="0"] .toc--row > .toc--link:first-child {
@@ -2047,14 +2062,6 @@ button.platform-tag:focus-visible {
   display: none;
 }
 
-.toc--part[data-active] > .toc--row::before {
-  background: var(--sidemenu-section-active-color);
-}
-
-.toc--part[data-active] > .toc--row > a {
-  color: var(--default-white);
-}
-
 .toc #nav-submenu {
   padding-left: 24px;
 }
@@ -2138,6 +2145,19 @@ button.platform-tag:focus-visible {
 .toc--icon.var::before {
   content: url(assets/field-variable.svg);
 }
+
+.toc--part[data-active] > .toc--row .toc--link, .toc--part[data-active] > .toc--row .toc--button {
+  color: var(--color-text-dt);
+  background-color: var(--color-key-blue);
+}
+
+.toc--part[data-active] > .toc--row .toc--link:hover, .toc--part[data-active] > .toc--row .toc--button:hover {
+  background-color: #578af7;
+}
+
+.toc--part[data-active] > .toc--row .toc--link::after, .toc--part[data-active] > .toc--row .toc--button::after {
+  filter: invert(0);
+}
 /*!
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */ /*!
@@ -2156,7 +2176,7 @@ button.platform-tag:focus-visible {
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
-  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-key-blue-50: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -2168,6 +2188,7 @@ button.platform-tag:focus-visible {
   --color-text-light: rgba(0, 0, 0, 0.7);
   --color-text-light-dt: rgba(255, 255, 255, 0.7);
   --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w08: rgba(255, 255, 255, 0.08);
   --color-w10: rgba(255, 255, 255, 0.1);
   --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
@@ -2257,7 +2278,7 @@ button.platform-tag:focus-visible {
 */
 :root {
   --color-key-blue: rgb(48, 127, 255);
-  --color-key-blue-05: rgb(48, 127, 255, 0.5);
+  --color-key-blue-50: rgb(48, 127, 255, 0.5);
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
@@ -2269,6 +2290,7 @@ button.platform-tag:focus-visible {
   --color-text-light: rgba(0, 0, 0, 0.7);
   --color-text-light-dt: rgba(255, 255, 255, 0.7);
   --color-w05: rgba(255, 255, 255, 0.05);
+  --color-w08: rgba(255, 255, 255, 0.08);
   --color-w10: rgba(255, 255, 255, 0.1);
   --color-w16: rgba(255, 255, 255, 0.16);
   --color-w50: rgba(255, 255, 255, 0.5);
@@ -2332,7 +2354,7 @@ button.platform-tag:focus-visible {
 
 :root {
   --color-background: var(--color-background-page);
-  --focus-outline: 4px solid var(--color-key-blue-05);
+  --focus-outline: 4px solid var(--color-key-blue-50);
 }
 
 .theme-dark {

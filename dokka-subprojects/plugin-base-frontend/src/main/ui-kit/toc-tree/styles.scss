@@ -5,7 +5,7 @@
 
 :root {
   --toc-hover-color: var(--color-b08);
-  --toc-font: 400 13px/20px var(--font-family-default);
+  --toc-font: 400 13px/24px var(--font-family-default);
   --toc-color: var(--color-text);
 }
 
@@ -87,13 +87,11 @@
 
     &:focus-visible {
       outline: var(--focus-outline);
+      outline-offset: -4px;
     }
   }
 
   &--link {
-    display: inline-flex;
-    align-items: center;
-
     box-sizing: border-box;
 
     width: 100%;
@@ -110,6 +108,7 @@
 
     &:focus-visible {
       outline: var(--focus-outline);
+      outline-offset: -4px;
     }
   }
 
@@ -134,14 +133,6 @@
   .filtered > a,
   .filtered > &--button {
     display: none;
-  }
-
-  &--part[data-active] > &--row::before {
-    background: var(--sidemenu-section-active-color);
-  }
-
-  &--part[data-active] > &--row > a {
-    color: var(--default-white);
   }
 
   #nav-submenu {
@@ -227,5 +218,21 @@
 
   &--icon.var::before {
     content: url('../_assets/nav-icons/field-variable.svg');
+  }
+}
+
+.toc--part[data-active] > .toc--row {
+  & .toc--link,
+  & .toc--button {
+    color: var(--color-text-dt);
+    background-color: var(--color-key-blue);
+
+    &:hover {
+      background-color: #578af7;
+    }
+
+    &::after {
+      filter: invert(0);
+    }
   }
 }
