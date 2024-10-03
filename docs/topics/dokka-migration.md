@@ -51,7 +51,7 @@ Ensure that your project meets the minimum version requirements:
 
 2. In the project's `gradle.properties` file, set the following opt-in flag with helpers to activate the new plugin version:
 
-   ```kotlin
+   ```properties
    org.jetbrains.dokka.experimental.gradle.pluginMode=V2EnabledWithHelpers
    ```
 
@@ -62,7 +62,6 @@ Ensure that your project meets the minimum version requirements:
    > If your project does not have a `gradle.properties` file, create one in the root directory of your project.
    >
    {style="tip"}
-
 
 3. Sync your project with Gradle to ensure the new plugin is properly applied:
 
@@ -148,6 +147,8 @@ options according to your project setup:
   documentedVisibilities.set(
       setOf(VisibilityModifier.Public)
   )
+  // or
+  documentedVisibilities(VisibilityModifier.Public)
   ```
 
 * **External documentation link:** The source link configuration has [changed](https://docs.gradle.org/current/userguide/upgrading_version_8.html#deprecated_invalid_url_decoding). 
@@ -156,13 +157,15 @@ options according to your project setup:
   Previous configuration:
   
     ```kotlin
-    remoteUrl.set(URL("https://github.com/your-repo"))   
+    remoteUrl.set(URL("https://github.com/your-repo"))
     ```
   
   New configuration:
   
     ```kotlin
-    remoteUrl.set(URI("https://github.com/your-repo"))  
+    remoteUrl.set(URI("https://github.com/your-repo"))
+    // OR
+    remoteUrl("https://github.com/your-repo")
     ```
 
 * **Custom assets:** The [`customAssets`](dokka-html.md#customize-assets) property now uses collections of files 
@@ -266,7 +269,7 @@ After setting up the `buildSrc` directory:
     }
    
     dokka {
-    // The shared configuration goes here
+        // The shared configuration goes here
     }
     ```
 
@@ -325,7 +328,7 @@ DGP v2 has renamed the Gradle tasks that generate the API documentation.
 
 Previous task:
 
-```kotlin
+```text
 ./gradlew dokkaHtml
     
 // OR
@@ -335,7 +338,7 @@ Previous task:
 
 New task:
 
-```kotlin
+```text
 ./gradlew :dokkaGenerate
 ```
 
@@ -355,7 +358,7 @@ to generate output in HTML, Javadoc or both HTML and Javadoc. For more informati
 The default output format for DGP v2 is HTML. However, you can choose to generate the API documentation in HTML, Javadoc, 
 or both formats at the same time:
 
-1. Place the corresponding plugin `id` in the `plugins{}` block of your project's `build.gradle.kts` file:
+1. Place the corresponding plugin `id` in the `plugins {}` block of your project's `build.gradle.kts` file:
 
    ```kotlin
    plugins {
@@ -379,7 +382,7 @@ Here's a list of the plugin `id` and Gradle task that correspond to each format:
 | Gradle task | `./gradlew :dokkaGenerateHtml` | `./gradlew :dokkaGenerateJavadoc`   | `./gradlew :dokkaGenerate`        |
 
 > The `dokkaGenerate` task generates documentation in all available formats based on the applied plugins. 
-> If both the HTML and Javadoc plugins are applied, you can choose to generate only HTML format by running the `dokkaGenerateHtml` task, 
+> If both the HTML and Javadoc plugins are applied, you can choose to generate only HTML by running the `dokkaGenerateHtml` task, 
 > or only Javadoc by running the `dokkaGenerateJavadoc` task.
 > 
 {style="tip"}
@@ -398,7 +401,7 @@ After you've migrated your project, perform these steps to wrap up and improve p
 
 After successful migration, set the following opt-in flag without helpers in the project's `gradle.properties` file:
 
-```kotlin
+```properties
 org.jetbrains.dokka.experimental.gradle.pluginMode=V2Enabled
 ```
 
