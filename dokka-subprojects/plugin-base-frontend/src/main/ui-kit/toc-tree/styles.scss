@@ -136,14 +136,6 @@
     display: none;
   }
 
-  &--part[data-active] > &--row::before {
-    background: var(--sidemenu-section-active-color);
-  }
-
-  &--part[data-active] > &--row > a {
-    color: var(--default-white);
-  }
-
   #nav-submenu {
     padding-left: 24px;
   }
@@ -227,5 +219,21 @@
 
   &--icon.var::before {
     content: url('../_assets/nav-icons/field-variable.svg');
+  }
+}
+
+.toc--part[data-active] > .toc--row {
+  & .toc--link,
+  & .toc--button {
+    color: var(--color-text-dt);
+    background-color: var(--color-key-blue);
+
+    &:hover {
+      background-color: #578af7;
+    }
+
+    &::after {
+      filter: invert(0);
+    }
   }
 }
