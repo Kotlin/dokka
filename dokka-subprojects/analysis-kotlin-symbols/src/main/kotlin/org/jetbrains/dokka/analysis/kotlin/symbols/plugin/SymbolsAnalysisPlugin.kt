@@ -42,7 +42,10 @@ public class SymbolsAnalysisPlugin : DokkaPlugin() {
     }
 
     internal val disposeKotlinAnalysisPostAction by extending {
-        CoreExtensions.postActions with PostAction { querySingle { kotlinAnalysis }.close() }
+        CoreExtensions.postActions with PostAction {
+            querySingle { kotlinAnalysis }.close()
+            javaAnalysisPlugin.disposeGlobalStandaloneApplicationServices()
+        }
     }
 
     internal val symbolToDocumentableTranslator by extending {
