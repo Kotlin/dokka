@@ -10,7 +10,7 @@ The Dokka Gradle plugin (DGP) is a tool for generating comprehensive API documen
 DGP seamlessly processes both Kotlin's KDoc comments and Java's Javadoc comments to extract information and create 
 structured documentation in [HTML or Javadoc](#select-documentation-output-format) format.
 
-Starting with Dokka 2.0.0, you can try the Dokka Gradle plugin v2, the new version of DGP. With Dokka 2.0.0, you can use
+Starting with Dokka 2.0.0-Beta, you can try the Dokka Gradle plugin v2, the new version of DGP. With Dokka 2.0.0-Beta, you can use
 the Dokka Gradle plugin either in v1 or v2 modes.
 
 DGP v2 introduces significant improvements to DGP, aligning more closely with Gradle best practices:
@@ -38,12 +38,12 @@ Ensure that your project meets the minimum version requirements:
 
 ### Enable the new Dokka Gradle plugin
 
-1. Update the Dokka version to 2.0.0 in the `plugins {}` block of your project’s `build.gradle.kts` file:
+1. Update the Dokka version to 2.0.0-Beta in the `plugins {}` block of your project’s `build.gradle.kts` file:
 
    ```kotlin
    plugins {
        kotlin("jvm") version "1.9.25"
-       id("org.jetbrains.dokka") version "2.0.0"
+       id("org.jetbrains.dokka") version "2.0.0-Beta"
    }
    ```
 
@@ -249,7 +249,7 @@ set up the convention plugin, and then apply the plugin to your modules (subproj
     }
     
     dependencies {
-        implementation("org.jetbrains.dokka:dokka-gradle-plugin:2.0.0")
+        implementation("org.jetbrains.dokka:dokka-gradle-plugin:2.0.0-Beta")
     }   
     ```
 
@@ -360,10 +360,10 @@ or both formats at the same time:
    ```kotlin
    plugins {
        // Generates HTML documentation
-       id("org.jetbrains.dokka") version "2.0.0"
+       id("org.jetbrains.dokka") version "2.0.0-Beta"
        
        // Generates Javadoc documentation
-       id("org.jetbrains.dokka-javadoc") version "2.0.0"
+       id("org.jetbrains.dokka-javadoc") version "2.0.0-Beta"
    
        // Keeping both plugin IDs generates both formats
    }
@@ -386,7 +386,7 @@ Here's a list of the plugin `id` and Gradle task that correspond to each format:
 
 ### Address deprecations and removals
 
-* **Output format support:** Dokka 2.0.0 only supports HTML and Javadoc output. Experimental formats like Markdown and Jekyll are no longer supported.
+* **Output format support:** Dokka 2.0.0-Beta only supports HTML and Javadoc output. Experimental formats like Markdown and Jekyll are no longer supported.
 * **Collector task:** `DokkaCollectorTask` has been removed. Now, you need to generate the documentation separately for
   each subproject and then [aggregate the documentation](#update-documentation-aggregation-in-multi-module-projects) if necessary.
 
