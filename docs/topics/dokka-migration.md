@@ -51,7 +51,7 @@ Ensure that your project meets the minimum version requirements:
 
 2. In the project's `gradle.properties` file, set the following opt-in flag with helpers to activate the new plugin version:
 
-   ```properties
+   ```text
    org.jetbrains.dokka.experimental.gradle.pluginMode=V2EnabledWithHelpers
    ```
 
@@ -156,13 +156,13 @@ options according to your project setup:
 
   Previous configuration:
   
-    ```kotlin
+    ```text
     remoteUrl.set(URL("https://github.com/your-repo"))
     ```
   
   New configuration:
   
-    ```kotlin
+    ```text
     remoteUrl.set(URI("https://github.com/your-repo"))
     // OR
     remoteUrl("https://github.com/your-repo")
@@ -174,13 +174,13 @@ options according to your project setup:
 
   Previous configuration:
 
-    ```kotlin
+    ```text
     customAssets = listOf(file("example.png"), file("example2.png"))   
     ```
 
   New configuration:
 
-    ```kotlin
+    ```text
     customAssets.from("example.png", "example2.png")
     ```
 
@@ -235,7 +235,7 @@ set up the convention plugin, and then apply the plugin to your modules (subproj
    
 2. In the `buildSrc/settings.gradle.kts` file, add the following snippet:
    
-   ```kotlin
+   ```text
    rootProject.name = "buildSrc"
    ```
 
@@ -401,7 +401,7 @@ After you've migrated your project, perform these steps to wrap up and improve p
 
 After successful migration, set the following opt-in flag without helpers in the project's `gradle.properties` file:
 
-```properties
+```text
 org.jetbrains.dokka.experimental.gradle.pluginMode=V2Enabled
 ```
 
