@@ -60,10 +60,24 @@ constructor(
     abstract val moduleVersion: Property<String>
 
     /**
-     * A distinct relative path for the Dokka Module produced by the current project.
+     * Control the subdirectory used for files when aggregating this project as a Dokka Module into a Dokka Publication.
      *
-     * Used in Dokka Publications to ensure the files produced by every Dokka Modules
-     * are in their own separate directories.
+     * When Dokka performs aggregation the files from each Module must be placed into separate
+     * subdirectories, within the Publication directory.
+     * The subdirectory used for this project's Module can be specified with this property.
+     *
+     * Overriding this value can be useful for fine-grained control.
+     * - Setting an explicit path can help ensure that external hyperlinks to the Publication are stable,
+     *   regardless of how the current Gradle project is structured.
+     * - The path can also be made more specific, which is useful for
+     *   [Composite Builds](https://docs.gradle.org/current/userguide/composite_builds.html),
+     *   which can be more likely to cause Module clashes.
+     *   (The default value is distinct for a single Gradle build. With composite builds the project paths may not be distinct.)
+     *   See the [Composite Build Example](https://github.com/Kotlin/dokka/tree/v2.0.0-Beta/examples/gradle-v2/composite-build-example#distinct-module-paths).
+     *
+     * **Important:** Care must be taken to make sure multiple Dokka Modules do not have the same paths.
+     * If paths overlap then Dokka could overwrite the Modules files during aggregation,
+     * resulting in a corrupted Publication.
      *
      * Default: the current project's path ([org.gradle.api.Project.getPath]) as a file path.
      */
