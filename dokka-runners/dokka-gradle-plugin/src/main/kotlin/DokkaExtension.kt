@@ -11,7 +11,6 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Nested
 import org.gradle.kotlin.dsl.newInstance
-import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.gradle.dependencies.BaseDependencyManager
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.formats.DokkaPublication
@@ -148,14 +147,12 @@ constructor(
      * }
      * ```
      *
-     * _Aside: Launching [without isolation][WorkerExecutor.noIsolation] is not an option, because
-     * running Dokka Generator **requires** an isolated classpath._
-     *
      * @see WorkerIsolation
      * @see org.jetbrains.dokka.gradle.workers.ProcessIsolation
      * @see org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
-     *
      */
+    // Aside: Launching without isolation WorkerExecutor.noIsolation is not an option, because
+    // running Dokka Generator **requires** an isolated classpath.
     @get:Nested
     abstract val dokkaGeneratorIsolation: Property<WorkerIsolation>
 
