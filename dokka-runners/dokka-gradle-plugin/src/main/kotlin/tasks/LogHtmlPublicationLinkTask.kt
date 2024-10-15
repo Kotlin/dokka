@@ -12,8 +12,8 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.UntrackedTask
 import org.gradle.kotlin.dsl.of
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.pluginFeaturesService
 import org.jetbrains.dokka.gradle.internal.appendPath
-import org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask.Companion.ENABLE_TASK_PROPERTY_NAME
 import org.slf4j.LoggerFactory
 import java.net.HttpURLConnection
 import java.net.URI
@@ -28,8 +28,8 @@ import javax.inject.Inject
  * [IntelliJ's built-in server](https://www.jetbrains.com/help/phpstorm/php-built-in-web-server.html#ws_html_preview_output_built_in_browser)†
  * to host the file.
  *
- *
- * This task can be disabled using the [ENABLE_TASK_PROPERTY_NAME] project property.
+ * This task can be disabled via a Gradle property.
+ * See [org.jetbrains.dokka.gradle.internal.PluginFeaturesService.enableLogHtmlPublicationLink].
  *
  * ---
  *
@@ -88,18 +88,9 @@ constructor(
         // to display this task prominently.
         group = "other"
 
-        val serverActive = providers.of(ServerActiveCheck::class) {
-            parameters.uri.convention(serverUri)
-        }
-        super.onlyIf("server URL is reachable") { serverActive.get() }
-
-        val logHtmlPublicationLinkTaskEnabled = providers
-            .gradleProperty(ENABLE_TASK_PROPERTY_NAME)
-            .map(String::toBoolean)
-            .orElse(true)
-
-        super.onlyIf("task is enabled via property") {
-            logHtmlPublicationLinkTaskEnabled.get()
+        val enableLogHtmlPublicationLink = project.pluginFeaturesService.enableLogHtmlPublicationLink
+        super.onlyIf("task is enabled via 'enableLogHtmlPublicationLink' property") {
+            enableLogHtmlPublicationLink.get()
         }
 
         super.onlyIf("${::serverUri.name} is present") {
@@ -109,6 +100,11 @@ constructor(
         super.onlyIf("${::indexHtmlPath.name} is present") {
             !indexHtmlPath.orNull.isNullOrBlank()
         }
+
+        val serverActive = providers.of(ServerActiveCheck::class) {
+            parameters.uri.convention(serverUri)
+        }
+        super.onlyIf("server URL is reachable") { serverActive.get() }
     }
 
     @TaskAction
@@ -194,24 +190,5 @@ constructor(
 //        }
     }
 
-    companion object {
-        /**
-         * Control whether the [LogHtmlPublicationLinkTask] task is enabled. Useful for disabling the
-         * task locally, or in CI/CD, or for tests.
-         *
-         * It can be set in any `gradle.properties` file. For example, on a specific machine:
-         *
-         * ```properties
-         * # $GRADLE_USER_HOME/gradle.properties
-         * org.jetbrains.dokka.gradle.enabledLogHtmlPublicationLink=false
-         * ```
-         *
-         * or via an environment variable
-         *
-         * ```env
-         * ORG_GRADLE_PROJECT_org.jetbrains.dokka.gradle.enabledLogHtmlPublicationLink=false
-         * ```
-         */
-        const val ENABLE_TASK_PROPERTY_NAME = "org.jetbrains.dokka.gradle.enableLogHtmlPublicationLink"
-    }
+    companion object
 }
