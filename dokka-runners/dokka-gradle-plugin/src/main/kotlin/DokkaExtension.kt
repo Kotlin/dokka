@@ -142,11 +142,49 @@ constructor(
 
     /**
      * Dokka Gradle Plugin runs Dokka Generator in a separate
-     * [Gradle Worker](https://docs.gradle.org/8.5/userguide/worker_api.html).
+     * [Gradle Worker](https://docs.gradle.org/8.10/userguide/worker_api.html).
      *
-     * You can control whether Dokka Gradle Plugin launches Dokka Generator in
-     * - a new process, using [ProcessIsolation],
-     * - or the current process with an isolated classpath, using [ClassLoaderIsolation].
+     * DGP uses a Worker to ensure that the Java classpath required by Dokka Generator
+     * is kept separate from the Gradle buildscript classpath, ensuring that dependencies
+     * required for running Gradle builds don't interfere with those needed to run Dokka.
+     *
+     * #### Worker modes
+     *
+     * DGP can launch the Generator in one of two Worker modes.
+     *
+     * The Worker modes are used to optimise the performance of a Gradle build,
+     * especially concerning the memory requirements.
+     *
+     * ##### [ProcessIsolation]
+     *
+     * The maximum isolation level. Dokka Generator is executed in a separate Java process,
+     * managed by Gradle.
+     *
+     * The Java process parameters (such as JVM args and system properties) can be configured precisely,
+     * and independently of other Gradle processes.
+     *
+     * Process isolation is best suited for projects where Dokka requires a lot more, or less,
+     * memory than other Gradle tasks that are run more frequently.
+     * This is usually the case for smaller projects, or those with default or low
+     * [Gradle Daemon](https://docs.gradle.org/8.10/userguide/gradle_daemon.html)
+     * memory settings.
+     *
+     * When the more frequent tasks are run, Gradle can use the default or lower memory requirements,
+     * and when Dokka is run then Gradle can request more memory. The result is better build performance.
+     *
+     * ##### [ClassLoaderIsolation]
+     *
+     * Dokka Generator is run in the current Gradle Daemon process, in a new thread with an isolated classpath.
+     *
+     * Classloader isolation is best suited for projects that already have high Gradle Daemon memory requirements.
+     * This is usually the case for very large projects, especially Kotlin Multiplatform projects.
+     * These projects will typically also require a lot of memory to running Dokka Generator.
+     *
+     * If the Gradle Daemon already uses a large amount of memory, it is beneficial to run Dokka Generator
+     * in the same Daemon process. Running Dokka Generator inside the Daemon avoids launching
+     * two Java processes on the same machine, both with high memory requirements.
+     *
+     * #### Example configuration
      *
      * ```kotlin
      * dokka {
