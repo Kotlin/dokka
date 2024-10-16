@@ -147,8 +147,17 @@ options according to your project setup:
   documentedVisibilities.set(
       setOf(VisibilityModifier.Public)
   )
+  
   // or
+  
   documentedVisibilities(VisibilityModifier.Public)
+  ```
+
+  Additionally, DGP v2 has a [utility function](https://github.com/Kotlin/dokka/blob/220922378e6c68eb148fda2ec80528a1b81478c9/dokka-runners/dokka-gradle-plugin/src/main/kotlin/engine/parameters/HasConfigurableVisibilityModifiers.kt#L14-L16) for adding documented visibilities:
+ 
+  ```kotlin
+  fun documentedVisibilities(vararg visibilities: VisibilityModifier): Unit =
+      documentedVisibilities.set(visibilities.asList()) 
   ```
 
 * **External documentation link:** The source link configuration has [changed](https://docs.gradle.org/current/userguide/upgrading_version_8.html#deprecated_invalid_url_decoding). 
@@ -156,17 +165,33 @@ options according to your project setup:
 
   Previous configuration:
   
-    ```text
+    ```kotlin
     remoteUrl.set(URL("https://github.com/your-repo"))
     ```
   
   New configuration:
   
-    ```text
+    ```kotlin
     remoteUrl.set(URI("https://github.com/your-repo"))
-    // OR
+    
+    // or
+    
     remoteUrl("https://github.com/your-repo")
     ```
+
+  Additionally, DGP v2 has two [utility functions](https://github.com/Kotlin/dokka/blob/220922378e6c68eb148fda2ec80528a1b81478c9/dokka-runners/dokka-gradle-plugin/src/main/kotlin/engine/parameters/DokkaSourceLinkSpec.kt#L82-L96) 
+  for setting the URL:
+
+  ```kotlin
+  fun remoteUrl(@Language("http-url-reference") value: String): Unit =
+      remoteUrl.set(URI(value))
+  
+  // and
+  
+  fun remoteUrl(value: Provider<String>): Unit =
+      remoteUrl.set(value.map(::URI))
+  ```
+
 
 * **Custom assets:** The [`customAssets`](dokka-html.md#customize-assets) property now uses collections of files 
   ([`FileCollection`)](https://docs.gradle.org/8.10/userguide/lazy_configuration.html#working_with_files_in_lazy_properties) 
@@ -174,13 +199,13 @@ options according to your project setup:
 
   Previous configuration:
 
-    ```text
+    ```kotlin
     customAssets = listOf(file("example.png"), file("example2.png"))   
     ```
 
   New configuration:
 
-    ```text
+    ```kotlin
     customAssets.from("example.png", "example2.png")
     ```
 
@@ -235,7 +260,7 @@ set up the convention plugin, and then apply the plugin to your modules (subproj
    
 2. In the `buildSrc/settings.gradle.kts` file, add the following snippet:
    
-   ```text
+   ```kotlin
    rootProject.name = "buildSrc"
    ```
 
@@ -331,7 +356,7 @@ Previous task:
 ```text
 ./gradlew dokkaHtml
     
-// OR
+// or
 
 ./gradlew dokkaHtmlMultiModule
 ```
