@@ -48,8 +48,8 @@ class DokkaSourceSetBuilderTest : FunSpec({
             val samplesSubFile = samplesDir.subdirWithFile().createFile()
 
             val rootsDir = tempDir.resolve("roots").ensureDirExists()
-            val rootsFile = rootsDir.resolve("test-file").createFile()
-            val rootsSubFile = rootsDir.subdirWithFile().createFile()
+            rootsDir.resolve("test-file").createFile()
+            rootsDir.subdirWithFile().createFile()
 
             val suppressedDir = tempDir.resolve("suppressed").ensureDirExists()
             val suppressedFile = suppressedDir.resolve("test-file").createFile()
@@ -69,7 +69,7 @@ class DokkaSourceSetBuilderTest : FunSpec({
             sourceSet.classpath shouldContainExactlyInAnyOrder listOf(classpathFile, classpathSubFile)
             sourceSet.includes shouldContainExactlyInAnyOrder listOf(includesFile, includesSubFile)
             sourceSet.samples shouldContainExactlyInAnyOrder listOf(samplesFile, samplesSubFile)
-            sourceSet.sourceRoots shouldContainExactlyInAnyOrder listOf(rootsFile, rootsSubFile)
+            sourceSet.sourceRoots shouldContainExactlyInAnyOrder listOf(rootsDir)
             sourceSet.suppressedFiles shouldContainExactlyInAnyOrder listOf(suppressedFile, suppressedSubFile)
         }
     }
