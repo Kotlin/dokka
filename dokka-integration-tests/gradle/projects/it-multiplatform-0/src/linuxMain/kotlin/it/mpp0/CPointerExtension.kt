@@ -6,6 +6,6 @@ import kotlinx.cinterop.CPointer
 /**
  * Will print the raw value
  */
-fun CPointer<CPointed>.customExtension() {
+fun CPointer<CPointed>.customExtension2() {
     println(this.rawValue)
 }
