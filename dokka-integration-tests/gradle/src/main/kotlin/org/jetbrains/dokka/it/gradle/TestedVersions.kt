@@ -14,7 +14,7 @@ open class AllSupportedTestedVersionsArgumentsProvider : TestedVersionsArguments
 
 object TestedVersions {
 
-    val LATEST = BuildVersions("8.7", "2.0.20")
+    val LATEST = BuildVersions("8.10.2", "2.1.0-Beta2")
 
     /**
      * All supported Gradle/Kotlin versions, including [LATEST]
@@ -24,10 +24,10 @@ object TestedVersions {
     val ALL_SUPPORTED =
         BuildVersions.permutations(
             gradleVersions = listOf("7.6.2"),
-            kotlinVersions = listOf("1.9.23", "1.8.20", "1.7.20", "1.6.21", "1.5.31"),
+            kotlinVersions = listOf("2.0.21", "1.9.23", "1.8.20", "1.7.20", "1.6.21", "1.5.31"),
         ) + BuildVersions.permutations(
             gradleVersions = listOf(*ifExhaustive("7.0", "6.1.1")),
-            kotlinVersions = listOf(*ifExhaustive( "1.8.0", "1.7.0", "1.6.0", "1.5.0"))
+            kotlinVersions = listOf(*ifExhaustive("1.8.0", "1.7.0", "1.6.0", "1.5.0"))
         ) + LATEST
 
     /**
@@ -41,7 +41,7 @@ object TestedVersions {
     val ANDROID =
         BuildVersions.permutations(
             gradleVersions = listOf("8.4"),
-            kotlinVersions = listOf("2.0.20"),
+            kotlinVersions = listOf("2.1.0-Beta2", "2.0.21"),
             androidGradlePluginVersions = listOf("8.3.0")
         ) + BuildVersions.permutations(
             gradleVersions = listOf("7.4.2", *ifExhaustive("7.0")),
@@ -67,7 +67,8 @@ object TestedVersions {
         "1.9.10" to "18.2.0-pre.597",
         "1.9.23" to "18.2.0-pre.682",
         "2.0.0" to "18.2.0-pre.726",
-        "2.0.20" to "18.3.1-pre.758",
+        "2.0.21" to "18.3.1-pre.758",
+        "2.1.0-Beta2" to "18.3.1-pre.818",
     )
 }
 
