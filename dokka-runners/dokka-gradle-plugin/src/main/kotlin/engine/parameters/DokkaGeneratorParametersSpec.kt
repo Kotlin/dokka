@@ -94,6 +94,7 @@ constructor(
     abstract val moduleOutputDirectories: ConfigurableFileCollection
 
     /** @see org.jetbrains.dokka.gradle.formats.DokkaPublication.finalizeCoroutines */
+    @InternalDokkaGradlePluginApi
     @get:Input
     abstract val finalizeCoroutines: Property<Boolean>
 }
