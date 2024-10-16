@@ -71,7 +71,7 @@ constructor(
      *   regardless of how the current Gradle project is structured.
      * - The path can also be made more specific, which is useful for
      *   [Composite Builds](https://docs.gradle.org/current/userguide/composite_builds.html),
-     *   which can be more likely to cause Module clashes.
+     *   which can be more likely to cause path clashes.
      *   (The default value is distinct for a single Gradle build. With composite builds the project paths may not be distinct.)
      *   See the [Composite Build Example](https://github.com/Kotlin/dokka/tree/v2.0.0-Beta/examples/gradle-v2/composite-build-example#distinct-module-paths).
      *
@@ -104,11 +104,34 @@ constructor(
     abstract val konanHome: RegularFileProperty
 
     /**
-     * Configuration for creating Dokka Publications.
+     * The container for all [DokkaPublication]s in the current project.
      *
-     * Each publication will generate one Dokka site based on the included Dokka Source Sets.
+     * Each Dokka Publication will generate one complete Dokka site,
+     * aggregated from one or more Dokka Modules.
      *
      * The type of site is determined by the Dokka Plugins. By default, an HTML site will be generated.
+     *
+     * #### Configuration
+     *
+     * To configure a specific Dokka Publications, select it by name:
+     *
+     * ```
+     * dokka {
+     *   dokkaPublications.named("html") {
+     *     // ...
+     *   }
+     * }
+     * ```
+     *
+     * All configurations can be configured using `.configureEach {}`:
+     *
+     * ```
+     * dokka {
+     *   dokkaPublications.configureEach {
+     *     // ...
+     *   }
+     * }
+     * ```
      */
     val dokkaPublications: NamedDomainObjectContainer<DokkaPublication> =
         extensions.adding(
@@ -117,9 +140,38 @@ constructor(
         )
 
     /**
-     * Dokka Source Sets describe the source code that should be included in the generated output.
+     * The container for all [DokkaSourceSet][DokkaSourceSetSpec]s in the current project.
+     *
+     * Each `DokkaSourceSet` is analogous to a [SourceSet][org.gradle.api.tasks.SourceSet],
+     * and specifies how Dokka will convert the project's source code into documentation.
+     *
+     * Dokka will automatically discover the current source sets in the project and create
+     * a `DokkaSourceSet` for each. For example, in a Kotlin Multiplatform project Dokka
+     * will create `DokkaSourceSet`s for `commonMain`, `jvmMain` etc.
      *
      * Dokka will not generate documentation unless there is at least there is at least one Dokka Source Set.
+     *
+     * #### Configuration
+     *
+     * To configure a specific Dokka Source Set, select it by name:
+     *
+     * ```
+     * dokka {
+     *   dokkaSourceSets.named("commonMain") {
+     *     // ...
+     *   }
+     * }
+     * ```
+     *
+     * All Source Sets can be configured using `.configureEach {}`:
+     *
+     * ```
+     * dokka {
+     *   dokkaSourceSets.configureEach {
+     *     // ...
+     *   }
+     * }
+     * ```
      */
     val dokkaSourceSets: NamedDomainObjectContainer<DokkaSourceSetSpec> =
         extensions.adding("dokkaSourceSets", objects.domainObjectContainer())
