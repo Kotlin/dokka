@@ -356,7 +356,7 @@ private class KotlinCompilationDetailsBuilder(
                 // Konan library files for a specific target
                 dependencies.from(
                     konanDistribution.platformLibsDir
-                        .resolve(compilation.target.name)
+                        .resolve(compilation.konanTarget.name)
                         .listFiles()
                         .orEmpty()
                         .filter { it.isDirectory || it.extension == "klib" }
