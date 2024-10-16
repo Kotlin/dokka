@@ -30,13 +30,14 @@ jobs:
           develocity-access-key: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
       - name: Run tests
         run: >
-          ./gradlew test --stacktrace --continue
+          ./gradlew check --stacktrace --continue
+          "-Porg.jetbrains.dokka.integration_test.skip=true"
           "-Porg.jetbrains.dokka.javaToolchain.testLauncher=${{ matrix.javaVersion }}"
       - name: Upload build reports
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-           name: build-reports-${{ runner.os }}-${{ github.action }}-${{ github.run_id }}
+           name: build-reports-${{ runner.os }}-${{ matrix.javaVersion }}-${{ github.action }}-${{ github.run_id }}
            path: |
               **/build/reports/
               **/*.hprof

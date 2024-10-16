@@ -91,6 +91,8 @@ public abstract class org/jetbrains/dokka/gradle/DokkaExtension : java/io/Serial
 	public abstract fun getModuleVersion ()Lorg/gradle/api/provider/Property;
 	public final fun getPluginsConfiguration ()Lorg/gradle/api/ExtensiblePolymorphicDomainObjectContainer;
 	public abstract fun getSourceSetScopeDefault ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSuppressInheritedMembers ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSuppressObviousFunctions ()Lorg/gradle/api/provider/Property;
 }
 
 public abstract interface class org/jetbrains/dokka/gradle/DokkaMultiModuleFileLayout {
@@ -298,6 +300,9 @@ public abstract class org/jetbrains/dokka/gradle/engine/parameters/DokkaSourceSe
 	public abstract fun getJdkVersion ()Lorg/gradle/api/provider/Property;
 	public abstract fun getLanguageVersion ()Lorg/gradle/api/provider/Property;
 	public fun getName ()Ljava/lang/String;
+	public abstract fun getNoAndroidSdkLink ()Lorg/gradle/api/provider/Property;
+	public abstract fun getNoJdkLink ()Lorg/gradle/api/provider/Property;
+	public abstract fun getNoStdlibLink ()Lorg/gradle/api/provider/Property;
 	public abstract fun getPerPackageOptions ()Lorg/gradle/api/DomainObjectSet;
 	public abstract fun getReportUndocumented ()Lorg/gradle/api/provider/Property;
 	public abstract fun getSamples ()Lorg/gradle/api/file/ConfigurableFileCollection;
@@ -551,7 +556,6 @@ public abstract class org/jetbrains/dokka/gradle/tasks/DokkaGenerateTask : org/j
 
 public abstract class org/jetbrains/dokka/gradle/tasks/LogHtmlPublicationLinkTask : org/jetbrains/dokka/gradle/tasks/DokkaBaseTask {
 	public static final field Companion Lorg/jetbrains/dokka/gradle/tasks/LogHtmlPublicationLinkTask$Companion;
-	public static final field ENABLE_TASK_PROPERTY_NAME Ljava/lang/String;
 	public final fun exec ()V
 	public abstract fun getIndexHtmlPath ()Lorg/gradle/api/provider/Property;
 	public abstract fun getServerUri ()Lorg/gradle/api/provider/Property;

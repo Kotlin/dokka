@@ -4,13 +4,15 @@
 package org.jetbrains.dokka.gradle.utils
 
 import org.gradle.api.Project
-import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.V2_PLUGIN_ENABLED_FLAG
-import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.V2_PLUGIN_NO_WARN_FLAG
 
 fun Project.enableV2Plugin(
+    v2MigrationHelpers: Boolean = true,
     suppressV2Message: Boolean = true
 ): Project {
-    extensions.extraProperties.set(V2_PLUGIN_ENABLED_FLAG, true)
-    extensions.extraProperties.set(V2_PLUGIN_NO_WARN_FLAG, suppressV2Message)
+    extensions.extraProperties.set(
+        "org.jetbrains.dokka.experimental.gradle.pluginMode",
+        if (v2MigrationHelpers) "V2EnabledWithHelpers" else "V2Enabled",
+    )
+    extensions.extraProperties.set("org.jetbrains.dokka.experimental.gradle.pluginMode.noWarn", suppressV2Message)
     return this
 }
