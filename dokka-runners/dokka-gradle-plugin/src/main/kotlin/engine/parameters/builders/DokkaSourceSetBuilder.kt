@@ -73,11 +73,11 @@ internal object DokkaSourceSetBuilder {
             sourceSetID = build(spec.sourceSetId.get()),
 
             // files
-            classpath = spec.classpath.files.toList(),
-            includes = spec.includes.files,
-            samples = spec.samples.files,
-            sourceRoots = spec.sourceRoots.files,
-            suppressedFiles = spec.suppressedFiles.files,
+            classpath = spec.classpath.asFileTree.files.toList(),
+            includes = spec.includes.asFileTree.files,
+            samples = spec.samples.asFileTree.files,
+            sourceRoots = spec.sourceRoots.asFileTree.files,
+            suppressedFiles = spec.suppressedFiles.asFileTree.files,
         )
     }
 
