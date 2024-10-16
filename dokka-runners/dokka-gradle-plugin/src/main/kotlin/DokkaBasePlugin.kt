@@ -226,7 +226,7 @@ constructor(
                 }
 
                 maybeCreate("jdk") {
-                    enabled.convention(this@dss.enableJdkDocumentationLink)
+                    enabled.set(this@dss.enableJdkDocumentationLink)
                     url(this@dss.jdkVersion.map { jdkVersion ->
                         when {
                             jdkVersion < 11 -> "https://docs.oracle.com/javase/${jdkVersion}/docs/api/"
@@ -242,17 +242,17 @@ constructor(
                 }
 
                 maybeCreate("kotlinStdlib") {
-                    enabled.convention(this@dss.enableKotlinStdLibDocumentationLink)
+                    enabled.set(this@dss.enableKotlinStdLibDocumentationLink)
                     url("https://kotlinlang.org/api/latest/jvm/stdlib/")
                 }
 
                 maybeCreate("androidSdk") {
-                    enabled.convention(this@dss.enableAndroidDocumentationLink)
+                    enabled.set(this@dss.enableAndroidDocumentationLink)
                     url("https://developer.android.com/reference/kotlin/")
                 }
 
                 maybeCreate("androidX") {
-                    enabled.convention(this@dss.enableAndroidDocumentationLink)
+                    enabled.set(this@dss.enableAndroidDocumentationLink)
                     url("https://developer.android.com/reference/kotlin/")
                     packageListUrl("https://developer.android.com/reference/kotlin/androidx/package-list")
                 }
