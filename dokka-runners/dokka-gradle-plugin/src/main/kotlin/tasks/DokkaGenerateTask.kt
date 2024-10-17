@@ -66,6 +66,7 @@ constructor(
     @get:Classpath
     abstract val runtimeClasspath: ConfigurableFileCollection
 
+    /** @see org.jetbrains.dokka.gradle.formats.DokkaPublication.cacheRoot */
     @get:LocalState
     abstract val cacheDirectory: DirectoryProperty
 
@@ -87,6 +88,10 @@ constructor(
     @get:Nested
     abstract val workerIsolation: Property<WorkerIsolation>
 
+    /**
+     * All [org.jetbrains.dokka.DokkaGenerator] logs will be saved to this file.
+     * This can be used for debugging purposes.
+     */
     @get:Internal
     abstract val workerLogFile: RegularFileProperty
 

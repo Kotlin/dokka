@@ -55,8 +55,14 @@ constructor(
      * Example:
      *
      * ```kotlin
-     * java.net.URI("https://kotlinlang.org/api/kotlinx.serialization/")
+     * url.set(java.net.URI("https://kotlinlang.org/api/kotlinx.serialization/"))
+     *
+     * // OR
+     *
+     * url("https://kotlinlang.org/api/kotlinx.serialization/")
      * ```
+     *
+     * @see url
      */
     @get:Input
     abstract val url: Property<URI>
@@ -65,6 +71,7 @@ constructor(
      * Set the value of [url].
      *
      * @param[value] will be converted to a [URI]
+     * @see url
      */
     fun url(@Language("http-url-reference") value: String): Unit =
         url.set(URI(value))
@@ -73,6 +80,7 @@ constructor(
      * Set the value of [url].
      *
      * @param[value] will be converted to a [URI]
+     * @see url
      */
     fun url(value: Provider<String>): Unit =
         url.set(value.map(::URI))
@@ -84,7 +92,7 @@ constructor(
      * Example:
      *
      * ```kotlin
-     * rootProject.projectDir.resolve("serialization.package.list").toURL()
+     * packageListUrl.set(rootProject.projectDir.resolve("serialization.package.list").toURI())
      * ```
      */
     @get:Input

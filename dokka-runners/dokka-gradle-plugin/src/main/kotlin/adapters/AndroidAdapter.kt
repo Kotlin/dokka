@@ -27,6 +27,12 @@ import org.jetbrains.dokka.gradle.internal.artifactType
 import java.io.File
 import javax.inject.Inject
 
+/**
+ * Discovers Android Gradle Plugin specific configuration and uses it to configure Dokka.
+ *
+ * This is an internal Dokka plugin and should not be used externally.
+ * It is not a standalone plugin, it requires [org.jetbrains.dokka.gradle.DokkaBasePlugin] is also applied.
+ */
 @DokkaInternalApi
 abstract class AndroidAdapter @Inject constructor(
     private val objects: ObjectFactory,

@@ -101,13 +101,20 @@ class FormatDependenciesManager(
     //endregion
 
     //region Dokka Plugins for Publication Generation
+    /**
+     * Plugins specifically used to generate a Dokka Publication for a specific format (named [formatName]).
+     */
     private val dokkaPublicationPluginClasspath: NamedDomainObjectProvider<Configuration> =
         project.configurations.register(configurationNames.publicationPluginClasspath) {
-            description = "Dokka Plugins classpath for a $formatName Publication (consisting of one or more Dokka Modules)."
+            description =
+                "Dokka Plugins classpath for a $formatName Publication (consisting of one or more Dokka Modules)."
             declarable()
             extendsFrom(baseDependencyManager.declaredDependencies)
         }
 
+    /**
+     * Resolver for [dokkaPublicationPluginClasspath].
+     */
     val dokkaPublicationPluginClasspathResolver: Configuration =
         project.configurations.create(configurationNames.publicationPluginClasspathResolver) {
             description =
@@ -121,17 +128,28 @@ class FormatDependenciesManager(
             }
         }
 
+    /**
+     * Expose Dokka Publication Plugins required to create a Dokka Publication that aggregates a Dokka Module
+     * from the same dependency.
+     *
+     * For example, given a project `:lib-gamma` that is aggregated into subproject `:docs`.
+     * If `:lib-gamma` requires that a custom Dokka plugin is used _only_ when aggregating, then `:lib-gamma`
+     * can add the custom Dokka plugin into [dokkaPublicationPluginClasspathApiOnly].
+     * The plugin will only be used by `:docs`, and _not_ by `lib-gamma`.
+     *
+     * This is currently used to support HTML aggregation, using the 'All Modules plugin'.
+     */
     val dokkaPublicationPluginClasspathApiOnly: Configuration =
         project.configurations.create(configurationNames.publicationPluginClasspathApiOnly) {
             description =
-                "$INTERNAL_CONF_DESCRIPTION_TAG Dokka Plugins for consumers that will assemble a $formatName Publication using the Dokka Module that this project produces"
+                "$INTERNAL_CONF_DESCRIPTION_TAG Dokka Plugins for consumers that will assemble a $formatName Publication using the Dokka Module that this project produces."
             declarable()
         }
 
     init {
         project.configurations.create(configurationNames.publicationPluginClasspathApiOnlyConsumable) {
             description =
-                "$INTERNAL_CONF_DESCRIPTION_TAG Shared Dokka Plugins for consumers that will assemble a $formatName Publication using the Dokka Module that this project produces"
+                "$INTERNAL_CONF_DESCRIPTION_TAG Shared Dokka Plugins for consumers that will assemble a $formatName Publication using the Dokka Module that this project produces."
             consumable()
             extendsFrom(dokkaPublicationPluginClasspathApiOnly)
             attributes {
