@@ -73,7 +73,7 @@ constructor(
      *   [Composite Builds](https://docs.gradle.org/current/userguide/composite_builds.html),
      *   which can be more likely to cause path clashes.
      *   (The default value is distinct for a single Gradle build. With composite builds the project paths may not be distinct.)
-     *   See the [Composite Build Example](https://github.com/Kotlin/dokka/tree/v2.0.0-Beta/examples/gradle-v2/composite-build-example#distinct-module-paths).
+     *   See the [Composite Build Example](https://kotl.in/dokka/examples/gradle-composite-build).
      *
      * **Important:** Care must be taken to make sure multiple Dokka Modules do not have the same paths.
      * If paths overlap then Dokka could overwrite the Modules files during aggregation,
