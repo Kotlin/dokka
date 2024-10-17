@@ -7,6 +7,7 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -56,17 +57,15 @@ abstract class DokkaPluginParametersBuilder
 @DokkaInternalApi
 constructor(
     name: String,
-    @get:Input
-    override val pluginFqn: String,
-
-    @Internal
+    @get:Internal
     internal val objects: ObjectFactory,
-) : DokkaPluginParametersBaseSpec(name, pluginFqn) {
+    @get:Internal
+    internal val project: Project,
+) : DokkaPluginParametersBaseSpec(name, name) {
 
     @get:Nested
     internal val properties = PluginConfigValue.Properties(objects.mapProperty())
 
-    @Internal
     override fun jsonEncode(): String = properties.convertToJson().toString()
 
     companion object {
@@ -83,17 +82,15 @@ constructor(
                 is PluginConfigValue.Properties ->
                     JsonObject(values.get().mapValues { (_, value) -> value.convertToJson() })
 
-                is PluginConfigValue.Values ->
-                    JsonArray(values.get().map { it.convertToJson() })
+                is PluginConfigValue.Values -> JsonArray(values.get().map { it.convertToJson() })
             }
 
         /** Creates a [JsonPrimitive] from the given [File]. */
-        private fun File?.convertToJson(): JsonPrimitive =
-            JsonPrimitive(this?.canonicalFile?.invariantSeparatorsPath)
+        private fun File?.convertToJson(): JsonPrimitive = JsonPrimitive(this?.canonicalFile?.invariantSeparatorsPath)
     }
 }
 
-
+//region File System Properties
 fun DokkaPluginParametersBuilder.files(
     propertyName: String,
     filesConfig: ConfigurableFileCollection.() -> Unit
@@ -102,6 +99,25 @@ fun DokkaPluginParametersBuilder.files(
     files.filesConfig()
     properties.values.put(propertyName, PluginConfigValue.FilesValue(files))
 }
+
+fun DokkaPluginParametersBuilder.file(
+    propertyName: String,
+    file: Any,
+) {
+    val fileProperty = objects.fileProperty()
+    fileProperty.set(project.file(file))
+    properties.values.put(propertyName, PluginConfigValue.FileValue(fileProperty))
+}
+
+fun DokkaPluginParametersBuilder.directory(
+    propertyName: String,
+    directory: Any,
+) {
+    val directoryProperty = objects.directoryProperty()
+    directoryProperty.set(project.file(directory))
+    properties.values.put(propertyName, PluginConfigValue.DirectoryValue(directoryProperty))
+}
+//endregion
 
 //region Primitive Properties
 fun DokkaPluginParametersBuilder.property(propertyName: String, value: String) {
@@ -166,6 +182,18 @@ fun PluginConfigValue.Values.add(value: Provider<Number>) =
 @JvmName("addBoolean")
 fun PluginConfigValue.Values.add(value: Provider<Boolean>) =
     values.add(PluginConfigValue(value))
+//endregion
+
+
+//region Map Properties
+fun DokkaPluginParametersBuilder.propertiesMap(
+    propertyName: String,
+    build: PluginConfigValue.Properties.() -> Unit
+) {
+    val values = PluginConfigValue.Properties(objects.mapProperty())
+    values.build()
+    properties.values.put(propertyName, values)
+}
 //endregion
 
 

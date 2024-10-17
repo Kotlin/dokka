@@ -104,6 +104,11 @@ options according to your project setup:
           customAssets.set(listOf("logo.png"))
           footerMessage.set("(c) Your Company")
       }
+      pluginConfiguration<YourCustomPlugin, YourCustomPluginConfiguration> {
+          stringProperty.set("bar")
+          booleanProperty.set(true)
+          fileListProperty.set(files("foo.txt", "bar.txt"))
+      }
   }
   ```
  
@@ -120,10 +125,19 @@ options according to your project setup:
               remoteLineSuffix.set("#L")
           }
       }
-      pluginsConfiguration.html {
-          customStyleSheets.from("styles.css")
-          customAssets.from("logo.png")
-          footerMessage.set("(c) Your Company")
+      pluginsConfiguration {
+          html {
+              customStyleSheets.from("styles.css")
+              customAssets.from("logo.png")
+              footerMessage.set("(c) Your Company")
+          }
+          pluginParameters("your.package.YourCustomPluginConfiguration") {
+              property("stringProperty", "bar")
+              property("booleanProperty", true)
+              files("fileListProperty") {
+                  from("foo.txt", "bar.txt")
+              }
+          }
       }
   }
   ```

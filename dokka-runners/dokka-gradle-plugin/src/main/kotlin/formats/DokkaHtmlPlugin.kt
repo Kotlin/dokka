@@ -13,6 +13,7 @@ import org.gradle.kotlin.dsl.registerBinding
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters.Companion.DOKKA_HTML_PARAMETERS_NAME
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBuilder
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters.Companion.DOKKA_VERSIONING_PLUGIN_PARAMETERS_NAME
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
@@ -35,10 +36,17 @@ constructor(
         HtmlModuleAggregationCheck(archives, providers)
 
     override fun DokkaFormatPluginContext.configure() {
+        registerCustomPluginConfigurationHelper()
         registerDokkaBasePluginConfiguration()
         registerDokkaVersioningPlugin()
         configureHtmlUrlLogging()
         configureModuleAggregation()
+    }
+
+    private fun DokkaFormatPluginContext.registerCustomPluginConfigurationHelper() {
+        with(dokkaExtension.pluginsConfiguration) {
+            registerBinding(DokkaPluginParametersBuilder::class, DokkaPluginParametersBuilder::class)
+        }
     }
 
     private fun DokkaFormatPluginContext.registerDokkaBasePluginConfiguration() {
