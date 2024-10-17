@@ -10,12 +10,9 @@ plugins {
 }
 
 tasks.withType<AbstractDokkaTask>().configureEach {
-    moduleVersion.set("1.0")
-
     @Language("JSON")
     val versioningPluginConfiguration = """
     {
-      "version": "1.0",
       "olderVersionsDir": "${project.rootProject.projectDir.resolve("previousDocVersions").invariantSeparatorsPath}"
     }
     """.trimIndent()
