@@ -108,3 +108,9 @@ public final class org/jetbrains/kotlin/cli/jvm/index/JvmDependenciesIndexImpl :
 	public fun traverseDirectoriesInPackage (Lorg/jetbrains/kotlin/name/FqName;Ljava/util/Set;Lkotlin/jvm/functions/Function2;)V
 }
 
+public final class org/jetbrains/kotlin/serialization/deserialization/AnnotationDeserializer {
+	public fun <init> (Lorg/jetbrains/kotlin/descriptors/ModuleDescriptor;Lorg/jetbrains/kotlin/descriptors/NotFoundClasses;)V
+	public final fun deserializeAnnotation (Lorg/jetbrains/kotlin/metadata/ProtoBuf$Annotation;Lorg/jetbrains/kotlin/metadata/deserialization/NameResolver;)Lorg/jetbrains/kotlin/descriptors/annotations/AnnotationDescriptor;
+	public final fun resolveValue (Lorg/jetbrains/kotlin/types/KotlinType;Lorg/jetbrains/kotlin/metadata/ProtoBuf$Annotation$Argument$Value;Lorg/jetbrains/kotlin/metadata/deserialization/NameResolver;)Lorg/jetbrains/kotlin/resolve/constants/ConstantValue;
+}
+
