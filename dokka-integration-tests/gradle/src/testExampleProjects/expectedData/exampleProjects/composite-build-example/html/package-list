@@ -1,0 +1,7 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+module:Kakapo Module
+foo.example.module.kakapo
+module:Kea Module
+foo.example.module.kea
