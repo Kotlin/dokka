@@ -143,6 +143,7 @@ constructor(
         workQueue.submit(DokkaGeneratorWorker::class) {
             this.dokkaParameters.set(dokkaConfiguration)
             this.logFile.set(workerLogFile)
+            this.taskPath.set(this@DokkaGenerateTask.path)
         }
     }
 
