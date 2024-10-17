@@ -34,7 +34,7 @@ import org.jetbrains.dokka.gradle.internal.*
  * [DokkaConfiguration][org.jetbrains.dokka.DokkaConfiguration]
  * is used to configure Dokka behaviour.)
  */
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 class FormatDependenciesManager(
     private val formatName: String,
     private val baseDependencyManager: BaseDependencyManager,

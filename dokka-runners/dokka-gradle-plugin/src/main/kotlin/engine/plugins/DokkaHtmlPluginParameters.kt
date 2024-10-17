@@ -10,7 +10,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.addAll
 import org.jetbrains.dokka.gradle.internal.putIfNotNull
 import javax.inject.Inject
@@ -22,7 +22,7 @@ import javax.inject.Inject
  * [More information is available in the Dokka docs.](https://kotlinlang.org/docs/dokka-html.html#configuration)
  */
 abstract class DokkaHtmlPluginParameters
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     name: String

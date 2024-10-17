@@ -11,7 +11,7 @@ import org.gradle.api.tasks.Console
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.UntrackedTask
 import org.gradle.kotlin.dsl.of
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.pluginFeaturesService
 import org.jetbrains.dokka.gradle.internal.appendPath
 import org.slf4j.LoggerFactory
@@ -39,7 +39,7 @@ import javax.inject.Inject
 @UntrackedTask(because = "logging-only task")
 abstract class LogHtmlPublicationLinkTask
 @Inject
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 constructor(
     providers: ProviderFactory
 ) : DokkaBaseTask() {

@@ -24,7 +24,7 @@ import java.io.Serializable
  * Configure the behaviour of the [DokkaBasePlugin].
  */
 abstract class DokkaExtension
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 constructor(
     private val objects: ObjectFactory,
     internal val baseDependencyManager: BaseDependencyManager,
@@ -100,7 +100,7 @@ constructor(
      * projects with a version below 2.0.
      */
     // This property should be removed when Dokka only supports KGP 2 or higher.
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     abstract val konanHome: RegularFileProperty
 
     /**
