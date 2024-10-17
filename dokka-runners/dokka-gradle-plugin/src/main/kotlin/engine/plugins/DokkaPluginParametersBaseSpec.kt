@@ -12,10 +12,7 @@ import javax.inject.Inject
 /**
  * Base class for defining Dokka Plugin configuration.
  *
- * This class should not be instantiated directly. Instead, use a subclass, or create plugin
- * parameters dynamically using [DokkaPluginParametersBuilder].
- *
- * [More information about Dokka Plugins is available in the Dokka docs.](https://kotlinlang.org/docs/dokka-plugins.html)
+ * This class should not be instantiated directly. Instead, implement a subclass.
  *
  * @param[pluginFqn] Fully qualified classname of the Dokka Plugin
  */
