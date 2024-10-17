@@ -43,7 +43,7 @@ interface DokkaAttribute {
         /**
          * Describes the type of generated output that Dokka generates.
          *
-         * For example, HTML or Javadoc.
+         * For example, [HTML](https://kotl.in/dokka-html) or [Javadoc](https://kotl.in/dokka-javadoc).
          *
          * @see DokkaAttribute.Format
          */
