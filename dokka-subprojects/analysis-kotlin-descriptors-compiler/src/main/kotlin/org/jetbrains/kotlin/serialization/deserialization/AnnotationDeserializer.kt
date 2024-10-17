@@ -4,14 +4,15 @@
 
 /**
  * DO NOT MOVE IT
- * This is a hack for https://github.com/Kotlin/dokka/issues/1599
+ * This is a hack for https://github.com/Kotlin/dokka/issues/1599, https://youtrack.jetbrains.com/issue/KT-72154.
  *
- * Copy-pasted from Kotlin compiler.
- * Can be removed after updating to Kotlin Compiler 2.1.0
+ * This file was copy-pasted from Kotlin compiler sources with the patch applied based on the changes in:
+ * https://github.com/jetbrains/kotlin/commit/f34ab0eccd9ef01476f82e86e741a4703fd551f7.
+ * The changes are different from commit changes as we can't hack `KotlinBuiltIns.java` in the same way.
  *
- * fixes:
- * changes are highlighted by `TODO: PATCH`
+ * Patch is highlighted by `TODO: PATCH`
  *
+ * This should be removed after updating to Kotlin Compiler 2.1.0.
  */
 package org.jetbrains.kotlin.serialization.deserialization
 
