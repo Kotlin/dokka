@@ -48,14 +48,14 @@ constructor(
      * The display name used to refer to the module.
      * It is used for the table of contents, navigation, logging, etc.
      *
-     * Default: the current project name.
+     * Default: the [current project name][org.gradle.api.Project.name].
      */
     abstract val moduleName: Property<String>
 
     /**
      * The displayed module version.
      *
-     * Default: the version of the current project.
+     * Default: the [version of the current project][org.gradle.api.Project.version].
      */
     abstract val moduleVersion: Property<String>
 
@@ -79,7 +79,7 @@ constructor(
      * If paths overlap then Dokka could overwrite the Modules files during aggregation,
      * resulting in a corrupted Publication.
      *
-     * Default: the current project's path ([org.gradle.api.Project.getPath]) as a file path.
+     * Default: the current project's [path][org.gradle.api.Project.getPath] as a file path.
      */
     abstract val modulePath: Property<String>
 
