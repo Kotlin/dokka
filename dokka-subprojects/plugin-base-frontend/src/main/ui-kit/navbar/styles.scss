@@ -1,0 +1,29 @@
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../tokens/index';
+
+.navigation {
+  z-index: 4;
+
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+
+  box-sizing: border-box;
+  height: var(--size-l1);
+  padding: 12px var(--size-m1);
+
+  color: var(--color-text-dt);
+  background-color: var(--color-background-nav);
+
+  @media (width <= $breakpoint-desktop-min) {
+    height: auto;
+    padding: 0;
+  }
+
+  .theme-dark & {
+    background-color: var(--color-background-nav-dt);
+  }
+}

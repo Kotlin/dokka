@@ -1,0 +1,107 @@
+/*!
+ * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../tokens/index';
+
+.button {
+  display: flex;
+  align-items: center;
+
+  height: 40px;
+
+  padding: var(--size-s2) 12px;
+
+  cursor: pointer;
+
+  letter-spacing: 0.045em;
+
+  color: var(--color-text);
+
+  border: none;
+  border-radius: var(--size-s1);
+
+  background-color: transparent;
+
+  &:has(:first-child) {
+    gap: var(--size-s2);
+
+    padding: var(--size-s2);
+  }
+
+  &:hover {
+    background-color: var(--color-b08);
+  }
+
+  &:active {
+    background-color: var(--color-key-blue);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: 4px solid var(--color-key-blue-05);
+  }
+
+  .theme-dark & {
+    color: var(--color-text-dt);
+  }
+
+  .theme-dark &:hover {
+    background-color: var(--color-w10);
+  }
+
+  &_background {
+    background-color: var(--color-w100);
+
+    .theme-dark & {
+      background-color: var(--color-w10);
+
+      &:hover {
+        background-color: var(--color-w05);
+      }
+    }
+  }
+
+  &_dropdown {
+    padding: var(--size-s2);
+
+    &::after {
+      display: block;
+
+      width: var(--size-m1);
+      height: var(--size-m1);
+
+      content: '';
+      transform: rotate(0);
+
+      background-image: url('./assets/arrow-down.svg');
+      background-repeat: no-repeat;
+      will-change: transform;
+
+      filter: invert(1);
+
+      .theme-dark & {
+        filter: none;
+      }
+    }
+  }
+
+  &_dropdown_active {
+    color: var(--color-text-dt);
+    background-color: var(--color-key-blue);
+
+    &:hover,
+    .theme-dark &:hover {
+      background-color: lighten(rgb(48, 127, 255), 10%);
+    }
+
+    &::after {
+      transform: rotate(-180deg);
+      filter: invert(0);
+    }
+  }
+}

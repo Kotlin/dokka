@@ -2,29 +2,27 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@import '../../ui-kit/tokens/index';
+
 $font-color: hsla(0deg, 0%, 100%, 0.8);
 $secondary-font-color: hsla(0deg, 0%, 100%, 0.6);
 
 #pages-search {
+  padding: 0;
+
   cursor: pointer;
 
   border: none;
-  border-radius: 50%;
   background: transparent;
-  fill: #fff;
-  fill: var(--dark-mode-and-search-icon-color);
 
-  &:hover {
-    background: var(--white-10);
-  }
+  font-size: 0;
 }
 
 .search {
   &,
   [data-test='ring-select'],
   [data-test='ring-tooltip'],
-  [data-test='ring-select_focus'],
-  #pages-search {
+  [data-test='ring-select_focus'] {
     display: inline-block;
 
     margin: 0;

@@ -3,7 +3,23 @@
  */
 
 .versions-dropdown {
+  display: flex;
+  align-items: center;
   position: relative;
+  height: 40px;
+  border-radius: 4px;
+  padding-left: var(--size-s2);
+  cursor: pointer;
+}
+
+.versions-dropdown:active {
+  background-color: var(--color-key-blue);
+}
+
+@media (max-width: 900px) {
+  .versions-dropdown {
+    height: 52px;
+  }
 }
 
 .versions-dropdown-button {
