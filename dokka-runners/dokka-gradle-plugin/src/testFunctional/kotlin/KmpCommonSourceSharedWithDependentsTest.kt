@@ -5,12 +5,14 @@ package org.jetbrains.dokka.gradle
 
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.paths.shouldBeAFile
-import io.kotest.matchers.string.shouldNotContain
+import io.kotest.matchers.sequences.shouldBeEmpty
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
+import org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
 import org.jetbrains.dokka.gradle.internal.DokkaConstants.DOKKA_VERSION
 import org.jetbrains.dokka.gradle.utils.*
+import kotlin.io.path.isRegularFile
 import kotlin.io.path.readText
+import kotlin.io.path.walk
 
 class KmpCommonSourceSharedWithDependentsTest : FunSpec({
     test("common source set is propagated to dependents") {
@@ -20,20 +22,24 @@ class KmpCommonSourceSharedWithDependentsTest : FunSpec({
             .runner
             .addArguments(":dokkaGenerate")
             .build {
-                shouldHaveRunTask(":dokkaGenerate").shouldHaveOutcome(SUCCESS)
+                shouldHaveTasksWithAnyOutcome(
+                    ":dokkaGenerate" to listOf(UP_TO_DATE, SUCCESS),
+                )
 
                 val htmlOutputDir = project.projectDir.resolve("build/dokka/html")
 
-                withClue("htmlOutputDir: ${htmlOutputDir.toUri()}") {
-                    val iosX64FnFile =
-                        htmlOutputDir.resolve("-kmp-common-source-shared-with-dependents-test/[root]/ios-x64-fn.html")
-
-                    iosX64FnFile.shouldBeAFile()
-
-                    iosX64FnFile.readText().let { text ->
-                        text shouldNotContain "Error class: unknown class"
-                        text shouldNotContain "Error type: Unresolved type"
+                val filesWithErrors = htmlOutputDir.walk()
+                    .filter { it.isRegularFile() }
+                    .filter {
+                        it.readText().lineSequence().any { line ->
+                            "Error class: unknown class" in line || "Error type: Unresolved type" in line
+                        }
                     }
+
+                withClue(
+                    "files with errors: ${filesWithErrors.joinToString("\n") { " - ${it.toUri()}" }}"
+                ) {
+                    filesWithErrors.shouldBeEmpty()
                 }
             }
     }

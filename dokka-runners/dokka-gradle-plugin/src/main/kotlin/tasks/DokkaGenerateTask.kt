@@ -15,6 +15,7 @@ import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.submit
 import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.gradle.DokkaBasePlugin.Companion.jsonMapper
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaGeneratorParametersSpec
 import org.jetbrains.dokka.gradle.engine.parameters.builders.DokkaParametersBuilder
@@ -98,6 +99,11 @@ constructor(
     @get:Internal
     abstract val dokkaConfigurationJsonFile: RegularFileProperty
 
+    @get:Input
+    @get:Optional
+    @DokkaInternalApi
+    abstract val manualJsonConfig: Property<String>
+
     @DokkaInternalApi
     enum class GeneratorMode {
         Module,
@@ -109,7 +115,13 @@ constructor(
         generationType: GeneratorMode,
         outputDirectory: File,
     ) {
-        val dokkaConfiguration = createDokkaConfiguration(generationType, outputDirectory)
+        val dokkaConfiguration =
+            if (manualJsonConfig.isPresent) {
+                logger.warn("Overriding DokkaConfiguration with manualJsonConfig")
+                DokkaConfigurationImpl(manualJsonConfig.get())
+            } else {
+                createDokkaConfiguration(generationType, outputDirectory)
+            }
 
         logger.info("dokkaConfiguration: $dokkaConfiguration")
         verifyDokkaConfiguration(dokkaConfiguration)
