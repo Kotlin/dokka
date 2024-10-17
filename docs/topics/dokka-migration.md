@@ -148,7 +148,7 @@ options according to your project setup:
       setOf(VisibilityModifier.Public)
   )
   
-  // or
+  // OR
   
   documentedVisibilities(VisibilityModifier.Public)
   ```
@@ -174,7 +174,7 @@ options according to your project setup:
     ```kotlin
     remoteUrl.set(URI("https://github.com/your-repo"))
     
-    // or
+    // OR
     
     remoteUrl("https://github.com/your-repo")
     ```
@@ -356,7 +356,7 @@ Previous task:
 ```text
 ./gradlew dokkaHtml
     
-// or
+// OR
 
 ./gradlew dokkaHtmlMultiModule
 ```
