@@ -8,5 +8,14 @@ import java.net.URI
 internal fun URI.appendPath(addition: String): URI {
     val currentPath = path.removeSuffix("/")
     val newPath = "$currentPath/$addition"
-    return resolve(newPath).normalize()
+
+    return URI(
+        /*    scheme = */ scheme,
+        /*  userInfo = */ userInfo,
+        /*      host = */ host,
+        /*      port = */ port,
+        /*      path = */ newPath,
+        /*     query = */ query,
+        /*  fragment = */ fragment,
+    ).normalize()
 }
