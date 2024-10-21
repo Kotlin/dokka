@@ -215,11 +215,7 @@ options according to your project setup:
 
     ```kotlin
     tasks.dokkaHtml {
-        dokkaSourceSets {
-            configureEach {
-                outputDirectory.set(layout.buildDirectory.dir("dokkaDir"))
-            }
-        }
+        outputDirectory.set(layout.buildDirectory.dir("dokkaDir"))
     }
     ```
 
