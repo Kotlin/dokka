@@ -209,12 +209,12 @@ options according to your project setup:
     customAssets.from("example.png", "example2.png")
     ```
 
-* **Output directory:** Use the `dokka {}` block to specify a single output directory for all Dokka-generated documentation.
+* **Output directory:** Use the `dokka {}` block to specify the output directory for generated Dokka documentation.
 
     Previous configuration:
 
     ```kotlin
-    tasks.dokkaHtml{
+    tasks.dokkaHtml {
         dokkaSourceSets {
             configureEach {
                 outputDirectory.set(layout.buildDirectory.dir("dokkaDir"))
@@ -227,7 +227,9 @@ options according to your project setup:
 
     ```kotlin
     dokka {
-        dokkaPublicationDirectory.set(layout.buildDirectory.dir("dokkaDir"))
+        dokkaPublications.html {
+            outputDirectory.set(layout.buildDirectory.dir("dokkaDir"))
+        }
     }
     ```
 
