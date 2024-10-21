@@ -226,7 +226,9 @@ constructor(
      *
      * In DGPv2 Dokka plugins must be configured in a typesafe way, using [pluginsConfiguration].
      *
-     * #### Example
+     * #### Configuration of built-in Dokka plugins
+     *
+     * The built-in Dokka plugins can be configured using a typesafe DSL.
      *
      * This example demonstrates how to convert JSON configuration of the
      * [Dokka Versioning plugin](https://kotl.in/dokka-versioning-plugin)
@@ -255,14 +257,16 @@ constructor(
      * }
      * ```
      *
-     * #### Dokka Plugin authors
+     * #### External Dokka Plugin configuration
      *
-     * If you are a Dokka Plugin author, then create a subclass of
-     * [DokkaPluginParametersBaseSpec][org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec]
+     * To configure external Dokka plugins you must create a subclass of
+     * [DokkaPluginParametersBaseSpec][org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec],
      * and register it as a configuration type using
      * [pluginsConfiguration.registerBinding][org.gradle.api.ExtensiblePolymorphicDomainObjectContainer.registerBinding].
      *
      * ```
+     * import org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec
+     *
      * @OptIn(DokkaInternalApi::class)
      * abstract class MyCustomDokkaPluginConfiguration @Inject constructor(
      *     name: String
