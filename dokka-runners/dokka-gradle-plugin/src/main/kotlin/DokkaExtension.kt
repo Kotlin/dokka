@@ -20,6 +20,7 @@ import org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
 import org.jetbrains.dokka.gradle.workers.ProcessIsolation
 import org.jetbrains.dokka.gradle.workers.WorkerIsolation
 import java.io.Serializable
+import kotlin.DeprecationLevel.ERROR
 
 /**
  * Configure the behaviour of the [DokkaBasePlugin].
@@ -196,7 +197,11 @@ constructor(
     //region deprecated properties
     /** Deprecated. Use [basePublicationsDirectory] instead. */
     // Deprecated in 2.0.0-Beta. Remove when Dokka 2.0.0 is released.
-    @Deprecated("Renamed to basePublicationsDirectory", ReplaceWith("basePublicationsDirectory"))
+    @Deprecated(
+        "Renamed to basePublicationsDirectory",
+        ReplaceWith("basePublicationsDirectory"),
+        level = ERROR,
+    )
     @Suppress("unused")
     val dokkaPublicationDirectory: DirectoryProperty
         get() = basePublicationsDirectory
