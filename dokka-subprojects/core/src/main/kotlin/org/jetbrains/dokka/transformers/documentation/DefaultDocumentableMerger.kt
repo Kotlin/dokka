@@ -116,6 +116,7 @@ public class DefaultDocumentableMerger(context: DokkaContext) : DocumentableMerg
                 listOf(actuals to actuals.flatMap { it.sourceSets }.toSet())
             } else expects.map { expect ->
                 val actualsForGivenExpect = actuals.filter { actual ->
+                    // [actual.sourceSets] can already be partially merged and contain more than one source set
                     actual.sourceSets.all {
                         dependencyInfo[it]
                         ?.contains(expect.expectPresentInSet!!)
