@@ -42,6 +42,7 @@ const WithFuzzySearchFilterComponent: React.FC<Props> = ({ data }: Props) => {
           data={data}
           popupClassName={'popup-wrapper'}
           onSelect={onChangeSelected}
+          maxHeight={510}
           customAnchor={({ wrapperProps, buttonProps, popup }: CustomAnchorProps) => (
             <DokkaSearchAnchor wrapperProps={wrapperProps} buttonProps={buttonProps} popup={popup} />
           )}
