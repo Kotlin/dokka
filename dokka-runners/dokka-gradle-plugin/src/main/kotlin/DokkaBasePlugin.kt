@@ -203,10 +203,6 @@ constructor(
             skipEmptyPackages.convention(true)
             sourceSetScope.convention(sourceSetScopeConvention)
 
-            // Manually added sourceSets should not be suppressed by default.
-            // dokkaSourceSets that are automatically added by DokkaKotlinAdapter will have a sensible value for 'suppress'.
-            suppress.convention(false)
-
             suppressGeneratedFiles.convention(true)
 
             sourceLinks.configureEach {
@@ -284,7 +280,7 @@ constructor(
             generator.dokkaSourceSets.addAllLater(
                 providers.provider {
                     // exclude suppressed source sets as early as possible, to avoid unnecessary dependency resolution
-                    dokkaExtension.dokkaSourceSets.filterNot { it.suppress.get() }
+                    dokkaExtension.dokkaSourceSets.filterNot { it.suppress.getOrElse(SUPPRESS_DEFAULT) }
                 }
             )
 
