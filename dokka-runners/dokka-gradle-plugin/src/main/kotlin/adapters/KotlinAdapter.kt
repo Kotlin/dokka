@@ -148,7 +148,7 @@ abstract class KotlinAdapter @Inject constructor(
             val singlePlatform = allPlatforms.singleOrNull()
 
             if (singlePlatform == null) {
-                logger.warn("Could not detect KotlinPlatform for ${details.name} from targets ${values.map { it.target }}, falling back to ${KotlinPlatform.Common}. (All platforms: $allPlatforms)")
+                logger.warn("Dokka could not detect KotlinPlatform for ${details.name} from targets ${values.map { it.target }}, falling back to ${KotlinPlatform.Common}. (All platforms: $allPlatforms)")
                 KotlinPlatform.Common
             } else {
                 singlePlatform
