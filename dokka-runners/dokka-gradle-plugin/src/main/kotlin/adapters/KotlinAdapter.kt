@@ -33,7 +33,8 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.androidJvm
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.common
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeCompilation
@@ -143,18 +144,24 @@ abstract class KotlinAdapter @Inject constructor(
         details: KotlinSourceSetDetails
     ) {
         val kssPlatform = details.compilations.map { values: List<KotlinCompilationDetails> ->
-            values.map { it.kotlinPlatform }
-                .distinct()
-                .singleOrNull() ?: KotlinPlatform.Common
+            val allPlatforms = values.map { it.kotlinPlatform }.distinct()
+            val singlePlatform = allPlatforms.singleOrNull()
+
+            if (singlePlatform == null) {
+                logger.warn("Could not detect KotlinPlatform for ${details.name} from targets ${values.map { it.target }}, falling back to ${KotlinPlatform.Common}. (All platforms: $allPlatforms)")
+                KotlinPlatform.Common
+            } else {
+                singlePlatform
+            }
         }
 
         val kssClasspath = determineClasspath(details)
 
         register(details.name) dss@{
-            suppress.set(!details.isPublishedSourceSet())
+            suppress.convention(!details.isPublishedSourceSet())
             sourceRoots.from(details.sourceDirectories)
             classpath.from(kssClasspath)
-            analysisPlatform.set(kssPlatform)
+            analysisPlatform.convention(kssPlatform)
             dependentSourceSets.addAllLater(details.dependentSourceSetIds)
         }
     }
@@ -226,6 +233,13 @@ private data class KotlinCompilationDetails(
     /** [KotlinCompilation.platformType] name. */
     val kotlinPlatform: KotlinPlatform,
     val allKotlinSourceSetsNames: Set<String>,
+    /**
+     * Whether the compilation is published or not.
+     *
+     * By default, only published compilations should be documented.
+     *
+     * (E.g. 'main' compilations are published, 'test' compilations are not.)
+     */
     val publishedCompilation: Boolean,
     /** [KotlinCompilation.defaultSourceSet] → [KotlinSourceSet.dependsOn] names. */
     val dependentSourceSetNames: Set<String>,
@@ -288,7 +302,11 @@ private class KotlinCompilationDetailsBuilder(
     private fun KotlinProjectExtension.allKotlinCompilations(): Collection<KotlinCompilation<*>> =
         when (this) {
             is KotlinMultiplatformExtension -> targets.flatMap { it.compilations }
+                // Exclude legacy KMP metadata compilations, only present in KGP 1.8 (they were retained to support DGPv1)
+                .filterNot { it.platformType == common && it.name == MAIN_COMPILATION_NAME }
+
             is KotlinSingleTargetExtension<*> -> target.compilations
+
             else -> emptyList() // shouldn't happen?
         }
 
@@ -303,23 +321,25 @@ private class KotlinCompilationDetailsBuilder(
         val compilationClasspath = objects.fileCollection()
 
         compilationClasspath.from(
-            kotlinCompileDependencyFiles(compilation)
-        )
-
-        compilationClasspath.from(
             kotlinNativeDependencies(compilation)
         )
 
-        // using compileDependencyFiles breaks Android projects :(
-//compilationClasspath.from(
-//    { compilation.compileDependencyFiles }
-//)
+        if (compilation.target.platformType == androidJvm) {
+            compilationClasspath.from(kotlinCompileDependencyFiles(compilation, "jar"))
+            compilationClasspath.from(kotlinCompileDependencyFiles(compilation, "android-classes-jar"))
+        } else {
+            // using compileDependencyFiles breaks Android projects because AGP
+            // fills it with files from many Configurations, and Gradle encounters variant resolution errors.
+            compilationClasspath.from({ compilation.compileDependencyFiles })
+        }
 
         return compilationClasspath
     }
 
     private fun kotlinCompileDependencyFiles(
         compilation: KotlinCompilation<*>,
+        /** `android-classes-jar` or `jar` */
+        artifactType: String,
     ): Provider<FileCollection> {
         return project.configurations
             .named(compilation.compileDependencyConfigurationName)
@@ -328,8 +348,15 @@ private class KotlinCompilationDetailsBuilder(
                     .artifactView {
                         // Android publishes many variants, which can cause Gradle to get confused,
                         // so specify that we need a JAR and resolve leniently
-                        if (compilation.target.platformType == KotlinPlatformType.androidJvm) {
-                            attributes { artifactType("jar") }
+                        if (compilation.target.platformType == androidJvm) {
+                            attributes { artifactType(artifactType) }
+
+                            // Setting lenient=true is not ideal, because it might hide problems.
+                            // Unfortunately, Gradle has no chill and dependency resolution errors
+                            // will cause Dokka tasks to completely fail, even if the dependencies aren't necessary.
+                            // (There's a chance that the dependencies aren't even used in the project!)
+                            // So, resolve leniently to at least permit generating _something_,
+                            // even if the generated output might be incomplete and missing some classes.
                             lenient(true)
                         }
                         // 'Regular' Kotlin compilations have non-JAR files (e.g. Kotlin/Native klibs),
