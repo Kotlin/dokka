@@ -3,7 +3,6 @@
  */
 package org.jetbrains.dokka.gradle.engine.parameters.builders
 
-
 import org.gradle.api.logging.Logging
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.gradle.engine.parameters.*
@@ -12,7 +11,6 @@ import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier.Companion
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.mapNotNullToSet
 import org.jetbrains.dokka.gradle.internal.mapToSet
-
 
 /**
  * Convert the Gradle-focused [DokkaSourceSetSpec] into a [DokkaSourceSetImpl] instance, which
@@ -42,7 +40,11 @@ internal object DokkaSourceSetBuilder {
 
         val enabledSourceSets = sourceSets.filter { it.sourceSetId.get() !in suppressedSourceSetIds }
 
-        return enabledSourceSets.map { build(it, suppressedSourceSetIds) }
+        return enabledSourceSets
+            .map { build(it, suppressedSourceSetIds) }
+            // Sort the source sets, just to help with debugging and investigations when looking at the JSON config file.
+            // The order shouldn't have any impact on Dokka Generator.
+            .sortedBy { it.sourceSetID.toString() }
     }
 
     private fun build(
