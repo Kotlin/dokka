@@ -25,6 +25,7 @@ import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaCla
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaFormatAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaModuleComponentAttribute
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec.Companion.SUPPRESS_DEFAULT
 import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import org.jetbrains.dokka.gradle.internal.*
