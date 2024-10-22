@@ -21,6 +21,7 @@ import org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
 import org.jetbrains.dokka.gradle.workers.ProcessIsolation
 import org.jetbrains.dokka.gradle.workers.WorkerIsolation
 import java.io.Serializable
+import kotlin.DeprecationLevel.ERROR
 
 /**
  * Configure the behaviour of the [DokkaBasePlugin].
@@ -32,8 +33,23 @@ constructor(
     internal val baseDependencyManager: BaseDependencyManager,
 ) : ExtensionAware, Serializable {
 
-    /** Directory into which [DokkaPublication]s will be produced */
-    abstract val dokkaPublicationDirectory: DirectoryProperty
+    /**
+     * Base directory into which all [DokkaPublication]s will be produced.
+     * By default, Dokka will generate all [DokkaPublication]s into a subdirectory inside [basePublicationsDirectory].
+     *
+     * To configure the output for a specific Publication, instead use [DokkaPublication.outputDirectory].
+     *
+     * #### Example
+     *
+     * Here we configure the output directory to be `./build/dokka-docs/`.
+     * Dokka will produce the HTML Publication into `./build/dokka-docs/html/`
+     * ```
+     * dokka {
+     *     basePublicationsDirectory.set(layout.buildDirectory.dir("dokka-docs"))
+     * }
+     * ```
+     */
+    abstract val basePublicationsDirectory: DirectoryProperty
 
     /**
      * Directory into which Dokka Modules will be produced.
@@ -180,6 +196,17 @@ constructor(
 
 
     //region deprecated properties
+    /** Deprecated. Use [basePublicationsDirectory] instead. */
+    // Deprecated in 2.0.0-Beta. Remove when Dokka 2.0.0 is released.
+    @Deprecated(
+        "Renamed to basePublicationsDirectory",
+        ReplaceWith("basePublicationsDirectory"),
+        level = ERROR,
+    )
+    @Suppress("unused")
+    val dokkaPublicationDirectory: DirectoryProperty
+        get() = basePublicationsDirectory
+
     /**
      * ```
      * dokka {
