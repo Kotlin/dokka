@@ -177,7 +177,6 @@ constructor(
         sourceSetScopeConvention: Property<String>,
     ) {
         configureEach dss@{
-            analysisPlatform.convention(KotlinPlatform.DEFAULT)
             displayName.convention(
                 analysisPlatform.map { platform ->
                     // Match existing Dokka naming conventions. (This should probably be simplified!)
