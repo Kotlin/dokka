@@ -102,6 +102,9 @@ $secondary-font-color: rgba(255, 255, 255, 0.7);
   .popup-wrapper {
     min-width: 100% !important;
   }
+  .search-hotkey-popup {
+    display: none;
+  }
 }
 
 .template-wrapper {
@@ -132,7 +135,7 @@ $secondary-font-color: rgba(255, 255, 255, 0.7);
   font-weight: 600;
   line-height: 24px;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
 }
 
 .template-description {
@@ -150,7 +153,7 @@ $secondary-font-color: rgba(255, 255, 255, 0.7);
   line-height: 20px;
   justify-self: end;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
 }
 
 @media screen and (width <= 759px) {
