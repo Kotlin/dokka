@@ -8,6 +8,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Nested
 import org.gradle.kotlin.dsl.newInstance
@@ -19,6 +20,7 @@ import org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
 import org.jetbrains.dokka.gradle.workers.ProcessIsolation
 import org.jetbrains.dokka.gradle.workers.WorkerIsolation
 import java.io.Serializable
+import kotlin.DeprecationLevel.ERROR
 
 /**
  * Configure the behaviour of the [DokkaBasePlugin].
@@ -30,8 +32,23 @@ constructor(
     internal val baseDependencyManager: BaseDependencyManager,
 ) : ExtensionAware, Serializable {
 
-    /** Directory into which [DokkaPublication]s will be produced */
-    abstract val dokkaPublicationDirectory: DirectoryProperty
+    /**
+     * Base directory into which all [DokkaPublication]s will be produced.
+     * By default, Dokka will generate all [DokkaPublication]s into a subdirectory inside [basePublicationsDirectory].
+     *
+     * To configure the output for a specific Publication, instead use [DokkaPublication.outputDirectory].
+     *
+     * #### Example
+     *
+     * Here we configure the output directory to be `./build/dokka-docs/`.
+     * Dokka will produce the HTML Publication into `./build/dokka-docs/html/`
+     * ```
+     * dokka {
+     *     basePublicationsDirectory.set(layout.buildDirectory.dir("dokka-docs"))
+     * }
+     * ```
+     */
+    abstract val basePublicationsDirectory: DirectoryProperty
 
     /**
      * Directory into which Dokka Modules will be produced.
@@ -282,6 +299,17 @@ constructor(
 
 
     //region deprecated properties
+    /** Deprecated. Use [basePublicationsDirectory] instead. */
+    // Deprecated in 2.0.0-Beta. Remove when Dokka 2.0.0 is released.
+    @Deprecated(
+        "Renamed to basePublicationsDirectory",
+        ReplaceWith("basePublicationsDirectory"),
+        level = ERROR,
+    )
+    @Suppress("unused")
+    val dokkaPublicationDirectory: DirectoryProperty
+        get() = basePublicationsDirectory
+
     /**
      * This property has moved to be configured on each [DokkaPublication].
      *
@@ -321,5 +349,90 @@ constructor(
      */
     @Deprecated("Moved to DokkaPublication#suppressObviousFunctions")
     abstract val suppressObviousFunctions: Property<Boolean>
+
+    /**
+     * JSON configuration of Dokka plugins is deprecated.
+     * Typesafe configuration must be used instead - see [pluginsConfiguration].
+     *
+     * In DPGv1 the Dokka plugins could be configured by manually writing JSON.
+     * This caused issues with registering task inputs for Gradle up-to-date checks.
+     * (For more information on registering task inputs, see
+     * [Gradle Docs: Incremental build](https://docs.gradle.org/current/userguide/incremental_build.html)).
+     *
+     * In DGPv2 Dokka plugins must be configured in a typesafe way, using [pluginsConfiguration].
+     *
+     * #### Configuration of built-in Dokka plugins
+     *
+     * The built-in Dokka plugins can be configured using a typesafe DSL.
+     *
+     * This example demonstrates how to convert JSON configuration of the
+     * [Dokka Versioning plugin](https://kotl.in/dokka-versioning-plugin)
+     * into the new, typesafe config.
+     *
+     * ```
+     * // Deprecated configuration of the Dokka Versioning plugin:
+     * tasks.dokkaHtmlMultiModule {
+     *     pluginsMapConfiguration.set(
+     *         mapOf(
+     *             "org.jetbrains.dokka.versioning.VersioningPlugin" to """
+     *                 { "version": "1.2", "olderVersionsDir": "$projectDir/dokka-docs" }
+     *             """.trimIndent()
+     *         )
+     *     )
+     * }
+     *
+     * // New configuration in DGPv2 is typesafe and compatible with incremental builds.
+     * dokka {
+     *     pluginsConfiguration {
+     *         versioning {
+     *             version.set("1.2")
+     *             olderVersionsDir.set(projectDir.resolve("dokka-docs"))
+     *         }
+     *     }
+     * }
+     * ```
+     *
+     * #### External Dokka Plugin configuration
+     *
+     * To configure external Dokka plugins you must create a subclass of
+     * [DokkaPluginParametersBaseSpec][org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec],
+     * and register it as a configuration type using
+     * [pluginsConfiguration.registerBinding][org.gradle.api.ExtensiblePolymorphicDomainObjectContainer.registerBinding].
+     *
+     * ```
+     * import org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec
+     *
+     * @OptIn(DokkaInternalApi::class)
+     * abstract class MyCustomDokkaPluginConfiguration @Inject constructor(
+     *     name: String
+     * ) : DokkaPluginParametersBaseSpec(name, "demo.MyCustomDokkaPlugin") {
+     *
+     *     @get:Input
+     *     @get:Optional
+     *     abstract val flags: ListProperty<String>
+     *
+     *     override fun jsonEncode(): String {
+     *         // convert the 'flags' to JSON, to be decoded by MyCustomDokkaPlugin.
+     *     }
+     * }
+     *
+     * dokka {
+     *     pluginsConfiguration {
+     *         registerBinding(MyCustomDokkaPluginConfiguration::class, MyCustomDokkaPluginConfiguration::class)
+     *         register<MyCustomDokkaPluginConfiguration>("MyCustomDokkaPlugin") {
+     *             flags.add("someFlag...")
+     *         }
+     *     }
+     * }
+     * ```
+     *
+     * @see pluginsConfiguration
+     */
+    @Deprecated(
+        message = "JSON configuration of Dokka plugins is deprecated. Typesafe configuration must be used instead.",
+        level = DeprecationLevel.ERROR,
+    )
+    @Suppress("unused")
+    abstract val pluginsMapConfiguration: MapProperty<String, String>
     //endregion
 }

@@ -100,7 +100,7 @@ constructor(
             )
 
             sourceSetScopeDefault.convention(project.path)
-            dokkaPublicationDirectory.convention(layout.buildDirectory.dir("dokka"))
+            basePublicationsDirectory.convention(layout.buildDirectory.dir("dokka"))
             dokkaModuleDirectory.convention(layout.buildDirectory.dir("dokka-module"))
             dokkaEngineVersion.convention(DokkaConstants.DOKKA_VERSION)
         }
@@ -154,7 +154,7 @@ constructor(
             moduleName.convention(dokkaExtension.moduleName)
             moduleVersion.convention(dokkaExtension.moduleVersion)
             offlineMode.convention(false)
-            outputDirectory.convention(dokkaExtension.dokkaPublicationDirectory.dir(formatName))
+            outputDirectory.convention(dokkaExtension.basePublicationsDirectory.dir(formatName))
             moduleOutputDirectory.convention(dokkaExtension.dokkaModuleDirectory.dir(formatName))
             suppressInheritedMembers.convention(
                 @Suppress("DEPRECATION")
