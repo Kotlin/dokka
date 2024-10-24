@@ -1448,7 +1448,13 @@ button.platform-tag:focus-visible {
   --platform-tag-color: #9585f9;
 }
 
-.filter-section .platform-tag[data-active]:hover {
+@media (hover: hover) {
+  .filter-section .platform-tag[data-active]:hover {
+    color: #fff;
+    background-color: rgba(186, 186, 187, 0.7);
+  }
+}
+.filter-section .platform-tag[data-active]:active {
   color: #fff;
   background-color: rgba(186, 186, 187, 0.7);
 }
@@ -1836,7 +1842,7 @@ button.platform-tag:focus-visible {
 
 :root {
   --toc-hover-color: var(--color-b08);
-  --toc-font: 400 13px/20px var(--font-family-default);
+  --toc-font: 400 13px/24px var(--font-family-default);
   --toc-color: var(--color-text);
 }
 
@@ -1897,7 +1903,12 @@ button.platform-tag:focus-visible {
   filter: invert(0);
 }
 
-.toc--button:hover {
+@media (hover: hover) {
+  .toc--button:hover {
+    background-color: var(--toc-hover-color);
+  }
+}
+.toc--button:active {
   background-color: var(--toc-hover-color);
 }
 
@@ -1907,8 +1918,6 @@ button.platform-tag:focus-visible {
 }
 
 .toc--link {
-  display: inline-flex;
-  align-items: center;
   box-sizing: border-box;
   width: 100%;
   height: calc(100% - 16px);

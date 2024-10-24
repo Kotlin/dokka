@@ -50,7 +50,13 @@
   line-height: 0;
   will-change: background-color;
 
-  &:hover {
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--color-b08);
+    }
+  }
+
+  &:active {
     background-color: var(--color-w10);
   }
 

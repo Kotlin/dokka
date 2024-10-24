@@ -81,7 +81,13 @@
       }
     }
 
-    &:hover {
+    @media (hover: hover) {
+      &:hover {
+        background-color: var(--toc-hover-color);
+      }
+    }
+
+    &:active {
       background-color: var(--toc-hover-color);
     }
 
