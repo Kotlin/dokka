@@ -1,0 +1,80 @@
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+@import '../tokens/index';
+
+.navigation-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--size-s1);
+
+  margin-left: auto;
+
+  @media (width <= $breakpoint-desktop-min) {
+    flex-grow: 1;
+    justify-content: flex-end;
+
+    background-color: var(--color-text);
+    gap: 0;
+  }
+}
+
+.no-js .navigation-controls {
+  display: none;
+}
+
+.navigation-controls--btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+  padding: 0;
+
+  cursor: pointer;
+  transition: var(--hover-transition);
+
+  border: none;
+  border-radius: var(--size-s1);
+  background-color: inherit;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-size: 24px 24px;
+
+  font-size: 0;
+  line-height: 0;
+  will-change: background-color;
+
+  &:hover {
+    background-color: var(--color-w10);
+  }
+
+  @media (width <= $breakpoint-desktop-min) {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+.navigation-controls--break {
+  flex-basis: 100%;
+}
+
+.navigation-controls--btn_theme {
+  background-image: url('./assets/theme-toggle.svg');
+}
+
+.navigation-controls--btn_homepage {
+  background-image: url('./assets/homepage.svg');
+}
+
+.navigation-controls--btn_menu {
+  margin-left: auto;
+
+  background-image: url('./assets/burger.svg');
+}
+
+.navigation-controls--btn_filter {
+  background-image: url('./assets/filter.svg');
+}

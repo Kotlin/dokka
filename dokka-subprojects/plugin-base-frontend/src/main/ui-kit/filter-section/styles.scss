@@ -1,0 +1,23 @@
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../tokens/index';
+
+.filter-section {
+  z-index: 0;
+
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  margin-right: 12px;
+  gap: 2px;
+
+  @media (width <= $breakpoint-desktop-min) {
+    display: none;
+  }
+}
+
+.no-js .filter-section {
+  display: none;
+}

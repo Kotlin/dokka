@@ -2,4 +2,10 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@import 'tabs/styles';
+.platform-tags {
+  display: flex;
+  flex-wrap: wrap;
+
+  margin-bottom: -8px;
+  margin-left: -4px;
+}
