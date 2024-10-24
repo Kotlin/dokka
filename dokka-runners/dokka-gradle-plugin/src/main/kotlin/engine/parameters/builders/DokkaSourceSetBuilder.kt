@@ -3,16 +3,15 @@
  */
 package org.jetbrains.dokka.gradle.engine.parameters.builders
 
-
 import org.gradle.api.logging.Logging
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.gradle.engine.parameters.*
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec.Companion.SUPPRESS_DEFAULT
 import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform.Companion.dokkaType
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier.Companion.dokkaType
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import org.jetbrains.dokka.gradle.internal.mapNotNullToSet
 import org.jetbrains.dokka.gradle.internal.mapToSet
-
 
 /**
  * Convert the Gradle-focused [DokkaSourceSetSpec] into a [DokkaSourceSetImpl] instance, which
@@ -29,7 +28,7 @@ internal object DokkaSourceSetBuilder {
     fun buildAll(sourceSets: Set<DokkaSourceSetSpec>): List<DokkaSourceSetImpl> {
 
         val suppressedSourceSetIds = sourceSets.mapNotNullToSet {
-            val suppressed = it.suppress.get()
+            val suppressed = it.suppress.getOrElse(SUPPRESS_DEFAULT)
             val sourceSetId = it.sourceSetId.get()
             if (suppressed) {
                 logger.info("Dokka source set $sourceSetId is suppressed")
@@ -42,7 +41,11 @@ internal object DokkaSourceSetBuilder {
 
         val enabledSourceSets = sourceSets.filter { it.sourceSetId.get() !in suppressedSourceSetIds }
 
-        return enabledSourceSets.map { build(it, suppressedSourceSetIds) }
+        return enabledSourceSets
+            .map { build(it, suppressedSourceSetIds) }
+            // Sort the source sets, just to help with debugging and investigations when looking at the JSON config file.
+            // The order shouldn't have any impact on Dokka Generator.
+            .sortedBy { it.sourceSetID.toString() }
     }
 
     private fun build(

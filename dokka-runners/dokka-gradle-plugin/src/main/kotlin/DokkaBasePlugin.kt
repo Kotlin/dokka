@@ -25,6 +25,7 @@ import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaCla
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaFormatAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaModuleComponentAttribute
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec.Companion.SUPPRESS_DEFAULT
 import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import org.jetbrains.dokka.gradle.internal.*
@@ -176,7 +177,6 @@ constructor(
         sourceSetScopeConvention: Property<String>,
     ) {
         configureEach dss@{
-            analysisPlatform.convention(KotlinPlatform.DEFAULT)
             displayName.convention(
                 analysisPlatform.map { platform ->
                     // Match existing Dokka naming conventions. (This should probably be simplified!)
@@ -202,10 +202,6 @@ constructor(
             skipDeprecated.convention(false)
             skipEmptyPackages.convention(true)
             sourceSetScope.convention(sourceSetScopeConvention)
-
-            // Manually added sourceSets should not be suppressed by default.
-            // dokkaSourceSets that are automatically added by DokkaKotlinAdapter will have a sensible value for 'suppress'.
-            suppress.convention(false)
 
             suppressGeneratedFiles.convention(true)
 
@@ -284,7 +280,7 @@ constructor(
             generator.dokkaSourceSets.addAllLater(
                 providers.provider {
                     // exclude suppressed source sets as early as possible, to avoid unnecessary dependency resolution
-                    dokkaExtension.dokkaSourceSets.filterNot { it.suppress.get() }
+                    dokkaExtension.dokkaSourceSets.filterNot { it.suppress.getOrElse(SUPPRESS_DEFAULT) }
                 }
             )
 

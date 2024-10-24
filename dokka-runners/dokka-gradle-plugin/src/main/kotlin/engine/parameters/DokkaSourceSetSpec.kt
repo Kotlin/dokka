@@ -92,6 +92,7 @@ constructor(
      * Default is `false`.
      */
     @get:Input
+    @get:Optional
     abstract val suppress: Property<Boolean>
 
     /**
@@ -443,4 +444,17 @@ constructor(
     @Suppress("unused")
     abstract val noJdkLink: Property<Boolean>
     //endregion
+
+    companion object {
+        /**
+         * Default value for [suppress], if a value is not present.
+         *
+         * Manually added [DokkaSourceSetSpec]s should not be suppressed by default.
+         * [DokkaSourceSetSpec]s that are added automatically
+         * (e.g. by [org.jetbrains.dokka.gradle.adapters.KotlinAdapter])
+         * must set have a sensible value for 'suppress'
+         * (e.g. 'test' sources should be suppressed).
+         */
+        internal const val SUPPRESS_DEFAULT = false
+    }
 }

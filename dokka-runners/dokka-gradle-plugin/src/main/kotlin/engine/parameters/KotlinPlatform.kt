@@ -29,6 +29,7 @@ enum class KotlinPlatform(
     companion object {
         internal val values: Set<KotlinPlatform> = values().toSet()
 
+        @Deprecated("Unused", ReplaceWith("JVM"))
         val DEFAULT: KotlinPlatform = JVM
 
         fun fromString(key: String): KotlinPlatform {
