@@ -166,7 +166,7 @@ constructor(
      * a `DokkaSourceSet` for each. For example, in a Kotlin Multiplatform project Dokka
      * will create `DokkaSourceSet`s for `commonMain`, `jvmMain` etc.
      *
-     * Dokka will not generate documentation unless there is at least there is at least one Dokka Source Set.
+     * Dokka will not generate documentation unless there is at least one Dokka Source Set.
      *
      * #### Configuration
      *
