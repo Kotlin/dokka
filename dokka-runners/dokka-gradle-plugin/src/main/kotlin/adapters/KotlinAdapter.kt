@@ -47,7 +47,8 @@ import kotlin.reflect.jvm.jvmName
 /**
  * The [KotlinAdapter] plugin will automatically register Kotlin source sets as Dokka source sets.
  *
- * This is not a standalone plugin, it requires [org.jetbrains.dokka.gradle.DokkaBasePlugin] is also applied.
+ * This is an internal Dokka plugin and should not be used externally.
+ * It is not a standalone plugin, it requires [org.jetbrains.dokka.gradle.DokkaBasePlugin] is also applied.
  */
 @DokkaInternalApi
 abstract class KotlinAdapter @Inject constructor(

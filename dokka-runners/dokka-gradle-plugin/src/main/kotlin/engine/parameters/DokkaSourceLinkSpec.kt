@@ -55,7 +55,9 @@ constructor(
     abstract val localDirectory: DirectoryProperty
 
     /**
-     * The relative path to [localDirectory] from the project directory. Declared as an input to invalidate the task if that path changes.
+     * The relative path to [localDirectory] from the project directory.
+     *
+     * Declared as an [Input] only so Gradle will re-run the task if that path changes.
      * Should not be used anywhere directly.
      */
     @get:Input
@@ -73,24 +75,34 @@ constructor(
      * Example:
      *
      * ```kotlin
-     * java.net.URI("https://github.com/username/projectname/tree/master/src"))
+     * remoteUrl.set(java.net.URI("https://github.com/username/projectname/tree/master/src"))
+     *
+     * // OR
+     *
+     * remoteUrl("https://github.com/username/projectname/tree/master/src")
      * ```
+     *
+     * @see remoteUrl
      */
     @get:Input
     abstract val remoteUrl: Property<URI>
 
     /**
-     * Set the value of [remoteUrl].
+     * A remote URL of the hosted source code.
      *
-     * @param[value] will be converted to a [URI]
+     * [value] will be converted to a [URI].
+     *
+     * @see remoteUrl
      */
     fun remoteUrl(@Language("http-url-reference") value: String): Unit =
         remoteUrl.set(URI(value))
 
     /**
-     * Set the value of [remoteUrl].
+     * A remote URL of the hosted source code.
      *
-     * @param[value] will be converted to a [URI]
+     * [value] will be converted to a [URI].
+     *
+     * @see remoteUrl
      */
     fun remoteUrl(value: Provider<String>): Unit =
         remoteUrl.set(value.map(::URI))
