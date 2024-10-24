@@ -71,6 +71,12 @@ public class JavaAnalysisPlugin : DokkaPlugin() {
         DocCommentFinder(logger, docCommentFactory)
     }
 
+    @InternalDokkaApi
+    public fun disposeGlobalStandaloneApplicationServices() {
+        @Suppress("UnstableApiUsage")
+        com.intellij.util.concurrency.AppExecutorUtil.shutdownApplicationScheduledExecutorService()
+    }
+
     internal val javaDocCommentCreator by extending {
         docCommentCreators providing { JavaDocCommentCreator() }
     }
