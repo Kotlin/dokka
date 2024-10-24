@@ -6,7 +6,7 @@ package org.jetbrains.dokka.gradle.internal
 /**
  * The base type for types that specifically for a single Dokka output format (e.g. HTML or Javadoc).
  */
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 abstract class HasFormatName {
     abstract val formatName: String
 

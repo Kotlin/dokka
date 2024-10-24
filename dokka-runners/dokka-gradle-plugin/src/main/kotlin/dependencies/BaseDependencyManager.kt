@@ -8,14 +8,14 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.model.ObjectFactory
 import org.jetbrains.dokka.gradle.DokkaBasePlugin.Companion.DOKKA_CONFIGURATION_NAME
 import org.jetbrains.dokka.gradle.DokkaBasePlugin.Companion.DOKKA_GENERATOR_PLUGINS_CONFIGURATION_NAME
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.declarable
 
 
 /**
  * Root [Configuration] for fetching all types of Dokka files from other subprojects.
  */
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 class BaseDependencyManager(
     project: Project,
     objects: ObjectFactory,

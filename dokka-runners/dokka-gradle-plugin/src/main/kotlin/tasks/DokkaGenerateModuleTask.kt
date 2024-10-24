@@ -14,7 +14,7 @@ import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.gradle.DokkaBasePlugin
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaModuleDescriptionKxs
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import java.io.File
 import javax.inject.Inject
 
@@ -27,7 +27,7 @@ import javax.inject.Inject
  */
 @CacheableTask
 abstract class DokkaGenerateModuleTask
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     objects: ObjectFactory,
