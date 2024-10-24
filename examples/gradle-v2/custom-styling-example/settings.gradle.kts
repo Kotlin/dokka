@@ -1,4 +1,4 @@
-rootProject.name = "custom-format-example"
+rootProject.name = "custom-styling-example"
 
 pluginManagement {
     repositories {
