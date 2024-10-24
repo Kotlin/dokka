@@ -56,7 +56,7 @@ constructor(
      * Note that Dokka Modules are intermediate products and must be combined into a completed
      * Dokka Publication. They are not intended to be comprehensible in isolation.
      */
-    abstract val dokkaModuleDirectory: DirectoryProperty
+    internal abstract val baseModulesDirectory: DirectoryProperty
 
     /** Default Dokka Gradle Plugin cache directory */
     abstract val dokkaCacheDirectory: DirectoryProperty
