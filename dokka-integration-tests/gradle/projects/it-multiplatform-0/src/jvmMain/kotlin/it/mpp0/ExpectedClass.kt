@@ -9,3 +9,7 @@ actual class ExpectedClass {
     fun jvmOnlyFunction() = Unit
 
 }
+
+actual class ExpectedClass2 {
+    actual val platform: String = "jvm"
+}
