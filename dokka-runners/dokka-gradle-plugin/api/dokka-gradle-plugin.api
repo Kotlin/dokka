@@ -83,7 +83,6 @@ public abstract class org/jetbrains/dokka/gradle/DokkaExtension : java/io/Serial
 	public abstract fun getDokkaCacheDirectory ()Lorg/gradle/api/file/DirectoryProperty;
 	public abstract fun getDokkaEngineVersion ()Lorg/gradle/api/provider/Property;
 	public abstract fun getDokkaGeneratorIsolation ()Lorg/gradle/api/provider/Property;
-	public abstract fun getDokkaModuleDirectory ()Lorg/gradle/api/file/DirectoryProperty;
 	public final fun getDokkaPublicationDirectory ()Lorg/gradle/api/file/DirectoryProperty;
 	public final fun getDokkaPublications ()Lorg/gradle/api/NamedDomainObjectContainer;
 	public final fun getDokkaSourceSets ()Lorg/gradle/api/NamedDomainObjectContainer;
