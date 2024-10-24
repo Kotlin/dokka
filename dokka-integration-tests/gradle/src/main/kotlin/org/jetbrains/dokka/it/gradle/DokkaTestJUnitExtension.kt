@@ -47,6 +47,14 @@ annotation class DokkaGradlePluginTest(
 )
 
 
+/**
+ * JUnit tag indicating the test involves Android Gradle Plugin.
+ *
+ * If a test is annotated with [TestAndroidGradlePlugin] then
+ * [GradleTestExtension] will run the test multiple times,
+ * and provide a [GradleProject] with a valid [TestVersionCombination.agp].
+ * Otherwise, [TestVersionCombination.agp] will be `null`.
+ */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 @Tag("AndroidGradlePlugin")
@@ -198,7 +206,11 @@ class GradleTestExtension :
         //endregion
 
         /** Kotlin Gradle Plugin versions to test. */
-        private val testedKgpVersions = listOf("1.9.25", "2.0.21")
+        private val testedKgpVersions = listOf(
+            "1.9.24", // required for Compose 1.5.14
+            "1.9.25",
+            "2.0.21",
+        )
 
         /** Android Gradle Plugin versions to test. */
         private val testedAgpVersions = listOf("7.4.2", "8.7.1")

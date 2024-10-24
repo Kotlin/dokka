@@ -1,0 +1,13 @@
+[versions]
+android-gradle-plugin = "8.1.1"
+kotlin = "1.9.10"
+
+compose = "1.5.1"
+
+[libraries]
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test" }
+
+[plugins]
+android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose" }
