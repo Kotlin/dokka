@@ -12,9 +12,10 @@ import java.io.File
 import kotlin.test.BeforeTest
 import kotlin.test.assertTrue
 
-internal class AndroidTestedVersionsArgumentsProvider : TestedVersionsArgumentsProvider(TestedVersions.ANDROID)
 
 class Android0GradleIntegrationTest : AbstractGradleIntegrationTest() {
+
+    internal class AndroidTestedVersionsArgumentsProvider : TestedVersionsArgumentsProvider(TestedVersions.ANDROID)
 
     companion object {
         /**

@@ -22,10 +22,13 @@ dependencies {
     api(libs.kotlin.test)
     api(libs.junit.jupiterApi)
     api(libs.junit.jupiterParams)
-
+    api(libs.kotest.assertionsCore)
     api(gradleTestKit())
 
     val dokkaVersion = project.version.toString()
+
+    api(testFixtures("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"))
+
     // We're using Gradle included-builds and dependency substitution, so we
     // need to use the Gradle project name, *not* the published Maven artifact-id
     devPublication("org.jetbrains.dokka:plugin-all-modules-page:$dokkaVersion")
@@ -80,6 +83,11 @@ registerTestProjectSuite(
             dokkaBuild.androidSdkDir.orNull?.let { androidSdkDir ->
                 environment("ANDROID_HOME", androidSdkDir)
             }
+
+            systemProperty.inputDirectory(
+                "baseExpectedDataDir",
+                layout.projectDirectory.dir("src/testTemplateProjectAndroid/expectedData"),
+            )
         }
     }
 }
