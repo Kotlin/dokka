@@ -109,10 +109,11 @@
   padding: var(--size-s2);
 }
 
-.button:hover {
-  background-color: var(--color-b08);
+@media (hover: hover) {
+  .button:hover {
+    background-color: var(--color-b08);
+  }
 }
-
 .button:active {
   background-color: var(--color-key-blue);
 }
@@ -439,6 +440,25 @@
   display: block;
 }
 
+@media (width >= 900px) {
+  .dropdown--list_toc-list {
+    position: relative;
+    top: 0;
+    display: block;
+    min-width: unset;
+    max-width: unset;
+    max-height: unset;
+    padding: 0;
+    border: none;
+    background-color: rgba(0, 0, 0, 0);
+    box-shadow: none;
+  }
+}
+@media (width >= 440px) and (width < 900px) {
+  .dropdown--list_toc-list {
+    width: 408px;
+  }
+}
 .dropdown--option {
   position: relative;
   display: block;
@@ -517,6 +537,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 52px;
   padding-left: var(--size-s3);
   color: var(--color-w70);
   border-bottom: 1px solid #56565f;
@@ -780,6 +801,11 @@
   filter: none;
 }
 
+@media (width < 900px) {
+  .theme-dark_mobile .ui-kit-icon {
+    filter: none;
+  }
+}
 .ui-kit-icon_arrow-down {
   background-image: url(assets/arrow-down.svg);
 }
@@ -1274,7 +1300,12 @@
   will-change: background-color;
 }
 
-.navigation-controls--btn:hover {
+@media (hover: hover) {
+  .navigation-controls--btn:hover {
+    background-color: var(--color-b08);
+  }
+}
+.navigation-controls--btn:active {
   background-color: var(--color-w10);
 }
 
@@ -1300,7 +1331,7 @@
   background-image: url(assets/homepage.svg);
 }
 
-.navigation-controls--btn_menu {
+.navigation-controls--btn_toc {
   margin-left: auto;
   background-image: url(assets/burger.svg);
 }
@@ -1851,6 +1882,12 @@ button.platform-tag:focus-visible {
   --toc-color: var(--color-text-dt);
 }
 
+@media (width < 900px) {
+  .theme-dark_mobile {
+    --toc-color: var(--color-text-dt);
+    --toc-hover-color: var(--color-w08);
+  }
+}
 .toc--part {
   box-sizing: border-box;
   color: var(--toc-color);
@@ -1903,6 +1940,11 @@ button.platform-tag:focus-visible {
   filter: invert(0);
 }
 
+@media (width < 900px) {
+  .theme-dark_mobile .toc--button::after {
+    filter: invert(0);
+  }
+}
 @media (hover: hover) {
   .toc--button:hover {
     background-color: var(--toc-hover-color);
@@ -2166,6 +2208,31 @@ button.platform-tag:focus-visible {
 
 .toc--part[data-active] > .toc--row .toc--link::after, .toc--part[data-active] > .toc--row .toc--button::after {
   filter: invert(0);
+}
+
+.sidebar {
+  overflow: auto;
+  box-sizing: border-box;
+  width: var(--sidebar-width);
+  border-right: 1px solid rgba(39, 40, 44, 0.2);
+}
+
+@media (width < 900px) {
+  .sidebar {
+    width: 0;
+  }
+}
+.theme-dark .sidebar {
+  border-right-color: #56565f;
+}
+
+.no-js .sidebar {
+  display: none;
+}
+
+.sidebar--inner {
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
 /*!
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.

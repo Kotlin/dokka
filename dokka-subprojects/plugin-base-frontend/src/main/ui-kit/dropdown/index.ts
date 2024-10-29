@@ -20,7 +20,7 @@ function initDropdowns(): void {
   });
 }
 
-function onToggleDropdown(_: Event, dropdown: Element): void {
+export function onToggleDropdown(_: Event, dropdown: Element): void {
   const buttons = dropdown.querySelectorAll(DROPDOWN_TOGGLE);
   buttons?.forEach(toggleDropdownButton);
   const list = dropdown.querySelector(DROPDOWN_LIST);

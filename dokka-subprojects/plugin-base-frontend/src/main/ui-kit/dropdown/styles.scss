@@ -51,6 +51,33 @@
     &_expanded {
       display: block;
     }
+
+    &_toc-list {
+      @media (width >= $breakpoint-desktop-min) {
+        position: relative;
+
+        top: 0;
+
+        display: block;
+
+        min-width: unset;
+        max-width: unset;
+
+        max-height: unset;
+
+        padding: 0;
+
+        border: none;
+
+        background-color: transparent;
+
+        box-shadow: none;
+      }
+
+      @media (width >= $breakpoint-tablet-min) and (width < $breakpoint-desktop-min) {
+        width: 408px;
+      }
+    }
   }
 
   &--option {
@@ -146,6 +173,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    height: 52px;
 
     padding-left: var(--size-s3);
 

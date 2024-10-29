@@ -257,7 +257,7 @@ td:first-child {
     min-height: 0; /* full height exclude header */
 }
 
-#container > .sidebar, #container > #main {
+#container > #main {
     overflow: auto;
 }
 
@@ -265,55 +265,6 @@ td:first-child {
     display: flex;
     flex-direction: column;
     flex: 1 1 0; /* full width, but no affects for sidebar */
-}
-
-.sidebar {
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    border-right: 1px solid var(--border-color);
-    width: var(--sidebar-width);
-}
-
-.no-js .sidebar {
-    display: none;
-}
-
-@media (max-width: 759px) {
-    #container {
-        position: relative;
-    }
-
-    .sidebar {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        box-sizing: border-box;
-        background: var(--background-color);
-        margin-left: calc(-1 * var(--sidebar-width));
-        transition: margin .2s ease-out;
-        z-index: 4;
-    }
-
-    .sidebar.open {
-        margin-left: 0;
-    }
-
-    .sidebar.open ~ #main .navigation-controls--search {
-        display: none;
-    }
-
-    .sidebar.open ~ #main .menu-toggle {
-        margin-left: var(--sidebar-width);
-    }
-}
-
-.sidebar--inner {
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 16px;
-    padding-top: 12px;
-    padding-bottom: 12px;
 }
 
 /* /--- Layout styles --- */
