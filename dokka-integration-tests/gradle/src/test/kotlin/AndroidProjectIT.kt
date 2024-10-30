@@ -18,7 +18,7 @@ import org.jetbrains.dokka.it.gradle.junit.*
 import kotlin.io.path.deleteRecursively
 
 /**
- * Integration test for the `it-android-0` project.
+ * Integration test for the `it-android` project.
  */
 @TestsAndroidGradlePlugin
 @TestsDGPv2
