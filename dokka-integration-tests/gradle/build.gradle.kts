@@ -83,11 +83,6 @@ registerTestProjectSuite(
             dokkaBuild.androidSdkDir.orNull?.let { androidSdkDir ->
                 environment("ANDROID_HOME", androidSdkDir)
             }
-
-            systemProperty.inputDirectory(
-                "baseExpectedDataDir",
-                layout.projectDirectory.dir("src/testTemplateProjectAndroid/expectedData"),
-            )
         }
     }
 }
@@ -172,6 +167,18 @@ fun registerTestProjectSuite(
             }
         }
         configure()
+    }
+}
+
+testing.suites.named<JvmTestSuite>("test") {
+    targets.configureEach {
+        testTask.configure {
+            systemProperty
+                .inputDirectory("templateProjectsDir", templateProjectsDir)
+                .withPathSensitivity(RELATIVE)
+
+            devMavenPublish.configureTask(this)
+        }
     }
 }
 

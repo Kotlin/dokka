@@ -15,12 +15,15 @@ dependencyResolutionManagement {
         /* %{DOKKA_IT_MAVEN_REPO}% */
         mavenCentral()
         google()
+        maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev") {
+            name = "JetBrainsComposeDev"
+            // required for org.jetbrains.compose.compiler:compiler:1.5.15
+        }
     }
 }
 
 plugins {
-//    id("com.android.settings") /* %{AGP_VERSION} */
-    id("com.android.settings") version "8.1.1"
+    id("com.android.settings") version "/* %{AGP_VERSION} */"
 }
 
 rootProject.name = "ComposeMenuProvider"

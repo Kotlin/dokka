@@ -7,6 +7,7 @@ import org.gradle.api.Action
 import org.gradle.api.DomainObjectSet
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.NamedDomainObjectFactory
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
@@ -446,15 +447,11 @@ constructor(
     //endregion
 
     companion object {
-        /**
-         * Default value for [suppress], if a value is not present.
-         *
-         * Manually added [DokkaSourceSetSpec]s should not be suppressed by default.
-         * [DokkaSourceSetSpec]s that are added automatically
-         * (e.g. by [org.jetbrains.dokka.gradle.adapters.KotlinAdapter])
-         * must set have a sensible value for 'suppress'
-         * (e.g. 'test' sources should be suppressed).
-         */
-        internal const val SUPPRESS_DEFAULT = false
+        internal fun ObjectFactory.dokkaSourceSetSpecFactory(): NamedDomainObjectFactory<DokkaSourceSetSpec> = NamedDomainObjectFactory { name ->
+            newInstance<DokkaSourceSetSpec>(name).apply {
+                suppress.convention(false)
+                analysisPlatform.convention(KotlinPlatform.DEFAULT)
+            }
+        }
     }
 }

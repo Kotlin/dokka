@@ -6,13 +6,16 @@ package org.jetbrains.dokka.it.gradle
 
 import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
+import org.jetbrains.dokka.it.gradle.junit.TestsAndroidGradlePlugin
+import org.jetbrains.dokka.it.gradle.junit.TestsDGPv1
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
 import kotlin.test.BeforeTest
 import kotlin.test.assertTrue
 
-
+@TestsDGPv1
+@TestsAndroidGradlePlugin
 class Android0GradleIntegrationTest : AbstractGradleIntegrationTest() {
 
     internal class AndroidTestedVersionsArgumentsProvider : TestedVersionsArgumentsProvider(TestedVersions.ANDROID)

@@ -8,8 +8,12 @@ plugins {
 //  id("org.jetbrains.compose")
   alias(libs.plugins.android.library)
   alias(libs.plugins.kotlin.multiplatform)
-  alias(libs.plugins.compose.multiplatform)
   id("org.jetbrains.dokka")
+
+  if ("/* %{KGP_VERSION} */".startsWith("2.")) {
+    id("org.jetbrains.kotlin.plugin.compose")
+  }
+  alias(libs.plugins.compose.multiplatform)
 }
 group = "org.dokka.it.android.kmp"
 version = "1.0"

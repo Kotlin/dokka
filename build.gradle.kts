@@ -119,6 +119,7 @@ idea {
                 "dokka-runners/runner-cli/.kotlin",
                 "dokka-runners/runner-maven-plugin/.kotlin",
                 "dokka-runners/dokka-gradle-plugin/src/testFunctional/resources/KotlinDslAccessorsTest/",
+                "dokka-integration-tests/gradle/src/testTemplateProjectAndroid/resources/expectedData",
             )
         )
     }

@@ -14,31 +14,20 @@ import io.kotest.matchers.string.shouldNotContain
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
-import org.jetbrains.dokka.it.systemProperty
-import org.junit.jupiter.api.Assumptions.assumeTrue
-import java.nio.file.Path
-import kotlin.io.path.Path
+import org.jetbrains.dokka.it.gradle.junit.*
 import kotlin.io.path.deleteRecursively
 
 /**
- * Integration test for the `it-android-compose` project.
+ * Integration test for the `it-android-0` project.
  */
-class AndroidComposeProjectIntegrationTest {
+@TestsAndroidGradlePlugin
+@TestsDGPv2
+class AndroidProjectIT {
 
-    @DokkaGradlePluginTest(sourceProjectDir = sourceProjectDir)
-    @TestAndroidGradlePlugin
+    @DokkaGradlePluginTest(sourceProjectName = "it-android")
     fun `generate dokka HTML`(
-        project: GradleProject
+        project: DokkaGradleProjectRunner
     ) {
-        assumeTrue(project.versions.kgp == SemVer("1.9.24")) {
-            "Compose Multiplatform 1.5.14 must use Kotlin 1.9.24"
-        }
-        assumeTrue(project.versions.agp!!.major >= 8) {
-            "TODO make project versions paramterised"
-        }
-
-        println("Testing project ${project.projectDir.toUri()}")
-
         project.runner
             .addArguments(
                 "clean",
@@ -71,10 +60,7 @@ class AndroidComposeProjectIntegrationTest {
 
 
         withClue("expect the same HTML is generated") {
-
-            // TODO expected HTML contains error:
-            //      fun TopAppBarAction(menuItem: <Error class: unknown class>, modifier: Modifier = Modifier)
-            val expectedHtml = expectedDataDir()
+            val expectedHtml = project.projectDir.resolve("expectedData/html")
 
             val actualHtmlDir = project.projectDir.resolve("build/dokka/html")
 
@@ -89,55 +75,27 @@ class AndroidComposeProjectIntegrationTest {
         }
     }
 
-    @DokkaGradlePluginTest(sourceProjectDir = sourceProjectDir)
-    @TestAndroidGradlePlugin
+    @DokkaGradlePluginTest(sourceProjectName = "it-android")
     fun `Dokka tasks should be cacheable`(
-        project: GradleProject
+        project: DokkaGradleProjectRunner
     ) {
-        assumeTrue(project.versions.kgp == SemVer("1.9.24")) {
-            "Compose Multiplatform 1.5.14 must use Kotlin 1.9.24"
-        }
-        assumeTrue(project.versions.agp!!.major >= 8) {
-            "TODO make project versions paramterised"
-        }
-
         project.runner
             .addArguments(
                 ":dokkaGenerate",
-                "--build-cache",
-            )
-            .build {
-                withClue("expect project builds successfully") {
-                    // TODO use proper test assertions
-                    output shouldContain "BUILD SUCCESSFUL"
-                }
-            }
-
-        project.runner
-            .addArguments(
-                ":dokkaGenerate",
+                "--stacktrace",
                 "--build-cache",
             )
             .build {
                 output shouldContainAll listOf(
-                    // TODO use proper test assertions
                     "Task :dokkaGenerate UP-TO-DATE",
                 )
             }
     }
 
-    @DokkaGradlePluginTest(sourceProjectDir = sourceProjectDir)
-    @TestAndroidGradlePlugin
+    @DokkaGradlePluginTest(sourceProjectName = "it-android")
     fun `expect Dokka is compatible with Gradle Configuration Cache`(
-        project: GradleProject
+        project: DokkaGradleProjectRunner
     ) {
-        assumeTrue(project.versions.kgp == SemVer("1.9.24")) {
-            "Compose Multiplatform 1.5.14 must use Kotlin 1.9.24"
-        }
-        assumeTrue(project.versions.agp!!.major >= 8) {
-            "TODO make project versions paramterised"
-        }
-
         project.file(".gradle/configuration-cache").deleteRecursively()
         project.file("build/reports/configuration-cache").deleteRecursively()
 
@@ -145,13 +103,13 @@ class AndroidComposeProjectIntegrationTest {
             project.runner.addArguments(
                 "clean",
                 ":dokkaGenerate",
+                "--stacktrace",
                 "--no-build-cache",
                 "--configuration-cache",
             )
 
         withClue("first build should store the configuration cache") {
             configCacheRunner.build {
-                // TODO use proper test assertions
                 output shouldContain "BUILD SUCCESSFUL"
                 output shouldContain "Configuration cache entry stored"
 
@@ -164,7 +122,6 @@ class AndroidComposeProjectIntegrationTest {
 
         withClue("second build should reuse the configuration cache") {
             configCacheRunner.build {
-                // TODO use proper test assertions
                 output shouldContain "BUILD SUCCESSFUL"
                 output shouldContain "Configuration cache entry reused"
             }
@@ -172,14 +129,10 @@ class AndroidComposeProjectIntegrationTest {
     }
 
     companion object {
-        // TODO remove hardcoded dir
-        private const val sourceProjectDir =
-            "/Users/dev/projects/jetbrains/dokka/dokka-integration-tests/gradle/projects/it-android-compose"
-
-        private val baseExpectedDataDir: Path by systemProperty(::Path)
-
-        // TODO 'format' parameter doesn't match, move AndroidComposeProjectIntegrationTest to different source set?
-        private fun expectedDataDir(format: String = "it-android-compose/html"): Path =
-            baseExpectedDataDir.resolve(format)
+        @WithGradleProperties
+        @JvmStatic
+        fun properties() = GradlePropertiesProvider {
+            mapOf("android.useAndroidX" to "true")
+        }
     }
 }

@@ -1,7 +1,7 @@
 plugins {
-    id("com.android.library") /* %{AGP_VERSION} */
-    id("org.jetbrains.dokka") /* %{DGP_VERSION} */
-    kotlin("android") /* %{KGP_VERSION} */
+    id("com.android.library") version "/* %{AGP_VERSION} */"
+    id("org.jetbrains.dokka") version "/* %{DGP_VERSION} */"
+    kotlin("android") version "/* %{KGP_VERSION} */"
 }
 
 android {
