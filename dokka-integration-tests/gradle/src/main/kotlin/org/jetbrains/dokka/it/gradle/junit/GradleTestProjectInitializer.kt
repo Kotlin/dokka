@@ -14,6 +14,7 @@ import kotlin.io.path.*
  * The source directory must not be modified.
  */
 fun interface GradleTestProjectInitializer {
+
     fun initialize(
         source: Path,
         destination: Path,
@@ -34,7 +35,22 @@ fun interface GradleTestProjectInitializer {
 
             destination.updateProjectLocalMavenDir()
 
-            val gradlePropertiesFile = destination.resolve("gradle.properties").apply {
+            createGradlePropertiesFile(destination, gradleProperties)
+
+            updateVersions(destination, testedVersions)
+
+            if (testedVersions.agp != null) {
+                initialiseAndroid(
+                    destination = destination
+                )
+            }
+        }
+
+        private fun createGradlePropertiesFile(
+            projectDir: Path,
+            gradleProperties: Map<String, String>,
+        ) {
+            val gradlePropertiesFile = projectDir.resolve("gradle.properties").apply {
                 deleteIfExists()
                 createFile()
             }
@@ -46,7 +62,13 @@ fun interface GradleTestProjectInitializer {
                     .joinToString(separator = "\n", postfix = "\n")
             )
 
-            destination.walk().filter { it.isRegularFile() }.forEach { file ->
+        }
+
+        private fun updateVersions(
+            projectDir: Path,
+            testedVersions: TestedVersions,
+        ) {
+            projectDir.walk().filter { it.isRegularFile() }.forEach { file ->
                 file.writeText(
                     file.readText()
                         .replace("/* %{KGP_VERSION} */", testedVersions.kgp.version)
@@ -65,12 +87,6 @@ fun interface GradleTestProjectInitializer {
                                 this
                             }
                         }
-                )
-            }
-
-            if (testedVersions.agp != null) {
-                initialiseAndroid(
-                    destination = destination
                 )
             }
         }
