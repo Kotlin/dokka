@@ -10,6 +10,7 @@ import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.intellij.lang.annotations.Language
 import org.jetbrains.dokka.gradle.internal.DokkaConstants.DOKKA_VERSION
 import org.jetbrains.dokka.gradle.utils.*
+import org.jetbrains.dokka.gradle.utils.GradleProjectTest.Companion.settingsRepositories
 import org.jetbrains.dokka.gradle.utils.projects.initMultiModuleProject
 import java.nio.file.Path
 import kotlin.io.path.Path

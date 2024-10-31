@@ -48,6 +48,28 @@ Here's how to update an external project:
 
 4. Check that the corresponding `GradleIntegrationTest` passes locally and push
 
+### Example projects
+
+The [example Gradle projects for DGPv2](../examples/gradle-v2) are automatically tested.
+
+The tests are located in [ExampleProjectsTest.kt](gradle/src/testExampleProjects/kotlin/ExampleProjectsTest.kt).
+They validate that the example projects produce the expected HTML data, which is contained in the 
+[gradle/src/testExampleProjects/expectedData](gradle/src/testExampleProjects/expectedData) directory.
+
+#### Updating expected data
+
+When the Dokka HTML output is updated, the tests will fail because the files in `expectedData`
+will not match the actual generated HTML.
+
+When a test fails it will log links to directories containing the actual and expected files
+(in IntelliJ the links will be clickable).
+
+To update the expected data:
+
+1. Verify that the new data is valid, and does not contain error messages like "Error class: Unknown class".
+2. Delete the 'expected' directory.
+3. Copy the actual generated files to the same location.
+4. Re-run the test to verify the tests pass.
 
 ### Run integration tests with K2 (symbols)
 
