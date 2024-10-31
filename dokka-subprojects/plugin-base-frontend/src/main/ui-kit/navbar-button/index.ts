@@ -11,8 +11,8 @@ function initTocToggle() {
     console.warn('Dokka: toc toggle or dropdown is not found');
     return;
   }
-  tocToggle.addEventListener('click', (event: MouseEvent) => {
-    onToggleDropdown(event, tocDropdown);
+  tocToggle.addEventListener('click', () => {
+    onToggleDropdown(tocDropdown);
   });
 }
 
@@ -22,7 +22,7 @@ export function toggleTocDropdown(): void {
     console.warn('Dokka: toc dropdown is not found');
     return;
   }
-  onToggleDropdown(new MouseEvent('click'), tocDropdown);
+  onToggleDropdown(tocDropdown);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

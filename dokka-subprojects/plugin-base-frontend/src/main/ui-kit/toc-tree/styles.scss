@@ -266,6 +266,8 @@
 
   @media (width < $breakpoint-desktop-min) {
     width: 0;
+
+    border: none;
   }
 }
 

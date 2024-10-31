@@ -509,7 +509,7 @@
 
 .dropdown--overlay {
   position: absolute;
-  z-index: 1;
+  z-index: 4;
   top: 0;
   right: 0;
   bottom: 0;
@@ -2220,6 +2220,7 @@ button.platform-tag:focus-visible {
 @media (width < 900px) {
   .sidebar {
     width: 0;
+    border: none;
   }
 }
 .theme-dark .sidebar {
