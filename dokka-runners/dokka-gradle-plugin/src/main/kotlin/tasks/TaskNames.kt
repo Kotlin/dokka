@@ -3,13 +3,13 @@
  */
 package org.jetbrains.dokka.gradle.tasks
 
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.HasFormatName
 
 /**
  * Gradle [Task][org.gradle.api.Task] Names for a specific Dokka output format.
  */
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 class TaskNames(override val formatName: String) : HasFormatName() {
     val generate = "dokkaGenerate".appendFormat()
     val generatePublication = "dokkaGeneratePublication".appendFormat()

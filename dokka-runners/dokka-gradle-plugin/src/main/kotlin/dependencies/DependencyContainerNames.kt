@@ -6,7 +6,7 @@ package org.jetbrains.dokka.gradle.dependencies
 import org.gradle.api.artifacts.Configuration
 import org.jetbrains.dokka.gradle.DokkaBasePlugin
 import org.jetbrains.dokka.gradle.DokkaBasePlugin.Companion.DOKKA_CONFIGURATION_NAME
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.HasFormatName
 import org.jetbrains.dokka.gradle.internal.INTERNAL_CONF_NAME_TAG
 
@@ -17,7 +17,7 @@ import org.jetbrains.dokka.gradle.internal.INTERNAL_CONF_NAME_TAG
  * - [Gradle Configurations][org.gradle.api.artifacts.Configuration] - share files between subprojects. Each has a name.
  * - [DokkaConfiguration][org.jetbrains.dokka.DokkaConfiguration] - parameters for executing the Dokka Generator
  */
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 class DependencyContainerNames(override val formatName: String) : HasFormatName() {
 
     /**

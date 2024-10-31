@@ -40,7 +40,7 @@ import javax.inject.Inject
  * but does not add any specific config (specifically, it does not create Dokka Publications).
  */
 abstract class DokkaBasePlugin
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     private val providers: ProviderFactory,

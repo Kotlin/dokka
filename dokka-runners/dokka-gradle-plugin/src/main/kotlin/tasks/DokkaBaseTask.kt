@@ -7,13 +7,13 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.CacheableTask
 import org.jetbrains.dokka.gradle.DokkaBasePlugin
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import javax.inject.Inject
 
 /** Base Dokka task */
 @CacheableTask
 abstract class DokkaBaseTask
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 constructor() : DefaultTask() {
 
     @get:Inject

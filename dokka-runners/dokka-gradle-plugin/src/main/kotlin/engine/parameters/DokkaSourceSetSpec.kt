@@ -17,7 +17,7 @@ import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.java
 import org.gradle.kotlin.dsl.newInstance
 import org.jetbrains.dokka.gradle.engine.parameters.SourceSetIdSpec.Companion.dokkaSourceSetIdSpec
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.adding
 import org.jetbrains.dokka.gradle.internal.domainObjectContainer
 import java.io.Serializable
@@ -52,7 +52,7 @@ import kotlin.DeprecationLevel.ERROR
  * @see org.jetbrains.dokka.DokkaSourceSetImpl
  */
 abstract class DokkaSourceSetSpec
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     private val name: String,

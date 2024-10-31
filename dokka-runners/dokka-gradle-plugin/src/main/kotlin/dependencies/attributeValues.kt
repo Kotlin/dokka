@@ -9,11 +9,11 @@ import org.gradle.api.attributes.Usage
 import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.named
 import org.jetbrains.dokka.gradle.internal.Attribute
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 
 
 /** Common [Attribute] values for Dokka [Configuration]s. */
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 class BaseAttributes(
     objects: ObjectFactory,
 ) {
@@ -31,7 +31,7 @@ class BaseAttributes(
 
 
 /** [Attribute] values for a specific Dokka format. */
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 class FormatAttributes(
     formatName: String,
 ) {

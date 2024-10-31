@@ -27,7 +27,7 @@ import org.jetbrains.dokka.gradle.dependencies.DependencyContainerNames
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaClasspathAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaFormatAttribute
 import org.jetbrains.dokka.gradle.dependencies.FormatDependenciesManager
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.pluginFeaturesService
 import javax.inject.Inject
 
@@ -43,19 +43,19 @@ abstract class DokkaFormatPlugin(
 ) : Plugin<Project> {
 
     @get:Inject
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     protected abstract val objects: ObjectFactory
 
     @get:Inject
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     protected abstract val providers: ProviderFactory
 
     @get:Inject
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     protected abstract val files: FileSystemOperations
 
     @get:Inject
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     protected abstract val layout: ProjectLayout
 
 
@@ -148,7 +148,7 @@ abstract class DokkaFormatPlugin(
     open fun DokkaFormatPluginContext.configure() {}
 
 
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     class DokkaFormatPluginContext(
         val project: Project,
         val dokkaExtension: DokkaExtension,

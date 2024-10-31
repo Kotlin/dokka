@@ -526,7 +526,7 @@ public final class org/jetbrains/dokka/gradle/internal/AbstractDokkaTaskExtensio
 	public static synthetic fun buildJsonConfiguration$default (Lorg/jetbrains/dokka/gradle/AbstractDokkaTask;ZILjava/lang/Object;)Ljava/lang/String;
 }
 
-public abstract interface annotation class org/jetbrains/dokka/gradle/internal/DokkaInternalApi : java/lang/annotation/Annotation {
+public abstract interface annotation class org/jetbrains/dokka/gradle/internal/InternalDokkaGradlePluginApi : java/lang/annotation/Annotation {
 }
 
 public final class org/jetbrains/dokka/gradle/internal/V2MigrationUtilsKt$inlined$sam$i$org_gradle_api_Action$0 : org/gradle/api/Action {

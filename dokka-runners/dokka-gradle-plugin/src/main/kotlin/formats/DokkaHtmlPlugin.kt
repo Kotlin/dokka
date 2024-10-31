@@ -15,7 +15,7 @@ import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters.Companion.DOKKA_HTML_PARAMETERS_NAME
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters.Companion.DOKKA_VERSIONING_PLUGIN_PARAMETERS_NAME
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.rootProjectName
 import org.jetbrains.dokka.gradle.internal.uppercaseFirstChar
 import org.jetbrains.dokka.gradle.tasks.DokkaGeneratePublicationTask
@@ -24,7 +24,7 @@ import java.io.File
 import javax.inject.Inject
 
 abstract class DokkaHtmlPlugin
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     archives: ArchiveOperations,
@@ -178,7 +178,7 @@ constructor(
         }
     }
 
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     companion object {
         private val logger = Logging.getLogger(DokkaHtmlPlugin::class.java)
 

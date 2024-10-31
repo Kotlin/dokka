@@ -8,7 +8,7 @@ import org.jetbrains.dokka.*
 import org.jetbrains.dokka.gradle.engine.parameters.*
 import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform.Companion.dokkaType
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier.Companion.dokkaType
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.mapNotNullToSet
 import org.jetbrains.dokka.gradle.internal.mapToSet
 
@@ -19,7 +19,7 @@ import org.jetbrains.dokka.gradle.internal.mapToSet
  * The conversion is defined in a separate class to try and prevent classes from Dokka Generator
  * leaking into the public API.
  */
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 internal object DokkaSourceSetBuilder {
 
     private val logger = Logging.getLogger(DokkaParametersBuilder::class.java)

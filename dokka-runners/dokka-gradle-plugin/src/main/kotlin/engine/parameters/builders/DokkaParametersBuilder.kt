@@ -14,7 +14,7 @@ import org.jetbrains.dokka.gradle.engine.parameters.DokkaGeneratorParametersSpec
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaModuleDescriptionKxs
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec
 import org.jetbrains.dokka.gradle.formats.DokkaHtmlPlugin.Companion.extractDokkaPluginMarkers
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import java.io.File
 
 /**
@@ -24,7 +24,7 @@ import java.io.File
  * The conversion is defined in a separate class to try and prevent classes from Dokka Generator
  * leaking into the public API.
  */
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 internal class DokkaParametersBuilder(
     private val archives: ArchiveOperations,
 ) {

@@ -22,7 +22,7 @@ import java.io.File
  *
  * Files are shared using variant-aware Gradle [Configuration]s.
  */
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 class ModuleComponentDependencies(
     project: Project,
     private val component: DokkaAttribute.ModuleComponent,
@@ -130,7 +130,7 @@ class ModuleComponentDependencies(
             }
     }
 
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     companion object {
         private val logger: Logger = Logging.getLogger(DokkaAttribute.ModuleComponent::class.java)
     }

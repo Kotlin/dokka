@@ -6,7 +6,7 @@ package org.jetbrains.dokka.gradle.engine.parameters
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import java.io.Serializable
 
 /**
@@ -28,7 +28,7 @@ import java.io.Serializable
  * ```
  */
 abstract class DokkaPackageOptionsSpec
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 constructor() :
     HasConfigurableVisibilityModifiers,
     Serializable {

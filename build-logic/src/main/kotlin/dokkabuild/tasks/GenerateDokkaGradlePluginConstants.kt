@@ -48,7 +48,7 @@ abstract class GenerateDokkaGradlePluginConstants @Inject constructor(
                 | */
                 |package org.jetbrains.dokka.gradle.internal
                 |
-                |@DokkaInternalApi
+                |@InternalDokkaGradlePluginApi
                 |object DokkaConstants {
                 |$vals
                 |}

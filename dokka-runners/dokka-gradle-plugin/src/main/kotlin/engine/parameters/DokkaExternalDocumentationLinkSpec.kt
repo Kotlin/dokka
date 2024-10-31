@@ -9,7 +9,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.intellij.lang.annotations.Language
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import java.io.Serializable
 import java.net.URI
 import javax.inject.Inject
@@ -37,7 +37,7 @@ import javax.inject.Inject
  * ```
  */
 abstract class DokkaExternalDocumentationLinkSpec
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     private val name: String

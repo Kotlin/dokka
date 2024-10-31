@@ -26,7 +26,7 @@ import kotlin.DeprecationLevel.ERROR
  * Configure the behaviour of the [DokkaBasePlugin].
  */
 abstract class DokkaExtension
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 constructor(
     private val objects: ObjectFactory,
     internal val baseDependencyManager: BaseDependencyManager,
@@ -117,7 +117,7 @@ constructor(
      * projects with a version below 2.0.
      */
     // This property should be removed when Dokka only supports KGP 2 or higher.
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     abstract val konanHome: RegularFileProperty
 
     /**
@@ -398,8 +398,9 @@ constructor(
      *
      * ```
      * import org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec
+     * import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
      *
-     * @OptIn(DokkaInternalApi::class)
+     * @OptIn(InternalDokkaGradlePluginApi::class)
      * abstract class MyCustomDokkaPluginConfiguration @Inject constructor(
      *     name: String
      * ) : DokkaPluginParametersBaseSpec(name, "demo.MyCustomDokkaPlugin") {

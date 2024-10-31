@@ -18,7 +18,7 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.gradle.DokkaBasePlugin.Companion.jsonMapper
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaGeneratorParametersSpec
 import org.jetbrains.dokka.gradle.engine.parameters.builders.DokkaParametersBuilder
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
 import org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
 import org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
@@ -35,7 +35,7 @@ import javax.inject.Inject
  */
 @CacheableTask
 abstract class DokkaGenerateTask
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     objects: ObjectFactory,
@@ -99,17 +99,17 @@ constructor(
      * The [DokkaConfiguration] by Dokka Generator can be saved to a file for debugging purposes.
      * To disable this behaviour set this property to `null`.
      */
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     @get:Internal
     abstract val dokkaConfigurationJsonFile: RegularFileProperty
 
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     enum class GeneratorMode {
         Module,
         Publication,
     }
 
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     protected fun generateDocumentation(
         generationType: GeneratorMode,
         outputDirectory: File,
