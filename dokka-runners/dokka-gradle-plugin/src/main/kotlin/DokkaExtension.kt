@@ -238,9 +238,6 @@ constructor(
      * [Gradle Daemon](https://docs.gradle.org/8.10/userguide/gradle_daemon.html)
      * memory settings.
      *
-     * When the more frequent tasks are run, Gradle can use the default or lower memory requirements,
-     * and when Dokka is run then Gradle can request more memory. The result is better build performance.
-     *
      * ##### [ClassLoaderIsolation]
      *
      * Dokka Generator is run in the current Gradle Daemon process, in a new thread with an isolated classpath.
