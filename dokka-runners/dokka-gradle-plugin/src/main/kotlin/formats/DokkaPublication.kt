@@ -9,8 +9,8 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
-import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.adding
 import java.io.Serializable
 import javax.inject.Inject
@@ -149,6 +149,7 @@ constructor(
      * This is an internal Dokka Gradle plugin property.
      * If you find you need to set this property, please report your use-case https://kotl.in/dokka-issues.
      */
+    @InternalDokkaGradlePluginApi
     abstract val finalizeCoroutines: Property<Boolean>
 
     /**

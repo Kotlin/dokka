@@ -243,7 +243,6 @@ public abstract class org/jetbrains/dokka/gradle/engine/parameters/DokkaExternal
 public abstract class org/jetbrains/dokka/gradle/engine/parameters/DokkaGeneratorParametersSpec : org/gradle/api/plugins/ExtensionAware {
 	public final fun getDokkaSourceSets ()Lorg/gradle/api/NamedDomainObjectContainer;
 	public abstract fun getFailOnWarning ()Lorg/gradle/api/provider/Property;
-	public abstract fun getFinalizeCoroutines ()Lorg/gradle/api/provider/Property;
 	public abstract fun getIncludes ()Lorg/gradle/api/file/ConfigurableFileCollection;
 	public abstract fun getModuleName ()Lorg/gradle/api/provider/Property;
 	public abstract fun getModuleOutputDirectories ()Lorg/gradle/api/file/ConfigurableFileCollection;
@@ -508,7 +507,6 @@ public abstract class org/jetbrains/dokka/gradle/formats/DokkaPublication : java
 	public abstract fun getCacheRoot ()Lorg/gradle/api/file/DirectoryProperty;
 	public abstract fun getEnabled ()Lorg/gradle/api/provider/Property;
 	public abstract fun getFailOnWarning ()Lorg/gradle/api/provider/Property;
-	public abstract fun getFinalizeCoroutines ()Lorg/gradle/api/provider/Property;
 	public final fun getFormatName ()Ljava/lang/String;
 	public abstract fun getIncludes ()Lorg/gradle/api/file/ConfigurableFileCollection;
 	public abstract fun getModuleName ()Lorg/gradle/api/provider/Property;
