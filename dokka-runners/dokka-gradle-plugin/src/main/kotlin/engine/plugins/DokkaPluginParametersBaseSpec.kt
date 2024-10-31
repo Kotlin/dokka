@@ -12,7 +12,8 @@ import javax.inject.Inject
 /**
  * Base class for defining Dokka Plugin configuration.
  *
- * This class should not be instantiated directly. Instead, implement a subclass.
+ * This class should not be instantiated directly.
+ * Instead, define a subclass that implements the [jsonEncode] function.
  *
  * @param[name] A descriptive name of the item in the [org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer].
  * The name is only used for identification in the Gradle buildscripts.
