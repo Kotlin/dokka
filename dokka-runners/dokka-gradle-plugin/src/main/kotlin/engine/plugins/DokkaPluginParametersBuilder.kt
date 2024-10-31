@@ -19,7 +19,7 @@ import org.gradle.api.tasks.PathSensitivity.RELATIVE
 import org.gradle.kotlin.dsl.containerWithType
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.mapProperty
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
 import java.io.File
 import javax.inject.Inject
@@ -53,7 +53,7 @@ fun DokkaPluginParametersContainer.pluginParameters(
  */
 abstract class DokkaPluginParametersBuilder
 @Inject
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 constructor(
     name: String,
     @get:Input

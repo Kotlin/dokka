@@ -5,7 +5,7 @@ package org.jetbrains.dokka.gradle.engine.plugins
 
 import org.gradle.api.Named
 import org.gradle.api.tasks.Input
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import java.io.Serializable
 import javax.inject.Inject
 
@@ -20,7 +20,7 @@ import javax.inject.Inject
  * @param[pluginFqn] Fully qualified classname of the Dokka Plugin
  */
 abstract class DokkaPluginParametersBaseSpec
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     private val name: String,
