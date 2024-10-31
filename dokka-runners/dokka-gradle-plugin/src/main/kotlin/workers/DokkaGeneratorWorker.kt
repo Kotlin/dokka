@@ -11,7 +11,7 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaGenerator
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.LoggerAdapter
 import java.io.File
 import java.time.Duration
@@ -22,10 +22,10 @@ import java.time.Duration
  * The worker requires [DokkaGenerator] is present on its classpath, as well as any Dokka plugins
  * that are used to generate the Dokka files. Transitive dependencies are also required.
  */
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters> {
 
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     interface Parameters : WorkParameters {
         val dokkaParameters: Property<DokkaConfiguration>
         val logFile: RegularFileProperty
@@ -79,7 +79,7 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
         }
     }
 
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     companion object {
         private val logger: Logger = Logging.getLogger(DokkaGeneratorWorker::class.java)
 

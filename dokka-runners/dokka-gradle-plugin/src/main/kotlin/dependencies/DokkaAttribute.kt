@@ -7,38 +7,38 @@ import org.gradle.api.Named
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Attribute
 import org.jetbrains.dokka.gradle.internal.Attribute
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 
 /**
  * Gradle Configuration Attributes for sharing Dokka files across subprojects.
  *
  * These attributes are used to tag [Configuration]s, so files can be shared between subprojects.
  */
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 interface DokkaAttribute {
 
     /** HTML, Markdown, etc. */
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     class Format(private val named: String) : Named {
         override fun getName(): String = named
         override fun toString(): String = "Format($named)"
     }
 
     /** Generated output, or subproject classpath, or included files, etc. */
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     class ModuleComponent(private val named: String) : Named {
         override fun getName(): String = named
         override fun toString(): String = "ModuleComponent($named)"
     }
 
     /** A classpath, e.g. for Dokka Plugins or the Dokka Generator. */
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     class Classpath(private val named: String) : Named {
         override fun getName(): String = named
         override fun toString(): String = "Classpath($named)"
     }
 
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     companion object {
         /**
          * Describes the type of generated output that Dokka generates.

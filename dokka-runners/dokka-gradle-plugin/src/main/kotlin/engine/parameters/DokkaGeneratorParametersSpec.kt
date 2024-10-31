@@ -10,7 +10,7 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
 import org.jetbrains.dokka.gradle.internal.adding
 import org.jetbrains.dokka.gradle.internal.domainObjectContainer
@@ -27,7 +27,7 @@ import javax.inject.Inject
  * [DokkaSourceSetSpec] and [org.jetbrains.dokka.gradle.formats.DokkaPublication].
  */
 abstract class DokkaGeneratorParametersSpec
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     objects: ObjectFactory,

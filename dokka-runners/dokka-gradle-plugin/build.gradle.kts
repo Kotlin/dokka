@@ -26,7 +26,7 @@ kotlin {
     compilerOptions {
         optIn.addAll(
             "kotlin.RequiresOptIn",
-            "org.jetbrains.dokka.gradle.internal.DokkaInternalApi",
+            "org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi",
             "kotlin.io.path.ExperimentalPathApi",
         )
     }
@@ -208,7 +208,7 @@ testing.suites {
 skipTestFixturesPublications()
 
 apiValidation {
-    nonPublicMarkers.add("org.jetbrains.dokka.gradle.internal.DokkaInternalApi")
+    nonPublicMarkers.add("org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi")
 }
 
 val generateDokkaGradlePluginConstants by tasks.registering(GenerateDokkaGradlePluginConstants::class) {

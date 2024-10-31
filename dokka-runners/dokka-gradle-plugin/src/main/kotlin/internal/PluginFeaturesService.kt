@@ -28,7 +28,7 @@ import javax.inject.Inject
  * regardless of how many subprojects have applied DGP.
  */
 internal abstract class PluginFeaturesService
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     providers: ProviderFactory,

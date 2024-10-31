@@ -35,4 +35,4 @@ import kotlin.annotation.AnnotationTarget.*
     PROPERTY_GETTER,
 )
 @MustBeDocumented
-annotation class DokkaInternalApi
+annotation class InternalDokkaGradlePluginApi

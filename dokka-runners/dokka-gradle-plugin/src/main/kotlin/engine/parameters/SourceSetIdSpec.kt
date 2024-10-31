@@ -8,7 +8,7 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.kotlin.dsl.newInstance
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import java.io.Serializable
 import javax.inject.Inject
 
@@ -20,7 +20,7 @@ import javax.inject.Inject
  * uniquely identified.
  */
 abstract class SourceSetIdSpec
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     /**
@@ -55,7 +55,7 @@ constructor(
     companion object {
 
         /** Utility for creating a new [SourceSetIdSpec] instance using [ObjectFactory.newInstance] */
-        @DokkaInternalApi
+        @InternalDokkaGradlePluginApi
         fun ObjectFactory.dokkaSourceSetIdSpec(
             scopeId: String,
             sourceSetName: String,
