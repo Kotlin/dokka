@@ -398,8 +398,9 @@ constructor(
      *
      * ```
      * import org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec
+     * import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
      *
-     * @OptIn(DokkaInternalApi::class)
+     * @OptIn(InternalDokkaGradlePluginApi::class)
      * abstract class MyCustomDokkaPluginConfiguration @Inject constructor(
      *     name: String
      * ) : DokkaPluginParametersBaseSpec(name, "demo.MyCustomDokkaPlugin") {
