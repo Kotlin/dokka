@@ -40,12 +40,29 @@ interface DokkaAttribute {
 
     @DokkaInternalApi
     companion object {
+        /**
+         * Describes the type of generated output that Dokka generates.
+         *
+         * For example, [HTML](https://kotl.in/dokka-html) or [Javadoc](https://kotl.in/dokka-javadoc).
+         *
+         * @see DokkaAttribute.Format
+         */
         val DokkaFormatAttribute: Attribute<String> =
             Attribute("org.jetbrains.dokka.format")
 
+        /**
+         * Dokka Modules have several components that must be shared separately.
+         *
+         * @see DokkaAttribute.ModuleComponent
+         */
         val DokkaModuleComponentAttribute: Attribute<String> =
             Attribute("org.jetbrains.dokka.module-component")
 
+        /**
+         * Runtime JVM classpath for executing Dokka Generator.
+         *
+         * @see DokkaAttribute.Classpath
+         */
         val DokkaClasspathAttribute: Attribute<String> =
             Attribute("org.jetbrains.dokka.classpath")
     }

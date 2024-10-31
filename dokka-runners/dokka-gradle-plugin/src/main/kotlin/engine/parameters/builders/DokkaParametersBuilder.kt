@@ -117,7 +117,7 @@ internal class DokkaParametersBuilder(
                 // `relativeOutputDir` is the path where the Dokka Module should be located within the final
                 // Dokka Publication.
                 // Convert a project path to a relative path
-                // e.g. `:x:y:z:my-cool-subproject` -> `x/y/z/my-cool-subproject`.
+                // e.g. `:x:y:z:my-cool-subproject` → `x/y/z/my-cool-subproject`.
                 // The path has to be unique per module - using the project path is a useful way to achieve this.
                 val relativeOutputDir =
                     File(moduleDescriptor.modulePath.removePrefix(":").replace(':', '/'))

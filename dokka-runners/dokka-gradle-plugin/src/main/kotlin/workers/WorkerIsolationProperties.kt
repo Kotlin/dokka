@@ -38,7 +38,7 @@ sealed class WorkerIsolation {
      * Create a Worker using [process isolation][WorkerExecutor.processIsolation].
      *
      * Gradle will launch
-     * [new Worker Daemon](https://docs.gradle.org/8.5/userguide/worker_api.html#creating_a_worker_daemon)
+     * [new Worker Daemon](https://docs.gradle.org/8.10/userguide/worker_api.html#worker-daemons),
      * re-using it across builds.
      *
      * @see org.gradle.workers.ProcessWorkerSpec
