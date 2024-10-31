@@ -40,7 +40,7 @@ import javax.inject.Inject
  * but does not add any specific config (specifically, it does not create Dokka Publications).
  */
 abstract class DokkaBasePlugin
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     private val providers: ProviderFactory,
@@ -100,11 +100,8 @@ constructor(
             )
 
             sourceSetScopeDefault.convention(project.path)
-            dokkaPublicationDirectory.convention(layout.buildDirectory.dir("dokka"))
-            dokkaModuleDirectory.convention(layout.buildDirectory.dir("dokka-module"))
-//            @Suppress("DEPRECATION")
-//            dokkaConfigurationsDirectory.convention(layout.buildDirectory.dir("dokka-config"))
-
+            basePublicationsDirectory.convention(layout.buildDirectory.dir("dokka"))
+            baseModulesDirectory.convention(layout.buildDirectory.dir("dokka-module"))
             dokkaEngineVersion.convention(DokkaConstants.DOKKA_VERSION)
         }
 
@@ -157,8 +154,8 @@ constructor(
             moduleName.convention(dokkaExtension.moduleName)
             moduleVersion.convention(dokkaExtension.moduleVersion)
             offlineMode.convention(false)
-            outputDirectory.convention(dokkaExtension.dokkaPublicationDirectory.dir(formatName))
-            moduleOutputDirectory.convention(dokkaExtension.dokkaModuleDirectory.dir(formatName))
+            outputDirectory.convention(dokkaExtension.basePublicationsDirectory.dir(formatName))
+            moduleOutputDirectory.convention(dokkaExtension.baseModulesDirectory.dir(formatName))
             suppressInheritedMembers.convention(
                 @Suppress("DEPRECATION")
                 dokkaExtension.suppressInheritedMembers

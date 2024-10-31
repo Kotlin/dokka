@@ -11,7 +11,7 @@ import org.gradle.api.tasks.Console
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.UntrackedTask
 import org.gradle.kotlin.dsl.of
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.pluginFeaturesService
 import org.jetbrains.dokka.gradle.internal.appendPath
 import org.slf4j.LoggerFactory
@@ -39,7 +39,7 @@ import javax.inject.Inject
 @UntrackedTask(because = "logging-only task")
 abstract class LogHtmlPublicationLinkTask
 @Inject
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 constructor(
     providers: ProviderFactory
 ) : DokkaBaseTask() {
@@ -63,19 +63,19 @@ constructor(
      *
      * For example,
      *
-     * * given an IntelliJ project named `MyProject` located in a directory:
+     * - given an IntelliJ project named `MyProject` located in a directory:
      *    ```
      *    /Users/rachel/projects/my-project/
      *    ```
-     * * and the publication is generated with an index file
+     * - and the publication is generated with an index file
      *    ```
      *    /Users/rachel/projects/my-project/docs/build/dokka/html/index.html
      *    ````
-     * * then [indexHtmlPath] must be
+     * - then [indexHtmlPath] must be
      *    ```
      *    docs/build/dokka/html/index.html
      *    ```
-     * * so that (assuming [serverUri] is `http://localhost:63342`) the logged URL is
+     * - so that (assuming [serverUri] is `http://localhost:63342`) the logged URL is
      *    ```
      *    http://localhost:63342/MyProject/docs/build/dokka/html/index.html
      *    ```
@@ -172,22 +172,23 @@ constructor(
             }
         }
 
-//        private fun httpGetStatusJdk11(uri: URI): Result<Int> {
-//            try {
-//                val client = java.net.http.HttpClient.newHttpClient()
-//                val request = java.net.http.HttpRequest
-//                    .newBuilder()
-//                    .uri(uri)
-//                    .timeout(Duration.ofSeconds(1))
-//                    .GET()
-//                    .build()
-//                // don't care about the status - only if the server is available
-//                val response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString())
-//                return Result.success(response.statusCode())
-//            } catch (ex: Exception) {
-//                return Result.failure(ex)
-//            }
-//        }
+        // When the minimum supported Java version is 11+
+        //private fun httpGetStatusJdk11(uri: URI): Result<Int> {
+        //    try {
+        //        val client = java.net.http.HttpClient.newHttpClient()
+        //        val request = java.net.http.HttpRequest
+        //            .newBuilder()
+        //            .uri(uri)
+        //            .timeout(Duration.ofSeconds(1))
+        //            .GET()
+        //            .build()
+        //        // don't care about the status - only if the server is available
+        //        val response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString())
+        //        return Result.success(response.statusCode())
+        //    } catch (ex: Exception) {
+        //        return Result.failure(ex)
+        //    }
+        //}
     }
 
     companion object

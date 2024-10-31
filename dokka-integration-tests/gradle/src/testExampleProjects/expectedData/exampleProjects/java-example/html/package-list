@@ -1,0 +1,10 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+module:my-java-application
+demo
+module:my-java-features
+demo.feature
+demo.mongodb
+module:my-java-library
+demo

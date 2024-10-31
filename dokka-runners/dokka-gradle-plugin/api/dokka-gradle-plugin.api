@@ -79,17 +79,18 @@ public abstract class org/jetbrains/dokka/gradle/DokkaExtension : java/io/Serial
 	public static synthetic fun ClassLoaderIsolation$default (Lorg/jetbrains/dokka/gradle/DokkaExtension;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$ClassLoader;
 	public final fun ProcessIsolation (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$Process;
 	public static synthetic fun ProcessIsolation$default (Lorg/jetbrains/dokka/gradle/DokkaExtension;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/dokka/gradle/workers/WorkerIsolation$Process;
+	public abstract fun getBasePublicationsDirectory ()Lorg/gradle/api/file/DirectoryProperty;
 	public abstract fun getDokkaCacheDirectory ()Lorg/gradle/api/file/DirectoryProperty;
 	public abstract fun getDokkaEngineVersion ()Lorg/gradle/api/provider/Property;
 	public abstract fun getDokkaGeneratorIsolation ()Lorg/gradle/api/provider/Property;
-	public abstract fun getDokkaModuleDirectory ()Lorg/gradle/api/file/DirectoryProperty;
-	public abstract fun getDokkaPublicationDirectory ()Lorg/gradle/api/file/DirectoryProperty;
+	public final fun getDokkaPublicationDirectory ()Lorg/gradle/api/file/DirectoryProperty;
 	public final fun getDokkaPublications ()Lorg/gradle/api/NamedDomainObjectContainer;
 	public final fun getDokkaSourceSets ()Lorg/gradle/api/NamedDomainObjectContainer;
 	public abstract fun getModuleName ()Lorg/gradle/api/provider/Property;
 	public abstract fun getModulePath ()Lorg/gradle/api/provider/Property;
 	public abstract fun getModuleVersion ()Lorg/gradle/api/provider/Property;
 	public final fun getPluginsConfiguration ()Lorg/gradle/api/ExtensiblePolymorphicDomainObjectContainer;
+	public abstract fun getPluginsMapConfiguration ()Lorg/gradle/api/provider/MapProperty;
 	public abstract fun getSourceSetScopeDefault ()Lorg/gradle/api/provider/Property;
 	public abstract fun getSuppressInheritedMembers ()Lorg/gradle/api/provider/Property;
 	public abstract fun getSuppressObviousFunctions ()Lorg/gradle/api/provider/Property;
@@ -449,7 +450,7 @@ public final class org/jetbrains/dokka/gradle/internal/AbstractDokkaTaskExtensio
 	public static synthetic fun buildJsonConfiguration$default (Lorg/jetbrains/dokka/gradle/AbstractDokkaTask;ZILjava/lang/Object;)Ljava/lang/String;
 }
 
-public abstract interface annotation class org/jetbrains/dokka/gradle/internal/DokkaInternalApi : java/lang/annotation/Annotation {
+public abstract interface annotation class org/jetbrains/dokka/gradle/internal/InternalDokkaGradlePluginApi : java/lang/annotation/Annotation {
 }
 
 public final class org/jetbrains/dokka/gradle/internal/V2MigrationUtilsKt$inlined$sam$i$org_gradle_api_Action$0 : org/gradle/api/Action {

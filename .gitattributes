@@ -42,6 +42,9 @@ docs-developer/**                                                   linguist-doc
 examples/**                                                         linguist-documentation
 dokka-integration-tests/gradle/projects/**                          linguist-documentation
 
+dokka-integration-tests/gradle/src/testExampleProjects/expectedData/**                    linguist-generated
+dokka-runners/dokka-gradle-plugin/src/testFunctional/resources/KotlinDslAccessorsTest/**  linguist-generated
+
 # Tell Git not to export certain files or directories when generating an archive.
 # Since an archive doesn't contain git data, also exclude git metadata files.
 .gitattributes export-ignore
