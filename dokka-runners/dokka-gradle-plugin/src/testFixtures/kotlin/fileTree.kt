@@ -3,8 +3,8 @@
  */
 package org.jetbrains.dokka.gradle.utils
 
-import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.*
 
 // based on https://gist.github.com/mfwgenerics/d1ec89eb80c95da9d542a03b49b5e15b
 // context: https://kotlinlang.slack.com/archives/C0B8MA7FA/p1676106647658099
@@ -12,14 +12,8 @@ import java.nio.file.Path
 
 fun Path.toTreeString(
     fileFilter: FileFilter = FileFilter { true },
-): String =
-    toFile().toTreeString(fileFilter = fileFilter)
-
-
-fun File.toTreeString(
-    fileFilter: FileFilter = FileFilter { true },
 ): String = when {
-    isDirectory -> name + "/\n" + buildTreeString(dir = this, fileFilter = fileFilter)
+    isDirectory() -> name + "/\n" + buildTreeString(dir = this, fileFilter = fileFilter)
     else -> name
 }
 
@@ -28,21 +22,21 @@ fun File.toTreeString(
  * Optionally include/exclude files. Directories will always be included.
  */
 fun interface FileFilter {
-    operator fun invoke(file: File): Boolean
+    operator fun invoke(file: Path): Boolean
 }
 
 
-private fun FileFilter.matches(file: File): Boolean =
-    if (file.isDirectory) {
+private fun FileFilter.matches(file: Path): Boolean =
+    if (file.isDirectory()) {
         // don't include directories that have no matches
-        file.walk().any { it.isFile && invoke(it) }
+        file.walk().any { it.isRegularFile() && invoke(it) }
     } else {
         invoke(file)
     }
 
 
 private fun buildTreeString(
-    dir: File,
+    dir: Path,
     fileFilter: FileFilter = FileFilter { true },
     margin: String = "",
 ): String {
@@ -58,7 +52,7 @@ private fun buildTreeString(
         buildString {
             append("$margin${currentPrefix}${entry.name}")
 
-            if (entry.isDirectory) {
+            if (entry.isDirectory()) {
                 append("/")
                 if (entry.countDirectoryEntries(fileFilter) > 0) {
                     append("\n")
@@ -69,19 +63,11 @@ private fun buildTreeString(
     }
 }
 
-private fun File.listDirectoryEntries(): Sequence<File> =
-    walkTopDown()
-        .maxDepth(1)
-        .filter { it != this@listDirectoryEntries }
-        .sortedWith(FileSorter)
 
-
-private fun File.countDirectoryEntries(
+private fun Path.countDirectoryEntries(
     fileFilter: FileFilter,
 ): Int =
-    listDirectoryEntries()
-        .filter { file -> fileFilter.matches(file) }
-        .count()
+    listDirectoryEntries().count { file -> fileFilter.matches(file) }
 
 
 private data class PrefixPair(
@@ -96,19 +82,5 @@ private data class PrefixPair(
 
         /** Prefix pair for the last directory entry */
         val LAST_ENTRY = PrefixPair("└── ", "    ")
-    }
-}
-
-
-/**
- * Directories before files, otherwise sort by filename.
- */
-private object FileSorter : Comparator<File> {
-    override fun compare(o1: File, o2: File): Int {
-        return when {
-            o1.isDirectory && o2.isFile -> -1 // directories before files
-            o1.isFile && o2.isDirectory -> +1 // files after directories
-            else -> o1.name.compareTo(o2.name)
-        }
     }
 }
