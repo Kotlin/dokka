@@ -12,19 +12,19 @@ import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
 import java.io.Serializable
 import javax.inject.Inject
 
+/**
+ * An identifier for a [DokkaSourceSetSpec].
+ *
+ * The identifiers must be distinct for all source sets across an entire Gradle build,
+ * to ensure when Dokka Modules are aggregated into a Dokka Publication, the source sets can be
+ * uniquely identified.
+ */
 abstract class SourceSetIdSpec
 @DokkaInternalApi
 @Inject
 constructor(
     /**
      * Unique identifier of the scope that this source set is placed in.
-     * Each scope provide only unique source set names.
-     *
-     * TODO update this doc - DokkaTask doesn't represent one source set scope anymore
-     *
-     * E.g. One DokkaTask inside the Gradle plugin represents one source set scope, since there cannot be multiple
-     * source sets with the same name. However, a Gradle project will not be a proper scope, since there can be
-     * multiple DokkaTasks that contain source sets with the same name (but different configuration)
      */
     @get:Input
     val scopeId: String,

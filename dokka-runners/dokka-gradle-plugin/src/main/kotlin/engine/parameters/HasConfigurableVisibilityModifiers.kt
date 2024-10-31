@@ -6,6 +6,9 @@ package org.jetbrains.dokka.gradle.engine.parameters
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 
+/**
+ * Describes types that have customisable visibilities.
+ */
 internal interface HasConfigurableVisibilityModifiers {
 
     @get:Input

@@ -10,15 +10,21 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
-import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
 import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
 import org.jetbrains.dokka.gradle.internal.adding
 import org.jetbrains.dokka.gradle.internal.domainObjectContainer
 import javax.inject.Inject
 
 /**
- * Parameters used to run Dokka Generator to produce either a
- * Dokka Publication or a Dokka Module.
+ * Parameters used to run [org.jetbrains.dokka.DokkaGenerator] to produce either
+ * a Dokka Publication or a Dokka Module.
+ *
+ * This class is a bridge between configurable options and [org.jetbrains.dokka.DokkaConfiguration],
+ * and should only be used internally.
+ *
+ * Dokka users should use [org.jetbrains.dokka.gradle.DokkaExtension] to configure
+ * [DokkaSourceSetSpec] and [org.jetbrains.dokka.gradle.formats.DokkaPublication].
  */
 abstract class DokkaGeneratorParametersSpec
 @DokkaInternalApi
@@ -33,35 +39,32 @@ constructor(
     val pluginsConfiguration: DokkaPluginParametersContainer,
 ) : ExtensionAware {
 
-//  /** Dokka Configuration files from other subprojects that will be merged into this Dokka Configuration */
-//  @get:InputFiles
-//  //@get:NormalizeLineEndings
-//  @get:PathSensitive(PathSensitivity.RELATIVE)
-//  @get:Optional
-//  abstract val dokkaSubprojectParameters: ConfigurableFileCollection
-
-    @get:Input
-    abstract val failOnWarning: Property<Boolean>
-
-    @get:Input
-    abstract val finalizeCoroutines: Property<Boolean>
-
+    /** @see org.jetbrains.dokka.gradle.formats.DokkaPublication.moduleName */
     @get:Input
     abstract val moduleName: Property<String>
 
+    /** @see org.jetbrains.dokka.gradle.formats.DokkaPublication.moduleVersion */
     @get:Input
     @get:Optional
     abstract val moduleVersion: Property<String>
 
+    /** @see org.jetbrains.dokka.gradle.formats.DokkaPublication.failOnWarning */
+    @get:Input
+    abstract val failOnWarning: Property<Boolean>
+
+    /** @see org.jetbrains.dokka.gradle.formats.DokkaPublication.offlineMode */
     @get:Input
     abstract val offlineMode: Property<Boolean>
 
+    /** @see org.jetbrains.dokka.gradle.formats.DokkaPublication.suppressObviousFunctions */
     @get:Input
     abstract val suppressObviousFunctions: Property<Boolean>
 
+    /** @see org.jetbrains.dokka.gradle.formats.DokkaPublication.suppressInheritedMembers */
     @get:Input
     abstract val suppressInheritedMembers: Property<Boolean>
 
+    /** @see org.jetbrains.dokka.gradle.formats.DokkaPublication.includes */
     @get:InputFiles
     @get:PathSensitive(RELATIVE)
     abstract val includes: ConfigurableFileCollection
@@ -89,4 +92,8 @@ constructor(
     @get:InputFiles
     @get:PathSensitive(RELATIVE)
     abstract val moduleOutputDirectories: ConfigurableFileCollection
+
+    /** @see org.jetbrains.dokka.gradle.formats.DokkaPublication.finalizeCoroutines */
+    @get:Input
+    abstract val finalizeCoroutines: Property<Boolean>
 }

@@ -15,7 +15,13 @@ import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaMod
 import org.jetbrains.dokka.gradle.internal.*
 import java.io.File
 
-
+/**
+ * Manage sharing and receiving components used to build a Dokka Module.
+ *
+ * The type of component is determined by [component].
+ *
+ * Files are shared using variant-aware Gradle [Configuration]s.
+ */
 @DokkaInternalApi
 class ModuleComponentDependencies(
     project: Project,
