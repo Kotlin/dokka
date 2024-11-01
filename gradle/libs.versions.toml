@@ -1,6 +1,6 @@
 [versions]
 
-gradlePlugin-kotlin = "2.0.20"
+gradlePlugin-kotlin = "2.1.0-RC-330"
 # We use a different compiler version to use Kotlin Language/API version 1.4 to compile modules
 # to be able to be compatible with Gradle 7.
 gradlePlugin-kotlin-compiler = "2.0.20"

@@ -3,6 +3,7 @@
  */
 
 import dokkabuild.utils.excludeGradleEmbeddedDependencies
+import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
@@ -13,7 +14,7 @@ plugins {
 }
 
 kotlin {
-    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    @OptIn(ExperimentalBuildToolsApi::class, ExperimentalKotlinGradlePluginApi::class)
     compilerVersion = libs.versions.gradlePlugin.kotlin.compiler
     @Suppress("DEPRECATION", "DEPRECATION_ERROR")
     compilerOptions {
