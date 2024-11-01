@@ -2,6 +2,9 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+
 plugins {
     id("dokkabuild.java")
     kotlin("jvm")
@@ -11,6 +14,11 @@ val rootProjectsWithoutDependencyOnDokkaCore = listOf("dokka-integration-tests")
 
 kotlin {
     explicitApi()
+
+    if (dokkaBuild.kotlinLanguageLevel.isPresent) {
+        @OptIn(ExperimentalBuildToolsApi::class, ExperimentalKotlinGradlePluginApi::class)
+        compilerVersion = libs.versions.gradlePlugin.kotlin.compiler
+    }
     compilerOptions {
         allWarningsAsErrors = true
         languageVersion = dokkaBuild.kotlinLanguageLevel

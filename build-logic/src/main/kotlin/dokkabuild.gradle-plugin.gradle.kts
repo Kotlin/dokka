@@ -3,6 +3,8 @@
  */
 
 import dokkabuild.utils.excludeGradleEmbeddedDependencies
+import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
@@ -12,10 +14,13 @@ plugins {
 }
 
 kotlin {
+    @OptIn(ExperimentalBuildToolsApi::class, ExperimentalKotlinGradlePluginApi::class)
+    compilerVersion = libs.versions.gradlePlugin.kotlin.compiler
+    @Suppress("DEPRECATION", "DEPRECATION_ERROR")
     compilerOptions {
         // Must use Kotlin 1.4 to support Gradle 7
-        languageVersion = @Suppress("DEPRECATION") KotlinVersion.KOTLIN_1_4
-        apiVersion = @Suppress("DEPRECATION") KotlinVersion.KOTLIN_1_4
+        languageVersion = KotlinVersion.KOTLIN_1_4
+        apiVersion = KotlinVersion.KOTLIN_1_4
     }
 }
 
