@@ -12,7 +12,7 @@ plugins {
 
     // fails with back-end exception no matter which version is used
     // probably related to the fact that we use `kotlin.compiler.runViaBuildToolsApi`
-    kotlin("plugin.serialization") version embeddedKotlinVersion // doesn't work
+//    kotlin("plugin.serialization") version embeddedKotlinVersion // doesn't work
 //    kotlin("plugin.serialization") version "2.0.20" // doesn't work
 //    kotlin("plugin.serialization") version "2.1.0-RC-330" // doesn't work
 
