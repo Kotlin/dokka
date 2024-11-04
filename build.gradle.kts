@@ -121,7 +121,8 @@ idea {
                 "dokka-runners/dokka-gradle-plugin/src/testFunctional/resources/KotlinDslAccessorsTest/",
 
                 "dokka-integration-tests/gradle/src/testExampleProjects/expectedData",
-                "dokka-integration-tests/gradle/src/testTemplateProjectAndroid/resources/expectedData",
+                "dokka-integration-tests/gradle/projects/it-android/expectedData",
+                "dokka-integration-tests/gradle/projects/it-android-compose/expectedData",
             )
         )
     }

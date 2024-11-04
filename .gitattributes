@@ -43,7 +43,7 @@ examples/**                                                         linguist-doc
 dokka-integration-tests/gradle/projects/**                          linguist-documentation
 
 # exclude test data
-dokka-integration-tests/gradle/src/*/expectedData/**                   linguist-generated
+dokka-integration-tests/gradle/projects/**/expectedData/**                                linguist-generated
 dokka-integration-tests/gradle/src/testExampleProjects/expectedData/**                    linguist-generated
 dokka-runners/dokka-gradle-plugin/src/testFunctional/resources/KotlinDslAccessorsTest/**  linguist-generated
 
