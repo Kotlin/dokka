@@ -11,6 +11,8 @@ import io.kotest.matchers.file.shouldHaveSameStructureAs
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import org.gradle.testkit.runner.TaskOutcome.SUCCESS
+import org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
@@ -23,6 +25,7 @@ import kotlin.io.path.deleteRecursively
 @TestsDGPv2
 @TestsAndroidGradlePlugin
 @TestsCompose
+@WithGradleProperties(GradlePropertiesProvider.Android::class)
 class AndroidComposeIT {
 
     @DokkaGradlePluginTest(sourceProjectName = "it-android-compose")
@@ -88,9 +91,8 @@ class AndroidComposeIT {
                 "--build-cache",
             )
             .build {
-                withClue("expect project builds successfully") {
-                    // TODO use proper test assertions
-                    output shouldContain "BUILD SUCCESSFUL"
+                withClue("expect dokkaGenerate runs successfully") {
+                    shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
                 }
             }
 
@@ -100,10 +102,9 @@ class AndroidComposeIT {
                 "--build-cache",
             )
             .build {
-                output shouldContainAll listOf(
-                    // TODO use proper test assertions
-                    "Task :dokkaGenerate UP-TO-DATE",
-                )
+                withClue("expect dokkaGenerate runs is loaded from cache") {
+                    shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE)
+                }
             }
     }
 
@@ -144,11 +145,11 @@ class AndroidComposeIT {
         }
     }
 
-    companion object {
-        @WithGradleProperties
-        @JvmStatic
-        fun properties() = GradlePropertiesProvider {
-            mapOf("android.useAndroidX" to "true")
-        }
-    }
+//    companion object {
+//        @WithGradleProperties
+//        @JvmStatic
+//        fun properties() = GradlePropertiesProvider {
+//            mapOf("android.useAndroidX" to "true")
+//        }
+//    }
 }

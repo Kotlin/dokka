@@ -4,14 +4,21 @@
 package org.jetbrains.dokka.it.gradle.junit
 
 import org.jetbrains.dokka.gradle.utils.GradlePropertiesBuilder
+import kotlin.annotation.AnnotationTarget.CLASS
+import kotlin.annotation.AnnotationTarget.FUNCTION
+import kotlin.reflect.KClass
 
 /**
- * Add this annotation to static functions that return [GradlePropertiesProvider].
- * The provided Gradle properties will be appended to all tests in the current test context.
- *
- * The function *must* be annotated with [`@JvmStatic`][JvmStatic] due to JUnit limitations.
+ * Add this annotation to test functions or classes to provide more values to set into the
+ * `gradle.properties` file of the tested project.
+ * The properties will be appended to all tests in the current test context.
  */
-annotation class WithGradleProperties
+@Target(FUNCTION, CLASS)
+@Repeatable
+@MustBeDocumented
+annotation class WithGradleProperties(
+    vararg val providers: KClass<out GradlePropertiesProvider> = [],
+)
 
 /**
  * Provide Gradle properties to be added to the `gradle.properties` file in the root directory of the tested project.
@@ -27,9 +34,9 @@ fun interface GradlePropertiesProvider {
         }
     }
 
-    object DefaultAndroid : GradlePropertiesProvider {
-        override fun get(): Map<String, String> {
-            return GradlePropertiesBuilder().build()
+    object Android : GradlePropertiesProvider {
+        override fun get(): Map<String, String> = buildMap {
+            put("android.useAndroidX", "true")
         }
     }
 }

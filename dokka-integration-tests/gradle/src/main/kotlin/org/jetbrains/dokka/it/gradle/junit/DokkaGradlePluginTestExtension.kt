@@ -19,10 +19,7 @@ import org.junit.platform.commons.logging.LoggerFactory
 import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.AnnotationSupport.findAnnotation
 import org.junit.platform.commons.support.AnnotationSupport.isAnnotated
-import org.junit.platform.commons.support.HierarchyTraversalMode
 import org.junit.platform.commons.support.ReflectionSupport
-import java.lang.reflect.Method
-import java.lang.reflect.Modifier
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Stream
@@ -169,19 +166,25 @@ class DokkaGradlePluginTestExtension :
 
         val baseProperties = ReflectionSupport.newInstance(gradlePropertiesProviderType.java).get()
 
-        val gradlePropertyProviders: List<Method> = AnnotationSupport.findAnnotatedMethods(
+        val testClassProviders = AnnotationSupport.findRepeatableAnnotations(
             context.requiredTestClass,
             WithGradleProperties::class.java,
-            HierarchyTraversalMode.TOP_DOWN,
         )
 
-        val additionalProperties = gradlePropertyProviders
-            .map { provider ->
-                if (!provider.isStatic()) {
-                    error("fun ${provider.name}() in ${provider.declaringClass.name} is annotated with @${WithGradleProperties::class.simpleName} but not @JvmStatic")
-                }
-                context.executableInvoker.invoke(provider) as GradlePropertiesProvider
-            }
+        val testFuncProviders = AnnotationSupport.findRepeatableAnnotations(
+            context.requiredTestMethod,
+            WithGradleProperties::class.java,
+        )
+
+        val allProviders = sequence {
+            yieldAll(testClassProviders)
+            yieldAll(testFuncProviders)
+        }
+
+        val additionalProperties = allProviders
+            .distinct()
+            .flatMap { it.providers.asList() }
+            .map { provider -> ReflectionSupport.newInstance(provider.java) }
             .map { it.get() }
             .fold(emptyMap<String, String>()) { acc, map -> acc + map }
 
@@ -278,9 +281,6 @@ class DokkaGradlePluginTestExtension :
                 .withReadOnlyDependencyCache()
                 .forwardOutput()
         }
-
-        private fun Method.isStatic(): Boolean =
-            Modifier.isStatic(modifiers)
 
         internal fun getAndroidSdkDir(): Path {
             val androidSdkValue = System.getenv("ANDROID_SDK_ROOT") ?: System.getenv("ANDROID_HOME")

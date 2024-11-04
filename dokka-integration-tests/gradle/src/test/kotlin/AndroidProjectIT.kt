@@ -11,6 +11,8 @@ import io.kotest.matchers.file.shouldHaveSameStructureAs
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import org.gradle.testkit.runner.TaskOutcome.SUCCESS
+import org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
@@ -22,6 +24,7 @@ import kotlin.io.path.deleteRecursively
  */
 @TestsAndroidGradlePlugin
 @TestsDGPv2
+@WithGradleProperties(GradlePropertiesProvider.Android::class)
 class AndroidProjectIT {
 
     @DokkaGradlePluginTest(sourceProjectName = "it-android")
@@ -37,7 +40,7 @@ class AndroidProjectIT {
             )
             .build {
                 withClue("expect project builds successfully") {
-                    output shouldContain "BUILD SUCCESSFUL"
+                    shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(SUCCESS)
                 }
 
                 withClue("expect all dokka workers are successful") {
@@ -75,20 +78,31 @@ class AndroidProjectIT {
         }
     }
 
-    @DokkaGradlePluginTest(sourceProjectName = "it-android")
+
+    @DokkaGradlePluginTest(sourceProjectName = "it-android-compose")
     fun `Dokka tasks should be cacheable`(
-        project: DokkaGradleProjectRunner
+        project: DokkaGradleProjectRunner,
     ) {
         project.runner
             .addArguments(
                 ":dokkaGenerate",
-                "--stacktrace",
                 "--build-cache",
             )
             .build {
-                output shouldContainAll listOf(
-                    "Task :dokkaGenerate UP-TO-DATE",
-                )
+                withClue("expect dokkaGenerate runs successfully") {
+                    shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+                }
+            }
+
+        project.runner
+            .addArguments(
+                ":dokkaGenerate",
+                "--build-cache",
+            )
+            .build {
+                withClue("expect dokkaGenerate runs is loaded from cache") {
+                    shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE)
+                }
             }
     }
 
@@ -110,7 +124,8 @@ class AndroidProjectIT {
 
         withClue("first build should store the configuration cache") {
             configCacheRunner.build {
-                output shouldContain "BUILD SUCCESSFUL"
+                shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+
                 output shouldContain "Configuration cache entry stored"
 
                 // this if is to workaround Gradle 7 having different logging - remove when minimum tested Gradle is 8+
@@ -122,17 +137,9 @@ class AndroidProjectIT {
 
         withClue("second build should reuse the configuration cache") {
             configCacheRunner.build {
-                output shouldContain "BUILD SUCCESSFUL"
+                shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
                 output shouldContain "Configuration cache entry reused"
             }
-        }
-    }
-
-    companion object {
-        @WithGradleProperties
-        @JvmStatic
-        fun properties() = GradlePropertiesProvider {
-            mapOf("android.useAndroidX" to "true")
         }
     }
 }
