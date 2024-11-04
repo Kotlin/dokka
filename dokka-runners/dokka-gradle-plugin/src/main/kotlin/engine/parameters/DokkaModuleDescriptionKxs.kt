@@ -3,7 +3,10 @@
  */
 package org.jetbrains.dokka.gradle.engine.parameters
 
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
 import org.gradle.kotlin.dsl.java
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
@@ -23,7 +26,6 @@ import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
  * @see org.jetbrains.dokka.gradle.engine.parameters.DokkaModuleDescriptionKxs
  * @see org.jetbrains.dokka.DokkaModuleDescriptionImpl
  */
-@Serializable
 @InternalDokkaGradlePluginApi
 data class DokkaModuleDescriptionKxs(
     /** @see DokkaConfiguration.DokkaModuleDescription.name */
@@ -34,4 +36,20 @@ data class DokkaModuleDescriptionKxs(
     val moduleOutputDirName: String = "module",
     /** name of the sibling directory that contains the module includes */
     val moduleIncludesDirName: String = "includes",
-)
+) {
+    internal companion object {
+        fun toJsonObject(module: DokkaModuleDescriptionKxs): JsonObject = buildJsonObject {
+            put("name", module.name)
+            put("modulePath", module.modulePath)
+            put("moduleOutputDirName", module.moduleOutputDirName)
+            put("moduleIncludesDirName", module.moduleIncludesDirName)
+        }
+
+        fun fromJsonObject(obj: JsonObject): DokkaModuleDescriptionKxs = DokkaModuleDescriptionKxs(
+            name = obj["name"]!!.jsonPrimitive.content,
+            modulePath = obj["modulePath"]!!.jsonPrimitive.content,
+            moduleOutputDirName = obj["moduleOutputDirName"]!!.jsonPrimitive.content,
+            moduleIncludesDirName = obj["moduleIncludesDirName"]!!.jsonPrimitive.content,
+        )
+    }
+}
