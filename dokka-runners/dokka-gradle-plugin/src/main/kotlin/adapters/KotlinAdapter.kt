@@ -124,6 +124,7 @@ abstract class KotlinAdapter @Inject constructor(
 
         // for each Kotlin source set, register a Dokka source set
         registerDokkaSourceSets(
+            projectPath = project.path,
             dokkaExtension = dokkaExtension,
             sourceSetDetails = sourceSetDetails,
         )
@@ -131,17 +132,22 @@ abstract class KotlinAdapter @Inject constructor(
 
     /** Register a [DokkaSourceSetSpec] for each element in [sourceSetDetails] */
     private fun registerDokkaSourceSets(
+        projectPath: String,
         dokkaExtension: DokkaExtension,
         sourceSetDetails: NamedDomainObjectContainer<KotlinSourceSetDetails>,
     ) {
         // proactively use 'all' so source sets will be available in users' build files if they use `named("...")`
         sourceSetDetails.all details@{
-            dokkaExtension.dokkaSourceSets.register(details = this@details)
+            dokkaExtension.dokkaSourceSets.register(
+                projectPath = projectPath,
+                details = this@details,
+            )
         }
     }
 
     /** Register a single [DokkaSourceSetSpec] for [details] */
     private fun NamedDomainObjectContainer<DokkaSourceSetSpec>.register(
+        projectPath: String,
         details: KotlinSourceSetDetails
     ) {
         val kssPlatform = details.compilations.map { values: List<KotlinCompilationDetails> ->
@@ -149,7 +155,7 @@ abstract class KotlinAdapter @Inject constructor(
             val singlePlatform = allPlatforms.singleOrNull()
 
             if (singlePlatform == null) {
-                logger.warn("Dokka could not detect KotlinPlatform for ${details.name} from targets ${values.map { it.target }}, falling back to ${KotlinPlatform.Common}. (All platforms: $allPlatforms)")
+                logger.warn("[$projectPath] Dokka could not detect KotlinPlatform for ${details.name} from targets ${values.map { it.target }}, falling back to ${KotlinPlatform.Common}. (All platforms: $allPlatforms)")
                 KotlinPlatform.Common
             } else {
                 singlePlatform
@@ -466,7 +472,7 @@ private class KotlinSourceSetDetailsBuilder(
     private val sourceSetScopeDefault: Provider<String>,
     private val objects: ObjectFactory,
     private val providers: ProviderFactory,
-    /** Used for logging */
+    /** [Project.getPath]. Used for logging. */
     private val projectPath: String,
 ) {
 
@@ -477,7 +483,9 @@ private class KotlinSourceSetDetailsBuilder(
         allKotlinCompilationDetails: ListProperty<KotlinCompilationDetails>,
     ): NamedDomainObjectContainer<KotlinSourceSetDetails> {
 
-        val sourceSetDetails = objects.domainObjectContainer(KotlinSourceSetDetails::class)
+        val sourceSetDetails = objects.domainObjectContainer { name ->
+            objects.newInstance<KotlinSourceSetDetails>(name, projectPath)
+        }
 
         kotlinSourceSets.configureEach kss@{
             sourceSetDetails.register(
