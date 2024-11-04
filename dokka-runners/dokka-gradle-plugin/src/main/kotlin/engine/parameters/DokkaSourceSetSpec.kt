@@ -18,7 +18,7 @@ import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.java
 import org.gradle.kotlin.dsl.newInstance
 import org.jetbrains.dokka.gradle.engine.parameters.SourceSetIdSpec.Companion.dokkaSourceSetIdSpec
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.adding
 import org.jetbrains.dokka.gradle.internal.domainObjectContainer
 import java.io.Serializable
@@ -26,9 +26,11 @@ import javax.inject.Inject
 import kotlin.DeprecationLevel.ERROR
 
 /**
- * [Source set](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) level configuration.
+ * A [DokkaSourceSetSpec] controls how Dokka will view and rendered sources.
  *
- * Can be configured in the following way with Gradle Kotlin DSL:
+ * Dokka will automatically discover source sets from Kotlin, Android, and Java projects.
+ *
+ * Source sets can be configured individually, or all at once.
  *
  * ```kotlin
  * // build.gradle.kts
@@ -37,12 +39,12 @@ import kotlin.DeprecationLevel.ERROR
  *   dokkaSourceSets {
  *     // configure individual source set by name
  *     named("customSourceSet") {
- *       suppress.set(true)
+ *       // ...
  *     }
  *
  *     // configure all source sets at once
  *     configureEach {
- *       reportUndocumented.set(true)
+ *       // ...
  *     }
  *   }
  * }
@@ -51,7 +53,7 @@ import kotlin.DeprecationLevel.ERROR
  * @see org.jetbrains.dokka.DokkaSourceSetImpl
  */
 abstract class DokkaSourceSetSpec
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     private val name: String,
@@ -78,7 +80,7 @@ constructor(
     abstract val sourceSetScope: Property<String>
 
     /**
-     * The identifier for this source set, across all Gradle subprojects.
+     * The identifier for this source set, which is distinct across all Gradle subprojects.
      *
      * @see sourceSetScope
      * @see getName

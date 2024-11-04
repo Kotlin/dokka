@@ -20,7 +20,7 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.PluginId
 import org.jetbrains.dokka.gradle.internal.or
 import org.jetbrains.dokka.gradle.internal.uppercaseFirstChar
@@ -30,9 +30,10 @@ import javax.inject.Inject
 /**
  * Discovers Java Gradle Plugin specific configuration and uses it to configure Dokka.
  *
- * **Must be applied *after* [org.jetbrains.dokka.gradle.DokkaBasePlugin]**
+ * This is an internal Dokka plugin and should not be used externally.
+ * It is not a standalone plugin, it requires [org.jetbrains.dokka.gradle.DokkaBasePlugin] is also applied.
  */
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 abstract class JavaAdapter @Inject constructor(
     private val providers: ProviderFactory,
 ) : Plugin<Project> {
@@ -132,7 +133,7 @@ abstract class JavaAdapter @Inject constructor(
         return projectHasKotlinPlugin or projectHasAndroidPlugin
     }
 
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     companion object {
         /**
          * Determine if a [KotlinCompilation] is 'publishable', and so should be enabled by default

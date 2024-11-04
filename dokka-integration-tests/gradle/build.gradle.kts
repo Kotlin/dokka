@@ -12,9 +12,12 @@ plugins {
     id("dokkabuild.kotlin-jvm")
     id("dokkabuild.test-integration")
     id("dokkabuild.dev-maven-publish")
+    alias(libs.plugins.kotlinxSerialization)
 }
 
 dependencies {
+    val dokkaVersion = project.version.toString()
+
     api(projects.utilities)
 
     api(libs.jsoup)
@@ -25,9 +28,13 @@ dependencies {
     api(libs.kotest.assertionsCore)
     api(gradleTestKit())
 
-    val dokkaVersion = project.version.toString()
-
     api(testFixtures("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"))
+    api(platform(libs.kotest.bom))
+    api(libs.kotest.assertionsCore)
+    api(libs.kotest.assertionsJson)
+
+    implementation(platform(libs.kotlinxSerialization.bom))
+    implementation(libs.kotlinxSerialization.json)
 
     // We're using Gradle included-builds and dependency substitution, so we
     // need to use the Gradle project name, *not* the published Maven artifact-id
@@ -66,6 +73,7 @@ tasks.withType<Test>().configureEach {
 
     systemProperty("hostGradleUserHome", gradle.gradleUserHomeDir.invariantSeparatorsPath)
 }
+
 
 val templateSettingsGradleKts = layout.projectDirectory.file("projects/template.settings.gradle.kts")
 val templateProjectsDir = layout.projectDirectory.dir("projects")
@@ -159,8 +167,6 @@ fun registerTestProjectSuite(
                     .inputFile("templateSettingsGradleKts", templateSettingsGradleKts)
                     .withPathSensitivity(NAME_ONLY)
 
-                devMavenPublish.configureTask(this)
-
                 if (jvm != null) {
                     javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
                 }
@@ -208,4 +214,34 @@ val checkoutKotlinxSerialization by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx.serialization.git"
     commitId = "ed1b05707ec27f8864c8b42235b299bdb5e0015c"
     destination = templateProjectsDir.dir("serialization/kotlinx-serialization")
+}
+
+testing {
+    suites.withType<JvmTestSuite>().configureEach {
+        targets.configureEach {
+            testTask.configure {
+                devMavenPublish.configureTask(this)
+            }
+        }
+    }
+    val testExampleProjects by suites.registering(JvmTestSuite::class) {
+        targets.configureEach {
+            testTask.configure {
+
+                val exampleGradleProjectsDir = projectDir.resolve("../../examples/gradle-v2")
+                systemProperty
+                    .inputDirectory("exampleGradleProjectsDir", exampleGradleProjectsDir)
+                    .withPathSensitivity(RELATIVE)
+
+                val expectedDataDir = layout.projectDirectory.dir("src/testExampleProjects/expectedData")
+                systemProperty
+                    .inputDirectory("expectedDataDir", expectedDataDir)
+                    .withPathSensitivity(RELATIVE)
+
+                // Disable parallel on CI. TeamCity OOMs when the tests are run in parallel.
+                systemProperty.inputProperty("junit.jupiter.execution.parallel.enabled", dokkaBuild.isCI.map { !it })
+                systemProperty("junit.jupiter.execution.parallel.mode.default", "CONCURRENT")
+            }
+        }
+    }
 }

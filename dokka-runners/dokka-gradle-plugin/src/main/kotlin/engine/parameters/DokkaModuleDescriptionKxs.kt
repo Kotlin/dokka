@@ -6,7 +6,7 @@ package org.jetbrains.dokka.gradle.engine.parameters
 import kotlinx.serialization.Serializable
 import org.gradle.kotlin.dsl.java
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 
 /**
  * Any subproject can be merged into a single Dokka Publication. To do this, first it must create
@@ -24,11 +24,11 @@ import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
  * @see org.jetbrains.dokka.DokkaModuleDescriptionImpl
  */
 @Serializable
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 data class DokkaModuleDescriptionKxs(
     /** @see DokkaConfiguration.DokkaModuleDescription.name */
     val name: String,
-    /** @see [org.gradle.api.Project.getPath] */
+    /** @see org.jetbrains.dokka.gradle.DokkaExtension.modulePath */
     val modulePath: String,
     /** name of the sibling directory that contains the module output */
     val moduleOutputDirName: String = "module",

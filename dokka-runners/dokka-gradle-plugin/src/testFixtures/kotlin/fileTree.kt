@@ -3,18 +3,11 @@
  */
 package org.jetbrains.dokka.gradle.utils
 
-import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.*
 
 // based on https://gist.github.com/mfwgenerics/d1ec89eb80c95da9d542a03b49b5e15b
 // context: https://kotlinlang.slack.com/archives/C0B8MA7FA/p1676106647658099
-
-
-fun File.toTreeString(
-    fileFilter: FileFilter = FileFilter { true },
-): String =
-    toPath().toTreeString(fileFilter = fileFilter)
 
 
 fun Path.toTreeString(
@@ -89,19 +82,5 @@ private data class PrefixPair(
 
         /** Prefix pair for the last directory entry */
         val LAST_ENTRY = PrefixPair("└── ", "    ")
-    }
-}
-
-
-/**
- * Directories before files, otherwise sort by filename.
- */
-private object FileSorter : Comparator<File> {
-    override fun compare(o1: File, o2: File): Int {
-        return when {
-            o1.isDirectory && o2.isFile -> -1 // directories before files
-            o1.isFile && o2.isDirectory -> +1 // files after directories
-            else -> o1.name.compareTo(o2.name)
-        }
     }
 }

@@ -7,7 +7,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
 import org.jetbrains.dokka.gradle.formats.DokkaHtmlPlugin
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.pluginFeaturesService
 import org.jetbrains.dokka.gradle.internal.addV2MigrationHelpers
 import javax.inject.Inject
@@ -20,7 +20,7 @@ import org.jetbrains.dokka.gradle.DokkaClassicPlugin as ClassicDokkaPlugin
  */
 abstract class DokkaPlugin
 @Inject
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 constructor() : Plugin<Project> {
 
     override fun apply(project: Project) {
