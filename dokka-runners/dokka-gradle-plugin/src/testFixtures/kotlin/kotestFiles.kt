@@ -15,7 +15,7 @@ import kotlin.io.path.*
  *
  * Only files will be compared, directories are ignored.
  */
-infix fun Path.shouldBeDirectoryWithSameContentAs(path: Path) {
+infix fun Path.shouldBeADirectoryWithSameContentAs(path: Path) {
     val differences = describeFileDifferences(this, path)
     if (differences.isNotEmpty()) {
         fail(differences)
@@ -45,8 +45,11 @@ private fun describeFileDifferences(
     }
 
     // Collect all files from directories recursively
-    val expectedFiles = expectedDir.walk().filter { it.isRegularFile() }.map { it.relativeTo(expectedDir) }.toSet()
-    val actualFiles = actualDir.walk().filter { it.isRegularFile() }.map { it.relativeTo(actualDir) }.toSet()
+    fun Path.allFiles(): Set<Path> =
+        walk().filter { it.isRegularFile() }.map { it.relativeTo(this@allFiles) }.toSet()
+
+    val expectedFiles = expectedDir.allFiles()
+    val actualFiles = actualDir.allFiles()
 
     // Check for files present in one directory but not the other
     val onlyInExpected = expectedFiles - actualFiles
@@ -54,15 +57,15 @@ private fun describeFileDifferences(
 
     if (onlyInExpected.isNotEmpty()) {
         appendLine("actualDir is missing ${onlyInExpected.size} files:")
-        appendLine(onlyInExpected.joinToFormattedList())
+        appendLine(onlyInExpected.sorted().joinToFormattedList())
     }
     if (onlyInActual.isNotEmpty()) {
         appendLine("actualDir has ${onlyInActual.size} unexpected files:")
-        appendLine(onlyInActual.joinToFormattedList())
+        appendLine(onlyInActual.sorted().joinToFormattedList())
     }
 
     // Compare contents of files that are present in both directories
-    val commonFiles = onlyInExpected intersect onlyInActual
+    val commonFiles = actualFiles intersect expectedFiles
 
     commonFiles
         .sorted()
@@ -76,17 +79,17 @@ private fun describeFileDifferences(
             val patch = DiffUtils.diff(expectedLines, actualLines)
 
             if (patch.deltas.isNotEmpty()) {
+                appendLine("${relativePath.invariantSeparatorsPathString} has ${patch.deltas.size} differences in content:")
 
                 val diff = UnifiedDiffUtils.generateUnifiedDiff(
-                    /* originalFileName = */ expectedFile.toString(),
-                    /* revisedFileName = */ actualFile.toString(),
+                    /* originalFileName = */ expectedFile.relativeTo(expectedDir).invariantSeparatorsPathString,
+                    /* revisedFileName = */ actualFile.relativeTo(actualDir).invariantSeparatorsPathString,
                     /* originalLines = */ expectedLines,
                     /* patch = */ patch,
                     /* contextSize = */ 3,
                 )
 
-                appendLine("\t${relativePath.invariantSeparatorsPathString} has ${diff.size} differences in content:")
-                appendLine(diff.joinToString("\n", limit = 3).prependIndent("\t"))
+                appendLine(diff.joinToString("\n").prependIndent())
             }
         }
 }
@@ -96,4 +99,4 @@ private fun describeFileDifferences(
  * Pretty print files as a list.
  */
 private fun Collection<Path>.joinToFormattedList(limit: Int = 10): String =
-    joinToString("\n", limit = limit) { "\t- ${it.invariantSeparatorsPathString}" }
+    joinToString("\n", limit = limit) { "  - ${it.invariantSeparatorsPathString}" }

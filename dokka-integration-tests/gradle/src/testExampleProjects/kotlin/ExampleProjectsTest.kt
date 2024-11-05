@@ -209,7 +209,7 @@ class ExampleProjectsTest {
                     }
 
                     withClue("expect directories are the same") {
-                        dokkaOutputDir shouldBeDirectoryWithSameContentAs expectedDataDir
+                        dokkaOutputDir shouldBeADirectoryWithSameContentAs expectedDataDir
                     }
                 }
             }
