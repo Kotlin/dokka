@@ -105,16 +105,38 @@ private fun Collection<Path>.joinToFormattedList(limit: Int = 10): String =
 
 /**
  * Read lines from a file, leniently.
- * Handles text and binary data.
+ * Handles text and binary data (though binary data might be hard to read).
  *
  * ([kotlin.io.path.readLines] blows up when it reads binary files.)
  */
 private fun Path.readByteLines(): List<String> {
     try {
         inputStream().bufferedReader().use { reader ->
-            return generateSequence { reader.readLine() }.toList()
+            return generateSequence { reader.readLine()?.replaceNonPrintableWithCodepoint() }.toList()
         }
     } catch (e: Exception) {
         throw IOException("Could not read lines from $this", e)
+    }
+}
+
+/**
+ * Replace non-printable chars in the String with the codepoint representation.
+ *
+ * This helps with ensuring reproducible output in different OSes.
+ */
+private fun String.replaceNonPrintableWithCodepoint(): String {
+    return buildString {
+        this@replaceNonPrintableWithCodepoint.forEach { char ->
+            val isPrintable = !char.isISOControl() &&
+                    char != Char.MAX_VALUE &&
+                    Character.UnicodeBlock.of(char) != Character.UnicodeBlock.SPECIALS
+
+            if (!isPrintable) {
+                val codepoint = char.code.toString(16).uppercase().padStart(4, '0')
+                append("[U+${codepoint}]")
+            } else {
+                append(char)
+            }
+        }
     }
 }
