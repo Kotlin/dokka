@@ -82,7 +82,7 @@ class AndroidProjectIT {
                 withClue((actualFileTree to expectedFileTree).sideBySide()) {
                     expectedFileTree shouldBe actualFileTree
 
-                    actualHtmlDir shouldBeDirectoryWithSameContentAs expectedHtml
+                    actualHtmlDir shouldBeADirectoryWithSameContentAs expectedHtml
                 }
             }
         }

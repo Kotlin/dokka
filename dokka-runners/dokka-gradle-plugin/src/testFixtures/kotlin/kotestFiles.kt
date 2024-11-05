@@ -6,6 +6,7 @@ package org.jetbrains.dokka.gradle.utils
 import com.github.difflib.DiffUtils
 import com.github.difflib.UnifiedDiffUtils
 import io.kotest.assertions.fail
+import java.io.IOException
 import java.nio.file.Path
 import kotlin.io.path.*
 
@@ -73,8 +74,8 @@ private fun describeFileDifferences(
             val expectedFile = expectedDir.resolve(relativePath)
             val actualFile = actualDir.resolve(relativePath)
 
-            val expectedLines = expectedFile.readLines()
-            val actualLines = actualFile.readLines()
+            val expectedLines = expectedFile.readByteLines()
+            val actualLines = actualFile.readByteLines()
 
             val patch = DiffUtils.diff(expectedLines, actualLines)
 
@@ -100,3 +101,20 @@ private fun describeFileDifferences(
  */
 private fun Collection<Path>.joinToFormattedList(limit: Int = 10): String =
     joinToString("\n", limit = limit) { "  - ${it.invariantSeparatorsPathString}" }
+
+
+/**
+ * Read lines from a file, leniently.
+ * Handles text and binary data.
+ *
+ * ([kotlin.io.path.readLines] blows up when it reads binary files.)
+ */
+private fun Path.readByteLines(): List<String> {
+    try {
+        inputStream().bufferedReader().use { reader ->
+            return generateSequence { reader.readLine() }.toList()
+        }
+    } catch (e: Exception) {
+        throw IOException("Could not read lines from $this", e)
+    }
+}
