@@ -9,13 +9,14 @@ import io.kotest.assertions.fail
 import java.nio.file.Path
 import kotlin.io.path.*
 
+
 /**
  * Compare the contents of this directory with that of [path].
  *
- * Only files and non-empty directories will be compared.
+ * Only files will be compared, directories are ignored.
  */
 infix fun Path.shouldBeDirectoryWithSameContentAs(path: Path) {
-    val differences = describeDirectoryDifferences(expectedDir = this, actualDir = path)
+    val differences = describeFileDifferences(this, path)
     if (differences.isNotEmpty()) {
         fail(differences)
     }
@@ -24,11 +25,15 @@ infix fun Path.shouldBeDirectoryWithSameContentAs(path: Path) {
 
 /**
  * Build a string that describes the differences between [expectedDir] and [actualDir].
+ *
+ * Both the location and content of files is compared.
+ * Only files are compared, directories are excluded.
+ *
+ * If the string is empty then no differences were detected.
  */
-private fun describeDirectoryDifferences(
+private fun describeFileDifferences(
     expectedDir: Path,
     actualDir: Path,
-    fileFilter: (Path) -> Boolean = { it.isRegularFile() || !it.isEmptyDirectory() },
 ): String = buildString {
     if (!expectedDir.isDirectory()) {
         appendLine("expectedDir '$expectedDir' is not a directory (exists:${expectedDir.exists()}, file:${expectedDir.isRegularFile()})")
@@ -40,8 +45,8 @@ private fun describeDirectoryDifferences(
     }
 
     // Collect all files from directories recursively
-    val expectedFiles = expectedDir.walk().filter(fileFilter).map { it.relativeTo(expectedDir) }.toSet()
-    val actualFiles = actualDir.walk().filter(fileFilter).map { it.relativeTo(actualDir) }.toSet()
+    val expectedFiles = expectedDir.walk().filter { it.isRegularFile() }.map { it.relativeTo(expectedDir) }.toSet()
+    val actualFiles = actualDir.walk().filter { it.isRegularFile() }.map { it.relativeTo(actualDir) }.toSet()
 
     // Check for files present in one directory but not the other
     val onlyInExpected = expectedFiles - actualFiles
@@ -59,37 +64,33 @@ private fun describeDirectoryDifferences(
     // Compare contents of files that are present in both directories
     val commonFiles = onlyInExpected intersect onlyInActual
 
-    commonFiles.sorted().forEach { relativePath ->
-        val expectedFile = expectedDir.resolve(relativePath)
-        val actualFile = actualDir.resolve(relativePath)
+    commonFiles
+        .sorted()
+        .forEach { relativePath ->
+            val expectedFile = expectedDir.resolve(relativePath)
+            val actualFile = actualDir.resolve(relativePath)
 
-        val expectedLines = expectedFile.readLines()
-        val actualLines = actualFile.readLines()
+            val expectedLines = expectedFile.readLines()
+            val actualLines = actualFile.readLines()
 
-        val patch = DiffUtils.diff(expectedLines, actualLines)
+            val patch = DiffUtils.diff(expectedLines, actualLines)
 
-        if (patch.deltas.isNotEmpty()) {
+            if (patch.deltas.isNotEmpty()) {
 
-            val diff = UnifiedDiffUtils.generateUnifiedDiff(
-                /* originalFileName = */ expectedFile.toString(),
-                /* revisedFileName = */ actualFile.toString(),
-                /* originalLines = */ expectedLines,
-                /* patch = */ patch,
-                /* contextSize = */ 3,
-            )
+                val diff = UnifiedDiffUtils.generateUnifiedDiff(
+                    /* originalFileName = */ expectedFile.toString(),
+                    /* revisedFileName = */ actualFile.toString(),
+                    /* originalLines = */ expectedLines,
+                    /* patch = */ patch,
+                    /* contextSize = */ 3,
+                )
 
-            appendLine("\t${relativePath.invariantSeparatorsPathString} has ${diff.size} differences in content:")
-            appendLine(diff.joinToString("\n", limit = 3).prependIndent())
+                appendLine("\t${relativePath.invariantSeparatorsPathString} has ${diff.size} differences in content:")
+                appendLine(diff.joinToString("\n", limit = 3).prependIndent("\t"))
+            }
         }
-    }
 }
 
-
-/**
- * Returns `true` if [file] is a regular file, or if it is a non-empty directory.
- */
-private fun Path.isEmptyDirectory(): Boolean =
-    isDirectory() && useDirectoryEntries { it.count() == 0 }
 
 /**
  * Pretty print files as a list.
