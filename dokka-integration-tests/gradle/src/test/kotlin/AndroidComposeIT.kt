@@ -3,11 +3,13 @@
  */
 package org.jetbrains.dokka.it.gradle
 
+import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.file.shouldBeAFile
 import io.kotest.matchers.file.shouldHaveSameStructureAndContentAs
 import io.kotest.matchers.file.shouldHaveSameStructureAs
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
@@ -41,7 +43,7 @@ class AndroidComposeIT {
             )
             .build {
                 withClue("expect project builds successfully") {
-                    output shouldContain "BUILD SUCCESSFUL"
+                    shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(SUCCESS)
                 }
 
                 withClue("expect all dokka workers are successful") {
@@ -85,7 +87,7 @@ class AndroidComposeIT {
     }
 
     @DokkaGradlePluginTest(sourceProjectName = "it-android-compose")
-    fun `Dokka tasks should be cacheable`(
+    fun `Dokka tasks should be build cacheable`(
         project: DokkaGradleProjectRunner,
     ) {
         project.runner
@@ -128,22 +130,29 @@ class AndroidComposeIT {
 
         withClue("first build should store the configuration cache") {
             configCacheRunner.build {
-                // TODO use proper test assertions
-                output shouldContain "BUILD SUCCESSFUL"
+                shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+
                 output shouldContain "Configuration cache entry stored"
 
-                // this if is to workaround Gradle 7 having different logging - remove when minimum tested Gradle is 8+
-                if ("0 problems were found storing the configuration cache." !in output) {
-                    output shouldNotContain "problems were found storing the configuration cache"
-                }
+                loadConfigurationCacheReportData(projectDir = project.projectDir)
+                    .shouldNotBeNull()
+                    .asClue { ccReport ->
+                        ccReport.totalProblemCount shouldBe 0
+                    }
             }
         }
 
         withClue("second build should reuse the configuration cache") {
             configCacheRunner.build {
-                // TODO use proper test assertions
-                output shouldContain "BUILD SUCCESSFUL"
+                shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+
                 output shouldContain "Configuration cache entry reused"
+
+                loadConfigurationCacheReportData(projectDir = project.projectDir)
+                    .shouldNotBeNull()
+                    .asClue {
+                        it.cacheAction shouldBe "RESTORED"
+                    }
             }
         }
     }

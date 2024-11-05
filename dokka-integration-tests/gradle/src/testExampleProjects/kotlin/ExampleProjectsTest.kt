@@ -340,10 +340,11 @@ class ExampleProjectsTest {
             output shouldContain "BUILD SUCCESSFUL"
             output shouldContain "Configuration cache entry stored"
 
-            val ccReport = testCase.project.loadConfigurationCacheReportData().shouldNotBeNull()
-            ccReport.asClue {
-                it.totalProblemCount shouldBe 0
-            }
+            loadConfigurationCacheReportData(projectDir = testCase.project.projectDir)
+                .shouldNotBeNull()
+                .asClue { ccReport ->
+                    ccReport.totalProblemCount shouldBe 0
+                }
         }
 
         // second build should reuse the configuration cache

@@ -5,7 +5,6 @@ package org.jetbrains.dokka.it.gradle
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import org.jetbrains.dokka.gradle.utils.GradleProjectTest
 import java.nio.file.Path
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.readText
@@ -19,7 +18,7 @@ import kotlin.io.path.walk
  * Only the first CC report will be parsed, so make sure to clean the CC report directory
  * before running any Gradle tasks to ensure only one report is found.
  */
-fun GradleProjectTest.loadConfigurationCacheReportData(): ConfigurationCacheReportData? {
+fun loadConfigurationCacheReportData(projectDir: Path): ConfigurationCacheReportData? {
     val ccReportFile = projectDir.resolve("build/reports/configuration-cache")
         .walk()
         .filter { it.isRegularFile() }
