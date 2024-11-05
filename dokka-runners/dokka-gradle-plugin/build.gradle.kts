@@ -61,6 +61,8 @@ dependencies {
     testFixturesImplementation(gradleApi())
     testFixturesImplementation(gradleTestKit())
 
+    testFixturesImplementation("io.github.java-diff-utils:java-diff-utils:4.12")
+
     testFixturesCompileOnly("org.jetbrains.dokka:dokka-core:${project.version}")
     testFixturesImplementation(platform(libs.kotlinxSerialization.bom))
     testFixturesImplementation(libs.kotlinxSerialization.json)

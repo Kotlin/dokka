@@ -3,106 +3,96 @@
  */
 package org.jetbrains.dokka.gradle.utils
 
-import io.kotest.matchers.collections.shouldBeSameSizeAs
-import io.kotest.matchers.file.shouldBeADirectory
-import io.kotest.matchers.file.shouldHaveSameContentAs
-import io.kotest.matchers.shouldBe
-import java.io.File
-import java.nio.file.Files
+import com.github.difflib.DiffUtils
+import com.github.difflib.UnifiedDiffUtils
+import io.kotest.assertions.fail
 import java.nio.file.Path
+import kotlin.io.path.*
 
-fun Path.shouldHaveSameStructureAs(path: Path, skipEmptyDirs: Boolean) {
-    if (skipEmptyDirs) {
-        toFile().shouldHaveSameStructureAs2(path.toFile(), ::isNotEmptyDir, ::isNotEmptyDir)
-    } else {
-        toFile().shouldHaveSameStructureAs2(path.toFile())
-    }
-}
-
-fun Path.shouldHaveSameStructureAndContentAs(path: Path, skipEmptyDirs: Boolean) {
-    if (skipEmptyDirs) {
-        toFile().shouldHaveSameStructureAndContentAs2(path.toFile(), ::isNotEmptyDir, ::isNotEmptyDir)
-    } else {
-        toFile().shouldHaveSameStructureAndContentAs2(path.toFile())
-    }
-}
-
-private fun isNotEmptyDir(file: File): Boolean =
-    file.isFile || Files.newDirectoryStream(file.toPath()).use { it.count() } > 0
-
-
-private fun File.shouldHaveSameStructureAs2(
-    file: File,
-    filterLhs: (File) -> Boolean = { false },
-    filterRhs: (File) -> Boolean = { false },
-) {
-    shouldHaveSameStructureAndContentAs2(
-        file,
-        filterLhs = filterLhs,
-        filterRhs = filterRhs
-    ) { expect, actual ->
-        val expectPath = expect.invariantSeparatorsPath.removePrefix(expectParentPath)
-        val actualPath = actual.invariantSeparatorsPath.removePrefix(actualParentPath)
-        expectPath shouldBe actualPath
-    }
-}
-
-fun File.shouldHaveSameStructureAndContentAs2(
-    file: File,
-    filterLhs: (File) -> Boolean = { false },
-    filterRhs: (File) -> Boolean = { false },
-) {
-    shouldHaveSameStructureAndContentAs2(
-        file,
-        filterLhs = filterLhs,
-        filterRhs = filterRhs
-    ) { expect, actual ->
-        val expectPath = expect.invariantSeparatorsPath.removePrefix(expectParentPath)
-        val actualPath = actual.invariantSeparatorsPath.removePrefix(actualParentPath)
-        expectPath shouldBe actualPath
-
-        expect.shouldHaveSameContentAs(actual)
+/**
+ * Compare the contents of this directory with that of [path].
+ *
+ * Only files and non-empty directories will be compared.
+ */
+infix fun Path.shouldBeDirectoryWithSameContentAs(path: Path) {
+    val differences = describeDirectoryDifferences(expectedDir = this, actualDir = path)
+    if (differences.isNotEmpty()) {
+        fail(differences)
     }
 }
 
 
-private fun File.shouldHaveSameStructureAndContentAs2(
-    file: File,
-    filterLhs: (File) -> Boolean = { false },
-    filterRhs: (File) -> Boolean = { false },
-    fileAssert: FileAsserter,
-) {
-    val expectFiles = this.walkTopDown().filter(filterLhs).toList()
-    val actualFiles = file.walkTopDown().filter(filterRhs).toList()
+/**
+ * Build a string that describes the differences between [expectedDir] and [actualDir].
+ */
+private fun describeDirectoryDifferences(
+    expectedDir: Path,
+    actualDir: Path,
+    fileFilter: (Path) -> Boolean = { it.isRegularFile() || !it.isEmptyDirectory() },
+): String = buildString {
+    if (!expectedDir.isDirectory()) {
+        appendLine("expectedDir '$expectedDir' is not a directory (exists:${expectedDir.exists()}, file:${expectedDir.isRegularFile()})")
+        return@buildString
+    }
+    if (!actualDir.isDirectory()) {
+        appendLine("actualDir '$actualDir' is not a directory (exists:${actualDir.exists()}, file:${actualDir.isRegularFile()})")
+        return@buildString
+    }
 
-    expectFiles shouldBeSameSizeAs actualFiles
+    // Collect all files from directories recursively
+    val expectedFiles = expectedDir.walk().filter(fileFilter).map { it.relativeTo(expectedDir) }.toSet()
+    val actualFiles = actualDir.walk().filter(fileFilter).map { it.relativeTo(actualDir) }.toSet()
 
-    val assertContext = FileAsserter.Context(
-        expectParentPath = this.invariantSeparatorsPath,
-        actualParentPath = file.invariantSeparatorsPath,
-    )
+    // Check for files present in one directory but not the other
+    val onlyInExpected = expectedFiles - actualFiles
+    val onlyInActual = actualFiles - expectedFiles
 
-    expectFiles.zip(actualFiles) { expect, actual ->
-        when {
-            expect.isDirectory -> actual.shouldBeADirectory()
-            expect.isFile -> {
-                with(fileAssert) {
-                    assertContext.assert(expect, actual)
-                }
-            }
+    if (onlyInExpected.isNotEmpty()) {
+        appendLine("actualDir is missing ${onlyInExpected.size} files:")
+        appendLine(onlyInExpected.joinToFormattedList())
+    }
+    if (onlyInActual.isNotEmpty()) {
+        appendLine("actualDir has ${onlyInActual.size} unexpected files:")
+        appendLine(onlyInActual.joinToFormattedList())
+    }
 
-            else -> error("There is an unexpected error analyzing file trees. Failed to determine filetype of $expect")
+    // Compare contents of files that are present in both directories
+    val commonFiles = onlyInExpected intersect onlyInActual
+
+    commonFiles.sorted().forEach { relativePath ->
+        val expectedFile = expectedDir.resolve(relativePath)
+        val actualFile = actualDir.resolve(relativePath)
+
+        val expectedLines = expectedFile.readLines()
+        val actualLines = actualFile.readLines()
+
+        val patch = DiffUtils.diff(expectedLines, actualLines)
+
+        if (patch.deltas.isNotEmpty()) {
+
+            val diff = UnifiedDiffUtils.generateUnifiedDiff(
+                /* originalFileName = */ expectedFile.toString(),
+                /* revisedFileName = */ actualFile.toString(),
+                /* originalLines = */ expectedLines,
+                /* patch = */ patch,
+                /* contextSize = */ 3,
+            )
+
+            appendLine("\t${relativePath.invariantSeparatorsPathString} has ${diff.size} differences in content:")
+            appendLine(diff.joinToString("\n", limit = 3).prependIndent())
         }
     }
 }
 
 
-private fun interface FileAsserter {
+/**
+ * Returns `true` if [file] is a regular file, or if it is a non-empty directory.
+ */
+private fun Path.isEmptyDirectory(): Boolean =
+    isDirectory() && useDirectoryEntries { it.count() == 0 }
 
-    data class Context(
-        val expectParentPath: String,
-        val actualParentPath: String,
-    )
-
-    fun Context.assert(expect: File, actual: File)
-}
+/**
+ * Pretty print files as a list.
+ */
+private fun Collection<Path>.joinToFormattedList(limit: Int = 10): String =
+    joinToString("\n", limit = limit) { "\t- ${it.invariantSeparatorsPathString}" }

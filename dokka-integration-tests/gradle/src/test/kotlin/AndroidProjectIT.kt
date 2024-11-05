@@ -7,8 +7,6 @@ import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.file.shouldBeAFile
-import io.kotest.matchers.file.shouldHaveSameStructureAndContentAs
-import io.kotest.matchers.file.shouldHaveSameStructureAs
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
@@ -84,15 +82,14 @@ class AndroidProjectIT {
                 withClue((actualFileTree to expectedFileTree).sideBySide()) {
                     expectedFileTree shouldBe actualFileTree
 
-                    actualHtmlDir.toFile().shouldHaveSameStructureAs(expectedHtml.toFile())
-                    actualHtmlDir.toFile().shouldHaveSameStructureAndContentAs(expectedHtml.toFile())
+                    actualHtmlDir shouldBeDirectoryWithSameContentAs expectedHtml
                 }
             }
         }
     }
 
 
-    @DokkaGradlePluginTest(sourceProjectName = "it-android-compose")
+    @DokkaGradlePluginTest(sourceProjectName = "it-android")
     fun `Dokka tasks should be build cacheable`(
         project: DokkaGradleProjectRunner,
     ) {
