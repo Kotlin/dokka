@@ -125,21 +125,15 @@ private fun Path.readByteLines(): List<String> {
  * This helps with ensuring reproducible output in different OSes.
  */
 private fun String.replaceNonPrintableWithCodepoint(): String {
-
-    fun Char.isPrintable(): Boolean =
-        !Character.isISOControl(this) &&
-                this != Char.MAX_VALUE &&
-                Character.UnicodeBlock.of(this) != Character.UnicodeBlock.SPECIALS
-
     return buildString {
         this@replaceNonPrintableWithCodepoint.forEach { char ->
-            if (char.isISOControl() || !char.isWhitespace()) {
-                if (!char.isPrintable()) {
-                    val codepoint = char.code.toString(16).uppercase().padStart(4, '0')
-                    append("[U+${codepoint}]")
-                } else {
-                    append(char)
-                }
+            val isPrintable = !char.isISOControl() &&
+                    char != Char.MAX_VALUE &&
+                    Character.UnicodeBlock.of(char) != Character.UnicodeBlock.SPECIALS
+
+            if (!isPrintable) {
+                val codepoint = char.code.toString(16).uppercase().padStart(4, '0')
+                append("[U+${codepoint}]")
             } else {
                 append(char)
             }
