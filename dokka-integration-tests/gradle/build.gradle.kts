@@ -25,7 +25,7 @@ dependencies {
     api(libs.kotlin.test)
     api(libs.junit.jupiterApi)
     api(libs.junit.jupiterParams)
-
+    api(libs.kotest.assertionsCore)
     api(gradleTestKit())
 
     api(testFixtures("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"))
@@ -173,6 +173,32 @@ fun registerTestProjectSuite(
             }
         }
         configure()
+    }
+}
+
+testing.suites.named<JvmTestSuite>("test") {
+    targets.configureEach {
+        testTask {
+            systemProperty
+                .inputDirectory("templateProjectsDir", templateProjectsDir)
+                .withPathSensitivity(RELATIVE)
+
+            // Don't register ANDROID_HOME as a Task input, because the path is different on everyone's machine,
+            // which means Gradle will never be able to cache the task.
+            dokkaBuild.androidSdkDir.orNull?.let { androidSdkDir ->
+                environment("ANDROID_HOME", androidSdkDir)
+            }
+
+            // Use a stable Java version for running Gradle in integration tests.
+            // There's no need to parameterise the version, to re-run the tests with different JDKs.
+            // There are a few reasons for this:
+            // - Some tests use AGP 8, which requires Gradle 17+.
+            // - DGP functional tests are already run with Java 8, so we don't need to re-test Java 8 compatibility here.
+            // - The JDK used to run Gradle doesn't affect the Dokka output. The Java Toolchain used to compile
+            //   the code in test projects does affect the output... but that can be parameterised in the
+            //   individual tests if necessary.
+            javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(17) }
+        }
     }
 }
 

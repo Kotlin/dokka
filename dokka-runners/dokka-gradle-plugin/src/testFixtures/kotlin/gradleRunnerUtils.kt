@@ -29,16 +29,21 @@ inline fun GradleRunner.build(
 }
 
 
+
+@OptIn(ExperimentalContracts::class)
 inline fun GradleRunner.buildAndFail(
     handleResult: BuildResult.() -> Unit
-): Unit = buildAndFail().let(handleResult)
+) {
+    contract { callsInPlace(handleResult, InvocationKind.EXACTLY_ONCE) }
+    buildAndFail().let(handleResult)
+}
 
 
 /**
  * Create, or overwrite, the `gradle.properties` file in [GradleRunner.getProjectDir].
  */
 fun GradleRunner.writeGradleProperties(
-    arguments: GradleProjectTest.GradleProperties,
+    arguments: GradlePropertiesBuilder,
 ): GradleRunner {
     val gradlePropertiesFile = projectDir.resolve("gradle.properties").apply {
         if (!exists()) {
@@ -47,7 +52,7 @@ fun GradleRunner.writeGradleProperties(
         }
     }
 
-    val gradleProperties = arguments.toGradleProperties()
+    val gradleProperties = arguments.build()
 
     // Avoid using java.util.Properties because it produces non-deterministic output (e.g. a timestamp),
     // which negatively impacts caching.
