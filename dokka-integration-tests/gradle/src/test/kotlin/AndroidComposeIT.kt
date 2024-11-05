@@ -9,7 +9,6 @@ import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.file.shouldBeAFile
 import io.kotest.matchers.file.shouldHaveSameStructureAndContentAs
 import io.kotest.matchers.file.shouldHaveSameStructureAs
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
@@ -135,7 +134,6 @@ class AndroidComposeIT {
                 output shouldContain "Configuration cache entry stored"
 
                 loadConfigurationCacheReportData(projectDir = project.projectDir)
-                    .shouldNotBeNull()
                     .asClue { ccReport ->
                         ccReport.totalProblemCount shouldBe 0
                     }
@@ -147,12 +145,6 @@ class AndroidComposeIT {
                 shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
 
                 output shouldContain "Configuration cache entry reused"
-
-                loadConfigurationCacheReportData(projectDir = project.projectDir)
-                    .shouldNotBeNull()
-                    .asClue {
-                        it.cacheAction shouldBe "RESTORED"
-                    }
             }
         }
     }

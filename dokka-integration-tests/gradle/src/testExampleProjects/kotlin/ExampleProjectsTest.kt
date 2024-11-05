@@ -5,7 +5,6 @@ package org.jetbrains.dokka.it.gradle.examples
 
 import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.paths.shouldBeADirectory
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -341,7 +340,6 @@ class ExampleProjectsTest {
             output shouldContain "Configuration cache entry stored"
 
             loadConfigurationCacheReportData(projectDir = testCase.project.projectDir)
-                .shouldNotBeNull()
                 .asClue { ccReport ->
                     ccReport.totalProblemCount shouldBe 0
                 }
