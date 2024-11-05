@@ -13,7 +13,6 @@ import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform.Companion.dok
 class KotlinPlatformTest : FunSpec({
 
     test("should have same default as Dokka type") {
-        @Suppress("DEPRECATION")
         KotlinPlatform.DEFAULT.dokkaType shouldBe Platform.DEFAULT
     }
 
