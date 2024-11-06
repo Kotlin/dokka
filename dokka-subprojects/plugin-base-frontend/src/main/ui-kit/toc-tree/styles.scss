@@ -269,6 +269,11 @@
 
     border: none;
   }
+
+  @media (width >= $breakpoint-desktop-min) {
+    position: relative;
+    z-index: 1;
+  }
 }
 
 .theme-dark .sidebar {
