@@ -3,12 +3,15 @@
  */
 package org.jetbrains.dokka.gradle
 
+import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeSingleton
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldEndWith
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.property.Exhaustive
 import io.kotest.property.checkAll
 import io.kotest.property.exhaustive.boolean
@@ -20,6 +23,7 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import org.jetbrains.dokka.gradle.utils.create_
 import org.jetbrains.dokka.gradle.utils.enableV2Plugin
+import org.jetbrains.dokka.gradle.workers.WorkerIsolation
 
 class DokkaPluginTest : FunSpec({
 
@@ -40,6 +44,21 @@ class DokkaPluginTest : FunSpec({
     }
 
     context("Dokka property conventions") {
+
+        context("Dokka Generator isolation") {
+            val project = projectWithDgpV2()
+
+            val extension = project.extensions.getByType<DokkaExtension>()
+
+            test("default worker isolation should be classloader") {
+                extension.dokkaGeneratorIsolation.orNull.asClue { value ->
+                    withClue("value must not be null") {
+                        value shouldNotBe null
+                    }
+                    value.shouldBeInstanceOf<WorkerIsolation>()
+                }
+            }
+        }
 
         context("DokkaSourceSets") {
             val project = projectWithDgpV2()

@@ -224,6 +224,19 @@ constructor(
      * The Worker modes are used to optimise the performance of a Gradle build,
      * especially concerning the memory requirements.
      *
+     * ##### [ClassLoaderIsolation] (Default)
+     *
+     * By default, Dokka Generator is run in the current Gradle Daemon process,
+     * in a new thread with an isolated classpath.
+     *
+     * Classloader isolation is best suited for projects that already have high Gradle Daemon memory requirements.
+     * This is usually the case for very large projects, especially Kotlin Multiplatform projects.
+     * These projects will typically also require a lot of memory to running Dokka Generator.
+     *
+     * If the Gradle Daemon already uses a large amount of memory, it is beneficial to run Dokka Generator
+     * in the same Daemon process. Running Dokka Generator inside the Daemon avoids launching
+     * two Java processes on the same machine, both with high memory requirements.
+     *
      * ##### [ProcessIsolation]
      *
      * The maximum isolation level. Dokka Generator is executed in a separate Java process,
@@ -237,18 +250,6 @@ constructor(
      * This is usually the case for smaller projects, or those with default or low
      * [Gradle Daemon](https://docs.gradle.org/8.10/userguide/gradle_daemon.html)
      * memory settings.
-     *
-     * ##### [ClassLoaderIsolation]
-     *
-     * Dokka Generator is run in the current Gradle Daemon process, in a new thread with an isolated classpath.
-     *
-     * Classloader isolation is best suited for projects that already have high Gradle Daemon memory requirements.
-     * This is usually the case for very large projects, especially Kotlin Multiplatform projects.
-     * These projects will typically also require a lot of memory to running Dokka Generator.
-     *
-     * If the Gradle Daemon already uses a large amount of memory, it is beneficial to run Dokka Generator
-     * in the same Daemon process. Running Dokka Generator inside the Daemon avoids launching
-     * two Java processes on the same machine, both with high memory requirements.
      *
      * #### Example configuration
      *
