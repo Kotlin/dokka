@@ -436,6 +436,14 @@
     max-width: unset;
   }
 }
+.dropdown--list_positioned_right {
+  right: 0;
+}
+
+.dropdown--list_positioned_left {
+  left: 0;
+}
+
 .dropdown--list_expanded {
   display: block;
 }

@@ -15,8 +15,8 @@
 
 @media (width >= 900px) {
   .versions-dropdown .dropdown--list {
-    min-width: 50px;
-    top: 40px;
+    min-width: 60px;
+    top: 44px;
   }
 }
 

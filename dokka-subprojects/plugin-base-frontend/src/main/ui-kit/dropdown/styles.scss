@@ -48,6 +48,14 @@
       max-width: unset;
     }
 
+    &_positioned_right {
+      right: 0;
+    }
+
+    &_positioned_left {
+      left: 0;
+    }
+
     &_expanded {
       display: block;
     }
