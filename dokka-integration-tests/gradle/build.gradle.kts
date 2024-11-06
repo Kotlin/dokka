@@ -194,7 +194,8 @@ testing {
             testTask.configure {
                 devMavenPublish.configureTask(this)
 
-                maxHeapSize = "12g"
+                maxHeapSize = "8g"
+                jvmArgs(emptyList<String>()) // unset default args, in particular max-metaspace
             }
         }
     }
