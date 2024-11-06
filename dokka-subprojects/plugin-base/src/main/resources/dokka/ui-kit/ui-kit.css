@@ -2223,6 +2223,12 @@ button.platform-tag:focus-visible {
     border: none;
   }
 }
+@media (width >= 900px) {
+  .sidebar {
+    position: relative;
+    z-index: 1;
+  }
+}
 .theme-dark .sidebar {
   border-right-color: #56565f;
 }

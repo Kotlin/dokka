@@ -11,7 +11,8 @@ function initTocToggle() {
     console.warn('Dokka: toc toggle or dropdown is not found');
     return;
   }
-  tocToggle.addEventListener('click', () => {
+  tocToggle.addEventListener('click', (event) => {
+    event.stopPropagation();
     onToggleDropdown(tocDropdown);
   });
 }

@@ -40,10 +40,14 @@ function toggleDropdownList(list: Element | null): void {
 function handleOutsideClick(event: MouseEvent): void {
   const target = event.target as HTMLElement;
   if (!hasAncestorWithClass(target, 'dropdown') || target.className === 'dropdown--overlay') {
-    const dropdowns = document.querySelectorAll('.button_dropdown');
+    const dropdowns = document.querySelectorAll(DROPDOWN);
     dropdowns.forEach((dropdown) => {
-      dropdown.classList.remove('button_dropdown_active');
-      dropdown.parentNode?.querySelector('.dropdown--list')?.classList.remove('dropdown--list_expanded');
+      dropdown.querySelectorAll(DROPDOWN_TOGGLE)?.forEach((button: Element) => {
+        button.classList.remove('button_dropdown_active');
+      });
+      dropdown.querySelectorAll(DROPDOWN_LIST)?.forEach((list: Element) => {
+        list.classList.remove('dropdown--list_expanded');
+      });
     });
   }
 }
