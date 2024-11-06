@@ -173,6 +173,8 @@ testing.suites {
                 systemProperty("kotest.framework.config.fqn", "org.jetbrains.dokka.gradle.utils.KotestProjectConfig")
                 // FIXME remove autoscan when Kotest >= 6.0
                 systemProperty("kotest.framework.classpath.scanning.autoscan.disable", "true")
+
+                maxHeapSize = "16g"
             }
         }
     }

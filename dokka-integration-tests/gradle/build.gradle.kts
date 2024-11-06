@@ -193,6 +193,8 @@ testing {
         targets.configureEach {
             testTask.configure {
                 devMavenPublish.configureTask(this)
+
+                maxHeapSize = "16g"
             }
         }
     }
