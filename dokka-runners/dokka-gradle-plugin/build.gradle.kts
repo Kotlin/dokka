@@ -174,7 +174,7 @@ testing.suites {
                 // FIXME remove autoscan when Kotest >= 6.0
                 systemProperty("kotest.framework.classpath.scanning.autoscan.disable", "true")
 
-                maxHeapSize = "16g"
+                maxHeapSize = "12g"
             }
         }
     }
