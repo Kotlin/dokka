@@ -94,25 +94,22 @@ class ShouldBeADirectoryWithSameContentAsTest : FunSpec({
         }
 
         val actualDir = tempDir().apply {
-            resolve("file.bin").writeBytes(PNG_BYTES.reversedArray())
+            resolve("file.bin").writeBytes("This file in the actual dir has valid UTF-8 content".toByteArray())
         }
 
         val failure = shouldFail { expectedDir.shouldBeADirectoryWithSameContentAs(actualDir) }
 
         failure.shouldHaveMessage(
             """
-            file.bin has 2 differences in content:
+            file.bin has 1 differences in content:
                 --- file.bin
                 +++ file.bin
-                @@ -1,4 +1,5 @@
-                -[U+FFFD]PNG
-                -[U+001A]
-                +GKb[U+0002][U+0000][U+0000][U+0000]<Q[U+FFFD][U+FFFD]p[U+0017][U+0000][U+0000][U+FFFD]:[U+0000][U+0000]`[U+FFFD][U+0000][U+0000]0u[U+0000][U+0000][U+FFFD][U+0000][U+0000][U+0000][U+FFFD][U+0000][U+0000][U+FFFD][U+FFFD][U+0000][U+0000]&z[U+0000][U+0000]MRHc [U+0000][U+0000][U+0000][U+0005]a[U+FFFD][U+000B][U+FFFD][U+FFFD][U+0000][U+0000]AMAg[U+0004][U+0000][U+0000][U+0000]@r[U+FFFD]E[U+0000][U+0000][U+0000][U+0004][U+0008][U+FFFD][U+0000][U+0000][U+0000][U+0000][U+0001][U+0000][U+0000]RDHI
-                 [U+0000][U+0000][U+0000]
-                -IHDR[U+0000][U+0000][U+0001][U+0000][U+0000][U+0000][U+0000][U+FFFD][U+0008][U+0004][U+0000][U+0000][U+0000]E[U+FFFD]r@[U+0000][U+0000][U+0000][U+0004]gAMA[U+0000][U+0000][U+FFFD][U+FFFD][U+000B][U+FFFD]a[U+0005][U+0000][U+0000][U+0000] cHRM[U+0000][U+0000]z&[U+0000][U+0000][U+FFFD][U+FFFD][U+0000][U+0000][U+FFFD][U+0000][U+0000][U+0000][U+FFFD][U+FFFD][U+0000][U+0000]u0[U+0000][U+0000][U+FFFD]`[U+0000][U+0000]:[U+FFFD][U+0000][U+0000][U+0017]p[U+FFFD][U+FFFD]Q<[U+0000][U+0000][U+0000][U+0002]bKG
-                +[U+001A]
-                +
-                +GNP[U+FFFD]
+                @@ -1,4 +1,1 @@
+                -Failed to read file content
+                -java.nio.charset.MalformedInputException Input length = 1
+                -file size: 100
+                -checksum: c+g2IzgALWMi8irrW5xr/gB32XVU8WTtaQ8hkD8qXzE=
+                +This file in the actual dir has valid UTF-8 content
             """.trimIndent()
         )
     }
