@@ -7,7 +7,11 @@ import com.github.difflib.DiffUtils
 import com.github.difflib.UnifiedDiffUtils
 import io.kotest.assertions.fail
 import java.io.IOException
+import java.io.OutputStream
 import java.nio.file.Path
+import java.security.DigestOutputStream
+import java.security.MessageDigest
+import java.util.*
 import kotlin.io.path.*
 
 
@@ -74,8 +78,8 @@ private fun describeFileDifferences(
             val expectedFile = expectedDir.resolve(relativePath)
             val actualFile = actualDir.resolve(relativePath)
 
-            val expectedLines = expectedFile.readByteLines()
-            val actualLines = actualFile.readByteLines()
+            val expectedLines = expectedFile.readLinesOrComputeChecksum()
+            val actualLines = actualFile.readLinesOrComputeChecksum()
 
             val patch = DiffUtils.diff(expectedLines, actualLines)
 
@@ -104,39 +108,57 @@ private fun Collection<Path>.joinToFormattedList(limit: Int = 10): String =
 
 
 /**
- * Read lines from a file, leniently.
- * Handles text and binary data (though binary data might be hard to read).
+ * Read lines from a file, or returns the [checksum] of the file if reading the file causes an [IOException].
+ * (Which could happen if the file contains binary data.)
  *
- * ([kotlin.io.path.readLines] blows up when it reads binary files.)
+ * @see kotlin.io.path.readLines
  */
-private fun Path.readByteLines(): List<String> {
+private fun Path.readLinesOrComputeChecksum(): List<String> {
+    return try {
+        readLines()
+    } catch (e: IOException) {
+        listOf(
+            "Failed to read file content",
+            "${e::class.qualifiedName} ${e.message}",
+            "file size: ${fileSizeOrNull()}",
+            "checksum: ${checksum()}"
+        )
+    }
+}
+
+private fun Path.fileSizeOrNull(): Long? =
     try {
-        inputStream().bufferedReader().use { reader ->
-            return generateSequence { reader.readLine()?.replaceNonPrintableWithCodepoint() }.toList()
+        fileSize()
+    } catch (ex: IOException) {
+        null
+    }
+
+/**
+ * Create a checksum of a single file, or if this throws an exception then return an error message.
+ *
+ * The file must be an existing, regular file.
+ */
+private fun Path.checksum(): String? {
+    try {
+        val messageDigester = MessageDigest.getInstance("SHA-256")
+        inputStream().buffered().use { input ->
+            DigestOutputStream(NullOutputStream(), messageDigester).use { digestStream ->
+                input.copyTo(digestStream)
+            }
         }
-    } catch (e: Exception) {
-        throw IOException("Could not read lines from $this", e)
+        return Base64.getEncoder().encodeToString(messageDigester.digest())
+    } catch (ex: Exception) {
+        return "Error computing checksum: ${ex::class.qualifiedName} ${ex.message}"
     }
 }
 
 /**
- * Replace non-printable chars in the String with the codepoint representation.
+ * An [OutputStream] that discards all bytes.
  *
- * This helps with ensuring reproducible output in different OSes.
+ * (Because [OutputStream.nullOutputStream] requires Java 9+.)
  */
-private fun String.replaceNonPrintableWithCodepoint(): String {
-    return buildString {
-        this@replaceNonPrintableWithCodepoint.forEach { char ->
-            val isPrintable = !char.isISOControl() &&
-                    char != Char.MAX_VALUE &&
-                    Character.UnicodeBlock.of(char) != Character.UnicodeBlock.SPECIALS
-
-            if (!isPrintable) {
-                val codepoint = char.code.toString(16).uppercase().padStart(4, '0')
-                append("[U+${codepoint}]")
-            } else {
-                append(char)
-            }
-        }
+class NullOutputStream : OutputStream() {
+    override fun write(i: Int) {
+        // do nothing
     }
 }

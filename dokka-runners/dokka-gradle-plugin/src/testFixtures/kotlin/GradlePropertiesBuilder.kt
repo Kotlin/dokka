@@ -37,10 +37,8 @@ data class GradlePropertiesBuilder(
         var daemonIdleTimeout: Duration? = 30.seconds,
         /**
          * Specifies the scheduling priority for the Gradle daemon and all processes launched by it.
-         *
-         * Valid values are `low` and `normal`, or set as `null` to set no value.
          */
-        var daemonSchedulingPriority: String? = "low",
+        var daemonSchedulingPriority: SchedulingPriority? = SchedulingPriority.Low,
         var maxWorkers: Int? = null,
         val jvmArgs: JvmArgs = JvmArgs(),
 
@@ -50,6 +48,8 @@ data class GradlePropertiesBuilder(
         // org.gradle.vfs.verbose=(true,false)
         // org.gradle.vfs.watch=(true,false)
     ) {
+        enum class SchedulingPriority { Low, Normal }
+
         fun jvm(config: JvmArgs.() -> Unit): Unit = jvmArgs.config()
     }
 
@@ -113,7 +113,7 @@ data class GradlePropertiesBuilder(
             putNotNull("org.gradle.configureondemand", configureOnDemand)
             putNotNull("org.gradle.continue", continueOnFailure)
             putNotNull("org.gradle.daemon.idletimeout", daemonIdleTimeout?.inWholeMilliseconds)
-            putNotNull("org.gradle.priority", daemonSchedulingPriority)
+            putNotNull("org.gradle.priority", daemonSchedulingPriority?.name?.lowercase())
             putNotNull("org.gradle.debug", debug)
             putNotNull("org.gradle.logging.level", logLevel?.name?.lowercase())
             putNotNull("org.gradle.workers.max", maxWorkers)
