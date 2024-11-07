@@ -3,11 +3,6 @@
  */
 @import '../_tokens/index';
 
-:root {
-  --dokka-logo-height: 28px;
-  --dokka-logo-width: 28px;
-}
-
 .library-name--link {
   display: flex;
   align-items: center;
@@ -32,8 +27,10 @@
 }
 
 .library-name--link::before {
-  width: var(--dokka-logo-height);
-  height: var(--dokka-logo-width);
+  width: var(--dokka-logo-width);
+  height: var(--dokka-logo-height);
+  max-width: 120px;
+  max-height: 36px;
   margin-right: var(--size-s2);
 
   content: '';
