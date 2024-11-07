@@ -149,6 +149,7 @@
 
 .button_dropdown {
   padding: var(--size-s2);
+  font: var(--font-text-s);
 }
 
 .button_dropdown::after {
@@ -411,6 +412,7 @@
   right: 0;
   display: none;
   overflow-y: auto;
+  width: fit-content;
   min-width: 272px;
   max-width: 360px;
   max-height: 400px;
@@ -444,6 +446,11 @@
   left: 0;
 }
 
+@media (width < 900px) {
+  .dropdown--list_positioned_left {
+    left: unset;
+  }
+}
 .dropdown--list_expanded {
   display: block;
 }
@@ -1042,6 +1049,8 @@
 }
 
 .library-version {
+  box-sizing: border-box;
+  padding-top: 1px;
   color: var(--color-text-dt);
   font: var(--font-text-s);
 }
@@ -1051,6 +1060,7 @@
     display: flex;
     align-items: center;
     height: 52px;
+    padding-left: 12px;
     background-color: var(--color-text);
   }
 }

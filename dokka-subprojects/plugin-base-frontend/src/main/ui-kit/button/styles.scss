@@ -72,6 +72,8 @@
   &_dropdown {
     padding: var(--size-s2);
 
+    font: var(--font-text-s);
+
     &::after {
       display: block;
 

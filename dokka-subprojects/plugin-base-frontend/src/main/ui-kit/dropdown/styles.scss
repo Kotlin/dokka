@@ -21,6 +21,8 @@
 
     overflow-y: auto;
 
+    width: fit-content;
+
     min-width: 272px;
     max-width: 360px;
     max-height: 400px;
@@ -54,6 +56,10 @@
 
     &_positioned_left {
       left: 0;
+
+      @media (width < $breakpoint-desktop-min) {
+        left: unset;
+      }
     }
 
     &_expanded {
