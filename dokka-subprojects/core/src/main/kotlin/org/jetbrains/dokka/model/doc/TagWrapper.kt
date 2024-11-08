@@ -4,9 +4,11 @@
 
 package org.jetbrains.dokka.model.doc
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.WithChildren
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 public sealed class TagWrapper : WithChildren<DocTag> {
     public abstract val root: DocTag
 

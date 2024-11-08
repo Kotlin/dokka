@@ -4,6 +4,7 @@
 
 package org.jetbrains.dokka.model
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.properties.ExtraProperty
 import org.jetbrains.dokka.model.properties.MergeStrategy
@@ -74,6 +75,8 @@ public data class Annotations(
 
 public fun SourceSetDependent<List<Annotations.Annotation>>.toAnnotations(): Annotations = Annotations(this)
 
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 public sealed class AnnotationParameterValue
 
 public data class AnnotationValue(val annotation: Annotations.Annotation) : AnnotationParameterValue()

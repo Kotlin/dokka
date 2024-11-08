@@ -29,6 +29,7 @@ dependencies {
     implementation(libs.freemarker)
     implementation(libs.kotlinx.html)
     implementation(libs.jackson.kotlin)
+    implementation(libs.jackson.jsonSchema)
     constraints {
         implementation(libs.jackson.databind) {
             because("CVE-2022-42003")

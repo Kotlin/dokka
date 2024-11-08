@@ -91,7 +91,7 @@ public data class Callable(
     public companion object
 }
 
-@JsonTypeInfo(use = CLASS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 public sealed class TypeReference {
     public companion object
 }

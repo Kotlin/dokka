@@ -5,11 +5,9 @@
 package org.jetbrains.dokka.base.generation
 
 import kotlinx.coroutines.*
-import org.jetbrains.dokka.CoreExtensions
-import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.DokkaException
-import org.jetbrains.dokka.Timer
+import org.jetbrains.dokka.*
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.dumpToJson
 import org.jetbrains.dokka.generation.Generation
 import org.jetbrains.dokka.generation.exitGenerationGracefully
 import org.jetbrains.dokka.model.DModule
@@ -84,8 +82,10 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
     public fun transformDocumentationModelAfterMerge(documentationModel: DModule): DModule =
         context[CoreExtensions.documentableTransformer].fold(documentationModel) { acc, t -> t(acc, context) }
 
-    public fun createPages(transformedDocumentation: DModule): RootPageNode =
-        context.single(CoreExtensions.documentableToPageTranslator).invoke(transformedDocumentation)
+    public fun createPages(transformedDocumentation: DModule): RootPageNode {
+        transformedDocumentation.dumpToJson(context.configuration)
+        return context.single(CoreExtensions.documentableToPageTranslator).invoke(transformedDocumentation)
+    }
 
     public fun transformPages(pages: RootPageNode): RootPageNode =
         context[CoreExtensions.pageTransformer].fold(pages) { acc, t -> t(acc) }

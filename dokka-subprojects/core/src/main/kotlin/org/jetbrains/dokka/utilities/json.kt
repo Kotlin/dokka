@@ -6,6 +6,7 @@ package org.jetbrains.dokka.utilities
 
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer
@@ -23,6 +24,8 @@ private val objectMapper = run {
         .registerModule(module)
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 }
+
+public val CORE_OBJECT_MAPPER: ObjectMapper get() = objectMapper
 
 @PublishedApi
 internal class TypeReference<T> @PublishedApi internal constructor(

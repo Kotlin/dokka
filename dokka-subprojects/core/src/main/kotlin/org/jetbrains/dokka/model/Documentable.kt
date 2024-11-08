@@ -4,6 +4,8 @@
 
 package org.jetbrains.dokka.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
@@ -19,6 +21,8 @@ public abstract class Documentable : WithChildren<Documentable>,
     public abstract val documentation: SourceSetDependent<DocumentationNode>
     public abstract val sourceSets: Set<DokkaSourceSet>
     public abstract val expectPresentInSet: DokkaSourceSet?
+
+    @get:JsonIgnore
     abstract override val children: List<Documentable>
 
     override fun toString(): String =
@@ -96,6 +100,7 @@ public interface Callable : WithVisibility, WithType, WithAbstraction, WithSourc
     public val receiver: DParameter?
 }
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 public sealed class DClasslike : Documentable(), WithScope, WithVisibility, WithSources, WithIsExpectActual
 
 public data class DModule(
@@ -393,6 +398,7 @@ public data class DTypeAlias(
     override fun withNewExtras(newExtras: PropertyContainer<DTypeAlias>): DTypeAlias = copy(extra = newExtras)
 }
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 public sealed class Projection
 public sealed class Bound : Projection()
 public data class TypeParameter(
