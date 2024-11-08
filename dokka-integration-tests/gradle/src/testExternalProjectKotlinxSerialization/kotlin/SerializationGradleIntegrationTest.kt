@@ -49,12 +49,7 @@ class SerializationGradleIntegrationTest : AbstractGradleIntegrationTest(), Test
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(SerializationBuildVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
-        val result = createGradleRunner(
-            buildVersions,
-            ":kotlinx-serialization-json:dokkaHtml",
-            ":kotlinx-serialization-core:dokkaHtml",
-            "--rerun-tasks"
-        ).buildRelaxed()
+        val result = createGradleRunner(buildVersions, ":dokkaHtmlMultiModule").buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtmlMultiModule")).outcome)
 
