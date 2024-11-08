@@ -90,7 +90,7 @@ internal fun DModule.dumpToJson(
     val configurationSchema = JsonSchemaGenerator(CORE_OBJECT_MAPPER).generateSchema(DokkaConfiguration::class.java)
 
     println("DOKKA_JSON_DUMP: $name")
-    val root = File("/Users/Oleg.Yukhnevich/Projects/kotlin/dokka/build/dokka-ir-poc-schema")
+    val root = File("build/dokka-ir-poc")
     root.mkdirs()
     mapper
         .writeValue(root.resolve("$name-ir.json"), this)
