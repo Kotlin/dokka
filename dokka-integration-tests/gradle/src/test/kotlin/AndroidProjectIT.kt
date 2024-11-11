@@ -3,11 +3,10 @@
  */
 package org.jetbrains.dokka.it.gradle
 
+import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.file.shouldBeAFile
-import io.kotest.matchers.file.shouldHaveSameStructureAndContentAs
-import io.kotest.matchers.file.shouldHaveSameStructureAs
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
@@ -17,6 +16,8 @@ import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
 import org.jetbrains.dokka.it.gradle.junit.*
+import org.jetbrains.dokka.it.gradle.junit.TestedVersions
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import kotlin.io.path.deleteRecursively
 
 /**
@@ -29,8 +30,13 @@ class AndroidProjectIT {
 
     @DokkaGradlePluginTest(sourceProjectName = "it-android")
     fun `generate dokka HTML`(
-        project: DokkaGradleProjectRunner
+        project: DokkaGradleProjectRunner,
+        testedVersions: TestedVersions,
     ) {
+        assumeTrue(
+            testedVersions.agp?.major != 8,
+            "TODO KT-70855 The output is slightly different for AGP 8, but this will be fixed as part of KT-70855. Rather than trying to make the test work now, just skip testing AGP 8 and wait until the fix arrives."
+        )
         project.runner
             .addArguments(
                 "clean",
@@ -61,26 +67,30 @@ class AndroidProjectIT {
                 }
             }
 
-
         withClue("expect the same HTML is generated") {
             val expectedHtml = project.projectDir.resolve("expectedData/html")
-
             val actualHtmlDir = project.projectDir.resolve("build/dokka/html")
 
-            val expectedFileTree = expectedHtml.toTreeString()
-            val actualFileTree = actualHtmlDir.toTreeString()
-            withClue((actualFileTree to expectedFileTree).sideBySide()) {
-                expectedFileTree shouldBe actualFileTree
+            withClue(
+                """
+                expectedHtml: ${expectedHtml.toUri()}
+                actualHtmlDir: ${actualHtmlDir.toUri()}
+                """.trimIndent()
+            ) {
+                val expectedFileTree = expectedHtml.toTreeString()
+                val actualFileTree = actualHtmlDir.toTreeString()
+                withClue((actualFileTree to expectedFileTree).sideBySide()) {
+                    expectedFileTree shouldBe actualFileTree
 
-                actualHtmlDir.toFile().shouldHaveSameStructureAs(expectedHtml.toFile())
-                actualHtmlDir.toFile().shouldHaveSameStructureAndContentAs(expectedHtml.toFile())
+                    actualHtmlDir shouldBeADirectoryWithSameContentAs expectedHtml
+                }
             }
         }
     }
 
 
-    @DokkaGradlePluginTest(sourceProjectName = "it-android-compose")
-    fun `Dokka tasks should be cacheable`(
+    @DokkaGradlePluginTest(sourceProjectName = "it-android")
+    fun `Dokka tasks should be build cacheable`(
         project: DokkaGradleProjectRunner,
     ) {
         project.runner
@@ -100,7 +110,7 @@ class AndroidProjectIT {
                 "--build-cache",
             )
             .build {
-                withClue("expect dokkaGenerate runs is loaded from cache") {
+                withClue("expect dokkaGenerate tasks are loaded from cache") {
                     shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE)
                 }
             }
@@ -108,30 +118,38 @@ class AndroidProjectIT {
 
     @DokkaGradlePluginTest(sourceProjectName = "it-android")
     fun `expect Dokka is compatible with Gradle Configuration Cache`(
-        project: DokkaGradleProjectRunner
+        project: DokkaGradleProjectRunner,
     ) {
-        project.file(".gradle/configuration-cache").deleteRecursively()
-        project.file("build/reports/configuration-cache").deleteRecursively()
+        fun clearCcReports() {
+            project.file(".gradle/configuration-cache").deleteRecursively()
+            project.file("build/reports/configuration-cache").deleteRecursively()
+        }
 
         val configCacheRunner =
             project.runner.addArguments(
                 "clean",
                 ":dokkaGenerate",
-                "--stacktrace",
                 "--no-build-cache",
                 "--configuration-cache",
             )
 
         withClue("first build should store the configuration cache") {
+            clearCcReports()
             configCacheRunner.build {
                 shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
 
                 output shouldContain "Configuration cache entry stored"
 
-                // this if is to workaround Gradle 7 having different logging - remove when minimum tested Gradle is 8+
-                if ("0 problems were found storing the configuration cache." !in output) {
-                    output shouldNotContain "problems were found storing the configuration cache"
-                }
+                loadConfigurationCacheReportData(projectDir = project.projectDir)
+                    .asClue { ccReport ->
+                        ccReport.totalProblemCount shouldBe 0
+                    }
+            }
+        }
+
+        withClue("TeamCity needs another build to let AGP finish setting up the Android SDK") {
+            configCacheRunner.build {
+                shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
             }
         }
 

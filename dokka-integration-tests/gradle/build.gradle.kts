@@ -219,6 +219,9 @@ testing {
         targets.configureEach {
             testTask.configure {
                 devMavenPublish.configureTask(this)
+
+                // temp workaround, remove when all `testTemplateProject*` source sets are removed
+                mustRunAfter(tasks.withType<GitCheckoutTask>())
             }
         }
     }

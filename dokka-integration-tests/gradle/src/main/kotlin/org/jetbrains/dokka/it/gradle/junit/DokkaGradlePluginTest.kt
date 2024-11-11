@@ -15,9 +15,15 @@ import kotlin.reflect.KClass
  * Annotate a test function with `@DokkaGradlePluginTest` to run the test multiple times with all
  * configured Android/Gradle/Kotlin/Dokka versions.
  *
- * Add a [DokkaGradleProjectRunner] parameter.
- *
  * [DokkaGradlePluginTestExtension] will generate a new project in a temporary directory for each test.
+ *
+ * Add a [DokkaGradleProjectRunner] parameter to the test function to access the generated project and
+ * [org.gradle.testkit.runner.GradleRunner].
+ *
+ * Add a [TestedVersions] parameter to access the versions used to run the test.
+ *
+ * [gradlePropertiesProvider] provides properties to create in the `gradle.properties` file.
+ * Additional Gradle properties can be appended by using [WithGradleProperties].
  */
 @Target(FUNCTION)
 @Retention(RUNTIME)

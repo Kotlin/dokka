@@ -15,11 +15,16 @@ import kotlin.io.path.*
  */
 fun interface GradleTestProjectInitializer {
 
+    /**
+     * Must copy the contents of [source] into [destination].
+     *
+     * Should create a `gradle.properties` file with the contents of [gradleProperties].
+     */
     fun initialize(
         source: Path,
         destination: Path,
         testedVersions: TestedVersions,
-        gradleProperties: Map<String, String>
+        gradleProperties: Map<String, String>,
     )
 
     object Default : GradleTestProjectInitializer {
@@ -29,7 +34,6 @@ fun interface GradleTestProjectInitializer {
             testedVersions: TestedVersions,
             gradleProperties: Map<String, String>,
         ) {
-            println("Source: $source")
             require(source.isDirectory()) { "Source project must be a directory. Actual: $source" }
             source.copyToRecursively(destination, overwrite = true, followLinks = false)
 
@@ -61,7 +65,6 @@ fun interface GradleTestProjectInitializer {
                     .sorted()
                     .joinToString(separator = "\n", postfix = "\n")
             )
-
         }
 
         private fun updateVersions(

@@ -115,6 +115,7 @@ idea {
                 ".idea",
                 ".husky",
                 ".kotlin",
+                "dokka-integration-tests/.kotlin",
                 "dokka-runners/dokka-gradle-plugin/.kotlin",
                 "dokka-runners/runner-cli/.kotlin",
                 "dokka-runners/runner-maven-plugin/.kotlin",
