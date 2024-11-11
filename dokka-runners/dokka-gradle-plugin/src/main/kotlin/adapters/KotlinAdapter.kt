@@ -484,7 +484,7 @@ private class KotlinSourceSetDetailsBuilder(
     ): NamedDomainObjectContainer<KotlinSourceSetDetails> {
 
         val sourceSetDetails = objects.domainObjectContainer { name ->
-            objects.newInstance<KotlinSourceSetDetails>(name, projectPath)
+            objects.newInstance<KotlinSourceSetDetails>(name)
         }
 
         kotlinSourceSets.configureEach kss@{
