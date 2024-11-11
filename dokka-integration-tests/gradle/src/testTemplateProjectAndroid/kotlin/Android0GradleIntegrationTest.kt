@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
 @TestsAndroidGradlePlugin
 class Android0GradleIntegrationTest : AbstractGradleIntegrationTest() {
 
-internal class AndroidTestedVersionsArgumentsProvider : TestedVersionsArgumentsProvider(TestedVersions.ANDROID)
+    internal class AndroidTestedVersionsArgumentsProvider : TestedVersionsArgumentsProvider(TestedVersions.ANDROID)
 
     companion object {
         /**
