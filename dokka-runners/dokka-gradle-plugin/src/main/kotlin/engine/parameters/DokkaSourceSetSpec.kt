@@ -3,11 +3,7 @@
  */
 package org.jetbrains.dokka.gradle.engine.parameters
 
-import org.gradle.api.Action
-import org.gradle.api.DomainObjectSet
-import org.gradle.api.Named
-import org.gradle.api.NamedDomainObjectContainer
-import org.gradle.api.NamedDomainObjectFactory
+import org.gradle.api.*
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
@@ -95,7 +91,6 @@ constructor(
      * Default is `false`.
      */
     @get:Input
-    @get:Optional
     abstract val suppress: Property<Boolean>
 
     /**
@@ -449,11 +444,12 @@ constructor(
     //endregion
 
     companion object {
-        internal fun ObjectFactory.dokkaSourceSetSpecFactory(): NamedDomainObjectFactory<DokkaSourceSetSpec> = NamedDomainObjectFactory { name ->
-            newInstance<DokkaSourceSetSpec>(name).apply {
-                suppress.convention(false)
-                analysisPlatform.convention(KotlinPlatform.DEFAULT)
+        internal fun ObjectFactory.dokkaSourceSetSpecFactory(): NamedDomainObjectFactory<DokkaSourceSetSpec> =
+            NamedDomainObjectFactory { name ->
+                newInstance<DokkaSourceSetSpec>(name).apply {
+                    suppress.convention(false)
+                    analysisPlatform.convention(KotlinPlatform.DEFAULT)
+                }
             }
-        }
     }
 }
