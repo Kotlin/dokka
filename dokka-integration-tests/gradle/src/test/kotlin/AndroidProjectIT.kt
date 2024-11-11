@@ -120,8 +120,10 @@ class AndroidProjectIT {
     fun `expect Dokka is compatible with Gradle Configuration Cache`(
         project: DokkaGradleProjectRunner,
     ) {
-        project.file(".gradle/configuration-cache").deleteRecursively()
-        project.file("build/reports/configuration-cache").deleteRecursively()
+        fun clearCcReports() {
+            project.file(".gradle/configuration-cache").deleteRecursively()
+            project.file("build/reports/configuration-cache").deleteRecursively()
+        }
 
         val configCacheRunner =
             project.runner.addArguments(
@@ -132,6 +134,7 @@ class AndroidProjectIT {
             )
 
         withClue("first build should store the configuration cache") {
+            clearCcReports()
             configCacheRunner.build {
                 shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
 
@@ -145,6 +148,7 @@ class AndroidProjectIT {
         }
 
         withClue("TeamCity needs another build to let AGP finish setting up the Android SDK") {
+            clearCcReports()
             configCacheRunner.build {
                 shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
 
