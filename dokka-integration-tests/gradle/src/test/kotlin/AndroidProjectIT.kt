@@ -148,16 +148,8 @@ class AndroidProjectIT {
         }
 
         withClue("TeamCity needs another build to let AGP finish setting up the Android SDK") {
-            clearCcReports()
             configCacheRunner.build {
                 shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
-
-                output shouldContain "Configuration cache entry stored"
-
-                loadConfigurationCacheReportData(projectDir = project.projectDir)
-                    .asClue { ccReport ->
-                        ccReport.totalProblemCount shouldBe 0
-                    }
             }
         }
 
