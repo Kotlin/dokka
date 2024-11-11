@@ -66,25 +66,28 @@ private fun initProject(
             """.trimMargin()
 
         createKotlinFile(
-            "src/commonMain/kotlin/CommonMainCls.kt", """
+            "src/commonMain/kotlin/CommonMainCls.kt",
+            """
             package a.b.c
             
             /** commonMain class */
             class CommonMainCls
-        """.trimIndent()
+            """.trimIndent()
         )
 
         createKotlinFile(
-            "src/iosMain/kotlin/IosMainCls.kt", """
+            "src/iosMain/kotlin/IosMainCls.kt",
+            """
             package a.b.c
             
             /** iosMain class */
             class IosMainCls
-        """.trimIndent()
+            """.trimIndent()
         )
 
         createKotlinFile(
-            "src/iosX64Main/kotlin/iosX64Fn.kt", """
+            "src/iosX64Main/kotlin/iosX64Fn.kt",
+            """
             package a.b.c
             
             /** iosX64Main function */
@@ -92,7 +95,7 @@ private fun initProject(
               println(a)
               println(b)
             }
-        """.trimIndent()
+            """.trimIndent()
         )
 
         config()
