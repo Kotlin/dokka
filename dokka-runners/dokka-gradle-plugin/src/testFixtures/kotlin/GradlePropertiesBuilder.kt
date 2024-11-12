@@ -23,7 +23,8 @@ data class GradlePropertiesBuilder(
     /** Gradle specific options. */
     data class GradleArgs(
         var logLevel: LogLevel? = LogLevel.LIFECYCLE,
-        var stacktrace: Boolean? = true,
+        /** Valid values are: `internal`, `all`, `full`. */
+        var stacktrace: String? = "all",
         var debug: Boolean? = null,
         var buildCache: Boolean? = true,
         var buildCacheDebugLog: Boolean? = null,
