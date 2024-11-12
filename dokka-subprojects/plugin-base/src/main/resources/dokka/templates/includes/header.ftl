@@ -8,8 +8,8 @@
                 </@template_cmd>
             </a>
         </@template_cmd>
-        <button class="navigation-controls--btn navigation-controls--btn_menu ui-kit_mobile-only" id="menu-toggle"
-                type="button">Toggle table of content
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
         </button>
         <div class="navigation-controls--break ui-kit_mobile-only"></div>
         <div class="library-version" id="library-version">

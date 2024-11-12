@@ -13,6 +13,7 @@ import * as navbarButton from './navbar-button/index';
 import * as platformTag from './platform-tag/index';
 import * as platformTags from './platform-tags/index';
 import * as tabs from './tabs/index';
+import * as tocTree from './toc-tree/index';
 import './helpers.scss';
 import './global.scss';
 
@@ -29,4 +30,5 @@ export {
   platformTag,
   platformTags,
   tabs,
+  tocTree,
 };

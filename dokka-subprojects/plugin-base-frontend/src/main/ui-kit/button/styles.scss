@@ -29,8 +29,10 @@
     padding: var(--size-s2);
   }
 
-  &:hover {
-    background-color: var(--color-b08);
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--color-b08);
+    }
   }
 
   &:active {
@@ -69,6 +71,8 @@
 
   &_dropdown {
     padding: var(--size-s2);
+
+    font: var(--font-text-s);
 
     &::after {
       display: block;
