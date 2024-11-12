@@ -257,7 +257,7 @@ td:first-child {
     min-height: 0; /* full height exclude header */
 }
 
-#container > .sidebar, #container > #main {
+#container > #main {
     overflow: auto;
 }
 
@@ -265,55 +265,6 @@ td:first-child {
     display: flex;
     flex-direction: column;
     flex: 1 1 0; /* full width, but no affects for sidebar */
-}
-
-.sidebar {
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    border-right: 1px solid var(--border-color);
-    width: var(--sidebar-width);
-}
-
-.no-js .sidebar {
-    display: none;
-}
-
-@media (max-width: 759px) {
-    #container {
-        position: relative;
-    }
-
-    .sidebar {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        box-sizing: border-box;
-        background: var(--background-color);
-        margin-left: calc(-1 * var(--sidebar-width));
-        transition: margin .2s ease-out;
-        z-index: 4;
-    }
-
-    .sidebar.open {
-        margin-left: 0;
-    }
-
-    .sidebar.open ~ #main .navigation-controls--search {
-        display: none;
-    }
-
-    .sidebar.open ~ #main .menu-toggle {
-        margin-left: var(--sidebar-width);
-    }
-}
-
-.sidebar--inner {
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 16px;
-    padding-top: 22px;
-    padding-bottom: 16px;
 }
 
 /* /--- Layout styles --- */
@@ -442,16 +393,6 @@ p.paragraph:first-child,
 
 code.paragraph {
     display: block;
-}
-
-.overview > .navButton {
-    position: absolute;
-    align-items: center;
-    display: flex;
-    justify-content: flex-end;
-    padding: 2px 2px 2px 0;
-    margin-right: 5px;
-    cursor: pointer;
 }
 
 .strikethrough {
@@ -596,166 +537,6 @@ code:not(.block) {
     overflow-wrap: break-word;
     word-break: break-word;
 }
-
-.sideMenuPart > .overview {
-    display: flex;
-    align-items: center;
-    position: relative;
-    user-select: none; /* there's a weird bug with text selection */
-    padding: 8px 0;
-}
-
-.sideMenuPart a {
-    display: block;
-    align-items: center;
-    color: var(--default-font-color);
-    overflow: hidden;
-    padding-left: 23px;
-}
-
-.sideMenuPart a:hover {
-    text-decoration: none;
-    color: var(--default-font-color);
-}
-
-.sideMenuPart > .overview:before {
-    box-sizing: border-box;
-    content: '';
-    top: 0;
-    width: var(--sidebar-width);
-    right: 0;
-    bottom: 0;
-    position: absolute;
-    z-index: -1;
-}
-
-.overview:hover:before {
-    background-color: var(--navigation-highlight-color);
-}
-
-#nav-submenu {
-    padding-left: 24px;
-}
-
-.sideMenuPart {
-    padding-left: 12px;
-    box-sizing: border-box;
-}
-
-.sideMenuPart.hidden > .overview .navButtonContent::before {
-    transform: rotate(0deg);
-}
-
-.sideMenuPart > .overview .navButtonContent::before {
-    content: '';
-
-    -webkit-mask: url("../images/arrow_down.svg") no-repeat 50% 50%;
-    mask: url("../images/arrow_down.svg") no-repeat 50% 50%;
-    -webkit-mask-size: cover;
-    mask-size: cover;
-    background-color: var(--default-font-color);
-
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    transform: rotate(90deg);
-    width: 16px;
-    height: 16px;
-}
-
-.sideMenuPart[data-active] > .overview .navButtonContent::before {
-    background-color: var(--default-white);
-}
-
-.sideMenuPart.hidden > .navButton .navButtonContent::after {
-    content: '\02192';
-}
-
-.sideMenuPart.hidden > .sideMenuPart {
-    display: none;
-}
-
-.overview .nav-link-grid {
-    display: grid;
-    grid-template-columns: 16px auto; /* first is the icon, then name */
-    grid-gap: 6px;
-    align-items: center;
-}
-
-.nav-icon {
-    width: 16px;
-    height: 16px;
-}
-
-.nav-icon.class::before {
-    content: url("../images/nav-icons/class.svg");
-}
-
-.nav-icon.class-kt::before {
-    content: url("../images/nav-icons/class-kotlin.svg");
-}
-
-.nav-icon.function::before {
-    content: url("../images/nav-icons/function.svg");
-}
-
-.nav-icon.enum-class::before {
-    content: url("../images/nav-icons/enum.svg");
-}
-
-.nav-icon.enum-class-kt::before {
-    content: url("../images/nav-icons/enum-kotlin.svg");
-}
-
-.nav-icon.annotation-class::before {
-    content: url("../images/nav-icons/annotation.svg");
-}
-
-.nav-icon.annotation-class-kt::before {
-    content: url("../images/nav-icons/annotation-kotlin.svg");
-}
-
-.nav-icon.abstract-class::before {
-    content: url("../images/nav-icons/abstract-class.svg");
-}
-
-.nav-icon.abstract-class-kt::before {
-    content: url("../images/nav-icons/abstract-class-kotlin.svg");
-}
-
-.nav-icon.exception-class::before {
-    content: url("../images/nav-icons/exception-class.svg");
-}
-
-.nav-icon.interface::before {
-    content: url("../images/nav-icons/interface.svg");
-}
-
-.nav-icon.interface-kt::before {
-    content: url("../images/nav-icons/interface-kotlin.svg");
-}
-
-.nav-icon.object::before {
-    content: url("../images/nav-icons/object.svg");
-}
-
-.nav-icon.typealias-kt::before {
-    content: url("../images/nav-icons/typealias-kotlin.svg");
-}
-
-.nav-icon.val::before {
-    content: url("../images/nav-icons/field-value.svg");
-}
-
-.nav-icon.var::before {
-    content: url("../images/nav-icons/field-variable.svg");
-}
-
-.filtered > a, .filtered > .navButton {
-    display: none;
-}
-
 
 .brief {
     white-space: pre-wrap;
@@ -986,14 +767,6 @@ Just in case of possible performance degradation it excluding tabs with briefs o
 .table-row .platform-hinted .sourceset-dependent-content .brief,
 .table-row .platform-hinted .sourceset-dependent-content .inline-comment {
     padding: 8px;
-}
-
-.sideMenuPart[data-active] > .overview:before {
-    background: var(--sidemenu-section-active-color);
-}
-
-.sideMenuPart[data-active] > .overview > a {
-    color: var(--default-white);
 }
 
 .table {

@@ -4,6 +4,10 @@
 @import '../_tokens/index';
 
 .library-version {
+  box-sizing: border-box;
+
+  padding-top: 1px;
+
   color: var(--color-text-dt);
 
   font: var(--font-text-s);
@@ -13,6 +17,8 @@
     align-items: center;
 
     height: 52px;
+
+    padding-left: 12px;
 
     background-color: var(--color-text);
   }
