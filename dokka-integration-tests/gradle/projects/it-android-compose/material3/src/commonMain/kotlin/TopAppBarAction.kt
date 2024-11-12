@@ -18,10 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.boswelja.menuprovider.AnimatedMenuItems
-import com.boswelja.menuprovider.LocalMenuHost
-import com.boswelja.menuprovider.MenuHost
-import com.boswelja.menuprovider.MenuItem
+import org.dokka.it.android.kmp.core.MenuItem
 
 @Composable
 fun TopAppBarAction(
