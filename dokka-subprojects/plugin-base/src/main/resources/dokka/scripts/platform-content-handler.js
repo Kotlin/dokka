@@ -54,7 +54,6 @@ window.addEventListener('load', () => {
     }
     initTabs() // initTabs comes from ui-kit/tabs
     handleAnchor()
-    initHidingLeftNavigation()
     topNavbarOffset = document.getElementById('navigation-wrapper')
     darkModeSwitch()
 })
@@ -112,21 +111,6 @@ const samplesAreEnabled = () => {
         return typeof KotlinPlayground === 'function';
     } catch (e) {
         return false
-    }
-}
-
-
-const initHidingLeftNavigation = () => {
-    document.getElementById("menu-toggle").onclick = function (event) {
-        //Events need to be prevented from bubbling since they will trigger next handler
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        document.getElementById("leftColumn").classList.toggle("open");
-    }
-
-    document.getElementById("main").onclick = () => {
-        document.getElementById("leftColumn").classList.remove("open");
     }
 }
 
