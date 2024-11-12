@@ -21,6 +21,8 @@
 
     overflow-y: auto;
 
+    width: fit-content;
+
     min-width: 272px;
     max-width: 360px;
     max-height: 400px;
@@ -48,8 +50,47 @@
       max-width: unset;
     }
 
+    &_positioned_right {
+      right: 0;
+    }
+
+    &_positioned_left {
+      left: 0;
+
+      @media (width < $breakpoint-desktop-min) {
+        left: unset;
+      }
+    }
+
     &_expanded {
       display: block;
+    }
+
+    &_toc-list {
+      @media (width >= $breakpoint-desktop-min) {
+        position: relative;
+
+        top: 0;
+
+        display: block;
+
+        min-width: unset;
+        max-width: unset;
+
+        max-height: unset;
+
+        padding: 0;
+
+        border: none;
+
+        background-color: transparent;
+
+        box-shadow: none;
+      }
+
+      @media (width >= $breakpoint-tablet-min) and (width < $breakpoint-desktop-min) {
+        width: 408px;
+      }
     }
   }
 
@@ -113,7 +154,7 @@
 
   &--overlay {
     position: absolute;
-    z-index: 1;
+    z-index: 4;
 
     top: 0;
     right: 0;
@@ -146,6 +187,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    height: 52px;
 
     padding-left: var(--size-s3);
 

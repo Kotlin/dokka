@@ -21,6 +21,12 @@
   .theme-dark & {
     filter: none;
   }
+
+  @media (width < $breakpoint-desktop-min) {
+    .theme-dark_mobile & {
+      filter: none;
+    }
+  }
 }
 
 .ui-kit-icon_arrow-down {
