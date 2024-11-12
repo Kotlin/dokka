@@ -66,7 +66,7 @@ private val dokkaConfOverrideJson = """
     |{
     |  "moduleName": "Overridden",
     |  "moduleVersion": null,
-    |  "outputDir": "./build",
+    |  "outputDir": "blah-blah-override-output",
     |  "cacheRoot": null,
     |  "offlineMode": false,
     |  "sourceSets": [
