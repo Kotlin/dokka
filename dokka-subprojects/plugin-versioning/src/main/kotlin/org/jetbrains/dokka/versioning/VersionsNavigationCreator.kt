@@ -68,7 +68,7 @@ public class HtmlVersionsNavigationCreator(
                         attributes["aria-label"] = "Select version"
                         activeVersion?.key?.let { text(it) }
                     }
-                    ul(classes = "dropdown--list") {
+                    ul(classes = "dropdown--list dropdown--list_positioned_left") {
                         attributes["role"] = "listbox"
                         attributes["data-role"] = "dropdown-listbox"
                         attributes["aria-label"] = "Versions"

@@ -8,7 +8,7 @@
 
   padding: 10px 12px;
 
-  letter-spacing: -0.03em;
+  cursor: pointer;
 
   text-transform: capitalize;
 
@@ -70,7 +70,14 @@ button.platform-tag {
   --platform-tag-color: #9585f9;
 }
 
-.filter-section .platform-tag[data-active]:hover {
+@media (hover: hover) {
+  .filter-section .platform-tag[data-active]:hover {
+    color: #fff;
+    background-color: rgba(186, 186, 187, 0.7);
+  }
+}
+
+.filter-section .platform-tag[data-active]:active {
   color: #fff;
   background-color: rgba(186, 186, 187, 0.7);
 }

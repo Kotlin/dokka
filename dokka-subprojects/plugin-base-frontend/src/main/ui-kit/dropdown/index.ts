@@ -14,13 +14,13 @@ function initDropdowns(): void {
   const dropdowns = document.querySelectorAll(DROPDOWN);
   dropdowns.forEach((dropdown: Element) => {
     dropdown.querySelectorAll(DROPDOWN_TOGGLE)?.forEach((button: Element) => {
-      button.addEventListener('click', (event) => onToggleDropdown(event, dropdown));
+      button.addEventListener('click', () => onToggleDropdown(dropdown));
     });
     addKeyboardNavigation(dropdown as HTMLElement);
   });
 }
 
-function onToggleDropdown(_: Event, dropdown: Element): void {
+export function onToggleDropdown(dropdown: Element): void {
   const buttons = dropdown.querySelectorAll(DROPDOWN_TOGGLE);
   buttons?.forEach(toggleDropdownButton);
   const list = dropdown.querySelector(DROPDOWN_LIST);
@@ -40,10 +40,14 @@ function toggleDropdownList(list: Element | null): void {
 function handleOutsideClick(event: MouseEvent): void {
   const target = event.target as HTMLElement;
   if (!hasAncestorWithClass(target, 'dropdown') || target.className === 'dropdown--overlay') {
-    const dropdowns = document.querySelectorAll('.button_dropdown');
+    const dropdowns = document.querySelectorAll(DROPDOWN);
     dropdowns.forEach((dropdown) => {
-      dropdown.classList.remove('button_dropdown_active');
-      dropdown.parentNode?.querySelector('.dropdown--list')?.classList.remove('dropdown--list_expanded');
+      dropdown.querySelectorAll(DROPDOWN_TOGGLE)?.forEach((button: Element) => {
+        button.classList.remove('button_dropdown_active');
+      });
+      dropdown.querySelectorAll(DROPDOWN_LIST)?.forEach((list: Element) => {
+        list.classList.remove('dropdown--list_expanded');
+      });
     });
   }
 }
@@ -52,7 +56,7 @@ function addKeyboardNavigation(dropdown: HTMLElement): void {
   new FocusTrap(dropdown);
   dropdown.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
-      onToggleDropdown(event, dropdown);
+      onToggleDropdown(dropdown);
       (dropdown.querySelector(DROPDOWN_TOGGLE) as HTMLElement)?.focus();
     }
   });
