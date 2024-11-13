@@ -438,6 +438,73 @@ DGP v2 now supports Gradle build cache and configuration cache, improving build 
 * To enable build cache, follow instructions in the [Gradle build cache documentation](https://docs.gradle.org/current/userguide/build_cache.html#sec:build_cache_enable).
 * To enable configuration cache, follow instructions in the [Gradle configuration cache documentation](https://docs.gradle.org/current/userguide/configuration_cache.html#config_cache:usage:enable ).
 
+## Troubleshoot your migration
+
+In large projects, Dokka can consume a significant amount of memory to generate documentation. This issue can be due to Gradle's memory allocation limits, 
+and Dokka's processing of large volumes of data, among other factors.
+
+When Dokka generation runs out of memory, Gradle throws exceptions like `java.lang.OutOfMemoryError: Metaspace`.
+
+Active efforts are underway to improve Dokka's performance, although Gradle limitations exist.
+
+As a workaround, when experiencing memory exceptions, you can try:
+
+* [Increasing heap space](#increase-heap-space)
+* [Running Dokka in-process](#run-dokka-in-process)
+
+### Increase heap space
+
+One alternative to resolve memory issues is to increase the amount of Java heap memory for the Dokka generator process. 
+In the `build.gradle.kts` file, adjust the 
+following configuration option:
+
+```Kotlin
+dokka {
+// Dokka generates a new process managed by Gradle
+    workerIsolation = ProcessIsolation {
+        // Configures heap size
+        minHeapSize = "4g"
+    }
+}
+```
+
+The example above shows a heap size of `4g`; you need to adjust and test until you find the best solution for your build.
+
+If you have to increase the memory by an unreasonable amount, for example, significantly more than the memory required for Gradle,
+[report an issue on Dokka's GitHub repository](https://kotl.in/dokka-issues).
+
+> You have to apply this configuration to each subproject. It's recommended that you configure Dokka in a convention 
+> plugin applied to all subprojects.
+>
+{style="note"}
+
+### Run Dokka in-process
+
+When both the Gradle build and Dokka generation require a lot of memory, they may run as separate processes, 
+consuming significant memory on a single machine.
+
+To optimize memory usage, you can run Dokka within the same Gradle process instead of as a separate process. This 
+allows you to configure the memory for Gradle once instead of allocating it separately for each process.
+
+To run Dokka within the same Gradle process, adjust the following configuration option in the `build.gradle.kts` file:
+
+```Kotlin
+dokka {
+    // Runs Dokka in the current Gradle process
+    workerIsolation = ClassLoaderIsolation()
+}
+```
+
+As with increasing heap space, you need to test this configuration option and determine whether it works best for your project.
+
+For more details on configuring Gradle's JVM memory, see the [Gradle documentation](https://docs.gradle.org/current/userguide/config_gradle.html#sec:configuring_jvm_memory).
+
+> Changing the Java options for Gradle launches a new Gradle daemon, which may stay alive for a long time. You can [manually stop any other Gradle processes](https://docs.gradle.org/current/userguide/gradle_daemon.html#sec:stopping_an_existing_daemon).
+> 
+> Additionally, Gradle issues with the `ClassLoaderIsolation()` configuration may [cause memory leaks](https://github.com/gradle/gradle/issues/18313). 
+>
+{style="note"}
+
 ## What's next
 
 * Explore more [DGP v2 project examples](https://github.com/Kotlin/dokka/tree/master/examples/gradle-v2). 
