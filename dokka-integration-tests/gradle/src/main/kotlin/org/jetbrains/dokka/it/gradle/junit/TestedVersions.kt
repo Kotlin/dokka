@@ -18,12 +18,6 @@ import org.jetbrains.dokka.it.systemProperty
  * parameter in the test function.
  */
 data class TestedVersions(
-    /** Kotlin Gradle Plugin version. */
-    val kgp: SemVer,
-    /** Gradle version. */
-    val gradle: SemVer,
-    /** Dokka Gradle Plugin version. */
-    val dgp: SemVer,
     /**
      * The Android Gradle Plugin version being tested.
      *
@@ -36,6 +30,12 @@ data class TestedVersions(
      * The test must be annotated with [TestsCompose] for this value to be set.
      */
     val composeGradlePlugin: SemVer?,
+    /** Dokka Gradle Plugin version. */
+    val dgp: SemVer,
+    /** Gradle version. */
+    val gradle: SemVer,
+    /** Kotlin Gradle Plugin version. */
+    val kgp: SemVer,
 ) : Comparable<TestedVersions> {
 
     constructor(
