@@ -37,7 +37,7 @@ class KmpCommonSourceSharedWithDependentsTest : FunSpec({
                     }
 
                 withClue(
-                    "files with errors: ${filesWithErrors.joinToString("\n") { " - ${it.toUri()}" }}"
+                    "${filesWithErrors.count()} file(s) with errors:\n${filesWithErrors.joinToString("\n") { " - ${it.toUri()}" }}"
                 ) {
                     filesWithErrors.shouldBeEmpty()
                 }
