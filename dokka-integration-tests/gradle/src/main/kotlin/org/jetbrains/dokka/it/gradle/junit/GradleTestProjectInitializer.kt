@@ -71,27 +71,27 @@ fun interface GradleTestProjectInitializer {
             projectDir: Path,
             testedVersions: TestedVersions,
         ) {
-            projectDir.walk().filter { it.isRegularFile() }.forEach { file ->
-                file.writeText(
-                    file.readText()
-                        .replace("/* %{KGP_VERSION} */", testedVersions.kgp.version)
-                        .replace("/* %{DGP_VERSION} */", testedVersions.dgp.version)
-                        .run {
-                            if (testedVersions.agp != null) {
-                                replace("/* %{AGP_VERSION} */", testedVersions.agp.version)
-                            } else {
-                                this
-                            }
-                        }
-                        .run {
-                            if (testedVersions.composeGradlePlugin != null) {
-                                replace("/* %{COMPOSE_VERSION} */", testedVersions.composeGradlePlugin.version)
-                            } else {
-                                this
-                            }
-                        }
-                )
-            }
+            // Only update versions in specific files, to avoid reading and writing to lots of files.
+            val namesOfFilesWithVersions = setOf(
+                "build.gradle.kts",
+                "settings.gradle.kts",
+                "libs.versions.toml",
+            )
+
+            projectDir.walk()
+                .filter { it.isRegularFile() && it.name in namesOfFilesWithVersions }
+                .forEach { file ->
+                    file.writeText(
+                        file.readText()
+                            .replace("/* %{KGP_VERSION} */", testedVersions.kgp.version)
+                            .replace("/* %{DGP_VERSION} */", testedVersions.dgp.version)
+                            .replace("/* %{AGP_VERSION} */", testedVersions.agp?.version ?: "Missing AGP version")
+                            .replace(
+                                "/* %{COMPOSE_VERSION} */",
+                                testedVersions.composeGradlePlugin?.version ?: "Missing Compose version"
+                            )
+                    )
+                }
         }
 
         private fun initialiseAndroid(
