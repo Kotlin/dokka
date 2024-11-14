@@ -259,7 +259,7 @@ constructor(
      *
      *   // launch a new process, optionally controlling the standard JVM options
      *   dokkaGeneratorIsolation = ProcessIsolation {
-     *     minHeapSize = "2g" // increase minimum heap size
+     *     maxHeapSize = "2g" // increase maximum heap size
      *     systemProperties.add("someCustomProperty", 123)
      *   }
      * }
