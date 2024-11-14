@@ -873,7 +873,7 @@
 }
 .library-name--link:before {
   background: var(--dokka-logo-image-url) center no-repeat;
-  background-size: var(--dokka-logo-height) var(--dokka-logo-width);
+  background-size: min(var(--dokka-logo-height), 120px) min(var(--dokka-logo-width), 36px);
   content: "";
   height: var(--dokka-logo-height);
   margin-right: 8px;
@@ -2081,6 +2081,12 @@ button.platform-tag:focus-visible {
   .sidebar {
     position: relative;
     z-index: 1;
+  }
+}
+@media (max-width: 899px) {
+  .sidebar .button {
+    height: 52px;
+    min-width: 52px;
   }
 }
 .theme-dark .sidebar {
