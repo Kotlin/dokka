@@ -28,13 +28,13 @@
 
 .library-name--link::before {
   width: var(--dokka-logo-width);
-  height: var(--dokka-logo-height);
   max-width: 120px;
+  height: var(--dokka-logo-height);
   max-height: 36px;
   margin-right: var(--size-s2);
 
   content: '';
 
   background: var(--dokka-logo-image-url) center no-repeat;
-  background-size: var(--dokka-logo-height) var(--dokka-logo-width);
+  background-size: min(var(--dokka-logo-height), 120px) min(var(--dokka-logo-width), 36px);
 }
