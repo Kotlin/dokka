@@ -255,10 +255,10 @@ constructor(
      * ```kotlin
      * dokka {
      *   // use the current Gradle process, but with an isolated classpath
-     *   workerIsolation = ClassLoaderIsolation()
+     *   dokkaGeneratorIsolation = ClassLoaderIsolation()
      *
      *   // launch a new process, optionally controlling the standard JVM options
-     *   workerIsolation = ProcessIsolation {
+     *   dokkaGeneratorIsolation = ProcessIsolation {
      *     minHeapSize = "2g" // increase minimum heap size
      *     systemProperties.add("someCustomProperty", 123)
      *   }
