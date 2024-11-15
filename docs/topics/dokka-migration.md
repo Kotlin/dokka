@@ -438,19 +438,19 @@ DGP v2 now supports Gradle build cache and configuration cache, improving build 
 * To enable build cache, follow instructions in the [Gradle build cache documentation](https://docs.gradle.org/current/userguide/build_cache.html#sec:build_cache_enable).
 * To enable configuration cache, follow instructions in the [Gradle configuration cache documentation](https://docs.gradle.org/current/userguide/configuration_cache.html#config_cache:usage:enable ).
 
-## Troubleshoot your migration
+## Troubleshooting
 
-In large projects, Dokka can consume a significant amount of memory to generate documentation. This issue can be due to Gradle's memory allocation limits, 
-and Dokka's processing of large volumes of data, among other factors.
+In large projects, Dokka can consume a significant amount of memory to generate documentation.
+This can exceed Gradle’s memory limits, especially when processing large volumes of data.
 
 When Dokka generation runs out of memory, the build fails, and Gradle can throw exceptions like `java.lang.OutOfMemoryError: Metaspace`.
 
-Active efforts are underway to improve Dokka's performance, although Gradle limitations exist.
+Active efforts are underway to improve Dokka's performance, although some limitations stem from Gradle.
 
-As a workaround, when experiencing memory exceptions, you can try:
+If you encounter memory issues, try these workarounds:
 
 * [Increasing heap space](#increase-heap-space)
-* [Running Dokka in-process](#run-dokka-in-process)
+* [Running Dokka within the Gradle process](#run-dokka-within-the-gradle-process)
 
 ### Increase heap space
 
@@ -461,24 +461,24 @@ following configuration option:
 ```kotlin
 dokka {
     // Dokka generates a new process managed by Gradle
-    workerIsolation = ProcessIsolation {
+    dokkaGeneratorIsolation = ProcessIsolation {
         // Configures heap size
-        minHeapSize = "4g"
+        maxHeapSize = "4g"
     }
 }
 ```
 
-The example above shows a heap size of `4g`; you need to adjust and test until you find the best solution for your build.
+In this example, the maximum heap size is set to 4 GB (`"4g"`). Adjust and test the value to find the optimal setting for your build.
 
-If you have to increase the memory by an unreasonable amount, for example, significantly more than the memory required for Gradle,
-[report an issue on Dokka's GitHub repository](https://kotl.in/dokka-issues).
+If you find that Dokka requires a considerably expanded heap size, for example, significantly higher than Gradle's own memory usage, 
+[create an issue on Dokka's GitHub repository](https://kotl.in/dokka-issues).
 
 > You have to apply this configuration to each subproject. It's recommended that you configure Dokka in a convention 
 > plugin applied to all subprojects.
 >
 {style="note"}
 
-### Run Dokka in-process
+### Run Dokka within the Gradle process
 
 When both the Gradle build and Dokka generation require a lot of memory, they may run as separate processes, 
 consuming significant memory on a single machine.
@@ -495,7 +495,7 @@ dokka {
 }
 ```
 
-As with increasing heap space, you need to test this configuration option and determine whether it works best for your project.
+As with [increasing heap space](#increase-heap-space), test this configuration to confirm it works well for your project.
 
 For more details on configuring Gradle's JVM memory, see the [Gradle documentation](https://docs.gradle.org/current/userguide/config_gradle.html#sec:configuring_jvm_memory).
 
