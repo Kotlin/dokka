@@ -491,7 +491,7 @@ To run Dokka within the same Gradle process, adjust the following configuration 
 ```kotlin
 dokka {
     // Runs Dokka in the current Gradle process
-    workerIsolation = ClassLoaderIsolation()
+    dokkaGeneratorIsolation = ClassLoaderIsolation()
 }
 ```
 
