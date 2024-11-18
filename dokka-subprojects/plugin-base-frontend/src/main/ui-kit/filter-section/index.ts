@@ -7,6 +7,7 @@ import { DESKTOP_MIN_WIDTH, getScreenType } from '../utils';
 const TAGS_MARGIN = 4;
 const DROPDOWN_BUTTON_WIDTH_WITH_MARGIN = 44;
 const THRESHOLD_GAP = 10;
+const MAX_TAGS_COUNT = 8;
 
 /**
  * Filter section items are tags with platform names, they should fit in one line.
@@ -95,7 +96,7 @@ function initFilterSection(): void {
     let areTagsDisplayed = false;
     items.forEach((item, index) => {
       accumulatedWidth += tagsWidths[index] + TAGS_MARGIN;
-      if (accumulatedWidth < availableWidth) {
+      if (accumulatedWidth < availableWidth && index < MAX_TAGS_COUNT) {
         displayItemAsTag(item);
         areTagsDisplayed = true;
       } else {
