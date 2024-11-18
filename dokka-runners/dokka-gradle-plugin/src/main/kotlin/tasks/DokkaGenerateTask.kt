@@ -128,7 +128,7 @@ constructor(
     ) {
         val dokkaConfiguration =
             if (overrideJsonConfig.isPresent) {
-                logger.warn("w: [$path] Overriding DokkaConfiguration with manualJsonConfig")
+                logger.warn("w: [$path] Overriding DokkaConfiguration with overrideJsonConfig")
                 DokkaConfigurationImpl(overrideJsonConfig.get())
             } else {
                 createDokkaConfiguration(generationType, outputDirectory)
