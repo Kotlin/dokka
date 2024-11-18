@@ -32,3 +32,14 @@ export function isMobile(): boolean {
 export function getScreenType(): ScreenType {
   return isMobile() ? 'mobile' : isTablet() ? 'tablet' : 'desktop';
 }
+
+/**
+ * This is used to remove styles that were added for backward compatibility,
+ * for example, in the version selector component in which we have new markup
+ * but only old CSS styles for previous versions are loaded
+ */
+export function removeBackwardCompatibilityStyles(): void {
+  document.querySelectorAll('[data-remove-style="true"]').forEach((element: Element) => {
+    element.removeAttribute('style');
+  });
+}

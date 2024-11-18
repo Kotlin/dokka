@@ -59,21 +59,24 @@ public class HtmlVersionsNavigationCreator(
                     val activeVersion = getActiveVersion(position)
                     val relativePosition: String =
                         activeVersion?.value?.let { output.toRelativeString(it) } ?: "index.html"
-                    button(classes = "button button_dropdown") {
+                    div(classes = "button button_dropdown versions-dropdown-button") {
                         attributes["role"] = "combobox"
                         attributes["data-role"] = "dropdown-toggle"
                         attributes["aria-controls"] = "versions-listbox"
                         attributes["aria-haspopup"] = "listbox"
                         attributes["aria-expanded"] = "false"
                         attributes["aria-label"] = "Select version"
+                        attributes["tabindex"] = "0"
                         activeVersion?.key?.let { text(it) }
                     }
-                    ul(classes = "dropdown--list dropdown--list_positioned_left") {
+                    div(classes = "dropdown--list dropdown--list_positioned_left versions-dropdown-data") {
                         attributes["role"] = "listbox"
                         attributes["data-role"] = "dropdown-listbox"
                         attributes["aria-label"] = "Versions"
                         attributes["id"] = "versions-listbox"
                         div(classes = "dropdown--header") {
+                            attributes["data-remove-style"] = "true"
+                            attributes["style"] = "display: none"
                             span { text("Select version") }
                             button(classes = "button") {
                                 attributes["data-role"] = "dropdown-toggle"
@@ -82,9 +85,11 @@ public class HtmlVersionsNavigationCreator(
                             }
                         }
                         orderedVersions.forEach { (version, path) ->
-                            li {
+                            div {
                                 if (version == activeVersion?.key) {
                                     a(classes = "dropdown--option dropdown--option-link", href = output.name) {
+                                        attributes["style"] = "display: block; padding: 5px; color: #fff"
+                                        attributes["data-remove-style"] = "true"
                                         attributes["role"] = "option"
                                         text(version)
                                     }
@@ -107,6 +112,8 @@ public class HtmlVersionsNavigationCreator(
                                         href = absolutePath?.toRelativeString(position) +
                                                 if (!isExistsFile) "?v=" + version.urlEncoded() else ""
                                     ) {
+                                        attributes["style"] = "display: block; padding: 5px; color: #fff"
+                                        attributes["data-remove-style"] = "true"
                                         attributes["role"] = "option"
                                         text(version)
                                     }
