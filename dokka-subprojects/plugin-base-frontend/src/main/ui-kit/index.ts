@@ -14,6 +14,7 @@ import * as platformTag from './platform-tag/index';
 import * as platformTags from './platform-tags/index';
 import * as tabs from './tabs/index';
 import * as tocTree from './toc-tree/index';
+import { removeBackwardCompatibilityStyles } from './utils';
 import './helpers.scss';
 import './global.scss';
 
@@ -32,3 +33,7 @@ export {
   tabs,
   tocTree,
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+  removeBackwardCompatibilityStyles();
+});
