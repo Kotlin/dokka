@@ -73,6 +73,7 @@
   border: none;
   border-radius: 4px;
   border-radius: var(--size-s1);
+  box-sizing: border-box;
   color: #000;
   color: var(--color-text);
   cursor: pointer;
