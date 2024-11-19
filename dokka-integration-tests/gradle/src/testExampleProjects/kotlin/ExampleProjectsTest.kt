@@ -18,6 +18,7 @@ import org.jetbrains.dokka.it.gradle.TestConstants
 import org.jetbrains.dokka.it.gradle.loadConfigurationCacheReportData
 import org.jetbrains.dokka.it.gradle.shouldHaveOutcome
 import org.jetbrains.dokka.it.gradle.shouldHaveTask
+import org.jetbrains.dokka.it.optionalSystemProperty
 import org.jetbrains.dokka.it.systemProperty
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Named.named
@@ -101,8 +102,12 @@ class ExampleProjectsTest {
     ) {
         val exampleProjectName = ExampleProject.of(project.projectDir)
 
+        /**
+         * Tests are enabled if there is no [exampleProjectFilter] set, or if [exampleProjectFilter] matches
+         * the name of [GradleProjectTest.projectDir].
+         */
         val isEnabled: Boolean =
-            project.projectDir.name == System.getProperty("exampleProjectFilter")
+            exampleProjectFilter == null || project.projectDir.name == exampleProjectFilter
 
         /** `true` if the project produces Dokka HTML. */
         val outputsHtml: Boolean =
@@ -159,6 +164,15 @@ class ExampleProjectsTest {
             }
 
             project.runner.writeGradleProperties(project.gradleProperties)
+        }
+
+        companion object {
+            /**
+             * If set, only run a specific example project with the matching [exampleProjectName].
+             *
+             * This property is set in the Gradle build config.
+             */
+            private val exampleProjectFilter by org.jetbrains.dokka.it.optionalSystemProperty()
         }
     }
 
