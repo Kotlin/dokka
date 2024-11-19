@@ -10,8 +10,7 @@ import io.kotest.matchers.file.shouldBeAFile
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
-import org.gradle.testkit.runner.TaskOutcome.SUCCESS
-import org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
+import org.gradle.testkit.runner.TaskOutcome.*
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
@@ -100,6 +99,18 @@ class AndroidProjectIT {
             .build {
                 withClue("expect dokkaGenerate runs successfully") {
                     shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+                    shouldHaveTask(":dokkaGeneratePublicationHtml").shouldHaveOutcome(FROM_CACHE, SUCCESS)
+                    shouldHaveTask(":dokkaGenerateModuleHtml").shouldHaveOutcome(FROM_CACHE, SUCCESS)
+                }
+            }
+
+        project.runner
+            .addArguments(
+                ":clean",
+                "--build-cache",
+            ).build {
+                withClue("expect clean runs successfully") {
+                    shouldHaveTask(":clean").shouldHaveOutcome(SUCCESS)
                 }
             }
 
@@ -109,8 +120,12 @@ class AndroidProjectIT {
                 "--build-cache",
             )
             .build {
-                withClue("expect dokkaGenerate tasks are loaded from cache") {
+                withClue("expect dokkaGenerate lifecycle task is up-to-date") {
                     shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE)
+                }
+                withClue("expect dokkaGenerate* work tasks are loaded from cache") {
+                    shouldHaveTask(":dokkaGeneratePublicationHtml").shouldHaveOutcome(FROM_CACHE)
+                    shouldHaveTask(":dokkaGenerateModuleHtml").shouldHaveOutcome(FROM_CACHE)
                 }
             }
     }
