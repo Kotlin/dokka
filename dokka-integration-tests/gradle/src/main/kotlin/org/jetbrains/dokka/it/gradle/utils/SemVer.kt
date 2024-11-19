@@ -10,10 +10,10 @@ data class SemVer(
     val version: String,
 ) : Comparable<SemVer> {
     val major: Int
-    val minor: Int
 
     //region These fields are private to avoid IJ warnings, feel free to make them public if it's helpful.
-    private val patch: Int
+    private val minor: Int
+    val patch: Int
     private val prerelease: String?
     private val metadata: String?
     //endregion
@@ -55,6 +55,9 @@ data class SemVer(
         }
     }
 
+    /** Combine the [major] and [minor] versions into a string. */
+    val majorAndMinorVersions: String = "$major.$minor"
+
     override fun toString(): String = version
 
     companion object {
@@ -64,5 +67,11 @@ data class SemVer(
             ^(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?:-(?<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?<buildMetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?${'$'}
             """.trimIndent()
         )
+
+        operator fun ClosedRange<String>.contains(version: SemVer): Boolean =
+            version in SemVer(start)..SemVer(endInclusive)
+
+        operator fun OpenEndRange<String>.contains(version: SemVer): Boolean =
+            version in SemVer(start)..<SemVer(endExclusive)
     }
 }

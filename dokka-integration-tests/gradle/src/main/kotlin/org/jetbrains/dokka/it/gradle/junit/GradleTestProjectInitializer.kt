@@ -5,6 +5,8 @@ package org.jetbrains.dokka.it.gradle.junit
 
 import org.jetbrains.dokka.it.gradle.AbstractGradleIntegrationTest.Companion.updateProjectLocalMavenDir
 import org.jetbrains.dokka.it.gradle.junit.DokkaGradlePluginTestExtension.Companion.getAndroidSdkDir
+import org.jetbrains.dokka.it.gradle.junit.TestedVersions.Companion.hasAgp
+import org.jetbrains.dokka.it.gradle.junit.TestedVersions.Companion.hasCompose
 import java.nio.file.Path
 import kotlin.io.path.*
 
@@ -43,7 +45,7 @@ fun interface GradleTestProjectInitializer {
 
             updateVersions(destination, testedVersions)
 
-            if (testedVersions.agp != null) {
+            if (testedVersions.hasAgp()) {
                 initialiseAndroid(
                     destination = destination
                 )
@@ -85,10 +87,13 @@ fun interface GradleTestProjectInitializer {
                         file.readText()
                             .replace("/* %{KGP_VERSION} */", testedVersions.kgp.version)
                             .replace("/* %{DGP_VERSION} */", testedVersions.dgp.version)
-                            .replace("/* %{AGP_VERSION} */", testedVersions.agp?.version ?: "Missing AGP version")
+                            .replace(
+                                "/* %{AGP_VERSION} */",
+                                if (testedVersions.hasAgp()) testedVersions.agp.version else "Missing AGP version"
+                            )
                             .replace(
                                 "/* %{COMPOSE_VERSION} */",
-                                testedVersions.composeGradlePlugin?.version ?: "Missing Compose version"
+                                if (testedVersions.hasCompose()) testedVersions.composeGradlePlugin.version else "Missing Compose Gradle Plugin version"
                             )
                     )
                 }

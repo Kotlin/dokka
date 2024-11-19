@@ -22,8 +22,7 @@ import kotlin.io.path.deleteRecursively
  * Integration test for the `it-android-compose` project.
  */
 @TestsDGPv2
-@TestsAndroidGradlePlugin
-@TestsCompose
+@TestsAndroidCompose
 @WithGradleProperties(GradlePropertiesProvider.Android::class)
 class AndroidComposeIT {
 

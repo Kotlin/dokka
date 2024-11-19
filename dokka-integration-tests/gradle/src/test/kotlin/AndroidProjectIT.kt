@@ -23,7 +23,7 @@ import kotlin.io.path.deleteRecursively
 /**
  * Integration test for the `it-android` project.
  */
-@TestsAndroidGradlePlugin
+@TestsAndroid
 @TestsDGPv2
 @WithGradleProperties(GradlePropertiesProvider.Android::class)
 class AndroidProjectIT {
@@ -31,10 +31,10 @@ class AndroidProjectIT {
     @DokkaGradlePluginTest(sourceProjectName = "it-android")
     fun `generate dokka HTML`(
         project: DokkaGradleProjectRunner,
-        testedVersions: TestedVersions,
+        testedVersions: TestedVersions.WithAndroid,
     ) {
         assumeTrue(
-            testedVersions.agp?.major != 8,
+            testedVersions.agp.major != 8,
             "TODO KT-70855 The output is slightly different for AGP 8, but this will be fixed as part of KT-70855. Rather than trying to make the test work now, just skip testing AGP 8 and wait until the fix arrives."
         )
         project.runner
@@ -87,7 +87,6 @@ class AndroidProjectIT {
             }
         }
     }
-
 
     @DokkaGradlePluginTest(sourceProjectName = "it-android")
     fun `Dokka tasks should be build cacheable`(

@@ -5,6 +5,8 @@ package org.jetbrains.dokka.it.gradle.junit
 
 import org.gradle.testkit.runner.GradleRunner
 import org.jetbrains.dokka.it.gradle.junit.DokkaGradlePluginTestExtension.CloseablePath.Companion.tmpDirCleanupMode
+import org.jetbrains.dokka.it.gradle.junit.TestedVersions.Companion.dashSeparatedId
+import org.jetbrains.dokka.it.gradle.junit.TestedVersions.Companion.displayName
 import org.jetbrains.dokka.it.gradle.utils.SemVer
 import org.jetbrains.dokka.it.gradle.withJetBrainsCachedGradleVersion
 import org.jetbrains.dokka.it.gradle.withReadOnlyDependencyCache
@@ -25,7 +27,9 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Stream
 import kotlin.io.path.*
+import kotlin.jvm.optionals.getOrNull
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 import kotlin.streams.asStream
 
 /**
@@ -89,34 +93,36 @@ class DokkaGradlePluginTestExtension :
             dgpTest.gradlePropertiesProvider,
         )
 
-        return TestedVersions.testedVersions(
-            isAndroidTest = isAndroidTest,
-            isComposeTest = isComposeTest,
-        )
-            .map { testedVersions ->
+        val testedVersionsSource = when {
+            isAndroidComposeTest -> TestedVersionsSource.AndroidCompose
+            isAndroidTest -> TestedVersionsSource.Android
+            else -> TestedVersionsSource.Default
+        }
 
-                // Use a separate directory for each invocation, named after the tested versions.
-                val projectTmpDir = baseDgpTestDir.resolve(testedVersions.dashSeparated)
-                context.gradleTestStore.put(
-                    "project-tmp-dir-${projectTmpDir.invariantSeparatorsPathString}",
-                    CloseablePath(projectTmpDir, context),
-                )
+        return testedVersionsSource.get().map { testedVersions ->
 
-                projectInitializer.initialize(
-                    source = templateProjectsDir.resolve(sourceProjectDir),
-                    destination = projectTmpDir,
-                    testedVersions = testedVersions,
-                    gradleProperties = gradleProperties,
-                )
+            // Use a separate directory for each invocation, named after the tested versions.
+            val projectTmpDir = baseDgpTestDir.resolve(testedVersions.dashSeparatedId())
+            context.gradleTestStore.put(
+                "project-tmp-dir-${projectTmpDir.invariantSeparatorsPathString}",
+                CloseablePath(projectTmpDir, context),
+            )
 
-                // log a clickable URI link to console, so it's easier to view the tested project.
-                logger.info { "Testing project ${projectTmpDir.toUri()}" }
+            projectInitializer.initialize(
+                source = templateProjectsDir.resolve(sourceProjectDir),
+                destination = projectTmpDir,
+                testedVersions = testedVersions,
+                gradleProperties = gradleProperties,
+            )
 
-                GradleProjectTestTemplate(
-                    projectDir = projectTmpDir,
-                    testedVersions = testedVersions,
-                )
-            }
+            // log a clickable URI link to console, so it's easier to view the tested project.
+            logger.info { "Testing project ${projectTmpDir.toUri()}" }
+
+            GradleProjectTestTemplate(
+                projectDir = projectTmpDir,
+                testedVersions = testedVersions,
+            )
+        }
             .asStream()
     }
 
@@ -130,7 +136,7 @@ class DokkaGradlePluginTestExtension :
         private val testedVersions: TestedVersions,
     ) : TestTemplateInvocationContext {
         override fun getDisplayName(invocationIndex: Int): String =
-            "[$invocationIndex] ${testedVersions.displayName}"
+            "[$invocationIndex] ${testedVersions.displayName()}"
 
         override fun getAdditionalExtensions(): List<Extension> =
             listOf(
@@ -162,7 +168,12 @@ class DokkaGradlePluginTestExtension :
      */
     private class TestedVersionsParameterResolver(
         private val testedVersions: TestedVersions,
-    ) : TypeBasedParameterResolver<TestedVersions>() {
+    ) : ParameterResolver {
+        override fun supportsParameter(
+            parameterContext: ParameterContext,
+            extensionContext: ExtensionContext,
+        ): Boolean = parameterContext.parameter.type.kotlin.isSubclassOf(TestedVersions::class)
+
         override fun resolveParameter(
             parameterContext: ParameterContext,
             extensionContext: ExtensionContext,
