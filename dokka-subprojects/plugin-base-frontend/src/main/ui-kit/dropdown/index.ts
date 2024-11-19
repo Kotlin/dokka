@@ -24,7 +24,8 @@ export function onToggleDropdown(dropdown: Element): void {
   const buttons = dropdown.querySelectorAll(DROPDOWN_TOGGLE);
   buttons?.forEach(toggleDropdownButton);
   const list = dropdown.querySelector(DROPDOWN_LIST);
-  toggleDropdownList(list);
+  const buttonWidth = (buttons[0] as HTMLElement).offsetWidth;
+  toggleDropdownList(list, buttonWidth);
 }
 
 function toggleDropdownButton(button: Element): void {
@@ -33,8 +34,13 @@ function toggleDropdownButton(button: Element): void {
   }
 }
 
-function toggleDropdownList(list: Element | null): void {
+function toggleDropdownList(list: Element | null, minWidth?: number): void {
   list?.classList.toggle('dropdown--list_expanded');
+  if (minWidth) {
+    (list as HTMLElement).style.minWidth = `${minWidth}px`;
+  } else {
+    (list as HTMLElement).style.minWidth = 'auto';
+  }
 }
 
 function handleOutsideClick(event: MouseEvent): void {
