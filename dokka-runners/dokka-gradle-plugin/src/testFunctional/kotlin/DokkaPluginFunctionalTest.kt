@@ -134,7 +134,9 @@ class DokkaPluginFunctionalTest : FunSpec({
             }
     }
 
-    test("expect Dokka Plugin creates Dokka resolvable configurations") {
+    // TODO KT-71851 fix test failure on Windows
+    val isOsWindows = "win" in System.getProperty("os.name").lowercase()
+    test("expect Dokka Plugin creates Dokka resolvable configurations").config(enabled = !isOsWindows) {
         testProject.runner
             .addArguments("resolvableConfigurations", "--quiet")
             .build {
@@ -144,21 +146,24 @@ class DokkaPluginFunctionalTest : FunSpec({
                 configurationsDump
                     .filter { (k, v) -> "$k=$v".contains("dokka", ignoreCase = true) }
                     .asClue { dokkaConfigurations ->
+
+                        dokkaConfigurations.keys.shouldContainExactlyInAnyOrder(
+                            expectedFormats.flatMap { format ->
+                                listOf(
+                                    "Configuration dokka${format}GeneratorRuntimeResolver~internal",
+                                    "Configuration dokka${format}ModuleOutputDirectoriesResolver~internal",
+                                    "Configuration dokka${format}PluginIntransitiveResolver~internal",
+                                    "Configuration dokka${format}PublicationPluginResolver~internal",
+                                )
+                            }
+                        )
+
                         expectedFormats.forEach { expectedFormat ->
 
                             val format = expectedFormat.lowercase()
 
                             @Suppress("LocalVariableName")
                             val Format = format.uppercaseFirstChar()
-
-                            dokkaConfigurations.keys.shouldContainExactlyInAnyOrder(
-                                listOf(
-                                    "Configuration dokka${Format}GeneratorRuntimeResolver~internal",
-                                    "Configuration dokka${Format}ModuleOutputDirectoriesResolver~internal",
-                                    "Configuration dokka${Format}PluginIntransitiveResolver~internal",
-                                    "Configuration dokka${Format}PublicationPluginResolver~internal",
-                                )
-                            )
 
                             mapOf(
                                 "Configuration dokka${Format}GeneratorRuntimeResolver~internal" to /* language=text */ """

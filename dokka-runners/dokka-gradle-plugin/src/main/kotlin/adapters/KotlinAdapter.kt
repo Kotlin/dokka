@@ -47,9 +47,10 @@ import kotlin.reflect.jvm.jvmName
 /**
  * The [KotlinAdapter] plugin will automatically register Kotlin source sets as Dokka source sets.
  *
- * This is not a standalone plugin, it requires [org.jetbrains.dokka.gradle.DokkaBasePlugin] is also applied.
+ * This is an internal Dokka plugin and should not be used externally.
+ * It is not a standalone plugin, it requires [org.jetbrains.dokka.gradle.DokkaBasePlugin] is also applied.
  */
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 abstract class KotlinAdapter @Inject constructor(
     private val objects: ObjectFactory,
     private val providers: ProviderFactory,
@@ -177,7 +178,7 @@ abstract class KotlinAdapter @Inject constructor(
         }
     }
 
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     companion object {
         private val dkaName: String = KotlinAdapter::class.simpleName!!
 
@@ -219,7 +220,7 @@ abstract class KotlinAdapter @Inject constructor(
  * The compilation details may come from a multiplatform project ([KotlinMultiplatformExtension])
  * or a single-platform project ([KotlinSingleTargetExtension]).
  */
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 private data class KotlinCompilationDetails(
     val target: String,
     val kotlinPlatform: KotlinPlatform,
@@ -399,7 +400,7 @@ private class KotlinCompilationDetailsBuilder(
  *
  * @param[named] Should be [KotlinSourceSet.getName]
  */
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 private abstract class KotlinSourceSetDetails @Inject constructor(
     private val named: String,
 ) : Named {

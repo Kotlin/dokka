@@ -4,11 +4,11 @@
   ~ Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
   -->
 
-<buildprofiles>
+<buildprofiles xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://resources.jetbrains.com/writerside/1.0/build-profiles.xsd">
     <variables>
         <enable-browser-edits>true</enable-browser-edits>
         <browser-edits-url>https://github.com/Kotlin/dokka/edit/master/docs/</browser-edits-url>
         <allow-indexable-eaps>true</allow-indexable-eaps>
     </variables>
-    <build-profile product="kl"/>
+    <build-profile instance="dokka"/>
 </buildprofiles>

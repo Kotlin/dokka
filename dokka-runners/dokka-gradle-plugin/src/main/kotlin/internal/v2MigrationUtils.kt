@@ -9,10 +9,7 @@ import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.internal.deprecation.DeprecatableConfiguration
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.dokka.gradle.DokkaCollectorTask
-import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
-import org.jetbrains.dokka.gradle.DokkaTask
-import org.jetbrains.dokka.gradle.DokkaTaskPartial
+import org.jetbrains.dokka.gradle.*
 import org.jetbrains.dokka.gradle.dependencies.DependencyContainerNames
 
 /**
@@ -36,8 +33,12 @@ internal fun addV2MigrationHelpers(
 }
 
 private fun configureDokkaTaskConventions(project: Project) {
-    project.tasks.withType<DokkaTask>().configureEach {
-        group = "" // hide from users
+    project.tasks.withType<AbstractDokkaTask>().configureEach {
+        // The DGPv1 tasks are only present to prevent buildscripts with references to them from breaking.
+        // The tasks are non-operable and should be hidden, to help nudge users to the DGPv2 tasks.
+        // Setting tasks with group null will hide it when running `gradle tasks`,
+        // and put it in the 'other' group in IntelliJ (which effectively hides it).
+        setGroup(null)
         onlyIf("Dokka V1 tasks are disabled due to the V2 flag being enabled") { false }
         enabled = false
         notCompatibleWithConfigurationCache("Dokka V1 tasks use deprecated Gradle features. Please migrate to Dokka Plugin V2, which fully supports Configuration Cache.")
@@ -63,11 +64,9 @@ private fun setupDokkaTasks(
 
     /** @see org.jetbrains.dokka.gradle.maybeCreateDokkaPluginConfiguration */
     fun ConfigurationContainer.createDokkaPluginConfiguration(taskName: String) {
-        if (createDokkaPluginFormatConfiguration) {
-            create("${taskName}Plugin") {
-                declarable()
-                deprecate(replaceWith = newConfs.pluginsClasspath)
-            }
+        create("${taskName}Plugin") {
+            declarable()
+            deprecate(replaceWith = newConfs.pluginsClasspath)
         }
     }
 
@@ -79,8 +78,11 @@ private fun setupDokkaTasks(
         }
     }
 
-    project.configurations.createDokkaPluginConfiguration(taskName = baseTaskName)
-    project.configurations.createDokkaRuntimeConfiguration(taskName = baseTaskName)
+    if (createDokkaPluginFormatConfiguration) {
+        // Don't create dokka${Format}Plugin Configurations, v2 will create Configurations with the same name and purpose.
+        project.configurations.createDokkaPluginConfiguration(taskName = baseTaskName)
+        project.configurations.createDokkaRuntimeConfiguration(taskName = baseTaskName)
+    }
 
     project.tasks.register<DokkaTask>(baseTaskName) {
         description = "$taskDesc Generates documentation in '$format' format."
@@ -119,7 +121,7 @@ private fun ConfigurationContainer.createDokkaDefaultRuntimeConfiguration(): Con
     return create("dokkaRuntime") {
         description = "[⚠ V1 Configurations are disabled] Classpath used to execute the Dokka Generator."
         declarable()
-        deprecate(DependencyContainerNames("html").generatorClasspath)
+        deprecate(DependencyContainerNames("").generatorClasspath)
     }
 }
 

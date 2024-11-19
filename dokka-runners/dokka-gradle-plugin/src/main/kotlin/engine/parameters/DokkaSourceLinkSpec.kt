@@ -11,7 +11,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.intellij.lang.annotations.Language
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import java.io.Serializable
 import java.net.URI
 import javax.inject.Inject
@@ -32,7 +32,7 @@ import javax.inject.Inject
  * ```
  */
 abstract class DokkaSourceLinkSpec
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     private val layout: ProjectLayout
@@ -55,11 +55,13 @@ constructor(
     abstract val localDirectory: DirectoryProperty
 
     /**
-     * The relative path to [localDirectory] from the project directory. Declared as an input to invalidate the task if that path changes.
+     * The relative path to [localDirectory] from the project directory.
+     *
+     * Declared as an [Input] only so Gradle will re-run the task if that path changes.
      * Should not be used anywhere directly.
      */
     @get:Input
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     internal val localDirectoryPath: Provider<String>
         get() = localDirectory.map {
             it.asFile.relativeTo(layout.projectDirectory.asFile).invariantSeparatorsPath
@@ -73,24 +75,34 @@ constructor(
      * Example:
      *
      * ```kotlin
-     * java.net.URI("https://github.com/username/projectname/tree/master/src"))
+     * remoteUrl.set(java.net.URI("https://github.com/username/projectname/tree/master/src"))
+     *
+     * // OR
+     *
+     * remoteUrl("https://github.com/username/projectname/tree/master/src")
      * ```
+     *
+     * @see remoteUrl
      */
     @get:Input
     abstract val remoteUrl: Property<URI>
 
     /**
-     * Set the value of [remoteUrl].
+     * A remote URL of the hosted source code.
      *
-     * @param[value] will be converted to a [URI]
+     * [value] will be converted to a [URI].
+     *
+     * @see remoteUrl
      */
     fun remoteUrl(@Language("http-url-reference") value: String): Unit =
         remoteUrl.set(URI(value))
 
     /**
-     * Set the value of [remoteUrl].
+     * A remote URL of the hosted source code.
      *
-     * @param[value] will be converted to a [URI]
+     * [value] will be converted to a [URI].
+     *
+     * @see remoteUrl
      */
     fun remoteUrl(value: Provider<String>): Unit =
         remoteUrl.set(value.map(::URI))

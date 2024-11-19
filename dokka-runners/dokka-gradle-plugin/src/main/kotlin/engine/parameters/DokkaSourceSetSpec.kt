@@ -17,16 +17,19 @@ import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.java
 import org.gradle.kotlin.dsl.newInstance
 import org.jetbrains.dokka.gradle.engine.parameters.SourceSetIdSpec.Companion.dokkaSourceSetIdSpec
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.adding
 import org.jetbrains.dokka.gradle.internal.domainObjectContainer
 import java.io.Serializable
 import javax.inject.Inject
+import kotlin.DeprecationLevel.ERROR
 
 /**
- * [Source set](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) level configuration.
+ * A [DokkaSourceSetSpec] controls how Dokka will view and rendered sources.
  *
- * Can be configured in the following way with Gradle Kotlin DSL:
+ * Dokka will automatically discover source sets from Kotlin, Android, and Java projects.
+ *
+ * Source sets can be configured individually, or all at once.
  *
  * ```kotlin
  * // build.gradle.kts
@@ -35,12 +38,12 @@ import javax.inject.Inject
  *   dokkaSourceSets {
  *     // configure individual source set by name
  *     named("customSourceSet") {
- *       suppress.set(true)
+ *       // ...
  *     }
  *
  *     // configure all source sets at once
  *     configureEach {
- *       reportUndocumented.set(true)
+ *       // ...
  *     }
  *   }
  * }
@@ -49,7 +52,7 @@ import javax.inject.Inject
  * @see org.jetbrains.dokka.DokkaSourceSetImpl
  */
 abstract class DokkaSourceSetSpec
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     private val name: String,
@@ -76,7 +79,7 @@ constructor(
     abstract val sourceSetScope: Property<String>
 
     /**
-     * The identifier for this source set, across all Gradle subprojects.
+     * The identifier for this source set, which is distinct across all Gradle subprojects.
      *
      * @see sourceSetScope
      * @see getName
@@ -214,9 +217,11 @@ constructor(
     abstract val sourceLinks: DomainObjectSet<DokkaSourceLinkSpec>
 
     /**
-     * Allows to customize documentation generation options on a per-package basis.
+     * Allows customising documentation generation options on a per-package basis.
      *
-     * @see DokkaPackageOptionsSpec for details
+     * Use the [perPackageOptions] function to add a new item.
+     *
+     * @see DokkaPackageOptionsSpec
      */
     @get:Nested
     abstract val perPackageOptions: DomainObjectSet<DokkaPackageOptionsSpec>
@@ -308,9 +313,11 @@ constructor(
      * Whether to generate external documentation links for Android SDK API reference when
      * declarations from it are used.
      *
-     * Only relevant in Android projects, ignored otherwise.
+     * Only relevant in Android projects, and will be automatically disabled otherwise.
      *
-     * Default is `false`, meaning links will not be generated.
+     * The default value is automatically determined.
+     * If [analysisPlatform] is set to [KotlinPlatform.AndroidJVM], then the value will be `true`.
+     * Otherwise, the value defaults to `false`.
      *
      * @see externalDocumentationLinks
      */
@@ -376,4 +383,66 @@ constructor(
             }
         )
     }
+
+    //region deprecated properties
+    /**
+     * This property is replaced with [enableKotlinStdLibDocumentationLink].
+     *
+     * **Important**: When replacing [noStdlibLink] you **must** invert the value.
+     *
+     * ```kotlin
+     * // Before:
+     * noStdlibLink.set(true)
+     *
+     * // Update the name, and set the value to `false` instead of `true`:
+     * enableKotlinStdLibDocumentationLink.set(false)
+     * ```
+     *
+     * @see enableKotlinStdLibDocumentationLink
+     */
+    @Deprecated("Replaced with to enableKotlinStdLibDocumentationLink. The value must be inverted.", level = ERROR)
+    @get:Internal
+    @Suppress("unused")
+    abstract val noStdlibLink: Property<Boolean>
+
+    /**
+     * This property is replaced with [enableAndroidDocumentationLink].
+     *
+     * **Important**: When replacing [noAndroidSdkLink] you **must** invert the value.
+     *
+     * ```kotlin
+     * // Before:
+     * noAndroidSdkLink.set(true)
+     *
+     * // Update the name, and set the value to `false` instead of `true`:
+     * enableAndroidDocumentationLink.set(false)
+     * ```
+     *
+     * @see enableAndroidDocumentationLink
+     */
+    @Deprecated("Replaced with to enableAndroidDocumentationLink. The value must be inverted.", level = ERROR)
+    @get:Internal
+    @Suppress("unused")
+    abstract val noAndroidSdkLink: Property<Boolean>
+
+    /**
+     * This property is replaced with [enableJdkDocumentationLink].
+     *
+     * **Important**: When replacing [noJdkLink] you **must** invert the value.
+     *
+     * ```kotlin
+     * // Before:
+     * noJdkLink.set(true)
+     *
+     * // Update the name, and set the value to `false` instead of `true`:
+     * enableJdkDocumentationLink.set(false)
+     * ```
+     *
+     * @see enableJdkDocumentationLink
+     */
+    @Deprecated("Replaced with to enableJdkDocumentationLink. The value must be inverted.", level = ERROR)
+    @get:Internal
+    @Suppress("unused")
+    abstract val noJdkLink: Property<Boolean>
+    //endregion
 }

@@ -15,8 +15,14 @@ import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaMod
 import org.jetbrains.dokka.gradle.internal.*
 import java.io.File
 
-
-@DokkaInternalApi
+/**
+ * Manage sharing and receiving components used to build a Dokka Module.
+ *
+ * The type of component is determined by [component].
+ *
+ * Files are shared using variant-aware Gradle [Configuration]s.
+ */
+@InternalDokkaGradlePluginApi
 class ModuleComponentDependencies(
     project: Project,
     private val component: DokkaAttribute.ModuleComponent,
@@ -124,7 +130,7 @@ class ModuleComponentDependencies(
             }
     }
 
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     companion object {
         private val logger: Logger = Logging.getLogger(DokkaAttribute.ModuleComponent::class.java)
     }

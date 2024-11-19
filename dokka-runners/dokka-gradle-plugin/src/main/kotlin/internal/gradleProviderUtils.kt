@@ -34,3 +34,11 @@ internal fun <T> Provider<T>.forUseAtConfigurationTimeCompat(): Provider<T> =
     } else {
         this
     }
+
+/**
+ * Convert a String Provider to a Boolean Provider.
+ *
+ * @see String.toBoolean
+ */
+internal fun Provider<String>.toBoolean(): Provider<Boolean> =
+    map(String::toBoolean)

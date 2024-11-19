@@ -21,13 +21,19 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.dokka.gradle.DokkaBasePlugin
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.PluginId
 import org.jetbrains.dokka.gradle.internal.artifactType
 import java.io.File
 import javax.inject.Inject
 
-@DokkaInternalApi
+/**
+ * Discovers Android Gradle Plugin specific configuration and uses it to configure Dokka.
+ *
+ * This is an internal Dokka plugin and should not be used externally.
+ * It is not a standalone plugin, it requires [org.jetbrains.dokka.gradle.DokkaBasePlugin] is also applied.
+ */
+@InternalDokkaGradlePluginApi
 abstract class AndroidAdapter @Inject constructor(
     private val objects: ObjectFactory,
 ) : Plugin<Project> {
@@ -72,7 +78,7 @@ abstract class AndroidAdapter @Inject constructor(
         }
     }
 
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     companion object
 }
 

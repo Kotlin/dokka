@@ -26,7 +26,7 @@ kotlin {
     compilerOptions {
         optIn.addAll(
             "kotlin.RequiresOptIn",
-            "org.jetbrains.dokka.gradle.internal.DokkaInternalApi",
+            "org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi",
             "kotlin.io.path.ExperimentalPathApi",
         )
     }
@@ -61,6 +61,8 @@ dependencies {
     testFixturesImplementation(gradleApi())
     testFixturesImplementation(gradleTestKit())
 
+    testFixturesImplementation(libs.javaDiffUtils)
+
     testFixturesCompileOnly("org.jetbrains.dokka:dokka-core:${project.version}")
     testFixturesImplementation(platform(libs.kotlinxSerialization.bom))
     testFixturesImplementation(libs.kotlinxSerialization.json)
@@ -70,6 +72,7 @@ dependencies {
     testFixturesApi(libs.kotest.assertionsCore)
     testFixturesApi(libs.kotest.assertionsJson)
     testFixturesApi(libs.kotest.datatest)
+    testFixturesApi(libs.kotest.property)
 
     // don't define test dependencies here, instead define them in the testing.suites {} configuration below
 
@@ -207,16 +210,12 @@ testing.suites {
 skipTestFixturesPublications()
 
 apiValidation {
-    nonPublicMarkers.add("org.jetbrains.dokka.gradle.internal.DokkaInternalApi")
+    nonPublicMarkers.add("org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi")
 }
 
 val generateDokkaGradlePluginConstants by tasks.registering(GenerateDokkaGradlePluginConstants::class) {
     val dokkaPluginConstants = objects.mapProperty<String, String>().apply {
         put("DOKKA_VERSION", project.version.toString())
-        put("DOKKA_DEPENDENCY_VERSION_KOTLINX_HTML", libs.versions.kotlinx.html)
-        put("DOKKA_DEPENDENCY_VERSION_KOTLINX_COROUTINES", libs.versions.kotlinx.coroutines)
-        put("DOKKA_DEPENDENCY_VERSION_FREEMARKER", libs.versions.freemarker)
-        put("DOKKA_DEPENDENCY_VERSION_JETBRAINS_MARKDOWN", libs.versions.jetbrains.markdown)
     }
 
     properties.set(dokkaPluginConstants)

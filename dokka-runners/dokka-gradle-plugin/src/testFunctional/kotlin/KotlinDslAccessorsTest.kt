@@ -10,6 +10,7 @@ import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.intellij.lang.annotations.Language
 import org.jetbrains.dokka.gradle.internal.DokkaConstants.DOKKA_VERSION
 import org.jetbrains.dokka.gradle.utils.*
+import org.jetbrains.dokka.gradle.utils.GradleProjectTest.Companion.settingsRepositories
 import org.jetbrains.dokka.gradle.utils.projects.initMultiModuleProject
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -41,11 +42,11 @@ class KotlinDslAccessorsTest : FunSpec({
         ) {
             test("generated from project ${actualAccessors.projectPath} should match $expected") {
 
-                val expectedAccessors = resourceAsString(expected).trim()
+                val expectedAccessors = resourceAsString(expected)
 
                 assertEquals(
-                    expected = expectedAccessors,
-                    actual = actualAccessors.joined,
+                    expected = expectedAccessors.trim(),
+                    actual = actualAccessors.joined.trim(),
                     message = """
                         Task ${actualAccessors.projectPath} generated unexpected accessors.
                            Actual:   ${actualAccessors.file.toUri()}
@@ -168,7 +169,8 @@ private class GeneratedDokkaAccessors(
     val list: List<String>,
     projectDir: Path,
 ) {
-    val joined: String = list.joinToString("\n\n")
+    val joined: String = list.joinToString(separator = "\n\n", postfix = "\n")
+
     val file: Path = projectDir.resolve("dokka-accessors-${System.currentTimeMillis()}.txt").apply {
         writeText(joined)
     }
@@ -200,22 +202,27 @@ private fun GradleProjectTest.generateDokkaV2MigrationHelpersAccessors(
 }
 
 /**
- * Generate Kotlin DSL Accessors by running `:` in [projectPath].
+ * Generate Kotlin DSL Accessors by running `:kotlinDslAccessorsReport` in [projectPath].
  *
  * @returns Dokka-specific accessors, and a file of all accessors (to be used in assertion failure messages.)
  */
 private fun GradleProjectTest.generateDokkaAccessors(
     projectPath: String,
-    enableV2MigrationHelpers: Boolean? = null,
+    enableV2MigrationHelpers: Boolean = false,
 ): GeneratedDokkaAccessors {
+
+    gradleProperties {
+        dokka {
+            pluginMode = if (enableV2MigrationHelpers) "V2EnabledWithHelpers" else "V2Enabled"
+            pluginModeNoWarn = true
+        }
+    }
+
     runner
         .addArguments(
             buildList {
                 add(org.gradle.util.Path.path(projectPath).relativePath("kotlinDslAccessorsReport").toString())
                 add("--quiet")
-                enableV2MigrationHelpers?.let {
-                    add("-Porg.jetbrains.dokka.experimental.gradlePlugin.enableV2MigrationHelpers=$it")
-                }
             }
         )
         .build {
