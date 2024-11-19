@@ -302,8 +302,8 @@ class DokkaGradlePluginTestExtension :
                 .withProjectDir(projectDir.toFile())
                 .withJetBrainsCachedGradleVersion(
                     // Gradle doesn't strictly follow SemVer (fun fact: Gradle is older than SemVer).
-                    // Major releases have no patch number, so remove the patch if it's a `$major.0.0` version.
-                    if (gradle.major == 0 && gradle.patch == 0) gradle.majorAndMinorVersions else gradle.version
+                    // If the patch is zero, Gradle doesn't include it.
+                    if (gradle.patch == 0) gradle.majorAndMinorVersions else gradle.version
                 )
                 .withReadOnlyDependencyCache()
                 .forwardOutput()
