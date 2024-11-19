@@ -25,7 +25,7 @@ class SequentialTasksExecutionStressTest : AbstractGradleIntegrationTest() {
             buildVersions,
             "runTasks",
             "-Ptask_number=$iterations",
-            jvmArgs = listOf("-Xmx1G", "-XX:MaxMetaspaceSize=1000m"),
+            jvmArgs = listOf("-Xmx1G", "-XX:MaxMetaspaceSize=2g"),
             enableBuildCache = false,
         ).buildRelaxed()
 
