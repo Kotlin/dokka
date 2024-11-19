@@ -79,14 +79,13 @@ class DokkaGradlePluginTestExtension :
             .resolve(context.displayName.replace(Regex("[^A-Za-z0-9]+"), "-"))
             .createDirectories()
 
-        val dgpTest = findAnnotation(context.requiredTestMethod, DokkaGradlePluginTest::class.java).get()
+        val dgpTest = findAnnotation(context.element, DokkaGradlePluginTest::class.java).get()
 
         val projectInitializer = ReflectionSupport.newInstance(dgpTest.projectInitializer.java)
         val sourceProjectDir = dgpTest.sourceProjectName
 
-        val isAndroidTest = isAnnotated(context.requiredTestMethod, TestsAndroidGradlePlugin::class.java)
-
-        val isComposeTest = isAnnotated(context.requiredTestMethod, TestsCompose::class.java)
+        val isAndroidTest = context.hasOrParentHasAnnotation<TestsAndroid>()
+        val isAndroidComposeTest = context.hasOrParentHasAnnotation<TestsAndroidCompose>()
 
         val gradleProperties = computeGradleProperties(
             context,
@@ -322,5 +321,12 @@ class DokkaGradlePluginTestExtension :
          * Root directory for all template projects.
          */
         internal val templateProjectsDir by systemProperty(::Path)
+
+        /**
+         * Check if this [ExtensionContext] or any of its parents is annotated with [T].
+         */
+        private inline fun <reified T : Annotation> ExtensionContext.hasOrParentHasAnnotation(): Boolean =
+            generateSequence(this) { it.parent.getOrNull() }
+                .any { isAnnotated(it.element, T::class.java) }
     }
 }
