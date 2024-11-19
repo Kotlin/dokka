@@ -25,7 +25,10 @@ class SequentialTasksExecutionStressTest : AbstractGradleIntegrationTest() {
             buildVersions,
             "runTasks",
             "-Ptask_number=$iterations",
-            jvmArgs = listOf("-Xmx1G", "-XX:MaxMetaspaceSize=1000m"),
+            jvmArgs = listOf(
+                "-Xmx1G", "-XX:MaxMetaspaceSize=500m",
+                "-XX:SoftRefLRUPolicyMSPerMB=10" // to free up the metaspace on JVM 8, see https://youtrack.jetbrains.com/issue/KT-55831/
+            ),
             enableBuildCache = false,
         ).buildRelaxed()
 
