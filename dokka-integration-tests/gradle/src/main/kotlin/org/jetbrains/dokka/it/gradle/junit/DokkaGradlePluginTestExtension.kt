@@ -20,6 +20,7 @@ import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.AnnotationSupport.findAnnotation
 import org.junit.platform.commons.support.AnnotationSupport.isAnnotated
 import org.junit.platform.commons.support.ReflectionSupport
+import org.opentest4j.TestAbortedException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Stream
@@ -37,7 +38,8 @@ import kotlin.streams.asStream
 class DokkaGradlePluginTestExtension :
     TestTemplateInvocationContextProvider,
     BeforeAllCallback,
-    BeforeEachCallback {
+    BeforeEachCallback,
+    TestWatcher {
 
     override fun beforeAll(context: ExtensionContext) {
         installFailureTracker(context)
@@ -45,6 +47,17 @@ class DokkaGradlePluginTestExtension :
 
     override fun beforeEach(context: ExtensionContext) {
         installFailureTracker(context)
+    }
+
+    /**
+     * Log the reason for aborted tests.
+     *
+     * Workaround for https://github.com/gradle/gradle/issues/5511.
+     */
+    override fun testAborted(context: ExtensionContext, cause: Throwable) {
+        if (cause is TestAbortedException) {
+            logger.warn { cause.message ?: "Test was aborted without reason." }
+        }
     }
 
     override fun supportsTestTemplate(context: ExtensionContext): Boolean = true
