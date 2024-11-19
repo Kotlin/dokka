@@ -2100,6 +2100,8 @@ button.platform-tag:focus-visible {
 
 .sidebar--inner {
   padding-bottom: 12px;
+  padding-right: 4px;
+  padding-right: var(--size-s1);
   padding-top: 12px;
 }
 :root {
