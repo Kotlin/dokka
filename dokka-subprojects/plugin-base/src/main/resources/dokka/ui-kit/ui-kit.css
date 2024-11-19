@@ -435,8 +435,7 @@
     display: block;
     max-height: none;
     max-width: none;
-    min-width: 0;
-    min-width: auto;
+    min-width: 100%;
     padding: 0;
     position: relative;
     top: 0;
@@ -1778,7 +1777,7 @@ button.platform-tag:focus-visible {
   color: inherit;
   height: calc(100% - 16px);
   min-height: 40px;
-  padding: 8px 0;
+  padding: 8px 4px 8px 0;
   width: 100%;
 }
 
@@ -2100,8 +2099,6 @@ button.platform-tag:focus-visible {
 
 .sidebar--inner {
   padding-bottom: 12px;
-  padding-right: 4px;
-  padding-right: var(--size-s1);
   padding-top: 12px;
 }
 :root {
