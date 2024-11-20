@@ -32,6 +32,7 @@
     background-color: var(--color-background-nav-dt);
 
     box-shadow: 0 2px 8px 0 #00000040;
+    -webkit-transform: translate3d(0,0,0);
 
     @media (width < $breakpoint-desktop-min) {
       top: 0;
