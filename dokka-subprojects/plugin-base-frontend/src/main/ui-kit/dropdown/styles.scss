@@ -28,11 +28,12 @@
     max-height: 400px;
     padding: 12px 0;
 
+    -webkit-transform: translate3d(0, 0, 0);
+
     border: 1px solid lighten(rgb(50, 50, 55), 15%); // color-background-nav-dt
     background-color: var(--color-background-nav-dt);
 
     box-shadow: 0 2px 8px 0 #00000040;
-    -webkit-transform: translate3d(0,0,0);
 
     @media (width < $breakpoint-desktop-min) {
       top: 0;

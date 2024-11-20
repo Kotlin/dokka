@@ -35,11 +35,23 @@ function toggleDropdownButton(button: Element): void {
 }
 
 function toggleDropdownList(list: Element | null, minWidth?: number): void {
-  list?.classList.toggle('dropdown--list_expanded');
+  if (list) {
+    list.classList.toggle('dropdown--list_expanded');
+    if (list.classList.contains('dropdown--list_expanded')) {
+      setListMinWidth(list, minWidth);
+    } else {
+      setListMinWidth(list, undefined);
+    }
+  }
+}
+
+function setListMinWidth(list: Element, minWidth: number | undefined): void {
   if (minWidth) {
-    (list as HTMLElement).style.minWidth = `${minWidth}px`;
+    const currentMinWidth = parseInt(getComputedStyle(list as HTMLElement).minWidth, 10);
+    const nextMinWidth = isNaN(currentMinWidth) ? minWidth : Math.max(currentMinWidth, minWidth);
+    (list as HTMLElement).style.minWidth = `${nextMinWidth}px`;
   } else {
-    (list as HTMLElement).style.minWidth = 'auto';
+    (list as HTMLElement).style.minWidth = '';
   }
 }
 
@@ -53,6 +65,7 @@ function handleOutsideClick(event: MouseEvent): void {
       });
       dropdown.querySelectorAll(DROPDOWN_LIST)?.forEach((list: Element) => {
         list.classList.remove('dropdown--list_expanded');
+        (list as HTMLElement).style.minWidth = '';
       });
     });
   }
