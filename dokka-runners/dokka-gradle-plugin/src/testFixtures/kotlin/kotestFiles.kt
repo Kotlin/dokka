@@ -94,13 +94,7 @@ private fun describeFileDifferences(
                     /* contextSize = */ 0,
                 )
 
-                val truncatedDiffs = diff.joinToString(
-                    separator = "\n",
-                    limit = 5,
-                    truncated = "(${diff.size - 5} diff lines truncated)",
-                )
-
-                appendLine(truncatedDiffs.prependIndent())
+                appendLine(diff.joinToString(separator = "\n").prependIndent())
             }
         }
 }
