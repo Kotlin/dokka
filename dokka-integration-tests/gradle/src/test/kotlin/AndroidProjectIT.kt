@@ -32,10 +32,6 @@ class AndroidProjectIT {
         project: DokkaGradleProjectRunner,
         testedVersions: TestedVersions.WithAndroid,
     ) {
-        assumeTrue(
-            testedVersions.agp.major != 8,
-            "TODO KT-70855 The output is slightly different for AGP 8, but this will be fixed as part of KT-70855. Rather than trying to make the test work now, just skip testing AGP 8 and wait until the fix arrives."
-        )
         project.runner
             .addArguments(
                 "clean",
