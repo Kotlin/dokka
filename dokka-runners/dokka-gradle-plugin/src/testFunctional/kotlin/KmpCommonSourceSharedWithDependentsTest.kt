@@ -20,6 +20,13 @@ class KmpCommonSourceSharedWithDependentsTest : FunSpec({
 
         project
             .runner
+            .addArguments("build")
+            .build {
+                shouldHaveRunTask(":build")
+            }
+
+        project
+            .runner
             .addArguments(":dokkaGenerate")
             .build {
                 shouldHaveTasksWithAnyOutcome(
