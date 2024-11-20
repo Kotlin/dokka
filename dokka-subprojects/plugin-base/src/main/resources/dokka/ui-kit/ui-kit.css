@@ -389,6 +389,7 @@
   position: absolute;
   right: 0;
   top: 44px;
+  -webkit-transform: translateZ(0);
   width: -moz-fit-content;
   width: fit-content;
   z-index: 10;
