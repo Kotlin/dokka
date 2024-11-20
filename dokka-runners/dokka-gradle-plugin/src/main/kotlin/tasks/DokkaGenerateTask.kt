@@ -19,8 +19,8 @@ import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.gradle.DokkaBasePlugin.Companion.jsonMapper
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaGeneratorParametersSpec
 import org.jetbrains.dokka.gradle.engine.parameters.builders.DokkaParametersBuilder
-import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
 import org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
 import org.jetbrains.dokka.gradle.workers.ProcessIsolation
@@ -104,10 +104,16 @@ constructor(
     @get:Internal
     abstract val dokkaConfigurationJsonFile: RegularFileProperty
 
+    /**
+     * Completely override the default Dokka configuration with JSON encoded
+     * Dokka Configuration.
+     *
+     * This should only be used for local debugging.
+     */
     @get:Input
     @get:Optional
     @InternalDokkaGradlePluginApi
-    abstract val manualJsonConfig: Property<String>
+    abstract val overrideJsonConfig: Property<String>
 
     @InternalDokkaGradlePluginApi
     enum class GeneratorMode {
@@ -121,9 +127,9 @@ constructor(
         outputDirectory: File,
     ) {
         val dokkaConfiguration =
-            if (manualJsonConfig.isPresent) {
-                logger.warn("w: [$path] Overriding DokkaConfiguration with manualJsonConfig")
-                DokkaConfigurationImpl(manualJsonConfig.get())
+            if (overrideJsonConfig.isPresent) {
+                logger.warn("w: [$path] Overriding DokkaConfiguration with overrideJsonConfig")
+                DokkaConfigurationImpl(overrideJsonConfig.get())
             } else {
                 createDokkaConfiguration(generationType, outputDirectory)
             }

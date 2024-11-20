@@ -5,6 +5,8 @@ package org.jetbrains.dokka.it.gradle.junit
 
 import org.gradle.testkit.runner.GradleRunner
 import org.jetbrains.dokka.it.gradle.junit.DokkaGradlePluginTestExtension.CloseablePath.Companion.tmpDirCleanupMode
+import org.jetbrains.dokka.it.gradle.junit.TestedVersions.Companion.dashSeparatedId
+import org.jetbrains.dokka.it.gradle.junit.TestedVersions.Companion.displayName
 import org.jetbrains.dokka.it.gradle.utils.SemVer
 import org.jetbrains.dokka.it.gradle.withJetBrainsCachedGradleVersion
 import org.jetbrains.dokka.it.gradle.withReadOnlyDependencyCache
@@ -20,11 +22,14 @@ import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.AnnotationSupport.findAnnotation
 import org.junit.platform.commons.support.AnnotationSupport.isAnnotated
 import org.junit.platform.commons.support.ReflectionSupport
+import org.opentest4j.TestAbortedException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Stream
 import kotlin.io.path.*
+import kotlin.jvm.optionals.getOrNull
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 import kotlin.streams.asStream
 
 /**
@@ -37,7 +42,8 @@ import kotlin.streams.asStream
 class DokkaGradlePluginTestExtension :
     TestTemplateInvocationContextProvider,
     BeforeAllCallback,
-    BeforeEachCallback {
+    BeforeEachCallback,
+    TestWatcher {
 
     override fun beforeAll(context: ExtensionContext) {
         installFailureTracker(context)
@@ -45,6 +51,17 @@ class DokkaGradlePluginTestExtension :
 
     override fun beforeEach(context: ExtensionContext) {
         installFailureTracker(context)
+    }
+
+    /**
+     * Log the reason for aborted tests.
+     *
+     * Workaround for https://github.com/gradle/gradle/issues/5511.
+     */
+    override fun testAborted(context: ExtensionContext, cause: Throwable) {
+        if (cause is TestAbortedException) {
+            logger.warn { cause.message ?: "Test was aborted without reason." }
+        }
     }
 
     override fun supportsTestTemplate(context: ExtensionContext): Boolean = true
@@ -62,48 +79,49 @@ class DokkaGradlePluginTestExtension :
             .resolve(context.displayName.replace(Regex("[^A-Za-z0-9]+"), "-"))
             .createDirectories()
 
-        val dgpTest = findAnnotation(context.requiredTestMethod, DokkaGradlePluginTest::class.java).get()
+        val dgpTest = findAnnotation(context.element, DokkaGradlePluginTest::class.java).get()
 
         val projectInitializer = ReflectionSupport.newInstance(dgpTest.projectInitializer.java)
         val sourceProjectDir = dgpTest.sourceProjectName
 
-        val isAndroidTest = isAnnotated(context.requiredTestMethod, TestsAndroidGradlePlugin::class.java)
-
-        val isComposeTest = isAnnotated(context.requiredTestMethod, TestsCompose::class.java)
+        val isAndroidTest = context.hasOrParentHasAnnotation<TestsAndroid>()
+        val isAndroidComposeTest = context.hasOrParentHasAnnotation<TestsAndroidCompose>()
 
         val gradleProperties = computeGradleProperties(
             context,
             dgpTest.gradlePropertiesProvider,
         )
 
-        return TestedVersions.testedVersions(
-            isAndroidTest = isAndroidTest,
-            isComposeTest = isComposeTest,
-        )
-            .map { testedVersions ->
+        val testedVersionsSource = when {
+            isAndroidComposeTest -> TestedVersionsSource.AndroidCompose
+            isAndroidTest -> TestedVersionsSource.Android
+            else -> TestedVersionsSource.Default
+        }
 
-                // Use a separate directory for each invocation, named after the tested versions.
-                val projectTmpDir = baseDgpTestDir.resolve(testedVersions.dashSeparated)
-                context.gradleTestStore.put(
-                    "project-tmp-dir-${projectTmpDir.invariantSeparatorsPathString}",
-                    CloseablePath(projectTmpDir, context),
-                )
+        return testedVersionsSource.get().map { testedVersions ->
 
-                projectInitializer.initialize(
-                    source = templateProjectsDir.resolve(sourceProjectDir),
-                    destination = projectTmpDir,
-                    testedVersions = testedVersions,
-                    gradleProperties = gradleProperties,
-                )
+            // Use a separate directory for each invocation, named after the tested versions.
+            val projectTmpDir = baseDgpTestDir.resolve(testedVersions.dashSeparatedId())
+            context.gradleTestStore.put(
+                "project-tmp-dir-${projectTmpDir.invariantSeparatorsPathString}",
+                CloseablePath(projectTmpDir, context),
+            )
 
-                // log a clickable URI link to console, so it's easier to view the tested project.
-                logger.info { "Testing project ${projectTmpDir.toUri()}" }
+            projectInitializer.initialize(
+                source = templateProjectsDir.resolve(sourceProjectDir),
+                destination = projectTmpDir,
+                testedVersions = testedVersions,
+                gradleProperties = gradleProperties,
+            )
 
-                GradleProjectTestTemplate(
-                    projectDir = projectTmpDir,
-                    testedVersions = testedVersions,
-                )
-            }
+            // log a clickable URI link to console, so it's easier to view the tested project.
+            logger.info { "Testing project ${projectTmpDir.toUri()}" }
+
+            GradleProjectTestTemplate(
+                projectDir = projectTmpDir,
+                testedVersions = testedVersions,
+            )
+        }
             .asStream()
     }
 
@@ -117,7 +135,7 @@ class DokkaGradlePluginTestExtension :
         private val testedVersions: TestedVersions,
     ) : TestTemplateInvocationContext {
         override fun getDisplayName(invocationIndex: Int): String =
-            "[$invocationIndex] ${testedVersions.displayName}"
+            "[$invocationIndex] ${testedVersions.displayName()}"
 
         override fun getAdditionalExtensions(): List<Extension> =
             listOf(
@@ -149,7 +167,12 @@ class DokkaGradlePluginTestExtension :
      */
     private class TestedVersionsParameterResolver(
         private val testedVersions: TestedVersions,
-    ) : TypeBasedParameterResolver<TestedVersions>() {
+    ) : ParameterResolver {
+        override fun supportsParameter(
+            parameterContext: ParameterContext,
+            extensionContext: ExtensionContext,
+        ): Boolean = parameterContext.parameter.type.kotlin.isSubclassOf(TestedVersions::class)
+
         override fun resolveParameter(
             parameterContext: ParameterContext,
             extensionContext: ExtensionContext,
@@ -277,7 +300,11 @@ class DokkaGradlePluginTestExtension :
         private fun setupGradleRunner(projectDir: Path, gradle: SemVer): GradleRunner {
             return GradleRunner.create()
                 .withProjectDir(projectDir.toFile())
-                .withJetBrainsCachedGradleVersion(gradle.version)
+                .withJetBrainsCachedGradleVersion(
+                    // Gradle doesn't strictly follow SemVer (fun fact: Gradle is older than SemVer).
+                    // If the patch is zero, Gradle doesn't include it.
+                    if (gradle.patch == 0) gradle.majorAndMinorVersions else gradle.version
+                )
                 .withReadOnlyDependencyCache()
                 .forwardOutput()
         }
@@ -294,5 +321,12 @@ class DokkaGradlePluginTestExtension :
          * Root directory for all template projects.
          */
         internal val templateProjectsDir by systemProperty(::Path)
+
+        /**
+         * Check if this [ExtensionContext] or any of its parents is annotated with [T].
+         */
+        private inline fun <reified T : Annotation> ExtensionContext.hasOrParentHasAnnotation(): Boolean =
+            generateSequence(this) { it.parent.getOrNull() }
+                .any { isAnnotated(it.element, T::class.java) }
     }
 }

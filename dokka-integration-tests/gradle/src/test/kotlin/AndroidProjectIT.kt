@@ -10,8 +10,7 @@ import io.kotest.matchers.file.shouldBeAFile
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
-import org.gradle.testkit.runner.TaskOutcome.SUCCESS
-import org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
+import org.gradle.testkit.runner.TaskOutcome.*
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
@@ -23,7 +22,7 @@ import kotlin.io.path.deleteRecursively
 /**
  * Integration test for the `it-android` project.
  */
-@TestsAndroidGradlePlugin
+@TestsAndroid
 @TestsDGPv2
 @WithGradleProperties(GradlePropertiesProvider.Android::class)
 class AndroidProjectIT {
@@ -31,10 +30,10 @@ class AndroidProjectIT {
     @DokkaGradlePluginTest(sourceProjectName = "it-android")
     fun `generate dokka HTML`(
         project: DokkaGradleProjectRunner,
-        testedVersions: TestedVersions,
+        testedVersions: TestedVersions.WithAndroid,
     ) {
         assumeTrue(
-            testedVersions.agp?.major != 8,
+            testedVersions.agp.major != 8,
             "TODO KT-70855 The output is slightly different for AGP 8, but this will be fixed as part of KT-70855. Rather than trying to make the test work now, just skip testing AGP 8 and wait until the fix arrives."
         )
         project.runner
@@ -88,7 +87,6 @@ class AndroidProjectIT {
         }
     }
 
-
     @DokkaGradlePluginTest(sourceProjectName = "it-android")
     fun `Dokka tasks should be build cacheable`(
         project: DokkaGradleProjectRunner,
@@ -101,6 +99,18 @@ class AndroidProjectIT {
             .build {
                 withClue("expect dokkaGenerate runs successfully") {
                     shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+                    shouldHaveTask(":dokkaGeneratePublicationHtml").shouldHaveOutcome(FROM_CACHE, SUCCESS)
+                    shouldHaveTask(":dokkaGenerateModuleHtml").shouldHaveOutcome(FROM_CACHE, SUCCESS)
+                }
+            }
+
+        project.runner
+            .addArguments(
+                ":clean",
+                "--build-cache",
+            ).build {
+                withClue("expect clean runs successfully") {
+                    shouldHaveTask(":clean").shouldHaveOutcome(SUCCESS)
                 }
             }
 
@@ -110,8 +120,12 @@ class AndroidProjectIT {
                 "--build-cache",
             )
             .build {
-                withClue("expect dokkaGenerate tasks are loaded from cache") {
+                withClue("expect dokkaGenerate lifecycle task is up-to-date") {
                     shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE)
+                }
+                withClue("expect dokkaGenerate* work tasks are loaded from cache") {
+                    shouldHaveTask(":dokkaGeneratePublicationHtml").shouldHaveOutcome(FROM_CACHE)
+                    shouldHaveTask(":dokkaGenerateModuleHtml").shouldHaveOutcome(FROM_CACHE)
                 }
             }
     }

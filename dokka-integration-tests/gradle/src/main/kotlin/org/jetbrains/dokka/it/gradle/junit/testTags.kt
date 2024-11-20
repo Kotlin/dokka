@@ -4,6 +4,7 @@
 package org.jetbrains.dokka.it.gradle.junit
 
 import org.junit.jupiter.api.Tag
+import java.lang.annotation.Inherited
 import kotlin.annotation.AnnotationTarget.CLASS
 import kotlin.annotation.AnnotationTarget.FUNCTION
 
@@ -13,6 +14,7 @@ import kotlin.annotation.AnnotationTarget.FUNCTION
 @Tag("DGPv1")
 @Target(FUNCTION, CLASS)
 @MustBeDocumented
+@Inherited
 annotation class TestsDGPv1
 
 
@@ -22,30 +24,34 @@ annotation class TestsDGPv1
 @Tag("DGPv2")
 @Target(FUNCTION, CLASS)
 @MustBeDocumented
+@Inherited
 annotation class TestsDGPv2
 
 
 /**
- * JUnit [Tag] indicating the test involves Android Gradle Plugin.
+ * JUnit [Tag] indicating the test involves an Android project.
  *
- * If a test is annotated with [TestsAndroidGradlePlugin] then
+ * If a test is annotated with [TestsAndroid] then
  * [DokkaGradlePluginTestExtension] will run the test multiple times,
- * and provide a [DokkaGradleProjectRunner] with a valid [TestedVersions.agp].
- * Otherwise, [TestedVersions.agp] will be `null`.
+ * and provide a [DokkaGradleProjectRunner] using [TestedVersions.Android].
  */
-@Tag("AndroidGradlePlugin")
+@Tag("Android")
 @Target(FUNCTION, CLASS)
 @MustBeDocumented
-annotation class TestsAndroidGradlePlugin
+@Inherited
+annotation class TestsAndroid
 
 
 /**
- * JUnit [Tag] indicating the test uses Compose.
+ * JUnit [Tag] indicating the test uses Android and Compose.
  *
- * When used with [DokkaGradlePluginTest], [TestedVersions.composeGradlePlugin] will be set.
- * Otherwise, [TestedVersions.composeGradlePlugin] will be `null`.
+ * If a test is annotated with [TestsAndroid] then
+ * [DokkaGradlePluginTestExtension] will run the test multiple times,
+ * and provide a [DokkaGradleProjectRunner] using [TestedVersions.AndroidCompose].
  */
 @Tag("Compose")
+@TestsAndroid
 @Target(FUNCTION, CLASS)
 @MustBeDocumented
-annotation class TestsCompose
+@Inherited
+annotation class TestsAndroidCompose
