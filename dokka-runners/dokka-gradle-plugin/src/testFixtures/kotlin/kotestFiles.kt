@@ -91,13 +91,13 @@ private fun describeFileDifferences(
                     /* revisedFileName = */ actualFile.relativeTo(actualDir).invariantSeparatorsPathString,
                     /* originalLines = */ expectedLines,
                     /* patch = */ patch,
-                    /* contextSize = */ 3,
+                    /* contextSize = */ 0,
                 )
 
                 val truncatedDiffs = diff.joinToString(
                     separator = "\n",
                     limit = 5,
-                    truncated = "(${diff.size - 5} diffs truncated)",
+                    truncated = "(${diff.size - 5} diff lines truncated)",
                 )
 
                 appendLine(truncatedDiffs.prependIndent())
