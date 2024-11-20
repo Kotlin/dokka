@@ -43,6 +43,7 @@ public class SymbolsAnalysisPlugin : DokkaPlugin() {
             PostAction {
                 querySingle { kotlinAnalysis }.close()
                 if (context.configuration.finalizeCoroutines)
+                    // TODO https://youtrack.jetbrains.com/issue/KT-71862 use an endpoint from AA
                     javaAnalysisPlugin.disposeGlobalStandaloneApplicationServices()
             }
         }

@@ -71,6 +71,7 @@ public class JavaAnalysisPlugin : DokkaPlugin() {
         DocCommentFinder(logger, docCommentFactory)
     }
 
+    // TODO https://youtrack.jetbrains.com/issue/KT-71862 use an endpoint from AA
     /**
      * Disposes global resources which would persist after unloading Analysis API (Symbols analysis) and IJ platform classes.
      *
