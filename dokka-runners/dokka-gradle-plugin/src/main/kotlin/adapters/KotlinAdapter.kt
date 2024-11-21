@@ -42,7 +42,6 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
 import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
-import org.jetbrains.kotlin.tooling.core.closure
 import java.io.File
 import javax.inject.Inject
 import kotlin.reflect.jvm.jvmName
@@ -538,11 +537,10 @@ private class KotlinSourceSetDetailsBuilder(
         }
 
         // Determine the source sets IDs of _other_ source sets that _this_ source depends on.
-        // This MUST be explicit, including all transitive source sets.
-        // E.g. linuxX64 must list all of its 'parent' dependencies: linuxMain, nativeMain, and commonMain
-        val dependentSourceSets = providers.provider {
-            kotlinSourceSet.closure { it.dependsOn }
-        }
+        // Do not include transitive dependencies.
+        // (For example, linuxX64 depends on linuxMain, nativeMain, and commonMain,
+        // but only _directly_ depends on linuxMain, so dependentSourceSets should only contain linuxMain.)
+        val dependentSourceSets = providers.provider { kotlinSourceSet.dependsOn }
 
         val dependentSourceSetIds =
             providers.zip(
