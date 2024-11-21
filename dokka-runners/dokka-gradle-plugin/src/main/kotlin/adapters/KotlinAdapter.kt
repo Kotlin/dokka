@@ -130,7 +130,7 @@ abstract class KotlinAdapter @Inject constructor(
         )
     }
 
-    /** Register a [DokkaSourceSetSpec] for each element in [sourceSetDetails] */
+    /** Register a [DokkaSourceSetSpec] for each element in [sourceSetDetails]. */
     private fun registerDokkaSourceSets(
         projectPath: String,
         dokkaExtension: DokkaExtension,
@@ -145,7 +145,7 @@ abstract class KotlinAdapter @Inject constructor(
         }
     }
 
-    /** Register a single [DokkaSourceSetSpec] for [details] */
+    /** Register a single [DokkaSourceSetSpec] for [details]. */
     private fun NamedDomainObjectContainer<DokkaSourceSetSpec>.register(
         projectPath: String,
         details: KotlinSourceSetDetails
@@ -197,7 +197,7 @@ abstract class KotlinAdapter @Inject constructor(
 
         private val logger = Logging.getLogger(KotlinAdapter::class.java)
 
-        /** Try and get [KotlinProjectExtension], or `null` if it's not present */
+        /** Try and get [KotlinProjectExtension], or `null` if it's not present. */
         private fun ExtensionContainer.findKotlinExtension(): KotlinProjectExtension? =
             try {
                 findByType()
@@ -217,7 +217,7 @@ abstract class KotlinAdapter @Inject constructor(
                 }
             }
 
-        /** Get the version of the Kotlin Gradle Plugin currently used to compile the project */
+        /** Get the version of the Kotlin Gradle Plugin currently used to compile the project. */
         // Must be lazy, else tests fail (because the KGP plugin isn't accessible)
         internal val currentKotlinToolingVersion: KotlinToolingVersion by lazy {
             val kgpVersion = getKotlinPluginVersion(logger)
@@ -256,7 +256,7 @@ private data class KotlinCompilationDetails(
 )
 
 
-/** Utility class, encapsulating logic for building [KotlinCompilationDetails] */
+/** Utility class, encapsulating logic for building [KotlinCompilationDetails]. */
 private class KotlinCompilationDetailsBuilder(
     private val objects: ObjectFactory,
     private val providers: ProviderFactory,
@@ -447,17 +447,17 @@ private abstract class KotlinSourceSetDetails @Inject constructor(
     private val named: String,
 ) : Named {
 
-    /** Direct source sets that this source set depends on */
+    /** Direct source sets that this source set depends on. */
     abstract val dependentSourceSetIds: SetProperty<SourceSetIdSpec>
     abstract val sourceDirectories: ConfigurableFileCollection
 
-    /** _All_ source directories from any (recursively) dependant source set */
+    /** _All_ source directories from any (recursively) dependant source set. */
     abstract val sourceDirectoriesOfDependents: ConfigurableFileCollection
 
-    /** The specific compilations used to build this source set */
+    /** The specific compilations used to build this source set. */
     abstract val compilations: ListProperty<KotlinCompilationDetails>
 
-    /** Estimate if this Kotlin source set contains 'published' sources */
+    /** Estimate if this Kotlin source set contains 'published' sources. */
     fun isPublishedSourceSet(): Provider<Boolean> =
         compilations.map { values ->
             values.any { it.publishedCompilation }
