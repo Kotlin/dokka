@@ -455,6 +455,8 @@ constructor(
         internal fun ObjectFactory.dokkaSourceSetSpecFactory(): NamedDomainObjectFactory<DokkaSourceSetSpec> =
             NamedDomainObjectFactory { name ->
                 newInstance<DokkaSourceSetSpec>(name).apply {
+                    // Manually added sourceSets should not be suppressed by default.
+                    // When KotlinAdapter adds dokkaSourceSets, it will compute a sensible convention for 'suppress'.
                     suppress.convention(false)
                     analysisPlatform.convention(KotlinPlatform.DEFAULT)
                 }
