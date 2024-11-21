@@ -94,7 +94,7 @@ private fun describeFileDifferences(
                     /* contextSize = */ 0,
                 )
 
-                appendLine(diff.joinToString(separator = "\n").prependIndent())
+                appendLine(diff.joinToString("\n").prependIndent())
             }
         }
 }
