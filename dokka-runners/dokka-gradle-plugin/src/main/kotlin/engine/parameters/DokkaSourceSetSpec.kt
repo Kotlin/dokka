@@ -444,6 +444,14 @@ constructor(
     //endregion
 
     companion object {
+
+        /**
+         * A factory for creating [DokkaSourceSetSpec].
+         *
+         * Using a factory means that we can define the conventions _immediately_ when the element is created.
+         * This means that the conventions can be overwritten later
+         * (for example, in [org.jetbrains.dokka.gradle.adapters.KotlinAdapter]).
+         */
         internal fun ObjectFactory.dokkaSourceSetSpecFactory(): NamedDomainObjectFactory<DokkaSourceSetSpec> =
             NamedDomainObjectFactory { name ->
                 newInstance<DokkaSourceSetSpec>(name).apply {
