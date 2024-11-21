@@ -156,8 +156,11 @@ declare global {
     activeFilters: (string | null | undefined)[];
   };
 
+  function filterSourceset(sourceset: string): void;
+
+  function unfilterSourceset(sourceset: string): void;
+
   function refreshFiltering(): void;
-  function refreshSourcesetsCache(): void;
 }
 
 /**
@@ -165,12 +168,13 @@ declare global {
  */
 function toggleFilterForOption(option: Element): void {
   const dataFilter = option.querySelector('.checkbox--input')?.getAttribute('data-filter');
-  const index = filteringContext.activeFilters.findIndex((item) => item === dataFilter);
-  if (index === -1) {
-    filteringContext.activeFilters.push(dataFilter);
-  } else {
-    filteringContext.activeFilters.splice(index, 1);
+  if (dataFilter) {
+    const index = filteringContext.activeFilters.findIndex((item) => item === dataFilter);
+    if (index === -1) {
+      unfilterSourceset(dataFilter);
+    } else {
+      filterSourceset(dataFilter);
+    }
   }
   refreshFiltering();
-  refreshSourcesetsCache();
 }
