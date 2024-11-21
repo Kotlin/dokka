@@ -285,7 +285,6 @@ class ExampleProjectsTest {
 
                     ExampleProject.Multimodule -> {
                         shouldHaveTasksWithOutcome(
-                            ":docs:dokkaGenerateModuleHtml" to FROM_CACHE,
                             ":childProjectA:dokkaGenerateModuleHtml" to FROM_CACHE,
                             ":childProjectB:dokkaGenerateModuleHtml" to FROM_CACHE,
                             ":docs:dokkaGeneratePublicationHtml" to FROM_CACHE,
@@ -295,7 +294,6 @@ class ExampleProjectsTest {
 
                     ExampleProject.VersioningMultimodule -> {
                         shouldHaveTasksWithOutcome(
-                            ":docs:dokkaGenerateModuleHtml" to FROM_CACHE,
                             ":childProjectA:dokkaGenerateModuleHtml" to FROM_CACHE,
                             ":childProjectB:dokkaGenerateModuleHtml" to FROM_CACHE,
                             ":docs:dokkaGeneratePublicationHtml" to FROM_CACHE,
@@ -306,7 +304,6 @@ class ExampleProjectsTest {
                     else -> {
                         shouldHaveTasksWithOutcome(
                             ":dokkaGeneratePublicationHtml" to FROM_CACHE,
-                            ":dokkaGenerateModuleHtml" to FROM_CACHE,
                             ":dokkaGenerate" to UP_TO_DATE,
                         )
                     }

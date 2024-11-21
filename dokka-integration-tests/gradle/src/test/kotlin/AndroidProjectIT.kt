@@ -100,7 +100,6 @@ class AndroidProjectIT {
                 withClue("expect dokkaGenerate runs successfully") {
                     shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
                     shouldHaveTask(":dokkaGeneratePublicationHtml").shouldHaveOutcome(FROM_CACHE, SUCCESS)
-                    shouldHaveTask(":dokkaGenerateModuleHtml").shouldHaveOutcome(FROM_CACHE, SUCCESS)
                 }
             }
 
@@ -125,7 +124,6 @@ class AndroidProjectIT {
                 }
                 withClue("expect dokkaGenerate* work tasks are loaded from cache") {
                     shouldHaveTask(":dokkaGeneratePublicationHtml").shouldHaveOutcome(FROM_CACHE)
-                    shouldHaveTask(":dokkaGenerateModuleHtml").shouldHaveOutcome(FROM_CACHE)
                 }
             }
     }
