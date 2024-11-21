@@ -461,7 +461,6 @@
   padding: 8px 16px;
   padding: var(--size-s2) var(--size-s3);
   position: relative;
-  text-transform: capitalize;
 }
 
 .dropdown--option:hover {
@@ -1165,7 +1164,7 @@
 
 .navigation-controls--btn {
   align-items: center;
-  background-color: inherit;
+  background-color: transparent;
   background-position: 50% 50%;
   background-repeat: no-repeat;
   background-size: 24px 24px;
@@ -1180,10 +1179,7 @@
   justify-content: center;
   line-height: 0;
   padding: 0;
-  transition: background-color 0.2s ease-in-out;
-  transition: var(--hover-transition);
   width: 40px;
-  will-change: background-color;
   z-index: 0;
 }
 
@@ -1721,9 +1717,6 @@ button.platform-tag:focus-visible {
   min-width: 40px;
   padding: 0 8px 0 0;
   position: absolute;
-  transition: background-color 0.2s ease-in-out;
-  transition: var(--hover-transition);
-  will-change: background-color;
 }
 
 .toc--button:after {

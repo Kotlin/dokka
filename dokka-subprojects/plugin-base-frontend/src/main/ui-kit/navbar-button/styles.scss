@@ -37,18 +37,16 @@
   padding: 0;
 
   cursor: pointer;
-  transition: var(--hover-transition);
 
   border: none;
   border-radius: var(--size-s1);
-  background-color: inherit;
+  background-color: transparent;
   background-repeat: no-repeat;
   background-position: 50% 50%;
   background-size: 24px 24px;
 
   font-size: 0;
   line-height: 0;
-  will-change: background-color;
 
   @media (hover: hover) {
     &:hover {
