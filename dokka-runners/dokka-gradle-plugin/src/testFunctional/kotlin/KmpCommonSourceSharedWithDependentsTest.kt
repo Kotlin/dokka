@@ -4,6 +4,7 @@
 package org.jetbrains.dokka.gradle
 
 import io.kotest.assertions.withClue
+import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.sequences.shouldBeEmpty
 import org.gradle.testkit.runner.TaskOutcome.*
@@ -13,6 +14,7 @@ import kotlin.io.path.isRegularFile
 import kotlin.io.path.useLines
 import kotlin.io.path.walk
 
+@Ignored("KMP: References is not linked if they are in shared code and there is an intermediate level between them https://github.com/Kotlin/dokka/issues/3382")
 class KmpCommonSourceSharedWithDependentsTest : FunSpec({
     context("common source set is propagated to dependents") {
         val project = initProject()
