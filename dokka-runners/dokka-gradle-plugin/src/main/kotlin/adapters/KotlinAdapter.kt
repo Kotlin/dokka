@@ -33,14 +33,16 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.androidJvm
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.common
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataCompilation
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
 import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
+import org.jetbrains.kotlin.tooling.core.closure
 import java.io.File
 import javax.inject.Inject
 import kotlin.reflect.jvm.jvmName
@@ -150,12 +152,22 @@ abstract class KotlinAdapter @Inject constructor(
         projectPath: String,
         details: KotlinSourceSetDetails
     ) {
-        val kssPlatform = details.compilations.map { values: List<KotlinCompilationDetails> ->
-            val allPlatforms = values.map { it.kotlinPlatform }.distinct()
+        val kssPlatform = details.compilations.map { compilations: List<KotlinCompilationDetails> ->
+            val allPlatforms = compilations
+                // Exclude metadata compilations: they are always KotlinPlatform.Common, which isn't relevant here.
+                // Dokka only cares about the compilable KMP targets of a SourceSet.
+                .filter { !it.isMetadata }
+                .map { it.kotlinPlatform }
+                .distinct()
+
             val singlePlatform = allPlatforms.singleOrNull()
 
             if (singlePlatform == null) {
-                logger.warn("[$projectPath] Dokka could not detect KotlinPlatform for ${details.name} from targets ${values.map { it.target }}, falling back to ${KotlinPlatform.Common}. (All platforms: $allPlatforms)")
+                logger.info(
+                    "[$projectPath] Dokka could not determine KotlinPlatform for ${details.name} from targets ${compilations.map { it.target }}. " +
+                            "Dokka will assume this is a ${KotlinPlatform.Common} source set. " +
+                            "(All platforms: $allPlatforms)"
+                )
                 KotlinPlatform.Common
             } else {
                 singlePlatform
@@ -237,6 +249,8 @@ abstract class KotlinAdapter @Inject constructor(
 private data class KotlinCompilationDetails(
     /** [KotlinCompilation.target] name. */
     val target: String,
+    /** `true` if the compilation is 'metadata'. See [KotlinMetadataTarget]. */
+    val isMetadata: Boolean,
     /** [KotlinCompilation.platformType] name. */
     val kotlinPlatform: KotlinPlatform,
     val allKotlinSourceSetsNames: Set<String>,
@@ -282,7 +296,7 @@ private class KotlinCompilationDetailsBuilder(
         return details
     }
 
-    /** Create a single [KotlinCompilationDetails] for [compilation] */
+    /** Create a single [KotlinCompilationDetails] for [compilation]. */
     private fun createCompilationDetails(
         compilation: KotlinCompilation<*>,
     ): KotlinCompilationDetails {
@@ -302,15 +316,17 @@ private class KotlinCompilationDetailsBuilder(
             publishedCompilation = compilation.isPublished(),
             dependentSourceSetNames = dependentSourceSetNames.toSet(),
             compilationClasspath = compilationClasspath,
-            defaultSourceSetName = compilation.defaultSourceSet.name
+            defaultSourceSetName = compilation.defaultSourceSet.name,
+            isMetadata = compilation is KotlinMetadataTarget,
         )
     }
 
     private fun KotlinProjectExtension.allKotlinCompilations(): Collection<KotlinCompilation<*>> =
         when (this) {
-            is KotlinMultiplatformExtension -> targets.flatMap { it.compilations }
+            is KotlinMultiplatformExtension -> targets
+                .flatMap { it.compilations }
                 // Exclude legacy KMP metadata compilations, only present in KGP 1.8 (they were retained to support DGPv1)
-                .filterNot { it.platformType == common && it.name == MAIN_COMPILATION_NAME }
+                .filterNot { it.platformType == KotlinPlatformType.common && it.name == MAIN_COMPILATION_NAME }
 
             is KotlinSingleTargetExtension<*> -> target.compilations
 
@@ -515,8 +531,13 @@ private class KotlinSourceSetDetailsBuilder(
             }
         }
 
-        // determine the source sets IDs of _other_ source sets that _this_ source depends on.
-        val dependentSourceSets = providers.provider { kotlinSourceSet.dependsOn }
+        // Determine the source sets IDs of _other_ source sets that _this_ source depends on.
+        // This MUST be explicit, including all transitive source sets.
+        // E.g. linuxX64 must list all of its 'parent' dependencies: linuxMain, nativeMain, and commonMain
+        val dependentSourceSets = providers.provider {
+            kotlinSourceSet.closure { it.dependsOn }
+        }
+
         val dependentSourceSetIds =
             providers.zip(
                 dependentSourceSets,
