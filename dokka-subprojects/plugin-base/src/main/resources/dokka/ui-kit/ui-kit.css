@@ -461,7 +461,6 @@
   padding: 8px 16px;
   padding: var(--size-s2) var(--size-s3);
   position: relative;
-  text-transform: capitalize;
 }
 
 .dropdown--option:hover {
