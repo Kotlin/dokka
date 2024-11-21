@@ -52,7 +52,9 @@ window.addEventListener('load', () => {
         filterSection.addEventListener('click', (event) => filterButtonHandler(event))
         initializeFiltering()
     }
-    initTabs() // initTabs comes from ui-kit/tabs
+    if (typeof initTabs === 'function') {
+        initTabs() // initTabs comes from ui-kit/tabs
+    }
     handleAnchor()
     topNavbarOffset = document.getElementById('navigation-wrapper')
     darkModeSwitch()
