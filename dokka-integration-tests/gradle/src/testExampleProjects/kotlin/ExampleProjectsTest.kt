@@ -269,7 +269,6 @@ class ExampleProjectsTest {
                     ExampleProject.Javadoc -> {
                         shouldHaveTasksWithOutcome(
                             ":dokkaGeneratePublicationJavadoc" to FROM_CACHE,
-                            ":dokkaGenerateModuleJavadoc" to FROM_CACHE,
                             ":dokkaGenerate" to UP_TO_DATE,
                         )
                     }
