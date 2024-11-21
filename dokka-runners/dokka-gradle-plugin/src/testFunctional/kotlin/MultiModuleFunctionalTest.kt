@@ -146,7 +146,7 @@ class MultiModuleFunctionalTest : FunSpec({
                         test("expect build is successful") {
                             output shouldContainAll listOf(
                                 "BUILD SUCCESSFUL",
-                                "8 actionable tasks: 8 up-to-date",
+                                "6 actionable tasks: 6 up-to-date",
                             )
                         }
 
@@ -495,9 +495,6 @@ class MultiModuleFunctionalTest : FunSpec({
 
                             "> Task :dokkaGeneratePublicationHtml",
                             "> Task :dokkaGeneratePublicationJavadoc",
-
-                            "> Task :dokkaGenerateModuleHtml",
-                            "> Task :dokkaGenerateModuleJavadoc",
 
                             "> Task :subproject-hello:dokkaGenerateModuleHtml",
                             "> Task :subproject-hello:dokkaGenerateModuleJavadoc",
