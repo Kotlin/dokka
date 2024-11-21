@@ -56,11 +56,9 @@
     padding: 0 8px 0 0;
 
     cursor: pointer;
-    transition: var(--hover-transition);
 
     border: none;
     background-color: inherit;
-    will-change: background-color;
 
     &::after {
       width: 24px;
