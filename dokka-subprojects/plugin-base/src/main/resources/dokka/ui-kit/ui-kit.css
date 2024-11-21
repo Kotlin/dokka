@@ -507,6 +507,10 @@
   pointer-events: none;
 }
 
+.dropdown--option .checkbox:first-letter {
+  text-transform: uppercase;
+}
+
 .dropdown--overlay {
   background-color: hsla(0, 0%, 54%, 0.5);
   bottom: 0;
