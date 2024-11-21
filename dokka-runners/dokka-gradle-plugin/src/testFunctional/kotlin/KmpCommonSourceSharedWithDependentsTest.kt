@@ -6,49 +6,56 @@ package org.jetbrains.dokka.gradle
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.sequences.shouldBeEmpty
-import org.gradle.testkit.runner.TaskOutcome.SUCCESS
-import org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
+import org.gradle.testkit.runner.TaskOutcome.*
 import org.jetbrains.dokka.gradle.internal.DokkaConstants.DOKKA_VERSION
 import org.jetbrains.dokka.gradle.utils.*
 import kotlin.io.path.isRegularFile
-import kotlin.io.path.readText
+import kotlin.io.path.useLines
 import kotlin.io.path.walk
 
 class KmpCommonSourceSharedWithDependentsTest : FunSpec({
-    test("common source set is propagated to dependents") {
+    context("common source set is propagated to dependents") {
         val project = initProject()
 
-        project
-            .runner
-            .addArguments("build")
-            .build {
-                shouldHaveRunTask(":build")
-            }
-
-        project
-            .runner
-            .addArguments(":dokkaGenerate")
-            .build {
-                shouldHaveTasksWithAnyOutcome(
-                    ":dokkaGenerate" to listOf(UP_TO_DATE, SUCCESS),
-                )
-
-                val htmlOutputDir = project.projectDir.resolve("build/dokka/html")
-
-                val filesWithErrors = htmlOutputDir.walk()
-                    .filter { it.isRegularFile() }
-                    .filter {
-                        it.readText().lineSequence().any { line ->
-                            "Error class: unknown class" in line || "Error type: Unresolved type" in line
-                        }
-                    }
-
-                withClue(
-                    "${filesWithErrors.count()} file(s) with errors:\n${filesWithErrors.joinToString("\n") { " - ${it.toUri()}" }}"
-                ) {
-                    filesWithErrors.shouldBeEmpty()
+        test("expect project can be built") {
+            project
+                .runner
+                .addArguments(":build")
+                .build {
+                    shouldHaveTasksWithAnyOutcome(
+                        ":build" to listOf(SUCCESS, UP_TO_DATE, FROM_CACHE)
+                    )
                 }
-            }
+        }
+
+        test("expect dokkaGenerate runs successfully") {
+            project
+                .runner
+                .addArguments(":dokkaGenerate")
+                .build {
+                    shouldHaveTasksWithAnyOutcome(
+                        ":dokkaGenerate" to listOf(UP_TO_DATE, SUCCESS, FROM_CACHE),
+                    )
+
+                    val htmlOutputDir = project.projectDir.resolve("build/dokka/html")
+
+                    val filesWithErrors = htmlOutputDir.walk()
+                        .filter { it.isRegularFile() }
+                        .filter { file ->
+                            file.useLines { lines ->
+                                lines.any { line ->
+                                    "Error class: unknown class" in line || "Error type: Unresolved type" in line
+                                }
+                            }
+                        }
+
+                    withClue(
+                        "${filesWithErrors.count()} file(s) with errors:\n${filesWithErrors.joinToString("\n") { " - ${it.toUri()}" }}"
+                    ) {
+                        filesWithErrors.shouldBeEmpty()
+                    }
+                }
+        }
     }
 })
 
@@ -56,6 +63,7 @@ class KmpCommonSourceSharedWithDependentsTest : FunSpec({
 private fun initProject(
     config: GradleProjectTest.() -> Unit = {},
 ): GradleProjectTest {
+    @Suppress("KDocUnresolvedReference") // IJ gets confused and tries to resolve the KDoc from createKotlinFile(...)
     return gradleKtsProjectTest("KmpCommonSourceSharedWithDependentsTest") {
 
         buildGradleKts = """
@@ -66,6 +74,7 @@ private fun initProject(
             |
             |kotlin {
             |    jvm()
+            |    linuxX64()
             |    iosX64()
             |    iosArm64()
             |}
@@ -75,34 +84,62 @@ private fun initProject(
         createKotlinFile(
             "src/commonMain/kotlin/CommonMainCls.kt",
             """
-            package a.b.c
-            
-            /** commonMain class */
-            class CommonMainCls
-            """.trimIndent()
+            |package a.b.c
+            |
+            |/** A class defined in `commonMain`. */
+            |class CommonMainCls
+            |
+            """.trimMargin()
         )
 
         createKotlinFile(
             "src/iosMain/kotlin/IosMainCls.kt",
             """
-            package a.b.c
-            
-            /** iosMain class */
-            class IosMainCls
-            """.trimIndent()
+            |package a.b.c
+            |
+            |/** A class defined in `iosMain`. */
+            |class IosMainCls
+            |
+            """.trimMargin()
+        )
+
+        createKotlinFile(
+            "src/linuxMain/kotlin/LinuxMainCls.kt",
+            """
+            |package a.b.c
+            |
+            |/** A class defined in `linuxMain`. */
+            |class LinuxMainCls
+            |
+            """.trimMargin()
         )
 
         createKotlinFile(
             "src/iosX64Main/kotlin/iosX64Fn.kt",
             """
-            package a.b.c
-            
-            /** iosX64Main function */
-            fun iosX64Fn(a: CommonMainCls, b: IosMainCls) {
-              println(a)
-              println(b)
-            }
-            """.trimIndent()
+            |package a.b.c
+            |
+            |/** A `iosX64Main` function that uses [CommonMainCls] from `commonMain` and [IosMainCls] from `iosMain` */
+            |fun iosX64MainFn(a: CommonMainCls, b: IosMainCls) {
+            |  println(a)
+            |  println(b)
+            |}
+            |
+            """.trimMargin()
+        )
+
+        createKotlinFile(
+            "src/linuxX64Main/kotlin/linuxX64Fn.kt",
+            """
+            |package a.b.c
+            |
+            |/** A `linuxX64Main` function that uses [CommonMainCls] from `commonMain` and [LinuxMainCls] from `linuxMain` */
+            |fun linuxX64Fn(a: CommonMainCls, b: LinuxMainCls) {
+            |  println(a)
+            |  println(b)
+            |}
+            |
+            """.trimMargin()
         )
 
         config()
