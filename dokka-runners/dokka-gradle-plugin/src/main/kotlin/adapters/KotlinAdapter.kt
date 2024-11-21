@@ -150,12 +150,28 @@ abstract class KotlinAdapter @Inject constructor(
     /** Register a single [DokkaSourceSetSpec] for [details]. */
     private fun NamedDomainObjectContainer<DokkaSourceSetSpec>.register(
         projectPath: String,
-        details: KotlinSourceSetDetails
+        details: KotlinSourceSetDetails,
     ) {
-        val kssPlatform = details.compilations.map { compilations: List<KotlinCompilationDetails> ->
+        val kssPlatform = determineKotlinPlatform(projectPath, details)
+        val kssClasspath = determineClasspath(details)
+
+        register(details.name) dss@{
+            suppress.convention(!details.isPublishedSourceSet())
+            sourceRoots.from(details.sourceDirectories)
+            classpath.from(kssClasspath)
+            analysisPlatform.convention(kssPlatform)
+            dependentSourceSets.addAllLater(details.dependentSourceSetIds)
+        }
+    }
+
+    private fun determineKotlinPlatform(
+        projectPath: String,
+        details: KotlinSourceSetDetails,
+    ): Provider<KotlinPlatform> {
+        return details.compilations.map { compilations: List<KotlinCompilationDetails> ->
             val allPlatforms = compilations
                 // Exclude metadata compilations: they are always KotlinPlatform.Common, which isn't relevant here.
-                // Dokka only cares about the compilable KMP targets of a SourceSet.
+                // Dokka only cares about the compilable KMP targets of a KotlinSourceSet.
                 .filter { !it.isMetadata }
                 .map { it.kotlinPlatform }
                 .distinct()
@@ -172,16 +188,6 @@ abstract class KotlinAdapter @Inject constructor(
             } else {
                 singlePlatform
             }
-        }
-
-        val kssClasspath = determineClasspath(details)
-
-        register(details.name) dss@{
-            suppress.convention(!details.isPublishedSourceSet())
-            sourceRoots.from(details.sourceDirectories)
-            classpath.from(kssClasspath)
-            analysisPlatform.convention(kssPlatform)
-            dependentSourceSets.addAllLater(details.dependentSourceSetIds)
         }
     }
 
