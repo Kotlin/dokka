@@ -313,14 +313,18 @@ function refreshPlaygroundSamples() {
 
 function refreshNoContentNotification() {
     const element = document.getElementsByClassName("main-content")[0]
+    const filteredMessage = document.querySelector(".filtered-message")
+
     if(filteringContext.activeFilters.length === 0){
         element.style.display = "none";
 
-        const appended = document.createElement("div")
-        appended.className = "filtered-message"
-        appended.innerText = "All documentation is filtered, please adjust your source set filters in top-right corner of the screen"
-        sourcesetNotification = appended
-        element.parentNode.prepend(appended)
+        if (!filteredMessage) {
+            const appended = document.createElement("div")
+            appended.className = "filtered-message"
+            appended.innerText = "All documentation is filtered, please adjust your source set filters in top-right corner of the screen"
+            sourcesetNotification = appended
+            element.parentNode.prepend(appended)
+        }
     } else {
         if(sourcesetNotification) sourcesetNotification.remove()
         element.style.display = "block"
