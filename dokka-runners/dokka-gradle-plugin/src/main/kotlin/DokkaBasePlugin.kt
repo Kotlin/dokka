@@ -28,10 +28,7 @@ import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import org.jetbrains.dokka.gradle.internal.*
-import org.jetbrains.dokka.gradle.tasks.DokkaBaseTask
-import org.jetbrains.dokka.gradle.tasks.DokkaGenerateModuleTask
-import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
-import org.jetbrains.dokka.gradle.tasks.TaskNames
+import org.jetbrains.dokka.gradle.tasks.*
 import java.io.File
 import javax.inject.Inject
 
@@ -268,7 +265,7 @@ constructor(
     ) {
         target.tasks.register<DokkaBaseTask>(taskNames.generate) {
             description = "Generates Dokka publications for all formats"
-            dependsOn(target.tasks.withType<DokkaGenerateTask>())
+            dependsOn(target.tasks.withType<DokkaGeneratePublicationTask>())
         }
 
         target.tasks.withType<DokkaGenerateTask>().configureEach {
