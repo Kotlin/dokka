@@ -9,12 +9,9 @@ import io.kotest.matchers.sequences.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.gradle.testkit.runner.TaskOutcome.*
+import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
-import org.jetbrains.dokka.gradle.utils.file
-import org.jetbrains.dokka.gradle.utils.shouldBeADirectoryWithSameContentAs
-import org.jetbrains.dokka.gradle.utils.sideBySide
-import org.jetbrains.dokka.gradle.utils.toTreeString
 import org.jetbrains.dokka.it.gradle.junit.DokkaGradlePluginTest
 import org.jetbrains.dokka.it.gradle.junit.DokkaGradleProjectRunner
 import org.jetbrains.dokka.it.gradle.junit.TestsDGPv2
@@ -110,7 +107,9 @@ class KotlinMultiplatformIT {
                 withClue("expect dokkaGenerate runs successfully") {
                     shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
                     shouldHaveTask(":dokkaGeneratePublicationHtml").shouldHaveOutcome(FROM_CACHE, SUCCESS)
-                    shouldHaveTask(":dokkaGenerateModuleHtml").shouldHaveOutcome(FROM_CACHE, SUCCESS)
+                }
+                withClue("only one project is documented, so expect no Dokka module generation") {
+                    shouldNotHaveRunTask(":dokkaGenerateModuleHtml")
                 }
             }
 
@@ -135,7 +134,9 @@ class KotlinMultiplatformIT {
                 }
                 withClue("expect dokkaGenerate* work tasks are loaded from cache") {
                     shouldHaveTask(":dokkaGeneratePublicationHtml").shouldHaveOutcome(FROM_CACHE)
-                    shouldHaveTask(":dokkaGenerateModuleHtml").shouldHaveOutcome(FROM_CACHE)
+                }
+                withClue("only one project is documented, so expect no Dokka module generation") {
+                    shouldNotHaveRunTask(":dokkaGenerateModuleHtml")
                 }
             }
     }
