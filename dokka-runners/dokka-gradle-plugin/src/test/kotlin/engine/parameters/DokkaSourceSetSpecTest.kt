@@ -39,7 +39,7 @@ class DokkaSourceSetSpecTest : FunSpec({
             dss.displayName.orNull shouldBe "jvm"
         }
         test("documentedVisibilities") {
-            dss.documentedVisibilities.orNull shouldBe setOf(Public)
+            dss.documentedVisibilities.orNull.shouldContainExactlyInAnyOrder(Public)
         }
         test("enableAndroidDocumentationLink") {
             dss.enableAndroidDocumentationLink.orNull shouldBe false
