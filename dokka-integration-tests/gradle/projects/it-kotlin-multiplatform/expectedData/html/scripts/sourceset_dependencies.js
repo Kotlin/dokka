@@ -1,0 +1,1 @@
+sourceset_dependencies='{":/appleMain":[":/nativeMain"],":/commonMain":[],":/iosArm64Main":[":/iosMain"],":/iosMain":[":/appleMain"],":/iosX64Main":[":/iosMain"],":/jvmMain":[":/commonMain"],":/linuxMain":[":/nativeMain"],":/linuxX64Main":[":/linuxMain"],":/nativeMain":[":/commonMain"]}'
