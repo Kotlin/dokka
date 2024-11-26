@@ -17,10 +17,7 @@ import org.jetbrains.dokka.it.gradle.junit.DokkaGradleProjectRunner
 import org.jetbrains.dokka.it.gradle.junit.TestsDGPv2
 import org.jetbrains.dokka.it.gradle.junit.TestsKotlinMultiplatform
 import org.junit.jupiter.api.Disabled
-import kotlin.io.path.deleteRecursively
-import kotlin.io.path.isRegularFile
-import kotlin.io.path.useLines
-import kotlin.io.path.walk
+import kotlin.io.path.*
 
 /**
  * Integration test for the `it-kotlin-multiplatform` project.
@@ -34,6 +31,7 @@ class KotlinMultiplatformIT {
         project.runner
             .addArguments(
                 ":dokkaGenerate",
+                "--rerun-tasks", // TODO remove before merging
             )
             .build {
                 withClue("expect project builds successfully") {
@@ -45,24 +43,24 @@ class KotlinMultiplatformIT {
             val expectedHtml = project.projectDir.resolve("expectedData/html")
             val actualHtmlDir = project.projectDir.resolve("build/dokka/html")
 
-            val dokkaConfigurationJsons = project.findFiles { it.name == "dokka-configuration.json" }
+            val dokkaConfigurationJsons = project
+                .findFiles { it.name == "dokka-configuration.json" }
                 .joinToString("\n\n") {
-                    buildString {
-                        """
-                            ---
-                            ${it.invariantSeparatorsPath}
-                            ${it.readText()}
-                            ---
-                        """.trimIndent()
-                    }.prependIndent()
+                    """
+                    ---
+                    ${it.invariantSeparatorsPathString}
+                    ${it.readText()}
+                    ---
+                    """.trimIndent()
                 }
 
             withClue(
                 """
-                expectedHtml: ${expectedHtml.toUri()}
-                actualHtmlDir: ${actualHtmlDir.toUri()}
-                dokkaConfigurationJsons: $dokkaConfigurationJsons
-                """.trimIndent()
+                |expectedHtml: ${expectedHtml.toUri()}
+                |actualHtmlDir: ${actualHtmlDir.toUri()}
+                |dokkaConfigurationJsons:
+                |$dokkaConfigurationJsons
+                """.trimMargin()
             ) {
                 val expectedFileTree = expectedHtml.toTreeString()
                 val actualFileTree = actualHtmlDir.toTreeString()

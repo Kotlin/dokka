@@ -317,9 +317,9 @@ class ExampleProjectsTest {
     fun `test configuration cache`(testCase: TestCase) {
         // delete old configuration cache results and reports, to make sure we can fetch the newest report
         testCase.project.findFiles {
-            val isCCDir = it.invariantSeparatorsPath.endsWith(".gradle/configuration-cache")
-            val isCCReportDir = it.invariantSeparatorsPath.endsWith("build/reports/configuration-cache")
-            it.isDirectory && (isCCReportDir || isCCDir)
+            val isCCDir = it.invariantSeparatorsPathString.endsWith(".gradle/configuration-cache")
+            val isCCReportDir = it.invariantSeparatorsPathString.endsWith("build/reports/configuration-cache")
+            it.isDirectory() && (isCCReportDir || isCCDir)
         }.forEach { it.deleteRecursively() }
 
         val configCacheRunner: GradleRunner =
