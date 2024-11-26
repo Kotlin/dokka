@@ -45,7 +45,7 @@ class KotlinMultiplatformIT {
             val expectedHtml = project.projectDir.resolve("expectedData/html")
             val actualHtmlDir = project.projectDir.resolve("build/dokka/html")
 
-            println(project.findFiles { it.name == "dokka-configuration.json" }
+            val dokkaConfigurationJsons = project.findFiles { it.name == "dokka-configuration.json" }
                 .joinToString("\n\n") {
                     buildString {
                         """
@@ -56,12 +56,12 @@ class KotlinMultiplatformIT {
                         """.trimIndent()
                     }.prependIndent()
                 }
-            )
 
             withClue(
                 """
                 expectedHtml: ${expectedHtml.toUri()}
                 actualHtmlDir: ${actualHtmlDir.toUri()}
+                dokkaConfigurationJsons: $dokkaConfigurationJsons
                 """.trimIndent()
             ) {
                 val expectedFileTree = expectedHtml.toTreeString()
