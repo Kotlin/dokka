@@ -3,10 +3,7 @@
  */
 package org.jetbrains.dokka.gradle.engine.parameters
 
-import org.gradle.api.Action
-import org.gradle.api.DomainObjectSet
-import org.gradle.api.Named
-import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.*
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
@@ -445,4 +442,24 @@ constructor(
     @Suppress("unused")
     abstract val noJdkLink: Property<Boolean>
     //endregion
+
+    companion object {
+
+        /**
+         * A factory for creating [DokkaSourceSetSpec].
+         *
+         * Using a factory means that we can define the conventions _immediately_ when the element is created.
+         * This means that the conventions can be overwritten later
+         * (for example, in [org.jetbrains.dokka.gradle.adapters.KotlinAdapter]).
+         */
+        internal fun ObjectFactory.dokkaSourceSetSpecFactory(): NamedDomainObjectFactory<DokkaSourceSetSpec> =
+            NamedDomainObjectFactory { name ->
+                newInstance<DokkaSourceSetSpec>(name).apply {
+                    // Manually added sourceSets should not be suppressed by default.
+                    // When KotlinAdapter adds dokkaSourceSets, it will compute a sensible convention for 'suppress'.
+                    suppress.convention(false)
+                    analysisPlatform.convention(KotlinPlatform.DEFAULT)
+                }
+            }
+    }
 }

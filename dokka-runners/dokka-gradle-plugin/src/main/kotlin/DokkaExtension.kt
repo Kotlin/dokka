@@ -14,6 +14,7 @@ import org.gradle.api.tasks.Nested
 import org.gradle.kotlin.dsl.newInstance
 import org.jetbrains.dokka.gradle.dependencies.BaseDependencyManager
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec.Companion.dokkaSourceSetSpecFactory
 import org.jetbrains.dokka.gradle.formats.DokkaPublication
 import org.jetbrains.dokka.gradle.internal.*
 import org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
@@ -191,7 +192,7 @@ constructor(
      * ```
      */
     val dokkaSourceSets: NamedDomainObjectContainer<DokkaSourceSetSpec> =
-        extensions.adding("dokkaSourceSets", objects.domainObjectContainer())
+        extensions.adding("dokkaSourceSets", objects.domainObjectContainer(objects.dokkaSourceSetSpecFactory()))
 
     /**
      * Dokka Plugin are used to configure the way Dokka generates a format.

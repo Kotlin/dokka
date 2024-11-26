@@ -1,4 +1,4 @@
-rootProject.name = "it-android-0"
+rootProject.name = "it-android"
 
 pluginManagement {
     repositories {

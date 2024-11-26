@@ -285,8 +285,8 @@ fun ProjectDirectoryScope.file(
 ): Path = projectDir.resolve(path)
 
 
-fun ProjectDirectoryScope.findFiles(matcher: (File) -> Boolean): Sequence<File> =
-    projectDir.toFile().walk().filter(matcher)
+fun ProjectDirectoryScope.findFiles(matcher: (Path) -> Boolean): Sequence<Path> =
+    projectDir.walk().filter(matcher)
 
 
 /** Set the content of `settings.gradle.kts` */

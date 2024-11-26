@@ -91,7 +91,7 @@ private fun describeFileDifferences(
                     /* revisedFileName = */ actualFile.relativeTo(actualDir).invariantSeparatorsPathString,
                     /* originalLines = */ expectedLines,
                     /* patch = */ patch,
-                    /* contextSize = */ 3,
+                    /* contextSize = */ 0,
                 )
 
                 appendLine(diff.joinToString("\n").prependIndent())

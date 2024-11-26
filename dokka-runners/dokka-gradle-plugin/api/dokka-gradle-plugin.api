@@ -286,6 +286,7 @@ public abstract class org/jetbrains/dokka/gradle/engine/parameters/DokkaSourceLi
 }
 
 public abstract class org/jetbrains/dokka/gradle/engine/parameters/DokkaSourceSetSpec : java/io/Serializable, org/gradle/api/Named, org/gradle/api/plugins/ExtensionAware, org/jetbrains/dokka/gradle/engine/parameters/HasConfigurableVisibilityModifiers {
+	public static final field Companion Lorg/jetbrains/dokka/gradle/engine/parameters/DokkaSourceSetSpec$Companion;
 	public abstract fun getAnalysisPlatform ()Lorg/gradle/api/provider/Property;
 	public abstract fun getApiVersion ()Lorg/gradle/api/provider/Property;
 	public abstract fun getClasspath ()Lorg/gradle/api/file/ConfigurableFileCollection;
@@ -317,6 +318,9 @@ public abstract class org/jetbrains/dokka/gradle/engine/parameters/DokkaSourceSe
 	public abstract fun getSuppressedFiles ()Lorg/gradle/api/file/ConfigurableFileCollection;
 	public final fun perPackageOption (Lorg/gradle/api/Action;)V
 	public final fun sourceLink (Lorg/gradle/api/Action;)V
+}
+
+public final class org/jetbrains/dokka/gradle/engine/parameters/DokkaSourceSetSpec$Companion {
 }
 
 public final class org/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform : java/lang/Enum {

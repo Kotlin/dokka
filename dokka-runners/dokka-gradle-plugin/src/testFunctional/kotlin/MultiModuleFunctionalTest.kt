@@ -11,6 +11,7 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.file.shouldBeAFile
+import io.kotest.matchers.paths.shouldBeAFile
 import io.kotest.matchers.paths.shouldNotExist
 import io.kotest.matchers.sequences.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
