@@ -188,7 +188,7 @@ class JavadocLocationTest : BaseAbstractTest() {
             )
             val methodSignatureHtml = transformer.htmlForContentNode(methodWithTypealiasParam.signature, null)
 
-            val expectedSignatureHtml = "final <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html>Unit</a> " +
+            val expectedSignatureHtml = "final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> " +
                     "<a href=javadoc/test/functionparams/FunctionParameters.html#withTypealias(javadoc.test.functionparams.StringTypealias)>withTypealias</a>" +
                     "(<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a> typeAliasParam)"
 
@@ -216,8 +216,8 @@ class JavadocLocationTest : BaseAbstractTest() {
             )
             val methodSignatureHtml = transformer.htmlForContentNode(methodWithVoidParam.signature, null)
 
-            val expectedSignatureHtml = "final &lt;T extends <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html>Any</a>&gt; " +
-                    "<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html>Unit</a> " +
+            val expectedSignatureHtml = "final &lt;T extends <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html>Any</a>&gt; " +
+                    "<a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> " +
                     "<a href=javadoc/test/functionparams/FunctionParameters.html#withDefinitelyNonNullableType(T)>withDefinitelyNonNullableType</a>" +
                     "(<a href=javadoc/test/functionparams/FunctionParameters.html#withDefinitelyNonNullableType(T)>T</a> definitelyNonNullable)"
 

@@ -737,8 +737,8 @@ Below you can see all possible configuration options applied at the same time.
       "packageListUrl": "https://docs.oracle.com/javase/8/docs/api/package-list"
     },
     {
-      "url": "https://kotlinlang.org/api/latest/jvm/stdlib/",
-      "packageListUrl": "https://kotlinlang.org/api/latest/jvm/stdlib/package-list"
+      "url": "https://kotlinlang.org/api/core/kotlin-stdlib/",
+      "packageListUrl": "https://kotlinlang.org/api/core/kotlin-stdlib/package-list"
     }
   ],
   "perPackageOptions": [
@@ -802,8 +802,8 @@ Below you can see all possible configuration options applied at the same time.
           "packageListUrl": "https://docs.oracle.com/javase/8/docs/api/package-list"
         },
         {
-          "url": "https://kotlinlang.org/api/latest/jvm/stdlib/",
-          "packageListUrl": "https://kotlinlang.org/api/latest/jvm/stdlib/package-list"
+          "url": "https://kotlinlang.org/api/core/kotlin-stdlib/",
+          "packageListUrl": "https://kotlinlang.org/api/core/kotlin-stdlib/package-list"
         }
       ],
       "perPackageOptions": [

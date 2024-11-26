@@ -237,7 +237,7 @@ class SignatureTest : BaseAbstractTest() {
             }
             renderingStage = { _, _ ->
                 val signature = writerPlugin.writer.renderedContent("root/example/elvis-like.html")
-                assertEquals(2, signature.select("a[href=\"https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html\"]").size)
+                assertEquals(2, signature.select("a[href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html\"]").size)
                 signature.firstSignature().match(
                     "fun <", A("T"), "> ", A("elvisLike"),
                     "(",
@@ -743,7 +743,7 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 assertEquals(
                     writerPlugin.writer.renderedContent("root/example/-data-class/index.html").lastSignature().html(),
-                    "<span class=\"token keyword\">val </span><a href=\"arg.html\">arg</a><span class=\"token operator\">: </span><a href=\"https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html\">String</a>"
+                    "<span class=\"token keyword\">val </span><a href=\"arg.html\">arg</a><span class=\"token operator\">: </span><a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html\">String</a>"
 
                 )
             }

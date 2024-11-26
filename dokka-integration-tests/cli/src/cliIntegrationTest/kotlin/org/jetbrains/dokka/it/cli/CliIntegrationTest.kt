@@ -344,8 +344,8 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
                               "packageListUrl": "https://docs.oracle.com/javase/8/docs/api/package-list"
                             },
                             {
-                              "url": "https://kotlinlang.org/api/latest/jvm/stdlib/",
-                              "packageListUrl": "https://kotlinlang.org/api/latest/jvm/stdlib/package-list"
+                              "url": "https://kotlinlang.org/api/core/",
+                              "packageListUrl": "https://kotlinlang.org/api/core/package-list"
                             }
                             """.trimIndent(),
                     globalPerPackageOptions = """

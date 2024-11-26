@@ -19,7 +19,7 @@ class MultiModuleLinkingTest : BaseAbstractTest() {
         getTestDataDir("locationProvider").toAbsolutePath().toString().removePrefix("/").let { "/$it" }
     private val exampleDomain = "https://example.com"
     private val packageListURL = URL("file://$testDataDir/multi-module-package-list")
-    private val kotlinLang = "https://kotlinlang.org/api/latest/jvm/stdlib"
+    private val kotlinLang = "https://kotlinlang.org/api/core"
     private val stdlibPackageListURL = URL("file://$testDataDir/stdlib-package-list")
     private val configuration = dokkaConfiguration {
         sourceSets {
