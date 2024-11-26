@@ -57,7 +57,7 @@ class DokkaSourceSetSpecTest : FunSpec({
                     "androidSdk enabled:false url:https://developer.android.com/reference/kotlin/ packageList:https://developer.android.com/reference/kotlin/package-list",
                     "androidX enabled:false url:https://developer.android.com/reference/kotlin/ packageList:https://developer.android.com/reference/kotlin/androidx/package-list",
                     "jdk enabled:true url:https://docs.oracle.com/en/java/javase/11/docs/api/ packageList:https://docs.oracle.com/en/java/javase/11/docs/api/element-list",
-                    "kotlinStdlib enabled:true url:https://kotlinlang.org/api/latest/jvm/stdlib/ packageList:https://kotlinlang.org/api/latest/jvm/stdlib/package-list",
+                    "kotlinStdlib enabled:true url:https://kotlinlang.org/api/core/ packageList:https://kotlinlang.org/api/core/package-list",
                 )
         }
         test("includes") {
