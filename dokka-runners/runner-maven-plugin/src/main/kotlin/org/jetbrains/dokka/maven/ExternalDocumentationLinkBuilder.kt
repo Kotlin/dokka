@@ -25,7 +25,7 @@ import java.net.URL
  * ```xml
  * <externalDocumentationLinks>
  *     <link>
- *         <url>https://kotlinlang.org/api/latest/jvm/stdlib/</url>
+ *         <url>https://kotlinlang.org/api/core/</url>
  *         <packageListUrl>file:/${project.basedir}/stdlib.package.list</packageListUrl>
  *     </link>
  * </externalDocumentationLinks>
@@ -45,7 +45,7 @@ public class ExternalDocumentationLinkBuilder {
      * Example:
      *
      * ```xml
-     * <url>https://kotlinlang.org/api/latest/jvm/stdlib/</url>
+     * <url>https://kotlinlang.org/api/core/</url>
      * ```
      */
     @Parameter(name = "url", required = true)
