@@ -27,7 +27,7 @@ import kotlin.io.path.*
 @TestsDGPv2
 class KotlinMultiplatformIT {
 
-    @Disabled("KMP: References is not linked if they are in shared code and there is an intermediate level between them https://github.com/Kotlin/dokka/issues/3382")
+    @Disabled("KMP: References to shared code is not linked when there is an intermediate level https://github.com/Kotlin/dokka/issues/3382")
     @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-multiplatform")
     fun `generate dokka HTML`(project: DokkaGradleProjectRunner) {
         project.runner
@@ -71,7 +71,7 @@ class KotlinMultiplatformIT {
         }
     }
 
-    @Disabled("KMP: References is not linked if they are in shared code and there is an intermediate level between them https://github.com/Kotlin/dokka/issues/3382")
+    @Disabled("KMP: References to shared code is not linked when there is an intermediate level https://github.com/Kotlin/dokka/issues/3382")
     @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-multiplatform")
     fun `verify generated HTML contains no class resolution errors`(project: DokkaGradleProjectRunner) {
         project.runner
