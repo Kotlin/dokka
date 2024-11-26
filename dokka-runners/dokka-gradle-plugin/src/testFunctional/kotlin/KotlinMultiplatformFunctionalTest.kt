@@ -8,12 +8,14 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.file.shouldBeAFile
+import io.kotest.matchers.paths.shouldBeAFile
 import io.kotest.matchers.sequences.shouldNotBeEmpty
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import org.jetbrains.dokka.gradle.internal.DokkaConstants
 import org.jetbrains.dokka.gradle.utils.*
 import kotlin.io.path.extension
+import kotlin.io.path.name
 import kotlin.io.path.readText
 
 class KotlinMultiplatformFunctionalTest : FunSpec({
