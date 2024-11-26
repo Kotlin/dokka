@@ -45,6 +45,19 @@ class KotlinMultiplatformIT {
             val expectedHtml = project.projectDir.resolve("expectedData/html")
             val actualHtmlDir = project.projectDir.resolve("build/dokka/html")
 
+            println(project.findFiles { it.name == "dokka-configuration.json" }
+                .joinToString("\n\n") {
+                    buildString {
+                        """
+                            ---
+                            ${it.invariantSeparatorsPath}
+                            ${it.readText()}
+                            ---
+                        """.trimIndent()
+                    }.prependIndent()
+                }
+            )
+
             withClue(
                 """
                 expectedHtml: ${expectedHtml.toUri()}
