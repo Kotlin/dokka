@@ -241,7 +241,7 @@ constructor(
 
                 maybeCreate("kotlinStdlib") {
                     enabled.set(this@dss.enableKotlinStdLibDocumentationLink)
-                    url("https://kotlinlang.org/api/latest/jvm/stdlib/")
+                    url("https://kotlinlang.org/api/core/")
                 }
 
                 maybeCreate("androidSdk") {
