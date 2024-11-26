@@ -1438,7 +1438,7 @@ tasks.withType<DokkaTask>().configureEach {
             }
 
             externalDocumentationLink {
-                url.set(URL("https://kotlinlang.org/api/latest/jvm/stdlib/"))
+                url.set(URL("https://kotlinlang.org/api/core/kotlin-stdlib/"))
                 packageListUrl.set(
                     rootProject.projectDir.resolve("stdlib.package.list").toURL()
                 )
@@ -1517,7 +1517,7 @@ tasks.withType(DokkaTask.class) {
             }
 
             externalDocumentationLink {
-                url.set(new URL("https://kotlinlang.org/api/latest/jvm/stdlib/"))
+                url.set(new URL("https://kotlinlang.org/api/core/kotlin-stdlib/"))
                 packageListUrl.set(
                         file("stdlib.package.list").toURL()
                 )

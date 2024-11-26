@@ -622,7 +622,7 @@ Below you can see all the possible configuration options applied at the same tim
         </sourceLinks>
         <externalDocumentationLinks>
             <link>
-                <url>https://kotlinlang.org/api/latest/jvm/stdlib/</url>
+                <url>https://kotlinlang.org/api/core/kotlin-stdlib/</url>
                 <packageListUrl>file:/${project.basedir}/stdlib.package.list</packageListUrl>
             </link>
         </externalDocumentationLinks>
