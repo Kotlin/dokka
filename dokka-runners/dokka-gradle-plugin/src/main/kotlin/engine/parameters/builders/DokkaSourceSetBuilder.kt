@@ -40,7 +40,11 @@ internal object DokkaSourceSetBuilder {
 
         val enabledSourceSets = sourceSets.filter { it.sourceSetId.get() !in suppressedSourceSetIds }
 
-        return enabledSourceSets.map { build(it, suppressedSourceSetIds) }
+        return enabledSourceSets
+            .map { build(it, suppressedSourceSetIds) }
+            // Sort the source sets, just to help with debugging and investigations when looking at the JSON config file.
+            // The order shouldn't have any impact on Dokka Generator.
+            .sortedBy { it.sourceSetID.toString() }
     }
 
     private fun build(

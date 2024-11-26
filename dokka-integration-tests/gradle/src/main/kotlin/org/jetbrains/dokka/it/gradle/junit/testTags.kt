@@ -29,6 +29,16 @@ annotation class TestsDGPv2
 
 
 /**
+ * JUnit [Tag] indicating the test involves a Kotlin Multiplatform project.
+ */
+@Tag("KotlinMultiplatform")
+@Target(FUNCTION, CLASS)
+@MustBeDocumented
+@Inherited
+annotation class TestsKotlinMultiplatform
+
+
+/**
  * JUnit [Tag] indicating the test involves an Android project.
  *
  * If a test is annotated with [TestsAndroid] then

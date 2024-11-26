@@ -7,6 +7,7 @@ import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.file.shouldBeAFile
+import io.kotest.matchers.paths.shouldBeAFile
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
@@ -15,9 +16,9 @@ import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
 import org.jetbrains.dokka.it.gradle.junit.*
-import org.jetbrains.dokka.it.gradle.junit.TestedVersions
-import org.junit.jupiter.api.Assumptions.assumeTrue
 import kotlin.io.path.deleteRecursively
+import kotlin.io.path.name
+import kotlin.io.path.readText
 
 /**
  * Integration test for the `it-android` project.
@@ -30,12 +31,7 @@ class AndroidProjectIT {
     @DokkaGradlePluginTest(sourceProjectName = "it-android")
     fun `generate dokka HTML`(
         project: DokkaGradleProjectRunner,
-        testedVersions: TestedVersions.WithAndroid,
     ) {
-        assumeTrue(
-            testedVersions.agp.major != 8,
-            "TODO KT-70855 The output is slightly different for AGP 8, but this will be fixed as part of KT-70855. Rather than trying to make the test work now, just skip testing AGP 8 and wait until the fix arrives."
-        )
         project.runner
             .addArguments(
                 "clean",
