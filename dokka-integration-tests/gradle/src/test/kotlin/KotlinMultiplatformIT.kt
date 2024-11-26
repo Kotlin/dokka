@@ -8,6 +8,7 @@ import io.kotest.assertions.withClue
 import io.kotest.matchers.sequences.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import kotlinx.serialization.json.Json
 import org.gradle.testkit.runner.TaskOutcome.*
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
@@ -31,7 +32,6 @@ class KotlinMultiplatformIT {
         project.runner
             .addArguments(
                 ":dokkaGenerate",
-                "--rerun-tasks", // TODO remove before merging
             )
             .build {
                 withClue("expect project builds successfully") {
@@ -43,23 +43,22 @@ class KotlinMultiplatformIT {
             val expectedHtml = project.projectDir.resolve("expectedData/html")
             val actualHtmlDir = project.projectDir.resolve("build/dokka/html")
 
-            val dokkaConfigurationJsons = project
-                .findFiles { it.name == "dokka-configuration.json" }
-                .joinToString("\n\n") {
-                    """
-                    ---
-                    ${it.invariantSeparatorsPathString}
-                    ${it.readText()}
-                    ---
-                    """.trimIndent()
-                }
+            val dokkaConfigurationJsonFiles = project.findFiles { it.name == "dokka-configuration.json" }
+            val dokkaConfigContent = dokkaConfigurationJsonFiles.joinToString("\n\n") { dcFile ->
+                // re-encode the JSON to a compact format, to prevent the log output being completely spammed
+                val compactJson = Json.parseToJsonElement(dcFile.readText())
+                """
+                - ${dcFile.invariantSeparatorsPathString}
+                  $compactJson
+                """.trimIndent()
+            }
 
             withClue(
                 """
                 |expectedHtml: ${expectedHtml.toUri()}
                 |actualHtmlDir: ${actualHtmlDir.toUri()}
-                |dokkaConfigurationJsons:
-                |$dokkaConfigurationJsons
+                |dokkaConfigurationJsons [${dokkaConfigurationJsonFiles.count()}]:
+                |$dokkaConfigContent
                 """.trimMargin()
             ) {
                 val expectedFileTree = expectedHtml.toTreeString()
