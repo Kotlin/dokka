@@ -156,7 +156,7 @@
   }
 
   @media (width <= $breakpoint-tablet-max) {
-    li.dropdown--option:first-of-type {
+    & li:first-of-type {
       margin-top: 12px;
     }
   }
