@@ -512,7 +512,7 @@
 }
 
 @media (max-width: 899px) {
-  .dropdown li:first-of-type {
+  .dropdown li.dropdown--option:first-of-type {
     margin-top: 12px;
   }
 }
