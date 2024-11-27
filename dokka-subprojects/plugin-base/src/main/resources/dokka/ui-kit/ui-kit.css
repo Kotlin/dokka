@@ -511,6 +511,11 @@
   text-transform: uppercase;
 }
 
+@media (max-width: 899px) {
+  .dropdown li.dropdown--option:first-of-type {
+    margin-top: 12px;
+  }
+}
 .dropdown--overlay {
   background-color: hsla(0, 0%, 54%, 0.5);
   bottom: 0;
@@ -851,6 +856,8 @@
 
 .library-name--link {
   align-items: center;
+  border-radius: 4px;
+  border-radius: var(--size-s1);
   color: hsla(0, 0%, 100%, 0.96);
   color: var(--color-text-dt);
   display: flex;

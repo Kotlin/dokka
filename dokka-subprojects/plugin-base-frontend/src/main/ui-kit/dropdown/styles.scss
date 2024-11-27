@@ -155,6 +155,12 @@
     }
   }
 
+  @media (width <= $breakpoint-tablet-max) {
+    li.dropdown--option:first-of-type {
+      margin-top: 12px;
+    }
+  }
+
   &--overlay {
     position: absolute;
     z-index: 4;
