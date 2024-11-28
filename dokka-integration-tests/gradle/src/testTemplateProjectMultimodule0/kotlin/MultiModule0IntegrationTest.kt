@@ -4,11 +4,14 @@
 
 package org.jetbrains.dokka.it.gradle
 
-import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
+import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.*
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class MultiModule0IntegrationTest : AbstractGradleIntegrationTest() {
 
@@ -20,19 +23,17 @@ class MultiModule0IntegrationTest : AbstractGradleIntegrationTest() {
             ":moduleA:dokkaHtmlMultiModule",
             ":moduleA:dokkaGfmMultiModule",
             ":moduleA:dokkaJekyllMultiModule",
-            "-i", "-s"
         ).buildRelaxed()
 
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaHtmlMultiModule")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaGfmMultiModule")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:dokkaJekyllMultiModule")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:moduleB:dokkaHtmlPartial")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:moduleC:dokkaHtmlPartial")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:moduleB:dokkaGfmPartial")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:moduleC:dokkaGfmPartial")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:moduleB:dokkaJekyllPartial")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":moduleA:moduleC:dokkaJekyllPartial")).outcome)
-
+        result.shouldHaveTask(":moduleA:dokkaHtmlMultiModule").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":moduleA:dokkaGfmMultiModule").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":moduleA:dokkaJekyllMultiModule").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":moduleA:moduleB:dokkaHtmlPartial").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":moduleA:moduleC:dokkaHtmlPartial").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":moduleA:moduleB:dokkaGfmPartial").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":moduleA:moduleC:dokkaGfmPartial").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":moduleA:moduleB:dokkaJekyllPartial").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":moduleA:moduleC:dokkaJekyllPartial").shouldHaveOutcome(SUCCESS, FROM_CACHE)
 
         val outputDir = File(projectDir, "moduleA/build/dokka/htmlMultiModule")
         assertTrue(outputDir.isDirectory, "Missing dokka output directory")

@@ -13,7 +13,7 @@ jobs:
   test-matrix:
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -27,10 +27,21 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v3
+      - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-home-cache-cleanup: true
+          develocity-access-key: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
       - name: Run tests
         run: >
-          ./gradlew test --stacktrace --continue 
+          ./gradlew check --stacktrace --continue
+          "-Porg.jetbrains.dokka.integration_test.skip=true"
           "-Porg.jetbrains.dokka.javaToolchain.testLauncher=${{ env.JAVA_TEST_VERSION }}"
+      - name: Upload build reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-reports-${{ runner.os }}-${{ github.action }}-${{ github.run_id }}
+          path: |
+            **/build/reports/
+            **/*.hprof
+            **/*.log
+          if-no-files-found: ignore

@@ -13,7 +13,7 @@ Here are some libraries that use Dokka for their API reference documentation:
 
 * [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/)
 * [Bitmovin](https://cdn.bitmovin.com/player/android/3/docs/index.html)
-* [Hexagon](https://hexagontk.com/api/)
+* [Hexagon](https://hexagontk.com/stable/api/)
 * [Ktor](https://api.ktor.io/)
 * [OkHttp](https://square.github.io/okhttp/5.x/okhttp/okhttp3/)
 

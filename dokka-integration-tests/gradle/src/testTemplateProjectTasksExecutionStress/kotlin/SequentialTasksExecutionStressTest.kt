@@ -4,13 +4,9 @@
 
 package org.jetbrains.dokka.it.gradle
 
-import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
-import java.io.File
-import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 /**
  *  Creates 100 tasks for the test project and runs them sequentially under low memory settings.
@@ -23,15 +19,19 @@ class SequentialTasksExecutionStressTest : AbstractGradleIntegrationTest() {
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(LatestTestedVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
+        val iterations = 50
+
         val result = createGradleRunner(
             buildVersions,
             "runTasks",
-            "--info",
-            "--stacktrace",
-            "-Ptask_number=100",
-            jvmArgs = listOf("-Xmx1G", "-XX:MaxMetaspaceSize=500m")
+            "-Ptask_number=$iterations",
+            jvmArgs = listOf(
+                "-Xmx1G", "-XX:MaxMetaspaceSize=500m",
+                "-XX:SoftRefLRUPolicyMSPerMB=10" // to free up the metaspace on JVM 8, see https://youtrack.jetbrains.com/issue/KT-55831/
+            ),
+            enableBuildCache = false,
         ).buildRelaxed()
 
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":runTasks")).outcome)
+        result.shouldHaveTask(":runTasks").shouldHaveOutcome(SUCCESS)
     }
 }

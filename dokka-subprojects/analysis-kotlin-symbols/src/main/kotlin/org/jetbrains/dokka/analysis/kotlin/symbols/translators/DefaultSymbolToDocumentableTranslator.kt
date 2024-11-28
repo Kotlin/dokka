@@ -740,7 +740,7 @@ internal class DokkaSymbolVisitor(
     ) = DParameter(
         dri = dri.copy(target = PointingToDeclaration),
         name = null,
-        type = toBoundFrom(receiverParameterSymbol.type),
+        type = toBoundFrom(receiverParameterSymbol.returnType),
         expectPresentInSet = null,
         documentation = getDocumentation(receiverParameterSymbol)?.toSourceSetDependent() ?: emptyMap(),
         sourceSets = setOf(sourceSet),
@@ -838,7 +838,7 @@ internal class DokkaSymbolVisitor(
             return DRIWithOverridden(getDRIFromSymbol(callableSymbol), wasOverriddenBy)
 
         } else { // fake, synthetic, delegating
-            val firstOverriddenSymbolOrNull = callableSymbol.allOverriddenSymbols.firstOrNull()
+            val firstOverriddenSymbolOrNull = callableSymbol.directlyOverriddenSymbols.firstOrNull()
             return if (firstOverriddenSymbolOrNull == null) {
                 DRIWithOverridden(getDRIFromSymbol(callableSymbol), wasOverriddenBy)
             } else {

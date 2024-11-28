@@ -4,6 +4,8 @@
 
 package org.jetbrains.dokka.it.gradle
 
+import org.gradle.api.logging.LogLevel
+import org.gradle.api.logging.LogLevel.*
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.tooling.GradleConnectionException
@@ -15,9 +17,7 @@ import java.io.File
 import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
-import kotlin.io.path.copyTo
-import kotlin.io.path.copyToRecursively
-import kotlin.io.path.invariantSeparatorsPathString
+import kotlin.io.path.*
 import kotlin.test.BeforeTest
 import kotlin.time.Duration.Companion.seconds
 
@@ -34,13 +34,28 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
     ) {
         templateProjectDir.copyToRecursively(destination.toPath(), followLinks = false, overwrite = true)
         templateSettingsGradleKts.copyTo(destination.resolve("template.settings.gradle.kts").toPath(), overwrite = true)
-        destination.updateProjectLocalMavenDir()
+        destination.toPath().updateProjectLocalMavenDir()
     }
 
     fun createGradleRunner(
         buildVersions: BuildVersions,
         vararg arguments: String,
         jvmArgs: List<String> = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=1G"),
+        enableBuildCache: Boolean? = true,
+        /**
+         * The log level that Gradle will use.
+         *
+         * Prefer using [LogLevel.LIFECYCLE] or above. Gradle TestKit stores logs in-memory, which makes the tests slow.
+         * See https://github.com/gradle/gradle/issues/23965
+         *
+         * Avoid using [LogLevel.DEBUG] - it is *very* noisy!
+         */
+        gradleLogLevel: LogLevel = LIFECYCLE,
+        /**
+         * The log level that Dokka Generator will use.
+         * Defaults to [gradleLogLevel], so that the Dokka logs are always produced.
+         */
+        dokkaLogLevel: LogLevel = gradleLogLevel,
     ): GradleRunner {
 
         // TODO quick hack to add `android { namespace }` on AGP 7+ (it's mandatory in 8+).
@@ -56,7 +71,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                 |    namespace = "org.jetbrains.dokka.it.android"
                 |}
                 |
-            """.trimMargin()
+                """.trimMargin()
             )
         }
 
@@ -66,27 +81,48 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             .withJetBrainsCachedGradleVersion(buildVersions.gradleVersion)
             .withTestKitDir(File("build", "gradle-test-kit").absoluteFile)
             .withDebug(TestEnvironment.isEnabledDebug)
+            .withReadOnlyDependencyCache()
             .withArguments(
-                listOfNotNull(
-                    "-Pdokka_it_dokka_version=${dokkaVersion}",
-                    "-Pdokka_it_kotlin_version=${buildVersions.kotlinVersion}",
+                buildList {
+
+                    when (gradleLogLevel) {
+                        // For the 'LogLevel to cli-option' mapping, see https://docs.gradle.org/8.9/userguide/logging.html#sec:choosing_a_log_level
+                        DEBUG -> add("--debug")
+                        INFO -> add("--info")
+                        LIFECYCLE -> {} // 'lifecycle' is the default and has no flag
+                        WARN -> add("--warn")
+                        QUIET -> add("--quiet")
+                        ERROR -> add("--error")
+                    }
+
+                    add("-PdokkaGeneratorLogLevel=$dokkaLogLevel")
+
+                    add("--stacktrace")
+
+                    if (enableBuildCache != null) {
+                        add(if (enableBuildCache) "--build-cache" else "--no-build-cache")
+                    }
+
+                    add("-Pdokka_it_dokka_version=${dokkaVersion}")
+                    add("-Pdokka_it_kotlin_version=${buildVersions.kotlinVersion}")
+
                     buildVersions.androidGradlePluginVersion?.let { androidVersion ->
-                        "-Pdokka_it_android_gradle_plugin_version=$androidVersion"
-                    },
+                        add("-Pdokka_it_android_gradle_plugin_version=$androidVersion")
+                    }
+
                     // property flag to use K2
-                    if (TestEnvironment.shouldUseK2())
-                        "-P${TestEnvironment.TRY_K2}=true"
-                    else
-                        null,
+                    if (TestEnvironment.shouldUseK2()) {
+                        add("-P${TestEnvironment.TRY_K2}=true")
+                    }
 
                     // Decrease Gradle daemon idle timeout to prevent old agents lingering on CI.
                     // A lower timeout means slower tests, which is preferred over OOMs and locked processes.
-                    "-Dorg.gradle.daemon.idletimeout=" + 10.seconds.inWholeMilliseconds, // default is 3 hours!
-                    "-Pkotlin.daemon.options.autoshutdownIdleSeconds=10",
-
-                    * arguments
-                )
-            ).withJvmArguments(jvmArgs)
+                    add("-Dorg.gradle.daemon.idletimeout=" + 10.seconds.inWholeMilliseconds) // default is 3 hours!
+                    add("-Pkotlin.daemon.options.autoshutdownIdleSeconds=10")
+                    addAll(arguments)
+                }
+            )
+            .withJvmArguments(jvmArgs)
     }
 
     fun GradleRunner.buildRelaxed(): BuildResult {
@@ -97,7 +133,6 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             if (gradleConnectionException != null) {
                 gradleConnectionException.printStackTrace()
                 throw IllegalStateException("Assumed Gradle connection", gradleConnectionException)
-
             }
             throw e
         }
@@ -122,6 +157,27 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
          * This value is provided by the Gradle Test task.
          */
         val templateSettingsGradleKts: Path by systemProperty(Paths::get)
+
+        /**
+         * Gradle User Home of the current machine. Defaults to `~/.gradle`, but might be different on CI.
+         *
+         * This value is provided by the Gradle Test task.
+         */
+        private val hostGradleUserHome: Path by systemProperty(Paths::get)
+
+        /**
+         * Gradle dependencies cache of the current machine.
+         *
+         * Used as a read-only dependencies cache by setting `GRADLE_RO_DEP_CACHE`
+         *
+         * See https://docs.gradle.org/8.9/userguide/dependency_resolution.html#sub:cache_copy
+         *
+         * Note: Currently all Gradle versions store caches in `$GRADLE_USER_HOME/caches/`,
+         * but this might change. Check the docs.
+         */
+        internal val hostGradleDependenciesCache: Path by lazy {
+            hostGradleUserHome.resolve("caches")
+        }
 
         /** file-based Maven repositories with Dokka dependencies */
         private val devMavenRepositories: List<Path> by systemProperty { repos ->
@@ -168,14 +224,14 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             """.trimMargin()
         }
 
-        fun File.updateProjectLocalMavenDir() {
+        fun Path.updateProjectLocalMavenDir() {
 
             val dokkaMavenRepoMarker = "/* %{DOKKA_IT_MAVEN_REPO}% */"
 
             // Exclusive repository containing local Dokka artifacts.
             // Must be compatible with both Groovy and Kotlin DSL.
 
-            walk().filter { it.isFile }.forEach { file ->
+            walk().filter { it.isRegularFile() }.forEach { file ->
                 val fileText = file.readText()
 
                 if (dokkaMavenRepoMarker in fileText) {
@@ -188,15 +244,30 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
     }
 }
 
-private fun GradleRunner.withJetBrainsCachedGradleVersion(version: GradleVersion): GradleRunner {
-    return withGradleDistribution(
-        URI.create(
-            "https://cache-redirector.jetbrains.com/" +
-                    "services.gradle.org/distributions/" +
-                    "gradle-${version.version}-bin.zip"
-        )
+private fun GradleRunner.withJetBrainsCachedGradleVersion(version: GradleVersion): GradleRunner =
+    withJetBrainsCachedGradleVersion(version.version)
+
+internal fun GradleRunner.withJetBrainsCachedGradleVersion(version: String): GradleRunner =
+    withGradleDistribution(
+        URI("https://cache-redirector.jetbrains.com/services.gradle.org/distributions/gradle-${version}-bin.zip")
     )
-}
+
+internal fun GradleRunner.withReadOnlyDependencyCache(
+    hostGradleDependenciesCache: Path = AbstractGradleIntegrationTest.hostGradleDependenciesCache,
+): GradleRunner =
+    apply {
+        withEnvironment(
+            buildMap {
+                // `withEnvironment()` will wipe all existing environment variables,
+                // which breaks things like ANDROID_HOME and PATH, so re-add them.
+                putAll(System.getenv())
+
+                if (hostGradleDependenciesCache.exists()) {
+                    put("GRADLE_RO_DEP_CACHE", hostGradleDependenciesCache.invariantSeparatorsPathString)
+                }
+            }
+        )
+    }
 
 private fun Throwable.withAllCauses(): Sequence<Throwable> {
     val root = this

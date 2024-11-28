@@ -1,0 +1,7 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+module:childProjectA
+demo
+module:childProjectB
+demo

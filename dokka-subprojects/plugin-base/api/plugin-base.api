@@ -67,6 +67,7 @@ public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plug
 	public final fun getInheritedEntriesVisbilityFilter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getInheritorsExtractor ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getJavadocLocationProvider ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getJvmMappedMethodsFilter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getKotlinAnalysis ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getKotlinArrayDocumentableReplacer ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getKotlinSignatureProvider ()Lorg/jetbrains/dokka/plugability/Extension;

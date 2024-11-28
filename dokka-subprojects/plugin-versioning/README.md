@@ -118,10 +118,10 @@ Note that the directory passed to `olderVersionsDir` needs to follow a specific 
 ```text
 .
 └── olderVersionsDir
-    └── 1.7.10
-        ├── <dokka output>
+    ├── 1.7.10
+    │   └── <dokka output>
     └── 1.7.20
-        ├── <dokka output>
+        └── <dokka output>
 ...
 ```
 

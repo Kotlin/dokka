@@ -44,7 +44,7 @@ class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOut
             projectDir.toPath(),
             templateProjectDir.parent.resolve("coroutines.diff"),
         )
-        projectDir.updateProjectLocalMavenDir()
+        projectDir.toPath().updateProjectLocalMavenDir()
     }
 
     @OnlyDescriptors
@@ -53,7 +53,7 @@ class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOut
     fun execute(buildVersions: BuildVersions) {
         val result = createGradleRunner(
             buildVersions,
-            ":dokkaHtmlMultiModule", "-i", "-s",
+            ":dokkaHtmlMultiModule",
             jvmArgs = listOf(
                 "-Xmx2G",
                 "-XX:MaxMetaspaceSize=500m", // Intentionally small to verify that Dokka tasks do not cause leaks.

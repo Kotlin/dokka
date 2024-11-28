@@ -1,0 +1,31 @@
+<!-- Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license. -->
+
+<settings>
+    <profiles>
+        <profile>
+            <id>dokka-build</id>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>MavenCentral-JBCached</id>
+                    <url>https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2</url>
+                </pluginRepository>
+            </pluginRepositories>
+            <repositories>
+                <repository>
+                    <id>MavenCentral-JBCached</id>
+                    <url>https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2</url>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+    <mirrors>
+        <mirror>
+            <id>MavenCentral-JBCached</id>
+            <url>https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2</url>
+            <mirrorOf>central</mirrorOf>
+        </mirror>
+    </mirrors>
+    <activeProfiles>
+        <activeProfile>dokka-build</activeProfile>
+    </activeProfiles>
+</settings>

@@ -4,13 +4,11 @@
 
 package org.jetbrains.dokka.it.gradle
 
-import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
+import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class Multiplatform0GradleIntegrationTest : AbstractGradleIntegrationTest() {
@@ -24,15 +22,13 @@ class Multiplatform0GradleIntegrationTest : AbstractGradleIntegrationTest() {
             createGradleRunner(
                 buildVersions,
                 "dokkaHtml",
-                "-i",
-                "-s",
                 "-Pkotlin.mpp.enableGranularSourceSetsMetadata=true",
                 "-Pkotlin.native.enableDependencyPropagation=false"
             ).buildRelaxed()
         else
-            createGradleRunner(buildVersions, "dokkaHtml", "-i", "-s").buildRelaxed()
+            createGradleRunner(buildVersions, "dokkaHtml").buildRelaxed()
 
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
+        result.shouldHaveTask(":dokkaHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)
 
         val dokkaOutputDir = File(projectDir, "build/dokka/html")
         assertTrue(dokkaOutputDir.isDirectory, "Missing dokka output directory")

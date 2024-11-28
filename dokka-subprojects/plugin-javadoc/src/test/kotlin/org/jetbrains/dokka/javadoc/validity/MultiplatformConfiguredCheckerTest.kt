@@ -23,7 +23,7 @@ class MultiplatformConfiguredCheckerTest : BaseAbstractTest() {
                 analysisPlatform = "jvm"
                 externalDocumentationLinks = listOf(
                     ExternalDocumentationLink("https://docs.oracle.com/javase/8/docs/api/"),
-                    ExternalDocumentationLink("https://kotlinlang.org/api/latest/jvm/stdlib/")
+                    ExternalDocumentationLink("https://kotlinlang.org/api/core/")
                 )
             }
             sourceSet {
@@ -32,7 +32,7 @@ class MultiplatformConfiguredCheckerTest : BaseAbstractTest() {
                 analysisPlatform = "js"
                 externalDocumentationLinks = listOf(
                     ExternalDocumentationLink("https://docs.oracle.com/javase/8/docs/api/"),
-                    ExternalDocumentationLink("https://kotlinlang.org/api/latest/jvm/stdlib/")
+                    ExternalDocumentationLink("https://kotlinlang.org/api/core/")
                 )
             }
         }
@@ -46,7 +46,7 @@ class MultiplatformConfiguredCheckerTest : BaseAbstractTest() {
                 analysisPlatform = "jvm"
                 externalDocumentationLinks = listOf(
                     ExternalDocumentationLink("https://docs.oracle.com/javase/8/docs/api/"),
-                    ExternalDocumentationLink("https://kotlinlang.org/api/latest/jvm/stdlib/")
+                    ExternalDocumentationLink("https://kotlinlang.org/api/core/")
                 )
             }
         }

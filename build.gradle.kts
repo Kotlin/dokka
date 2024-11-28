@@ -4,10 +4,11 @@
 
 plugins {
     id("dokkabuild.base")
+    idea
 }
 
-val publishedIncludedBuilds = listOf("runner-cli", "runner-gradle-plugin-classic", "runner-maven-plugin")
-val gradlePluginIncludedBuilds = listOf("runner-gradle-plugin-classic")
+val publishedIncludedBuilds = listOf("runner-cli", "dokka-gradle-plugin", "runner-maven-plugin")
+val gradlePluginIncludedBuilds = listOf("dokka-gradle-plugin")
 
 addDependencyOnSameTasksOfIncludedBuilds("assemble", "build", "clean", "check")
 
@@ -18,7 +19,7 @@ registerParentGroupTasks(
         "publishAllPublicationsToSnapshotRepository",
         "publishAllPublicationsToSpaceDevRepository",
         "publishAllPublicationsToSpaceTestRepository",
-        "publishToMavenLocal"
+        "publishToMavenLocal",
     )
 ) {
     it.name in publishedIncludedBuilds
@@ -27,7 +28,7 @@ registerParentGroupTasks(
 registerParentGroupTasks(
     "gradle plugin", taskNames = listOf(
         "publishPlugins",
-        "validatePlugins"
+        "validatePlugins",
     )
 ) {
     it.name in gradlePluginIncludedBuilds
@@ -37,7 +38,7 @@ registerParentGroupTasks(
     "bcv", taskNames = listOf(
         "apiDump",
         "apiCheck",
-        "apiBuild"
+        "apiBuild",
     )
 ) {
     it.name in publishedIncludedBuilds
@@ -45,7 +46,7 @@ registerParentGroupTasks(
 
 registerParentGroupTasks(
     "verification", taskNames = listOf(
-        "test"
+        "test",
     )
 )
 
@@ -102,6 +103,29 @@ tasks.wrapper {
                     "https\\://services.gradle.org/",
                     "https\\://cache-redirector.jetbrains.com/services.gradle.org/",
                 )
+        )
+    }
+}
+
+idea {
+    module {
+        // Mark directories as excluded so that they don't appear in IntelliJ's global search.
+        excludeDirs.addAll(
+            files(
+                ".idea",
+                ".husky",
+                ".kotlin",
+                "dokka-integration-tests/.kotlin",
+                "dokka-runners/dokka-gradle-plugin/.kotlin",
+                "dokka-runners/runner-cli/.kotlin",
+                "dokka-runners/runner-maven-plugin/.kotlin",
+                "dokka-runners/dokka-gradle-plugin/src/testFunctional/resources/KotlinDslAccessorsTest/",
+
+                "dokka-integration-tests/gradle/src/testExampleProjects/expectedData",
+                "dokka-integration-tests/gradle/projects/it-android/expectedData",
+                "dokka-integration-tests/gradle/projects/it-android-compose/expectedData",
+                "dokka-integration-tests/gradle/projects/it-kotlin-multiplatform/expectedData",
+            )
         )
     }
 }

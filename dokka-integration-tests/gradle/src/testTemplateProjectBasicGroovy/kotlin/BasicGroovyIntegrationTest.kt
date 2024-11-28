@@ -4,13 +4,11 @@
 
 package org.jetbrains.dokka.it.gradle
 
-import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
+import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
-import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class BasicGroovyIntegrationTest : AbstractGradleIntegrationTest() {
@@ -18,13 +16,18 @@ class BasicGroovyIntegrationTest : AbstractGradleIntegrationTest() {
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(AllSupportedTestedVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
-        val result = createGradleRunner(buildVersions, "dokkaHtml", "dokkaJavadoc", "dokkaGfm", "dokkaJekyll", "-i", "-s")
-            .buildRelaxed()
+        val result = createGradleRunner(
+            buildVersions,
+            "dokkaHtml",
+            "dokkaJavadoc",
+            "dokkaGfm",
+            "dokkaJekyll",
+        ).buildRelaxed()
 
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtml")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaJavadoc")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaGfm")).outcome)
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaJekyll")).outcome)
+        result.shouldHaveTask(":dokkaHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":dokkaJavadoc").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":dokkaGfm").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":dokkaJekyll").shouldHaveOutcome(SUCCESS, FROM_CACHE)
 
         File(projectDir, "build/dokka/customHtml").assertKdocOutputDir()
         File(projectDir, "build/dokka/customJavadoc").assertJavadocOutputDir()

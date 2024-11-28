@@ -50,7 +50,7 @@ as long as you can map it to the [Documentable](../data_model/documentable_model
 
 For reference, see
 
-* `DefaultDescriptorToDocumentableTranslator` for Kotlin sources translation
+* `DefaultDescriptorToDocumentableTranslator` (K1) and `DefaultSymbolToDocumentableTranslator` (K2) for Kotlin sources translation
 * `DefaultPsiToDocumentableTranslator` for Java sources translation
 
 ## DocumentableMerger
