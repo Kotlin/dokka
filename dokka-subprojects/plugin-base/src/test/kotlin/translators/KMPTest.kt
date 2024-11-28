@@ -5,18 +5,14 @@
 package translators
 
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.doc.*
 import utils.AbstractModelTest
-import utils.assertNotNull
-import utils.comments
-import utils.docs
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
-class KMPTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comment") {
+class KMPTest : AbstractModelTest("/src/main/kotlin/kmp/Test.kt", "kmp") {
 
-    /// copy-pasted UTILS
+    // copy-pasted org.jetbrains.dokka.analysis.test.api.util.getResourceAbsolutePath
     private fun getResourceAbsolutePath(resourcePath: String): String {
         val resource = object {}.javaClass.classLoader.getResource(resourcePath)?.file
             ?: throw IllegalArgumentException("Resource not found: $resourcePath")
@@ -26,31 +22,24 @@ class KMPTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comment")
 
     val configuration = dokkaConfiguration {
         sourceSets {
-           /* val common =  sourceSet {
-                sourceRoots = listOf("src/common/kotlin")
-                analysisPlatform = "common"
-                name = "common"
-            }*/
             sourceSet {
                 sourceRoots = listOf("src/androidMain/kotlin")
                 analysisPlatform = "jvm"
                 name = "android-example"
                 classpath = listOf(getResourceAbsolutePath("jars/jvmAndroidLib-jvm-copy.jar"))
-                // dependentSourceSets = setOf(common.value.sourceSetID)
             }
             sourceSet {
                 sourceRoots = listOf("src/jvmMain/kotlin")
                 analysisPlatform = "jvm"
                 name = "jvm-example"
                 classpath = listOf(getResourceAbsolutePath("jars/jvmAndroidLib-jvm.jar"))
-               // dependentSourceSets = setOf(common.value.sourceSetID)
             }
 
         }
     }
 
     @Test
-    fun `unresolved Firebase in the android source set with the same renamed jar`() {
+    fun `should resolve Firebase from the same renamed jars #3702`() {
         inlineModelTest(
             """
                 |/src/androidMain/kotlin/main.kt
@@ -68,7 +57,7 @@ class KMPTest : AbstractModelTest("/src/main/kotlin/comment/Test.kt", "comment")
             configuration = configuration
         ) {
             with((this / "example" / "android").cast<DFunction>()) {
-                assertTrue(parameters[0].type is UnresolvedBound) // <------- here
+                assertTrue(parameters[0].type is GenericTypeConstructor)
             }
             with((this / "example" / "jvm").cast<DFunction>()) {
                 assertTrue(parameters[0].type is GenericTypeConstructor)
