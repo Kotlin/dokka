@@ -511,11 +511,6 @@
   text-transform: uppercase;
 }
 
-@media (max-width: 899px) {
-  .dropdown li.dropdown--option:first-of-type {
-    margin-top: 12px;
-  }
-}
 .dropdown--overlay {
   background-color: hsla(0, 0%, 54%, 0.5);
   bottom: 0;
@@ -559,6 +554,11 @@
 @media (min-width: 900px) {
   .dropdown--header {
     display: none;
+  }
+}
+@media (max-width: 899px) {
+  .dropdown--header + :not(.sidebar--inner) {
+    margin-top: 12px;
   }
 }
 :root {

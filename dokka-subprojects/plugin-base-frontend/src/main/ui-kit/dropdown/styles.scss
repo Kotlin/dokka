@@ -155,12 +155,6 @@
     }
   }
 
-  @media (width <= $breakpoint-tablet-max) {
-    li.dropdown--option:first-of-type {
-      margin-top: 12px;
-    }
-  }
-
   &--overlay {
     position: absolute;
     z-index: 4;
@@ -209,6 +203,12 @@
 
     @media (width >= $breakpoint-desktop-min) {
       display: none;
+    }
+
+    @media (width <= $breakpoint-tablet-max) {
+      & + :not(.sidebar--inner) {
+        margin-top: 12px;
+      }
     }
   }
 }
