@@ -206,7 +206,7 @@ class ExampleProjectsTest {
                     withClue("expect file trees are the same") {
                         val expectedFileTree = expectedDataDir.toTreeString()
                         val actualFileTree = dokkaOutputDir.toTreeString()
-                        expectedFileTree shouldBe actualFileTree
+                        actualFileTree shouldBe expectedFileTree
                     }
 
                     withClue("expect directories are the same") {
