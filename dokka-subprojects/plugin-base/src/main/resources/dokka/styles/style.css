@@ -23,8 +23,9 @@
 
     --horizontal-spacing-for-content: 16px;
     --bottom-spacing: 16px;
-    --color-scrollbar: rgba(39, 40, 44, 0.40);
-    --color-scrollbar-track: var(--default-gray);
+    --color-scrollbar-track: transparent;
+    --color-scrollbar: hsla(0, 0%, 40%, 0.6);
+    --color-scrollbar-active: hsla(0, 0%, 0%, 0.6);
     --default-white: #fff;
     --background-color: var(--default-white);
     --dark-mode-and-search-icon-color: var(--default-white);
@@ -42,41 +43,56 @@
     --top-navigation-height: 73px;
     --max-width: 1160px;
     --white-10: hsla(0, 0%, 100%, .1);
+    --block-quote-color: hsla(0, 0%, 30%, 1);
 
-    --active-tab-border-color: #7F52FF;
+    /* TODO: Add a config option that allows users to change the highlight colours */
+    --highlight-text-color: rgba(135, 90, 255, 1);
+    --highlight-color: rgba(127, 82, 255, 1);
+    --active-tab-border-color: var(--highlight-text-color);
     --inactive-tab-border-color: rgba(164, 164, 170, 0.7);
 
-    --active-section-color: #7F52FF;
+    --active-section-color: var(--highlight-text-color);
     --inactive-section-color: rgba(25, 25, 28, .7);
 
-    --sidebar-width: 280px;
-    --sidemenu-section-active-color: #7F52FF;
+    --sidebar-width: 340px;
+    --sidemenu-section-active-color: var(--highlight-color);
+
+    color-scheme: light;
 }
 
 html {
     height: 100%;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-    scrollbar-color: rgba(39, 40, 44, 0.40) #F4F4F4;
-    scrollbar-color: var(--color-scrollbar) var(--color-scrollbar-track);
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     color: var(--default-font-color);
 }
 
-html ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+@supports not selector(::-webkit-scrollbar) {
+    html {
+        scrollbar-color: var(--color-scrollbar-active) var(--color-scrollbar-track);
+    }
 }
 
-html ::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
     background-color: var(--color-scrollbar-track);
 }
 
-html ::-webkit-scrollbar-thumb {
-    width: 8px;
-    border-radius: 6px;
-    background: rgba(39, 40, 44, 0.40);
-    background: var(--color-scrollbar);
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+    background-color: rgba(39, 40, 44, 0.40);
+    background-color: var(--color-scrollbar);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background-color: var(--color-scrollbar-active);
 }
 
 html, body {
@@ -132,16 +148,23 @@ u {
 }
 
 blockquote {
-    border-left: 1ch solid var(--default-gray);
     margin: 0;
     padding-left: 1ch;
     font-style: italic;
-    color: var(--average-color);
+    color: var(--block-quote-color);
+    border-left: none;
+    position: relative;
 }
 
-.theme-dark blockquote {
-    color: var(--default-font-color);
-    border-left-color: var(--code-background);
+blockquote::before {
+    background: var(--hover-link-color);
+    border-radius: 8px;
+    position: absolute;
+    width: 4px;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    content: '';
 }
 
 pre {
@@ -217,6 +240,9 @@ td:first-child {
 
 /* ---dark theme --- */
 .theme-dark {
+    --color-scrollbar: hsla(0, 0%, 60%, 0.4);
+    --color-scrollbar-active: hsla(0, 0%, 100%, 0.4);
+
     --background-color: #27282c;
     --color-dark: #3d3d41;
     --default-font-color: hsla(0, 0%, 100%, 0.8);
@@ -226,11 +252,12 @@ td:first-child {
     --brief-color: hsla(0, 0%, 100%, 0.4);
     --copy-icon-color: hsla(0, 0%, 100%, 0.6);
     --copy-icon-hover-color: #fff;
+    --block-quote-color: hsla(0, 0%, 60%, 1);
 
-    --active-tab-border-color: var(--default-font-color);
+    --highlight-text-color: rgb(135, 90, 255);
+    --highlight-color: rgba(127, 82, 255, 0.75);
     --inactive-tab-border-color: hsla(0, 0%, 100%, 0.4);
 
-    --active-section-color: var(--default-font-color);
     --inactive-section-color: hsla(0, 0%, 100%, 0.4);
 
     --navigation-highlight-color: rgba(255, 255, 255, 0.05);
@@ -238,7 +265,9 @@ td:first-child {
     --footer-font-color: hsla(0, 0%, 100%, 0.6);
     --footer-go-to-top-color: var(--footer-font-color);
 
-    --sidemenu-section-active-color: var(--color-dark);
+    --sidemenu-section-active-color: var(--highlight-color);
+
+    color-scheme: dark;
 }
 
 /* /---dark theme --- */
@@ -388,7 +417,7 @@ td:first-child {
     background-repeat: no-repeat;
 }
 
-@media (max-width: 759px) {
+@media (max-width: 640px) {
     .navigation-controls--theme {
         display: none;
     }
@@ -436,7 +465,7 @@ td:first-child {
     flex-direction: column;
     box-sizing: border-box;
     border-right: 1px solid var(--border-color);
-    width: var(--sidebar-width);
+    width: min(var(--sidebar-width), 100%);
 }
 
 .no-js .sidebar {
@@ -454,7 +483,7 @@ td:first-child {
         bottom: 0;
         box-sizing: border-box;
         background: var(--background-color);
-        margin-left: calc(-1 * var(--sidebar-width));
+        margin-left: calc(-1 * min(var(--sidebar-width), 100%));
         transition: margin .2s ease-out;
         z-index: 4;
     }
@@ -468,7 +497,7 @@ td:first-child {
     }
 
     .sidebar.open ~ #main .menu-toggle {
-        margin-left: var(--sidebar-width);
+        margin-left: min(var(--sidebar-width), 100%);
     }
 }
 
@@ -548,6 +577,39 @@ td:first-child {
 .cover .platform-hinted.with-platform-tabs .sourceset-dependent-content > .block {
     padding: 0;
     font-size: var(--default-font-size);
+}
+
+/* Overrides some stuff in ui-kit.css */
+.section-tab, .section-tab:hover, .section-tab[data-active=""], .platform-hinted > .platform-bookmarks-row > .platform-bookmark {
+    font-weight: 500;
+    transition: all 0.25s;
+    border-bottom: none !important;
+    position: relative;
+}
+
+.section-tab::before {
+    background: var(--inactive-tab-border-color);
+    border-radius: 8px;
+    position: absolute;
+    height: 4px;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    content: '';
+    transform: scaleY(0.5);
+    transition: all 0.25s;
+}
+
+.section-tab:hover::before, .section-tab[data-active=""]::before {
+    transform: scaleY(1);
+}
+
+.section-tab:hover::before {
+    background: var(--default-font-color);
+}
+
+.section-tab[data-active=""]::before {
+    background: var(--active-tab-border-color);
 }
 
 .cover ~ .divergent-group {
@@ -663,9 +725,9 @@ code.paragraph {
     position: relative;
 }
 
-code {
-    overflow-x: auto;
-    max-width: 100%;
+.symbol:not(.token), code {
+    overflow: scroll;
+    white-space: pre;
 }
 
 code:not(.block) {
