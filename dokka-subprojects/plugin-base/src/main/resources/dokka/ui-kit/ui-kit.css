@@ -556,6 +556,11 @@
     display: none;
   }
 }
+@media (max-width: 899px) {
+  .dropdown--header + :not(.sidebar--inner) {
+    margin-top: 12px;
+  }
+}
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -851,6 +856,8 @@
 
 .library-name--link {
   align-items: center;
+  border-radius: 4px;
+  border-radius: var(--size-s1);
   color: hsla(0, 0%, 100%, 0.96);
   color: var(--color-text-dt);
   display: flex;
