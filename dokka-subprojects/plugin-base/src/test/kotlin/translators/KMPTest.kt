@@ -26,12 +26,14 @@ class KMPTest : AbstractModelTest("/src/main/kotlin/kmp/Test.kt", "kmp") {
                 sourceRoots = listOf("src/androidMain/kotlin")
                 analysisPlatform = "jvm"
                 name = "android-example"
+                // contains only `class Firebase`
                 classpath = listOf(getResourceAbsolutePath("jars/jvmAndroidLib-jvm-copy.jar"))
             }
             sourceSet {
                 sourceRoots = listOf("src/jvmMain/kotlin")
                 analysisPlatform = "jvm"
                 name = "jvm-example"
+                // contains only `class Firebase`
                 classpath = listOf(getResourceAbsolutePath("jars/jvmAndroidLib-jvm.jar"))
             }
 
