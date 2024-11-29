@@ -9,6 +9,7 @@ import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.annotations
 import org.jetbrains.dokka.base.transformers.documentables.isDeprecated
 import org.jetbrains.dokka.base.translators.documentables.PageContentBuilder.DocumentableContentBuilder
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.doc.Deprecated
 import org.jetbrains.dokka.pages.ContentKind
 import org.jetbrains.dokka.pages.ContentStyle
 import org.jetbrains.dokka.pages.TextStyle
@@ -48,7 +49,7 @@ internal fun PageContentBuilder.DocumentableContentBuilder.deprecatedSectionCont
                 if (kotlinAnnotation != null) {
                     createKotlinDeprecatedSectionContent(kotlinAnnotation, platformAnnotations)
                 } else if (javaAnnotation != null) {
-                    createJavaDeprecatedSectionContent(javaAnnotation)
+                    createJavaDeprecatedSectionContent(javaAnnotation, documentable)
                 }
             }
         }
@@ -174,6 +175,7 @@ private fun DocumentableContentBuilder.createReplaceWithSectionContent(kotlinDep
  */
 private fun DocumentableContentBuilder.createJavaDeprecatedSectionContent(
     deprecatedAnnotation: Annotations.Annotation,
+    documentable: Documentable,
 ) {
     val isForRemoval = deprecatedAnnotation.takeBooleanParam("forRemoval", default = false)
     header(
@@ -184,6 +186,16 @@ private fun DocumentableContentBuilder.createJavaDeprecatedSectionContent(
         group(styles = setOf(ContentStyle.Footnote)) {
             text("Since version $it")
         }
+    }
+
+    // Java projects should only have a single source set
+    val documentation = documentable.documentation.values.firstOrNull() ?: return
+
+    // Javadoc takes the first @depracted tag, and skips all subsequent duplicates
+    val deprecatedJavadocTag = documentation.childrenOfType<Deprecated>().firstOrNull() ?: return
+
+    group(styles = setOf(TextStyle.Paragraph)) {
+        comment(deprecatedJavadocTag.root)
     }
 }
 

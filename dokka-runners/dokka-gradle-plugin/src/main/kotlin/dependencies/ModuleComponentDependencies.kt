@@ -3,7 +3,6 @@
  */
 package org.jetbrains.dokka.gradle.dependencies
 
-import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
@@ -16,8 +15,14 @@ import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaMod
 import org.jetbrains.dokka.gradle.internal.*
 import java.io.File
 
-
-@DokkaInternalApi
+/**
+ * Manage sharing and receiving components used to build a Dokka Module.
+ *
+ * The type of component is determined by [component].
+ *
+ * Files are shared using variant-aware Gradle [Configuration]s.
+ */
+@InternalDokkaGradlePluginApi
 class ModuleComponentDependencies(
     project: Project,
     private val component: DokkaAttribute.ModuleComponent,
@@ -29,9 +34,9 @@ class ModuleComponentDependencies(
     private val formatName: String get() = formatAttributes.format.name
     private val componentName: String get() = component.name
 
-    private val resolver: NamedDomainObjectProvider<Configuration> =
-        project.configurations.register("${baseConfigurationName}${componentName}Resolver") {
-            description = "Resolves Dokka $formatName $componentName files."
+    private val resolver: Configuration =
+        project.configurations.create("${baseConfigurationName}${componentName}Resolver${INTERNAL_CONF_NAME_TAG}") {
+            description = "$INTERNAL_CONF_DESCRIPTION_TAG Resolves Dokka $formatName $componentName files."
             resolvable()
             extendsFrom(declaredDependencies)
             attributes {
@@ -41,10 +46,10 @@ class ModuleComponentDependencies(
             }
         }
 
-    val outgoing: NamedDomainObjectProvider<Configuration> =
-        project.configurations.register("${baseConfigurationName}${componentName}Consumable") {
+    val outgoing: Configuration =
+        project.configurations.create("${baseConfigurationName}${componentName}Consumable${INTERNAL_CONF_NAME_TAG}") {
             description =
-                "Provides Dokka $formatName $componentName files for consumption by other subprojects."
+                "$INTERNAL_CONF_DESCRIPTION_TAG Provides Dokka $formatName $componentName files for consumption by other subprojects."
             consumable()
             extendsFrom(declaredDependencies)
             attributes {
@@ -66,8 +71,8 @@ class ModuleComponentDependencies(
      * Unfortunately, [org.gradle.api.artifacts.ArtifactView.ViewConfiguration.lenient] must be
      * enabled, which might obscure errors.
      */
-    val incomingArtifactFiles: Provider<List<File>> =
-        resolver.get().incomingArtifacts().map { it.map(ResolvedArtifactResult::getFile) }
+    val incomingArtifactFiles: Provider<List<File>>
+        get() = resolver.incomingArtifacts().map { it.map(ResolvedArtifactResult::getFile) }
 
     private fun Configuration.incomingArtifacts(): Provider<List<ResolvedArtifactResult>> {
 
@@ -125,7 +130,7 @@ class ModuleComponentDependencies(
             }
     }
 
-    @DokkaInternalApi
+    @InternalDokkaGradlePluginApi
     companion object {
         private val logger: Logger = Logging.getLogger(DokkaAttribute.ModuleComponent::class.java)
     }

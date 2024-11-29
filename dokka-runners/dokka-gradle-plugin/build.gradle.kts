@@ -26,7 +26,7 @@ kotlin {
     compilerOptions {
         optIn.addAll(
             "kotlin.RequiresOptIn",
-            "org.jetbrains.dokka.gradle.internal.DokkaInternalApi",
+            "org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi",
             "kotlin.io.path.ExperimentalPathApi",
         )
     }
@@ -61,6 +61,8 @@ dependencies {
     testFixturesImplementation(gradleApi())
     testFixturesImplementation(gradleTestKit())
 
+    testFixturesImplementation(libs.javaDiffUtils)
+
     testFixturesCompileOnly("org.jetbrains.dokka:dokka-core:${project.version}")
     testFixturesImplementation(platform(libs.kotlinxSerialization.bom))
     testFixturesImplementation(libs.kotlinxSerialization.json)
@@ -70,6 +72,7 @@ dependencies {
     testFixturesApi(libs.kotest.assertionsCore)
     testFixturesApi(libs.kotest.assertionsJson)
     testFixturesApi(libs.kotest.datatest)
+    testFixturesApi(libs.kotest.property)
 
     // don't define test dependencies here, instead define them in the testing.suites {} configuration below
 
@@ -98,11 +101,7 @@ dependencies {
 }
 
 gradlePlugin {
-    plugins.register("dokka") {
-        id = "org.jetbrains.dokka"
-        displayName = "Dokka Gradle Plugin"
-        description = "Dokka is an API documentation engine for Kotlin"
-        implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
+    plugins.configureEach {
         tags.addAll(
             "dokka",
             "kotlin",
@@ -110,9 +109,37 @@ gradlePlugin {
             "android",
             "api reference",
             "documentation",
-            "html",
-            "website",
         )
+    }
+    plugins.register("dokkaHtml") {
+        id = "org.jetbrains.dokka"
+        displayName = "Dokka Gradle Plugin"
+        description = """
+            Dokka is the API documentation engine for Kotlin.
+            
+            This plugin generates output that looks like Javadoc websites.
+            See https://kotlinlang.org/docs/dokka-html.html for more information.
+            
+            HTML is Dokka's default and recommended output format. It is currently in Beta and approaching the Stable release.
+            """.trimIndent()
+        implementationClass = "org.jetbrains.dokka.gradle.DokkaPlugin"
+        tags.addAll("html")
+    }
+    plugins.register("dokkaJavadoc") {
+        id = "org.jetbrains.dokka-javadoc"
+        displayName = "Dokka Gradle Plugin Javadoc"
+        description = """
+            Dokka is the API documentation engine for Kotlin.
+            
+            This plugin generates output that looks like Javadoc websites.
+            See https://kotlinlang.org/docs/dokka-javadoc.html for more information.
+            
+            The Javadoc output format is still in Alpha, so you may find bugs and experience migration issues when using it.
+            Successful integration with tools that accept Java's Javadoc HTML as input is not guaranteed.
+            You use it at your own risk.
+            """.trimIndent()
+        implementationClass = "org.jetbrains.dokka.gradle.formats.DokkaJavadocPlugin"
+        tags.addAll("javadoc")
     }
 }
 
@@ -183,16 +210,12 @@ testing.suites {
 skipTestFixturesPublications()
 
 apiValidation {
-    nonPublicMarkers.add("org.jetbrains.dokka.gradle.internal.DokkaInternalApi")
+    nonPublicMarkers.add("org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi")
 }
 
 val generateDokkaGradlePluginConstants by tasks.registering(GenerateDokkaGradlePluginConstants::class) {
     val dokkaPluginConstants = objects.mapProperty<String, String>().apply {
         put("DOKKA_VERSION", project.version.toString())
-        put("DOKKA_DEPENDENCY_VERSION_KOTLINX_HTML", libs.versions.kotlinx.html)
-        put("DOKKA_DEPENDENCY_VERSION_KOTLINX_COROUTINES", libs.versions.kotlinx.coroutines)
-        put("DOKKA_DEPENDENCY_VERSION_FREEMARKER", libs.versions.freemarker)
-        put("DOKKA_DEPENDENCY_VERSION_JETBRAINS_MARKDOWN", libs.versions.jetbrains.markdown)
     }
 
     properties.set(dokkaPluginConstants)

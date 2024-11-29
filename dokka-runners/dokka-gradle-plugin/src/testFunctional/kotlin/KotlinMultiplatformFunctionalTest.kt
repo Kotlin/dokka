@@ -8,12 +8,14 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.file.shouldBeAFile
+import io.kotest.matchers.paths.shouldBeAFile
 import io.kotest.matchers.sequences.shouldNotBeEmpty
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import org.jetbrains.dokka.gradle.internal.DokkaConstants
 import org.jetbrains.dokka.gradle.utils.*
 import kotlin.io.path.extension
+import kotlin.io.path.name
 import kotlin.io.path.readText
 
 class KotlinMultiplatformFunctionalTest : FunSpec({
@@ -46,6 +48,7 @@ class KotlinMultiplatformFunctionalTest : FunSpec({
         }
 
         context("expect HTML site is generated") {
+            val projectName = "kotlin-multiplatform-project"
 
             test("with expected HTML files") {
                 project.projectDir
@@ -54,26 +57,26 @@ class KotlinMultiplatformFunctionalTest : FunSpec({
                     .shouldContainExactlyInAnyOrder(
                         "html/index.html",
                         "html/navigation.html",
-                        "html/test/com.project/-hello/-hello.html",
-                        "html/test/com.project/-hello/index.html",
-                        "html/test/com.project/-hello/say-hello.html",
-                        "html/test/com.project/goodbye.html",
-                        "html/test/com.project/index.html",
+                        "html/$projectName/com.project/-hello/-hello.html",
+                        "html/$projectName/com.project/-hello/index.html",
+                        "html/$projectName/com.project/-hello/say-hello.html",
+                        "html/$projectName/com.project/goodbye.html",
+                        "html/$projectName/com.project/index.html",
                     )
             }
 
             test("with element-list") {
-                project.projectDir.resolve("build/dokka/html/test/package-list").toFile().shouldBeAFile()
-                project.projectDir.resolve("build/dokka/html/test/package-list").readText()
+                project.projectDir.resolve("build/dokka/html/$projectName/package-list").toFile().shouldBeAFile()
+                project.projectDir.resolve("build/dokka/html/$projectName/package-list").readText()
                     .sortLines()
                     .shouldContain( /* language=text */ """
                         |${'$'}dokka.format:html-v1
                         |${'$'}dokka.linkExtension:html
-                        |${'$'}dokka.location:com.project////PointingToDeclaration/test/com.project/index.html
-                        |${'$'}dokka.location:com.project//goodbye/#kotlinx.serialization.json.JsonObject/PointingToDeclaration/test/com.project/goodbye.html
-                        |${'$'}dokka.location:com.project/Hello///PointingToDeclaration/test/com.project/-hello/index.html
-                        |${'$'}dokka.location:com.project/Hello/Hello/#/PointingToDeclaration/test/com.project/-hello/-hello.html
-                        |${'$'}dokka.location:com.project/Hello/sayHello/#kotlinx.serialization.json.JsonObject/PointingToDeclaration/test/com.project/-hello/say-hello.html
+                        |${'$'}dokka.location:com.project////PointingToDeclaration/$projectName/com.project/index.html
+                        |${'$'}dokka.location:com.project//goodbye/#kotlinx.serialization.json.JsonObject/PointingToDeclaration/$projectName/com.project/goodbye.html
+                        |${'$'}dokka.location:com.project/Hello///PointingToDeclaration/$projectName/com.project/-hello/index.html
+                        |${'$'}dokka.location:com.project/Hello/Hello/#/PointingToDeclaration/$projectName/com.project/-hello/-hello.html
+                        |${'$'}dokka.location:com.project/Hello/sayHello/#kotlinx.serialization.json.JsonObject/PointingToDeclaration/$projectName/com.project/-hello/say-hello.html
                         |com.project
                         """.trimMargin()
                     )

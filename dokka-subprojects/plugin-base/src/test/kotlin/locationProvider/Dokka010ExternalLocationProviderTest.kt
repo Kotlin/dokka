@@ -19,7 +19,7 @@ import kotlin.test.assertEquals
 class Dokka010ExternalLocationProviderTest : BaseAbstractTest() {
     private val testDataDir =
         getTestDataDir("locationProvider").toAbsolutePath().toString().removePrefix("/").let { "/$it" }
-    private val kotlinLang = "https://kotlinlang.org/api/latest/jvm/stdlib"
+    private val kotlinLang = "https://kotlinlang.org/api/core"
     private val packageListURL = URL("file://$testDataDir/old-package-list")
     private val configuration = dokkaConfiguration {
         sourceSets {

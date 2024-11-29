@@ -20,9 +20,9 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v3
+      - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-home-cache-cleanup: true
+          develocity-access-key: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
       - name: Document coroutines
         run: ./gradlew :dokka-integration-tests:gradle:testExternalProjectKotlinxCoroutines --stacktrace "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=500m"
         env:
@@ -46,9 +46,9 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v3
+      - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-home-cache-cleanup: true
+          develocity-access-key: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
       - name: Document serialization
         run: ./gradlew :dokka-integration-tests:gradle:testExternalProjectKotlinxSerialization --stacktrace "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=500m"
         env:
@@ -72,9 +72,9 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v3
+      - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-home-cache-cleanup: true
+          develocity-access-key: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
       - name: Document biojava-core
         run: ./gradlew :dokka-integration-tests:maven:testExternalProjectBioJava --stacktrace
         env:

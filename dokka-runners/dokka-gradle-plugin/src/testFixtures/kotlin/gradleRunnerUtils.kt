@@ -6,7 +6,9 @@ package org.jetbrains.dokka.gradle.utils
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.BuildTask
 import org.gradle.testkit.runner.GradleRunner
-import java.util.*
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 
 /** Edit environment variables in the Gradle Runner */
@@ -18,18 +20,30 @@ fun GradleRunner.withEnvironment(build: MutableMap<String, String?>.() -> Unit):
 }
 
 
+@OptIn(ExperimentalContracts::class)
 inline fun GradleRunner.build(
     handleResult: BuildResult.() -> Unit
-): Unit = build().let(handleResult)
+) {
+    contract { callsInPlace(handleResult, InvocationKind.EXACTLY_ONCE) }
+    build().let(handleResult)
+}
 
 
+
+@OptIn(ExperimentalContracts::class)
 inline fun GradleRunner.buildAndFail(
     handleResult: BuildResult.() -> Unit
-): Unit = buildAndFail().let(handleResult)
+) {
+    contract { callsInPlace(handleResult, InvocationKind.EXACTLY_ONCE) }
+    buildAndFail().let(handleResult)
+}
 
 
-fun GradleRunner.updateGradleProperties(
-    arguments: GradleProjectTest.GradleProperties,
+/**
+ * Create, or overwrite, the `gradle.properties` file in [GradleRunner.getProjectDir].
+ */
+fun GradleRunner.writeGradleProperties(
+    arguments: GradlePropertiesBuilder,
 ): GradleRunner {
     val gradlePropertiesFile = projectDir.resolve("gradle.properties").apply {
         if (!exists()) {
@@ -38,13 +52,10 @@ fun GradleRunner.updateGradleProperties(
         }
     }
 
-    val gradleProperties = Properties().apply {
-        load(gradlePropertiesFile.inputStream())
-    }.entries.associate { it.key.toString() to it.value.toString() }.toMutableMap()
+    val gradleProperties = arguments.build()
 
-    arguments.toGradleProperties().forEach { (k, v) ->
-        gradleProperties[k] = v
-    }
+    // Avoid using java.util.Properties because it produces non-deterministic output (e.g. a timestamp),
+    // which negatively impacts caching.
 
     gradlePropertiesFile.writeText(
         gradleProperties
@@ -63,9 +74,16 @@ fun GradleRunner.updateGradleProperties(
  */
 fun GradleRunner.addArguments(
     vararg arguments: String
+): GradleRunner = addArguments(arguments.asList())
+
+/**
+ * Helper function to _append_ [arguments] to any existing
+ * [GradleRunner arguments][GradleRunner.getArguments].
+ */
+fun GradleRunner.addArguments(
+    arguments: List<String>,
 ): GradleRunner =
     withArguments(this@addArguments.arguments + arguments)
-
 
 /**
  * Get the name of the task, without the leading [BuildTask.getPath].

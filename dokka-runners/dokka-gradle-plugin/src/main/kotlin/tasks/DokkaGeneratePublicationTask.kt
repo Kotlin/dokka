@@ -10,7 +10,7 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import javax.inject.Inject
 
 
@@ -22,7 +22,7 @@ import javax.inject.Inject
  */
 @CacheableTask
 abstract class DokkaGeneratePublicationTask
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     objects: ObjectFactory,
@@ -32,7 +32,7 @@ constructor(
     private val fs: FileSystemOperations,
     /**
      * Configurations for Dokka Generator Plugins. Must be provided from
-     * [org.jetbrains.dokka.gradle.dokka.DokkaPublication.pluginsConfiguration].
+     * [org.jetbrains.dokka.gradle.formats.DokkaPublication.pluginsConfiguration].
      */
     pluginsConfiguration: DokkaPluginParametersContainer,
 ) : DokkaGenerateTask(

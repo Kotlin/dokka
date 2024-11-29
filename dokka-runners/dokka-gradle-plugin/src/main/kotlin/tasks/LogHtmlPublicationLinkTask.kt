@@ -9,11 +9,11 @@ import org.gradle.api.provider.ValueSource
 import org.gradle.api.provider.ValueSourceParameters
 import org.gradle.api.tasks.Console
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.UntrackedTask
 import org.gradle.kotlin.dsl.of
-import org.gradle.work.DisableCachingByDefault
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
+import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.pluginFeaturesService
 import org.jetbrains.dokka.gradle.internal.appendPath
-import org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask.Companion.ENABLE_TASK_PROPERTY_NAME
 import org.slf4j.LoggerFactory
 import java.net.HttpURLConnection
 import java.net.URI
@@ -28,48 +28,56 @@ import javax.inject.Inject
  * [IntelliJ's built-in server](https://www.jetbrains.com/help/phpstorm/php-built-in-web-server.html#ws_html_preview_output_built_in_browser)†
  * to host the file.
  *
- *
- * This task can be disabled using the [ENABLE_TASK_PROPERTY_NAME] project property.
+ * This task can be disabled via a Gradle property.
+ * See [org.jetbrains.dokka.gradle.internal.PluginFeaturesService.enableLogHtmlPublicationLink].
  *
  * ---
  *
  * † For some reason, the only doc page for the built-in server I could find is for PhpStorm,
  * but the built-in server is also available in IntelliJ IDEA.
  */
-@DisableCachingByDefault(because = "logging-only task")
+@UntrackedTask(because = "logging-only task")
 abstract class LogHtmlPublicationLinkTask
 @Inject
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 constructor(
     providers: ProviderFactory
 ) : DokkaBaseTask() {
 
+    /**
+     * A localhost server, for serving Dokka HTML.
+     *
+     * A server is required because Dokka HTML uses JavaScript.
+     */
     @get:Console
     abstract val serverUri: Property<String>
 
     /**
-     * Path to the `index.html` of the publication. Will be appended to [serverUri].
+     * Path to the `index.html` of the publication, relative to the root directory,
+     * prepended with the IntelliJ project name.
      *
-     * The IntelliJ built-in server requires a relative path originating from the _parent_ directory
+     * The path will be appended to [serverUri].
+     *
+     * The IntelliJ built-in server requires a relative path originating from the root directory
      * of the IntelliJ project.
      *
      * For example,
      *
-     * * given an IntelliJ project path of
+     * - given an IntelliJ project named `MyProject` located in a directory:
      *    ```
      *    /Users/rachel/projects/my-project/
      *    ```
-     * * and the publication is generated with an index file
+     * - and the publication is generated with an index file
      *    ```
      *    /Users/rachel/projects/my-project/docs/build/dokka/html/index.html
      *    ````
-     * * then IntelliJ requires [indexHtmlPath] is
+     * - then [indexHtmlPath] must be
      *    ```
-     *    my-project/docs/build/dokka/html/index.html
+     *    docs/build/dokka/html/index.html
      *    ```
-     * * so that (assuming [serverUri] is `http://localhost:63342`) the logged URL is
+     * - so that (assuming [serverUri] is `http://localhost:63342`) the logged URL is
      *    ```
-     *    http://localhost:63342/my-project/docs/build/dokka/html/index.html
+     *    http://localhost:63342/MyProject/docs/build/dokka/html/index.html
      *    ```
      */
     @get:Console
@@ -80,18 +88,9 @@ constructor(
         // to display this task prominently.
         group = "other"
 
-        val serverActive = providers.of(ServerActiveCheck::class) {
-            parameters.uri.convention(serverUri)
-        }
-        super.onlyIf("server URL is reachable") { serverActive.get() }
-
-        val logHtmlPublicationLinkTaskEnabled = providers
-            .gradleProperty(ENABLE_TASK_PROPERTY_NAME)
-            .map(String::toBoolean)
-            .orElse(true)
-
-        super.onlyIf("task is enabled via property") {
-            logHtmlPublicationLinkTaskEnabled.get()
+        val enableLogHtmlPublicationLink = project.pluginFeaturesService.enableLogHtmlPublicationLink
+        super.onlyIf("task is enabled via 'enableLogHtmlPublicationLink' property") {
+            enableLogHtmlPublicationLink.get()
         }
 
         super.onlyIf("${::serverUri.name} is present") {
@@ -101,6 +100,11 @@ constructor(
         super.onlyIf("${::indexHtmlPath.name} is present") {
             !indexHtmlPath.orNull.isNullOrBlank()
         }
+
+        val serverActive = providers.of(ServerActiveCheck::class) {
+            parameters.uri.convention(serverUri)
+        }
+        super.onlyIf("server URL is reachable") { serverActive.get() }
     }
 
     @TaskAction
@@ -168,42 +172,24 @@ constructor(
             }
         }
 
-//        private fun httpGetStatusJdk11(uri: URI): Result<Int> {
-//            try {
-//                val client = java.net.http.HttpClient.newHttpClient()
-//                val request = java.net.http.HttpRequest
-//                    .newBuilder()
-//                    .uri(uri)
-//                    .timeout(Duration.ofSeconds(1))
-//                    .GET()
-//                    .build()
-//                // don't care about the status - only if the server is available
-//                val response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString())
-//                return Result.success(response.statusCode())
-//            } catch (ex: Exception) {
-//                return Result.failure(ex)
-//            }
-//        }
+        // When the minimum supported Java version is 11+
+        //private fun httpGetStatusJdk11(uri: URI): Result<Int> {
+        //    try {
+        //        val client = java.net.http.HttpClient.newHttpClient()
+        //        val request = java.net.http.HttpRequest
+        //            .newBuilder()
+        //            .uri(uri)
+        //            .timeout(Duration.ofSeconds(1))
+        //            .GET()
+        //            .build()
+        //        // don't care about the status - only if the server is available
+        //        val response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString())
+        //        return Result.success(response.statusCode())
+        //    } catch (ex: Exception) {
+        //        return Result.failure(ex)
+        //    }
+        //}
     }
 
-    companion object {
-        /**
-         * Control whether the [LogHtmlPublicationLinkTask] task is enabled. Useful for disabling the
-         * task locally, or in CI/CD, or for tests.
-         *
-         * It can be set in any `gradle.properties` file. For example, on a specific machine:
-         *
-         * ```properties
-         * # $GRADLE_USER_HOME/gradle.properties
-         * org.jetbrains.dokka.gradle.enabledLogHtmlPublicationLink=false
-         * ```
-         *
-         * or via an environment variable
-         *
-         * ```env
-         * ORG_GRADLE_PROJECT_org.jetbrains.dokka.gradle.enabledLogHtmlPublicationLink=false
-         * ```
-         */
-        const val ENABLE_TASK_PROPERTY_NAME = "org.jetbrains.dokka.gradle.enableLogHtmlPublicationLink"
-    }
+    companion object
 }

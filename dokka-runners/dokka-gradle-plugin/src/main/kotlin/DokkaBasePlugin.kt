@@ -24,14 +24,11 @@ import org.jetbrains.dokka.gradle.dependencies.BaseDependencyManager
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaClasspathAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaFormatAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaModuleComponentAttribute
-import org.jetbrains.dokka.gradle.dokka.parameters.DokkaSourceSetSpec
-import org.jetbrains.dokka.gradle.dokka.parameters.KotlinPlatform
-import org.jetbrains.dokka.gradle.dokka.parameters.VisibilityModifier
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import org.jetbrains.dokka.gradle.internal.*
-import org.jetbrains.dokka.gradle.tasks.DokkaBaseTask
-import org.jetbrains.dokka.gradle.tasks.DokkaGenerateModuleTask
-import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
-import org.jetbrains.dokka.gradle.tasks.TaskNames
+import org.jetbrains.dokka.gradle.tasks.*
 import java.io.File
 import javax.inject.Inject
 
@@ -40,7 +37,7 @@ import javax.inject.Inject
  * but does not add any specific config (specifically, it does not create Dokka Publications).
  */
 abstract class DokkaBasePlugin
-@DokkaInternalApi
+@InternalDokkaGradlePluginApi
 @Inject
 constructor(
     private val providers: ProviderFactory,
@@ -100,22 +97,14 @@ constructor(
             )
 
             sourceSetScopeDefault.convention(project.path)
-            dokkaPublicationDirectory.convention(layout.buildDirectory.dir("dokka"))
-            dokkaModuleDirectory.convention(layout.buildDirectory.dir("dokka-module"))
-//            @Suppress("DEPRECATION")
-//            dokkaConfigurationsDirectory.convention(layout.buildDirectory.dir("dokka-config"))
-        }
-
-        dokkaExtension.versions {
-            jetbrainsDokka.convention(DokkaConstants.DOKKA_VERSION)
-            jetbrainsMarkdown.convention(DokkaConstants.DOKKA_DEPENDENCY_VERSION_JETBRAINS_MARKDOWN)
-            freemarker.convention(DokkaConstants.DOKKA_DEPENDENCY_VERSION_FREEMARKER)
-            kotlinxHtml.convention(DokkaConstants.DOKKA_DEPENDENCY_VERSION_KOTLINX_HTML)
-            kotlinxCoroutines.convention(DokkaConstants.DOKKA_DEPENDENCY_VERSION_KOTLINX_COROUTINES)
+            basePublicationsDirectory.convention(layout.buildDirectory.dir("dokka"))
+            baseModulesDirectory.convention(layout.buildDirectory.dir("dokka-module"))
+            dokkaEngineVersion.convention(DokkaConstants.DOKKA_VERSION)
         }
 
         dokkaExtension.dokkaGeneratorIsolation.convention(
             dokkaExtension.ProcessIsolation {
+                maxHeapSize.convention("2g")
                 debug.convention(false)
                 jvmArgs.convention(
                     listOf(
@@ -128,6 +117,11 @@ constructor(
                 )
             }
         )
+
+        @Suppress("DEPRECATION")
+        dokkaExtension.suppressInheritedMembers.convention(false)
+        @Suppress("DEPRECATION")
+        dokkaExtension.suppressObviousFunctions.convention(true)
 
         dokkaExtension.dokkaSourceSets.configureDefaults(
             sourceSetScopeConvention = dokkaExtension.sourceSetScopeDefault
@@ -158,10 +152,16 @@ constructor(
             moduleName.convention(dokkaExtension.moduleName)
             moduleVersion.convention(dokkaExtension.moduleVersion)
             offlineMode.convention(false)
-            outputDirectory.convention(dokkaExtension.dokkaPublicationDirectory.dir(formatName))
-            moduleOutputDirectory.convention(dokkaExtension.dokkaModuleDirectory.dir(formatName))
-            suppressInheritedMembers.convention(false)
-            suppressObviousFunctions.convention(true)
+            outputDirectory.convention(dokkaExtension.basePublicationsDirectory.dir(formatName))
+            moduleOutputDirectory.convention(dokkaExtension.baseModulesDirectory.dir(formatName))
+            suppressInheritedMembers.convention(
+                @Suppress("DEPRECATION")
+                dokkaExtension.suppressInheritedMembers
+            )
+            suppressObviousFunctions.convention(
+                @Suppress("DEPRECATION")
+                dokkaExtension.suppressObviousFunctions
+            )
         }
     }
 
@@ -171,7 +171,6 @@ constructor(
         sourceSetScopeConvention: Property<String>,
     ) {
         configureEach dss@{
-            analysisPlatform.convention(KotlinPlatform.DEFAULT)
             displayName.convention(
                 analysisPlatform.map { platform ->
                     // Match existing Dokka naming conventions. (This should probably be simplified!)
@@ -198,10 +197,6 @@ constructor(
             skipEmptyPackages.convention(true)
             sourceSetScope.convention(sourceSetScopeConvention)
 
-            // Manually added sourceSets should not be suppressed by default.
-            // dokkaSourceSets that are automatically added by DokkaKotlinAdapter will have a sensible value for 'suppress'.
-            suppress.convention(false)
-
             suppressGeneratedFiles.convention(true)
 
             sourceLinks.configureEach {
@@ -214,6 +209,7 @@ constructor(
                 suppress.convention(false)
                 skipDeprecated.convention(false)
                 reportUndocumented.convention(false)
+                documentedVisibilities.convention(listOf(VisibilityModifier.Public))
             }
 
             externalDocumentationLinks {
@@ -223,7 +219,7 @@ constructor(
                 }
 
                 maybeCreate("jdk") {
-                    enabled.convention(this@dss.enableJdkDocumentationLink)
+                    enabled.set(this@dss.enableJdkDocumentationLink)
                     url(this@dss.jdkVersion.map { jdkVersion ->
                         when {
                             jdkVersion < 11 -> "https://docs.oracle.com/javase/${jdkVersion}/docs/api/"
@@ -239,17 +235,17 @@ constructor(
                 }
 
                 maybeCreate("kotlinStdlib") {
-                    enabled.convention(this@dss.enableKotlinStdLibDocumentationLink)
-                    url("https://kotlinlang.org/api/latest/jvm/stdlib/")
+                    enabled.set(this@dss.enableKotlinStdLibDocumentationLink)
+                    url("https://kotlinlang.org/api/core/")
                 }
 
                 maybeCreate("androidSdk") {
-                    enabled.convention(this@dss.enableAndroidDocumentationLink)
+                    enabled.set(this@dss.enableAndroidDocumentationLink)
                     url("https://developer.android.com/reference/kotlin/")
                 }
 
                 maybeCreate("androidX") {
-                    enabled.convention(this@dss.enableAndroidDocumentationLink)
+                    enabled.set(this@dss.enableAndroidDocumentationLink)
                     url("https://developer.android.com/reference/kotlin/")
                     packageListUrl("https://developer.android.com/reference/kotlin/androidx/package-list")
                 }
@@ -264,7 +260,7 @@ constructor(
     ) {
         target.tasks.register<DokkaBaseTask>(taskNames.generate) {
             description = "Generates Dokka publications for all formats"
-            dependsOn(target.tasks.withType<DokkaGenerateTask>())
+            dependsOn(target.tasks.withType<DokkaGeneratePublicationTask>())
         }
 
         target.tasks.withType<DokkaGenerateTask>().configureEach {

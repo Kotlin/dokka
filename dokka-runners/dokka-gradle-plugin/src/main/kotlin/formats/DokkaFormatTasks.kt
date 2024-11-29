@@ -8,16 +8,15 @@ import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.register
 import org.jetbrains.dokka.gradle.dependencies.FormatDependenciesManager
-import org.jetbrains.dokka.gradle.dokka.DokkaPublication
-import org.jetbrains.dokka.gradle.internal.DokkaInternalApi
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.configuring
 import org.jetbrains.dokka.gradle.tasks.DokkaGenerateModuleTask
 import org.jetbrains.dokka.gradle.tasks.DokkaGeneratePublicationTask
 import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
 import org.jetbrains.dokka.gradle.tasks.TaskNames
 
-/** Tasks for generating a Dokka Publication in a specific format. */
-@DokkaInternalApi
+/** Tasks for generating a [DokkaPublication] in a specific format. */
+@InternalDokkaGradlePluginApi
 class DokkaFormatTasks(
     project: Project,
     private val publication: DokkaPublication,

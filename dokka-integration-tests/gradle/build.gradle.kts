@@ -12,9 +12,12 @@ plugins {
     id("dokkabuild.kotlin-jvm")
     id("dokkabuild.test-integration")
     id("dokkabuild.dev-maven-publish")
+    alias(libs.plugins.kotlinxSerialization)
 }
 
 dependencies {
+    val dokkaVersion = project.version.toString()
+
     api(projects.utilities)
 
     api(libs.jsoup)
@@ -22,10 +25,17 @@ dependencies {
     api(libs.kotlin.test)
     api(libs.junit.jupiterApi)
     api(libs.junit.jupiterParams)
-
+    api(libs.kotest.assertionsCore)
     api(gradleTestKit())
 
-    val dokkaVersion = project.version.toString()
+    api(testFixtures("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"))
+    api(platform(libs.kotest.bom))
+    api(libs.kotest.assertionsCore)
+    api(libs.kotest.assertionsJson)
+
+    implementation(platform(libs.kotlinxSerialization.bom))
+    implementation(libs.kotlinxSerialization.json)
+
     // We're using Gradle included-builds and dependency substitution, so we
     // need to use the Gradle project name, *not* the published Maven artifact-id
     devPublication("org.jetbrains.dokka:plugin-all-modules-page:$dokkaVersion")
@@ -64,6 +74,7 @@ tasks.withType<Test>().configureEach {
     systemProperty("hostGradleUserHome", gradle.gradleUserHomeDir.invariantSeparatorsPath)
 }
 
+
 val templateSettingsGradleKts = layout.projectDirectory.file("projects/template.settings.gradle.kts")
 val templateProjectsDir = layout.projectDirectory.dir("projects")
 
@@ -93,6 +104,7 @@ registerTestProjectSuite("testTemplateProjectMultimodule1", "it-multimodule-1")
 registerTestProjectSuite("testTemplateProjectMultimoduleVersioning", "it-multimodule-versioning-0")
 registerTestProjectSuite("testTemplateProjectMultimoduleInterModuleLinks", "it-multimodule-inter-module-links")
 registerTestProjectSuite("testTemplateProjectMultiplatform", "it-multiplatform-0")
+registerTestProjectSuite("testTemplateProjectMultiplatformMultimodule", "it-multiplatform-multimodule")
 registerTestProjectSuite("testTemplateProjectTasksExecutionStress", "it-sequential-tasks-execution-stress")
 registerTestProjectSuite("testTemplateProjectWasmBasic", "it-wasm-basic")
 registerTestProjectSuite("testTemplateProjectWasmJsWasiBasic", "it-wasm-js-wasi-basic")
@@ -155,14 +167,38 @@ fun registerTestProjectSuite(
                     .inputFile("templateSettingsGradleKts", templateSettingsGradleKts)
                     .withPathSensitivity(NAME_ONLY)
 
-                devMavenPublish.configureTask(this)
-
                 if (jvm != null) {
                     javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
                 }
             }
         }
         configure()
+    }
+}
+
+testing.suites.named<JvmTestSuite>("test") {
+    targets.configureEach {
+        testTask {
+            systemProperty
+                .inputDirectory("templateProjectsDir", templateProjectsDir)
+                .withPathSensitivity(RELATIVE)
+
+            // Don't register ANDROID_HOME as a Task input, because the path is different on everyone's machine,
+            // which means Gradle will never be able to cache the task.
+            dokkaBuild.androidSdkDir.orNull?.let { androidSdkDir ->
+                environment("ANDROID_HOME", androidSdkDir)
+            }
+
+            // Use a stable Java version for running Gradle in integration tests.
+            // There's no need to parameterise the version, to re-run the tests with different JDKs.
+            // There are a few reasons for this:
+            // - Some tests use AGP 8, which requires Gradle 17+.
+            // - DGP functional tests are already run with Java 8, so we don't need to re-test Java 8 compatibility here.
+            // - The JDK used to run Gradle doesn't affect the Dokka output. The Java Toolchain used to compile
+            //   the code in test projects does affect the output... but that can be parameterised in the
+            //   individual tests if necessary.
+            javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(17) }
+        }
     }
 }
 
@@ -176,4 +212,37 @@ val checkoutKotlinxSerialization by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx.serialization.git"
     commitId = "ed1b05707ec27f8864c8b42235b299bdb5e0015c"
     destination = templateProjectsDir.dir("serialization/kotlinx-serialization")
+}
+
+testing {
+    suites.withType<JvmTestSuite>().configureEach {
+        targets.configureEach {
+            testTask.configure {
+                devMavenPublish.configureTask(this)
+
+                // temp workaround, remove when all `testTemplateProject*` source sets are removed
+                mustRunAfter(tasks.withType<GitCheckoutTask>())
+            }
+        }
+    }
+    val testExampleProjects by suites.registering(JvmTestSuite::class) {
+        targets.configureEach {
+            testTask.configure {
+
+                val exampleGradleProjectsDir = projectDir.resolve("../../examples/gradle-v2")
+                systemProperty
+                    .inputDirectory("exampleGradleProjectsDir", exampleGradleProjectsDir)
+                    .withPathSensitivity(RELATIVE)
+
+                val expectedDataDir = layout.projectDirectory.dir("src/testExampleProjects/expectedData")
+                systemProperty
+                    .inputDirectory("expectedDataDir", expectedDataDir)
+                    .withPathSensitivity(RELATIVE)
+
+                // Disable parallel on CI. TeamCity OOMs when the tests are run in parallel.
+                systemProperty.inputProperty("junit.jupiter.execution.parallel.enabled", dokkaBuild.isCI.map { !it })
+                systemProperty("junit.jupiter.execution.parallel.mode.default", "CONCURRENT")
+            }
+        }
+    }
 }
