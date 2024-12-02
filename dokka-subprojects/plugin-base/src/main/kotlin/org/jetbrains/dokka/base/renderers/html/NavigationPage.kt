@@ -6,8 +6,6 @@ package org.jetbrains.dokka.base.renderers.html
 
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
-import org.jetbrains.dokka.base.renderers.html.NavigationNodeIcon.CLASS
-import org.jetbrains.dokka.base.renderers.html.NavigationNodeIcon.CLASS_KT
 import org.jetbrains.dokka.base.renderers.pageId
 import org.jetbrains.dokka.base.templating.AddToNavigationCommand
 import org.jetbrains.dokka.links.DRI
@@ -42,27 +40,33 @@ public class NavigationPage(
         }
     }
 
-    private fun <R> TagConsumer<R>.visit(node: NavigationNode, navId: String, renderer: HtmlRenderer): R =
+    private fun <R> TagConsumer<R>.visit(
+        node: NavigationNode,
+        navId: String,
+        renderer: HtmlRenderer,
+        level: Int = 0
+    ): R =
         with(renderer) {
-            div("sideMenuPart") {
+            div("toc--part") {
                 id = navId
                 attributes["pageId"] = "${moduleName}::${node.pageId}"
-                div("overview") {
+                attributes["data-nesting-level"] = level.toString()
+                div("toc--row") {
                     if (node.children.isNotEmpty()) {
-                        span("navButton") {
-                            onClick = """document.getElementById("$navId").classList.toggle("hidden");"""
-                            span("navButtonContent")
+                        button(classes = "toc--button") {
+                            onClick = """document.getElementById("$navId").classList.toggle("toc--part_hidden");"""
                         }
                     }
                     buildLink(node.dri, node.sourceSets.toList()) {
+                        this@buildLink.attributes["class"] = "toc--link"
                         val withIcon = node.icon != null
                         if (withIcon) {
-                            // in case link text is so long that it needs to have word breaks,
+                            // in case a link text is so long that it needs to have word breaks,
                             // and it stretches to two or more lines, make sure the icon
                             // is always on the left in the grid and is not wrapped with text
-                            span("nav-link-grid") {
-                                span("nav-link-child ${node.icon?.style()}")
-                                span("nav-link-child") {
+                            span("toc--link-grid") {
+                                span(node.icon?.style())
+                                span {
                                     nodeText(node)
                                 }
                             }
@@ -71,7 +75,7 @@ public class NavigationPage(
                         }
                     }
                 }
-                node.children.withIndex().forEach { (n, p) -> visit(p, "$navId-$n", renderer) }
+                node.children.withIndex().forEach { (n, p) -> visit(p, "$navId-$n", renderer, level + 1) }
             }
         }
 
@@ -119,7 +123,7 @@ public enum class NavigationNodeIcon(
     VAL("val"),
     VAR("var");
 
-    internal fun style(): String = "nav-icon $cssClass"
+    internal fun style(): String = "toc--icon $cssClass"
 }
 
 public fun NavigationPage.transform(block: (NavigationNode) -> NavigationNode): NavigationPage =

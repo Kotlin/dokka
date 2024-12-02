@@ -119,7 +119,7 @@ public class DefaultTemplateModelFactory(
                             type = ScriptType.textJavaScript,
                             src = if (resource.isAbsolute) resource else "$pathToRoot$resource"
                         ) {
-                            if (resource == "scripts/main.js" || resource.endsWith("_deferred.js"))
+                            if (resource == "scripts/main.js" || resource == "ui-kit/ui-kit.min.js" || resource.endsWith("_deferred.js"))
                                 defer = true
                             else
                                 async = true

@@ -8,7 +8,7 @@
 /* --- root styles --- */
 :root {
     --default-gray: #f4f4f4;
-    --default-font-color: black;
+    --default-font-color: rgb(0, 0, 0);
     --header-font-color: var(--default-font-color);
 
     --breadcrumb-font-color: #637282;
@@ -217,9 +217,9 @@ td:first-child {
 
 /* ---dark theme --- */
 .theme-dark {
-    --background-color: #27282c;
+    --background-color: #262628;
     --color-dark: #3d3d41;
-    --default-font-color: hsla(0, 0%, 100%, 0.8);
+    --default-font-color: rgba(255, 255, 255, 0.96);
     --border-color: hsla(0, 0%, 100%, 0.2);
     --code-background: hsla(0, 0%, 100%, 0.05);
     --breadcrumb-font-color: #8c8c8e;
@@ -249,170 +249,6 @@ td:first-child {
     height: 100%;
 }
 
-/* --- Navigation styles --- */
-.navigation {
-    display: flex;
-    justify-content: space-between;
-
-    color: #fff;
-    background-color: var(--color-dark);
-    font-family: var(--default-font-family);
-    letter-spacing: -0.1px;
-
-    /* Reset margin and use padding for border */
-    margin-left: 0;
-    margin-right: 0;
-    padding: 10px var(--horizontal-spacing-for-content);
-
-    z-index: 4;
-}
-
-.navigation--inner {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    flex: 1 1 auto;
-}
-
-.navigation--inner, .navigation-title {
-    min-height: 40px;
-}
-
-.navigation-title, .filter-section {
-    align-items: center;
-}
-
-.navigation-title {
-    display: flex;
-    align-items: center;
-}
-
-/* --- Navigation MENU --- */
-.menu-toggle {
-    color: var(--background-color);
-    line-height: 0;
-    font-size: 0;
-    text-indent: -9999px;
-
-    background: transparent;
-    border: none;
-    padding: 0;
-    margin-right: 16px;
-    outline: none;
-
-    transition: margin .2s ease-out;
-    z-index: 5;
-}
-
-@media (min-width: 760px) {
-    .menu-toggle {
-        display: none;
-    }
-}
-
-.menu-toggle::before {
-    display: block;
-    content: '';
-    background: url('../images/burger.svg') no-repeat center;
-    height: 28px;
-    width: 28px;
-}
-
-/* /--- Navigation MENU --- */
-
-.library-version {
-    position: relative;
-    top: -4px;
-    margin-left: 3px;
-
-    color: rgba(255, 255, 255, .7);
-    font-size: 13px;
-    font-weight: normal;
-    line-height: 16px;
-}
-
-.filter-section {
-    z-index: 0;
-}
-
-.no-js .filter-section {
-    display: none;
-}
-
-@media (min-width: 760px) {
-    .filter-section {
-        padding: 5px 0 5px;
-    }
-}
-
-/* --- Navigation controls --- */
-.navigation-controls {
-    display: flex;
-    margin-left: 4px;
-}
-
-@media (min-width: 760px) {
-    .navigation-controls {
-        align-items: center;
-    }
-}
-
-.no-js .navigation-controls {
-    display: none;
-}
-
-.navigation-controls--btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: inherit;
-    background-position: 50% 50%;
-    padding: 0;
-    border: none;
-    cursor: pointer;
-    font-size: 0;
-    line-height: 0;
-    transition: background-color 200ms ease-in-out;
-    will-change: background-color;
-}
-
-.navigation-controls--btn:hover {
-    background-color: var(--white-10);
-}
-
-.navigation-controls--theme {
-    background-image: url("../images/theme-toggle.svg");
-    background-repeat: no-repeat;
-}
-
-@media (max-width: 759px) {
-    .navigation-controls--theme {
-        display: none;
-    }
-}
-
-.navigation-controls--homepage {
-    background-image: url("../images/homepage.svg");
-    background-repeat: no-repeat;
-    background-size:  24px 24px;
-}
-
-@media (max-width: 759px) {
-    .navigation-controls--homepage {
-        display: none;
-    }
-}
-
-.navigation .platform-selector:not([data-active]) {
-    color: #fff;
-}
-
-/* /--- Navigation controls --- */
-/* /--- Navigation styles --- */
-
 /* --- Layout styles --- */
 
 #container {
@@ -421,7 +257,7 @@ td:first-child {
     min-height: 0; /* full height exclude header */
 }
 
-#container > .sidebar, #container > #main {
+#container > #main {
     overflow: auto;
 }
 
@@ -429,55 +265,6 @@ td:first-child {
     display: flex;
     flex-direction: column;
     flex: 1 1 0; /* full width, but no affects for sidebar */
-}
-
-.sidebar {
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    border-right: 1px solid var(--border-color);
-    width: var(--sidebar-width);
-}
-
-.no-js .sidebar {
-    display: none;
-}
-
-@media (max-width: 759px) {
-    #container {
-        position: relative;
-    }
-
-    .sidebar {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        box-sizing: border-box;
-        background: var(--background-color);
-        margin-left: calc(-1 * var(--sidebar-width));
-        transition: margin .2s ease-out;
-        z-index: 4;
-    }
-
-    .sidebar.open {
-        margin-left: 0;
-    }
-
-    .sidebar.open ~ #main .navigation-controls--search {
-        display: none;
-    }
-
-    .sidebar.open ~ #main .menu-toggle {
-        margin-left: var(--sidebar-width);
-    }
-}
-
-.sidebar--inner {
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 16px;
-    padding-top: 22px;
-    padding-bottom: 16px;
 }
 
 /* /--- Layout styles --- */
@@ -606,16 +393,6 @@ p.paragraph:first-child,
 
 code.paragraph {
     display: block;
-}
-
-.overview > .navButton {
-    position: absolute;
-    align-items: center;
-    display: flex;
-    justify-content: flex-end;
-    padding: 2px 2px 2px 0;
-    margin-right: 5px;
-    cursor: pointer;
 }
 
 .strikethrough {
@@ -761,166 +538,6 @@ code:not(.block) {
     word-break: break-word;
 }
 
-.sideMenuPart > .overview {
-    display: flex;
-    align-items: center;
-    position: relative;
-    user-select: none; /* there's a weird bug with text selection */
-    padding: 8px 0;
-}
-
-.sideMenuPart a {
-    display: block;
-    align-items: center;
-    color: var(--default-font-color);
-    overflow: hidden;
-    padding-left: 23px;
-}
-
-.sideMenuPart a:hover {
-    text-decoration: none;
-    color: var(--default-font-color);
-}
-
-.sideMenuPart > .overview:before {
-    box-sizing: border-box;
-    content: '';
-    top: 0;
-    width: var(--sidebar-width);
-    right: 0;
-    bottom: 0;
-    position: absolute;
-    z-index: -1;
-}
-
-.overview:hover:before {
-    background-color: var(--navigation-highlight-color);
-}
-
-#nav-submenu {
-    padding-left: 24px;
-}
-
-.sideMenuPart {
-    padding-left: 12px;
-    box-sizing: border-box;
-}
-
-.sideMenuPart.hidden > .overview .navButtonContent::before {
-    transform: rotate(0deg);
-}
-
-.sideMenuPart > .overview .navButtonContent::before {
-    content: '';
-
-    -webkit-mask: url("../images/arrow_down.svg") no-repeat 50% 50%;
-    mask: url("../images/arrow_down.svg") no-repeat 50% 50%;
-    -webkit-mask-size: cover;
-    mask-size: cover;
-    background-color: var(--default-font-color);
-
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    transform: rotate(90deg);
-    width: 16px;
-    height: 16px;
-}
-
-.sideMenuPart[data-active] > .overview .navButtonContent::before {
-    background-color: var(--default-white);
-}
-
-.sideMenuPart.hidden > .navButton .navButtonContent::after {
-    content: '\02192';
-}
-
-.sideMenuPart.hidden > .sideMenuPart {
-    display: none;
-}
-
-.overview .nav-link-grid {
-    display: grid;
-    grid-template-columns: 16px auto; /* first is the icon, then name */
-    grid-gap: 6px;
-    align-items: center;
-}
-
-.nav-icon {
-    width: 16px;
-    height: 16px;
-}
-
-.nav-icon.class::before {
-    content: url("../images/nav-icons/class.svg");
-}
-
-.nav-icon.class-kt::before {
-    content: url("../images/nav-icons/class-kotlin.svg");
-}
-
-.nav-icon.function::before {
-    content: url("../images/nav-icons/function.svg");
-}
-
-.nav-icon.enum-class::before {
-    content: url("../images/nav-icons/enum.svg");
-}
-
-.nav-icon.enum-class-kt::before {
-    content: url("../images/nav-icons/enum-kotlin.svg");
-}
-
-.nav-icon.annotation-class::before {
-    content: url("../images/nav-icons/annotation.svg");
-}
-
-.nav-icon.annotation-class-kt::before {
-    content: url("../images/nav-icons/annotation-kotlin.svg");
-}
-
-.nav-icon.abstract-class::before {
-    content: url("../images/nav-icons/abstract-class.svg");
-}
-
-.nav-icon.abstract-class-kt::before {
-    content: url("../images/nav-icons/abstract-class-kotlin.svg");
-}
-
-.nav-icon.exception-class::before {
-    content: url("../images/nav-icons/exception-class.svg");
-}
-
-.nav-icon.interface::before {
-    content: url("../images/nav-icons/interface.svg");
-}
-
-.nav-icon.interface-kt::before {
-    content: url("../images/nav-icons/interface-kotlin.svg");
-}
-
-.nav-icon.object::before {
-    content: url("../images/nav-icons/object.svg");
-}
-
-.nav-icon.typealias-kt::before {
-    content: url("../images/nav-icons/typealias-kotlin.svg");
-}
-
-.nav-icon.val::before {
-    content: url("../images/nav-icons/field-value.svg");
-}
-
-.nav-icon.var::before {
-    content: url("../images/nav-icons/field-variable.svg");
-}
-
-.filtered > a, .filtered > .navButton {
-    display: none;
-}
-
-
 .brief {
     white-space: pre-wrap;
     overflow: hidden;
@@ -1037,88 +654,6 @@ p.paragraph img {
     display: none !important;
 }
 
-.platform-tags, .filter-section {
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: -8px;
-    margin-left: -4px;
-}
-
-.platform-tag {
-    --platform-tag-color: #bababb;
-    border: 0 none;
-    margin-right: 4px;
-    margin-bottom: 8px;
-
-    font-family: var(--default-font-family);
-    font-size: 13px;
-    line-height: 1.5;
-    text-transform: capitalize;
-}
-
-.platform-tag.js-like, .platform-tag.jvm-like, .platform-tag.wasm-like {
-    text-transform: uppercase;
-}
-
-.filter-section .platform-tag {
-    cursor: pointer;
-    border-radius: 4px;
-    padding: 2px 16px;
-}
-
-.filter-section .platform-tag.jvm-like[data-active], .platform-tags .platform-tag.jvm-like {
-    --platform-tag-color: #4dbb5f;
-}
-
-.filter-section .platform-tag.js-like[data-active], .platform-tags .platform-tag.js-like {
-    --platform-tag-color: #ffc700;
-}
-
-.filter-section .platform-tag.native-like[data-active], .platform-tags .platform-tag.native-like {
-    --platform-tag-color: #E082F3;
-}
-
-.filter-section .platform-tag.wasm-like[data-active], .platform-tags .platform-tag.wasm-like {
-    --platform-tag-color: #9585F9;
-}
-
-.filter-section .platform-tag[data-active]:hover {
-    color: #fff;
-    background-color: rgba(186, 186, 187, .7);
-}
-
-.filter-section .platform-tag:not([data-active]) {
-    color: #fff;
-    /* Safari doesn't work correctly for `outline` with `border-radius` */
-    /* outline: 1px solid rgba(255,255,255,.6); */
-    /* ...use `box-shadow` instead: */
-    box-shadow: 0 0 0 1px rgb(255 255 255 / 60%);
-    background-color: rgba(255,255,255,.05);
-}
-
-.filter-section .platform-tag[data-active] {
-    color: #19191c;
-    background-color: var(--platform-tag-color);
-}
-
-.platform-tags .platform-tag {
-    display: flex;
-    align-items: center;
-}
-
-.platform-tags .platform-tag::before {
-    display: inline-block;
-    content: '';
-    border-radius: 50%;
-    background: var(--platform-tag-color);
-    margin: 0 4px 0 8px;
-    height: 8px;
-    width: 8px;
-
-    font-size: 13px;
-    line-height: 1.6;
-}
-
 td.content {
     padding-left: 24px;
     padding-top: 16px;
@@ -1232,14 +767,6 @@ Just in case of possible performance degradation it excluding tabs with briefs o
 .table-row .platform-hinted .sourceset-dependent-content .brief,
 .table-row .platform-hinted .sourceset-dependent-content .inline-comment {
     padding: 8px;
-}
-
-.sideMenuPart[data-active] > .overview:before {
-    background: var(--sidemenu-section-active-color);
-}
-
-.sideMenuPart[data-active] > .overview > a {
-    color: var(--default-white);
 }
 
 .table {
@@ -1408,34 +935,3 @@ div.runnablesample {
 }
 
 /* /--- footer --- */
-
-/* Logo styles */
-:root {
-    --dokka-logo-image-url: url('../images/logo-icon.svg');
-    --dokka-logo-height: 50px;
-    --dokka-logo-width: 50px;
-}
-
-.library-name--link {
-    display: flex;
-    align-items: center;
-    color: #fff;
-    font-weight: 530;
-}
-
-.library-name--link::before {
-    content: '';
-    background: var(--dokka-logo-image-url) center no-repeat;
-    background-size: var(--dokka-logo-height) var(--dokka-logo-width);
-    margin-right: 5px;
-    width: var(--dokka-logo-height);
-    height: var(--dokka-logo-width);
-}
-
-@media (max-width: 759px) {
-    .library-name--link::before {
-        display: none;
-    }
-}
-
-/* / Logo styles */

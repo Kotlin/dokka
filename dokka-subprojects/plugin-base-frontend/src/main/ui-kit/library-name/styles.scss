@@ -1,0 +1,41 @@
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../_tokens/index';
+
+.library-name--link {
+  display: flex;
+  align-items: center;
+
+  margin-right: var(--size-s2);
+
+  white-space: nowrap;
+
+  color: var(--color-text-dt);
+
+  font: var(--font-h4);
+  border-radius: var(--size-s1);
+
+  &:focus-visible {
+    outline: var(--focus-outline);
+  }
+
+  @media (width < $breakpoint-desktop-min) {
+    height: 52px;
+
+    margin-left: 12px;
+  }
+}
+
+.library-name--link::before {
+  width: var(--dokka-logo-width);
+  max-width: 120px;
+  height: var(--dokka-logo-height);
+  max-height: 36px;
+  margin-right: var(--size-s2);
+
+  content: '';
+
+  background: var(--dokka-logo-image-url) center no-repeat;
+  background-size: min(var(--dokka-logo-height), 120px) min(var(--dokka-logo-width), 36px);
+}

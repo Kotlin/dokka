@@ -7,7 +7,7 @@ package renderers.html
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import utils.TestOutputWriterPlugin
 import utils.navigationHtml
-import utils.selectNavigationGrid
+import utils.selectTocLinkGrid
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -22,7 +22,7 @@ class NavigationIconTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should include all navigation icons`() {
+    fun `should include all icons`() {
         val source = """
             |/src/main/kotlin/com/example/Empty.kt
             |package com.example
@@ -38,26 +38,35 @@ class NavigationIconTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 val navIconAssets = writerPlugin.writer.contents
-                    .filterKeys { it.startsWith("images/nav-icons") }
+                    .filterKeys { it.startsWith("ui-kit/assets") }
                     .keys.sorted()
 
-                assertEquals(16, navIconAssets.size)
-                assertEquals("images/nav-icons/abstract-class-kotlin.svg", navIconAssets[0])
-                assertEquals("images/nav-icons/abstract-class.svg", navIconAssets[1])
-                assertEquals("images/nav-icons/annotation-kotlin.svg", navIconAssets[2])
-                assertEquals("images/nav-icons/annotation.svg", navIconAssets[3])
-                assertEquals("images/nav-icons/class-kotlin.svg", navIconAssets[4])
-                assertEquals("images/nav-icons/class.svg", navIconAssets[5])
-                assertEquals("images/nav-icons/enum-kotlin.svg", navIconAssets[6])
-                assertEquals("images/nav-icons/enum.svg", navIconAssets[7])
-                assertEquals("images/nav-icons/exception-class.svg", navIconAssets[8])
-                assertEquals("images/nav-icons/field-value.svg", navIconAssets[9])
-                assertEquals("images/nav-icons/field-variable.svg", navIconAssets[10])
-                assertEquals("images/nav-icons/function.svg", navIconAssets[11])
-                assertEquals("images/nav-icons/interface-kotlin.svg", navIconAssets[12])
-                assertEquals("images/nav-icons/interface.svg", navIconAssets[13])
-                assertEquals("images/nav-icons/object.svg", navIconAssets[14])
-                assertEquals("images/nav-icons/typealias-kotlin.svg", navIconAssets[15])
+                assertEquals(25, navIconAssets.size)
+                assertEquals("ui-kit/assets/abstract-class-kotlin.svg", navIconAssets[0])
+                assertEquals("ui-kit/assets/abstract-class.svg", navIconAssets[1])
+                assertEquals("ui-kit/assets/annotation-kotlin.svg", navIconAssets[2])
+                assertEquals("ui-kit/assets/annotation.svg", navIconAssets[3])
+                assertEquals("ui-kit/assets/arrow-down.svg", navIconAssets[4])
+                assertEquals("ui-kit/assets/burger.svg", navIconAssets[5])
+                assertEquals("ui-kit/assets/checkbox-off.svg", navIconAssets[6])
+                assertEquals("ui-kit/assets/checkbox-on.svg", navIconAssets[7])
+                assertEquals("ui-kit/assets/class-kotlin.svg", navIconAssets[8])
+                assertEquals("ui-kit/assets/class.svg", navIconAssets[9])
+                assertEquals("ui-kit/assets/cross.svg", navIconAssets[10])
+                assertEquals("ui-kit/assets/enum-kotlin.svg", navIconAssets[11])
+                assertEquals("ui-kit/assets/enum.svg", navIconAssets[12])
+                assertEquals("ui-kit/assets/exception-class.svg", navIconAssets[13])
+                assertEquals("ui-kit/assets/field-value.svg", navIconAssets[14])
+                assertEquals("ui-kit/assets/field-variable.svg", navIconAssets[15])
+                assertEquals("ui-kit/assets/filter.svg", navIconAssets[16])
+                assertEquals("ui-kit/assets/function.svg", navIconAssets[17])
+                assertEquals("ui-kit/assets/homepage.svg", navIconAssets[18])
+                assertEquals("ui-kit/assets/interface-kotlin.svg", navIconAssets[19])
+                assertEquals("ui-kit/assets/interface.svg", navIconAssets[20])
+                assertEquals("ui-kit/assets/object.svg", navIconAssets[21])
+                assertEquals("ui-kit/assets/placeholder.svg", navIconAssets[22])
+                assertEquals("ui-kit/assets/theme-toggle.svg", navIconAssets[23])
+                assertEquals("ui-kit/assets/typealias-kotlin.svg", navIconAssets[24])
             }
         }
     }
@@ -248,13 +257,12 @@ class NavigationIconTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
-                val navigationGrid = content.selectNavigationGrid()
+                val content = writerPlugin.writer.navigationHtml().select(".toc--part")
+                val navigationGrid = content.selectTocLinkGrid()
 
                 val classNames = navigationGrid.child(0).classNames().toList()
-                assertEquals("nav-link-child", classNames[0])
-                assertEquals("nav-icon", classNames[1])
-                assertEquals(expectedIconClass, classNames[2])
+                assertEquals("toc--icon", classNames[0])
+                assertEquals(expectedIconClass, classNames[1])
 
                 val navLinkText = navigationGrid.child(1).text()
                 assertEquals(expectedNavLinkText, navLinkText)
@@ -276,7 +284,7 @@ class NavigationIconTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
+                val content = writerPlugin.writer.navigationHtml().select(".toc--part")
 
                 assertEquals(3, content.size)
                 assertEquals("root-nav-submenu", content[0].id())
@@ -284,7 +292,7 @@ class NavigationIconTest : BaseAbstractTest() {
                 assertEquals("root-nav-submenu-0-0", content[2].id())
 
                 // there's 3 nav items, but only one icon
-                val navLinkGrids = content.select("span.nav-icon")
+                val navLinkGrids = content.select(".toc--icon")
                 assertEquals(1, navLinkGrids.size)
             }
         }

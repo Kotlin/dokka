@@ -10,7 +10,7 @@
     "create-component": "node --experimental-modules create-component.mjs",
     "start:ui-kit": "webpack serve --config ./webpack.config-ui-kit.js --env minify=true",
     "build:ui-kit:watch": "webpack --config ./webpack.config-ui-kit.js --env watch=true --env minify=true",
-    "build:ui-kit": "npm run build:ui-kit:minified && npm run build:ui-kit:unminified",
+    "build:ui-kit": "npm run build:ui-kit:unminified && npm run build:ui-kit:minified",
     "build:ui-kit:minified": "webpack --config ./webpack.config-ui-kit.js --env minify=true",
     "build:ui-kit:unminified": "webpack --config ./webpack.config-ui-kit.js --env minify=false",
     "build": "webpack --mode=production --devtool source-map",

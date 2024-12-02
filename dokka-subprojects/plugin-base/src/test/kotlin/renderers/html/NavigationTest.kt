@@ -45,7 +45,7 @@ class NavigationTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
+                val content = writerPlugin.writer.navigationHtml().select(".toc--part")
                 assertEquals(6, content.size)
 
                 // Navigation menu should be the following:
@@ -112,7 +112,7 @@ class NavigationTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
+                val content = writerPlugin.writer.navigationHtml().select(".toc--part")
                 assertEquals(4, content.size)
 
                 content[0].assertNavigationLink(
@@ -158,7 +158,7 @@ class NavigationTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
+                val content = writerPlugin.writer.navigationHtml().select(".toc--part")
                 assertEquals(3, content.size)
 
                 // Navigation menu should be the following:
@@ -212,7 +212,7 @@ class NavigationTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
+                val content = writerPlugin.writer.navigationHtml().select(".toc--part")
                 assertEquals(3, content.size)
 
                 // Navigation menu should be the following:
@@ -269,7 +269,7 @@ class NavigationTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
+                val content = writerPlugin.writer.navigationHtml().select(".toc--part")
                 assertEquals(9, content.size)
 
                 // Navigation menu should be the following, sorted by name:
@@ -369,7 +369,7 @@ class NavigationTest : BaseAbstractTest() {
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val content = writerPlugin.writer.navigationHtml().select("div.sideMenuPart")
+                val content = writerPlugin.writer.navigationHtml().select(".toc--part")
                 assertEquals(7, content.size)
 
                 // Navigation menu should be the following
@@ -444,10 +444,9 @@ class NavigationTest : BaseAbstractTest() {
         assertEquals(address, link.attr("href"))
         if (icon != null) {
             val iconStyles =
-                this.selectFirst("div.overview span.nav-link-grid")?.child(0)?.classNames()?.toList() ?: emptyList()
-            assertEquals(3, iconStyles.size)
-            assertEquals("nav-link-child", iconStyles[0])
-            assertEquals(icon.style(), "${iconStyles[1]} ${iconStyles[2]}")
+                this.selectFirst(".toc--part .toc--link-grid")?.child(0)?.classNames()?.toList() ?: emptyList()
+            assertEquals(2, iconStyles.size)
+            assertEquals(icon.style(), "${iconStyles[0]} ${iconStyles[1]}")
         }
         if (isStrikethrough) {
             val textInsideStrikethrough = link.selectFirst("strike")?.text()

@@ -4,6 +4,7 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
 const WebpackShellPluginNext = require('webpack-shell-plugin-next');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 module.exports = (env, args) => {
   const isMinify = env.minify === 'true';
@@ -55,9 +56,6 @@ module.exports = (env, args) => {
                       plugins: [
                         [
                           'cssnano',
-                          {
-                            preset: ['default', { discardComments: { removeAll: true } }],
-                          },
                         ],
                       ],
                     },
@@ -70,6 +68,21 @@ module.exports = (env, args) => {
                       sourceMap: true,
                       minimize: false,
                       outputStyle: 'expanded',
+                    },
+                  },
+                },
+                {
+                  loader: 'postcss-loader',
+                  options: {
+                    postcssOptions: {
+                      plugins: [
+                        [
+                          'cssnano',
+                          {
+                            preset: ['default', { discardComments: { removeAll: true } }],
+                          },
+                        ],
+                      ],
                     },
                   },
                 },
@@ -92,6 +105,28 @@ module.exports = (env, args) => {
           test: /\.(png|jpe?g|gif|svg)$/i,
           type: 'asset/resource',
         },
+      ],
+    },
+    optimization: {
+      minimize: isMinify,
+      minimizer: [
+        '...', // Extends existing minimizers
+        new CssMinimizerPlugin({
+          minimizerOptions: {
+            preset: [
+              'default',
+              {
+                discardComments: { removeAll: true },
+                normalizeWhitespace: isMinify,
+                plugins: [
+                  [
+                    'cssnano',
+                  ],
+                ]
+              },
+            ],
+          },
+        }),
       ],
     },
     plugins: [

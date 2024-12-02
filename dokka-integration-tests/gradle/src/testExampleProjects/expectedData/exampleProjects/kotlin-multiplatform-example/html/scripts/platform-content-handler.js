@@ -52,9 +52,10 @@ window.addEventListener('load', () => {
         filterSection.addEventListener('click', (event) => filterButtonHandler(event))
         initializeFiltering()
     }
-    initTabs() // initTabs comes from ui-kit/tabs
+    if (typeof initTabs === 'function') {
+        initTabs() // initTabs comes from ui-kit/tabs
+    }
     handleAnchor()
-    initHidingLeftNavigation()
     topNavbarOffset = document.getElementById('navigation-wrapper')
     darkModeSwitch()
 })
@@ -112,21 +113,6 @@ const samplesAreEnabled = () => {
         return typeof KotlinPlayground === 'function';
     } catch (e) {
         return false
-    }
-}
-
-
-const initHidingLeftNavigation = () => {
-    document.getElementById("menu-toggle").onclick = function (event) {
-        //Events need to be prevented from bubbling since they will trigger next handler
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        document.getElementById("leftColumn").classList.toggle("open");
-    }
-
-    document.getElementById("main").onclick = () => {
-        document.getElementById("leftColumn").classList.remove("open");
     }
 }
 
@@ -274,6 +260,11 @@ function removeSourcesetFilterFromCache(sourceset) {
     }
 }
 
+function refreshSourcesetsCache() {
+    safeLocalStorage.setItem('inactive-filters', JSON.stringify(filteringContext.restrictedDependencies.filter(p => -1 === filteringContext.activeFilters.indexOf(p))))
+}
+
+
 function togglePlatformDependent(e, container) {
     let target = e.target
     if (target.tagName !== 'BUTTON') return;
@@ -322,14 +313,18 @@ function refreshPlaygroundSamples() {
 
 function refreshNoContentNotification() {
     const element = document.getElementsByClassName("main-content")[0]
+    const filteredMessage = document.querySelector(".filtered-message")
+
     if(filteringContext.activeFilters.length === 0){
         element.style.display = "none";
 
-        const appended = document.createElement("div")
-        appended.className = "filtered-message"
-        appended.innerText = "All documentation is filtered, please adjust your source set filters in top-right corner of the screen"
-        sourcesetNotification = appended
-        element.parentNode.prepend(appended)
+        if (!filteredMessage) {
+            const appended = document.createElement("div")
+            appended.className = "filtered-message"
+            appended.innerText = "All documentation is filtered, please adjust your source set filters in top-right corner of the screen"
+            sourcesetNotification = appended
+            element.parentNode.prepend(appended)
+        }
     } else {
         if(sourcesetNotification) sourcesetNotification.remove()
         element.style.display = "block"
@@ -368,5 +363,9 @@ function refreshFilterButtons() {
             } else {
                 f.removeAttribute("data-active")
             }
+        })
+    document.querySelectorAll("#filter-section .checkbox--input")
+        .forEach(f => {
+            f.checked = filteringContext.activeFilters.indexOf(f.getAttribute("data-filter")) !== -1;
         })
 }
