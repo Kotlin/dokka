@@ -1,7 +1,7 @@
 /*!
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-@import '../tokens/index';
+@import '../_tokens/index';
 
 .tabs-section,
 .platform-hinted > .platform-bookmarks-row {
@@ -66,7 +66,7 @@
   flex: none;
   order: 5;
 
-  min-width: 64px;
+  min-width: var(--size-l1);
 
   background: inherit;
 }

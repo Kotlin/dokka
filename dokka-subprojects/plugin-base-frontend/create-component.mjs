@@ -11,7 +11,6 @@ const lowerCaseComponentName = firstLetterToLoweCase(componentName);
 const lowerCaseComponentNameCamelCase = firstLetterToLoweCase(kebabToCamelCase(componentName));
 
 const uiKitIndexTsFile = `${uiKitPath}/index.ts`;
-const uiKitIndexScssFile = `${uiKitPath}/index.scss`;
 const componentIndexTsFile = `${componentPath}/index.ts`;
 const componentScssFile = `${componentPath}/styles.scss`;
 
@@ -20,14 +19,13 @@ const currentYear = new Date().getFullYear();
 const componentIndexTsFileContent = `/*
  * Copyright 2014-${currentYear} JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-
 import './styles.scss';
 `;
 
 const componentScssFileContent = `/*!
  * Copyright 2014-${currentYear}  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-@import '../tokens/index';
+@import '../_tokens/index';
 
 .${lowerCaseComponentName} {
 }
@@ -35,10 +33,6 @@ const componentScssFileContent = `/*!
 
 const uiKitIndexTsFileContent = `import * as ${lowerCaseComponentNameCamelCase} from './${componentName}/index';
 `;
-
-const uiKitIndexScssFileContent = `@import './${componentName}/styles';
-`;
-
 
 fs.mkdir(componentPath, error => {
   if (error) {
@@ -49,7 +43,6 @@ fs.mkdir(componentPath, error => {
     [componentIndexTsFile]: componentIndexTsFileContent,
     [componentScssFile]: componentScssFileContent,
     [uiKitIndexTsFile]: uiKitIndexTsFileContent,
-    [uiKitIndexScssFile]: uiKitIndexScssFileContent,
   };
 
   Object.keys(pathToContentMap).forEach((path) => {

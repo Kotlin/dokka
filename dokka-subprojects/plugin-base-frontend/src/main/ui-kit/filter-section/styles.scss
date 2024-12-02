@@ -1,0 +1,64 @@
+/*!
+ * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../_tokens/index';
+
+.filter-section {
+  z-index: 1;
+
+  display: flex;
+
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+
+  max-height: 40px;
+
+  margin-right: 12px;
+  gap: 2px;
+
+  &_loading {
+    overflow: hidden;
+  }
+
+  &--dropdown {
+    @media (width >= $breakpoint-desktop-min) {
+      display: none;
+    }
+  }
+
+  &--dropdown-toggle_as-filters {
+    min-width: 40px;
+
+    background-image: url('../_assets/filter.svg');
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+
+    &::after {
+      display: none;
+    }
+  }
+
+  @media (width < $breakpoint-desktop-min) {
+    max-height: unset;
+    margin-right: 0;
+
+    & > :not(.dropdown) {
+      display: none;
+    }
+
+    &--dropdown-toggle {
+      background-image: url('../_assets/filter.svg');
+      background-repeat: no-repeat;
+      background-position: 50% 50%;
+
+      &::after {
+        display: none;
+      }
+    }
+  }
+}
+
+.no-js .filter-section {
+  display: none;
+}
