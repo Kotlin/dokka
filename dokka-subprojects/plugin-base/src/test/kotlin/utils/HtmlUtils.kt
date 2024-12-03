@@ -15,6 +15,6 @@ internal fun TestOutputWriter.navigationHtml(): Element = contents.getValue("nav
 
 internal fun TestOutputWriter.pagesJson(): List<SearchRecord> = jacksonObjectMapper().readValue(contents.getValue("scripts/pages.json"))
 
-internal fun Elements.selectNavigationGrid(): Element {
-    return this.select("div.overview").select("span.nav-link-grid").single()
+internal fun Elements.selectTocLinkGrid(): Element {
+    return this.select(".toc--row").select(".toc--link-grid").single()
 }
