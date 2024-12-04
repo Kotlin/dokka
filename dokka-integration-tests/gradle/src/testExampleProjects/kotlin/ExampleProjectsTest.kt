@@ -122,6 +122,28 @@ class ExampleProjectsTest {
             ExampleProject.CompositeBuild -> ":build"
             else -> ":dokkaGenerate"
         }
+
+        init {
+            updateGradleProperties()
+        }
+
+        private fun updateGradleProperties() {
+            when (exampleProjectName) {
+                ExampleProject.KotlinMultiplatform -> {
+                    project.gradleProperties {
+                        // kotlin.native.enableKlibsCrossCompilation must be set to `true`
+                        // otherwise Kotlin can't generate a Klib for Coroutines in macosMain
+                        // when generating on Linux machines, resulting in 'Error class: unknown class'
+                        // for CoroutineScope appearing in the generated docs.
+                        kotlin.native.enableKlibsCrossCompilation = true
+                    }
+                }
+
+                else -> {}
+            }
+
+            project.runner.writeGradleProperties(project.gradleProperties)
+        }
     }
 
     /**
@@ -170,9 +192,8 @@ class ExampleProjectsTest {
             format = "html",
         )
 
-        verifyNoUnknownClassErrorsInHtmlFiles(
-            testCase = testCase,
-            format = "html",
+        verifyNoUnknownClassErrorsInHtml(
+            dokkaOutputDir = testCase.dokkaOutputDir.resolve("html")
         )
     }
 
@@ -237,12 +258,9 @@ class ExampleProjectsTest {
             }
     }
 
-    private fun verifyNoUnknownClassErrorsInHtmlFiles(
-        testCase: TestCase,
-        format: String,
+    private fun verifyNoUnknownClassErrorsInHtml(
+        dokkaOutputDir: Path,
     ) {
-        val dokkaOutputDir = testCase.dokkaOutputDir.resolve(format)
-
         withClue("expect no 'unknown class' message in output files") {
             val htmlFiles = dokkaOutputDir.walk()
                 .filter { it.isRegularFile() && it.extension == "html" }
