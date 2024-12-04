@@ -5,9 +5,12 @@ package org.jetbrains.dokka.it.gradle.examples
 
 import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
+import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.paths.shouldBeADirectory
+import io.kotest.matchers.sequences.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
 import org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
@@ -165,6 +168,11 @@ class ExampleProjectsTest {
             testCase = testCase,
             format = "html",
         )
+
+        verifyNoUnknownClassErrorsInHtmlFiles(
+            testCase = testCase,
+            format = "html",
+        )
     }
 
     @ParameterizedTest
@@ -214,6 +222,29 @@ class ExampleProjectsTest {
                     }
                 }
             }
+    }
+
+    private fun verifyNoUnknownClassErrorsInHtmlFiles(
+        testCase: TestCase,
+        format: String,
+    ) {
+        val dokkaOutputDir = testCase.dokkaOutputDir.resolve(format)
+
+        withClue("expect no 'unknown class' message in output files") {
+            val htmlFiles = dokkaOutputDir.walk()
+                .filter { it.isRegularFile() && it.extension == "html" }
+
+            htmlFiles.shouldNotBeEmpty()
+
+            htmlFiles.forEach { file ->
+                val relativePath = file.relativeTo(dokkaOutputDir)
+                withClue("$relativePath should not contain Error class: unknown class") {
+                    file.useLines { lines ->
+                        lines.shouldForAll { line -> line.shouldNotContain("Error class: unknown class") }
+                    }
+                }
+            }
+        }
     }
 
 
