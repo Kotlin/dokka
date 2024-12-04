@@ -405,7 +405,7 @@ class ExampleProjectsTest {
                 }
         }
 
-        withClue("TeamCity needs another build to let KGP finish setting up kotlin-native") {
+        withClue("KT-66423 KGP needs another build to finish setting up kotlin-native") {
             configCacheRunner.build {
                 shouldHaveTask(testCase.dokkaGenerateTask).shouldHaveOutcome(UP_TO_DATE, SUCCESS)
             }
