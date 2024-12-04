@@ -11,6 +11,7 @@ import io.kotest.matchers.sequences.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import kotlinx.serialization.json.Json
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
 import org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
@@ -191,7 +192,7 @@ class ExampleProjectsTest {
         format: String,
     ) {
         val expectedDataDir = testCase.expectedDataDir.resolve(format)
-        val dokkaOutputDir = testCase.dokkaOutputDir.resolve(format)
+        val actualHtmlDir = testCase.dokkaOutputDir.resolve(format)
 
         assert(expectedDataDir.isDirectory()) {
             "Missing expectedDataDir: ${expectedDataDir.toUri()}"
@@ -203,22 +204,34 @@ class ExampleProjectsTest {
                 "--stacktrace",
             )
             .build {
-                dokkaOutputDir.shouldBeADirectory()
+                actualHtmlDir.shouldBeADirectory()
 
-                withClue({
+                val dokkaConfigurationJsonFiles = testCase.project.findFiles { it.name == "dokka-configuration.json" }
+                val dokkaConfigContent = dokkaConfigurationJsonFiles.joinToString("\n\n") { dcFile ->
+                    // re-encode the JSON to a compact format, to prevent the log output being completely spammed
+                    val compactJson = Json.parseToJsonElement(dcFile.readText())
                     """
-                    expectedDataDir: ${expectedDataDir.toUri()}
-                    actualOutputDir: ${dokkaOutputDir.toUri()}
+                    - ${dcFile.invariantSeparatorsPathString}
+                      $compactJson
                     """.trimIndent()
-                }) {
+                }
+
+                withClue(
+                    """
+                    |expectedDataDir: ${expectedDataDir.toUri()}
+                    |actualHtmlDir: ${actualHtmlDir.toUri()}
+                    |dokkaConfigurationJsons [${dokkaConfigurationJsonFiles.count()}]:
+                    |$dokkaConfigContent
+                    """.trimMargin()
+                ) {
                     withClue("expect file trees are the same") {
                         val expectedFileTree = expectedDataDir.toTreeString()
-                        val actualFileTree = dokkaOutputDir.toTreeString()
+                        val actualFileTree = actualHtmlDir.toTreeString()
                         actualFileTree shouldBe expectedFileTree
                     }
 
                     withClue("expect directories are the same") {
-                        dokkaOutputDir shouldBeADirectoryWithSameContentAs expectedDataDir
+                        actualHtmlDir shouldBeADirectoryWithSameContentAs expectedDataDir
                     }
                 }
             }
