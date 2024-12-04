@@ -1108,7 +1108,7 @@ class LinkTest : BaseAbstractTest() {
             |/**
             |* [property] is unresolved
             | */
-            | usage() = 0
+            |fun usage() = 0
             |}
         """.trimMargin(),
             configuration
@@ -1172,7 +1172,9 @@ class LinkTest : BaseAbstractTest() {
     }
 
     private fun DModule.getLinkDRIFrom(name: String): DRI? {
-        val link =  this.dfs { it.name == name }?.documentation?.values?.single()?.firstMemberOfTypeOrNull<DocumentationLink>()
+        val doc = this.dfs { it.name == name }?.documentation?.values?.single()
+            ?: throw IllegalStateException("Can't find documentation for declaration '$name'")
+        val link = doc.firstMemberOfTypeOrNull<DocumentationLink>()
         return link?.dri
     }
 
