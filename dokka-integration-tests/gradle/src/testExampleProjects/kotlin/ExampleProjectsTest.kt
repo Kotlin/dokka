@@ -13,10 +13,11 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import kotlinx.serialization.json.Json
 import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
-import org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
+import org.gradle.testkit.runner.TaskOutcome.*
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.it.gradle.loadConfigurationCacheReportData
+import org.jetbrains.dokka.it.gradle.shouldHaveOutcome
+import org.jetbrains.dokka.it.gradle.shouldHaveTask
 import org.jetbrains.dokka.it.systemProperty
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Named.named
@@ -392,9 +393,10 @@ class ExampleProjectsTest {
                     "--configuration-cache",
                 )
 
-        //first build should store the configuration cache
+        // first build should store the configuration cache
         configCacheRunner.build {
-            output shouldContain "BUILD SUCCESSFUL"
+            shouldHaveTask(testCase.dokkaGenerateTask).shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+
             output shouldContain "Configuration cache entry stored"
 
             loadConfigurationCacheReportData(projectDir = testCase.project.projectDir)
@@ -403,9 +405,15 @@ class ExampleProjectsTest {
                 }
         }
 
+        withClue("TeamCity needs another build to let KGP finish setting up kotlin-native") {
+            configCacheRunner.build {
+                shouldHaveTask(testCase.dokkaGenerateTask).shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+            }
+        }
+
         // second build should reuse the configuration cache
         configCacheRunner.build {
-            output shouldContain "BUILD SUCCESSFUL"
+            shouldHaveTask(testCase.dokkaGenerateTask).shouldHaveOutcome(UP_TO_DATE, SUCCESS)
             output shouldContain "Configuration cache entry reused"
         }
     }
