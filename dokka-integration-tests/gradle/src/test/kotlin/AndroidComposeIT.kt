@@ -74,7 +74,7 @@ class AndroidComposeIT {
                 val expectedFileTree = expectedHtml.toTreeString()
                 val actualFileTree = actualHtmlDir.toTreeString()
                 withClue((actualFileTree to expectedFileTree).sideBySide()) {
-                    expectedFileTree shouldBe actualFileTree
+                    actualFileTree shouldBe expectedFileTree
 
                     actualHtmlDir shouldBeADirectoryWithSameContentAs expectedHtml
                 }

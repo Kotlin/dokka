@@ -101,7 +101,8 @@ constructor(
      * To disable this behaviour set this property to `null`.
      */
     @InternalDokkaGradlePluginApi
-    @get:Internal
+    @get:Optional
+    @get:OutputFile
     abstract val dokkaConfigurationJsonFile: RegularFileProperty
 
     /**
