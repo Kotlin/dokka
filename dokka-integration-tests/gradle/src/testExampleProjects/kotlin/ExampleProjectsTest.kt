@@ -5,14 +5,18 @@ package org.jetbrains.dokka.it.gradle.examples
 
 import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
+import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.paths.shouldBeADirectory
+import io.kotest.matchers.sequences.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.TaskOutcome.FROM_CACHE
-import org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
+import org.gradle.testkit.runner.TaskOutcome.*
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.it.gradle.loadConfigurationCacheReportData
+import org.jetbrains.dokka.it.gradle.shouldHaveOutcome
+import org.jetbrains.dokka.it.gradle.shouldHaveTask
 import org.jetbrains.dokka.it.systemProperty
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Named.named
@@ -118,6 +122,28 @@ class ExampleProjectsTest {
             ExampleProject.CompositeBuild -> ":build"
             else -> ":dokkaGenerate"
         }
+
+        init {
+            updateGradleProperties()
+        }
+
+        private fun updateGradleProperties() {
+            when (exampleProjectName) {
+                ExampleProject.KotlinMultiplatform -> {
+                    project.gradleProperties {
+                        // kotlin.native.enableKlibsCrossCompilation must be set to `true`
+                        // otherwise Kotlin can't generate a Klib for Coroutines in macosMain
+                        // when generating on Linux machines, resulting in 'Error class: unknown class'
+                        // for CoroutineScope appearing in the generated docs.
+                        kotlin.native.enableKlibsCrossCompilation = true
+                    }
+                }
+
+                else -> {}
+            }
+
+            project.runner.writeGradleProperties(project.gradleProperties)
+        }
     }
 
     /**
@@ -165,6 +191,10 @@ class ExampleProjectsTest {
             testCase = testCase,
             format = "html",
         )
+
+        verifyNoUnknownClassErrorsInHtml(
+            dokkaOutputDir = testCase.dokkaOutputDir.resolve("html")
+        )
     }
 
     @ParameterizedTest
@@ -183,7 +213,7 @@ class ExampleProjectsTest {
         format: String,
     ) {
         val expectedDataDir = testCase.expectedDataDir.resolve(format)
-        val dokkaOutputDir = testCase.dokkaOutputDir.resolve(format)
+        val actualHtmlDir = testCase.dokkaOutputDir.resolve(format)
 
         assert(expectedDataDir.isDirectory()) {
             "Missing expectedDataDir: ${expectedDataDir.toUri()}"
@@ -195,25 +225,45 @@ class ExampleProjectsTest {
                 "--stacktrace",
             )
             .build {
-                dokkaOutputDir.shouldBeADirectory()
+                actualHtmlDir.shouldBeADirectory()
 
-                withClue({
+                withClue(
                     """
-                    expectedDataDir: ${expectedDataDir.toUri()}
-                    actualOutputDir: ${dokkaOutputDir.toUri()}
-                    """.trimIndent()
-                }) {
+                    |expectedDataDir: ${expectedDataDir.toUri()}
+                    |actualHtmlDir: ${actualHtmlDir.toUri()}
+                    """.trimMargin()
+                ) {
                     withClue("expect file trees are the same") {
                         val expectedFileTree = expectedDataDir.toTreeString()
-                        val actualFileTree = dokkaOutputDir.toTreeString()
-                        expectedFileTree shouldBe actualFileTree
+                        val actualFileTree = actualHtmlDir.toTreeString()
+                        actualFileTree shouldBe expectedFileTree
                     }
 
                     withClue("expect directories are the same") {
-                        dokkaOutputDir shouldBeADirectoryWithSameContentAs expectedDataDir
+                        actualHtmlDir shouldBeADirectoryWithSameContentAs expectedDataDir
                     }
                 }
             }
+    }
+
+    private fun verifyNoUnknownClassErrorsInHtml(
+        dokkaOutputDir: Path,
+    ) {
+        withClue("expect no 'unknown class' message in output files") {
+            val htmlFiles = dokkaOutputDir.walk()
+                .filter { it.isRegularFile() && it.extension == "html" }
+
+            htmlFiles.shouldNotBeEmpty()
+
+            htmlFiles.forEach { file ->
+                val relativePath = file.relativeTo(dokkaOutputDir)
+                withClue("$relativePath should not contain Error class: unknown class") {
+                    file.useLines { lines ->
+                        lines.shouldForAll { line -> line.shouldNotContain("Error class: unknown class") }
+                    }
+                }
+            }
+        }
     }
 
 
@@ -330,9 +380,10 @@ class ExampleProjectsTest {
                     "--configuration-cache",
                 )
 
-        //first build should store the configuration cache
+        // first build should store the configuration cache
         configCacheRunner.build {
-            output shouldContain "BUILD SUCCESSFUL"
+            shouldHaveTask(testCase.dokkaGenerateTask).shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+
             output shouldContain "Configuration cache entry stored"
 
             loadConfigurationCacheReportData(projectDir = testCase.project.projectDir)
@@ -341,9 +392,15 @@ class ExampleProjectsTest {
                 }
         }
 
+        withClue("KT-66423 KGP needs another build to finish setting up kotlin-native") {
+            configCacheRunner.build {
+                shouldHaveTask(testCase.dokkaGenerateTask).shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+            }
+        }
+
         // second build should reuse the configuration cache
         configCacheRunner.build {
-            output shouldContain "BUILD SUCCESSFUL"
+            shouldHaveTask(testCase.dokkaGenerateTask).shouldHaveOutcome(UP_TO_DATE, SUCCESS)
             output shouldContain "Configuration cache entry reused"
         }
     }

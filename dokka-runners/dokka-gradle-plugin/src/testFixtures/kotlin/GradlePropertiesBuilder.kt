@@ -57,7 +57,13 @@ data class GradlePropertiesBuilder(
     /** Kotlin specific options. */
     data class KotlinArgs(
         var mppStabilityWarning: Boolean? = true,
-    )
+        val native: NativeArgs = NativeArgs(),
+    ) {
+
+        data class NativeArgs(
+            var enableKlibsCrossCompilation: Boolean? = null
+        )
+    }
 
     /** Dokka specific options. */
     data class DokkaArgs(
@@ -105,6 +111,7 @@ data class GradlePropertiesBuilder(
 
         with(kotlin) {
             putNotNull("kotlin.mpp.stability.nowarn", mppStabilityWarning?.let { !it })
+            putNotNull("kotlin.native.enableKlibsCrossCompilation", native.enableKlibsCrossCompilation)
         }
 
         with(gradle) {

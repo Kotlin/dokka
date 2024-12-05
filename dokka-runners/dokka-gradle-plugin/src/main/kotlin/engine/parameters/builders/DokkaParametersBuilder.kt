@@ -138,7 +138,7 @@ internal class DokkaParametersBuilder(
             // across all modules (otherwise they'd be generated into the same directory), and even
             // though it's a file - it's a _relative_ file, so the ordering should be stable across
             // machines (which is important for relocatable Build Cache).
-            .sortedBy { it.relativePathToOutputDirectory }
+            .sortedBy { it.relativePathToOutputDirectory.invariantSeparatorsPath }
     }
 
     private fun build(spec: DokkaPluginParametersBaseSpec): PluginConfigurationImpl {

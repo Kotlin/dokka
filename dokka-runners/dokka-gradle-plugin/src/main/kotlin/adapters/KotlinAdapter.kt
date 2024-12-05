@@ -167,7 +167,7 @@ abstract class KotlinAdapter @Inject constructor(
         projectPath: String,
         details: KotlinSourceSetDetails,
     ): Provider<KotlinPlatform> {
-        return details.compilations.map { compilations: List<KotlinCompilationDetails> ->
+        return details.allCompilations.map { compilations: List<KotlinCompilationDetails> ->
             val allPlatforms = compilations
                 // Exclude metadata compilations: they are always KotlinPlatform.Common, which isn't relevant here.
                 // Dokka only cares about the compilable KMP targets of a KotlinSourceSet.
@@ -193,7 +193,7 @@ abstract class KotlinAdapter @Inject constructor(
     private fun determineClasspath(
         details: KotlinSourceSetDetails
     ): Provider<FileCollection> {
-        return details.compilations.map { compilations: List<KotlinCompilationDetails> ->
+        return details.primaryCompilations.map { compilations: List<KotlinCompilationDetails> ->
             val classpath = objects.fileCollection()
 
             if (compilations.isNotEmpty()) {
@@ -254,11 +254,19 @@ abstract class KotlinAdapter @Inject constructor(
 private data class KotlinCompilationDetails(
     /** [KotlinCompilation.target] name. */
     val target: String,
+
     /** `true` if the compilation is 'metadata'. See [KotlinMetadataTarget]. */
     val isMetadata: Boolean,
+
     /** [KotlinCompilation.platformType] name. */
     val kotlinPlatform: KotlinPlatform,
-    val allKotlinSourceSetsNames: Set<String>,
+
+    /** The names of [KotlinCompilation.kotlinSourceSets]. */
+    val primarySourceSetNames: Set<String>,
+
+    /** The names of [KotlinCompilation.allKotlinSourceSets]. */
+    val allSourceSetNames: Set<String>,
+
     /**
      * Whether the compilation is published or not.
      *
@@ -267,9 +275,12 @@ private data class KotlinCompilationDetails(
      * (E.g. 'main' compilations are published, 'test' compilations are not.)
      */
     val publishedCompilation: Boolean,
-    /** [KotlinCompilation.defaultSourceSet] → [KotlinSourceSet.dependsOn] names. */
+
+    /** [KotlinCompilation.kotlinSourceSets] → [KotlinSourceSet.dependsOn] names. */
     val dependentSourceSetNames: Set<String>,
+
     val compilationClasspath: FileCollection,
+
     /** [KotlinCompilation.defaultSourceSet] name. */
     val defaultSourceSetName: String,
 )
@@ -305,11 +316,10 @@ private class KotlinCompilationDetailsBuilder(
     private fun createCompilationDetails(
         compilation: KotlinCompilation<*>,
     ): KotlinCompilationDetails {
-        val allKotlinSourceSetsNames =
-            compilation.allKotlinSourceSets.map { it.name } + compilation.defaultSourceSet.name
 
-        val dependentSourceSetNames =
-            compilation.defaultSourceSet.dependsOn.map { it.name }
+        val primarySourceSetNames = compilation.kotlinSourceSets.map { it.name }
+        val allSourceSetNames = compilation.allKotlinSourceSets.map { it.name }
+        val dependentSourceSetNames = compilation.kotlinSourceSets.flatMap { it.dependsOn }.map { it.name }
 
         val compilationClasspath: FileCollection =
             collectKotlinCompilationClasspath(compilation = compilation)
@@ -317,7 +327,8 @@ private class KotlinCompilationDetailsBuilder(
         return KotlinCompilationDetails(
             target = compilation.target.name,
             kotlinPlatform = KotlinPlatform.fromString(compilation.platformType.name),
-            allKotlinSourceSetsNames = allKotlinSourceSetsNames.toSet(),
+            primarySourceSetNames = primarySourceSetNames.toSet(),
+            allSourceSetNames = allSourceSetNames.toSet(),
             publishedCompilation = compilation.isPublished(),
             dependentSourceSetNames = dependentSourceSetNames.toSet(),
             compilationClasspath = compilationClasspath,
@@ -475,12 +486,28 @@ private abstract class KotlinSourceSetDetails @Inject constructor(
     /** _All_ source directories from any (recursively) dependant source set. */
     abstract val sourceDirectoriesOfDependents: ConfigurableFileCollection
 
-    /** The specific compilations used to build this source set. */
-    abstract val compilations: ListProperty<KotlinCompilationDetails>
+    /**
+     * The specific compilations used to build this source set.
+     *
+     * (Typically there will only be one, but KGP permits manually registering more.)
+     */
+    abstract val primaryCompilations: ListProperty<KotlinCompilationDetails>
 
-    /** Estimate if this Kotlin source set contains 'published' sources. */
+    /**
+     * Associated compilations that this [KotlinSourceSet] participates in.
+     *
+     * For example, the compilation for `commonMain` will also participate in compiling
+     * the leaf `linuxX64`, as well as the intermediate compilations of `nativeMain`, `linuxMain`, etc.
+     */
+    abstract val allCompilations: ListProperty<KotlinCompilationDetails>
+
+    /**
+     * Estimate if this Kotlin source set contains 'published' (non-test) sources.
+     *
+     * @see KotlinCompilationDetails.publishedCompilation
+     */
     fun isPublishedSourceSet(): Provider<Boolean> =
-        compilations.map { values ->
+        allCompilations.map { values ->
             values.any { it.publishedCompilation }
         }
 
@@ -518,6 +545,7 @@ private class KotlinSourceSetDetailsBuilder(
         return sourceSetDetails
     }
 
+    /** Register a [DokkaSourceSetSpec]. */
     private fun NamedDomainObjectContainer<KotlinSourceSetDetails>.register(
         kotlinSourceSet: KotlinSourceSet,
         allKotlinCompilationDetails: ListProperty<KotlinCompilationDetails>,
@@ -530,9 +558,15 @@ private class KotlinSourceSetDetailsBuilder(
             kotlinSourceSet.kotlin.sourceDirectories.filter { it.exists() }
         }
 
-        val compilations = allKotlinCompilationDetails.map { allCompilations ->
+        val primaryCompilations = allKotlinCompilationDetails.map { primaryCompilations ->
+            primaryCompilations.filter { compilation ->
+                kotlinSourceSet.name in compilation.primarySourceSetNames
+            }
+        }
+
+        val allCompilations = allKotlinCompilationDetails.map { allCompilations ->
             allCompilations.filter { compilation ->
-                kotlinSourceSet.name in compilation.allKotlinSourceSetsNames
+                kotlinSourceSet.name in compilation.allSourceSetNames
             }
         }
 
@@ -565,7 +599,8 @@ private class KotlinSourceSetDetailsBuilder(
             this.dependentSourceSetIds.addAll(dependentSourceSetIds)
             this.sourceDirectories.from(extantSourceDirectories)
             this.sourceDirectoriesOfDependents.from(sourceDirectoriesOfDependents)
-            this.compilations.addAll(compilations)
+            this.primaryCompilations.addAll(primaryCompilations)
+            this.allCompilations.addAll(allCompilations)
         }
     }
 
