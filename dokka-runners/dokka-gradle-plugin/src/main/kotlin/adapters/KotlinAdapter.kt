@@ -254,12 +254,19 @@ abstract class KotlinAdapter @Inject constructor(
 private data class KotlinCompilationDetails(
     /** [KotlinCompilation.target] name. */
     val target: String,
+
     /** `true` if the compilation is 'metadata'. See [KotlinMetadataTarget]. */
     val isMetadata: Boolean,
+
     /** [KotlinCompilation.platformType] name. */
     val kotlinPlatform: KotlinPlatform,
+
+    /** The names of [KotlinCompilation.kotlinSourceSets]. */
     val primarySourceSetNames: Set<String>,
+
+    /** The names of [KotlinCompilation.allKotlinSourceSets]. */
     val allSourceSetNames: Set<String>,
+
     /**
      * Whether the compilation is published or not.
      *
@@ -268,9 +275,12 @@ private data class KotlinCompilationDetails(
      * (E.g. 'main' compilations are published, 'test' compilations are not.)
      */
     val publishedCompilation: Boolean,
+
     /** [KotlinCompilation.kotlinSourceSets] → [KotlinSourceSet.dependsOn] names. */
     val dependentSourceSetNames: Set<String>,
+
     val compilationClasspath: FileCollection,
+
     /** [KotlinCompilation.defaultSourceSet] name. */
     val defaultSourceSetName: String,
 )
@@ -476,13 +486,26 @@ private abstract class KotlinSourceSetDetails @Inject constructor(
     /** _All_ source directories from any (recursively) dependant source set. */
     abstract val sourceDirectoriesOfDependents: ConfigurableFileCollection
 
-    /** The specific compilations used to build this source set. */
+    /**
+     * The specific compilations used to build this source set.
+     *
+     * (Typically there will only be one, but KGP permits manually registering more.)
+     */
     abstract val primaryCompilations: ListProperty<KotlinCompilationDetails>
 
-    /** Associated compilations that this [KotlinSourceSet] participates in. */
+    /**
+     * Associated compilations that this [KotlinSourceSet] participates in.
+     *
+     * For example, the compilation for `commonMain` will also participate in compiling
+     * the leaf `linuxX64`, as well as the intermediate compilations of `nativeMain`, `linuxMain`, etc.
+     */
     abstract val allCompilations: ListProperty<KotlinCompilationDetails>
 
-    /** Estimate if this Kotlin source set contains 'published' sources. */
+    /**
+     * Estimate if this Kotlin source set contains 'published' (non-test) sources.
+     *
+     * @see KotlinCompilationDetails.publishedCompilation
+     */
     fun isPublishedSourceSet(): Provider<Boolean> =
         allCompilations.map { values ->
             values.any { it.publishedCompilation }
