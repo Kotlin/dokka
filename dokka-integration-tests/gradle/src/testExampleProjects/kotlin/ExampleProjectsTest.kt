@@ -11,7 +11,6 @@ import io.kotest.matchers.sequences.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
-import kotlinx.serialization.json.Json
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.*
 import org.jetbrains.dokka.gradle.utils.*
@@ -228,22 +227,10 @@ class ExampleProjectsTest {
             .build {
                 actualHtmlDir.shouldBeADirectory()
 
-                val dokkaConfigurationJsonFiles = testCase.project.findFiles { it.name == "dokka-configuration.json" }
-                val dokkaConfigContent = dokkaConfigurationJsonFiles.joinToString("\n\n") { dcFile ->
-                    // re-encode the JSON to a compact format, to prevent the log output being completely spammed
-                    val compactJson = Json.parseToJsonElement(dcFile.readText())
-                    """
-                    - ${dcFile.invariantSeparatorsPathString}
-                      $compactJson
-                    """.trimIndent()
-                }
-
                 withClue(
                     """
                     |expectedDataDir: ${expectedDataDir.toUri()}
                     |actualHtmlDir: ${actualHtmlDir.toUri()}
-                    |dokkaConfigurationJsons [${dokkaConfigurationJsonFiles.count()}]:
-                    |$dokkaConfigContent
                     """.trimMargin()
                 ) {
                     withClue("expect file trees are the same") {

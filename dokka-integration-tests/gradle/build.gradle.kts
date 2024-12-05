@@ -226,12 +226,6 @@ testing {
         }
     }
     val testExampleProjects by suites.registering(JvmTestSuite::class) {
-
-        dependencies {
-            implementation(platform(libs.kotlinxSerialization.bom))
-            implementation(libs.kotlinxSerialization.json)
-        }
-
         targets.configureEach {
             testTask.configure {
 
