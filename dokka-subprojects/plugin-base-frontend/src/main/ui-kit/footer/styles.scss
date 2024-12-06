@@ -1,0 +1,83 @@
+/*!
+ * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../_tokens/index';
+
+.footer {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  min-height: var(--footer-height);
+  margin-top: auto;
+
+  padding: 0 var(--size-m3);
+
+  letter-spacing: 0.15px;
+
+  color: var(--color-text-light);
+  background-color: var(--footer-background);
+
+  font: var(--font-text-s);
+
+  &--button {
+    z-index: 0;
+
+    display: inline-flex;
+    align-items: center;
+
+    flex-shrink: 0;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+    padding: 0;
+
+    cursor: pointer;
+
+    border: none;
+    border-radius: var(--size-s1);
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: 24px 24px;
+
+    font-size: 0;
+    line-height: 0;
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: var(--color-b08);
+      }
+    }
+
+    &:active {
+      background-color: var(--color-w10);
+    }
+
+    &:focus-visible {
+      outline: var(--focus-outline);
+    }
+
+    @media (width < $breakpoint-desktop-min) {
+      width: 52px;
+      height: 52px;
+    }
+
+    &_go-to-top {
+      background-image: url('../_assets/go-to-top-icon.svg');
+    }
+  }
+
+  &--link {
+    color: inherit;
+
+    border-bottom: 1px solid var(--color-text-light);
+  }
+
+  &--content {
+    text-align: right;
+  }
+}
