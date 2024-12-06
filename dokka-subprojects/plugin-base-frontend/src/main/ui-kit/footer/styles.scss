@@ -1,0 +1,77 @@
+/*!
+ * Copyright 2014-2024  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../_tokens/index';
+
+.footer {
+  position: relative;
+
+  display: flex;
+  clear: both;
+  align-items: center;
+
+  min-height: var(--footer-height);
+  margin-top: auto;
+
+  padding: 0 var(--size-m3);
+
+  letter-spacing: 0.2px;
+
+  color: var(--footer-font-color);
+  background-color: var(--footer-background);
+
+  font-size: 12px;
+  line-height: 16px;
+
+  &--button_go-to-top {
+    background-image: url('../_assets/go-to-top-icon.svg');
+  }
+
+  &--button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+    padding: 0;
+
+    cursor: pointer;
+    transition: background-color 200ms ease-in-out;
+
+    border: none;
+    border-radius: 50%;
+    background-color: var(--footer-go-to-top-color);
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+
+    font-size: 0;
+    line-height: 0;
+    will-change: background-color;
+  }
+
+  &--button:hover {
+    opacity: 0.9;
+  }
+
+  &--link {
+    display: inline-flex;
+    align-items: center;
+
+    color: var(--breadcrumb-font-color);
+  }
+
+  &--link_external::after {
+    width: 12px;
+    height: 12px;
+    margin-right: var(--horizontal-spacing-for-content);
+    margin-left: 4px;
+
+    content: '';
+
+    background-image: url('../_assets/external-link.svg');
+
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+  }
+}
