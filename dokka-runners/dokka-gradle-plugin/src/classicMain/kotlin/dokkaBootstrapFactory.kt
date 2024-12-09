@@ -6,17 +6,25 @@ package org.jetbrains.dokka.gradle
 
 import org.gradle.api.artifacts.Configuration
 import org.jetbrains.dokka.DokkaBootstrap
+import java.io.File
 import java.net.URLClassLoader
 import kotlin.reflect.KClass
 
-fun DokkaBootstrap(configuration: Configuration, bootstrapClass: KClass<out DokkaBootstrap>): DokkaBootstrap {
-    val runtimeJars = configuration.resolve()
+internal fun DokkaBootstrap(classpath: Set<File>, bootstrapClass: KClass<out DokkaBootstrap>): DokkaBootstrap {
     val runtimeClassLoader = URLClassLoader(
-        runtimeJars.map { it.toURI().toURL() }.toTypedArray(),
+        classpath.map { it.toURI().toURL() }.toTypedArray(),
         ClassLoader.getSystemClassLoader().parent
     )
 
     val runtimeClassloaderBootstrapClass = runtimeClassLoader.loadClass(bootstrapClass.qualifiedName)
     val runtimeClassloaderBootstrapInstance = runtimeClassloaderBootstrapClass.constructors.first().newInstance()
     return automagicTypedProxy(DokkaClassicPlugin::class.java.classLoader, runtimeClassloaderBootstrapInstance)
+}
+
+@Deprecated("Internal Dokka API.")
+fun DokkaBootstrap(configuration: Configuration, bootstrapClass: KClass<out DokkaBootstrap>): DokkaBootstrap {
+    return DokkaBootstrap(
+        classpath = configuration.resolve(),
+        bootstrapClass = bootstrapClass,
+    )
 }

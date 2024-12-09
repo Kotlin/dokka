@@ -113,10 +113,13 @@ open class DokkaClassicPlugin : Plugin<Project> {
     }
 
     private fun Project.configureEachAbstractDokkaTask() {
-        tasks.withType<AbstractDokkaTask>().configureEach {
+        tasks.withType<AbstractDokkaTask>().configureEach task@{
             val formatClassifier = name.removePrefix("dokka").decapitalize()
             outputDirectory.convention(project.layout.buildDirectory.dir("dokka/$formatClassifier"))
             cacheRoot.convention(project.layout.dir(providers.provider { DokkaDefaults.cacheRoot }))
+
+            pluginsClasspath.from(this@task.plugins)
+            runtimeClasspath.from(this@task.runtime)
         }
     }
 
