@@ -11,6 +11,7 @@ import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.logging.LogLevel.*
@@ -23,6 +24,7 @@ import org.gradle.kotlin.dsl.property
 import org.gradle.util.GradleVersion
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import java.util.concurrent.atomic.AtomicReference
@@ -195,11 +197,21 @@ abstract class AbstractDokkaTask : DefaultTask() {
         pluginsConfiguration.add(pluginConfiguration)
     }
 
-    @Classpath
+    @Internal
     val plugins: Configuration = project.maybeCreateDokkaPluginConfiguration(name)
 
-    @Classpath
+    /** Resolve the dependencies from [plugins]. */
+    @get:Classpath
+    @InternalDokkaGradlePluginApi
+    abstract val pluginsClasspath: ConfigurableFileCollection
+
+    @Internal
     val runtime: Configuration = project.maybeCreateDokkaRuntimeConfiguration(name)
+
+    /** Resolve the dependencies from [runtime]. */
+    @get:Classpath
+    @InternalDokkaGradlePluginApi
+    abstract val runtimeClasspath: ConfigurableFileCollection
 
     private val providers: ProviderFactory = project.providers
 
@@ -222,7 +234,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
 
     @TaskAction
     internal open fun generateDocumentation() {
-        DokkaBootstrap(runtime, DokkaBootstrapImpl::class).apply {
+        DokkaBootstrap(runtimeClasspath.files, DokkaBootstrapImpl::class).apply {
             configure(buildDokkaConfiguration().toCompactJsonString(), createProxyLogger())
             val uncaughtExceptionHolder = AtomicReference<Throwable?>()
             /**
