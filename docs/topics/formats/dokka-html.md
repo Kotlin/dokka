@@ -222,6 +222,8 @@ you can [override the `logo-styles.css` stylesheet](#customize-styles) to custom
 For an example of how to do this, see our
 [custom format example project](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/examples/gradle/dokka-customFormat-example).
 
+The maximum supported logo dimensions are 120 pixels in width and 36 pixels in height. If you use a larger image, it will be automatically resized.
+
 ### Modify the footer
 
 You can modify text in the footer by using the `footerMessage` [configuration option](#configuration).
