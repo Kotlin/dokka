@@ -3,8 +3,8 @@
  */
 
 plugins {
-    kotlin("jvm") version "1.9.22"
-    id("org.jetbrains.dokka") version "1.9.20" apply false
+    kotlin("jvm") version "2.1.0"
+    id("org.jetbrains.dokka") version "2.0.0" apply false
 }
 
 // The versioning plugin must be applied in all submodules
@@ -18,6 +18,6 @@ subprojects {
     }
     val dokkaPlugin by configurations
     dependencies {
-        dokkaPlugin("org.jetbrains.dokka:versioning-plugin:1.9.20")
+        dokkaPlugin("org.jetbrains.dokka:versioning-plugin:2.0.0")
     }
 }
