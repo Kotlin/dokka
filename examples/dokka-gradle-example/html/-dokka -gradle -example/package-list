@@ -7,4 +7,3 @@ $dokka.location:demo/Greeter/Greeter/#kotlin.String/PointingToDeclaration/-dokk
 $dokka.location:demo/Greeter/greet/#/PointingToDeclaration/-dokka -gradle -example/demo/-greeter/greet.html
 $dokka.location:demo/Greeter/name/#/PointingToDeclaration/-dokka -gradle -example/demo/-greeter/name.html
 demo
-

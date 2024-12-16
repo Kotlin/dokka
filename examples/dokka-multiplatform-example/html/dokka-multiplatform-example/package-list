@@ -17,7 +17,7 @@ $dokka.location:org.kotlintestmpp////PointingToDeclaration/dokka-multiplatform-
 $dokka.location:org.kotlintestmpp//js/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/js.html
 $dokka.location:org.kotlintestmpp//jvm/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/jvm.html
 $dokka.location:org.kotlintestmpp//myExtension/kotlin.String#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/[jvm]my-extension.html
-$dokka.location:org.kotlintestmpp//printPointerRawValue/#kotlinx.cinterop.CPointer[TypeParam(bounds=[kotlinx.cinterop.CPointed])]/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/print-pointer-raw-value.html
+$dokka.location:org.kotlintestmpp//printPointerRawValue/#[Error type: Unresolved type for CPointer<T>][TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/print-pointer-raw-value.html
 $dokka.location:org.kotlintestmpp//shared/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/[jvm]shared.html
 $dokka.location:org.kotlintestmpp//startConnectionPipeline/kotlinx.coroutines.CoroutineScope#kotlin.String/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/start-connection-pipeline.html
 $dokka.location:org.kotlintestmpp/JavaAnnotation///PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/-java-annotation/index.html
@@ -29,4 +29,3 @@ org.kotlintestmpp
 org.kotlintestmpp.common
 org.kotlintestmpp.coroutines
 org.kotlintestmpp.date
-
