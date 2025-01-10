@@ -38,6 +38,7 @@ import org.jetbrains.kotlin.analysis.api.types.*
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.name.CallableId
 
 internal class DefaultSymbolToDocumentableTranslator(context: DokkaContext) : AsyncSourceToDocumentableTranslator {
     private val kotlinAnalysis = context.plugin<SymbolsAnalysisPlugin>().querySingle { kotlinAnalysis }
@@ -408,15 +409,21 @@ internal class DokkaSymbolVisitor(
                 ?.toList()
                 .orEmpty()
 
+        val cachedBackFieldNames = syntheticJavaProperties.mapNotNull { if (it.hasBackingField) it.name else null }
         fun List<KaJavaFieldSymbol>.filterOutSyntheticJavaPropBackingField() =
-            filterNot { javaField -> syntheticJavaProperties.any { it.hasBackingField && javaField.name == it.name } }
+            filterNot { javaField ->
+                javaField.name in cachedBackFieldNames
+            }
 
         val javaFields = callables.filterIsInstance<KaJavaFieldSymbol>()
             .filterOutSyntheticJavaPropBackingField()
 
+        val cachedJavaAccessorIds: List<CallableId> =
+            syntheticJavaProperties.mapNotNull { it.javaGetterSymbol.callableId } + syntheticJavaProperties.mapNotNull { it.javaSetterSymbol?.callableId }
+
         fun List<KaNamedFunctionSymbol>.filterOutSyntheticJavaPropAccessors() = filterNot { fn ->
             if ((fn.origin == KaSymbolOrigin.JAVA_SOURCE || fn.origin == KaSymbolOrigin.JAVA_LIBRARY) && fn.callableId != null)
-                syntheticJavaProperties.any { fn.callableId == it.javaGetterSymbol.callableId || fn.callableId == it.javaSetterSymbol?.callableId }
+                fn.callableId in cachedJavaAccessorIds
             else false
         }
 
