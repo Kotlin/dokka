@@ -23,6 +23,17 @@ tasks.compileKotlin {
     }
 }
 
+tasks.compileTestKotlin {
+    compilerOptions {
+        // `kotlin-dsl` plugin overrides the versions at the task level,
+        // which takes priority over the `kotlin` project extension.
+        // So, fix it by manually setting the LV per-task.
+        languageVersion.set(kotlin.compilerOptions.languageVersion)
+        apiVersion.set(kotlin.compilerOptions.apiVersion)
+    }
+}
+
+
 tasks.validatePlugins {
     enableStricterValidation = true
 }
