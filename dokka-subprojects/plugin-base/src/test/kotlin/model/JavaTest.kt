@@ -12,8 +12,10 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.See
 import org.jetbrains.dokka.model.doc.Text
-import utils.*
+import utils.AbstractModelTest
 import utils.assertContains
+import utils.assertNotNull
+import utils.name
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -74,6 +76,26 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
         """, configuration = configuration){
             with((this / "java" / "Tested").cast<DClass>()){
                 extra[ImplementedInterfaces]?.interfaces?.entries?.single()?.value?.map { it.dri.sureClassNames }?.sorted() equals listOf("Highest", "Lower").sorted()
+            }
+        }
+    }
+
+    @Test fun allImplementedInterfacesWithGenericsInJava() {
+        inlineModelTest(
+            """
+            |interface Highest<H> { }
+            |interface Lower<L> extends Highest<L> { }
+            |class Extendable { }
+            |class Tested<T> extends Extendable implements Lower<T> { }
+        """, configuration = configuration){
+            with((this / "java" / "Tested").cast<DClass>()){
+                val implementedInterfaces = extra[ImplementedInterfaces]?.interfaces?.entries?.single()?.value!!
+                implementedInterfaces.map { it.dri.sureClassNames }.sorted() equals listOf("Highest", "Lower").sorted()
+                for (implementedInterface in implementedInterfaces) {
+                    // The type parameter T from Tested should be used for each interface, not the type parameters in
+                    // the interface definitions.
+                    assertEquals((implementedInterface.projections.single() as TypeParameter).name, "T")
+                }
             }
         }
     }

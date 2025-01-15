@@ -171,6 +171,10 @@ internal class DokkaPsiParser(
                 )
             }
 
+            // Creates the AncestryNode for this class. The AncestryNodes for this class's supertypes will be done using
+            // PsiClassTypes, not PsiClasses. This is important because the type parameters used in the class hierarchy
+            // should reflect the usage in the extends/implements clause, not the type parameters in the supertype
+            // class definitions, which the PsiClasses would use.
             val ancestry = createAncestryNode(
                 type = GenericTypeConstructor(
                     DRI.from(this),
