@@ -12,10 +12,8 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.See
 import org.jetbrains.dokka.model.doc.Text
-import utils.AbstractModelTest
+import utils.*
 import utils.assertContains
-import utils.assertNotNull
-import utils.name
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -95,6 +93,25 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
     }
 
     @Test
+    fun interfaceWithGeneric() {
+        inlineModelTest(
+            """
+            |interface Bar<T> {}
+            |public class Foo implements Bar<String> {}
+            """, configuration = configuration
+        ) {
+            with((this / "java" / "Foo").cast<DClass>()) {
+                val interfaceType = supertypes.values.flatten().single()
+                assertEquals(interfaceType.kind, JavaClassKindTypes.INTERFACE)
+                assertEquals(interfaceType.typeConstructor.dri.classNames, "Bar")
+                // The interface type should be Bar<String>, and not use Bar<T> like the interface definition
+                val generic = interfaceType.typeConstructor.projections.single() as GenericTypeConstructor
+                assertEquals(generic.dri.classNames, "String")
+            }
+        }
+    }
+
+    @Test
     fun superClass() {
         inlineModelTest(
             """
@@ -106,6 +123,25 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
                 assertTrue(
                     sups.all { s -> supertypes.values.flatten().any { it.typeConstructor.dri.classNames == s } })
                 "Foo must extend ${sups.joinToString(", ")}"
+            }
+        }
+    }
+
+    @Test
+    fun superclassWithGeneric() {
+        inlineModelTest(
+            """
+            |class Bar<T> {}
+            |public class Foo extends Bar<String> {}
+            """, configuration = configuration
+        ) {
+            with((this / "java" / "Foo").cast<DClass>()) {
+                val superclassType = supertypes.values.flatten().single()
+                assertEquals(superclassType.kind, JavaClassKindTypes.CLASS)
+                assertEquals(superclassType.typeConstructor.dri.classNames, "Bar")
+                // The superclass type should be Bar<String>, and not use Bar<T> like the class definition
+                val generic = superclassType.typeConstructor.projections.single() as GenericTypeConstructor
+                assertEquals(generic.dri.classNames, "String")
             }
         }
     }
