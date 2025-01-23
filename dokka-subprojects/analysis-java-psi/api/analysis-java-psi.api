@@ -26,7 +26,6 @@ public final class org/jetbrains/dokka/analysis/java/ExceptionJavadocTag$Compani
 
 public final class org/jetbrains/dokka/analysis/java/JavaAnalysisPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
-	public final fun disposeGlobalStandaloneApplicationServices ()V
 	public final fun getDocCommentCreators ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getDocCommentFinder ()Lorg/jetbrains/dokka/analysis/java/doccomment/DocCommentFinder;
 	public final fun getDocCommentParsers ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
