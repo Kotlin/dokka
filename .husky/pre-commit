@@ -3,3 +3,15 @@
 
 cd "$(dirname -- "$0")/../dokka-subprojects/plugin-base-frontend" || exit
 yarn run lint-staged
+
+# Check for staged changes in the plugin-base-frontend directory
+if [ -n "$(git diff --cached --name-only .)" ]; then
+  echo "Staged changes detected in dokka-subprojects/plugin-base-frontend. Building ui-kit for plugin-base."
+  yarn run build:ui-kit
+fi
+
+# Check for changes not staged for commit in the specific directory
+if [ -n "$(git diff --name-only ../plugin-base/src/main/resources/dokka/ui-kit)" ]; then
+  echo "Changes not staged for commit detected in dokka-subprojects/plugin-base/src/main/resources/dokka/ui-kit. Please commit the changes."
+  exit 1
+fi

@@ -5,9 +5,11 @@
 module.exports = {
   "src/**/**/*.{ts,tsx}": [
     "eslint --fix",
+    "prettier --write",
     () => "tsc --noEmit"
   ],
-  "src/**/**/*.{ts,tsx,css,scss}": [
+  "src/**/**/*.{scss,css}": [
+    "stylelint --fix",
     "prettier --write"
   ]
 }
