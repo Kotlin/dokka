@@ -14,8 +14,7 @@ public data class PackageList(
     val locations: Map<String, String>,
     val url: URL
 ) {
-    val packages: Set<String>
-        get() = modules.values.flatten().toSet()
+    val packages: Set<String> by lazy { modules.values.flatten().toSet() }
 
     public fun moduleFor(packageName: String): Module? {
         return modules.asSequence()
