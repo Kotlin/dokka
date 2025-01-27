@@ -149,7 +149,8 @@
 
     & .checkbox {
       pointer-events: none;
-      &:first-letter {
+
+      &::first-letter {
         text-transform: uppercase;
       }
     }

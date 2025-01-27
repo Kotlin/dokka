@@ -800,6 +800,7 @@
   line-height: 0;
   margin-bottom: 12px;
   margin-top: 12px;
+  outline-color: #6c4a00 !important;
   padding: 0;
   width: 40px;
   z-index: 0;

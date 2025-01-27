@@ -51,6 +51,7 @@
 
     border: none;
     border-radius: var(--size-s1);
+    outline-color: #6c4a00 !important; // needed because of filer: invert(1)
     background-color: transparent;
     background-repeat: no-repeat;
     background-position: 50% 50%;
