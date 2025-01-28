@@ -45,7 +45,6 @@ $secondary-font-color: rgba(255, 255, 255, 0.7);
 
     font-size: 0;
     line-height: 0;
-    tab-index: 1;
   }
 }
 
@@ -53,6 +52,16 @@ $secondary-font-color: rgba(255, 255, 255, 0.7);
   padding: 4px;
 
   background-color: var(--background-color) !important;
+}
+
+span[data-test-custom='ring-select-popup-filter-icon'] {
+  top: 11px;
+  left: 14px;
+
+  svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
 }
 
 .popup-wrapper {
@@ -65,8 +74,9 @@ $secondary-font-color: rgba(255, 255, 255, 0.7);
   background-color: #27282c !important;
 
   [class^='filterWrapper'] {
-    border-bottom: 1px solid hsla(0deg, 0%, 100%, 0.2);
     margin-bottom: 4px;
+
+    border-bottom: 1px solid hsla(0deg, 0%, 100%, 0.2);
   }
 
   input {
@@ -84,9 +94,10 @@ $secondary-font-color: rgba(255, 255, 255, 0.7);
   }
 
   button[data-test='ring-input-clear'] {
-    color: #fff !important;
     top: 10px;
     right: 6px;
+
+    color: #fff !important;
 
     span {
       display: none;
@@ -102,6 +113,7 @@ $secondary-font-color: rgba(255, 255, 255, 0.7);
   .popup-wrapper {
     min-width: 100% !important;
   }
+
   .search-hotkey-popup {
     display: none;
   }
@@ -194,15 +206,6 @@ $secondary-font-color: rgba(255, 255, 255, 0.7);
 
 div[data-test='ring-select-popup-filter'] {
   padding-left: 40px;
-}
-
-span[data-test-custom='ring-select-popup-filter-icon'] {
-  top: 11px;
-  left: 14px;
-  svg {
-    width: 18px !important;
-    height: 18px !important;
-  }
 }
 
 div[data-test='ring-popup'] {

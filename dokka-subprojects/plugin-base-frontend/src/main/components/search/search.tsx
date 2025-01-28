@@ -14,17 +14,14 @@ import { CustomAnchorProps, IWindow, Option, Props } from './types';
 
 const WithFuzzySearchFilterComponent: React.FC<Props> = ({ data }: Props) => {
   const [selected, onSelected] = useState<Option>(data[0]);
-  const onChangeSelected = useCallback(
-    (selectItem: SelectItem<unknown> | null) => {
-      if (!selectItem) {
-        return;
-      }
-      const maybeOption: Option = selectItem as Option;
-      window.location.replace(`${(window as IWindow).pathToRoot}${maybeOption.location}?query=${maybeOption.name}`);
-      onSelected(maybeOption);
-    },
-    [data]
-  );
+  const onChangeSelected = useCallback((selectItem: SelectItem<unknown> | null) => {
+    if (!selectItem) {
+      return;
+    }
+    const maybeOption: Option = selectItem as Option;
+    window.location.replace(`${(window as IWindow).pathToRoot}${maybeOption.location}?query=${maybeOption.name}`);
+    onSelected(maybeOption);
+  }, []);
 
   return (
     <div className="search-container">

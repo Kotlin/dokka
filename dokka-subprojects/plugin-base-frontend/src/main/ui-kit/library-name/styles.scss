@@ -12,9 +12,9 @@
   white-space: nowrap;
 
   color: var(--color-text-dt);
+  border-radius: var(--size-s1);
 
   font: var(--font-h4);
-  border-radius: var(--size-s1);
 
   &:focus-visible {
     outline: var(--focus-outline);
