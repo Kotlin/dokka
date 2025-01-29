@@ -75,7 +75,7 @@ internal object DisplaySourceSetCaches {
      * In reality, there will be only several [DokkaSourceSet] instances during Dokka execution.
      */
     fun displaySourceSet(sourceSet: DokkaSourceSet): DisplaySourceSet {
-        return instanceCache.computeIfAbsent(sourceSet, ::DisplaySourceSet)
+        return instanceCache.getOrPut(sourceSet) { DisplaySourceSet(sourceSet) }
     }
 
     /**
@@ -83,7 +83,7 @@ internal object DisplaySourceSetCaches {
      * so it makes sense to cache them by the set itself.
      */
     fun displaySourceSets(sourceSets: Iterable<DokkaSourceSet>): Set<DisplaySourceSet> {
-        return setCache.computeIfAbsent(sourceSets) { it.map(::displaySourceSet).toSet() }
+        return setCache.getOrPut(sourceSets) { sourceSets.map(::displaySourceSet).toSet() }
     }
 
     fun clear() {
