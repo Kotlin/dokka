@@ -14,13 +14,20 @@ public data class PackageList(
     val locations: Map<String, String>,
     val url: URL
 ) {
-    val packages: Set<String> by lazy { modules.values.flatten().toSet() }
-
-    public fun moduleFor(packageName: String): Module? {
-        return modules.asSequence()
-            .filter { it.value.contains(packageName) }
-            .firstOrNull()?.key
+    private val moduleByPackage: Map<String, Module> by lazy {
+        mutableMapOf<String, Module>().apply {
+            modules.forEach { (module, packages) ->
+                packages.forEach { pkg ->
+                    // if multiple modules have the same package (split-package), store the first module.
+                    if (!containsKey(pkg)) put(pkg, module)
+                }
+            }
+        }
     }
+
+    val packages: Set<String> get() = moduleByPackage.keys
+
+    public fun moduleFor(packageName: String): Module? = moduleByPackage[packageName]
 
     public companion object {
         public const val PACKAGE_LIST_NAME: String = "package-list"
