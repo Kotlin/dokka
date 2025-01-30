@@ -1,0 +1,42 @@
+/*!
+ * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../_tokens/index';
+
+.root {
+  display: flex;
+  flex-direction: column;
+
+  height: 100%;
+}
+
+#container {
+  display: flex;
+  flex: 1 1 auto;
+
+  min-height: 0; /* full height exclude header */
+}
+
+#main {
+  display: flex;
+  overflow: auto;
+  flex: 1 1 0; /* full width, but no affects for sidebar */
+  flex-direction: column;
+}
+
+.main-content {
+  z-index: 0;
+
+  box-sizing: border-box;
+
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin-right: auto;
+  margin-left: auto;
+  padding: 0 var(--size-m3) var(--size-l2);
+
+  @media (width < $breakpoint-tablet-min) {
+    padding-right: var(--size-s3);
+    padding-left: var(--size-s3);
+  }
+}
