@@ -33,11 +33,14 @@ data class DokkaModuleDescriptionKxs(
     /** @see org.jetbrains.dokka.gradle.DokkaExtension.modulePath */
     val modulePath: String,
     /** name of the sibling directory that contains the module output */
-    val moduleOutputDirName: String = "module",
+    val moduleOutputDirName: String = defaultModuleOutputDirName,
     /** name of the sibling directory that contains the module includes */
-    val moduleIncludesDirName: String = "includes",
+    val moduleIncludesDirName: String = defaultModuleIncludesDirName,
 ) {
     internal companion object {
+        private val defaultModuleOutputDirName = "module"
+        private val defaultModuleIncludesDirName = "includes"
+
         fun toJsonObject(module: DokkaModuleDescriptionKxs): JsonObject = buildJsonObject {
             put("name", module.name)
             put("modulePath", module.modulePath)
@@ -46,10 +49,14 @@ data class DokkaModuleDescriptionKxs(
         }
 
         fun fromJsonObject(obj: JsonObject): DokkaModuleDescriptionKxs = DokkaModuleDescriptionKxs(
-            name = obj["name"]!!.jsonPrimitive.content,
-            modulePath = obj["modulePath"]!!.jsonPrimitive.content,
-            moduleOutputDirName = obj["moduleOutputDirName"]!!.jsonPrimitive.content,
-            moduleIncludesDirName = obj["moduleIncludesDirName"]!!.jsonPrimitive.content,
+            name = obj.getString("name"),
+            modulePath = obj.getString("modulePath"),
+            moduleOutputDirName = obj.getString("moduleOutputDirName", defaultModuleOutputDirName),
+            moduleIncludesDirName = obj.getString("moduleIncludesDirName", defaultModuleIncludesDirName),
         )
+
+        private fun JsonObject.getString(key: String, defaultValue: String? = null): String {
+            return get(key)?.jsonPrimitive?.content ?: defaultValue ?: error("Missing required property '$key'")
+        }
     }
 }
