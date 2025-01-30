@@ -5,7 +5,9 @@
 package org.jetbrains.dokka.model
 
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Represents a final user-visible source set in the documentable model that is
@@ -44,13 +46,16 @@ public data class DisplaySourceSet(
  * Transforms the current [DokkaSourceSet] into [DisplaySourceSet],
  * matching the corresponding subset of its properties to [DisplaySourceSet] properties.
  */
-public fun DokkaSourceSet.toDisplaySourceSet(): DisplaySourceSet = DisplaySourceSet(this)
+public fun DokkaSourceSet.toDisplaySourceSet(): DisplaySourceSet {
+    return DisplaySourceSetCaches.displaySourceSet(this)
+}
 
 /**
  * Transforms all the given [DokkaSourceSet]s into [DisplaySourceSet]s.
  */
-public fun Iterable<DokkaSourceSet>.toDisplaySourceSets(): Set<DisplaySourceSet> =
-    map { it.toDisplaySourceSet() }.toSet()
+public fun Iterable<DokkaSourceSet>.toDisplaySourceSets(): Set<DisplaySourceSet> {
+    return DisplaySourceSetCaches.displaySourceSets(this)
+}
 
 @InternalDokkaApi
 @Deprecated("Use computeSourceSetIds() and cache its results instead", replaceWith = ReplaceWith("computeSourceSetIds()"))
@@ -59,3 +64,30 @@ public val Iterable<DisplaySourceSet>.sourceSetIDs: List<DokkaSourceSetID> get()
 @InternalDokkaApi
 public fun Iterable<DisplaySourceSet>.computeSourceSetIds(): Set<DokkaSourceSetID> =
     fold(hashSetOf()) { acc, set -> acc.addAll(set.sourceSetIDs.all); acc }
+
+internal object DisplaySourceSetCaches {
+    private val instanceCache = ConcurrentHashMap<DokkaSourceSet, DisplaySourceSet>()
+    private val setCache = ConcurrentHashMap<Iterable<DokkaSourceSet>, Set<DisplaySourceSet>>()
+
+    /**
+     * Construction of [DisplaySourceSet] from [DokkaSourceSet] requires to create a [CompositeSourceSetID], which has a big memory footprint.
+     * [toDisplaySourceSets] is called for almost each [ContentNode] a LOT.
+     * In reality, there will be only several [DokkaSourceSet] instances during Dokka execution.
+     */
+    fun displaySourceSet(sourceSet: DokkaSourceSet): DisplaySourceSet {
+        return instanceCache.computeIfAbsent(sourceSet, ::DisplaySourceSet)
+    }
+
+    /**
+     * [toDisplaySourceSets] mostly called on the same Set<DokkaSourceSet>,
+     * so it makes sense to cache them by the set itself.
+     */
+    fun displaySourceSets(sourceSets: Iterable<DokkaSourceSet>): Set<DisplaySourceSet> {
+        return setCache.computeIfAbsent(sourceSets) { it.map(::displaySourceSet).toSet() }
+    }
+
+    fun clear() {
+        instanceCache.clear()
+        setCache.clear()
+    }
+}
