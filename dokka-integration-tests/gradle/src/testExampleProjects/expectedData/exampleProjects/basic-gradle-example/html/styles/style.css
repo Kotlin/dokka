@@ -15,8 +15,6 @@
     --breadcrumb-margin: 24px;
     --hover-link-color: #5B5DEF;
 
-    --horizontal-spacing-for-content: 16px;
-    --bottom-spacing: 16px;
     --color-scrollbar: rgba(39, 40, 44, 0.40);
     --color-scrollbar-track: var(--default-gray);
     --default-white: #fff;
@@ -34,7 +32,6 @@
     --border-color: rgba(39, 40, 44, .2);
     --navigation-highlight-color: rgba(39, 40, 44, 0.05);
     --top-navigation-height: 73px;
-    --max-width: 1160px;
     --white-10: hsla(0, 0%, 100%, .1);
 
     --active-tab-border-color: #7F52FF;
@@ -237,47 +234,6 @@ td:first-child {
 
 /* /---dark theme --- */
 
-.root {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-/* --- Layout styles --- */
-
-#container {
-    display: flex;
-    flex: 1 1 auto;
-    min-height: 0; /* full height exclude header */
-}
-
-#container > #main {
-    overflow: auto;
-}
-
-#main {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 0; /* full width, but no affects for sidebar */
-}
-
-/* /--- Layout styles --- */
-
-/* --- Main Content styles --- */
-.main-content {
-    padding-bottom: var(--bottom-spacing);
-    margin-left: auto;
-    margin-right: auto;
-    max-width: var(--max-width);
-    width: 100%;
-    z-index: 0;
-}
-
-.main-content > * {
-    margin-left: var(--horizontal-spacing-for-content);
-    margin-right: var(--horizontal-spacing-for-content);
-}
-
 .main-content .content > hr {
     margin: 30px 0;
     border-top: 3px double #8c8b8b;
@@ -286,8 +242,6 @@ td:first-child {
 .main-content :is(h1, h2) {
     font-weight: 530;
 }
-
-/* /--- Main Content styles --- */
 
 /* /--- Breadcrumbs styles --- */
 .breadcrumbs, .breadcrumbs a, .breadcrumbs a:hover {
