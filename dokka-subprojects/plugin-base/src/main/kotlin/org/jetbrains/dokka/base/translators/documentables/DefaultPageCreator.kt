@@ -174,22 +174,10 @@ public open class DefaultPageCreator(
 
     private fun <T : Documentable> List<T>.renameClashingDocumentable(): List<T> =
         groupBy { it.dri }.values.flatMap { elements ->
-            if (elements.size == 1 && !elements.single().hasClashingDriIdentifier()) elements else elements.mapNotNull { element ->
+            if (elements.size == 1) elements else elements.mapNotNull { element ->
                 element.renameClashingDocumentable()
             }
         }
-
-    private fun <T : Documentable> T.hasClashingDriIdentifier(): Boolean = when (this) {
-        is DClass -> extra[ClashingDriIdentifier] != null
-        is DObject -> extra[ClashingDriIdentifier] != null
-        is DAnnotation -> extra[ClashingDriIdentifier] != null
-        is DInterface -> extra[ClashingDriIdentifier] != null
-        is DEnum -> extra[ClashingDriIdentifier] != null
-        is DFunction -> extra[ClashingDriIdentifier] != null
-        is DProperty -> extra[ClashingDriIdentifier] != null
-        is DTypeAlias -> extra[ClashingDriIdentifier] != null
-        else -> false
-    }
 
     @Suppress("UNCHECKED_CAST")
     private fun <T : Documentable> T.renameClashingDocumentable(): T? = when (this) {
