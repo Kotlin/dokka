@@ -449,7 +449,7 @@ class ExpectActualsTest : BaseAbstractTest() {
         /src/jvm/test.kt
         actual class Skiko actual constructor() {
              val isShowing = false
-             override fun isShowing(): Boolean {
+             fun isShowing(): Boolean {
                 return false
             }
         }
@@ -463,6 +463,10 @@ class ExpectActualsTest : BaseAbstractTest() {
         """.trimMargin(),
         multiplatformConfiguration
     ) {
+        pagesGenerationStage = { root ->
+            val cl = root.dfs { it.name == "Skiko" && it is ClasslikePageNode } ?: throw IllegalStateException()
+            assertEquals(2, cl.children.count { it.name == "[jvm]isShowing" })
+        }
         renderingStage = { root, _ ->
             val documentables = (root.dfs { it.name == "[jvm]isShowing" } as MemberPageNode).documentables
             assertEquals(listOf(DFunction::class, DProperty::class), documentables.map { it::class })
@@ -478,7 +482,7 @@ class ExpectActualsTest : BaseAbstractTest() {
         /src/jvm/test.kt
         actual class Skiko actual constructor() {
              val isShowing = false
-             override fun isShowing(): Boolean {
+             fun isShowing(): Boolean {
                 return false
             }
         }
@@ -490,6 +494,10 @@ class ExpectActualsTest : BaseAbstractTest() {
         """.trimMargin(),
         multiplatformConfiguration
     ) {
+        pagesGenerationStage = { root ->
+            val cl = root.dfs { it.name == "Skiko" && it is ClasslikePageNode } ?: throw IllegalStateException()
+            assertEquals(2, cl.children.count { it.name == "[jvm]isShowing" })
+        }
         renderingStage = { root, _ ->
             val documentables = (root.dfs { it.name == "[jvm]isShowing" } as MemberPageNode).documentables
             assertEquals(listOf(DFunction::class, DProperty::class), documentables.map { it::class })
