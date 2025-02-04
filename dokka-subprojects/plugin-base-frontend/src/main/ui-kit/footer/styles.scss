@@ -6,14 +6,8 @@
 .footer {
   position: relative;
 
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-
   min-height: var(--footer-height);
   margin-top: auto;
-
-  padding: 0 var(--size-m3);
 
   letter-spacing: 0.15px;
 
@@ -27,8 +21,21 @@
     background-color: var(--color-background-footer-dt);
   }
 
-  @media (width < $breakpoint-desktop-min) {
-    padding: 0 var(--size-s3);
+  &--container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    box-sizing: border-box;
+
+    max-width: var(--content-max-width);
+    margin-right: auto;
+    margin-left: auto;
+    padding: 0 var(--size-m3);
+
+    @media (width < $breakpoint-tablet-min) {
+      padding: 0 var(--size-s3);
+    }
   }
 
   &--button {
