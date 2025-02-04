@@ -7,6 +7,7 @@ import * as dropdown from './dropdown/index';
 import * as filterSection from './filter-section/index';
 import * as footer from './footer/index';
 import * as icon from './icon/index';
+import * as layout from './layout/index';
 import * as libraryName from './library-name/index';
 import * as libraryVersion from './library-version/index';
 import * as navbar from './navbar/index';
@@ -26,6 +27,7 @@ export {
   filterSection,
   footer,
   icon,
+  layout,
   libraryName,
   libraryVersion,
   navbar,
