@@ -441,7 +441,7 @@ class ExpectActualsTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should merge an implicit-expectActual function with a single property with #3685`() = testInline(
+    fun `should merge an implicit-expectActual function with a single property #3685`() = testInline(
         """
         /src/common/test.kt
         expect class Skiko
@@ -474,7 +474,7 @@ class ExpectActualsTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should merge an implicit-expectActual property with a single function with #3685`() = testInline(
+    fun `should merge an implicit-expectActual property with a single function #3685`() = testInline(
         """
         /src/common/test.kt
         expect class Skiko
