@@ -2679,3 +2679,8 @@ body {
   font: var(--font-text-m);
   margin: 0;
 }
+
+small {
+  font: 400 14px/20px JetBrains Sans, Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
+  font: var(--font-text-s);
+}
