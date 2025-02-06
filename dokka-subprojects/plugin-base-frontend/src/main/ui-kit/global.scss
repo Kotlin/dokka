@@ -7,13 +7,19 @@
   --color-background: var(--color-background-page);
   --focus-outline: 4px solid var(--color-key-blue-50);
   --content-max-width: 1128px;
+  --text-color: var(--color-text);
+  --text-outine: var(--color-b20);
 }
 
 .theme-dark {
   --color-background: var(--color-background-page-dt);
+  --text-color: var(--color-text-dt);
+  --text-outine: var(--color-w16);
 }
 
-body,
-table {
+body {
+  font: var(--font-text-m);
   background-color: var(--color-background);
+  color: var(--text-color);
+  margin: 0;
 }
