@@ -18,7 +18,7 @@ a {
   overflow-wrap: break-word;
   word-break: break-word;
   padding-bottom: 1px;
-  border-bottom: 1px solid var(--text-outine);
+  border-bottom: 1px solid var(--text-outline);
 
   &, &:active, &:focus, &:hover {
     color: var(--text-color);
@@ -29,7 +29,7 @@ a {
     border-bottom-color: var(--text-color);
   }
 
-  &:focus {
+  &:focus-visible {
     box-shadow: 0 0 0 4px var(--color-key-blue-50);
   }
 }

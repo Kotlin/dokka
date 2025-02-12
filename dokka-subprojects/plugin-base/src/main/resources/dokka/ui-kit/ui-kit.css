@@ -2493,7 +2493,7 @@ a {
   outline: none;
   transition: color 0.2s, border-color 0.2s;
   word-wrap: break-word;
-  border-bottom: 1px solid var(--text-outine);
+  border-bottom: 1px solid var(--text-outline);
   padding-bottom: 1px;
   word-break: break-word;
 }
@@ -2507,7 +2507,12 @@ a {
   border-bottom-color: var(--text-color);
 }
 
-.main-content a:not([data-name]):focus {
+.main-content a:not([data-name]).focus-visible {
+  box-shadow: 0 0 0 4px rgba(48, 127, 255, 0.5);
+  box-shadow: 0 0 0 4px var(--color-key-blue-50);
+}
+
+.main-content a:not([data-name]):focus-visible {
   box-shadow: 0 0 0 4px rgba(48, 127, 255, 0.5);
   box-shadow: 0 0 0 4px var(--color-key-blue-50);
 }
@@ -2661,13 +2666,13 @@ a {
   --focus-outline:4px solid var(--color-key-blue-50);
   --content-max-width:1128px;
   --text-color:var(--color-text);
-  --text-outine:var(--color-b20);
+  --text-outline:var(--color-b20);
 }
 
 .theme-dark {
   --color-background:var(--color-background-page-dt);
   --text-color:var(--color-text-dt);
-  --text-outine:var(--color-w16);
+  --text-outline:var(--color-w16);
 }
 
 body {
