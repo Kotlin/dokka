@@ -1,0 +1,36 @@
+/*!
+ * Copyright 2014-2025  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../_tokens/index';
+
+a {
+  text-decoration: none;
+}
+
+/** [data-name] - anchor links with no size **/
+.main-content a:not([data-name]) {
+  outline: none;
+  cursor: pointer;
+  font-style: normal;
+  font-size: inherit;
+  line-height: inherit;
+  transition: color 200ms, border-color 200ms;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  padding-bottom: 1px;
+  border-bottom: 1px solid var(--text-outline);
+
+  &, &:active, &:focus, &:hover {
+    color: var(--text-color);
+    text-decoration: none;
+  }
+
+  &:hover {
+    border-bottom-color: var(--text-color);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 4px var(--color-key-blue-50);
+  }
+}
+
