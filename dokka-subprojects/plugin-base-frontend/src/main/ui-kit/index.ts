@@ -17,6 +17,7 @@ import * as platformTags from './platform-tags/index';
 import * as tabs from './tabs/index';
 import * as tocTree from './toc-tree/index';
 import * as link from './link/index';
+import * as breadcrumbs from './breadcrumbs/index';
 import { removeBackwardCompatibilityStyles } from './utils';
 import './helpers.scss';
 import './global.scss';
@@ -38,6 +39,7 @@ export {
   tabs,
   tocTree,
   link,
+  breadcrumbs,
 };
 
 document.addEventListener('DOMContentLoaded', () => {
