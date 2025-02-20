@@ -1,0 +1,16 @@
+/*!
+ * Copyright 2014-2025  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../_tokens/index';
+
+.breadcrumbs {
+  --breadcrumb-size: 24px;
+  margin-top: var(--breadcrumb-size);
+  min-height: var(--breadcrumb-size);
+  overflow-wrap: break-word;
+}
+
+.breadcrumbs .delimiter {
+  margin: 0 2px;
+  color: var(--text-outline);
+}
