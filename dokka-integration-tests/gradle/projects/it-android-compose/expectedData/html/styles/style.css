@@ -11,7 +11,6 @@
     --default-font-color: rgb(0, 0, 0);
     --header-font-color: var(--default-font-color);
 
-    --breadcrumb-margin: 24px;
     --hover-link-color: #5B5DEF;
 
     --color-scrollbar: rgba(39, 40, 44, 0.40);
@@ -224,21 +223,7 @@ td:first-child {
     font-weight: 530;
 }
 
-/* /--- Breadcrumbs styles --- */
-.breadcrumbs, .breadcrumbs a, .breadcrumbs a:hover {
-    margin-top: var(--breadcrumb-margin);
-    overflow-wrap: break-word;
-}
 
-.breadcrumbs .delimiter {
-    margin: auto 2px;
-}
-
-.breadcrumbs .current {
-    color: var(--default-font-color);
-}
-
-/* /--- Breadcrumbs styles --- */
 
 .cover > .platform-hinted {
     padding-bottom: 12px;
