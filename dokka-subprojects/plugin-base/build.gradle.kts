@@ -20,6 +20,10 @@ dependencies {
     compileOnly(projects.dokkaSubprojects.dokkaCore)
     compileOnly(projects.dokkaSubprojects.analysisKotlinApi)
 
+    // kdp start
+    implementation(projects.kotlinDocumentation.kotlinDocumentationModel)
+    // kdp end
+
     implementation(projects.dokkaSubprojects.analysisMarkdownJb)
 
     // Other

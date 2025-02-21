@@ -30,6 +30,7 @@ public class ProvidedExtension<T: Any> internal constructor(
             OverrideKind.None, emptyList())
 }
 
+@ConsistentCopyVisibility
 public data class ExtensionBuilder<T: Any> internal constructor(
     private val name: String,
     private val ext: ExtensionPoint<T>,

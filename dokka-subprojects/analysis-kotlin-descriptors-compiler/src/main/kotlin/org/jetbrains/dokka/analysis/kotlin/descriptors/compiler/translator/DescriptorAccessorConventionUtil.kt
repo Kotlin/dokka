@@ -120,7 +120,7 @@ private fun propertyNamesByGetMethod(functionDescriptor: FunctionDescriptor): Li
     // This makes it difficult to guess the name of the accessor property in case of Java
     val javaPropName = if (functionDescriptor is JavaMethodDescriptor && JvmAbi.startsWithIsPrefix(stringName)) {
         val javaPropName = stringName.removePrefix("is").let { newName ->
-            newName.replaceFirst(newName[0], newName[0].toLowerCase())
+            newName.replaceFirst(newName[0], newName[0].lowercaseChar())
         }
         javaPropName
     } else {

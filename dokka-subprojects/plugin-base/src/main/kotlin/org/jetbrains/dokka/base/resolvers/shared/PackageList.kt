@@ -55,7 +55,7 @@ public data class PackageList(
          * It is called via [org.jetbrains.dokka.renderers.PostAction] in both single and multi-module [org.jetbrains.dokka.generation.Generation] pipelines
          */
         public fun load(url: URL, jdkVersion: Int, offlineMode: Boolean = false): PackageList? {
-            if (offlineMode && url.protocol.toLowerCase() != "file")
+            if (offlineMode && url.protocol.lowercase() != "file")
                 return null
 
             return cache.getOrPut(url to jdkVersion) {
@@ -65,7 +65,7 @@ public data class PackageList(
         }
 
         internal fun loadWithoutCache(url: URL, jdkVersion: Int, offlineMode: Boolean = false): PackageList? {
-            if (offlineMode && url.protocol.toLowerCase() != "file")
+            if (offlineMode && url.protocol.lowercase() != "file")
                 return null
 
             return download(url, jdkVersion)

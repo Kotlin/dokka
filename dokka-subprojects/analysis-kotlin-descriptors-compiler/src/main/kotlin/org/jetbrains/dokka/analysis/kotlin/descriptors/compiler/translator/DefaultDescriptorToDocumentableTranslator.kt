@@ -781,7 +781,7 @@ private class DokkaDescriptorVisitor(
             if (specialCaseIs) {
                 if (isGetter) rawName else rawName.replaceFirst("is", "set")
             } else {
-                if (isGetter) "get${rawName.capitalize()}" else "set${rawName.capitalize()}"
+                if (isGetter) "get${rawName.replaceFirstChar(Char::uppercase)}" else "set${rawName.replaceFirstChar(Char::uppercase)}"
             }
         }
 
@@ -1236,7 +1236,7 @@ private class DokkaDescriptorVisitor(
 
     private fun List<Annotations.Annotation>.toAdditionalExtras() = mapNotNull {
         try {
-            ExtraModifiers.valueOf(it.dri.classNames?.toLowerCase() ?: "")
+            ExtraModifiers.valueOf(it.dri.classNames?.lowercase() ?: "")
         } catch (e: IllegalArgumentException) {
             null
         }
@@ -1271,7 +1271,7 @@ private class DokkaDescriptorVisitor(
 
     private fun KtExpression.toDefaultValueExpression(): Expression? = when (node?.elementType) {
         KtNodeTypes.INTEGER_CONSTANT -> parseLong(node?.text)?.let { IntegerConstant(it) }
-        KtNodeTypes.FLOAT_CONSTANT -> if (node?.text?.toLowerCase()?.endsWith('f') == true)
+        KtNodeTypes.FLOAT_CONSTANT -> if (node?.text?.lowercase()?.endsWith('f') == true)
             parseFloat(node?.text)?.let { FloatConstant(it) }
         else parseDouble(node?.text)?.let { DoubleConstant(it) }
         KtNodeTypes.BOOLEAN_CONSTANT -> BooleanConstant(node?.text == "true")

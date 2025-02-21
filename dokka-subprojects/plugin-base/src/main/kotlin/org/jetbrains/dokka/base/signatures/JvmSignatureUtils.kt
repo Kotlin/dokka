@@ -25,7 +25,7 @@ public interface JvmSignatureUtils {
     public fun Annotations.Annotation.isIgnored(): Boolean
 
     public fun Collection<ExtraModifiers>.toSignatureString(): String =
-        joinToString("") { it.name.toLowerCase() + " " }
+        joinToString("") { it.name.lowercase() + " " }
 
     @Suppress("UNCHECKED_CAST")
     public fun Documentable.annotations(): Map<DokkaSourceSet, List<Annotations.Annotation>> {

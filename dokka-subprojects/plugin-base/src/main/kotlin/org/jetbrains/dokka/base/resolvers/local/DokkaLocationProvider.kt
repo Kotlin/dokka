@@ -181,10 +181,10 @@ public open class DokkaLocationProvider(
 }
 
 internal fun sanitizeFileName(name: String, reservedFileNames: Set<String>, reservedCharacters: Set<Char>): String {
-    val lowercase = name.replace("[A-Z]".toRegex()) { matchResult -> "-" + matchResult.value.toLowerCase() }
+    val lowercase = name.replace("[A-Z]".toRegex()) { matchResult -> "-" + matchResult.value.lowercase() }
     val withoutReservedFileNames = if (lowercase in reservedFileNames) "--$lowercase--" else lowercase
     return reservedCharacters.fold(withoutReservedFileNames) { acc, character ->
-        if (character in acc) acc.replace(character.toString(), "[${character.toInt()}]")
+        if (character in acc) acc.replace(character.toString(), "[${character.code}]")
         else acc
     }
 }

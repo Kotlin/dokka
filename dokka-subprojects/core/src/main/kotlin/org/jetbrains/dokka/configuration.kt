@@ -58,7 +58,7 @@ public enum class Platform(
         public val DEFAULT: Platform = jvm
 
         public fun fromString(key: String): Platform {
-            return when (key.toLowerCase()) {
+            return when (key.lowercase()) {
                 jvm.key -> jvm
                 js.key -> js
                 wasm.key -> wasm
@@ -239,7 +239,7 @@ public interface DokkaConfiguration : Serializable {
         PACKAGE;
 
         public companion object {
-            public fun fromString(value: String): Visibility = valueOf(value.toUpperCase())
+            public fun fromString(value: String): Visibility = valueOf(value.uppercase())
         }
     }
 

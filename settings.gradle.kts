@@ -102,6 +102,10 @@ include(
     ":dokka-subprojects:plugin-versioning",
 )
 
+include(
+    ":kotlin-documentation:kotlin-documentation-model",
+    ":kotlin-documentation:kotlin-documentation-tools",
+)
 // This hack is required for included build support.
 // The name of the published artifact is `dokka-core`, but the module is named `core`.
 // For some reason, dependency substitution doesn't work in this case. Maybe we fall under one of the unsupported

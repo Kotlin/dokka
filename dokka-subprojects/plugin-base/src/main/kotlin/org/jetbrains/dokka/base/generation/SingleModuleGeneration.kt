@@ -10,6 +10,7 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.Timer
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.generation.kdp.saveModule
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
 import org.jetbrains.dokka.generation.Generation
 import org.jetbrains.dokka.generation.exitGenerationGracefully
@@ -42,6 +43,8 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
         report("Transforming documentation model after merging")
         val transformedDocumentation = transformDocumentationModelAfterMerge(transformedDocumentationAfterMerge)
 
+        saveModule(transformedDocumentation, context.configuration.outputDir)
+
         // Step 2: Generate pages & transform them (change internally)
         report("Creating pages")
         val pages = createPages(transformedDocumentation)
@@ -67,12 +70,14 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
      * Implementation note: it runs in a separated single thread due to existing support of coroutines (see #2936)
      */
     @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
-    public fun createDocumentationModels(): List<DModule> = newSingleThreadContext("Generating documentable model").use { coroutineContext -> // see https://github.com/Kotlin/dokka/issues/3151
-        runBlocking(coroutineContext) {
-            context.configuration.sourceSets.parallelMap { sourceSet -> translateSources(sourceSet, context) }.flatten()
-                .also { modules -> if (modules.isEmpty()) exitGenerationGracefully("Nothing to document") }
+    public fun createDocumentationModels(): List<DModule> =
+        newSingleThreadContext("Generating documentable model").use { coroutineContext -> // see https://github.com/Kotlin/dokka/issues/3151
+            runBlocking(coroutineContext) {
+                context.configuration.sourceSets.parallelMap { sourceSet -> translateSources(sourceSet, context) }
+                    .flatten()
+                    .also { modules -> if (modules.isEmpty()) exitGenerationGracefully("Nothing to document") }
+            }
         }
-    }
 
 
     public fun transformDocumentationModelBeforeMerge(modulesFromPlatforms: List<DModule>): List<DModule> {
