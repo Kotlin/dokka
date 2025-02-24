@@ -36,6 +36,7 @@
     ]
   },
   "dependencies": {
+    "@column-resizer/core": "^1.3.1",
     "@jetbrains/logos": "1.4.27",
     "@jetbrains/ring-ui": "^5.1.28",
     "core-js": "^3.37.1",
