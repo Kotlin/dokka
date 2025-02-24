@@ -466,10 +466,6 @@ h1.cover {
     }
 }
 
-.UnderCoverText {
-    /** deprecated **/
-}
-
 .UnderCoverText table {
     margin: 8px 0 8px 0;
     word-break: break-word;
