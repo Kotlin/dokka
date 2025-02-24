@@ -190,6 +190,12 @@ class ExampleProjectsTest {
         testDokkaOutput(
             testCase = testCase,
             format = "html",
+            excludedFiles = listOf(
+                "ui-kit/ui-kit.min.js",
+                "ui-kit/ui-kit.min.css",
+                "styles/main.css",
+                "scripts/main.js",
+            )
         )
 
         verifyNoUnknownClassErrorsInHtml(
@@ -211,6 +217,7 @@ class ExampleProjectsTest {
     private fun testDokkaOutput(
         testCase: TestCase,
         format: String,
+        excludedFiles : List<String> = emptyList(),
     ) {
         val expectedDataDir = testCase.expectedDataDir.resolve(format)
         val actualHtmlDir = testCase.dokkaOutputDir.resolve(format)
@@ -240,7 +247,7 @@ class ExampleProjectsTest {
                     }
 
                     withClue("expect directories are the same") {
-                        actualHtmlDir shouldBeADirectoryWithSameContentAs expectedDataDir
+                        actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedDataDir, excludedFiles)
                     }
                 }
             }

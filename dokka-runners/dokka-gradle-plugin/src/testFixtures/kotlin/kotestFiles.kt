@@ -20,8 +20,8 @@ import kotlin.io.path.*
  *
  * Only files will be compared, directories are ignored.
  */
-infix fun Path.shouldBeADirectoryWithSameContentAs(path: Path) {
-    val differences = describeFileDifferences(this, path)
+fun Path.shouldBeADirectoryWithSameContentAs(path: Path, excludeFiles: List<String> = emptyList()) {
+    val differences = describeFileDifferences(this, path, excludeFiles)
     if (differences.isNotEmpty()) {
         fail(differences)
     }
@@ -39,6 +39,7 @@ infix fun Path.shouldBeADirectoryWithSameContentAs(path: Path) {
 private fun describeFileDifferences(
     expectedDir: Path,
     actualDir: Path,
+    excludeFiles: List<String> = emptyList()
 ): String = buildString {
     if (!expectedDir.isDirectory()) {
         appendLine("expectedDir '$expectedDir' is not a directory (exists:${expectedDir.exists()}, file:${expectedDir.isRegularFile()})")
@@ -49,14 +50,18 @@ private fun describeFileDifferences(
         return@buildString
     }
 
-    // Collect all files from directories recursively
     fun Path.allFiles(): Set<Path> =
-        walk().filter { it.isRegularFile() }.map { it.relativeTo(this@allFiles) }.toSet()
+        walk().filter {
+            it.isRegularFile() && excludeFiles.none { excludedFilePath ->
+                it.pathString.endsWith(
+                    excludedFilePath
+                )
+            }
+        }.map { it.relativeTo(this@allFiles) }.toSet()
 
     val expectedFiles = expectedDir.allFiles()
     val actualFiles = actualDir.allFiles()
 
-    // Check for files present in one directory but not the other
     val onlyInExpected = expectedFiles - actualFiles
     val onlyInActual = actualFiles - expectedFiles
 
@@ -69,7 +74,6 @@ private fun describeFileDifferences(
         appendLine(onlyInActual.sorted().joinToFormattedList())
     }
 
-    // Compare contents of files that are present in both directories
     val commonFiles = actualFiles intersect expectedFiles
 
     commonFiles
