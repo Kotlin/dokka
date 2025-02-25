@@ -50,18 +50,14 @@ private fun describeFileDifferences(
         return@buildString
     }
 
+    // Collect all files from directories recursively
     fun Path.allFiles(): Set<Path> =
-        walk().filter {
-            it.isRegularFile() && excludeFiles.none { excludedFilePath ->
-                it.pathString.endsWith(
-                    excludedFilePath
-                )
-            }
-        }.map { it.relativeTo(this@allFiles) }.toSet()
+        walk().filter { it.isRegularFile() }.map { it.relativeTo(this@allFiles) }.toSet()
 
     val expectedFiles = expectedDir.allFiles()
     val actualFiles = actualDir.allFiles()
 
+    // Check for files present in one directory but not the other
     val onlyInExpected = expectedFiles - actualFiles
     val onlyInActual = actualFiles - expectedFiles
 
@@ -74,11 +70,19 @@ private fun describeFileDifferences(
         appendLine(onlyInActual.sorted().joinToFormattedList())
     }
 
+    // Compare contents of files that are present in both directories
     val commonFiles = actualFiles intersect expectedFiles
 
     commonFiles
         .sorted()
         .forEach { relativePath ->
+            if (excludeFiles.any { excluded ->
+                    relativePath.invariantSeparatorsPathString.endsWith(
+                        excluded
+                    )
+                }) {
+                return@forEach
+            }
             val expectedFile = expectedDir.resolve(relativePath)
             val actualFile = actualDir.resolve(relativePath)
 
