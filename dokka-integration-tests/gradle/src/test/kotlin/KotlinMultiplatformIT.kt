@@ -65,7 +65,7 @@ class KotlinMultiplatformIT {
                 val expectedFileTree = expectedHtml.toTreeString()
                 val actualFileTree = actualHtmlDir.toTreeString()
                 withClue((actualFileTree to expectedFileTree).sideBySide()) {
-                    actualHtmlDir shouldBeADirectoryWithSameContentAs expectedHtml
+                    actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedHtml)
                 }
             }
         }

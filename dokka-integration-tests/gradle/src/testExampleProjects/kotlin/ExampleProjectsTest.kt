@@ -14,6 +14,7 @@ import io.kotest.matchers.string.shouldNotContain
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.*
 import org.jetbrains.dokka.gradle.utils.*
+import org.jetbrains.dokka.it.gradle.TestConstants
 import org.jetbrains.dokka.it.gradle.loadConfigurationCacheReportData
 import org.jetbrains.dokka.it.gradle.shouldHaveOutcome
 import org.jetbrains.dokka.it.gradle.shouldHaveTask
@@ -190,6 +191,7 @@ class ExampleProjectsTest {
         testDokkaOutput(
             testCase = testCase,
             format = "html",
+            filesExcludedFromContentCheck = TestConstants.DokkaHtmlAssetsFiles,
         )
 
         verifyNoUnknownClassErrorsInHtml(
@@ -211,6 +213,7 @@ class ExampleProjectsTest {
     private fun testDokkaOutput(
         testCase: TestCase,
         format: String,
+        filesExcludedFromContentCheck : List<String> = emptyList(),
     ) {
         val expectedDataDir = testCase.expectedDataDir.resolve(format)
         val actualHtmlDir = testCase.dokkaOutputDir.resolve(format)
@@ -240,7 +243,7 @@ class ExampleProjectsTest {
                     }
 
                     withClue("expect directories are the same") {
-                        actualHtmlDir shouldBeADirectoryWithSameContentAs expectedDataDir
+                        actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedDataDir, filesExcludedFromContentCheck)
                     }
                 }
             }

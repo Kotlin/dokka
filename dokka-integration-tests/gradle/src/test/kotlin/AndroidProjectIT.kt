@@ -6,7 +6,6 @@ package org.jetbrains.dokka.it.gradle
 import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
 import io.kotest.inspectors.shouldForAll
-import io.kotest.matchers.file.shouldBeAFile
 import io.kotest.matchers.paths.shouldBeAFile
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -77,7 +76,7 @@ class AndroidProjectIT {
                 withClue((actualFileTree to expectedFileTree).sideBySide()) {
                     actualFileTree shouldBe expectedFileTree
 
-                    actualHtmlDir shouldBeADirectoryWithSameContentAs expectedHtml
+                    actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedHtml, TestConstants.DokkaHtmlAssetsFiles)
                 }
             }
         }
