@@ -5,6 +5,12 @@
 package org.jetbrains.dokka.it.gradle
 
 object TestConstants {
+    /**
+     * Dokka HTML files that are only used for styling the generated HTML content.
+     *
+     * These files should be excluded from file-content assertion checks, to avoid
+     * minor style changes affecting the tests.
+     */
     val DokkaHtmlAssetsFiles = listOf(
         "ui-kit/ui-kit.min.js",
         "ui-kit/ui-kit.min.css",
