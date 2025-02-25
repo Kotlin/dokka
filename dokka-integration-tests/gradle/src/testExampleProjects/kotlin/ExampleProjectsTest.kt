@@ -14,6 +14,7 @@ import io.kotest.matchers.string.shouldNotContain
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.*
 import org.jetbrains.dokka.gradle.utils.*
+import org.jetbrains.dokka.it.gradle.TestConstants
 import org.jetbrains.dokka.it.gradle.loadConfigurationCacheReportData
 import org.jetbrains.dokka.it.gradle.shouldHaveOutcome
 import org.jetbrains.dokka.it.gradle.shouldHaveTask
@@ -190,12 +191,7 @@ class ExampleProjectsTest {
         testDokkaOutput(
             testCase = testCase,
             format = "html",
-            excludedFiles = listOf(
-                "ui-kit/ui-kit.min.js",
-                "ui-kit/ui-kit.min.css",
-                "styles/main.css",
-                "scripts/main.js",
-            )
+            excludedFiles = TestConstants.DokkaHtmlAssetsFiles,
         )
 
         verifyNoUnknownClassErrorsInHtml(

@@ -6,7 +6,6 @@ package org.jetbrains.dokka.it.gradle
 import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
 import io.kotest.inspectors.shouldForAll
-import io.kotest.matchers.file.shouldBeAFile
 import io.kotest.matchers.paths.shouldBeAFile
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -65,12 +64,6 @@ class AndroidProjectIT {
         withClue("expect the same HTML is generated") {
             val expectedHtml = project.projectDir.resolve("expectedData/html")
             val actualHtmlDir = project.projectDir.resolve("build/dokka/html")
-            val excludedFiles = listOf(
-                "ui-kit/ui-kit.min.js",
-                "ui-kit/ui-kit.min.css",
-                "styles/main.css",
-                "scripts/main.js",
-            )
 
             withClue(
                 """
@@ -83,7 +76,7 @@ class AndroidProjectIT {
                 withClue((actualFileTree to expectedFileTree).sideBySide()) {
                     actualFileTree shouldBe expectedFileTree
 
-                    actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedHtml, excludedFiles)
+                    actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedHtml, TestConstants.DokkaHtmlAssetsFiles)
                 }
             }
         }
