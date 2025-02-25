@@ -76,7 +76,7 @@ class AndroidComposeIT {
                 withClue((actualFileTree to expectedFileTree).sideBySide()) {
                     actualFileTree shouldBe expectedFileTree
 
-                    actualHtmlDir shouldBeADirectoryWithSameContentAs expectedHtml
+                    actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedHtml, TestConstants.DokkaHtmlAssetsFiles)
                 }
             }
         }
