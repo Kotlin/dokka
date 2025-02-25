@@ -20,8 +20,8 @@ import kotlin.io.path.*
  *
  * Only files will be compared, directories are ignored.
  */
-fun Path.shouldBeADirectoryWithSameContentAs(path: Path, excludeFiles: List<String> = emptyList()) {
-    val differences = describeFileDifferences(this, path, excludeFiles)
+fun Path.shouldBeADirectoryWithSameContentAs(path: Path, filesExcludedFromContentCheck: List<String> = emptyList()) {
+    val differences = describeFileDifferences(this, path, filesExcludedFromContentCheck)
     if (differences.isNotEmpty()) {
         fail(differences)
     }
@@ -39,7 +39,7 @@ fun Path.shouldBeADirectoryWithSameContentAs(path: Path, excludeFiles: List<Stri
 private fun describeFileDifferences(
     expectedDir: Path,
     actualDir: Path,
-    excludeFiles: List<String> = emptyList()
+    filesExcludedFromContentCheck: List<String> = emptyList()
 ): String = buildString {
     if (!expectedDir.isDirectory()) {
         appendLine("expectedDir '$expectedDir' is not a directory (exists:${expectedDir.exists()}, file:${expectedDir.isRegularFile()})")
@@ -76,9 +76,9 @@ private fun describeFileDifferences(
     commonFiles
         .sorted()
         .forEach { relativePath ->
-            if (excludeFiles.any { excluded ->
+            if (filesExcludedFromContentCheck.any { excludedFilePath ->
                     relativePath.invariantSeparatorsPathString.endsWith(
-                        excluded
+                        excludedFilePath
                     )
                 }) {
                 return@forEach

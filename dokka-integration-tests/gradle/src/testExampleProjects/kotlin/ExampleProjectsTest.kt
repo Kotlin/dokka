@@ -191,7 +191,7 @@ class ExampleProjectsTest {
         testDokkaOutput(
             testCase = testCase,
             format = "html",
-            excludedFiles = TestConstants.DokkaHtmlAssetsFiles,
+            filesExcludedFromContentCheck = TestConstants.DokkaHtmlAssetsFiles,
         )
 
         verifyNoUnknownClassErrorsInHtml(
@@ -213,7 +213,7 @@ class ExampleProjectsTest {
     private fun testDokkaOutput(
         testCase: TestCase,
         format: String,
-        excludedFiles : List<String> = emptyList(),
+        filesExcludedFromContentCheck : List<String> = emptyList(),
     ) {
         val expectedDataDir = testCase.expectedDataDir.resolve(format)
         val actualHtmlDir = testCase.dokkaOutputDir.resolve(format)
@@ -243,7 +243,7 @@ class ExampleProjectsTest {
                     }
 
                     withClue("expect directories are the same") {
-                        actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedDataDir, excludedFiles)
+                        actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedDataDir, filesExcludedFromContentCheck)
                     }
                 }
             }
