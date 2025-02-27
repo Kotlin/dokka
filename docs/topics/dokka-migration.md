@@ -171,6 +171,12 @@ dokka {
 class CustomPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.extensions.configure<DokkaExtension> {
+
+            dokkaPublications.named("html") {
+                suppressInheritedMembers.set(true)
+                failOnWarning.set(true)
+            }
+
             dokkaSourceSets.named("main") {
                 includes.from("README.md")
                 sourceLink {
