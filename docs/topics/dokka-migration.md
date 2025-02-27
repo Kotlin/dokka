@@ -103,6 +103,8 @@ Previous configuration:
 
 ```kotlin
 tasks.withType<DokkaTask>().configureEach {
+    suppressInheritedMembers.set(true)
+    failOnWarning.set(true)
     dokkaSourceSets {
         named("main") {
             moduleName.set("Project Name")
