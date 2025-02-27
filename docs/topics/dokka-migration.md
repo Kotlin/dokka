@@ -141,6 +141,10 @@ due to the use of type-safe accessors in Kotlin DSL.
 
 dokka {
     moduleName.set("Project Name")
+    dokkaPublications.html {
+        suppressInheritedMembers.set(true)
+        failOnWarning.set(true)
+    }
     dokkaSourceSets.main {
         includes.from("README.md")
         sourceLink {
