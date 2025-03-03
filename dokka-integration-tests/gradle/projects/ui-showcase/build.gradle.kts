@@ -5,3 +5,8 @@
 plugins {
     id("uitest.dokka")
 }
+
+dependencies {
+    dokka(project(":jvm"))
+    dokka(project(":kmp"))
+}
