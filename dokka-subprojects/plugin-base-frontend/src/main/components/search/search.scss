@@ -6,6 +6,8 @@
 
 $font-color: rgba(255, 255, 255, 0.96);
 $secondary-font-color: rgba(255, 255, 255, 0.7);
+$input-height-desktop: 40px;
+$input-height-mobile: 50px;
 
 #pages-search {
   width: 40px;
@@ -26,7 +28,7 @@ $secondary-font-color: rgba(255, 255, 255, 0.7);
   }
 }
 
-@media (width < 900px) {
+@media (width < $breakpoint-desktop-min) {
   #pages-search {
     width: 52px;
     height: 52px;
@@ -58,17 +60,24 @@ $secondary-font-color: rgba(255, 255, 255, 0.7);
 }
 
 span[data-test-custom='ring-select-popup-filter-icon'] {
-  top: 11px;
-  left: 14px;
+  top: 10px;
+  left: 11px;
+
+  @media (width < $breakpoint-desktop-min) {
+    top: 14px;
+    left: 11px;
+  }
 
   svg {
-    width: 18px !important;
-    height: 18px !important;
+    width: 20px !important;
+    height: 20px !important;
   }
 }
 
 .popup-wrapper {
   min-width: 636px !important;
+
+  margin-top: -42px;
 
   color: $font-color;
 
@@ -76,20 +85,35 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
 
   background-color: #27282c !important;
 
+  @media (width < $breakpoint-desktop-min) {
+    top: 41px !important;
+    right: -1px !important;
+    bottom: -1px !important;
+    left: -1px !important;
+  }
+
   [class^='filterWrapper'] {
     margin-bottom: 4px;
+
+    padding-right: 0;
 
     border-bottom: 1px solid hsla(0deg, 0%, 100%, 0.2);
   }
 
   input {
-    height: 40px;
+    height: $input-height-desktop;
+
+    padding-right: 52px;
 
     color: #fff;
 
     font-size: 16px;
 
     font-weight: normal !important;
+
+    @media (width < $breakpoint-desktop-min) {
+      height: $input-height-mobile;
+    }
   }
 
   span[data-test-custom='ring-select-popup-filter-icon'] {
@@ -97,10 +121,32 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
   }
 
   button[data-test='ring-input-clear'] {
-    top: 10px;
-    right: 6px;
+    top: 0;
+    right: 0;
+
+    padding: 10px 9px;
+
+    transition: none;
 
     color: #fff !important;
+
+    border-radius: 0;
+
+    line-height: 21px;
+
+    &:focus-visible {
+      outline: var(--focus-outline);
+      outline-offset: -4px;
+      box-shadow: none;
+    }
+
+    &:hover {
+      background-color: var(--color-w10);
+    }
+
+    @media (width < $breakpoint-desktop-min) {
+      padding: 15px 9px;
+    }
 
     span {
       display: none;
@@ -213,4 +259,10 @@ div[data-test='ring-select-popup-filter'] {
 
 div[data-test='ring-popup'] {
   border-radius: 0;
+
+  & .ReactVirtualized__List {
+    @media (width < $breakpoint-desktop-min) {
+      max-height: calc(100vh - $input-height-mobile) !important;
+    }
+  }
 }
