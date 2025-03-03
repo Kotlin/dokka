@@ -67,8 +67,8 @@ const webpackConfig = (params, argv) => {
               onDoneWatch: {
                 scripts: [
                   'echo "[search] Done rebuild, coping files to dokka-integration-tests"',
-                  'cp -r ./dist/main.js ../../dokka-integration-tests/gradle/build/ui-showcase-result/scripts',
-                  'cp -r ./dist/main.css ../../dokka-integration-tests/gradle/build/ui-showcase-result/styles',
+                  'cp ./dist/main.js ../../dokka-integration-tests/gradle/build/ui-showcase-result/scripts',
+                  'cp ./dist/main.css ../../dokka-integration-tests/gradle/build/ui-showcase-result/styles',
                 ],
                 blocking: false,
                 parallel: true,
