@@ -14,11 +14,12 @@
     "build:ui-kit:minified": "webpack --config ./webpack.config-ui-kit.js --env minify=true",
     "build:ui-kit:unminified": "webpack --config ./webpack.config-ui-kit.js --env minify=false",
     "build": "webpack --mode=production --devtool source-map",
+    "watch": "webpack --mode=development --watch",
     "lint": "eslint . && npm run stylelint",
     "lint:fix": "eslint --fix --ext src/**/*.{ts,tsx,css,scss}",
     "prettier": "prettier --write 'src/**/*.{ts,tsx,css,scss}'",
     "stylelint": "stylelint --ignore-path .gitignore ./src/main/**/**/*.scss",
-    "start": "webpack-dev-server -d --history-api-fallback --inline --hot --colors --port 9010",
+    "start": "npm-run-all --parallel watch build:ui-kit:watch start:ui-kit",
     "prepare": "husky"
   },
   "babel": {
@@ -49,7 +50,7 @@
     "react-dom": "^17.0.2",
     "ts-loader": "^9.2.6",
     "typescript": "^4.5.2",
-    "webpack": "^5.89.0",
+    "webpack": "5.94.0",
     "webpack-cli": "^5.1.4"
   },
   "devDependencies": {
@@ -70,6 +71,7 @@
     "husky": "^9.0.11",
     "lint-staged": "^15.2.5",
     "mini-css-extract-plugin": "^2.4.5",
+    "npm-run-all": "^4.1.5",
     "postcss-loader": "^8.1.1",
     "postcss-scss": "^4.0.9",
     "prettier": "^3.3.0",

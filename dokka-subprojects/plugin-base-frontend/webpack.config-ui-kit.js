@@ -6,7 +6,7 @@ const path = require('path');
 const WebpackShellPluginNext = require('webpack-shell-plugin-next');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
-module.exports = (env, args) => {
+module.exports = (env) => {
   const isMinify = env.minify === 'true';
   return {
     watch: env.watch === 'true',
@@ -22,12 +22,6 @@ module.exports = (env, args) => {
           return !(/\.hot-update\.(js|json)$/.test(filePath) || /\.LICENSE\.txt$/.test(filePath));
         },
       },
-      watchFiles: {
-        paths: ['../../dokka-integration-tests/gradle/build/ui-showcase-result'],
-        options: {
-          ignored: ['../../dokka-integration-tests/gradle/build/ui-showcase-result/ui-kit']
-        }
-      }
     },
     entry: {
       entry: ['./src/main/ui-kit/index.ts'],
@@ -136,7 +130,7 @@ module.exports = (env, args) => {
       new WebpackShellPluginNext({
         onDoneWatch: {
           scripts: [
-            'echo "Done rebuild, coping files to dokka-integration-tests"',
+            'echo "[ui-kit] Done rebuild, coping files to dokka-integration-tests"',
             'cp -r ../plugin-base/src/main/resources/dokka/ui-kit ../../dokka-integration-tests/gradle/build/ui-showcase-result',
           ],
           blocking: false,
