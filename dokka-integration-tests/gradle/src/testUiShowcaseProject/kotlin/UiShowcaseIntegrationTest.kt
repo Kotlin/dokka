@@ -16,19 +16,19 @@ import kotlin.test.assertTrue
 
 @EnabledOnOs(OS.MAC, disabledReason = "Contains KMP code for macOS")
 class UiShowcaseIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopier {
-    override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/htmlMultiModule") }
+    override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/html") }
 
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(LatestTestedVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
         val result = createGradleRunner(
             buildVersions,
-            "dokkaHtmlMultiModule",
+            ":dokkaGenerate",
         ).buildRelaxed()
 
-        result.shouldHaveTask(":dokkaHtmlMultiModule").shouldHaveOutcome(SUCCESS, FROM_CACHE)
-        result.shouldHaveTask(":jvm:dokkaHtmlPartial").shouldHaveOutcome(SUCCESS, FROM_CACHE)
-        result.shouldHaveTask(":kmp:dokkaHtmlPartial").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":dokkaGeneratePublicationHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":jvm:dokkaGenerateModuleHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":kmp:dokkaGenerateModuleHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)
 
         assertTrue(projectOutputLocation.isDirectory, "Missing dokka output directory")
 

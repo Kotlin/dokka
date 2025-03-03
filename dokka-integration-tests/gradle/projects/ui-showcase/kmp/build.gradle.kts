@@ -28,8 +28,8 @@ kotlin {
     }
 }
 
-tasks.dokkaHtmlPartial {
-    dokkaSourceSets.configureEach {
+dokka {
+    dokkaPublications.html {
         includes.setFrom("description.md")
     }
 }

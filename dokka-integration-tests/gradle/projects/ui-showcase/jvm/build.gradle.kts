@@ -8,18 +8,19 @@ plugins {
     kotlin("jvm")
 }
 
-tasks.dokkaHtmlPartial {
-    dokkaSourceSets.configureEach {
+dokka {
+    dokkaPublications.html {
         includes.setFrom("description.md")
-
         suppressObviousFunctions.set(false)
         suppressInheritedMembers.set(false)
+    }
+
+    dokkaSourceSets.configureEach {
         skipEmptyPackages.set(false)
 
         sourceLink {
             localDirectory.set(projectDir.resolve("src"))
-            remoteUrl.set(uri("https://github.com/kotlin/dokka/dokka-integration-tests/ui/test-project/jvm/src").toURL())
-            remoteLineSuffix.set("#L")
+            remoteUrl("https://github.com/kotlin/dokka/dokka-integration-tests/ui/test-project/jvm/src")
         }
     }
 }
