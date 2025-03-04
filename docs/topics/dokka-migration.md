@@ -51,7 +51,7 @@ Alternatively,
 you can use [version catalog](https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog)
 to enable the Dokka Gradle plugin v2.
 
-> By default, the DGP v2 generates HTML documentation. To generate Javadoc or both HTML and Javadoc formats,
+> By default, DGP v2 generates HTML documentation. To generate Javadoc or both HTML and Javadoc formats,
 > add the appropriate plugins. For more information, see [Select documentation output format](#select-documentation-output-format).
 >
 {style="tip"}
@@ -149,7 +149,7 @@ dokka {
         includes.from("README.md")
         sourceLink {
             localDirectory.set(file("src/main/kotlin"))
-            remoteUrl.set(URI("https://example.com/src"))
+            remoteUrl("https://example.com/src")
             remoteLineSuffix.set("#L")
         }
     }
@@ -167,29 +167,35 @@ dokka {
 ```kotlin
 
 // CustomPlugin.kt
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.jetbrains.dokka.gradle.DokkaExtension
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
 
-class CustomPlugin : Plugin<Project> {
+abstract class CustomPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        project.extensions.configure<DokkaExtension> {
+        project.plugins.apply("org.jetbrains.dokka")
 
-            dokkaPublications.named("html") {
-                suppressInheritedMembers.set(true)
-                failOnWarning.set(true)
+        project.extensions.configure(DokkaExtension::class.java) { dokka ->
+
+            dokka.dokkaPublications.named("html") { publication ->
+                publication.suppressInheritedMembers.set(true)
+                publication.failOnWarning.set(true)
             }
 
-            dokkaSourceSets.named("main") {
-                includes.from("README.md")
-                sourceLink {
-                    localDirectory.set(project.file("src/main/kotlin"))
-                    remoteUrl.set(URI("https://example.com/src"))
-                    remoteLineSuffix.set("#L")
+            dokka.dokkaSourceSets.named("main") { dss ->
+                dss.includes.from("README.md")
+                dss.sourceLink {
+                    it.localDirectory.set(project.file("src/main/kotlin"))
+                    it.remoteUrl("https://example.com/src")
+                    it.remoteLineSuffix.set("#L")
                 }
             }
 
-            pluginsConfiguration.named<org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters>("pluginsConfiguration") {
-                customStyleSheets.from("styles.css")
-                customAssets.from("logo.png")
-                footerMessage.set("(c) Your Company")
+            dokka.pluginsConfiguration.named("html", DokkaHtmlPluginParameters::class.java) { html ->
+                html.customStyleSheets.from("styles.css")
+                html.customAssets.from("logo.png")
+                html.footerMessage.set("(c) Your Company")
             }
         }
     }
@@ -229,7 +235,7 @@ documentedVisibilities.set(
 documentedVisibilities(VisibilityModifier.Public)
 ```
 
-Additionally, DGP v2 has a [utility function](https://github.com/Kotlin/dokka/blob/220922378e6c68eb148fda2ec80528a1b81478c9/dokka-runners/dokka-gradle-plugin/src/main/kotlin/engine/parameters/HasConfigurableVisibilityModifiers.kt#L14-L16) for adding documented visibilities:
+Additionally, DGP v2 has a [utility function](https://github.com/Kotlin/dokka/blob/v2.0.0/dokka-runners/dokka-gradle-plugin/src/main/kotlin/engine/parameters/HasConfigurableVisibilityModifiers.kt#L14-L16) for adding documented visibilities:
 
 ```kotlin
 fun documentedVisibilities(vararg visibilities: VisibilityModifier): Unit =
@@ -270,12 +276,10 @@ due to the use of type-safe accessors in Kotlin DSL.
 // build.gradle.kts
 
 dokka {
-    moduleName.set("Project Name")
     dokkaSourceSets.main {
-        includes.from("README.md")
         sourceLink {
             localDirectory.set(file("src/main/kotlin"))
-            remoteUrl.set(URI("https://github.com/your-repo"))
+            remoteUrl("https://github.com/your-repo")
             remoteLineSuffix.set("#L")
         }
     }
@@ -289,15 +293,20 @@ dokka {
 
 // CustomPlugin.kt
 
-class CustomPlugin : Plugin<Project> {
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.jetbrains.dokka.gradle.DokkaExtension
+
+abstract class CustomPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        project.extensions.configure<DokkaExtension> {
-            dokkaSourceSets.named("main") {
-                includes.from("README.md")
-                sourceLink {
-                    localDirectory.set(project.file("src/main/kotlin"))
-                    remoteUrl.set(URI("https://example.com/src"))
-                    remoteLineSuffix.set("#L")
+        project.plugins.apply("org.jetbrains.dokka")
+        project.extensions.configure(DokkaExtension::class.java) { dokka ->
+            dokka.dokkaSourceSets.named("main") { dss ->
+                dss.includes.from("README.md")
+                dss.sourceLink {
+                    it.localDirectory.set(project.file("src/main/kotlin"))
+                    it.remoteUrl("https://example.com/src")
+                    it.remoteLineSuffix.set("#L")
                 }
             }
         }
@@ -453,16 +462,19 @@ dokka {
 
 // CustomPlugin.kt
 
-class CustomPlugin : Plugin<Project> {
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.jetbrains.dokka.gradle.DokkaExtension
+
+abstract class CustomPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        project.extensions.configure<DokkaExtension> {
-            dokkaPublications.named("html") {
-                outputDirectory.set(project.rootDir.resolve("docs/api/0.x"))
-                includes.from(project.layout.projectDirectory.file("README.md"))
+        project.plugins.apply("org.jetbrains.dokka")
+        project.extensions.configure(DokkaExtension::class.java) { dokka ->
+            dokka.dokkaPublications.named("html") { html ->
+                html.outputDirectory.set(project.rootDir.resolve("docs/api/0.x"))
+                html.includes.from(project.layout.projectDirectory.file("README.md"))
             }
         }
-    }
-}
 ```
 
 </tab>
@@ -677,7 +689,7 @@ plugins {
 
 dokka {
     // Overrides the module directory to match the V1 structure
-    modulePath.convention("maths")
+    modulePath.set("maths")
 }
 ```
 
