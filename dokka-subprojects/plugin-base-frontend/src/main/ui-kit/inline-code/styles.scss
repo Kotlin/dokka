@@ -6,12 +6,8 @@
 
 code:not(.block) {
   font: var(--font-code);
-  background: var(--color-background-code);
+  background: var(--color-background-inline-code);
   display: inline-block;
   padding: 0 4px;
   border-radius: 2px;
-}
-
-.theme-dark code:not(.block) {
-  color: var(--color-text);
 }

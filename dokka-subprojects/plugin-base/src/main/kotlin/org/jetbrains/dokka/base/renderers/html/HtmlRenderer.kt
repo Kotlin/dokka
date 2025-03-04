@@ -219,7 +219,12 @@ public open class HtmlRenderer(
                 childrenCallback()
             }
             node.hasStyle(TextStyle.Quotation) -> blockQuote(additionalClasses) { childrenCallback() }
-            node.hasStyle(TextStyle.FloatingRight) -> span("clearfix") { span("floating-right") { childrenCallback() } }
+            node.hasStyle(TextStyle.SourceLink) -> span("source-link-wrapper") {
+                span("source-link") {
+                    attributes["data-element-type"] = "source-link"
+                    childrenCallback()
+                }
+            }
             node.hasStyle(TextStyle.Strikethrough) -> strike { childrenCallback() }
             node.isAnchorable -> buildAnchor(
                 node.anchor!!,
