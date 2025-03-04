@@ -12,7 +12,6 @@
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -30,21 +29,14 @@
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -55,7 +47,7 @@
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -63,7 +55,7 @@
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -150,7 +142,7 @@
 }
 
 .button_dropdown {
-  font: 400 14px/20px JetBrains Sans, Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
+  font: 400 14px/20px Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
   font: var(--font-text-s);
   padding: 8px;
   padding: var(--size-s2);
@@ -203,7 +195,6 @@
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -221,21 +212,14 @@
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -246,7 +230,7 @@
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -254,7 +238,7 @@
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -313,7 +297,6 @@
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -331,21 +314,14 @@
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -356,7 +332,7 @@
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -364,7 +340,7 @@
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -457,7 +433,7 @@
   color: var(--color-text-nav-dt);
   cursor: pointer;
   display: block;
-  font: 400 16px/24px JetBrains Sans, Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
+  font: 400 16px/24px Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
   font: var(--font-text-m);
   letter-spacing: -0.03em;
   list-style-type: none;
@@ -578,7 +554,6 @@
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -596,21 +571,14 @@
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -621,7 +589,7 @@
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -629,7 +597,7 @@
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -699,7 +667,6 @@
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -717,21 +684,14 @@
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -742,7 +702,7 @@
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -750,7 +710,7 @@
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -760,7 +720,7 @@
   background-color: var(--color-background-footer);
   color: rgba(0, 0, 0, 0.7);
   color: var(--color-text-light);
-  font: 400 14px/20px JetBrains Sans, Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
+  font: 400 14px/20px Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
   font: var(--font-text-s);
   letter-spacing: 0.15px;
   margin-top: auto;
@@ -895,7 +855,6 @@
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -913,21 +872,14 @@
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -938,7 +890,7 @@
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -946,7 +898,7 @@
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -1000,7 +952,6 @@
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -1018,21 +969,14 @@
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -1043,7 +987,7 @@
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -1051,7 +995,7 @@
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -1108,7 +1052,6 @@
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -1126,21 +1069,14 @@
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -1151,7 +1087,7 @@
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -1159,7 +1095,7 @@
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -1171,7 +1107,7 @@
   color: hsla(0, 0%, 100%, 0.96);
   color: var(--color-text-dt);
   display: flex;
-  font: 600 16px/24px JetBrains Sans, Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
+  font: 600 16px/24px Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
   font: var(--font-h4);
   margin-right: 8px;
   margin-right: var(--size-s2);
@@ -1217,7 +1153,6 @@
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -1235,21 +1170,14 @@
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -1260,7 +1188,7 @@
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -1268,7 +1196,7 @@
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -1277,7 +1205,7 @@
   box-sizing: border-box;
   color: hsla(0, 0%, 100%, 0.96);
   color: var(--color-text-dt);
-  font: 400 14px/20px JetBrains Sans, Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
+  font: 400 14px/20px Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
   font: var(--font-text-s);
   padding-top: 1px;
 }
@@ -1306,7 +1234,6 @@
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -1324,21 +1251,14 @@
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -1349,7 +1269,7 @@
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -1357,7 +1277,7 @@
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -1409,7 +1329,6 @@
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -1427,21 +1346,14 @@
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -1452,7 +1364,7 @@
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -1460,7 +1372,7 @@
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -1566,7 +1478,6 @@
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -1584,21 +1495,14 @@
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -1609,7 +1513,7 @@
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -1617,7 +1521,7 @@
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -1627,7 +1531,7 @@
   border: 0;
   border-radius: 4px;
   border-radius: var(--size-s1);
-  font: 400 14px/20px JetBrains Sans, Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
+  font: 400 14px/20px Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
   font: var(--font-text-s);
   padding: 10px 12px;
   text-transform: capitalize;
@@ -1723,7 +1627,6 @@ button.platform-tag:focus-visible {
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -1741,21 +1644,14 @@ button.platform-tag:focus-visible {
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -1766,7 +1662,7 @@ button.platform-tag:focus-visible {
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -1774,7 +1670,7 @@ button.platform-tag:focus-visible {
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -1799,7 +1695,6 @@ button.platform-tag:focus-visible {
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -1817,21 +1712,14 @@ button.platform-tag:focus-visible {
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -1842,7 +1730,7 @@ button.platform-tag:focus-visible {
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -1850,7 +1738,7 @@ button.platform-tag:focus-visible {
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -1946,7 +1834,6 @@ button.platform-tag:focus-visible {
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -1964,21 +1851,14 @@ button.platform-tag:focus-visible {
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -1989,7 +1869,7 @@ button.platform-tag:focus-visible {
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -1997,7 +1877,7 @@ button.platform-tag:focus-visible {
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
   --toc-hover-color:var(--color-b08);
@@ -2019,7 +1899,7 @@ button.platform-tag:focus-visible {
 .toc--part {
   color: #000;
   color: var(--toc-color);
-  font: 400 13px/24px JetBrains Sans, Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
+  font: 400 13px/24px Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
   font: var(--toc-font);
 }
 
@@ -2441,7 +2321,6 @@ button.platform-tag:focus-visible {
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -2459,21 +2338,14 @@ button.platform-tag:focus-visible {
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -2484,7 +2356,7 @@ button.platform-tag:focus-visible {
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -2492,7 +2364,7 @@ button.platform-tag:focus-visible {
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -2546,7 +2418,6 @@ a {
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -2564,21 +2435,14 @@ a {
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -2589,7 +2453,7 @@ a {
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -2597,7 +2461,7 @@ a {
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -2627,7 +2491,6 @@ a {
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -2645,21 +2508,14 @@ a {
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -2670,7 +2526,7 @@ a {
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -2678,24 +2534,19 @@ a {
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
 
 code:not(.block) {
-  background: #e6e6e6;
-  background: var(--color-background-code);
+  background: rgba(0, 0, 0, 0.08);
+  background: var(--color-background-inline-code);
   border-radius: 2px;
   display: inline-block;
-  font: 400 16px/24px JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+  font: 400 15.5px/24px JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
   font: var(--font-code);
   padding: 0 4px;
-}
-
-.theme-dark code:not(.block) {
-  color: #000;
-  color: var(--color-text);
 }
 :root {
   --breakpoint-desktop-min:900px;
@@ -2711,7 +2562,6 @@ code:not(.block) {
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -2729,21 +2579,14 @@ code:not(.block) {
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -2754,7 +2597,7 @@ code:not(.block) {
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -2762,7 +2605,137 @@ code:not(.block) {
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
+  --hover-transition:background-color 200ms ease-in-out;
+  --rotate-transition:transform 200ms ease-in-out;
+}
+
+.symbol:not(.token):not(.wrapped), code.block {
+  background-color: rgba(25, 25, 28, 0.05);
+  background-color: var(--color-background-code-block);
+  border-radius: 4px;
+  border-radius: var(--size-s1);
+  box-sizing: border-box;
+  display: block;
+  font: 400 15.5px/24px JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+  font: var(--font-code);
+  overflow: scroll;
+  padding: 12px 16px;
+  position: relative;
+  white-space: pre-wrap;
+}
+
+code.block {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.source-link-wrapper:after {
+  clear: both;
+  content: "";
+  display: block;
+  height: 0;
+}
+
+@media screen and (max-width: 759px) {
+  .source-link-wrapper {
+    display: block;
+    margin-top: 8px;
+  }
+}
+.source-link {
+  float: right;
+}
+
+.sample-container, div.CodeMirror {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.sample-container span.copy-icon {
+  display: none;
+}
+
+.sample-container span.copy-icon:before {
+  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--copy-icon-color);
+  content: "";
+  display: inline-block;
+  height: 24px;
+  -webkit-mask: url(assets/copy-icon.svg) no-repeat 50% 50%;
+  mask: url(assets/copy-icon.svg) no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  width: 24px;
+}
+
+.sample-container span.copy-icon:hover:before {
+  background-color: rgba(0, 0, 0, 0.7);
+  background-color: var(--copy-icon-hover-color);
+}
+
+.js .sample-container:hover span.copy-icon {
+  display: inline-block;
+}
+:root {
+  --breakpoint-desktop-min:900px;
+  --breakpoint-tablet-max:899px;
+  --breakpoint-tablet-min:440px;
+  --breakpoint-mobile-max:439px;
+  --breakpoint-mobile-min:360px;
+  --color-key-blue:#307fff;
+  --color-key-blue-50:rgba(48,127,255,.5);
+  --color-background-nav:#27282c;
+  --color-background-nav-dt:#323237;
+  --color-background-page:#fff;
+  --color-background-page-dt:#262628;
+  --color-background-footer:#ebebeb;
+  --color-background-footer-dt:#323237;
+  --color-text:#000;
+  --color-text-dt:hsla(0,0%,100%,.96);
+  --color-text-light:rgba(0,0,0,.7);
+  --color-text-light-dt:hsla(0,0%,100%,.7);
+  --color-w05:hsla(0,0%,100%,.05);
+  --color-w08:hsla(0,0%,100%,.08);
+  --color-w10:hsla(0,0%,100%,.1);
+  --color-w16:hsla(0,0%,100%,.16);
+  --color-w50:hsla(0,0%,100%,.5);
+  --color-w70:hsla(0,0%,100%,.7);
+  --color-w80:hsla(0,0%,100%,.8);
+  --color-w100:#fff;
+  --color-b05:rgba(0,0,0,.05);
+  --color-b08:rgba(0,0,0,.08);
+  --color-b20:rgba(0,0,0,.2);
+  --color-b50:rgba(0,0,0,.5);
+  --color-b70:rgba(0,0,0,.7);
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
+  --color-generic:#539df3;
+  --color-jvm:#4dbb5f;
+  --color-js:#ffc700;
+  --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
+  --size-s1:4px;
+  --size-s2:8px;
+  --size-s3:16px;
+  --size-m1:24px;
+  --size-m2:32px;
+  --size-m3:48px;
+  --size-l1:64px;
+  --size-l2:72px;
+  --size-ta1:40px;
+  --size-ta2:52px;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+  --font-h1:600 44px/44px var(--font-family-default);
+  --font-h2:600 32px/32px var(--font-family-default);
+  --font-h3:600 24px/24px var(--font-family-default);
+  --font-h4:600 16px/24px var(--font-family-default);
+  --font-text-m:400 16px/24px var(--font-family-default);
+  --font-text-s:400 14px/20px var(--font-family-default);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
 }
@@ -2791,7 +2764,6 @@ code:not(.block) {
   --color-background-page-dt:#262628;
   --color-background-footer:#ebebeb;
   --color-background-footer-dt:#323237;
-  --color-background-code:#e6e6e6;
   --color-text:#000;
   --color-text-dt:hsla(0,0%,100%,.96);
   --color-text-light:rgba(0,0,0,.7);
@@ -2809,21 +2781,14 @@ code:not(.block) {
   --color-b20:rgba(0,0,0,.2);
   --color-b50:rgba(0,0,0,.5);
   --color-b70:rgba(0,0,0,.7);
-  --color-cd-punctuation:#999;
-  --color-cd-keyword:#0033b3;
-  --color-cd-keyword-alternative:#cc7832;
-  --color-cd-builtin:#067d17;
-  --color-cd-builtin-alternative:#e7bf6a;
-  --color-cd-function:#00627a;
-  --color-cd-function-alternative:#ffc66d;
-  --color-cd-operator:#9a6e3a;
-  --color-cd-operator-alternative:#a9b7c6;
-  --color-cd-body:#000;
-  --color-cd-body-alternative:#a9b7c6;
+  --color-background-inline-code:var(--color-b08);
+  --color-background-code-block:rgba(25,25,28,.05);
   --color-generic:#539df3;
   --color-jvm:#4dbb5f;
   --color-js:#ffc700;
   --color-wasm:#fff;
+  --copy-icon-color:var(--color-b50);
+  --copy-icon-hover-color:var(--color-b70);
   --size-s1:4px;
   --size-s2:8px;
   --size-s3:16px;
@@ -2834,7 +2799,7 @@ code:not(.block) {
   --size-l2:72px;
   --size-ta1:40px;
   --size-ta2:52px;
-  --font-family-default:JetBrains Sans,Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
+  --font-family-default:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Droid Sans,Helvetica Neue,Arial,sans-serif;
   --font-family-mono:JetBrains Mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
   --font-h1:600 44px/44px var(--font-family-default);
   --font-h2:600 32px/32px var(--font-family-default);
@@ -2842,7 +2807,7 @@ code:not(.block) {
   --font-h4:600 16px/24px var(--font-family-default);
   --font-text-m:400 16px/24px var(--font-family-default);
   --font-text-s:400 14px/20px var(--font-family-default);
-  --font-code:400 16px/24px var(--font-family-mono);
+  --font-code:400 15.5px/24px var(--font-family-mono);
   --hover-transition:background-color 200ms ease-in-out;
   --rotate-transition:transform 200ms ease-in-out;
   --color-background:var(--color-background-page);
@@ -2856,6 +2821,8 @@ code:not(.block) {
   --color-background:var(--color-background-page-dt);
   --text-color:var(--color-text-dt);
   --text-outline:var(--color-w16);
+  --color-background-inline-code:var(--color-w10);
+  --color-background-code-block:var(--color-w05);
 }
 
 body {
@@ -2863,12 +2830,44 @@ body {
   background-color: var(--color-background);
   color: #000;
   color: var(--text-color);
-  font: 400 16px/24px JetBrains Sans, Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
+  font: 400 16px/24px Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
   font: var(--font-text-m);
   margin: 0;
 }
 
 small {
-  font: 400 14px/20px JetBrains Sans, Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
+  font: 400 14px/20px Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
   font: var(--font-text-s);
+}
+/* inter-latin-400-normal */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(fonts/inter-latin-400-normal.woff2) format('woff2'), url(fonts/inter-latin-400-normal.woff) format('woff');
+}
+/* inter-latin-600-normal */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url(fonts/inter-latin-600-normal.woff2) format('woff2'), url(fonts/inter-latin-600-normal.woff) format('woff');
+}
+/* jetbrains-mono-latin-400-normal */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(fonts/jetbrains-mono-latin-400-normal.woff2) format('woff2'), url(fonts/jetbrains-mono-latin-400-normal.woff) format('woff');
+}
+/* jetbrains-mono-latin-600-normal */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url(fonts/jetbrains-mono-latin-600-normal.woff2) format('woff2'), url(fonts/jetbrains-mono-latin-600-normal.woff) format('woff');
 }
