@@ -19,9 +19,15 @@ import * as tocTree from './toc-tree/index';
 import * as link from './link/index';
 import * as breadcrumbs from './breadcrumbs/index';
 import * as inlineCode from './inline-code/index';
+import * as codeBlock from './code-block/index';
 import { removeBackwardCompatibilityStyles } from './utils';
 import './helpers.scss';
 import './global.scss';
+
+import '@fontsource/inter/latin-400.css';
+import '@fontsource/inter/latin-600.css';
+import '@fontsource/jetbrains-mono/latin-400.css';
+import '@fontsource/jetbrains-mono/latin-600.css';
 
 export {
   button,
@@ -42,6 +48,7 @@ export {
   link,
   breadcrumbs,
   inlineCode,
+  codeBlock,
 };
 
 document.addEventListener('DOMContentLoaded', () => {

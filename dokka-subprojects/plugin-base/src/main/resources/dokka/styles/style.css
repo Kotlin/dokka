@@ -2,9 +2,6 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@import url('./font-jb-sans-auto.css');
-@import url('https://fonts.googleapis.com/css?family=JetBrains+Mono');
-
 /* --- root styles --- */
 :root {
     --default-gray: #f4f4f4;
@@ -19,14 +16,14 @@
     --background-color: var(--default-white);
     --dark-mode-and-search-icon-color: var(--default-white);
     --color-dark: #27282c;
-    --default-font-family: JetBrains Sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+    --default-font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
     --default-monospace-font-family: JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
     --default-font-size: 16px;
     --average-color: var(--color-dark);
     --brief-color: var(--average-color);
     --copy-icon-color: rgba(39, 40, 44, .7);
     --copy-icon-hover-color: var(--color-dark);
-    --code-background: rgba(39, 40, 44, .05);
+    --blockquote-background: rgba(39, 40, 44, .05);
     --border-color: rgba(39, 40, 44, .2);
     --navigation-highlight-color: rgba(39, 40, 44, 0.05);
     --top-navigation-height: 73px;
@@ -117,7 +114,7 @@ blockquote {
 
 .theme-dark blockquote {
     color: var(--default-font-color);
-    border-left-color: var(--code-background);
+    border-left-color: var(--blockquote-background);
 }
 
 pre {
@@ -126,7 +123,6 @@ pre {
 
 dt {
     color: #444;
-    font-weight: 530;
 }
 
 img {
@@ -193,7 +189,7 @@ td:first-child {
     --color-dark: #3d3d41;
     --default-font-color: rgba(255, 255, 255, 0.96);
     --border-color: hsla(0, 0%, 100%, 0.2);
-    --code-background: hsla(0, 0%, 100%, 0.05);
+    --blockquote-background: hsla(0, 0%, 100%, 0.05);
     --brief-color: hsla(0, 0%, 100%, 0.4);
     --copy-icon-color: hsla(0, 0%, 100%, 0.6);
     --copy-icon-hover-color: #fff;
@@ -220,7 +216,7 @@ td:first-child {
 }
 
 .main-content :is(h1, h2) {
-    font-weight: 530;
+    font-weight: 600;
 }
 
 
@@ -232,11 +228,6 @@ td:first-child {
 .cover {
     display: flex;
     flex-direction: column;
-}
-
-.cover .platform-hinted.with-platform-tabs .sourceset-dependent-content > .block ~ .symbol {
-    padding-top: 16px;
-    padding-left: 0;
 }
 
 .cover .sourceset-dependent-content > .block {
@@ -265,6 +256,10 @@ td:first-child {
     margin-top: 8px;
 }
 
+/**
+first block on a page
+http://localhost:8001/jvm/org.jetbrains.dokka.uitest.internal/function-to-be-used-as-sample.html
+ */
 blockquote,
 .content > .symbol:first-of-type,
 p.paragraph:first-child,
@@ -298,16 +293,6 @@ p.paragraph:first-child,
     padding-top: 0;
 }
 
-.sample-container, div.CodeMirror {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-}
-
-code.paragraph {
-    display: block;
-}
-
 .strikethrough {
     text-decoration: line-through;
 }
@@ -336,50 +321,8 @@ code.paragraph {
     padding: 0;
 }
 
-.symbol:not(.token), code.block {
-    display: block;
-    padding: 12px 32px 12px 12px;
-    border-radius: 8px;
-    position: relative;
-    background-color: var(--code-background);
-    box-sizing: border-box;
-    white-space: pre-wrap;
-    font-family: var(--default-monospace-font-family);
-    line-height: 24px;
-}
-
-code.block {
-    overflow-x: auto;
-    max-width: 100%;
-}
-
 .copy-icon {
     cursor: pointer;
-}
-
-.sample-container span.copy-icon {
-    display: none;
-}
-
-.js .sample-container:hover span.copy-icon {
-    display: inline-block;
-}
-
-.sample-container span.copy-icon::before {
-    width: 24px;
-    height: 24px;
-    display: inline-block;
-    content: '';
-    /* masks are required if you want to change color of the icon dynamically instead of using those provided with the SVG */
-    -webkit-mask: url("../images/copy-icon.svg") no-repeat 50% 50%;
-    mask: url("../images/copy-icon.svg") no-repeat 50% 50%;
-    -webkit-mask-size: cover;
-    mask-size: cover;
-    background-color: var(--copy-icon-color);
-}
-
-.sample-container span.copy-icon:hover::before {
-    background-color: var(--copy-icon-hover-color);
 }
 
 .copy-popup-wrapper {
@@ -484,9 +427,9 @@ p.paragraph img {
 }
 
 .deprecation-content {
-    margin: 20px 10px;
+    margin: 16px 0;
     border: 1px solid var(--border-color);
-    padding: 13px 15px 16px 15px;
+    padding: 16px;
 }
 
 .deprecation-content > h3 {
@@ -496,19 +439,12 @@ p.paragraph img {
 
 .deprecation-content > h4 {
     font-size: 16px;
-    margin-top: 15px;
+    margin-top: 16px;
     margin-bottom: 0;
 }
 
-.deprecation-content code.block {
-    padding: 5px 10px;
-    display: inline-block;
-}
-
+/** https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.native.concurrent/atomic-lazy.html **/
 .deprecation-content .footnote {
-    margin-left: 25px;
-    font-size: 13px;
-    font-weight: bold;
     display: block;
 }
 
@@ -732,7 +668,7 @@ Just in case of possible performance degradation it excluding tabs with briefs o
 .filtered-message {
     margin: 25px;
     font-size: 20px;
-    font-weight: bolder;
+    font-weight: 600;
 }
 
 div.runnablesample {
