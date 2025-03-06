@@ -6,7 +6,7 @@ package org.jetbrains.dokka.analysis.kotlin.descriptors.ide
 
 import com.intellij.mock.MockApplication
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.MockApplicationHack
-import org.jetbrains.kotlin.idea.klib.KlibLoadingMetadataCache
+import org.jetbrains.kotlin.analysis.decompiler.konan.KlibLoadingMetadataCache
 
 internal class IdeMockApplicationHack : MockApplicationHack {
     override fun hack(mockApplication: MockApplication) {
