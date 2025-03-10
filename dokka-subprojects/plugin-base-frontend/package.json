@@ -8,18 +8,20 @@
   },
   "scripts": {
     "create-component": "node --experimental-modules create-component.mjs",
+    "start": "npm-run-all --parallel watch build:ui-kit:watch start:ui-kit",
     "start:ui-kit": "webpack serve --config ./webpack.config-ui-kit.js --env minify=true",
-    "build:ui-kit:watch": "webpack --config ./webpack.config-ui-kit.js --env watch=true --env minify=true",
     "build:ui-kit": "npm run build:ui-kit:unminified && npm run build:ui-kit:minified",
+    "build:ui-kit:analyze": "webpack --config ./webpack.config-ui-kit.js --env minify=true --env analyze=true",
+    "build:ui-kit:watch": "webpack --config ./webpack.config-ui-kit.js --env watch=true --env minify=true",
     "build:ui-kit:minified": "webpack --config ./webpack.config-ui-kit.js --env minify=true",
     "build:ui-kit:unminified": "webpack --config ./webpack.config-ui-kit.js --env minify=false",
     "build": "webpack --mode=production --devtool source-map",
+    "build:analyze": "webpack --mode=production --devtool source-map --env analyze=true",
     "watch": "webpack --mode=development --watch",
     "lint": "eslint . && npm run stylelint",
     "lint:fix": "eslint --fix --ext src/**/*.{ts,tsx,css,scss}",
     "prettier": "prettier --write 'src/**/*.{ts,tsx,css,scss}'",
     "stylelint": "stylelint --ignore-path .gitignore ./src/main/**/**/*.scss",
-    "start": "npm-run-all --parallel watch build:ui-kit:watch start:ui-kit",
     "prepare": "husky"
   },
   "babel": {
@@ -41,9 +43,9 @@
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.16.0",
+    "@babel/core": "^7.26.9",
     "@babel/eslint-parser": "^7.16.3",
-    "@babel/preset-env": "^7.24.5",
+    "@babel/preset-env": "^7.26.9",
     "@jetbrains/babel-preset-jetbrains": "^2.3.1",
     "@jetbrains/stylelint-config": "^4.0.2",
     "@types/lodash": "^4.14.177",
@@ -52,7 +54,7 @@
     "@types/react-dom": "^17.0.11",
     "@typescript-eslint/eslint-plugin": "^7.12.0",
     "@typescript-eslint/parser": "^7.12.0",
-    "babel-loader": "^8.2.3",
+    "babel-loader": "^8.4.1",
     "css-loader": "^7.1.1",
     "css-minimizer-webpack-plugin": "^7.0.0",
     "cssnano": "^7.0.1",
@@ -81,6 +83,7 @@
     "ts-loader": "^9.2.6",
     "typescript": "^4.5.2",
     "webpack": "5.94.0",
+    "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4",
     "webpack-shell-plugin-next": "^2.3.1"
