@@ -4,7 +4,6 @@
 
 import fuzzyHighlight from '@jetbrains/ring-ui/components/global/fuzzy-highlight.js';
 import Select, { SelectProps, SelectState } from '@jetbrains/ring-ui/components/select/select';
-import _ from 'lodash';
 import React from 'react';
 import { SearchResultRow } from './searchResultRow';
 import { OptionWithHighlightComponent, OptionWithSearchResult } from './types';
@@ -72,7 +71,7 @@ export class DokkaFuzzyFilterComponent extends Select {
             })
             .filter((e) => e.matched);
 
-          const first = _.head(searched);
+          const first = searched[0];
 
           if (first) {
             return first;

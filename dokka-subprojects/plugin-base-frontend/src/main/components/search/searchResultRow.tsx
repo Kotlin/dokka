@@ -2,8 +2,8 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import _ from 'lodash';
 import React from 'react';
+import { chunk } from '../utils/arrayUtils';
 import { OptionWithSearchResult, SearchProps } from './types';
 
 type HighlighterProps = {
@@ -20,9 +20,9 @@ export const signatureFromSearchResult = (searchResult: OptionWithSearchResult):
 
 export const SearchResultRow: React.FC<SearchProps> = ({ searchResult }: SearchProps) => {
   /*
-    This is a work-around for an issue: https://youtrack.jetbrains.com/issue/RG-2108
-    */
-  const out = _.chunk(signatureFromSearchResult(searchResult).split('**'), 2).flatMap(([txt, label]) => [
+        This is a work-around for an issue: https://youtrack.jetbrains.com/issue/RG-2108
+        */
+  const out = chunk(signatureFromSearchResult(searchResult).split('**'), 2).flatMap(([txt, label]) => [
     txt,
     label ? <Highlighter label={label}></Highlighter> : null,
   ]);
