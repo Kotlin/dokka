@@ -5,9 +5,11 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
 const WebpackShellPluginNext = require('webpack-shell-plugin-next');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 module.exports = (env) => {
   const isMinify = env.minify === 'true';
+  const isAnalyze = env.analyze === 'true';
   return {
     watch: env.watch === 'true',
     devServer: {
@@ -47,11 +49,7 @@ module.exports = (env) => {
                   loader: 'postcss-loader',
                   options: {
                     postcssOptions: {
-                      plugins: [
-                        [
-                          'cssnano',
-                        ],
-                      ],
+                      plugins: [['cssnano']],
                     },
                   },
                 }
@@ -65,21 +63,21 @@ module.exports = (env) => {
                     },
                   },
                 },
-                {
-                  loader: 'postcss-loader',
-                  options: {
-                    postcssOptions: {
-                      plugins: [
-                        [
-                          'cssnano',
-                          {
-                            preset: ['default', { discardComments: { removeAll: true } }],
-                          },
-                        ],
-                      ],
-                    },
-                  },
+            {
+              loader: 'postcss-loader',
+              options: {
+                postcssOptions: {
+                  plugins: [
+                    [
+                      'cssnano',
+                      {
+                        preset: ['default', { discardComments: { removeAll: true } }],
+                      },
+                    ],
+                  ],
                 },
+              },
+            },
             'sass-loader',
           ],
         },
@@ -112,11 +110,7 @@ module.exports = (env) => {
               {
                 discardComments: { removeAll: true },
                 normalizeWhitespace: isMinify,
-                plugins: [
-                  [
-                    'cssnano',
-                  ],
-                ]
+                plugins: [['cssnano']],
               },
             ],
           },
@@ -137,6 +131,7 @@ module.exports = (env) => {
           parallel: true,
         },
       }),
+      ...(isAnalyze ? [new BundleAnalyzerPlugin()] : []),
     ],
   };
 };

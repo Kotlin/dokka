@@ -6,6 +6,7 @@ const { join, resolve } = require('path');
 
 const ringUiWebpackConfig = require('@jetbrains/ring-ui/webpack.config');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const WebpackShellPluginNext = require('webpack-shell-plugin-next');
 const TerserPlugin = require('terser-webpack-plugin');
 
@@ -15,6 +16,7 @@ const componentsPath = join(__dirname, pkgConfig.components);
 
 const webpackConfig = (params, argv) => {
   const mode = argv.mode || 'development';
+  const isAnalyze = argv.env && argv.env.analyze === 'true';
   return {
     entry: `${componentsPath}/root.tsx`,
     resolve: {
@@ -76,6 +78,7 @@ const webpackConfig = (params, argv) => {
             }),
           ]
         : []),
+      ...(isAnalyze ? [new BundleAnalyzerPlugin()] : [])
     ],
     optimization: {
       minimize: true,
