@@ -5,7 +5,13 @@
 package org.jetbrains.dokka.kdoc
 
 // parsed markdown representation: text, links, etc
-public interface KdDocumentation
+public interface KdDocumentation {
+    public val root: KdRenderNode
+    // or
+    public val nodes: List<KdRenderNode>
+}
+
+public interface KdRenderNode
 
 public interface KdDocumented {
     public val description: KdDocumentation

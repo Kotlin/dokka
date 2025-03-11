@@ -4,7 +4,13 @@
 
 package org.jetbrains.dokka.kdoc
 
-// java and kotlin
 public sealed class KdVisibility {
     public object Public : KdVisibility()
+    public object Protected : KdVisibility()
+    public object Internal : KdVisibility()
+    public object Private : KdVisibility()
+
+    // java specific visibilities
+    public object PackageProtected : KdVisibility()
+    public object PackagePrivate : KdVisibility()
 }
