@@ -5,11 +5,11 @@
 package org.jetbrains.dokka.analysis.kotlin.descriptors.ide
 
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.KLibService
+import org.jetbrains.kotlin.analysis.decompiler.konan.CachingIdeKlibMetadataLoader
 import org.jetbrains.kotlin.library.metadata.KlibMetadataModuleDescriptorFactory
 import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider
-import org.jetbrains.kotlin.idea.klib.CachingIdeKlibMetadataLoader
 import org.jetbrains.kotlin.idea.klib.compatibilityInfo
 import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.library.KotlinLibrary
