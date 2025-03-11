@@ -21,7 +21,7 @@ kotlin-compiler-k2 = "2.2.0-dev-7826"
 # MUST match the version of the intellij platform used in the kotlin compiler,
 # otherwise this will lead to different versions of psi API and implementations
 # on the classpath and will fail with hard to debug problems in runtime.
-# See: https://github.com/JetBrains/kotlin/blob/480b38f967493adf494b4e049cbe5ac1060d215f/gradle/versions.properties#L1
+# See: https://github.com/JetBrains/kotlin/blob/79b4def109dc73f882ec8a291a69d0197ad55c58/gradle/versions.properties#L1
 intellij-platform = "241.19416.19"
 
 ## HTML
