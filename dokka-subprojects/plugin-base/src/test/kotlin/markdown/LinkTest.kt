@@ -1143,9 +1143,11 @@ class LinkTest : BaseAbstractTest() {
                     ?: throw IllegalStateException("Can't find documentation for declaration 'usage'")
                 val externalLink = doc.firstMemberOfType<A>()
                 assertEquals("some link", externalLink.children.first().text())
+                assertEquals("https://www.google.com/", externalLink.params["href"])
 
                 val docLink = doc.firstMemberOfType<DocumentationLink>()
                 assertEquals("some declaration", docLink.children.first().text())
+                assertEquals(Callable("usage", null, emptyList()), docLink.dri.callable)
             }
         }
     }
