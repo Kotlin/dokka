@@ -5,6 +5,7 @@
 package org.jetbrains.kotlin.idea.kdoc
 
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiRecursiveElementWalkingVisitor
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
@@ -15,7 +16,7 @@ import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
+import org.jetbrains.kotlin.psi.psiUtil.checkDecompiledText
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.psi.psiUtil.getChildrenOfType
 import org.jetbrains.kotlin.psi.psiUtil.isPropertyParameter
@@ -128,4 +129,30 @@ private fun KtElement.lookupInheritedKDoc(descriptorToPsi: DescriptorToPsi): KDo
         }
     }
     return null
+}
+
+private inline fun <reified T : PsiElement> PsiElement.findDescendantOfType(noinline predicate: (T) -> Boolean = { true }): T? {
+    return findDescendantOfType({ true }, predicate)
+}
+
+private inline fun <reified T : PsiElement> PsiElement.findDescendantOfType(
+    crossinline canGoInside: (PsiElement) -> Boolean,
+    noinline predicate: (T) -> Boolean = { true }
+): T? {
+    checkDecompiledText()
+    var result: T? = null
+    this.accept(object : PsiRecursiveElementWalkingVisitor() {
+        override fun visitElement(element: PsiElement) {
+            if (element is T && predicate(element)) {
+                result = element
+                stopWalking()
+                return
+            }
+
+            if (canGoInside(element)) {
+                super.visitElement(element)
+            }
+        }
+    })
+    return result
 }
