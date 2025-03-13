@@ -1119,7 +1119,7 @@
   flex: 1 1 0;
   flex-direction: column;
   margin-left: -5px;
-  overflow: auto;
+  overflow: auto !important;
 }
 
 .main-content {
@@ -2478,7 +2478,7 @@ button.platform-tag:focus-visible {
 .sidebar {
   border-right: 1px solid rgba(39, 40, 44, 0.2);
   box-sizing: border-box;
-  overflow: auto;
+  overflow: auto !important;
   width: var(--sidebar-width);
 }
 

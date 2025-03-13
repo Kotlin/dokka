@@ -258,7 +258,7 @@
 }
 
 .sidebar {
-  overflow: auto;
+  overflow: auto !important; // important do needed to override column-resizer styles
 
   box-sizing: border-box;
   width: var(--sidebar-width);
