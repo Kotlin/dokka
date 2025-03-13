@@ -66,7 +66,7 @@ const webpackConfig = (params, argv) => {
       ...(mode === 'development'
         ? [
             new WebpackShellPluginNext({
-              onDoneWatch: {
+              onAfterDone: {
                 scripts: [
                   'echo "[search] Done rebuild, coping files to dokka-integration-tests"',
                   'cp ./dist/main.js ../../dokka-integration-tests/gradle/build/ui-showcase-result/scripts',
@@ -78,7 +78,7 @@ const webpackConfig = (params, argv) => {
             }),
           ]
         : []),
-      ...(isAnalyze ? [new BundleAnalyzerPlugin()] : [])
+      ...(isAnalyze ? [new BundleAnalyzerPlugin()] : []),
     ],
     optimization: {
       minimize: true,
