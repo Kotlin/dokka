@@ -122,7 +122,7 @@ module.exports = (env) => {
         filename: isMinify ? 'ui-kit.min.css' : 'ui-kit.css',
       }),
       new WebpackShellPluginNext({
-        onDoneWatch: {
+        onAfterDone: {
           scripts: [
             'echo "[ui-kit] Done rebuild, coping files to dokka-integration-tests"',
             'cp -r ../plugin-base/src/main/resources/dokka/ui-kit ../../dokka-integration-tests/gradle/build/ui-showcase-result',
