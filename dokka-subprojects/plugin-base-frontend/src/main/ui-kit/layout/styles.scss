@@ -19,7 +19,7 @@
 
 #main {
   display: flex;
-  overflow: auto;
+  overflow: auto !important; // important do needed to override column-resizer styles
   flex: 1 1 0; /* full width, but no affects for sidebar */
   flex-direction: column;
 
