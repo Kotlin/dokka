@@ -397,7 +397,7 @@
   position: absolute;
   right: 0;
   top: 44px;
-  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
   width: -moz-fit-content;
   width: fit-content;
   z-index: 10;
@@ -598,6 +598,15 @@
     border-radius: 0;
     outline-offset: -4px;
   }
+}
+.dropdown--header .button:hover {
+  background-color: hsla(0, 0%, 100%, 0.1);
+  background-color: var(--color-w10);
+}
+
+.dropdown--header .button:active {
+  background-color: hsla(0, 0%, 100%, 0.16);
+  background-color: var(--color-w16);
 }
 :root {
   --breakpoint-desktop-min:900px;
