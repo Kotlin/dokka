@@ -29,5 +29,11 @@ export const safeLocalStorage = (() => {
       }
       localStorage.setItem(key, value);
     },
+    getKeys: (): string[] => {
+      if (!isLocalStorageAvailable) {
+        return [];
+      }
+      return Object.keys(localStorage);
+    },
   };
 })();
