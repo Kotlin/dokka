@@ -57,7 +57,6 @@ public class ScriptsInstaller(private val dokkaContext: DokkaContext) : PageTran
     // scripts ending with `_deferred.js` are loaded with `defer`, otherwise `async`
     private val scriptsPages = listOf(
         "scripts/clipboard.js",
-        "scripts/navigation-loader.js",
         "scripts/platform-content-handler.js",
         "scripts/main.js",
         "scripts/prism.js",
