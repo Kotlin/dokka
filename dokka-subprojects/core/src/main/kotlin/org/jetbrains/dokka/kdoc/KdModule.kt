@@ -4,45 +4,29 @@
 
 package org.jetbrains.dokka.kdoc
 
-// TODO: may be it's not really needed :)
+// TODO: somehow reference modules (klibs.io/aggregated HTML)
 public interface KdProject : KdDocumented {
     public val name: String
-    public val modules: List<KdModule>
+    public val topics: List<KdTopic>
 }
 
-// question to uklibs
-// module = org.jetbrains.kotlinx:kotlinx-coroutines-core
-// version = 1.0
-
-// THERE IS NO MODULE DEFINITION NOW or project definition now in Kotlin
-// probably module should be package manager specific
-
 public interface KdModule : KdDocumented {
-//    public val name: String
-//    public val version: String
+    public val name: String
+    public val fragments: List<KdFragment> // may be included into uklib/umanifest?
+    public val symbols: List<KdSymbol>
 
-    public val packages: Map<KdSymbolId, KdPackage>
-    public val fragments: List<KdFragment>
     public val topics: List<KdTopic>
+    public val samples: List<KdSample> // TODO?
 }
 
 public interface KdFragment {
     public val name: String // common, jvm, native, etc
-//    public val platforms: Set<String>
-//    public val dependsOn: Set<String>
-
-    public val declarations: Map<KdSymbolId, KdDeclaration>
-    // public val samples: List<KdSample>
+    public val platforms: Set<String> // [jvm, iosX64, macosArm64, wasmJs, wasmWasi, ...]
+    public val dependsOn: Set<String> // [ios, macos]
 }
 
-public interface KdPackage : KdDocumented {
+// TODO: later
+public interface KdTopic {
     public val name: String
-}
-
-public interface KdTopic : KdDocumented {
-    public val name: String
-}
-
-public interface KdSample : KdDocumented {
-    public val name: String
+    public val content: KdDocumentationElement
 }
