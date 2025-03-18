@@ -9,12 +9,19 @@ public interface KdParameter : KdDocumented {
     public val type: KdType
 }
 
-public interface KdNamedParameter : KdParameter {
+public interface KdReceiverParameter : KdParameter {
+
+}
+
+public interface KdContextParameter : KdParameter {
     public val name: String
 }
 
-public interface KdReceiverParameter : KdParameter
-public interface KdContextParameter : KdNamedParameter
-public interface KdValueParameter : KdNamedParameter {
-    public val defaultValue: String?
+public interface KdValueParameter : KdParameter {
+    public val name: String
+    public val defaultValue: KdParameterDefaultValue?
+}
+
+public sealed class KdParameterDefaultValue {
+    public data class ConstValue(public val value: KdConstValue) : KdParameterDefaultValue()
 }

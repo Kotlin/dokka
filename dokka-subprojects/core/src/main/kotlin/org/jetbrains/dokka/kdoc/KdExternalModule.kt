@@ -19,5 +19,3 @@ public interface KdExternalFragment {
 
     public val declarations: Map<KdSymbolId, KdSymbolLink>
 }
-
-// TODO: references to web sources (github) and sources.jar could exist?

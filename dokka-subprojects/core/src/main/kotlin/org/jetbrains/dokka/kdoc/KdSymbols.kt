@@ -4,74 +4,78 @@
 
 package org.jetbrains.dokka.kdoc
 
-//public interface KdSymbolReference
-public interface KdTypeReference {
-    // TODO: functional types
-    public val isNullable: Boolean
-    public val symbolReference: KdSymbolReference
-    public val typeParameters: List<
-            KdTypeParameter // + star projection
-            >
-}
+/*
+common:
+  expect class Foo {
+    fun a()
+  }
+nonJvm:
+  expect class Foo {
+    fun a()
+    fun b()
+  }
+native:
+  actual class Foo {
+    fun a() // from common
+    fun b() // from nonJvm (same as in jvm)
+    fun c() // from HERE
+  }
+jvm:
+  actual class Foo {
+    fun a() // from common
+    fun b() // from HERE (same as in nonJvm)
+  }
+ */
 
-// graph
-
-public interface KdSymbols {
-    public val symbols: Map<KdSymbolId, KdSymbol>
-}
+public interface KdPackageSymbol : KdSymbol
 
 // declaration has both package and fragment
 public interface KdDeclarationSymbol : KdSymbol {
     public val visibility: KdVisibility
-    public val source: KdSourceInfo
-
-    // we should have access to `MustBeDocumented` annotations
-    // annotations?
+    public val annotations: List<KdAnnotation>
 }
 
-// in case of expect/actual we will have:
-// - class:org.example.HelloWorld@common
-// - class:org.example.HelloWorld@jvm
-// + relation of type ExpectActual
-
-public interface KdClassLikeSymbol : KdSymbol
+public interface KdClassLikeSymbol : KdDeclarationSymbol
 
 // interface, object, class, annotation, enum
 public interface KdClassSymbol : KdClassLikeSymbol {
-    public val superTypes: List<KdType>
-    public val classlikes: List<KdSymbolReference>
-    public val callables: List<KdSymbolReference>
+//    public val classKind = interface, class, ...
+
+    // all other fields here...
+    public val isCompanion: Boolean
+    public val isData: Boolean
+    public val isValue: Boolean
+    public val isInner: Boolean
+
+    // relation
+//    public val superTypes: List<KdType>
+
+    // relations
+    // TODO: decide on how to represent functions, properties, nested classes, objects, static fields (java)
+//    public val declarations: List<KdSymbolReference>
+//    public val members: List<KdSymbolReference>
+//    public val classlikes: List<KdSymbolReference>
+//    public val callables: List<KdSymbolReference>
 
     // generics?
 
-    // @see - separate section
-    // @sample - separate section
-    // @author - separate section
-    // @since - separate section
-    // and other javadoc tags
-
-    public val author: String?
-    public val since: String?
-    public val samples: List<KdSymbolReference> // ???
+    public val samples: List<KdSymbolId>
+    public val tags: List<KdTag>
 }
 
 public interface KdEnumSymbol : KdClassSymbol {
-    public val entries: List<KdEnumEntry>
+    public val entries: List<KdEnumEntrySymbol>
 }
 
-public interface KdEnumEntry : KdDocumented {
-    public val name: String
-}
+public interface KdEnumEntrySymbol : KdDeclarationSymbol
 
 public interface KdTypeAliasSymbol : KdClassLikeSymbol {
     public val typeParameters: List<KdTypeParameter>
     public val underlyingType: KdType
 }
 
-public interface KdCallableSymbol : KdSymbol {
-    // should have docs on @return ...
+public interface KdCallableSymbol : KdDeclarationSymbol {
     public val returnType: KdType
-    public val returnDescription: KdDocumentation
 
     public val receiverParameter: KdReceiverParameter?
     public val contextParameters: List<KdContextParameter>
@@ -91,6 +95,7 @@ public interface KdFunctionSymbol : KdFunctionLikeSymbol {
 
 public interface KdPropertyLikeSymbol : KdCallableSymbol
 
+// TODO: getter/setter?
 public interface KdPropertySymbol : KdPropertyLikeSymbol {
     public val constValue: String?
 }
@@ -98,18 +103,9 @@ public interface KdPropertySymbol : KdPropertyLikeSymbol {
 // java field
 public interface KdFieldSymbol : KdPropertyLikeSymbol
 
-public interface KdReturn : KdDocumented {
-    public val type: KdType
-}
 
 // for generics
 public interface KdTypeParameter : KdDocumented {
-    public val name: String
-}
-
-public interface KdType
-
-public interface KdTag : KdDocumented {
     public val name: String
 }
 
@@ -155,3 +151,8 @@ public interface KdTag : KdDocumented {
 //        public val actual: KdSymbolReference
 //    }
 //}
+
+// in case of expect/actual we will have:
+// - class:org.example.HelloWorld@common
+// - class:org.example.HelloWorld@jvm
+// + relation of type ExpectActual

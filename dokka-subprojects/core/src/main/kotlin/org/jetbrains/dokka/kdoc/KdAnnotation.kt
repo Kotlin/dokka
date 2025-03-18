@@ -4,13 +4,22 @@
 
 package org.jetbrains.dokka.kdoc
 
+// we should have access to `MustBeDocumented` annotations
 public data class KdAnnotation(
-    val annotationId: KdSymbolId,
-    val parameters: List<KdAnnotationParameter>
+    val classId: KdSymbolId,
+    val arguments: List<KdAnnotationArgument>
 )
 
-public data class KdAnnotationParameter(
+public data class KdAnnotationArgument(
     val name: String,
-    val type: KdType,
-    val value: String,
+    val value: KdAnnotationArgumentValue,
 )
+
+public sealed class KdAnnotationArgumentValue {
+    public data class ConstValue(public val value: KdConstValue) : KdAnnotationArgumentValue()
+
+    //value
+    //class
+    //array
+    //etc
+}
