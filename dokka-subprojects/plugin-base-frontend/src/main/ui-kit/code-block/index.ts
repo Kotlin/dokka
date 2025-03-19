@@ -8,7 +8,9 @@ import './styles.scss';
 
 const CODE_BLOCK_PADDING = 16 * 2;
 
-const symbolsObserver = new ResizeObserver((entries) => entries.forEach(wrapSymbolParameters));
+const symbolsObserver = new ResizeObserver((entries) =>
+  requestAnimationFrame(() => entries.forEach(wrapSymbolParameters))
+);
 
 function initHandlers() {
   document.querySelectorAll('div.symbol').forEach((symbol) => symbolsObserver.observe(symbol));
