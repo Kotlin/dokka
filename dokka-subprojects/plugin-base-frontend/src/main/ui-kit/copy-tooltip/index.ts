@@ -24,7 +24,7 @@ function hrefWithoutAnchor() {
 }
 
 function copyCodeAreaContent(element: Element) {
-  const sampleContainer = element.closest('.sample-container');
+  const sampleContainer = element.closest('.sample-container')?.querySelector('code');
 
   if (sampleContainer) {
     const text = sampleContainer.textContent || '';
