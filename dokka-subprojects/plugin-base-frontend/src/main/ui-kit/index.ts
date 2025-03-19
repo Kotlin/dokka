@@ -20,6 +20,7 @@ import * as link from './link/index';
 import * as breadcrumbs from './breadcrumbs/index';
 import * as inlineCode from './inline-code/index';
 import * as codeBlock from './code-block/index';
+import * as copyTooltip from './copy-tooltip/index';
 import { removeBackwardCompatibilityStyles } from './utils';
 import './helpers.scss';
 import './global.scss';
@@ -49,6 +50,7 @@ export {
   breadcrumbs,
   inlineCode,
   codeBlock,
+  copyTooltip,
 };
 
 document.addEventListener('DOMContentLoaded', () => {

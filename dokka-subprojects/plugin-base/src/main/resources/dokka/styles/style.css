@@ -21,8 +21,6 @@
     --default-font-size: 16px;
     --average-color: var(--color-dark);
     --brief-color: var(--average-color);
-    --copy-icon-color: rgba(39, 40, 44, .7);
-    --copy-icon-hover-color: var(--color-dark);
     --blockquote-background: rgba(39, 40, 44, .05);
     --border-color: rgba(39, 40, 44, .2);
     --navigation-highlight-color: rgba(39, 40, 44, 0.05);
@@ -321,65 +319,6 @@ p.paragraph:first-child,
     padding: 0;
 }
 
-.copy-icon {
-    cursor: pointer;
-}
-
-.copy-popup-wrapper {
-    display: none;
-    align-items: center;
-    position: absolute;
-    z-index: 1000;
-    background: var(--background-color);
-    font-weight: normal;
-    font-family: var(--default-font-family);
-    width: max-content;
-    font-size: var(--default-font-size);
-    cursor: default;
-    border: 1px solid #D8DCE1;
-    box-sizing: border-box;
-    box-shadow: 0 5px 10px var(--ring-popup-shadow-color);
-    border-radius: 3px;
-    color: var(--default-font-color);
-}
-
-.copy-popup-wrapper > .copy-popup-icon::before {
-    content: url("../images/copy-successful-icon.svg");
-    padding: 8px;
-}
-
-.copy-popup-wrapper > .copy-popup-icon {
-    position: relative;
-    top: 3px;
-}
-
-.copy-popup-wrapper.popup-to-left {
-    /* since it is in position absolute we can just move it to the left to make it always appear on the left side of the icon */
-    left: -15em;
-}
-
-.table-row:hover .copy-popup-wrapper.active-popup,
-.sample-container:hover .copy-popup-wrapper.active-popup {
-    display: flex !important;
-}
-
-.copy-popup-wrapper:hover {
-    font-weight: normal;
-}
-
-.copy-popup-wrapper > span:last-child {
-    padding-right: 14px;
-}
-
-.symbol .top-right-position, .sample-container .top-right-position {
-    /* it is important for a parent to have a position: relative */
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    overflow-wrap: break-word;
-    word-break: break-word;
-}
-
 .brief {
     white-space: pre-wrap;
     overflow: hidden;
@@ -472,46 +411,6 @@ td.content {
 
 .main-subrow > div {
     margin-bottom: 8px;
-}
-
-.main-subrow > div > span {
-    display: flex;
-    position: relative;
-}
-
-.js .main-subrow:hover .anchor-icon {
-    opacity: 1;
-    transition: 0.2s;
-}
-
-.main-subrow .anchor-icon {
-    opacity: 0;
-    transition: 0.2s 0.5s;
-}
-
-.main-subrow .anchor-icon::before {
-    content: url("../images/anchor-copy-button.svg");
-}
-
-.main-subrow .anchor-icon:hover {
-    cursor: pointer;
-}
-
-.main-subrow .anchor-icon:hover > svg path {
-    fill: var(--hover-link-color);
-}
-
-@media (hover: none) {
-    .main-subrow .anchor-icon {
-        display: none;
-    }
-}
-
-.main-subrow .anchor-wrapper {
-    position: relative;
-    width: 24px;
-    height: 16px;
-    margin-left: 3px;
 }
 
 .inline-flex {

@@ -56,7 +56,6 @@ public class ScriptsInstaller(private val dokkaContext: DokkaContext) : PageTran
 
     // scripts ending with `_deferred.js` are loaded with `defer`, otherwise `async`
     private val scriptsPages = listOf(
-        "scripts/clipboard.js",
         "scripts/navigation-loader.js",
         "scripts/platform-content-handler.js",
         "scripts/main.js",
@@ -125,10 +124,10 @@ public object AssetsInstaller : PageTransformer {
         "ui-kit/assets/theme-toggle.svg",
         "ui-kit/assets/typealias-kotlin.svg",
         "ui-kit/assets/copy-icon.svg",
+        "ui-kit/assets/success-icon.svg",
+        "ui-kit/assets/anchor-copy-icon.svg",
 
         // images
-        "images/anchor-copy-button.svg",
-        "images/copy-successful-icon.svg",
         "images/logo-icon.svg",
 
         // fonts

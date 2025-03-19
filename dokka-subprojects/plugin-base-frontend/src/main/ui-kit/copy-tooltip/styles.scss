@@ -1,0 +1,130 @@
+/*!
+ * Copyright 2014-2025  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../_tokens/index';
+
+.copy-tooltip {
+  position: absolute;
+  top: var(--size-s1);
+  right: var(--size-s1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-icon {
+  display: none;
+  padding: var(--size-s2);
+  border-radius: var(--size-s2);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-w50);
+  }
+
+  &::before {
+    width: 24px;
+    height: 24px;
+    display: block;
+    flex: 0 0 auto;
+    content: '';
+    mask: url('../_assets/copy-icon.svg') no-repeat center / contain;
+    background-color: var(--text-color);
+  }
+}
+
+.theme-dark .copy-icon:hover {
+  background: var(--color-w10);
+}
+
+.js .sample-container:hover .copy-icon {
+  display: block;
+}
+
+.copy-popup-wrapper {
+  display: none;
+  padding: 7px var(--size-s3) 7px var(--size-s2);
+  border-radius: var(--size-s1);
+  border: 1px solid var(--color-w16);
+  background: var(--color-background-page-dt);
+  cursor: default;
+  color: var(--color-text-dt);
+  z-index: 1;
+
+  > span {
+    flex: 0 0 auto;
+  }
+
+  &.popup-to-left {
+    margin-right: var(--size-s1);
+  }
+}
+
+.table-row:hover, .sample-container:hover {
+  .copy-popup-wrapper.active-popup {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+}
+
+.copy-popup-icon {
+  background-image: url("../_assets/success-icon.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 24px;
+  width: 24px;
+}
+
+.anchor-wrapper {
+  position: relative;
+  margin-left: var(--size-s1);
+
+  .copy-popup-wrapper {
+    position: absolute;
+    top: -10px;
+    left: 100%;
+    margin-left: var(--size-s1);
+    width: max-content;
+  }
+}
+
+.anchor-icon {
+  display: flex;
+  padding: var(--size-s1);
+  margin: -4px 0;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 200ms ease-in-out;
+  color: var(--color-text);
+  border-radius: var(--size-s1);
+  background: var(--color-b08);
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &::before {
+    display: block;
+    width: 24px;
+    height: 24px;
+    content: '';
+    background-color: var(--color-text);
+    -webkit-mask: url("../_assets/anchor-copy-icon.svg") no-repeat center / contain;
+    mask: url("../_assets/anchor-copy-icon.svg") no-repeat center / contain;
+  }
+
+  .theme-dark & {
+    background: var(--color-w10);
+
+    &:before {
+      background-color: var(--color-w100);
+    }
+  }
+}
+
+.js .main-subrow:hover .anchor-icon {
+  opacity: 1;
+}

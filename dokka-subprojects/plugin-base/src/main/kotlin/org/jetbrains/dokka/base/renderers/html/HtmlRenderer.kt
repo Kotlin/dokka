@@ -247,9 +247,9 @@ public open class HtmlRenderer(
         }
     }
 
-    private fun FlowContent.copyButton() = span(classes = "top-right-position") {
-        span("copy-icon")
+    private fun FlowContent.copyButton() = span(classes = "copy-tooltip") {
         copiedPopup("Content copied to clipboard", "popup-to-left")
+        span("copy-icon")
     }
 
     private fun FlowContent.copiedPopup(notificationContent: String, additionalClasses: String = "") =
