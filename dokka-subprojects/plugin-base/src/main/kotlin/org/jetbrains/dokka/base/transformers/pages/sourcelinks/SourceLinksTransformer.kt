@@ -114,7 +114,7 @@ public class SourceLinksTransformer(
         dri,
         setOf(sourceSet),
         ContentKind.Source,
-        setOf(TextStyle.SourceLink)
+        setOf(TextStyle.FloatingRight)
     ) {
         text("(")
         link("source", link)

@@ -219,7 +219,7 @@ public open class HtmlRenderer(
                 childrenCallback()
             }
             node.hasStyle(TextStyle.Quotation) -> blockQuote(additionalClasses) { childrenCallback() }
-            node.hasStyle(TextStyle.SourceLink) -> span("source-link-wrapper") {
+            node.hasStyle(TextStyle.FloatingRight) -> span("source-link-wrapper") {
                 span("source-link") {
                     attributes["data-element-type"] = "source-link"
                     childrenCallback()
