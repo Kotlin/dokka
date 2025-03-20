@@ -17,6 +17,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Sync
 import org.gradle.kotlin.dsl.*
 import org.gradle.kotlin.dsl.support.serviceOf
+import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 import java.io.File
 
 
@@ -30,7 +31,7 @@ fun downloadKotlinStdlibJvmSources(project: Project): Provider<File> {
         description = "kotlin-stdlib JVM source code."
         declarable()
         withDependencies {
-            add(project.dependencies.run { create(kotlin("stdlib")) })
+            add(project.dependencies.run { create(kotlin("stdlib", project.getKotlinPluginVersion())) })
         }
     }
 
