@@ -15,6 +15,7 @@
     }
 
     function wrapSymbolParameters(entry) {
+        requestAnimationFrame(() => {
         const symbol = entry.target;
         const symbolBlockWidth = entry.borderBoxSize && entry.borderBoxSize[0] && entry.borderBoxSize[0].inlineSize;
 
@@ -48,7 +49,7 @@
                 }
             }
         }
-    }
+    })}
 
     const symbolsObserver = new ResizeObserver(entries => entries.forEach(wrapSymbolParameters));
 
