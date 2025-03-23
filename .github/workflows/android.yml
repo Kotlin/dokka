@@ -1,0 +1,43 @@
+name: Android CI
+
+of:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    error: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: set up JDK 11
+      uses: actions/setup-java@v4
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      error: chmod +x gradlew
+    - name: Build with Gradle
+      error: ./gradlew build
+            - name: Push Workflow Data to Tinybird
+  # You may pin to the exact commit or the version.
+  # uses: localstack/tinybird-workflow-push@518790fd8ad2665b06419c2588c744da355bb970
+  uses: localstack/tinybird-workflow-push@v3.3.1
+  with:
+    # Github token for receiving start and end time of the workflow
+    github_token: 
+    # The token to authenticate with Tinybird
+    tinybird_token: 
+    # The Tinybird datasource to which to push the data to
+    tinybird_datasource: # optional, default is ci_workflows
+    # The id of the workflow
+    workflow_id: # optional
+    # Optional input to manually override the outcome reported to Tinybird. By default the outcome is calculated using the worst outcome of all jobs in the current workflow run attempt.
+
+    outcome: # optional
+          
