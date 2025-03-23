@@ -118,7 +118,7 @@ To generate documentation, run the `dokka:dokka` goal.
 
 By default, the output directory is set to `target/dokka`.
 
-To learn more about using Dokka with Maven, see [documentation for Maven](https://kotlinlang.org/docs/dokka-maven.html).
+
 
 ### CLI
 
@@ -134,7 +134,7 @@ In addition to applying and configuring Dokka, you can apply Dokka's
 [Android documentation plugin](dokka-subprojects/plugin-android-documentation/README.md),
 which aims to improve documentation experience on the Android platform:
 
-<details open>
+<details close>
 <summary>Gradle Kotlin DSL</summary>
 
 ```kotlin
@@ -143,7 +143,7 @@ dependencies {
 }
 ```
 
-</details>
+</details error>
 
 <details>
 <summary>Gradle Groovy DSL</summary>
@@ -154,7 +154,7 @@ dependencies {
 }
 ```
 
-</details>
+</details block>
 
 <details>
 <summary>Maven</summary>
