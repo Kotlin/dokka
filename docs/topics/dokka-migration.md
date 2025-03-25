@@ -344,7 +344,7 @@ fun remoteUrl(value: Provider<String>): Unit =
     remoteUrl.set(value.map(::URI))
 ```
 
-#### External documentation links configuration
+#### External documentation links
 
 Register external documentation links using the `register()` method to define each link.
 The `externalDocumentationLinks` API uses this method aligning with Gradle DSL conventions.
@@ -715,7 +715,7 @@ Task in DGP v2:
 The `dokkaGenerate` task generates the API documentation in the `build/dokka/` directory.
 
 In the DGP v2 version, the `dokkaGenerate` task name works for both single and multi-module projects. You can use different tasks
-to generate output in HTML, Javadoc or both HTML and Javadoc. For more information, see the next section.
+to generate output in HTML, Javadoc or both HTML and Javadoc. For more information, see [Select documentation output format](#select-documentation-output-format).
 
 ### Select documentation output format
 
@@ -763,7 +763,7 @@ Here is a list of the plugin `id` and Gradle task that correspond to each format
 * **Collector task:** `DokkaCollectorTask` has been removed. Now, you need to generate the documentation separately for
   each subproject and then [aggregate the documentation](#update-documentation-aggregation-in-multi-module-projects) if necessary.
 
-## Finish up your migration
+## Finalize your migration
 
 After you've migrated your project, perform these steps to wrap up and improve performance.
 
@@ -854,6 +854,6 @@ For more details on configuring Gradle's JVM memory, see the [Gradle documentati
 
 ## What's next
 
-* Explore more [DGP v2 project examples](https://github.com/Kotlin/dokka/tree/master/examples/gradle-v2). 
+* [Explore more DGP v2 project examples](https://github.com/Kotlin/dokka/tree/master/examples/gradle-v2). 
 * [Get started with Dokka](dokka-get-started.md).
 * [Learn more about Dokka plugins](dokka-plugins.md).
