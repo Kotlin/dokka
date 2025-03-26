@@ -19,6 +19,7 @@ object TestConstants {
         "styles/style.css",
         "styles/main.css",
         "scripts/main.js",
+        "scripts/safe-local-storage_blocking.js",
         "scripts/navigation-loader.js",
         "scripts/platform-content-handler.js",
     )

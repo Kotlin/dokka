@@ -40,7 +40,6 @@ function initFilterSection(): void {
   const dropdownButton = document.getElementById('filter-section-dropdown');
 
   if (!navigation || !libraryVersion || !filterSection || !firstButtonAfterFilterSection || !dropdownButton) {
-    console.warn('Dokka: filter section is not found');
     return;
   }
 
