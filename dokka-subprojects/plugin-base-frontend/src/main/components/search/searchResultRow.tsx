@@ -19,12 +19,10 @@ export const signatureFromSearchResult = (searchResult: OptionWithSearchResult):
 };
 
 export const SearchResultRow: React.FC<SearchProps> = ({ searchResult }: SearchProps) => {
-  /*
-        This is a work-around for an issue: https://youtrack.jetbrains.com/issue/RG-2108
-        */
-  const out = chunk(signatureFromSearchResult(searchResult).split('**'), 2).flatMap(([txt, label]) => [
+  /* This is a work-around for an issue: https://youtrack.jetbrains.com/issue/RG-2108 */
+  const out = chunk(signatureFromSearchResult(searchResult).split('**'), 2).flatMap(([txt, label], index) => [
     txt,
-    label ? <Highlighter label={label}></Highlighter> : null,
+    label ? <Highlighter label={label} key={index} /> : null,
   ]);
 
   return (
