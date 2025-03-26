@@ -54,7 +54,7 @@ public class NavigationPage(
                 div("toc--row") {
                     if (node.children.isNotEmpty()) {
                         button(classes = "toc--button") {
-                            onClick = """document.getElementById("$navId").classList.toggle("toc--part_hidden");"""
+                            onClick = """window.handleTocButtonClick(event, '$navId')"""
                         }
                     }
                     buildLink(node.dri, node.sourceSets.toList()) {

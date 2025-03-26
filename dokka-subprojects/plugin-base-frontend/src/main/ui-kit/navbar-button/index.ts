@@ -14,18 +14,28 @@ function initTocToggle() {
   tocToggle.addEventListener('click', (event) => {
     event.stopPropagation();
     onToggleDropdown(tocDropdown);
+    scrollActiveTocPartIntoView();
   });
 }
 
-export function toggleTocDropdown(): void {
+function toggleTocDropdown(): void {
   const tocDropdown = document.getElementById('toc-dropdown');
   if (!tocDropdown) {
     console.warn('Dokka: toc dropdown is not found');
     return;
   }
   onToggleDropdown(tocDropdown);
+  scrollActiveTocPartIntoView();
 }
 
+function scrollActiveTocPartIntoView(): void {
+  const activePart = document.querySelector('.toc--part[data-active="true"]');
+  if (activePart) {
+    activePart.scrollIntoView({ block: 'center' });
+  }
+}
+
+// Needs to be exposed to the global scope to be called from the outside
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).toggleTocDropdown = toggleTocDropdown;
 

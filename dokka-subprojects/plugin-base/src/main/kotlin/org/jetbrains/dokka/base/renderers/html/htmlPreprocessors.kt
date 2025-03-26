@@ -54,8 +54,14 @@ public class CustomResourceInstaller(
 
 public class ScriptsInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
 
-    // scripts ending with `_deferred.js` are loaded with `defer`, otherwise `async`
+    /*
+    * By default, scripts are loaded as `async` scripts.
+     * Scripts ending with `_deferred.js` are loaded with `defer`.
+     * Scripts ending with `_blocking.js` are loaded as regular i.e. blocking scripts
+     */
     private val scriptsPages = listOf(
+        // it's important for this script to be blocking because other scripts depend on it
+        "scripts/safe-local-storage_blocking.js",
         "scripts/clipboard.js",
         "scripts/navigation-loader.js",
         "scripts/platform-content-handler.js",
