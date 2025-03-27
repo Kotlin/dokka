@@ -2,6 +2,8 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+import { isDesktop, isFocusableElement } from '../utils';
+
 export class FocusTrap {
   private trapElement: HTMLElement;
 
@@ -14,10 +16,18 @@ export class FocusTrap {
   private handleKeyDown(event: KeyboardEvent) {
     const navigationKeys = ['Tab', 'ArrowDown', 'ArrowUp'];
     const focusableElements = Array.from(this.trapElement.querySelectorAll<HTMLElement>('[role="option"]')).filter(
-      (element) => element.style.display !== 'none' && element.tabIndex !== -1
+      isFocusableElement
     );
     if (!navigationKeys.includes(event.key) || focusableElements.length === 0) {
       return;
+    }
+
+    const dropdownToggles = Array.from(
+      this.trapElement.querySelectorAll<HTMLElement>('[data-role="dropdown-toggle"]')
+    ).filter(isFocusableElement);
+    const shownDropdownToggle: HTMLElement | undefined = isDesktop() ? dropdownToggles[0] : dropdownToggles[1];
+    if (shownDropdownToggle) {
+      focusableElements.unshift(shownDropdownToggle);
     }
 
     const firstElement = focusableElements[0];
@@ -54,9 +64,5 @@ export class FocusTrap {
         }
       }
     }
-  }
-
-  public destroy() {
-    this.trapElement.removeEventListener('keydown', this.handleKeyDown);
   }
 }
