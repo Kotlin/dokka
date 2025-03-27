@@ -71,6 +71,13 @@ function handleOutsideClick(event: MouseEvent): void {
   }
 }
 
+function preventScrollBySpaceKey(event: Event): void {
+  if ((event as KeyboardEvent).key === ' ') {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+}
+
 function addKeyboardNavigation(dropdown: HTMLElement): void {
   new FocusTrap(dropdown);
   dropdown.addEventListener('keyup', function (event) {
@@ -78,6 +85,10 @@ function addKeyboardNavigation(dropdown: HTMLElement): void {
       onToggleDropdown(dropdown);
       (dropdown.querySelector(DROPDOWN_TOGGLE) as HTMLElement)?.focus();
     }
+  });
+  const dropdownOptions = dropdown.querySelectorAll('.dropdown--option');
+  dropdownOptions.forEach((option: Element) => {
+    option.addEventListener('keydown', preventScrollBySpaceKey);
   });
 }
 
