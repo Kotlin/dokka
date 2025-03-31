@@ -4,13 +4,13 @@
 
 package org.jetbrains.dokka.kdoc
 
-public sealed class KdVisibility {
-    public object Public : KdVisibility()
-    public object Protected : KdVisibility()
-    public object Internal : KdVisibility()
-    public object Private : KdVisibility()
+public enum class KdVisibility {
+    PUBLIC, PROTECTED, INTERNAL, PRIVATE,
 
     // java specific visibilities
-    public object PackageProtected : KdVisibility()
-    public object PackagePrivate : KdVisibility()
+    PACKAGE_PROTECTED, PACKAGE_PRIVATE
+}
+
+public enum class KdModality {
+    FINAL, SEALED, OPEN, ABSTRACT;
 }

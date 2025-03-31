@@ -5,28 +5,25 @@
 package org.jetbrains.dokka.kdoc
 
 // TODO: somehow reference modules (klibs.io/aggregated HTML)
-public interface KdProject : KdDocumented {
-    public val name: String
+public interface KdProject : KdNamed, KdDocumented {
+    public val topics: List<KdTopic>
+    public val modules: List<KdModule>
+}
+
+public interface KdModule : KdNamed, KdDocumented {
+    public val packages: List<KdPackage>
+    public val fragments: List<KdFragment>
+    public val samples: List<KdSample>
     public val topics: List<KdTopic>
 }
 
-public interface KdModule : KdDocumented {
-    public val name: String
-    public val fragments: List<KdFragment> // may be included into uklib/umanifest?
-    public val symbols: List<KdSymbol>
+public interface KdPackage : KdNamed, KdDocumented
 
-    public val topics: List<KdTopic>
-    public val samples: List<KdSample> // TODO?
+public interface KdFragment : KdNamed {
+    public val declarations: List<KdDeclaration>
 }
 
-public interface KdFragment {
-    public val name: String // common, jvm, native, etc
-    public val platforms: Set<String> // [jvm, iosX64, macosArm64, wasmJs, wasmWasi, ...]
-    public val dependsOn: Set<String> // [ios, macos]
-}
-
-// TODO: later
-public interface KdTopic {
-    public val name: String
-    public val content: KdDocumentationElement
+// additional docs
+public interface KdTopic : KdNamed, KdDocumented {
+    public val path: String // or id
 }

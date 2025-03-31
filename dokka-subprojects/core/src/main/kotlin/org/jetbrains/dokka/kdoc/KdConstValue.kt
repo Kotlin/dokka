@@ -4,7 +4,7 @@
 
 package org.jetbrains.dokka.kdoc
 
-// used by annotations and const properties
+// used by annotations, const properties, default values
 public sealed class KdConstValue {
 
 }

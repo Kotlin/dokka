@@ -4,8 +4,13 @@
 
 package org.jetbrains.dokka.kdoc
 
+// represents a display name
+public interface KdNamed {
+    public val name: String
+}
+
 public interface KdDocumented {
-    public val description: KdDescription
+    public val documentation: KdDocumentation
 }
 
 public data class KdDescription(
@@ -16,4 +21,17 @@ public data class KdDescription(
 // parsed markdown representation: text, links, etc
 public sealed class KdDocumentationElement {
     public data class Text(public val string: String) : KdDocumentationElement()
+    public data class Paragraph(
+        public val elements: KdDocumentationElement
+    )
 }
+
+public interface KdDocumentation
+//    (
+//    public val content: List<KdDocumentationElement>,
+//    public val tags: List<KdTag>
+//)
+
+public data class KdDocumentationParagraph(
+    public val elements: KdDocumentationElement
+)

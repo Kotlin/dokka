@@ -9,16 +9,13 @@ public interface KdParameter : KdDocumented {
     public val type: KdType
 }
 
-public interface KdReceiverParameter : KdParameter {
+public interface KdReceiverParameter : KdParameter
 
-}
+public interface KdNamedParameter : KdParameter, KdNamed
 
-public interface KdContextParameter : KdParameter {
-    public val name: String
-}
+public interface KdContextParameter : KdNamedParameter
 
-public interface KdValueParameter : KdParameter {
-    public val name: String
+public interface KdValueParameter : KdNamedParameter {
     public val defaultValue: KdParameterDefaultValue?
 }
 
