@@ -5,10 +5,14 @@ import './styles.scss';
 import { hasAncestorWithClass } from '../utils';
 import { FocusTrap } from './focus-trap';
 
-// page objects selectors
 const DROPDOWN = '[data-role="dropdown"]';
 const DROPDOWN_TOGGLE = '[data-role="dropdown-toggle"]';
 const DROPDOWN_LIST = '[data-role="dropdown-listbox"]';
+export const DROPDOWN_TOGGLED_EVENT = 'dropdownToggled';
+export type TDropdownToggledDto = {
+  dropdownId: string;
+  isExpanded: boolean;
+};
 
 function initDropdowns(): void {
   const dropdowns = document.querySelectorAll(DROPDOWN);
@@ -26,6 +30,15 @@ export function onToggleDropdown(dropdown: Element): void {
   const list = dropdown.querySelector(DROPDOWN_LIST);
   const buttonWidth = (buttons[0] as HTMLElement).offsetWidth;
   toggleDropdownList(list, buttonWidth);
+  // emit event to notify that the dropdown has been toggled
+  document.dispatchEvent(
+    new CustomEvent(DROPDOWN_TOGGLED_EVENT, {
+      detail: {
+        dropdownId: dropdown.id,
+        isExpanded: list?.classList.contains('dropdown--list_expanded'),
+      },
+    } as CustomEvent<TDropdownToggledDto>)
+  );
 }
 
 function toggleDropdownButton(button: Element): void {
@@ -71,6 +84,13 @@ function handleOutsideClick(event: MouseEvent): void {
   }
 }
 
+function preventScrollBySpaceKey(event: Event): void {
+  if ((event as KeyboardEvent).key === ' ') {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+}
+
 function addKeyboardNavigation(dropdown: HTMLElement): void {
   new FocusTrap(dropdown);
   dropdown.addEventListener('keyup', function (event) {
@@ -78,6 +98,10 @@ function addKeyboardNavigation(dropdown: HTMLElement): void {
       onToggleDropdown(dropdown);
       (dropdown.querySelector(DROPDOWN_TOGGLE) as HTMLElement)?.focus();
     }
+  });
+  const dropdownOptions = dropdown.querySelectorAll('.dropdown--option');
+  dropdownOptions.forEach((option: Element) => {
+    option.addEventListener('keydown', preventScrollBySpaceKey);
   });
 }
 

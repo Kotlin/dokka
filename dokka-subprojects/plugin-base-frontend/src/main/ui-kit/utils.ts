@@ -34,6 +34,20 @@ export function getScreenType(): ScreenType {
   return isMobile() ? 'mobile' : isTablet() ? 'tablet' : 'desktop';
 }
 
+export function isFocusableElement(element: HTMLElement): boolean {
+  let currentElement: HTMLElement | null = element;
+  if (currentElement.tabIndex === -1) {
+    return false;
+  }
+  while (currentElement) {
+    if (currentElement.style.display === 'none' || getComputedStyle(currentElement).display === 'none') {
+      return false;
+    }
+    currentElement = currentElement.parentElement;
+  }
+  return true;
+}
+
 /**
  * This is used to remove styles that were added for backward compatibility,
  * for example, in the version selector component in which we have new markup

@@ -32,6 +32,7 @@ const TOC_LINK_CLASS = 'toc--link';
   function updateTocLinks() {
     document.querySelectorAll(`.${TOC_LINK_CLASS}`).forEach((tocLink) => {
       tocLink.setAttribute('href', `${pathToRoot}${tocLink.getAttribute('href')}`);
+      tocLink.addEventListener('keydown', preventScrollBySpaceKey);
     });
   }
 
@@ -120,6 +121,13 @@ const TOC_LINK_CLASS = 'toc--link';
     const container = document.getElementById(TOC_SCROLL_CONTAINER_ID);
     if (container) {
       container.addEventListener('scroll', saveTocScrollTop);
+    }
+  }
+
+  function preventScrollBySpaceKey(event) {
+    if (event.key === ' ') {
+      event.preventDefault();
+      event.stopPropagation();
     }
   }
 
