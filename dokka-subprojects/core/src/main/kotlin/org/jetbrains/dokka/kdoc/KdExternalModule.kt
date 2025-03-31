@@ -8,7 +8,7 @@ public interface KdExternalModule {
 //    public val name: String
 //    public val version: String
 
-    public val packages: Map<KdSymbolId, KdSymbolLink>
+    public val packages: Map<KdDeclarationId, KdSymbolLink>
     public val fragments: List<KdExternalFragment>
 }
 
@@ -17,5 +17,5 @@ public interface KdExternalFragment {
 //    public val platforms: Set<String>
 //    public val dependsOn: Set<String>
 
-    public val declarations: Map<KdSymbolId, KdSymbolLink>
+    public val declarations: Map<KdDeclarationId, KdSymbolLink>
 }

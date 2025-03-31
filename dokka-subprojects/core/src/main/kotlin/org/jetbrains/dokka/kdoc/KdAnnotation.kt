@@ -4,9 +4,9 @@
 
 package org.jetbrains.dokka.kdoc
 
-// we should have access to `MustBeDocumented` annotations
+// we should have access only to `MustBeDocumented` annotations
 public data class KdAnnotation(
-    val classId: KdSymbolId,
+    val classId: KdDeclarationId,
     val arguments: List<KdAnnotationArgument>
 )
 

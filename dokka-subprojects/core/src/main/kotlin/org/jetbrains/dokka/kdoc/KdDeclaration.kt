@@ -34,14 +34,19 @@ package org.jetbrains.dokka.kdoc
 
 // absolute reference of declaration or anything else which could be referenced inside module or via external reference
 // should contain info about package, class, function, parameters
-public typealias KdSymbolId = String
+public typealias KdDeclarationId = String
 
 // external URL
 public typealias KdSymbolLink = String
 
-public interface KdSymbol : KdDocumented {
-    public val id: KdSymbolId
-    public val name: String // display, original name from code
+public interface KdDeclaration : KdNamed, KdDocumented {
+    public val id: KdDeclarationId
+    public val visibility: KdVisibility
+    public val modality: KdModality
+    public val annotations: List<KdAnnotation>
+
+    public val isActual: Boolean
+    public val isExpect: Boolean
 }
 
 // function:org.example//string/abc - common
