@@ -7,6 +7,7 @@ const TOC_SCROLL_CONTAINER_ID = 'leftColumn';
 const TOC_PART_CLASS = 'toc--part';
 const TOC_PART_HIDDEN_CLASS = 'toc--part_hidden';
 const TOC_LINK_CLASS = 'toc--link';
+const TOC_SKIP_LINK_CLASS = 'toc--skip-link';
 
 (function () {
   function displayToc() {
@@ -34,6 +35,10 @@ const TOC_LINK_CLASS = 'toc--link';
       tocLink.setAttribute('href', `${pathToRoot}${tocLink.getAttribute('href')}`);
       tocLink.addEventListener('keydown', preventScrollBySpaceKey);
     });
+    document.querySelectorAll(`.${TOC_SKIP_LINK_CLASS}`).forEach((skipLink) => {
+      skipLink.setAttribute('href', `#main`);
+      skipLink.addEventListener('keydown', preventScrollBySpaceKey);
+    })
   }
 
   function collapseTocParts() {
