@@ -7,33 +7,42 @@
 http://localhost:8001/jvm/org.jetbrains.dokka.uitest.markdown/-markdown-code/index.html
  */
 .symbol:not(.token, .wrapped), code.block {
-  display: block;
-  box-sizing: border-box;
   position: relative;
+
+  display: block;
+  overflow: scroll;
+
+  box-sizing: border-box;
   padding: 12px 16px;
+
+  white-space: pre-wrap;
+
   border-radius: var(--size-s1);
   background-color: var(--color-background-code-block);
+
   font: var(--font-code);
-  white-space: pre-wrap;
-  overflow: scroll;
 }
 
 code.block {
   overflow-x: auto;
+
   max-width: 100%;
 }
 
 .source-link-wrapper::after {
   display: block;
-  content: '';
   clear: both;
+
   height: 0;
+
+  content: '';
 }
 
 @media screen and (width < $breakpoint-desktop-min) {
   .source-link-wrapper {
-    margin-top: 8px;
     display: block;
+
+    margin-top: 8px;
   }
 }
 
@@ -46,6 +55,7 @@ http://localhost:8001/jvm/org.jetbrains.dokka.uitest.types/-simple-deprecated-ko
  */
 .sample-container, div.CodeMirror {
   position: relative;
+
   display: flex;
   flex-direction: column;
 }
