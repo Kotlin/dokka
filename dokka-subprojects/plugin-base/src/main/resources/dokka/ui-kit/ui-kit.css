@@ -155,7 +155,6 @@
   font: var(--font-text-s);
   padding: 8px;
   padding: var(--size-s2);
-  padding-left: 12px;
 }
 
 .button_dropdown:after {
@@ -478,14 +477,18 @@
 }
 
 .dropdown--option.focus-visible {
+  box-shadow: inset 4px 0 0 rgba(48, 127, 255, 0.5), inset -4px 0 0 rgba(48, 127, 255, 0.5);
+  box-shadow: inset 4px 0 0 var(--color-key-blue-50), inset -4px 0 0 var(--color-key-blue-50);
   outline: var(--focus-outline);
-  outline-offset: -4px;
+  outline-offset: 0;
   z-index: 1;
 }
 
 .dropdown--option:focus-visible {
+  box-shadow: inset 4px 0 0 rgba(48, 127, 255, 0.5), inset -4px 0 0 rgba(48, 127, 255, 0.5);
+  box-shadow: inset 4px 0 0 var(--color-key-blue-50), inset -4px 0 0 var(--color-key-blue-50);
   outline: var(--focus-outline);
-  outline-offset: -4px;
+  outline-offset: 0;
   z-index: 1;
 }
 
@@ -2182,13 +2185,15 @@ button.platform-tag:focus-visible {
 }
 
 .toc--button.focus-visible {
+  box-shadow: inset 4px 0 0 rgba(48, 127, 255, 0.5);
+  box-shadow: inset 4px 0 0 var(--color-key-blue-50);
   outline: var(--focus-outline);
-  outline-offset: -4px;
 }
 
 .toc--button:focus-visible {
+  box-shadow: inset 4px 0 0 rgba(48, 127, 255, 0.5);
+  box-shadow: inset 4px 0 0 var(--color-key-blue-50);
   outline: var(--focus-outline);
-  outline-offset: -4px;
 }
 
 .toc--link {
@@ -2206,13 +2211,27 @@ button.platform-tag:focus-visible {
 }
 
 .toc--link.focus-visible {
+  box-shadow: inset 4px 0 0 rgba(48, 127, 255, 0.5), inset -4px 0 0 rgba(48, 127, 255, 0.5);
+  box-shadow: inset 4px 0 0 var(--color-key-blue-50), inset -4px 0 0 var(--color-key-blue-50);
   outline: var(--focus-outline);
-  outline-offset: -4px;
+  outline-offset: 0;
 }
 
 .toc--link:focus-visible {
+  box-shadow: inset 4px 0 0 rgba(48, 127, 255, 0.5), inset -4px 0 0 rgba(48, 127, 255, 0.5);
+  box-shadow: inset 4px 0 0 var(--color-key-blue-50), inset -4px 0 0 var(--color-key-blue-50);
   outline: var(--focus-outline);
-  outline-offset: -4px;
+  outline-offset: 0;
+}
+
+.toc--button ~ .toc--link.focus-visible {
+  box-shadow: inset -4px 0 0 rgba(48, 127, 255, 0.5);
+  box-shadow: inset -4px 0 0 var(--color-key-blue-50);
+}
+
+.toc--button ~ .toc--link:focus-visible {
+  box-shadow: inset -4px 0 0 rgba(48, 127, 255, 0.5);
+  box-shadow: inset -4px 0 0 var(--color-key-blue-50);
 }
 
 .toc--skip-link {
@@ -2240,6 +2259,14 @@ button.platform-tag:focus-visible {
 .toc--skip-link:focus {
   outline: var(--focus-outline);
   outline-offset: 0;
+}
+
+.sidebar > .toc--skip-link {
+  margin-top: 0;
+}
+
+.toc--part_hidden > .toc--row > .toc--button ~ .toc--skip-link {
+  display: none;
 }
 
 .toc--part[data-nesting-level="0"] .toc--row > .toc--link:first-child {
@@ -2547,14 +2574,6 @@ button.platform-tag:focus-visible {
 .sidebar--inner {
   padding-bottom: 12px;
   padding-top: 12px;
-}
-
-.sidebar > .toc--skip-link {
-  margin-top: 0;
-}
-
-.toc--part_hidden > .toc--row > .toc--button ~ .toc--skip-link {
-  display: none;
 }
 :root {
   --breakpoint-desktop-min:900px;

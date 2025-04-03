@@ -107,7 +107,7 @@
 
     &:focus-visible {
       outline: var(--focus-outline);
-      outline-offset: -4px;
+      box-shadow: inset 4px 0 0 var(--color-key-blue-50);
     }
   }
 
@@ -128,7 +128,14 @@
 
     &:focus-visible {
       outline: var(--focus-outline);
-      outline-offset: -4px;
+      outline-offset: 0;
+      box-shadow:
+        inset 4px 0 0 var(--color-key-blue-50),
+        inset -4px 0 0 var(--color-key-blue-50);
+
+      .toc--button ~ & {
+        box-shadow: inset -4px 0 0 var(--color-key-blue-50);
+      }
     }
   }
 
@@ -160,6 +167,15 @@
     &:focus {
       outline: var(--focus-outline);
       outline-offset: 0;
+    }
+
+    .sidebar > & {
+      margin-top: 0;
+    }
+
+    // to show skip links only for expanded parts
+    .toc--part_hidden > .toc--row > .toc--button ~ & {
+      display: none;
     }
   }
 
@@ -326,13 +342,4 @@
 .sidebar--inner {
   padding-top: 12px;
   padding-bottom: 12px;
-}
-
-.sidebar > .toc--skip-link {
-  margin-top: 0;
-}
-
-// to show skip links only for expanded parts
-.toc--part_hidden > .toc--row > .toc--button ~ .toc--skip-link {
-  display: none;
 }
