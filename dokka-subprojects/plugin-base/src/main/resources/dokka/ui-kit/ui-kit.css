@@ -876,6 +876,8 @@
 
 .theme-dark .footer--button {
   filter: none;
+  outline-color: rgba(48, 127, 255, 0.5) !important;
+  outline-color: var(--color-key-blue-50) !important;
 }
 
 @media (hover: hover) {
