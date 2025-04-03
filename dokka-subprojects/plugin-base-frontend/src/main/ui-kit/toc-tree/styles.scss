@@ -107,7 +107,7 @@
 
     &:focus-visible {
       outline: var(--focus-outline);
-      outline-offset: -4px;
+      box-shadow: inset 4px 0 0 var(--color-key-blue-50);
     }
   }
 
@@ -128,7 +128,54 @@
 
     &:focus-visible {
       outline: var(--focus-outline);
-      outline-offset: -4px;
+      outline-offset: 0;
+      box-shadow:
+        inset 4px 0 0 var(--color-key-blue-50),
+        inset -4px 0 0 var(--color-key-blue-50);
+
+      .toc--button ~ & {
+        box-shadow: inset -4px 0 0 var(--color-key-blue-50);
+      }
+    }
+  }
+
+  &--skip-link {
+    position: absolute;
+
+    z-index: 100;
+
+    margin-top: 36px;
+
+    padding: 1px;
+
+    color: var(--color-w100);
+    background-color: var(--color-key-blue-hover);
+
+    font: var(--toc-font);
+
+    &:not(:focus) {
+      overflow: hidden !important;
+      clip: rect(1px, 1px, 1px, 1px) !important;
+
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+
+      border: 0 !important;
+    }
+
+    &:focus {
+      outline: var(--focus-outline);
+      outline-offset: 0;
+    }
+
+    .sidebar > & {
+      margin-top: 0;
+    }
+
+    // to show skip links only for expanded parts
+    .toc--part_hidden > .toc--row > .toc--button ~ & {
+      display: none;
     }
   }
 

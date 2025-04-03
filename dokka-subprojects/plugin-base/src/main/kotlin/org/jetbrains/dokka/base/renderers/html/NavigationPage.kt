@@ -74,6 +74,13 @@ public class NavigationPage(
                             nodeText(node)
                         }
                     }
+                    if (node.children.isNotEmpty()) {
+                        a {
+                            attributes["class"] = "toc--skip-link"
+                            attributes["href"] = ""
+                            text("Skip to main content")
+                        }
+                    }
                 }
                 node.children.withIndex().forEach { (n, p) -> visit(p, "$navId-$n", renderer, level + 1) }
             }

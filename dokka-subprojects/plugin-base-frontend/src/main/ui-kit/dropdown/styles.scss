@@ -126,8 +126,10 @@
       z-index: 1;
 
       outline: var(--focus-outline);
-
-      outline-offset: -4px;
+      outline-offset: 0;
+      box-shadow:
+        inset 4px 0 0 var(--color-key-blue-50),
+        inset -4px 0 0 var(--color-key-blue-50);
     }
 
     &:visited {

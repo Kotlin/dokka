@@ -111,6 +111,10 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
 
     font-weight: normal !important;
 
+    &::placeholder {
+      color: transparent;
+    }
+
     @media (width < $breakpoint-desktop-min) {
       height: $input-height-mobile;
     }

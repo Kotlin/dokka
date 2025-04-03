@@ -71,6 +71,8 @@
 
     .theme-dark & {
       filter: none;
+
+      outline-color: var(--color-key-blue-50) !important;
     }
 
     @media (hover: hover) {
