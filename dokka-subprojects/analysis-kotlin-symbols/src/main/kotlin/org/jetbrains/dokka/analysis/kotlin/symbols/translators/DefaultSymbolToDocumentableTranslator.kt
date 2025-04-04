@@ -8,6 +8,7 @@ package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.*
 import com.intellij.psi.util.PsiLiteralUtil
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
 import org.jetbrains.dokka.analysis.java.parsers.JavadocParser
@@ -35,9 +36,10 @@ import org.jetbrains.kotlin.analysis.api.*
 import org.jetbrains.kotlin.analysis.api.annotations.KaAnnotated
 import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.types.*
+import org.jetbrains.kotlin.config.LanguageFeature
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.SpecialNames.UNDERSCORE_FOR_UNUSED_VAR
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.lexer.KtTokens
 
 internal class DefaultSymbolToDocumentableTranslator(context: DokkaContext) : AsyncSourceToDocumentableTranslator {
     private val kotlinAnalysis = context.plugin<SymbolsAnalysisPlugin>().querySingle { kotlinAnalysis }
@@ -81,8 +83,17 @@ internal class DokkaSymbolVisitor(
     private val logger: DokkaLogger,
     private val javadocParser: JavadocParser? = null
 ) {
-    private var annotationTranslator = AnnotationTranslator()
-    private var typeTranslator = TypeTranslator(sourceSet, annotationTranslator)
+
+    /**
+     * The feature [LanguageFeature.ContextParameters] does not really affect Analysis APIs
+     * At lest for Dokka, it works independently of [LanguageFeature.ContextParameters] in LV
+     * Therefore, the translator should explicitly use this flag
+     */
+    private val contextParametersEnabled = analysisContext.getModule(sourceSet).languageVersionSettings.supportsFeature(LanguageFeature.ContextParameters)
+
+
+    private val annotationTranslator = AnnotationTranslator()
+    private val typeTranslator = TypeTranslator(sourceSet, annotationTranslator, contextParametersEnabled)
 
     private fun <T> T.toSourceSetDependent() = if (this != null) mapOf(sourceSet to this) else emptyMap()
 
@@ -493,6 +504,8 @@ internal class DokkaSymbolVisitor(
                         dri
                     )
                 },
+                contextParameters = if (!contextParametersEnabled) emptyList() else @OptIn(KaExperimentalApi::class) propertySymbol.contextParameters
+                    .mapIndexed { index, symbol -> visitContextParameter(index, symbol, dri) },
                 sources = propertySymbol.getSource(),
                 getter = propertySymbol.getter?.let { visitPropertyAccessor(it, propertySymbol, dri) },
                 setter = propertySymbol.setter?.let { visitPropertyAccessor(it, propertySymbol, dri) },
@@ -556,7 +569,6 @@ internal class DokkaSymbolVisitor(
             )
         }
 
-    @OptIn(KaExperimentalApi::class) // due to javaGetterName/javaSetterName
     private fun KaSession.visitPropertyAccessor(
         propertyAccessorSymbol: KaPropertyAccessorSymbol,
         propertySymbol: KaPropertySymbol,
@@ -564,6 +576,7 @@ internal class DokkaSymbolVisitor(
     ): DFunction = withExceptionCatcher(propertyAccessorSymbol) {
         val isGetter = propertyAccessorSymbol is KaPropertyGetterSymbol
         // it also covers @JvmName annotation
+        @OptIn(KaExperimentalApi::class) // due to javaGetterName/javaSetterName
         val name = (if (isGetter) propertySymbol.javaGetterName else propertySymbol.javaSetterName)?.asString() ?: ""
 
         // SyntheticJavaProperty has callableId, propertyAccessorSymbol.origin = JAVA_SYNTHETIC_PROPERTY
@@ -577,6 +590,7 @@ internal class DokkaSymbolVisitor(
         // for SyntheticJavaProperty
         val inheritedFrom = if(propertyAccessorSymbol.origin == KaSymbolOrigin.JAVA_SYNTHETIC_PROPERTY) dri.copy(callable = null) else null
 
+        @OptIn(KaExperimentalApi::class) // due to typeParameters
         val generics = propertyAccessorSymbol.typeParameters.mapIndexed { index, symbol ->
             visitVariantTypeParameter(
                 index,
@@ -589,14 +603,14 @@ internal class DokkaSymbolVisitor(
             dri = dri,
             name = name,
             isConstructor = false,
+            parameters = propertyAccessorSymbol.valueParameters
+                .mapIndexed { index, symbol -> visitValueParameter(index, symbol, dri) },
+            contextParameters = emptyList(),
             receiver = propertyAccessorSymbol.receiverParameter?.let {
                 visitReceiverParameter(
                     it,
                     dri
                 )
-            },
-            parameters = propertyAccessorSymbol.valueParameters.mapIndexed { index, symbol ->
-                visitValueParameter(index, symbol, dri)
             },
             expectPresentInSet = null,
             sources = propertyAccessorSymbol.getSource(),
@@ -652,9 +666,8 @@ internal class DokkaSymbolVisitor(
                     dri
                 )
             },
-            parameters = constructorSymbol.valueParameters.mapIndexed { index, symbol ->
-                visitValueParameter(index, symbol, dri)
-            },
+            parameters = constructorSymbol.valueParameters
+                .mapIndexed { index, symbol -> visitValueParameter(index, symbol, dri) },
             expectPresentInSet = sourceSet.takeIf { isExpect },
             sources = constructorSymbol.getSource(),
             visibility = constructorSymbol.visibility.toDokkaVisibility().toSourceSetDependent(),
@@ -697,9 +710,10 @@ internal class DokkaSymbolVisitor(
                         dri
                     )
                 },
-                parameters = functionSymbol.valueParameters.mapIndexed { index, symbol ->
-                    visitValueParameter(index, symbol, dri)
-                },
+                parameters = functionSymbol.valueParameters
+                    .mapIndexed { index, symbol -> visitValueParameter(index, symbol, dri) },
+                contextParameters = if (!contextParametersEnabled) emptyList() else @OptIn(KaExperimentalApi::class) functionSymbol.contextParameters
+                    .mapIndexed { index, symbol -> visitContextParameter(index, symbol, dri) },
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 sources = functionSymbol.getSource(),
                 visibility = functionSymbol.getDokkaVisibility().toSourceSetDependent(),
@@ -734,6 +748,25 @@ internal class DokkaSymbolVisitor(
             valueParameterSymbol.getDefaultValue()?.let { DefaultValue(it.toSourceSetDependent()) }
         )
     )
+
+    @OptIn(KaExperimentalApi::class)
+    private fun KaSession.visitContextParameter(
+        index: Int, valueParameterSymbol: KaContextParameterSymbol, dri: DRI
+    ): DParameter {
+        require(contextParametersEnabled)
+        return DParameter(
+            dri = dri.copy(target = @OptIn(ExperimentalDokkaApi::class) PointingToContextParameters(index)),
+            name = if(valueParameterSymbol.name == UNDERSCORE_FOR_UNUSED_VAR) "_" else valueParameterSymbol.name.asString(),
+            type = toBoundFrom(valueParameterSymbol.returnType),
+            expectPresentInSet = null,
+            documentation = getDocumentation(valueParameterSymbol)?.toSourceSetDependent() ?: emptyMap(),
+            sourceSets = setOf(sourceSet),
+            extra = PropertyContainer.withAll(
+             //   valueParameterSymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
+               getDokkaAnnotationsFrom(valueParameterSymbol)?.toSourceSetDependent()?.toAnnotations(),
+            )
+        )
+    }
 
     private fun KaSession.visitReceiverParameter(
         receiverParameterSymbol: KaReceiverParameterSymbol, dri: DRI
@@ -952,9 +985,3 @@ internal class DokkaSymbolVisitor(
         KaSymbolVisibility.UNKNOWN, KaSymbolVisibility.LOCAL -> KotlinVisibility.Public
     }
 }
-
-
-
-
-
-

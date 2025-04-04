@@ -4,6 +4,7 @@
 
 package org.jetbrains.dokka.model
 
+import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.DocumentationNode
@@ -84,6 +85,11 @@ public interface WithGenerics {
     public val generics: List<DTypeParameter>
 }
 
+public interface WithContextParameters {
+    @ExperimentalDokkaApi
+    public val contextParameters: List<DParameter>
+}
+
 public interface WithSupertypes {
     public val supertypes: SourceSetDependent<List<TypeConstructorWithKind>>
 }
@@ -92,7 +98,7 @@ public interface WithIsExpectActual {
     public val isExpectActual: Boolean
 }
 
-public interface Callable : WithVisibility, WithType, WithAbstraction, WithSources, WithIsExpectActual {
+public interface Callable : WithVisibility, WithContextParameters, WithType, WithAbstraction, WithSources, WithIsExpectActual {
     public val receiver: DParameter?
 }
 
@@ -223,12 +229,93 @@ public data class DFunction(
     override val modifier: SourceSetDependent<Modifier>,
     override val sourceSets: Set<DokkaSourceSet>,
     override val isExpectActual: Boolean,
-    override val extra: PropertyContainer<DFunction> = PropertyContainer.empty()
-) : Documentable(), Callable, WithGenerics, WithExtraProperties<DFunction> {
+    override val extra: PropertyContainer<DFunction> = PropertyContainer.empty(),
+    @OptIn(ExperimentalDokkaApi::class)
+    override val contextParameters: List<DParameter> = emptyList(),
+    ) : Documentable(), Callable, WithGenerics, WithExtraProperties<DFunction> {
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public constructor(
+        dri: DRI,
+        name: String,
+        isConstructor: Boolean,
+        parameters: List<DParameter>,
+        documentation: SourceSetDependent<DocumentationNode>,
+        expectPresentInSet: DokkaSourceSet?,
+        sources: SourceSetDependent<DocumentableSource>,
+        visibility: SourceSetDependent<Visibility>,
+        type: Bound,
+        generics: List<DTypeParameter>,
+        receiver: DParameter?,
+        modifier: SourceSetDependent<Modifier>,
+        sourceSets: Set<DokkaSourceSet>,
+        isExpectActual: Boolean,
+        extra: PropertyContainer<DFunction> = PropertyContainer.empty()
+    ) : this(
+        dri = dri,
+        name = name,
+        isConstructor = isConstructor,
+        parameters = parameters,
+        documentation = documentation,
+        expectPresentInSet = expectPresentInSet,
+        sources = sources,
+        visibility = visibility,
+        type = type,
+        generics = generics,
+        receiver = receiver,
+        modifier = modifier,
+        sourceSets = sourceSets,
+        isExpectActual = isExpectActual,
+        extra = extra,
+        contextParameters = emptyList()
+    )
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public fun copy(
+        dri: DRI,
+        name: String,
+        isConstructor: Boolean,
+        parameters: List<DParameter>,
+        documentation: SourceSetDependent<DocumentationNode>,
+        expectPresentInSet: DokkaSourceSet?,
+        sources: SourceSetDependent<DocumentableSource>,
+        visibility: SourceSetDependent<Visibility>,
+        type: Bound,
+        generics: List<DTypeParameter>,
+        receiver: DParameter?,
+        modifier: SourceSetDependent<Modifier>,
+        sourceSets: Set<DokkaSourceSet>,
+        isExpectActual: Boolean,
+        extra: PropertyContainer<DFunction> = PropertyContainer.empty()
+    ) : DFunction = DFunction(
+        dri = dri,
+        name = name,
+        isConstructor = isConstructor,
+        parameters = parameters,
+        documentation = documentation,
+        expectPresentInSet = expectPresentInSet,
+        sources = sources,
+        visibility = visibility,
+        type = type,
+        generics = generics,
+        receiver = receiver,
+        modifier = modifier,
+        sourceSets = sourceSets,
+        isExpectActual = isExpectActual,
+        extra = extra,
+        contextParameters = emptyList()
+    )
+
     override val children: List<Documentable>
-        get() = parameters
+        get() = parameters + @OptIn(ExperimentalDokkaApi::class) contextParameters
 
     override fun withNewExtras(newExtras: PropertyContainer<DFunction>): DFunction = copy(extra = newExtras)
+
+    /**
+     * Creates a copy of DFunction without contextParameters to maintain binary compatibility
+     */
+    @OptIn(ExperimentalDokkaApi::class)
+    public fun copyWithoutContextParameters(): DFunction = copy(contextParameters = emptyList())
 }
 
 public data class DInterface(
@@ -314,12 +401,93 @@ public data class DProperty(
     override val sourceSets: Set<DokkaSourceSet>,
     override val generics: List<DTypeParameter>,
     override val isExpectActual: Boolean,
-    override val extra: PropertyContainer<DProperty> = PropertyContainer.empty()
+    override val extra: PropertyContainer<DProperty> = PropertyContainer.empty(),
+    @OptIn(ExperimentalDokkaApi::class)
+    override val contextParameters: List<DParameter> = emptyList()
 ) : Documentable(), Callable, WithExtraProperties<DProperty>, WithGenerics {
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public constructor(
+        dri: DRI,
+        name: String,
+        documentation: SourceSetDependent<DocumentationNode>,
+        expectPresentInSet: DokkaSourceSet?,
+        sources: SourceSetDependent<DocumentableSource>,
+        visibility: SourceSetDependent<Visibility>,
+        type: Bound,
+        receiver: DParameter?,
+        setter: DFunction?,
+        getter: DFunction?,
+        modifier: SourceSetDependent<Modifier>,
+        sourceSets: Set<DokkaSourceSet>,
+        generics: List<DTypeParameter>,
+        isExpectActual: Boolean,
+        extra: PropertyContainer<DProperty> = PropertyContainer.empty()
+    ) : this(
+        dri = dri,
+        name = name,
+        documentation = documentation,
+        expectPresentInSet = expectPresentInSet,
+        sources = sources,
+        visibility = visibility,
+        type = type,
+        receiver = receiver,
+        setter = setter,
+        getter = getter,
+        modifier = modifier,
+        sourceSets = sourceSets,
+        generics = generics,
+        isExpectActual = isExpectActual,
+        extra = extra,
+        contextParameters = emptyList()
+    )
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public fun copy(
+        dri: DRI,
+        name: String,
+        documentation: SourceSetDependent<DocumentationNode>,
+        expectPresentInSet: DokkaSourceSet?,
+        sources: SourceSetDependent<DocumentableSource>,
+        visibility: SourceSetDependent<Visibility>,
+        type: Bound,
+        receiver: DParameter?,
+        setter: DFunction?,
+        getter: DFunction?,
+        modifier: SourceSetDependent<Modifier>,
+        sourceSets: Set<DokkaSourceSet>,
+        generics: List<DTypeParameter>,
+        isExpectActual: Boolean,
+        extra: PropertyContainer<DProperty> = PropertyContainer.empty()
+    ): DProperty = DProperty(
+        dri = dri,
+        name = name,
+        documentation = documentation,
+        expectPresentInSet = expectPresentInSet,
+        sources = sources,
+        visibility = visibility,
+        type = type,
+        receiver = receiver,
+        setter = setter,
+        getter = getter,
+        modifier = modifier,
+        sourceSets = sourceSets,
+        generics = generics,
+        isExpectActual = isExpectActual,
+        extra = extra,
+        contextParameters = emptyList()
+    )
+
     override val children: List<Nothing>
         get() = emptyList()
 
     override fun withNewExtras(newExtras: PropertyContainer<DProperty>): DProperty = copy(extra = newExtras)
+
+    /**
+     * Creates a copy of DProperty without contextParameters to maintain binary compatibility
+     */
+    @OptIn(ExperimentalDokkaApi::class)
+    public fun copyWithoutContextParameters(): DProperty = copy(contextParameters = emptyList())
 }
 
 // TODO: treat named Parameters and receivers differently
@@ -428,9 +596,54 @@ public data class FunctionalTypeConstructor(
     val isSuspendable: Boolean = false,
     override val presentableName: String? = null,
     override val extra: PropertyContainer<FunctionalTypeConstructor> = PropertyContainer.empty(),
+    @property:ExperimentalDokkaApi
+    val contextParameters: List<Bound> = emptyList()
 ) : TypeConstructor(), WithExtraProperties<FunctionalTypeConstructor> {
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public constructor(
+        dri: DRI,
+        projections: List<Projection>,
+        isExtensionFunction: Boolean = false,
+        isSuspendable: Boolean = false,
+        presentableName: String? = null,
+        extra: PropertyContainer<FunctionalTypeConstructor> = PropertyContainer.empty()
+    ) : this(
+        dri = dri,
+        projections = projections,
+        isExtensionFunction = isExtensionFunction,
+        isSuspendable = isSuspendable,
+        presentableName = presentableName,
+        extra = extra,
+        contextParameters = emptyList()
+    )
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public fun copy(
+        dri: DRI,
+        projections: List<Projection>,
+        isExtensionFunction: Boolean = false,
+        isSuspendable: Boolean = false,
+        presentableName: String? = null,
+        extra: PropertyContainer<FunctionalTypeConstructor> = PropertyContainer.empty()
+    ) : FunctionalTypeConstructor = FunctionalTypeConstructor(
+        dri = dri,
+        projections = projections,
+        isExtensionFunction = isExtensionFunction,
+        isSuspendable = isSuspendable,
+        presentableName = presentableName,
+        extra = extra,
+        contextParameters = emptyList()
+    )
+
     override fun withNewExtras(newExtras: PropertyContainer<FunctionalTypeConstructor>): FunctionalTypeConstructor =
         copy(extra = newExtras)
+
+    /**
+     * Creates a copy of FunctionalTypeConstructor without contextParameters to maintain binary compatibility
+     */
+    @OptIn(ExperimentalDokkaApi::class)
+    public fun copyWithoutContextParameters(): FunctionalTypeConstructor = copy(contextParameters = emptyList())
 }
 
 // kotlin.annotation.AnnotationTarget.TYPEALIAS

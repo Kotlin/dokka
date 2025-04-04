@@ -43,9 +43,11 @@ internal fun getLanguageVersionSettings(
     languageVersionString: String?,
     apiVersionString: String?
 ): LanguageVersionSettingsImpl {
-    val languageVersion = LanguageVersion.fromVersionString(languageVersionString) ?: LanguageVersion.LATEST_STABLE
+    val languageVersion = LanguageVersion.fromVersionString(languageVersionString) ?: LanguageVersion.KOTLIN_2_1
     val apiVersion =
         apiVersionString?.let { ApiVersion.parse(it) } ?: ApiVersion.createByLanguageVersion(languageVersion)
+    val specificFeatures =
+        listOfNotNull(if (InternalConfiguration.contextParametersEnabled) LanguageFeature.ContextParameters to LanguageFeature.State.ENABLED else null)
     return LanguageVersionSettingsImpl(
         languageVersion = languageVersion,
         apiVersion = apiVersion, analysisFlags = hashMapOf(
@@ -53,7 +55,8 @@ internal fun getLanguageVersionSettings(
             // special flag for Dokka
             // force to resolve light classes (lazily by default)
             AnalysisFlags.eagerResolveOfLightClasses to true
-        )
+        ),
+        specificFeatures = specificFeatures.toMap()
     )
 }
 
@@ -95,7 +98,7 @@ internal fun createAnalysisSession(
                 }
                 sourceSet.dependentSourceSets.forEach {
                     /**
-                     * @see org.jetbrains.kotlin.analysis.project.structure.KtModule.directDependsOnDependencies
+                     * @see org.jetbrains.kotlin.analysis.api.projectStructure.KaModule.directDependsOnDependencies
                      */
                     addDependsOnDependency(
                         sourcesModuleBySourceSetId[it]
@@ -154,9 +157,10 @@ internal fun topologicalSortByDependantSourceSets(
             else -> {
                 val dependentSourceSets =
                     souceSet.dependentSourceSets.mapNotNull { dependentSourceSetId ->
-                        sourceSets.find { it.sourceSetID == dependentSourceSetId }
-                        // just skip
-                            ?: null.also { logger.error("Unknown source set Id $dependentSourceSetId in dependencies of ${souceSet.sourceSetID}") }
+                       sourceSets.find { it.sourceSetID == dependentSourceSetId } ?: run {
+                            logger.error("Cannot find source set with id $dependentSourceSetId")
+                            null }
+
                     }
                 verticesAssociatedWithState[souceSet] = State.VISITING
                 dependentSourceSets.forEach(::dfs)

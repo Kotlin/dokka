@@ -7,6 +7,7 @@ package signatures
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.DokkaSourceSetID
+import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.*
 import org.jsoup.nodes.Element
@@ -1360,6 +1361,59 @@ class SignatureTest : BaseAbstractTest() {
                         Parameter("string: ", A("String"), " = \"string\"")
                     ), "): ", A("String"),
                         ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols("context parameters")
+    fun `fun with context parameters`() = withContextParametersEnabled {
+        val source = source("""
+            context(s: String, _:Int)
+            fun Int.simpleFun(a: Int): String = \"\""
+        """.trimIndent())
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
+                    "context(", @OptIn(ExperimentalDokkaApi::class) ContextParameters(
+                        Parameter("s: ", A("String"), ", "),
+                        Parameter("_: ", A("Int")),
+                    ), ")", Br, "fun ", A("Int"), ".", A("simpleFun"), "(", Parameters(
+                        Parameter("a: ", A("Int")),
+                    ), "): ", A("String"), ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+
+    @Test
+    @OnlySymbols("context parameters")
+    fun `property with context parameters`() = withContextParametersEnabled {
+        val source = source("""
+            context(s: String, _:Int) val Int.simpleProp : Int
+        """.trimIndent())
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/simple-prop.html").firstSignature().match(
+                    "context(", @OptIn(ExperimentalDokkaApi::class) ContextParameters(
+                        Parameter("s: ", A("String"), ", "),
+                        Parameter("_: ", A("Int")),
+                    ), ")", Br, "val ", A("Int"), ".", A("simpleProp"), ": ", A("Int"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }

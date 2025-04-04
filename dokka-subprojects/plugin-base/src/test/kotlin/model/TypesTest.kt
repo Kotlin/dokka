@@ -4,15 +4,18 @@
 
 package model
 
+import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.driOrNull
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import utils.AbstractModelTest
-import utils.OnlyDescriptors
+import utils.OnlySymbols
+import utils.withContextParametersEnabled
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalDokkaApi::class)
 class TypesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "types") {
 
     @Test
@@ -112,6 +115,28 @@ class TypesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "types")
                     ),
                     annotation
                 )
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols("context parameters")
+    @OptIn(ExperimentalDokkaApi::class)
+    fun `functional type with context parameters and receiver`() = withContextParametersEnabled {
+        inlineModelTest(
+            """
+            |val nF:  context(String, Double) Boolean.(Int) -> String = { _ -> "" }"""
+        ) {
+            with((this / "types" / "nF").cast<DProperty>()) {
+                assertTrue(type is FunctionalTypeConstructor)
+                with(type as FunctionalTypeConstructor) {
+                    projections counts 5
+                    isExtensionFunction equals true
+                    contextParameters counts 2
+                    val classNamesOfProjections =
+                        projections.map { ((it as Invariance<*>).inner as GenericTypeConstructor).dri.classNames }
+                    classNamesOfProjections equals listOf("String", "Double", "Boolean", "Int", "String")
+                }
             }
         }
     }
