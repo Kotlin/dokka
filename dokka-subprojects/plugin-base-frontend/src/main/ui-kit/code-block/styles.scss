@@ -1,0 +1,62 @@
+/*!
+ * Copyright 2014-2025  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../_tokens/index';
+
+/**
+http://localhost:8001/jvm/org.jetbrains.dokka.uitest.markdown/-markdown-code/index.html
+ */
+.symbol:not(.token, .wrapped), code.block {
+  position: relative;
+
+  display: block;
+  overflow: scroll;
+
+  box-sizing: border-box;
+  padding: 12px 16px;
+
+  white-space: pre-wrap;
+
+  border-radius: var(--size-s1);
+  background-color: var(--color-background-code-block);
+
+  font: var(--font-code);
+}
+
+code.block {
+  overflow-x: auto;
+
+  max-width: 100%;
+}
+
+.source-link-wrapper::after {
+  display: block;
+  clear: both;
+
+  height: 0;
+
+  content: '';
+}
+
+@media screen and (width < $breakpoint-desktop-min) {
+  .source-link-wrapper {
+    display: block;
+
+    margin-top: 8px;
+  }
+}
+
+.source-link {
+  float: right;
+}
+
+/**
+http://localhost:8001/jvm/org.jetbrains.dokka.uitest.types/-simple-deprecated-kotlin-class/index.html
+ */
+.sample-container, div.CodeMirror {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+}
+

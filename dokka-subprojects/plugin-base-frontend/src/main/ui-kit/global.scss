@@ -15,13 +15,17 @@
   --color-background: var(--color-background-page-dt);
   --text-color: var(--color-text-dt);
   --text-outline: var(--color-w16);
+  --color-background-inline-code: var(--color-w10);
+  --color-background-code-block: var(--color-w05);
 }
 
 body {
-  font: var(--font-text-m);
-  background-color: var(--color-background);
-  color: var(--text-color);
   margin: 0;
+
+  color: var(--text-color);
+  background-color: var(--color-background);
+
+  font: var(--font-text-m);
 }
 
 small {

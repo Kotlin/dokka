@@ -56,18 +56,11 @@ public class ScriptsInstaller(private val dokkaContext: DokkaContext) : PageTran
 
     // scripts ending with `_deferred.js` are loaded with `defer`, otherwise `async`
     private val scriptsPages = listOf(
-        "scripts/clipboard.js",
         "scripts/navigation-loader.js",
         "scripts/platform-content-handler.js",
         "scripts/main.js",
         "scripts/prism.js",
-        "ui-kit/ui-kit.min.js",
-
-        // It's important for this script to be deferred because it has logic that makes decisions based on
-        // rendered elements (for instance taking their clientWidth), and if not all styles are loaded/applied
-        // at the time of inspecting them, it will give incorrect results and might lead to visual bugs.
-        // should be easy to test if you open any page in incognito or by reloading it (Ctrl+Shift+R)
-        "scripts/symbol-parameters-wrapper_deferred.js",
+        "ui-kit/ui-kit.min.js"
     )
 
     override fun invoke(input: RootPageNode): RootPageNode =
@@ -87,7 +80,6 @@ public class StylesInstaller(private val dokkaContext: DokkaContext) : PageTrans
         "styles/main.css",
         "styles/prism.css",
         "styles/logo-styles.css",
-        "styles/font-jb-sans-auto.css",
         "ui-kit/ui-kit.min.css"
     )
 
@@ -131,12 +123,24 @@ public object AssetsInstaller : PageTransformer {
         "ui-kit/assets/placeholder.svg",
         "ui-kit/assets/theme-toggle.svg",
         "ui-kit/assets/typealias-kotlin.svg",
+        "ui-kit/assets/copy-icon.svg",
+        "ui-kit/assets/success-icon.svg",
+        "ui-kit/assets/anchor-copy-icon.svg",
 
         // images
-        "images/anchor-copy-button.svg",
-        "images/copy-icon.svg",
-        "images/copy-successful-icon.svg",
         "images/logo-icon.svg",
+
+        // fonts
+        "ui-kit/fonts/inter-latin-400-italic.woff",
+        "ui-kit/fonts/inter-latin-400-italic.woff2",
+        "ui-kit/fonts/inter-latin-400-normal.woff",
+        "ui-kit/fonts/inter-latin-400-normal.woff2",
+        "ui-kit/fonts/inter-latin-600-normal.woff",
+        "ui-kit/fonts/inter-latin-600-normal.woff2",
+        "ui-kit/fonts/jetbrains-mono-latin-400-normal.woff",
+        "ui-kit/fonts/jetbrains-mono-latin-400-normal.woff2",
+        "ui-kit/fonts/jetbrains-mono-latin-600-normal.woff",
+        "ui-kit/fonts/jetbrains-mono-latin-600-normal.woff2"
     )
 
     override fun invoke(input: RootPageNode): RootPageNode = input.modified(

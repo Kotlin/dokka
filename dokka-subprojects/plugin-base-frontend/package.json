@@ -36,6 +36,8 @@
     ]
   },
   "dependencies": {
+    "@fontsource/inter": "^5.1.1",
+    "@fontsource/jetbrains-mono": "^5.1.2",
     "@jetbrains/logos": "1.4.27",
     "@jetbrains/ring-ui": "^5.1.28",
     "core-js": "^3.37.1",
