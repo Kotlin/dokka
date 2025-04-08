@@ -9,10 +9,9 @@
   --color-background-nav: rgb(39, 40, 44);
   --color-background-nav-dt: rgb(50, 50, 55);
   --color-background-page: rgb(255, 255, 255);
-  --color-background-page-dt: rgb(38, 38, 40);
+  --color-background-page-dt: rgba(40, 40, 45, 1);
   --color-background-footer: rgb(235, 235, 235);
   --color-background-footer-dt: rgb(50, 50, 55);
-  --color-background-code: rgba(230, 230, 230, 1); //#E6E6E6
 
   // Text colors (headings, paragraphs, labels)
   --color-text: rgb(0, 0, 0);
@@ -36,6 +35,8 @@
   --color-b70: rgba(0, 0, 0, 0.7);
 
   // Code area colors
+  --color-background-inline-code: var(--color-b08);
+  --color-background-code-block: rgba(25, 25, 28, 0.05);
   --color-cd-punctuation: rgb(153, 153, 153); // #999999;
   --color-cd-keyword: rgb(0, 51, 179); // #0033B3;
   --color-cd-keyword-alternative: rgba(204, 120, 50); // #CC7832;
@@ -45,12 +46,16 @@
   --color-cd-function-alternative: rgb(255, 198, 109); // #FFC66D;
   --color-cd-operator: rgb(154, 110, 58); // #9A6E3A;
   --color-cd-operator-alternative: rgb(169, 183, 198); // #A9B7C6;
-  --color-cd-body: rgb(0, 0, 0); // #000000;
-  --color-cd-body-alternative: rgb(169, 183, 198); // #A9B7C6;
+  --color-cd-number: rgba(135, 16, 148, 1);
+  --color-cd-number-alternative: rgba(109, 185, 243, 1);
 
   // Targets and source sets
   --color-generic: rgb(83, 157, 243);
   --color-jvm: rgb(77, 187, 95);
   --color-js: rgb(255, 199, 0);
   --color-wasm: rgb(255, 255, 255);
+
+  // Copy icon colors
+  --copy-icon-color: var(--color-b50);
+  --copy-icon-hover-color: var(--color-b70);
 }

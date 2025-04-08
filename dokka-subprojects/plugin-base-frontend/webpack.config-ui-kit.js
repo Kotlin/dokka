@@ -40,6 +40,34 @@ module.exports = (env) => {
     module: {
       rules: [
         {
+          test: /\.css$/,
+          use: [
+            MiniCssExtractPlugin.loader,
+            'css-loader',
+            isMinify
+              ? {
+                  loader: 'postcss-loader',
+                  options: {
+                    postcssOptions: {
+                      plugins: [
+                        [
+                          'cssnano',
+                        ],
+                      ],
+                    },
+                  },
+                }
+              : null,
+          ].filter(Boolean),
+        },
+        {
+          test: /\.(woff|woff2|eot|ttf|otf)$/i,
+          type: 'asset/resource',
+          generator: {
+            filename: 'fonts/[name][ext]'
+          }
+        },
+        {
           test: /\.scss$/,
           use: [
             MiniCssExtractPlugin.loader,
