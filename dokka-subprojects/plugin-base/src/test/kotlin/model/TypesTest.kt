@@ -74,6 +74,39 @@ class TypesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "types")
     }
 
     @Test
+    @OnlySymbols("context parameters")
+    fun `type with typealias to functional type with context parameters`() = withContextParametersEnabled {
+        inlineModelTest(
+            """
+            |typealias CompletionHandler = context(a: String, _: Any) (cause: Throwable) -> Unit
+            |fun exception(callback: CompletionHandler){}"""
+        ) {
+            with((this / "types" / "CompletionHandler").cast<DTypeAlias>()) {
+                assertTrue(type is GenericTypeConstructor)
+                (type as GenericTypeConstructor).projections counts 0
+                name equals "CompletionHandler"
+                underlyingType.values.first().driOrNull equals DRI("kotlin", "Function3")
+            }
+            with((this / "types" / "exception").cast<DFunction>()) {
+                name equals "exception"
+                val parameterType = parameters.first().type
+                assertTrue(parameterType is TypeAliased)
+                with(parameterType) {
+                    assertTrue(typeAlias is GenericTypeConstructor)
+                    assertTrue(inner is FunctionalTypeConstructor)
+                    val inner = (inner as FunctionalTypeConstructor)
+                    inner.dri equals DRI("kotlin", "Function3")
+                    inner.projections counts 4
+                    inner.contextParametersCount equals 2
+                    val classNamesOfProjections =
+                        inner.projections.map { ((it as Invariance<*>).inner as GenericTypeConstructor).dri.classNames }
+                    classNamesOfProjections equals listOf("String", "Any", "Throwable", "Unit")
+                }
+            }
+        }
+    }
+
+    @Test
     fun `function types with a parameter name should have implicit @ParameterName annotations with mustBeDocumented=false`() {
         inlineModelTest(
             """
