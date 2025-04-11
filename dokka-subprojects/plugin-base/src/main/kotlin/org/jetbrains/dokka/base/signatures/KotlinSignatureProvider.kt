@@ -24,6 +24,7 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaLogger
 import kotlin.text.Typography.nbsp
 
+@OptIn(ExperimentalDokkaApi::class)
 public class KotlinSignatureProvider(
     ctcc: CommentsToContentConverter,
     logger: DokkaLogger
@@ -256,6 +257,7 @@ public class KotlinSignatureProvider(
             ?: false
     }
 
+    @OptIn(ExperimentalDokkaApi::class)
     private fun propertySignature(p: DProperty) =
         p.sourceSets.map { sourceSet ->
             contentBuilder.contentFor(
@@ -265,7 +267,7 @@ public class KotlinSignatureProvider(
                 sourceSets = setOf(sourceSet)
             ) {
                 annotationsBlock(p)
-                if (p.contextParameters.isNotEmpty()) {
+                if (@OptIn(ExperimentalDokkaApi::class) p.contextParameters.isNotEmpty()) {
                     keyword("context")
                     punctuation("(")
                     @OptIn(ExperimentalDokkaApi::class)
@@ -275,7 +277,7 @@ public class KotlinSignatureProvider(
                         operator(": ")
                         signatureForProjection(param.type)
                     }
-                    punctuation(") ")
+                    punctuation(")")
                     breakLine()
                 }
                 p.visibility[sourceSet].takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
@@ -328,7 +330,7 @@ public class KotlinSignatureProvider(
                 sourceSets = setOf(sourceSet)
             ) {
                 annotationsBlock(f)
-                if (f.contextParameters.isNotEmpty()) {
+                if (@OptIn(ExperimentalDokkaApi::class) f.contextParameters.isNotEmpty()) {
                     keyword("context")
                     punctuation("(")
                     @OptIn(ExperimentalDokkaApi::class)
@@ -338,7 +340,7 @@ public class KotlinSignatureProvider(
                         operator(": ")
                         signatureForProjection(param.type)
                     }
-                    punctuation(") ")
+                    punctuation(")")
                     breakLine()
                 }
                 f.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
@@ -515,10 +517,11 @@ public class KotlinSignatureProvider(
             }
             annotationsInline(type)
 
-            val contextParameters = @OptIn(ExperimentalDokkaApi::class) type.contextParameters
-            if (contextParameters.isNotEmpty()) {
+            val contextParametersCount = @OptIn(ExperimentalDokkaApi::class) type.contextParametersCount
+            if (contextParametersCount > 0) {
                 keyword("context")
                 punctuation("(")
+                val contextParameters = type.projections.take(contextParametersCount)
                 @OptIn(ExperimentalDokkaApi::class) contextParameters.forEachIndexed { i, contextParam ->
                     if(i != 0) punctuation(", ")
                     signatureForProjection(contextParam)
@@ -527,7 +530,7 @@ public class KotlinSignatureProvider(
             }
             if (type.isSuspendable) keyword("suspend ")
 
-            val projectionsWithoutContextParameters = type.projections.drop(contextParameters.size)
+            val projectionsWithoutContextParameters = type.projections.drop(contextParametersCount)
 
             if (type.isExtensionFunction) {
                 signatureForProjection(projectionsWithoutContextParameters.first())

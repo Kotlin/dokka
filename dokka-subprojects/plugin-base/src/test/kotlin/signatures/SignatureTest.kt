@@ -1368,6 +1368,7 @@ class SignatureTest : BaseAbstractTest() {
 
     @Test
     @OnlySymbols("context parameters")
+    @OptIn(ExperimentalDokkaApi::class)
     fun `fun with context parameters`() = withContextParametersEnabled {
         val source = source("""
             context(s: String, _:Int)
@@ -1382,7 +1383,7 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "context(", @OptIn(ExperimentalDokkaApi::class) ContextParameters(
+                    "context(", ContextParameters(
                         Parameter("s: ", A("String"), ", "),
                         Parameter("_: ", A("Int")),
                     ), ")", Br, "fun ", A("Int"), ".", A("simpleFun"), "(", Parameters(
@@ -1396,6 +1397,7 @@ class SignatureTest : BaseAbstractTest() {
 
     @Test
     @OnlySymbols("context parameters")
+    @OptIn(ExperimentalDokkaApi::class)
     fun `property with context parameters`() = withContextParametersEnabled {
         val source = source("""
             context(s: String, _:Int) val Int.simpleProp : Int
@@ -1409,7 +1411,7 @@ class SignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-prop.html").firstSignature().match(
-                    "context(", @OptIn(ExperimentalDokkaApi::class) ContextParameters(
+                    "context(", ContextParameters(
                         Parameter("s: ", A("String"), ", "),
                         Parameter("_: ", A("Int")),
                     ), ")", Br, "val ", A("Int"), ".", A("simpleProp"), ": ", A("Int"),

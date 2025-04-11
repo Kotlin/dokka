@@ -43,7 +43,7 @@ internal fun getLanguageVersionSettings(
     languageVersionString: String?,
     apiVersionString: String?
 ): LanguageVersionSettingsImpl {
-    val languageVersion = LanguageVersion.fromVersionString(languageVersionString) ?: LanguageVersion.KOTLIN_2_1
+    val languageVersion = LanguageVersion.fromVersionString(languageVersionString) ?: LanguageVersion.LATEST_STABLE
     val apiVersion =
         apiVersionString?.let { ApiVersion.parse(it) } ?: ApiVersion.createByLanguageVersion(languageVersion)
     val specificFeatures =

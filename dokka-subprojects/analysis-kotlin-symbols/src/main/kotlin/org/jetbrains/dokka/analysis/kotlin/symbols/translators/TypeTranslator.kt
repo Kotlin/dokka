@@ -82,9 +82,7 @@ internal class TypeTranslator(
         extra = PropertyContainer.withAll(
             getDokkaAnnotationsFrom(functionalType)?.toSourceSetDependent()?.toAnnotations()
         ),
-        contextParameters = if (contextParametersEnabled) @OptIn(KaExperimentalApi::class) functionalType.contextReceivers.map {
-            toBoundFrom(it.type)
-        } else emptyList()
+        contextParametersCount = if (contextParametersEnabled) @OptIn(KaExperimentalApi::class) functionalType.contextReceivers.size else 0
     )
 
 

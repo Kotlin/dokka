@@ -222,7 +222,7 @@ public interface JvmSignatureUtils {
     public fun PageContentBuilder.DocumentableContentBuilder.contextParametersBlock(
         function: Callable,
         paramBuilder: PageContentBuilder.DocumentableContentBuilder.(DParameter) -> Unit
-    ): Unit = parametersBlock(@OptIn(ExperimentalDokkaApi::class) function.contextParameters, paramBuilder)
+    ): Unit = parametersBlock(function.contextParameters, paramBuilder)
 
     private fun PageContentBuilder.DocumentableContentBuilder.parametersBlock(
         params: List<DParameter>,

@@ -751,19 +751,18 @@ internal class DokkaSymbolVisitor(
 
     @OptIn(KaExperimentalApi::class)
     private fun KaSession.visitContextParameter(
-        index: Int, valueParameterSymbol: KaContextParameterSymbol, dri: DRI
+        index: Int, contextParameterSymbol: KaContextParameterSymbol, dri: DRI
     ): DParameter {
         require(contextParametersEnabled)
         return DParameter(
             dri = dri.copy(target = @OptIn(ExperimentalDokkaApi::class) PointingToContextParameters(index)),
-            name = if(valueParameterSymbol.name == UNDERSCORE_FOR_UNUSED_VAR) "_" else valueParameterSymbol.name.asString(),
-            type = toBoundFrom(valueParameterSymbol.returnType),
+            name = if(contextParameterSymbol.name == UNDERSCORE_FOR_UNUSED_VAR) "_" else contextParameterSymbol.name.asString(),
+            type = toBoundFrom(contextParameterSymbol.returnType),
             expectPresentInSet = null,
-            documentation = getDocumentation(valueParameterSymbol)?.toSourceSetDependent() ?: emptyMap(),
+            documentation = getDocumentation(contextParameterSymbol)?.toSourceSetDependent() ?: emptyMap(),
             sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
-             //   valueParameterSymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
-               getDokkaAnnotationsFrom(valueParameterSymbol)?.toSourceSetDependent()?.toAnnotations(),
+               getDokkaAnnotationsFrom(contextParameterSymbol)?.toSourceSetDependent()?.toAnnotations(),
             )
         )
     }

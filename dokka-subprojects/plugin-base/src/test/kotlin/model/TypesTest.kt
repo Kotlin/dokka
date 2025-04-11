@@ -132,7 +132,7 @@ class TypesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "types")
                 with(type as FunctionalTypeConstructor) {
                     projections counts 5
                     isExtensionFunction equals true
-                    contextParameters counts 2
+                    contextParametersCount equals  2
                     val classNamesOfProjections =
                         projections.map { ((it as Invariance<*>).inner as GenericTypeConstructor).dri.classNames }
                     classNamesOfProjections equals listOf("String", "Double", "Boolean", "Int", "String")

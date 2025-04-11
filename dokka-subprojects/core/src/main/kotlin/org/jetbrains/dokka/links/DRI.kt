@@ -172,8 +172,9 @@ public data class PointingToContextParameters(val parameterIndex: Int) : DriTarg
     override fun toString(): String = "PointingToContextParameters($parameterIndex)"
 }
 
-public fun DriTarget.nextTarget(): DriTarget = when (this) {
+public fun DriTarget.nextTarget(): DriTarget = @OptIn(ExperimentalDokkaApi::class) when (this) {
     is PointingToGenericParameters -> PointingToGenericParameters(this.parameterIndex + 1)
     is PointingToCallableParameters -> PointingToCallableParameters(this.parameterIndex + 1)
-    else -> this
+    is PointingToContextParameters -> PointingToCallableParameters(this.parameterIndex + 1)
+    is PointingToDeclaration -> this
 }

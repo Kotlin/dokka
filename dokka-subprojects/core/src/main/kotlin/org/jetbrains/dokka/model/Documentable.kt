@@ -84,9 +84,8 @@ public interface WithConstructors {
 public interface WithGenerics {
     public val generics: List<DTypeParameter>
 }
-
+@ExperimentalDokkaApi
 public interface WithContextParameters {
-    @ExperimentalDokkaApi
     public val contextParameters: List<DParameter>
 }
 
@@ -98,6 +97,7 @@ public interface WithIsExpectActual {
     public val isExpectActual: Boolean
 }
 
+@OptIn(ExperimentalDokkaApi::class)
 public interface Callable : WithVisibility, WithContextParameters, WithType, WithAbstraction, WithSources, WithIsExpectActual {
     public val receiver: DParameter?
 }
@@ -230,7 +230,7 @@ public data class DFunction(
     override val sourceSets: Set<DokkaSourceSet>,
     override val isExpectActual: Boolean,
     override val extra: PropertyContainer<DFunction> = PropertyContainer.empty(),
-    @OptIn(ExperimentalDokkaApi::class)
+    @property:ExperimentalDokkaApi
     override val contextParameters: List<DParameter> = emptyList(),
     ) : Documentable(), Callable, WithGenerics, WithExtraProperties<DFunction> {
 
@@ -310,12 +310,6 @@ public data class DFunction(
         get() = parameters + @OptIn(ExperimentalDokkaApi::class) contextParameters
 
     override fun withNewExtras(newExtras: PropertyContainer<DFunction>): DFunction = copy(extra = newExtras)
-
-    /**
-     * Creates a copy of DFunction without contextParameters to maintain binary compatibility
-     */
-    @OptIn(ExperimentalDokkaApi::class)
-    public fun copyWithoutContextParameters(): DFunction = copy(contextParameters = emptyList())
 }
 
 public data class DInterface(
@@ -402,7 +396,7 @@ public data class DProperty(
     override val generics: List<DTypeParameter>,
     override val isExpectActual: Boolean,
     override val extra: PropertyContainer<DProperty> = PropertyContainer.empty(),
-    @OptIn(ExperimentalDokkaApi::class)
+    @property:ExperimentalDokkaApi
     override val contextParameters: List<DParameter> = emptyList()
 ) : Documentable(), Callable, WithExtraProperties<DProperty>, WithGenerics {
 
@@ -597,7 +591,7 @@ public data class FunctionalTypeConstructor(
     override val presentableName: String? = null,
     override val extra: PropertyContainer<FunctionalTypeConstructor> = PropertyContainer.empty(),
     @property:ExperimentalDokkaApi
-    val contextParameters: List<Bound> = emptyList()
+    val contextParametersCount: Int = 0
 ) : TypeConstructor(), WithExtraProperties<FunctionalTypeConstructor> {
 
     @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
@@ -614,8 +608,7 @@ public data class FunctionalTypeConstructor(
         isExtensionFunction = isExtensionFunction,
         isSuspendable = isSuspendable,
         presentableName = presentableName,
-        extra = extra,
-        contextParameters = emptyList()
+        extra = extra
     )
 
     @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
@@ -633,17 +626,11 @@ public data class FunctionalTypeConstructor(
         isSuspendable = isSuspendable,
         presentableName = presentableName,
         extra = extra,
-        contextParameters = emptyList()
+        contextParametersCount = 0
     )
 
     override fun withNewExtras(newExtras: PropertyContainer<FunctionalTypeConstructor>): FunctionalTypeConstructor =
         copy(extra = newExtras)
-
-    /**
-     * Creates a copy of FunctionalTypeConstructor without contextParameters to maintain binary compatibility
-     */
-    @OptIn(ExperimentalDokkaApi::class)
-    public fun copyWithoutContextParameters(): FunctionalTypeConstructor = copy(contextParameters = emptyList())
 }
 
 // kotlin.annotation.AnnotationTarget.TYPEALIAS
