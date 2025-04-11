@@ -85,6 +85,10 @@ public final class renderers/TestPageKt {
 	public static final fun testPage (Lkotlin/jvm/functions/Function1;)Lrenderers/RawTestPage;
 }
 
+public final class signatures/ContextParameters : utils/Tag {
+	public fun <init> ([Ljava/lang/Object;)V
+}
+
 public final class signatures/Parameter : utils/Tag {
 	public fun <init> ([Ljava/lang/Object;)V
 }

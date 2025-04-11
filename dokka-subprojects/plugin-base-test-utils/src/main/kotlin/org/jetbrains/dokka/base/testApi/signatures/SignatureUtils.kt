@@ -4,6 +4,7 @@
 
 package signatures
 
+import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
@@ -20,4 +21,5 @@ public fun Element.firstSignature(): Element = signature().first() ?: throw NoSu
 public fun Element.lastSignature(): Element = signature().last() ?: throw NoSuchElementException("No signature found")
 
 public class Parameters(vararg matchers: Any) : Tag("span", *matchers, expectedClasses = listOf("parameters"))
+@ExperimentalDokkaApi public class ContextParameters(vararg matchers: Any) : Tag("span", *matchers, expectedClasses = listOf("parameters"))
 public class Parameter(vararg matchers: Any) : Tag("span", *matchers, expectedClasses = listOf("parameter"))
