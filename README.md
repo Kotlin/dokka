@@ -2,7 +2,7 @@
 
 [![Kotlin Beta](https://kotl.in/badges/beta.svg)](https://kotlinlang.org/docs/components-stability.html)
 [![JetBrains official project](https://jb.gg/badges/official.svg)](https://github.com/JetBrains#jetbrains-on-github)
-[![Maven Central](https://img.shields.io/maven-central/v/org.jetbrains.dokka/org.jetbrains.dokka.gradle.plugin?label=MavenCentral&logo=apache-maven)](https://search.maven.org/artifact/org.jetbrains.dokka/org.jetbrains.dokka.gradle.plugin)
+[![Maven Central](https://img.shields.io/maven-central/v/org.jetbrains.dokka/dokka-gradle-plugin?label=MavenCentral&logo=apache-maven)](https://central.sonatype.com/artifact/org.jetbrains.dokka/dokka-gradle-plugin)
 [![Gradle Plugin](https://img.shields.io/gradle-plugin-portal/v/org.jetbrains.dokka?label=Gradle&logo=gradle)](https://plugins.gradle.org/plugin/org.jetbrains.dokka)
 [![License](https://img.shields.io/github/license/Kotlin/dokka.svg)](LICENSE.txt)
 [![Revved up by Develocity](https://img.shields.io/badge/Revved%20up%20by-Develocity-06A0CE?logo=Gradle&labelColor=02303A)](https://ge.jetbrains.com/scans?search.rootProjectNames=dokka)
