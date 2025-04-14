@@ -21,13 +21,6 @@ internal fun withSinceKotlin(block: () -> Unit): Unit =
 internal fun withAllowKotlinPackage(block: () -> Unit): Unit =
     DokkaBaseInternalConfiguration.withProperty("org.jetbrains.dokka.analysis.allowKotlinPackage", "true", block)
 
-/**
- * This property works only for K2
- * Enable context parameters
- */
-internal fun withContextParametersEnabled(block: () -> Unit): Unit =
-    DokkaBaseInternalConfiguration.withProperty("org.jetbrains.dokka.analysis.experimental.contextParameters", "true", block)
-
 internal fun DokkaBaseInternalConfiguration.withProperty(propertyName: String, value: String, block: () -> Unit) {
     setProperty(propertyName, value)
     try {

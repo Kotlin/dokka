@@ -17,7 +17,6 @@ import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.MemberPageNode
 import utils.OnlySymbols
-import utils.withContextParametersEnabled
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -513,7 +512,7 @@ class ExpectActualsTest : BaseAbstractTest() {
     @Test
     @OnlySymbols("context parameters")
     @OptIn(ExperimentalDokkaApi::class)
-    fun `expect-actual overloads with context parameters`() = withContextParametersEnabled {
+    fun `expect-actual overloads with context parameters`() {
         testInline(
             """
         /src/common/test.kt
@@ -576,7 +575,7 @@ class ExpectActualsTest : BaseAbstractTest() {
     @Test
     @OnlySymbols("context parameters")
     @OptIn(ExperimentalDokkaApi::class)
-    fun `expect-actual properties with context parameters`() = withContextParametersEnabled {
+    fun `expect-actual properties with context parameters`() {
         testInline(
             """
         /src/common/test.kt

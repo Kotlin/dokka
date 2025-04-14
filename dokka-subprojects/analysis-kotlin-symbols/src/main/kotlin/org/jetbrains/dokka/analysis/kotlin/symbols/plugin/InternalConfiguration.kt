@@ -4,22 +4,9 @@
 
 package org.jetbrains.dokka.analysis.kotlin.symbols.plugin
 
-import org.jetbrains.kotlin.config.LanguageFeature
-
 // revisit in scope of https://github.com/Kotlin/dokka/issues/2776
 internal object InternalConfiguration {
     private const val ALLOW_KOTLIN_PACKAGE_PROPERTY = "org.jetbrains.dokka.analysis.allowKotlinPackage"
-    private const val CONTEXT_PARAMETERS_PROPERTY = "org.jetbrains.dokka.analysis.experimental.contextParameters"
-
-    /**
-     * Enable the language feature of context parameters
-     *
-     * Default: false
-     *
-     * @see LanguageFeature.ContextParameters
-     */
-    val contextParametersEnabled: Boolean
-        get() = getBooleanProperty(CONTEXT_PARAMETERS_PROPERTY)
 
     /**
      * Allow analysing code in the 'kotlin' package

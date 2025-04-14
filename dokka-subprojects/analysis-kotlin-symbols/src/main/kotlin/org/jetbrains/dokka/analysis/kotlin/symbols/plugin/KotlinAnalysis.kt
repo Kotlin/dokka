@@ -46,8 +46,6 @@ internal fun getLanguageVersionSettings(
     val languageVersion = LanguageVersion.fromVersionString(languageVersionString) ?: LanguageVersion.LATEST_STABLE
     val apiVersion =
         apiVersionString?.let { ApiVersion.parse(it) } ?: ApiVersion.createByLanguageVersion(languageVersion)
-    val specificFeatures =
-        listOfNotNull(if (InternalConfiguration.contextParametersEnabled) LanguageFeature.ContextParameters to LanguageFeature.State.ENABLED else null)
     return LanguageVersionSettingsImpl(
         languageVersion = languageVersion,
         apiVersion = apiVersion, analysisFlags = hashMapOf(
@@ -55,8 +53,7 @@ internal fun getLanguageVersionSettings(
             // special flag for Dokka
             // force to resolve light classes (lazily by default)
             AnalysisFlags.eagerResolveOfLightClasses to true
-        ),
-        specificFeatures = specificFeatures.toMap()
+        )
     )
 }
 

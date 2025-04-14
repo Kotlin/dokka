@@ -14,7 +14,6 @@ import utils.OnlyDescriptors
 import utils.OnlySymbols
 import utils.name
 import utils.text
-import utils.withContextParametersEnabled
 import kotlin.test.Test
 import org.jetbrains.dokka.ExperimentalDokkaApi
 
@@ -408,8 +407,7 @@ class FunctionTest : AbstractModelTest("/src/main/kotlin/function/Test.kt", "fun
 
     @Test
     @OnlySymbols("context parameters")
-    fun `function with context parameters should have them, correct DRI, and documentation`() =
-        withContextParametersEnabled {
+    fun `function with context parameters should have them, correct DRI, and documentation`() {
             inlineModelTest(
                 """
                 |/src/sample/ParentInKotlin.kt

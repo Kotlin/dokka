@@ -13,7 +13,6 @@ import utils.Span
 import utils.TestOutputWriterPlugin
 import utils.Wbr
 import utils.match
-import utils.withContextParametersEnabled
 import kotlin.test.Ignore
 import kotlin.test.Test
 
@@ -337,7 +336,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
 
     @Test
     @OnlySymbols("context parameters")
-    fun `lambda with context parameters`() = withContextParametersEnabled {
+    fun `lambda with context parameters`() {
         val source = source("fun simpleFun(a: context(String, Double) Boolean.(Int) -> String): String = \"Celebrimbor\"")
         val writerPlugin = TestOutputWriterPlugin()
 

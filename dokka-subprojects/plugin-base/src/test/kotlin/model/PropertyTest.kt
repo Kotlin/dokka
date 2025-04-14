@@ -10,7 +10,6 @@ import utils.OnlySymbols
 import utils.assertNotNull
 import utils.name
 import utils.text
-import utils.withContextParametersEnabled
 import kotlin.test.Test
 import org.jetbrains.dokka.ExperimentalDokkaApi
 
@@ -310,7 +309,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
 
     @Test
     @OnlySymbols("context parameters")
-    fun `property with context parameters should have them, correct DRI, and documentation`() = withContextParametersEnabled {
+    fun `property with context parameters should have them, correct DRI, and documentation`() {
         inlineModelTest(
             """
             |/src/sample/ParentInKotlin.kt

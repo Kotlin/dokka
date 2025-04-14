@@ -10,7 +10,6 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import utils.AbstractModelTest
 import utils.OnlySymbols
-import utils.withContextParametersEnabled
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -75,7 +74,7 @@ class TypesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "types")
 
     @Test
     @OnlySymbols("context parameters")
-    fun `type with typealias to functional type with context parameters`() = withContextParametersEnabled {
+    fun `type with typealias to functional type with context parameters`() {
         inlineModelTest(
             """
             |typealias CompletionHandler = context(a: String, _: Any) (cause: Throwable) -> Unit
@@ -155,7 +154,7 @@ class TypesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "types")
     @Test
     @OnlySymbols("context parameters")
     @OptIn(ExperimentalDokkaApi::class)
-    fun `functional type with context parameters and receiver`() = withContextParametersEnabled {
+    fun `functional type with context parameters and receiver`() {
         inlineModelTest(
             """
             |val nF:  context(String, Double) Boolean.(Int) -> String = { _ -> "" }"""

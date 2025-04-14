@@ -25,7 +25,6 @@ internal const val ERROR_CLASS_NAME = "<ERROR CLASS>"
 internal class TypeTranslator(
     private val sourceSet: DokkaConfiguration.DokkaSourceSet,
     private val annotationTranslator: AnnotationTranslator,
-    private val contextParametersEnabled: Boolean = false
 ) {
 
     private fun <T> T.toSourceSetDependent() = if (this != null) mapOf(sourceSet to this) else emptyMap()
@@ -82,7 +81,7 @@ internal class TypeTranslator(
         extra = PropertyContainer.withAll(
             getDokkaAnnotationsFrom(functionalType)?.toSourceSetDependent()?.toAnnotations()
         ),
-        contextParametersCount = if (contextParametersEnabled) @OptIn(KaExperimentalApi::class) functionalType.contextReceivers.size else 0
+        contextParametersCount = @OptIn(KaExperimentalApi::class) functionalType.contextReceivers.size
     )
 
 

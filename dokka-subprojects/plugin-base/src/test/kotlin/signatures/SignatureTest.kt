@@ -1369,7 +1369,7 @@ class SignatureTest : BaseAbstractTest() {
     @Test
     @OnlySymbols("context parameters")
     @OptIn(ExperimentalDokkaApi::class)
-    fun `fun with context parameters`() = withContextParametersEnabled {
+    fun `fun with context parameters`() {
         val source = source("""
             context(s: String, _:Int)
             fun Int.simpleFun(a: Int): String = \"\""
@@ -1398,7 +1398,7 @@ class SignatureTest : BaseAbstractTest() {
     @Test
     @OnlySymbols("context parameters")
     @OptIn(ExperimentalDokkaApi::class)
-    fun `property with context parameters`() = withContextParametersEnabled {
+    fun `property with context parameters`() {
         val source = source("""
             context(s: String, _:Int) val Int.simpleProp : Int
         """.trimIndent())
