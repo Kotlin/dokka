@@ -476,12 +476,6 @@ public data class DProperty(
         get() = emptyList()
 
     override fun withNewExtras(newExtras: PropertyContainer<DProperty>): DProperty = copy(extra = newExtras)
-
-    /**
-     * Creates a copy of DProperty without contextParameters to maintain binary compatibility
-     */
-    @OptIn(ExperimentalDokkaApi::class)
-    public fun copyWithoutContextParameters(): DProperty = copy(contextParameters = emptyList())
 }
 
 // TODO: treat named Parameters and receivers differently

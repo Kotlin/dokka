@@ -24,7 +24,6 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaLogger
 import kotlin.text.Typography.nbsp
 
-@OptIn(ExperimentalDokkaApi::class)
 public class KotlinSignatureProvider(
     ctcc: CommentsToContentConverter,
     logger: DokkaLogger
@@ -257,7 +256,6 @@ public class KotlinSignatureProvider(
             ?: false
     }
 
-    @OptIn(ExperimentalDokkaApi::class)
     private fun propertySignature(p: DProperty) =
         p.sourceSets.map { sourceSet ->
             contentBuilder.contentFor(
