@@ -8,6 +8,7 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.jdk
 import utils.A
+import utils.OnlySymbols
 import utils.Span
 import utils.TestOutputWriterPlugin
 import utils.Wbr
@@ -328,6 +329,28 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
                 writerPlugin.writer.renderedContent("root/example/-java-class/index.html").lastSignature().match(
                     "open var ", A("kotlinFunction"), ": (", A("Integer"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols("context parameters")
+    fun `lambda with context parameters`() {
+        val source = source("fun simpleFun(a: context(String, Double) Boolean.(Int) -> String): String = \"Celebrimbor\"")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
+                    "fun ", A("simpleFun"), "(", Parameters(
+                        Parameter("a: context(", A("String"), ", ", A("Double"), ") ", A("Boolean"), ".(", A("Int"), ") -> ", A("String")),
+                    ),"): ", A("String"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
