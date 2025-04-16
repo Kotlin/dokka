@@ -5,6 +5,7 @@
 package org.jetbrains.dokka.base.signatures
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.dri
@@ -264,6 +265,19 @@ public class KotlinSignatureProvider(
                 sourceSets = setOf(sourceSet)
             ) {
                 annotationsBlock(p)
+                if (@OptIn(ExperimentalDokkaApi::class) p.contextParameters.isNotEmpty()) {
+                    keyword("context")
+                    punctuation("(")
+                    @OptIn(ExperimentalDokkaApi::class)
+                    contextParametersBlock(p) { param ->
+                        annotationsInline(param)
+                        text(param.name!!)
+                        operator(": ")
+                        signatureForProjection(param.type)
+                    }
+                    punctuation(")")
+                    breakLine()
+                }
                 p.visibility[sourceSet].takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
                 if (p.isExpectActual) keyword(if (sourceSet == p.expectPresentInSet) "expect " else "actual ")
                 modifier(p, sourceSet)
@@ -314,6 +328,19 @@ public class KotlinSignatureProvider(
                 sourceSets = setOf(sourceSet)
             ) {
                 annotationsBlock(f)
+                if (@OptIn(ExperimentalDokkaApi::class) f.contextParameters.isNotEmpty()) {
+                    keyword("context")
+                    punctuation("(")
+                    @OptIn(ExperimentalDokkaApi::class)
+                    contextParametersBlock(f) { param ->
+                        annotationsInline(param)
+                        text(param.name!!)
+                        operator(": ")
+                        signatureForProjection(param.type)
+                    }
+                    punctuation(")")
+                    breakLine()
+                }
                 f.visibility[sourceSet]?.takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
                 if (f.isExpectActual) keyword(if (sourceSet == f.expectPresentInSet) "expect " else "actual ")
                 if (f.isConstructor) {
@@ -487,17 +514,31 @@ public class KotlinSignatureProvider(
                 operator(": ")
             }
             annotationsInline(type)
+
+            val contextParametersCount = @OptIn(ExperimentalDokkaApi::class) type.contextParametersCount
+            if (contextParametersCount > 0) {
+                keyword("context")
+                punctuation("(")
+                val contextParameters = type.projections.take(contextParametersCount)
+                @OptIn(ExperimentalDokkaApi::class) contextParameters.forEachIndexed { i, contextParam ->
+                    if(i != 0) punctuation(", ")
+                    signatureForProjection(contextParam)
+                }
+                punctuation(") ")
+            }
             if (type.isSuspendable) keyword("suspend ")
 
+            val projectionsWithoutContextParameters = type.projections.drop(contextParametersCount)
+
             if (type.isExtensionFunction) {
-                signatureForProjection(type.projections.first())
+                signatureForProjection(projectionsWithoutContextParameters.first())
                 punctuation(".")
             }
 
             val args = if (type.isExtensionFunction)
-                type.projections.drop(1)
+                projectionsWithoutContextParameters.drop(1)
             else
-                type.projections
+                projectionsWithoutContextParameters
 
             punctuation("(")
             if(args.isEmpty()) {

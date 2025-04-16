@@ -342,6 +342,9 @@ public final class org/jetbrains/dokka/DokkaVersion {
 	public final fun getVersion ()Ljava/lang/String;
 }
 
+public abstract interface annotation class org/jetbrains/dokka/ExperimentalDokkaApi : java/lang/annotation/Annotation {
+}
+
 public final class org/jetbrains/dokka/ExternalDocumentationLinkImpl : org/jetbrains/dokka/DokkaConfiguration$ExternalDocumentationLink {
 	public fun <init> (Ljava/net/URL;Ljava/net/URL;)V
 	public final fun component1 ()Ljava/net/URL;
@@ -468,14 +471,20 @@ public final class org/jetbrains/dokka/generation/GracefulGenerationExit : java/
 
 public final class org/jetbrains/dokka/links/Callable {
 	public static final field Companion Lorg/jetbrains/dokka/links/Callable$Companion;
-	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;)V
 	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Lorg/jetbrains/dokka/links/TypeReference;
 	public final fun component3 ()Ljava/util/List;
-	public final fun copy (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;)Lorg/jetbrains/dokka/links/Callable;
+	public final fun component4 ()Ljava/util/List;
+	public final synthetic fun copy (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;)Lorg/jetbrains/dokka/links/Callable;
+	public final fun copy (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/links/Callable;
 	public static synthetic fun copy$default (Lorg/jetbrains/dokka/links/Callable;Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/links/Callable;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/links/Callable;Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/links/Callable;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContextParameters ()Ljava/util/List;
 	public final fun getName ()Ljava/lang/String;
 	public final fun getParams ()Ljava/util/List;
 	public final fun getReceiver ()Lorg/jetbrains/dokka/links/TypeReference;
@@ -577,6 +586,17 @@ public final class org/jetbrains/dokka/links/PointingToCallableParameters : org/
 	public final fun component1 ()I
 	public final fun copy (I)Lorg/jetbrains/dokka/links/PointingToCallableParameters;
 	public static synthetic fun copy$default (Lorg/jetbrains/dokka/links/PointingToCallableParameters;IILjava/lang/Object;)Lorg/jetbrains/dokka/links/PointingToCallableParameters;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getParameterIndex ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/links/PointingToContextParameters : org/jetbrains/dokka/links/DriTarget {
+	public fun <init> (I)V
+	public final fun component1 ()I
+	public final fun copy (I)Lorg/jetbrains/dokka/links/PointingToContextParameters;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/links/PointingToContextParameters;IILjava/lang/Object;)Lorg/jetbrains/dokka/links/PointingToContextParameters;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getParameterIndex ()I
 	public fun hashCode ()I
@@ -799,7 +819,7 @@ public final class org/jetbrains/dokka/model/BooleanValue : org/jetbrains/dokka/
 public abstract class org/jetbrains/dokka/model/Bound : org/jetbrains/dokka/model/Projection {
 }
 
-public abstract interface class org/jetbrains/dokka/model/Callable : org/jetbrains/dokka/model/WithAbstraction, org/jetbrains/dokka/model/WithIsExpectActual, org/jetbrains/dokka/model/WithSources, org/jetbrains/dokka/model/WithType, org/jetbrains/dokka/model/WithVisibility {
+public abstract interface class org/jetbrains/dokka/model/Callable : org/jetbrains/dokka/model/WithAbstraction, org/jetbrains/dokka/model/WithContextParameters, org/jetbrains/dokka/model/WithIsExpectActual, org/jetbrains/dokka/model/WithSources, org/jetbrains/dokka/model/WithType, org/jetbrains/dokka/model/WithVisibility {
 	public abstract fun getReceiver ()Lorg/jetbrains/dokka/model/DParameter;
 }
 
@@ -1058,8 +1078,10 @@ public final class org/jetbrains/dokka/model/DEnumEntry : org/jetbrains/dokka/mo
 }
 
 public final class org/jetbrains/dokka/model/DFunction : org/jetbrains/dokka/model/Documentable, org/jetbrains/dokka/model/Callable, org/jetbrains/dokka/model/WithGenerics, org/jetbrains/dokka/model/properties/WithExtraProperties {
-	public fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;ZLjava/util/List;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Ljava/util/List;Lorg/jetbrains/dokka/model/DParameter;Ljava/util/Map;Ljava/util/Set;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;ZLjava/util/List;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Ljava/util/List;Lorg/jetbrains/dokka/model/DParameter;Ljava/util/Map;Ljava/util/Set;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;)V
 	public synthetic fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;ZLjava/util/List;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Ljava/util/List;Lorg/jetbrains/dokka/model/DParameter;Ljava/util/Map;Ljava/util/Set;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;ZLjava/util/List;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Ljava/util/List;Lorg/jetbrains/dokka/model/DParameter;Ljava/util/Map;Ljava/util/Set;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;Ljava/util/List;)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;ZLjava/util/List;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Ljava/util/List;Lorg/jetbrains/dokka/model/DParameter;Ljava/util/Map;Ljava/util/Set;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lorg/jetbrains/dokka/links/DRI;
 	public final fun component10 ()Ljava/util/List;
 	public final fun component11 ()Lorg/jetbrains/dokka/model/DParameter;
@@ -1067,6 +1089,7 @@ public final class org/jetbrains/dokka/model/DFunction : org/jetbrains/dokka/mod
 	public final fun component13 ()Ljava/util/Set;
 	public final fun component14 ()Z
 	public final fun component15 ()Lorg/jetbrains/dokka/model/properties/PropertyContainer;
+	public final fun component16 ()Ljava/util/List;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Z
 	public final fun component4 ()Ljava/util/List;
@@ -1075,10 +1098,13 @@ public final class org/jetbrains/dokka/model/DFunction : org/jetbrains/dokka/mod
 	public final fun component7 ()Ljava/util/Map;
 	public final fun component8 ()Ljava/util/Map;
 	public final fun component9 ()Lorg/jetbrains/dokka/model/Bound;
-	public final fun copy (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;ZLjava/util/List;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Ljava/util/List;Lorg/jetbrains/dokka/model/DParameter;Ljava/util/Map;Ljava/util/Set;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/DFunction;
+	public final synthetic fun copy (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;ZLjava/util/List;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Ljava/util/List;Lorg/jetbrains/dokka/model/DParameter;Ljava/util/Map;Ljava/util/Set;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/DFunction;
+	public final fun copy (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;ZLjava/util/List;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Ljava/util/List;Lorg/jetbrains/dokka/model/DParameter;Ljava/util/Map;Ljava/util/Set;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;Ljava/util/List;)Lorg/jetbrains/dokka/model/DFunction;
 	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;ZLjava/util/List;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Ljava/util/List;Lorg/jetbrains/dokka/model/DParameter;Ljava/util/Map;Ljava/util/Set;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/DFunction;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;ZLjava/util/List;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Ljava/util/List;Lorg/jetbrains/dokka/model/DParameter;Ljava/util/Map;Ljava/util/Set;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/DFunction;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getChildren ()Ljava/util/List;
+	public fun getContextParameters ()Ljava/util/List;
 	public fun getDocumentation ()Ljava/util/Map;
 	public fun getDri ()Lorg/jetbrains/dokka/links/DRI;
 	public fun getExpectPresentInSet ()Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;
@@ -1271,8 +1297,10 @@ public final class org/jetbrains/dokka/model/DParameter : org/jetbrains/dokka/mo
 }
 
 public final class org/jetbrains/dokka/model/DProperty : org/jetbrains/dokka/model/Documentable, org/jetbrains/dokka/model/Callable, org/jetbrains/dokka/model/WithGenerics, org/jetbrains/dokka/model/properties/WithExtraProperties {
-	public fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/DParameter;Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/model/DFunction;Ljava/util/Map;Ljava/util/Set;Ljava/util/List;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/DParameter;Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/model/DFunction;Ljava/util/Map;Ljava/util/Set;Ljava/util/List;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;)V
 	public synthetic fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/DParameter;Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/model/DFunction;Ljava/util/Map;Ljava/util/Set;Ljava/util/List;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/DParameter;Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/model/DFunction;Ljava/util/Map;Ljava/util/Set;Ljava/util/List;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;Ljava/util/List;)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/DParameter;Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/model/DFunction;Ljava/util/Map;Ljava/util/Set;Ljava/util/List;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lorg/jetbrains/dokka/links/DRI;
 	public final fun component10 ()Lorg/jetbrains/dokka/model/DFunction;
 	public final fun component11 ()Ljava/util/Map;
@@ -1280,6 +1308,7 @@ public final class org/jetbrains/dokka/model/DProperty : org/jetbrains/dokka/mod
 	public final fun component13 ()Ljava/util/List;
 	public final fun component14 ()Z
 	public final fun component15 ()Lorg/jetbrains/dokka/model/properties/PropertyContainer;
+	public final fun component16 ()Ljava/util/List;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/util/Map;
 	public final fun component4 ()Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;
@@ -1288,10 +1317,13 @@ public final class org/jetbrains/dokka/model/DProperty : org/jetbrains/dokka/mod
 	public final fun component7 ()Lorg/jetbrains/dokka/model/Bound;
 	public final fun component8 ()Lorg/jetbrains/dokka/model/DParameter;
 	public final fun component9 ()Lorg/jetbrains/dokka/model/DFunction;
-	public final fun copy (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/DParameter;Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/model/DFunction;Ljava/util/Map;Ljava/util/Set;Ljava/util/List;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/DProperty;
+	public final synthetic fun copy (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/DParameter;Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/model/DFunction;Ljava/util/Map;Ljava/util/Set;Ljava/util/List;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/DProperty;
+	public final fun copy (Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/DParameter;Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/model/DFunction;Ljava/util/Map;Ljava/util/Set;Ljava/util/List;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;Ljava/util/List;)Lorg/jetbrains/dokka/model/DProperty;
 	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/DProperty;Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/DParameter;Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/model/DFunction;Ljava/util/Map;Ljava/util/Set;Ljava/util/List;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/DProperty;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/DProperty;Lorg/jetbrains/dokka/links/DRI;Ljava/lang/String;Ljava/util/Map;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Ljava/util/Map;Ljava/util/Map;Lorg/jetbrains/dokka/model/Bound;Lorg/jetbrains/dokka/model/DParameter;Lorg/jetbrains/dokka/model/DFunction;Lorg/jetbrains/dokka/model/DFunction;Ljava/util/Map;Ljava/util/Set;Ljava/util/List;ZLorg/jetbrains/dokka/model/properties/PropertyContainer;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/DProperty;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getChildren ()Ljava/util/List;
+	public fun getContextParameters ()Ljava/util/List;
 	public fun getDocumentation ()Ljava/util/Map;
 	public fun getDri ()Lorg/jetbrains/dokka/links/DRI;
 	public fun getExpectPresentInSet ()Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;
@@ -1654,7 +1686,9 @@ public final class org/jetbrains/dokka/model/FloatValue : org/jetbrains/dokka/mo
 }
 
 public final class org/jetbrains/dokka/model/FunctionalTypeConstructor : org/jetbrains/dokka/model/TypeConstructor, org/jetbrains/dokka/model/properties/WithExtraProperties {
-	public fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;ZZLjava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;ZZLjava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)V
+	public fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;ZZLjava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;I)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;ZZLjava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;ZZLjava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lorg/jetbrains/dokka/links/DRI;
 	public final fun component2 ()Ljava/util/List;
@@ -1662,9 +1696,13 @@ public final class org/jetbrains/dokka/model/FunctionalTypeConstructor : org/jet
 	public final fun component4 ()Z
 	public final fun component5 ()Ljava/lang/String;
 	public final fun component6 ()Lorg/jetbrains/dokka/model/properties/PropertyContainer;
-	public final fun copy (Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;ZZLjava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/FunctionalTypeConstructor;
+	public final fun component7 ()I
+	public final synthetic fun copy (Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;ZZLjava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/FunctionalTypeConstructor;
+	public final fun copy (Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;ZZLjava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;I)Lorg/jetbrains/dokka/model/FunctionalTypeConstructor;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/FunctionalTypeConstructor;Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;ZZLjava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;IILjava/lang/Object;)Lorg/jetbrains/dokka/model/FunctionalTypeConstructor;
 	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/FunctionalTypeConstructor;Lorg/jetbrains/dokka/links/DRI;Ljava/util/List;ZZLjava/lang/String;Lorg/jetbrains/dokka/model/properties/PropertyContainer;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/FunctionalTypeConstructor;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContextParametersCount ()I
 	public fun getDri ()Lorg/jetbrains/dokka/links/DRI;
 	public fun getExtra ()Lorg/jetbrains/dokka/model/properties/PropertyContainer;
 	public fun getPresentableName ()Ljava/lang/String;
@@ -2128,6 +2166,10 @@ public abstract interface class org/jetbrains/dokka/model/WithCompanion {
 
 public abstract interface class org/jetbrains/dokka/model/WithConstructors {
 	public abstract fun getConstructors ()Ljava/util/List;
+}
+
+public abstract interface class org/jetbrains/dokka/model/WithContextParameters {
+	public abstract fun getContextParameters ()Ljava/util/List;
 }
 
 public abstract interface class org/jetbrains/dokka/model/WithGenerics {
