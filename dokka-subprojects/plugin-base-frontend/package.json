@@ -20,7 +20,7 @@
     "build:analyze": "webpack --mode=production --devtool source-map --env analyze=true",
     "build:search:watch": "webpack --mode=development --watch",
     "lint": "eslint . && npm run stylelint",
-    "lint:fix": "eslint --fix --ext src/**/*.{ts,tsx,css,scss}",
+    "lint:fix": "eslint --fix --ext src/**/*.{ts,tsx,scss}",
     "prettier": "prettier --write 'src/**/*.{ts,tsx,css,scss}'",
     "stylelint": "stylelint --ignore-path .gitignore ./src/main/**/**/*.scss",
     "prepare": "husky"
