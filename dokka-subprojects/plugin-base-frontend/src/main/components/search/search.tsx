@@ -29,7 +29,7 @@ const WithFuzzySearchFilterComponent: React.FC<Props> = ({ data }: Props) => {
         <DokkaFuzzyFilterComponent
           id="pages-search"
           selectedLabel="Search"
-          label="Please type page name"
+          label="Search"
           filter={true}
           type={Select.Type.CUSTOM}
           clear

@@ -39,7 +39,7 @@ document.addEventListener(DROPDOWN_TOGGLED_EVENT, (event) => {
 });
 
 function scrollActiveTocPartIntoView(): void {
-  const activePart = document.querySelector('.toc--part[data-active="true"]');
+  const activePart = document.querySelector('.toc--part[data-active="true"]')?.querySelector('.toc--link');
   if (activePart) {
     activePart.scrollIntoView({ block: 'center' });
   }
