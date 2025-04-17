@@ -99,9 +99,11 @@ function addKeyboardNavigation(dropdown: HTMLElement): void {
       (dropdown.querySelector(DROPDOWN_TOGGLE) as HTMLElement)?.focus();
     }
   });
-  const dropdownOptions = dropdown.querySelectorAll('.dropdown--option');
-  dropdownOptions.forEach((option: Element) => {
-    option.addEventListener('keydown', preventScrollBySpaceKey);
+  dropdown.addEventListener('keydown', (event) => {
+    const target = event.target as HTMLElement | null;
+    if (target?.matches('.dropdown--option')) {
+      preventScrollBySpaceKey(event);
+    }
   });
 }
 

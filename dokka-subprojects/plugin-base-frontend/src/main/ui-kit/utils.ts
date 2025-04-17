@@ -40,7 +40,8 @@ export function isFocusableElement(element: HTMLElement): boolean {
     return false;
   }
   while (currentElement) {
-    if (currentElement.style.display === 'none' || getComputedStyle(currentElement).display === 'none') {
+    const computedStyle = getComputedStyle(currentElement);
+    if (computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
       return false;
     }
     currentElement = currentElement.parentElement;

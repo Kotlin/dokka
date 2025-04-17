@@ -2272,6 +2272,11 @@ button.platform-tag:focus-visible {
   display: none;
 }
 
+@media (max-width: 899px) {
+  .toc--skip-link {
+    display: none;
+  }
+}
 .toc--part[data-nesting-level="0"] .toc--row > .toc--link:first-child {
   padding-left: 40px;
   padding-left: calc(40px + var(--size-m1) * 0);

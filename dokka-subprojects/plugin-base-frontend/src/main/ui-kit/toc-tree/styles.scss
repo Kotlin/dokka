@@ -177,6 +177,10 @@
     .toc--part_hidden > .toc--row > .toc--button ~ & {
       display: none;
     }
+
+    @media (width < $breakpoint-desktop-min) {
+      display: none;
+    }
   }
 
   @for $i from 0 through 10 {
