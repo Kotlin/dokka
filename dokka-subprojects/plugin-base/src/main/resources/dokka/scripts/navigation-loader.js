@@ -45,6 +45,10 @@ const TOC_SKIP_LINK_CLASS = 'toc--skip-link';
     document.querySelectorAll(`.${TOC_PART_CLASS}`).forEach((tocPart) => {
       if (!tocPart.classList.contains(TOC_PART_HIDDEN_CLASS)) {
         tocPart.classList.add(TOC_PART_HIDDEN_CLASS);
+        const tocToggleButton = tocPart.querySelector('button');
+        if (tocToggleButton) {
+          tocToggleButton.setAttribute("aria-expanded", "false");
+        }
       }
     });
   }
@@ -82,6 +86,10 @@ const TOC_SKIP_LINK_CLASS = 'toc--skip-link';
   const expandTocPart = (tocPart) => {
     if (tocPart.classList.contains(TOC_PART_HIDDEN_CLASS)) {
       tocPart.classList.remove(TOC_PART_HIDDEN_CLASS);
+      const tocToggleButton = tocPart.querySelector('button');
+      if (tocToggleButton) {
+        tocToggleButton.setAttribute("aria-expanded", "true");
+      }
       const tocPartId = tocPart.getAttribute('id');
       safeLocalStorage.setItem(`${TOC_STATE_KEY_PREFIX}${tocPartId}`, 'true');
     }
@@ -100,6 +108,10 @@ const TOC_SKIP_LINK_CLASS = 'toc--skip-link';
       const tocPart = document.querySelector(`.toc--part[id="${tocPartId}"]`);
       if (tocPart !== null && isExpandedTOCPart) {
         tocPart.classList.remove(TOC_PART_HIDDEN_CLASS);
+        const tocToggleButton = tocPart.querySelector('button');
+        if (tocToggleButton) {
+          tocToggleButton.setAttribute("aria-expanded", "true");
+        }
       }
     });
   };
@@ -143,11 +155,13 @@ const TOC_SKIP_LINK_CLASS = 'toc--skip-link';
 })();
 
 function handleTocButtonClick(event, navId) {
-  const button = document.getElementById(navId);
-  if (!button) {
+  const tocPart = document.getElementById(navId);
+  if (!tocPart) {
     return;
   }
-  button.classList.toggle(TOC_PART_HIDDEN_CLASS);
-  const isExpandedTOCPart = !button.classList.contains(TOC_PART_HIDDEN_CLASS);
+  tocPart.classList.toggle(TOC_PART_HIDDEN_CLASS);
+  const isExpandedTOCPart = !tocPart.classList.contains(TOC_PART_HIDDEN_CLASS);
+  const button = tocPart.querySelector('button');
+  button?.setAttribute("aria-expanded", `${isExpandedTOCPart}`);
   safeLocalStorage.setItem(`${TOC_STATE_KEY_PREFIX}${navId}`, `${isExpandedTOCPart}`);
 }

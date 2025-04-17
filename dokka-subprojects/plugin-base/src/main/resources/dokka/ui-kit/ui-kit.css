@@ -690,6 +690,7 @@
   justify-content: flex-end;
   margin-right: 12px;
   max-height: 40px;
+  position: static;
   z-index: 1;
 }
 

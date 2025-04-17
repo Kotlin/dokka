@@ -2,7 +2,7 @@
 <#import "includes/header.ftl" as header>
 <#import "includes/footer.ftl" as footer>
 <!DOCTYPE html>
-<html class="no-js">
+<html class="no-js" lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <@page_metadata.display/>
@@ -32,8 +32,8 @@
 <div class="root">
     <@header.display/>
     <div id="container">
-        <div id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
-            <a class="toc--skip-link" href="#main">Skip to main content</a>
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
             <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
                 <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
                     data-role="dropdown-listbox" aria-label="Table of contents">
@@ -51,9 +51,9 @@
                 </ul>
                 <div class="dropdown--overlay"></div>
             </div>
-        </div>
+        </nav>
         <div id="resizer" class="resizer" data-item-type="BAR"></div>
-        <div id="main" data-item-type="SECTION">
+        <div id="main" data-item-type="SECTION" role="main">
             <@content/>
             <@footer.display/>
         </div>

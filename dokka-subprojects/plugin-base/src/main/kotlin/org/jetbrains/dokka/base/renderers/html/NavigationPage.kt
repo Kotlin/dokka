@@ -54,6 +54,8 @@ public class NavigationPage(
                 div("toc--row") {
                     if (node.children.isNotEmpty()) {
                         button(classes = "toc--button") {
+                            attributes["aria-expanded"] = "false"
+                            attributes["aria-label"] = node.name
                             onClick = """window.handleTocButtonClick(event, '$navId')"""
                         }
                     }
@@ -78,7 +80,7 @@ public class NavigationPage(
                         a {
                             attributes["class"] = "toc--skip-link"
                             attributes["href"] = ""
-                            text("Skip to main content")
+                            text("Skip to content")
                         }
                     }
                 }
