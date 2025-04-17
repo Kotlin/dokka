@@ -93,3 +93,12 @@ To learn more about using Dokka with Maven, see [Maven](dokka-maven.md).
 
 </tab>
 </tabs>
+
+> In Dokka 2.0.0, some steps and tasks for getting started have been updated. You can see these and
+> more changes in the [Migration guide](dokka-migration.md):
+>
+> * [Configure multi-project builds](dokka-migration.md#share-dokka-configuration-across-modules)
+> * [Generate documentation with the updated tasks](dokka-migration.md#generate-documentation-with-the-updated-task)
+> * [Specify an output directory](dokka-migration.md#output-directory)
+> 
+{style="note"}
