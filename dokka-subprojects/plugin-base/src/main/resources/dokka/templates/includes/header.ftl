@@ -1,6 +1,6 @@
 <#import "source_set_selector.ftl" as source_set_selector>
 <#macro display>
-    <nav class="navigation theme-dark" id="navigation-wrapper">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
         <@template_cmd name="pathToRoot">
             <a class="library-name--link" href="${pathToRoot}index.html" tabindex="1">
                 <@template_cmd name="projectName">
@@ -29,5 +29,5 @@
                 API
             </div>
         </div>
-    </nav>
+    </header>
 </#macro>
