@@ -83,13 +83,17 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
 
   border: 1px solid hsla(0deg, 0%, 100%, 0.2) !important;
 
-  background-color: #27282c !important;
+  background-color: #262628 !important;
 
   @media (width < $breakpoint-desktop-min) {
-    top: 41px !important;
+    top: -1px !important;
     right: -1px !important;
     bottom: -1px !important;
     left: -1px !important;
+
+    overflow-y: hidden !important;
+
+    margin-top: 0;
   }
 
   [class^='filterWrapper'] {
@@ -126,7 +130,7 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
 
   button[data-test='ring-input-clear'] {
     top: 0;
-    right: 0;
+    right: 40px;
 
     padding: 10px 9px;
 
@@ -137,6 +141,10 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
     border-radius: 0;
 
     line-height: 21px;
+
+    @media (width < $breakpoint-desktop-min) {
+      right: 50px;
+    }
 
     &:focus-visible {
       outline: var(--focus-outline);
@@ -169,6 +177,22 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
 
   .search-hotkey-popup {
     display: none;
+  }
+}
+
+.search--close-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  width: 40px;
+  height: 40px;
+
+  border-radius: 0 !important;
+
+  @media (width < $breakpoint-desktop-min) {
+    width: 50px;
+    height: 50px !important;
   }
 }
 

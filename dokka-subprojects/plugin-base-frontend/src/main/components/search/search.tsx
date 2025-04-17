@@ -23,6 +23,11 @@ const WithFuzzySearchFilterComponent: React.FC<Props> = ({ data }: Props) => {
     onSelected(maybeOption);
   }, []);
 
+  useEffect(() => {
+    addCloseSearchPopupButtonEventListener();
+    return removeCloseSearchPopupButtonEventListener;
+  }, []);
+
   return (
     <div className="search-container">
       <div className="search">
@@ -43,6 +48,8 @@ const WithFuzzySearchFilterComponent: React.FC<Props> = ({ data }: Props) => {
           customAnchor={({ wrapperProps, buttonProps, popup }: CustomAnchorProps) => (
             <DokkaSearchAnchor wrapperProps={wrapperProps} buttonProps={buttonProps} popup={popup} />
           )}
+          onOpen={onSearchPopupOpen}
+          onClose={onSearchPopupClose}
         />
       </div>
     </div>
@@ -78,3 +85,34 @@ export const WithFuzzySearchFilter = () => {
 
   return <WithFuzzySearchFilterComponent data={navigationList} />;
 };
+
+function addCloseSearchPopupButtonEventListener() {
+  document.addEventListener('click', handleCloseSearchPopupButtonClick, true);
+}
+
+function removeCloseSearchPopupButtonEventListener() {
+  document.removeEventListener('click', handleCloseSearchPopupButtonClick, true);
+}
+
+function handleCloseSearchPopupButtonClick(event: Event) {
+  const target = event.target as HTMLElement;
+  if (target?.id === 'search-close-button') {
+    document.getElementById('pages-search')?.click();
+  }
+}
+
+function onSearchPopupOpen() {
+  const cleatButton = document.querySelector('[data-test="ring-input-clear"]');
+  if (cleatButton) {
+    const closeButton = document.createElement('button');
+    closeButton.id = 'search-close-button';
+    closeButton.className = 'button button_dropdown button_dropdown_active search--close-button';
+    closeButton.setAttribute('aria-label', 'Close search popup');
+    cleatButton.after(closeButton);
+  }
+  document.body.style.overflow = 'hidden';
+}
+
+function onSearchPopupClose() {
+  document.body.style.overflow = '';
+}
