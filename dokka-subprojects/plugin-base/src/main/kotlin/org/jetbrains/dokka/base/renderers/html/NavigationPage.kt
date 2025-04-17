@@ -54,7 +54,9 @@ public class NavigationPage(
                 div("toc--row") {
                     if (node.children.isNotEmpty()) {
                         button(classes = "toc--button") {
-                            onClick = """document.getElementById("$navId").classList.toggle("toc--part_hidden");"""
+                            attributes["aria-expanded"] = "false"
+                            attributes["aria-label"] = node.name
+                            onClick = """window.handleTocButtonClick(event, '$navId')"""
                         }
                     }
                     buildLink(node.dri, node.sourceSets.toList()) {
@@ -72,6 +74,13 @@ public class NavigationPage(
                             }
                         } else {
                             nodeText(node)
+                        }
+                    }
+                    if (node.children.isNotEmpty()) {
+                        a {
+                            attributes["class"] = "toc--skip-link"
+                            attributes["href"] = ""
+                            text("Skip to content")
                         }
                     }
                 }
