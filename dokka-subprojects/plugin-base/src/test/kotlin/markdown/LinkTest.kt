@@ -14,8 +14,10 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.MemberPageNode
+import org.junit.jupiter.api.Nested
 import utils.OnlyDescriptors
 import utils.OnlySymbols
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -1170,6 +1172,319 @@ class LinkTest : BaseAbstractTest() {
         }
     }
 
+    /**
+     * Tests according to Streamline KDoc ambiguity links: https://github.com/Kotlin/KEEP/issues/389
+     * The rest cases are covered the tests above, e.g. `fully qualified link should lead to package`
+     */
+    @Nested
+    @Ignore
+    inner class AmbiguousKDocLink : BaseAbstractTest() {
+
+        @Test
+        fun `constructorBlockTag`() {
+            testInline(
+                """
+            /src/main/kotlin/Testing.kt
+            /**
+             * [AA] - to the class, [abc] - to the property
+             * @constructor [AA] - to the constructor, [abc] - to the parameter
+             */
+            class AA(var abc: String)
+        """.trimMargin(),
+                configuration
+            ) {
+                documentablesMergingStage = { module ->
+
+                    val DRItoConstructor = DRI(
+                        "",
+                        classNames = "AA",
+                        callable = Callable(
+                            name = "AA",
+                            receiver = null,
+                            params = listOf(TypeConstructor("kotlin.String", emptyList()))
+                        )
+                    )
+
+                    val DRItoClass = DRI(
+                        "",
+                        classNames = "AA",
+                        callable = null
+                    )
+                    val DRItoProperty = DRI(
+                        "",
+                        classNames = "AA",
+                        callable = Callable(
+                            name = "abc",
+                            receiver = null,
+                            params = emptyList()
+                        )
+                    )
+
+                    val DRItoParam = DRItoConstructor.copy(target = PointingToCallableParameters(0))
+
+                    val actuals = module.getAllLinkDRIFrom("AA")
+                    assertEquals(
+                        listOf(
+                            "AA" to DRItoClass,
+                            "abc" to DRItoProperty,
+                            "AA" to DRItoConstructor,
+                            "abc" to DRItoParam,
+                        ),
+                        actuals
+                    )
+                }
+            }
+        }
+
+        @Test
+        fun `prioritiesWithSameNames`() {
+            testInline(
+                """
+            /src/main/kotlin/Testing.kt
+            /**
+             * [Abc] to the class
+             *
+             * @constructor [Abc] - to the constructor
+             * @param Abc [Abc] - to the parameter
+             * @property Abc [Abc] - to the property
+             */
+            class Abc(var Abc: String)
+        """.trimMargin(),
+                configuration
+            ) {
+                documentablesMergingStage = { module ->
+
+                    val DRItoConstructor = DRI(
+                        "",
+                        classNames = "Abc",
+                        callable = Callable(
+                            name = "Abc",
+                            receiver = null,
+                            params = listOf(TypeConstructor("kotlin.String", emptyList()))
+                        )
+                    )
+
+                    val DRItoClass = DRI(
+                        "",
+                        classNames = "Abc",
+                        callable = null
+                    )
+                    val DRItoProperty = DRI(
+                        "",
+                        classNames = "Abc",
+                        callable = Callable(
+                            name = "Abc",
+                            receiver = null,
+                            params = emptyList()
+                        )
+                    )
+
+                    val DRItoParam = DRItoConstructor.copy(target = PointingToCallableParameters(0))
+
+                    val actuals = module.getAllLinkDRIFrom("AA")
+                    assertEquals(
+                        listOf(
+                            "Abc" to DRItoClass,
+                            "Abc" to DRItoConstructor,
+                            "Abc" to DRItoParam,
+                            "Abc" to DRItoProperty,
+                        ),
+                        actuals
+                    )
+                }
+            }
+        }
+
+        @Test
+        fun `paramBlockOnFunction`() {
+            testInline(
+                """
+            /src/main/kotlin/Testing.kt
+            /**
+             * [abc] - to the function
+             * @param abc [abc] - to the parameter
+             */
+            fun abc(abc: Int) {}
+        """.trimMargin(),
+                configuration
+            ) {
+                documentablesMergingStage = { module ->
+
+                    val DRItoFunction = DRI(
+                        "",
+                        classNames = "",
+                        callable = Callable(
+                            name = "abc",
+                            receiver = null,
+                            params = listOf(TypeConstructor("kotlin.Int", emptyList()))
+                        )
+                    )
+                    val DRItoParam = DRItoFunction.copy(target = PointingToCallableParameters(0))
+
+                    val actuals = module.getAllLinkDRIFrom("abc")
+                    assertEquals(
+                        listOf(
+                            "abc" to DRItoFunction,
+                            "abc" to DRItoParam,
+                        ),
+                        actuals
+                    )
+                }
+            }
+        }
+
+
+        @Test
+        fun `factoryFunction`() {
+            testInline(
+                """
+            /src/main/kotlin/Testing.kt
+            /** [AA] - to class A */
+            class AA
+            /** [AA] - to fun A(a: Int) */
+            fun AA(a: Int) {}
+            
+            /*
+             * [AA] - to the class A
+             * since the priority of a class is higher than the prioritiy of a function
+             */
+             fun usage() = 0
+        """.trimMargin(),
+                configuration
+            ) {
+                documentablesMergingStage = { module ->
+
+                    val DRItoFunction = DRI(
+                        "",
+                        classNames = "",
+                        callable = Callable(
+                            name = "AA",
+                            receiver = null,
+                            params = listOf(TypeConstructor("kotlin.Int", emptyList()))
+                        )
+                    )
+                    val DRItoClass = DRI(
+                        "",
+                        classNames = "AA",
+                        callable = null
+                    )
+                    val actuals = module.getAllLinkDRI()
+                    assertEquals(
+                        listOf(
+                            "AA" to DRItoClass,
+                            "AA" to DRItoFunction,
+                            "AA" to DRItoClass
+                        ),
+                        actuals
+                    )
+                }
+            }
+        }
+
+        @Test
+        fun `overloadFunctions`() {
+            testInline(
+                """
+            /src/main/kotlin/Testing.kt
+            /** [cc] - to fun cc(a: String) */
+            fun cc(a: String) = 0
+            /** [cc] - to fun cc() */
+            fun cc() = 0
+            
+            /** [cc] - to fun cc(a: String) */
+            fun usage() = 0
+        """.trimMargin(),
+                configuration
+            ) {
+                documentablesMergingStage = { module ->
+
+                    val DRItoFunctionWithStringParam = DRI(
+                        "",
+                        classNames = "",
+                        callable = Callable(
+                            name = "сс",
+                            receiver = null,
+                            params = listOf(TypeConstructor("kotlin.String", emptyList()))
+                        )
+                    )
+                    val DRItoFunction = DRI(
+                        "",
+                        classNames = "",
+                        callable = Callable(
+                            name = "сс",
+                            receiver = null,
+                            params = emptyList()
+                        )
+                    )
+                    val actuals = module.getAllLinkDRI()
+                    assertEquals(
+                        listOf(
+                            "cc" to DRItoFunctionWithStringParam,
+                            "cc" to DRItoFunction,
+                            "cc" to DRItoFunctionWithStringParam
+                        ),
+                        actuals
+                    )
+                }
+            }
+        }
+
+        @Test
+        fun `nestedClass`() {
+            testInline(
+                """
+            /src/main/kotlin/Testing.kt
+            /**
+             * [AA] - to the top-level class AA
+             * [AA.AA] - to the nested class AA
+             */
+            class AA {
+                /** [AA] - to the nested class AA */
+                class AA
+                /** [AA] - to fun AA(p: Int) */
+                fun AA(p: Int) {
+                }
+            }
+        """.trimMargin(),
+                configuration
+            ) {
+                documentablesMergingStage = { module ->
+                    val DRItoTopLevelClass = DRI(
+                        "",
+                        classNames = "AA",
+                        callable = null
+                    )
+                    val DRItoNestedClass = DRI(
+                        "",
+                        classNames = "AA.AA",
+                        callable = null
+                    )
+                    val DRItoFunction = DRI(
+                        "",
+                        classNames = "AA",
+                        callable = Callable(
+                            name = "AA",
+                            receiver = null,
+                            params = listOf(TypeConstructor("kotlin.Int", emptyList()))
+                        )
+                    )
+                    val actuals = module.getAllLinkDRI()
+                    assertEquals(
+                        listOf(
+                            "AA" to DRItoTopLevelClass,
+                            "AA.AA" to DRItoNestedClass,
+                            "AA" to DRItoNestedClass,
+                            "AA" to DRItoFunction,
+                        ),
+                        actuals
+                    )
+                }
+            }
+        }
+
+    }
+
+
     private fun DModule.getLinkDRIFrom(name: String): DRI? {
         val doc = this.dfs { it.name == name }?.documentation?.values?.single()
             ?: throw IllegalStateException("Can't find documentation for declaration '$name'")
@@ -1181,6 +1496,18 @@ class LinkTest : BaseAbstractTest() {
         val result = mutableListOf<Pair<String, DRI>>()
         this.dfs { it.name == name }?.documentation?.values?.single()?.dfs {
             if (it is DocumentationLink) result.add(it.firstChildOfType<Text>().body to it.dri)
+            false
+        }
+        return result
+    }
+
+    private fun DModule.getAllLinkDRI(): List<Pair<String, DRI>> {
+        val result = mutableListOf<Pair<String, DRI>>()
+        this.dfs {
+            it.documentation.values.singleOrNull()?.dfs {
+                if (it is DocumentationLink) result.add(it.firstChildOfType<Text>().body to it.dri)
+                false
+            }
             false
         }
         return result
