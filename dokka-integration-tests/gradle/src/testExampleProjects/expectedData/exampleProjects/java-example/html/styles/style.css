@@ -273,7 +273,7 @@ p.paragraph:first-child,
 }
 
 .divergent-group {
-    background-color: var(--background-color);
+    background-color: var(--color-background);
     padding: 16px 0 8px 0;
     margin-bottom: 2px;
 }
@@ -479,7 +479,7 @@ Just in case of possible performance degradation it excluding tabs with briefs o
     flex-direction: column;
     border-bottom: 1px solid var(--border-color);
     padding: 11px 0 12px 0;
-    background-color: var(--background-color);
+    background-color: var(--color-background);
 }
 
 .table-row:last-of-type {

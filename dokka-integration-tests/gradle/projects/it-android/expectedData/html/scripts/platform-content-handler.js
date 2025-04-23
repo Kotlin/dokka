@@ -246,14 +246,18 @@ function togglePlatformDependent(e, container) {
             for (let bm of child.children) {
                 if (bm === target) {
                     bm.setAttribute('data-active', "")
+                    bm.setAttribute('aria-pressed', "true")
                 } else if (bm !== target) {
                     bm.removeAttribute('data-active')
+                    bm.removeAttribute('aria-pressed')
                 }
             }
         } else if (child.getAttribute('data-togglable') === index) {
             child.setAttribute('data-active', "")
+            child.setAttribute('aria-pressed', "true")
         } else {
             child.removeAttribute('data-active')
+            child.removeAttribute('aria-pressed')
         }
     }
 }
@@ -331,12 +335,20 @@ function refreshFilterButtons() {
         .forEach(f => {
             if (filteringContext.activeFilters.indexOf(f.getAttribute("data-filter")) !== -1) {
                 f.setAttribute("data-active", "")
+                f.setAttribute("aria-pressed", "true")
             } else {
                 f.removeAttribute("data-active")
+                f.removeAttribute("aria-pressed")
             }
         })
     document.querySelectorAll("#filter-section .checkbox--input")
         .forEach(f => {
-            f.checked = filteringContext.activeFilters.indexOf(f.getAttribute("data-filter")) !== -1;
+            const isChecked = filteringContext.activeFilters.indexOf(f.getAttribute("data-filter")) !== -1
+            f.checked = isChecked;
+            if (isChecked) {
+                f.setAttribute("aria-pressed", "true")
+            } else {
+                f.removeAttribute("aria-pressed");
+            }
         })
 }
