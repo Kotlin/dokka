@@ -148,10 +148,19 @@ const TOC_SKIP_LINK_CLASS = 'toc--skip-link';
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  /*
+    This is a work-around for safari being IE of our times.
+    It doesn't fire a DOMContentLoaded, presumably because eventListener is added after it wants to do it
+*/
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', () => {
+      displayToc();
+      initTocScrollListener();
+    })
+  } else {
     displayToc();
     initTocScrollListener();
-  });
+  }
 })();
 
 function handleTocButtonClick(event, navId) {
