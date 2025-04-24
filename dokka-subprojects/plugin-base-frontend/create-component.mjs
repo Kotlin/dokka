@@ -31,7 +31,7 @@ const componentScssFileContent = `/*!
 }
 `;
 
-const uiKitIndexTsFileContent = `import * as ${lowerCaseComponentNameCamelCase} from './${componentName}/index';
+const uiKitIndexTsFileContent = `export * as ${lowerCaseComponentNameCamelCase} from './${componentName}/index';
 `;
 
 fs.mkdir(componentPath, error => {
