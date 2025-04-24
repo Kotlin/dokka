@@ -119,10 +119,10 @@ public class DefaultTemplateModelFactory(
                             type = ScriptType.textJavaScript,
                             src = if (resource.isAbsolute) resource else "$pathToRoot$resource"
                         ) {
-                            if (resource == "scripts/main.js" || resource == "ui-kit/ui-kit.min.js" || resource.endsWith("_deferred.js"))
-                                defer = true
-                            else
-                                async = true
+                            when {
+                                resource == "scripts/main.js" || resource == "ui-kit/ui-kit.min.js" || resource.endsWith("_deferred.js") -> defer = true
+                                !resource.endsWith("_blocking.js") -> async = true
+                            }
                         }
 
                     resource.isImage() -> link(href = if (resource.isAbsolute) resource else "$pathToRoot$resource")

@@ -9,20 +9,29 @@ a {
 
 /** [data-name] - anchor links with no size **/
 .main-content a:not([data-name]) {
-  outline: none;
-  cursor: pointer;
-  font-style: normal;
-  font-size: inherit;
-  line-height: inherit;
-  transition: color 200ms, border-color 200ms;
-  overflow-wrap: break-word;
-  word-break: break-word;
   padding-bottom: 1px;
-  border-bottom: 1px solid var(--text-outline);
 
-  &, &:active, &:focus, &:hover {
-    color: var(--text-color);
+  cursor: pointer;
+  transition:
+    color 200ms,
+    border-color 200ms;
+  word-break: break-word;
+
+  border-bottom: 1px solid var(--text-outline);
+  outline: none;
+
+  font-size: inherit;
+  font-style: normal;
+  line-height: inherit;
+  overflow-wrap: break-word;
+
+  &,
+  &:active,
+  &:focus,
+  &:hover {
     text-decoration: none;
+
+    color: var(--text-color);
   }
 
   &:hover {
@@ -33,4 +42,3 @@ a {
     box-shadow: 0 0 0 4px var(--color-key-blue-50);
   }
 }
-

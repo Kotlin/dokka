@@ -30,6 +30,7 @@ object TestConstants {
         "styles/main.css",
         "styles/prism.css",
         "scripts/main.js",
+        "scripts/safe-local-storage_blocking.js",
         "scripts/navigation-loader.js",
         "scripts/platform-content-handler.js",
         "scripts/prism.js",

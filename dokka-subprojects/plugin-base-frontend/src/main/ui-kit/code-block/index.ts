@@ -32,7 +32,8 @@ function createNbspIndent() {
 function wrapSymbolParameters(entry: ResizeObserverEntry) {
   const symbol = entry.target;
   const symbolBlockWidth = entry.borderBoxSize && entry.borderBoxSize[0] && entry.borderBoxSize[0].inlineSize;
-  const sourceButtonWidth = symbol.querySelector('[data-element-type="source-link"]')?.getBoundingClientRect().width || 0;
+  const sourceButtonWidth =
+    symbol.querySelector('[data-element-type="source-link"]')?.getBoundingClientRect().width || 0;
 
   // Even though the script is marked as `defer` and we wait for `DOMContentLoaded` event,
   // or if this block is a part of hidden tab, it can happen that `symbolBlockWidth` is 0,
