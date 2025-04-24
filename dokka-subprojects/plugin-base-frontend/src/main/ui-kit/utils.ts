@@ -29,8 +29,24 @@ export function isMobile(): boolean {
   return window.innerWidth < TABLET_MIN_WIDTH;
 }
 
+/** Returns the current screen type: 'mobile', 'tablet' or 'desktop' */
 export function getScreenType(): ScreenType {
   return isMobile() ? 'mobile' : isTablet() ? 'tablet' : 'desktop';
+}
+
+export function isFocusableElement(element: HTMLElement): boolean {
+  let currentElement: HTMLElement | null = element;
+  if (currentElement.tabIndex === -1) {
+    return false;
+  }
+  while (currentElement) {
+    const computedStyle = getComputedStyle(currentElement);
+    if (computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
+      return false;
+    }
+    currentElement = currentElement.parentElement;
+  }
+  return true;
 }
 
 /**
