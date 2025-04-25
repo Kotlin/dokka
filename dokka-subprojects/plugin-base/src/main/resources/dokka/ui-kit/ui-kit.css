@@ -2732,7 +2732,11 @@ td:first-child {
 }
 
 .platform-hinted > .platform-bookmarks-row, .tabs-section {
-  border-bottom: 1px solid var(--text-outline);
+  border-bottom: 1px inset var(--text-outline);
+}
+
+.platform-hinted > .platform-bookmarks-row.tabs_wrapping, .tabs-section.tabs_wrapping {
+  border-bottom: none;
 }
 
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark, .section-tab {

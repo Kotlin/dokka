@@ -5,7 +5,11 @@
 
 .tabs-section,
 .platform-hinted > .platform-bookmarks-row {
-  border-bottom: 1px solid var(--text-outline);
+  border-bottom: 1px inset var(--text-outline);
+
+  &.tabs_wrapping {
+    border-bottom: none;
+  }
 }
 
 .section-tab, /* regular tabs */
