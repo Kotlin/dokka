@@ -126,26 +126,6 @@ img {
     max-width: 100%;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    padding: 5px;
-}
-
-th, td {
-    padding: 12px 10px 11px;
-    text-align: left;
-    vertical-align: top;
-}
-
-tbody > tr {
-    min-height: 56px;
-}
-
-td:first-child {
-    width: 20vw;
-}
-
 /* /---  global tags styles --- */
 
 /* ---  utils classes --- */
