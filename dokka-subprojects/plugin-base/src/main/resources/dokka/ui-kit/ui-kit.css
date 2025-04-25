@@ -2610,7 +2610,7 @@ button.platform-tag:focus-visible {
   --rotate-transition:transform 200ms ease-in-out;
 }
 
-@media (max-width: 440px) {
+@media (max-width: 439px) {
   .table--container {
     margin-left: -16px;
     overflow: scroll;
@@ -2647,7 +2647,7 @@ td {
   border-color: var(--color-w16);
 }
 
-@media (max-width: 440px) {
+@media (max-width: 439px) {
   td:first-child, th:first-child {
     border-left: none;
   }

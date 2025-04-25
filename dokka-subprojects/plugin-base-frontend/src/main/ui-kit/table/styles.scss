@@ -5,7 +5,7 @@
 
 .table {
   &--container {
-    @media (width <= $breakpoint-tablet-min) {
+    @media (width < $breakpoint-tablet-min) {
       overflow: scroll;
 
       width: calc(100% + 32px);
@@ -48,7 +48,7 @@ td {
   border-color: var(--color-w16);
 }
 
-@media (width <= $breakpoint-tablet-min) {
+@media (width < $breakpoint-tablet-min) {
   th:first-child,
   td:first-child {
     border-left: none;
