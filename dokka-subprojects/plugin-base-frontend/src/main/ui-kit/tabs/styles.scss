@@ -5,24 +5,23 @@
 
 .tabs-section,
 .platform-hinted > .platform-bookmarks-row {
-  margin-right: -8px;
-  margin-left: -8px;
+  border-bottom: 1px solid var(--text-outline);
 }
 
 .section-tab, /* regular tabs */
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark /* platform tabs but they look the same */ {
-  margin: 0 8px;
-  padding: 11px 3px;
+  padding: 10px 16px 6px;
 
   cursor: pointer;
 
-  color: var(--inactive-section-color);
+  color: var(--text-color);
   border: 0;
-  border-bottom: 1px solid var(--inactive-tab-border-color);
-  outline: none;
+  border-bottom: 4px solid transparent;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
   background-color: transparent;
 
-  font-size: var(--default-font-size);
+  font: var(--font-text-s);
 }
 
 .platform-hinted > .platform-bookmarks-row {
@@ -38,13 +37,16 @@
 }
 
 .section-tab:hover {
-  color: var(--default-font-color);
-  border-bottom: 2px solid var(--default-font-color);
+  background-color: var(--color-background-hover);
+}
+
+.section-tab:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: -4px;
 }
 
 .section-tab[data-active=''] {
-  color: var(--active-section-color);
-  border-bottom: 2px solid var(--active-tab-border-color);
+  border-bottom: 4px solid var(--active-tab-border-color);
 }
 
 .tabs-section-body > div {
@@ -71,14 +73,17 @@
   background: inherit;
 }
 
+.platform-hinted > .platform-bookmarks-row > .platform-bookmark:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: -4px;
+}
+
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark:hover {
-  color: var(--default-font-color);
-  border-bottom: 2px solid var(--default-font-color);
+  background-color: var(--color-background-hover);
 }
 
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark[data-active=''] {
-  color: var(--active-section-color);
-  border-bottom: 2px solid var(--active-tab-border-color);
+  border-bottom: 4px solid var(--active-tab-border-color);
 }
 
 .no-js .platform-bookmarks-row,

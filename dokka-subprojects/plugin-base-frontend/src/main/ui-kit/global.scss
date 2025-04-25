@@ -5,6 +5,7 @@
 
 :root {
   --color-background: var(--color-background-page);
+  --color-background-hover: var(--color-b08);
   --focus-outline: 4px solid var(--color-key-blue-50);
   --content-max-width: 1128px;
   --text-color: var(--color-text);
@@ -14,6 +15,7 @@
 
 .theme-dark {
   --color-background: var(--color-background-page-dt);
+  --color-background-hover: var(--color-w10);
   --text-color: var(--color-text-dt);
   --text-outline: var(--color-w16);
   --color-background-inline-code: var(--color-w10);
