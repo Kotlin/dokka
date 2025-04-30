@@ -60,3 +60,12 @@ http://localhost:8001/jvm/org.jetbrains.dokka.uitest.types/-simple-deprecated-ko
   flex-direction: column;
 }
 
+/**
+prevent prism.css to add custom shadows KTL-1774
+ */
+pre[runnable-code-sample] {
+  &::before, &::after {
+    display: none;
+  }
+}
+
