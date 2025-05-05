@@ -2,6 +2,7 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 import './styles.scss';
+import { debounce } from '../utils';
 
 export function initTabs() {
   // we could have only a single type of data - classlike or package
@@ -67,6 +68,38 @@ export function toggleSections(target: Element) {
   };
   activateTabs('tabs-section');
   activateTabsBody('tabs-section-body');
+
+  const TABS_DEFAULT_HEIGHT = 41;
+  const TABS_WRAPPING_CLASS = 'tabs_wrapping';
+  const sectionTabsRows = document.querySelectorAll('div.tabs-section');
+  const platformTabsRows = document.querySelectorAll('div.platform-bookmarks-row');
+  const tabsRows = [...sectionTabsRows, ...platformTabsRows];
+
+  function processTabsWrapping(tabsRow: Element): void {
+    const tabsRowHeight = tabsRow.getBoundingClientRect().height;
+    if (tabsRowHeight > TABS_DEFAULT_HEIGHT) {
+      tabsRow.classList.add(TABS_WRAPPING_CLASS);
+    } else {
+      tabsRow.classList.remove(TABS_WRAPPING_CLASS);
+    }
+  }
+
+  const resizeObservers: ResizeObserver[] = [];
+  for (let i = 0; i < tabsRows.length; i++) {
+    const debouncedProcessTabsWrapping = debounce(processTabsWrapping, 100);
+    const resizeObserver = new ResizeObserver(() => {
+      debouncedProcessTabsWrapping(tabsRows[i]);
+    });
+    resizeObservers.push(resizeObserver);
+  }
+
+  const initResizeObservers = (): void => {
+    for (let i = 0; i < resizeObservers.length; i++) {
+      resizeObservers[i].observe(tabsRows[i]);
+    }
+  };
+
+  initResizeObservers();
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

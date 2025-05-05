@@ -27,7 +27,7 @@
     --top-navigation-height: 73px;
     --white-10: hsla(0, 0%, 100%, .1);
 
-    --active-tab-border-color: #7F52FF;
+    --active-tab-border-color: var(--color-key-blue);
     --inactive-tab-border-color: rgba(164, 164, 170, 0.7);
 
     --active-section-color: #7F52FF;
@@ -171,7 +171,7 @@ img {
     --copy-icon-color: hsla(0, 0%, 100%, 0.6);
     --copy-icon-hover-color: #fff;
 
-    --active-tab-border-color: var(--default-font-color);
+    --active-tab-border-color: var(--color-key-blue);
     --inactive-tab-border-color: hsla(0, 0%, 100%, 0.4);
 
     --active-section-color: var(--default-font-color);
