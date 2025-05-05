@@ -10,7 +10,7 @@ http://localhost:8001/jvm/org.jetbrains.dokka.uitest.markdown/-markdown-code/ind
   position: relative;
 
   display: block;
-  overflow: scroll;
+  overflow: auto;
 
   box-sizing: border-box;
   padding: 12px 16px;
@@ -58,5 +58,14 @@ http://localhost:8001/jvm/org.jetbrains.dokka.uitest.types/-simple-deprecated-ko
 
   display: flex;
   flex-direction: column;
+}
+
+/**
+prevent prism.css to add custom shadows KTL-1774
+ */
+pre[runnable-code-sample] {
+  &::before, &::after {
+    display: none;
+  }
 }
 
