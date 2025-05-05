@@ -45,7 +45,7 @@
   background: var(--color-w10);
 }
 
-.js .sample-container:hover .copy-icon {
+.js .sample-container:hover .copy-icon, .js-touched .copy-icon {
   display: block;
 }
 

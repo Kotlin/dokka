@@ -19,6 +19,8 @@ document.addEventListener('click', function (event) {
   }
 });
 
+initCodeBlockTouchHandler();
+
 function hrefWithoutAnchor() {
   return window.location.origin + window.location.pathname + window.location.search;
 }
@@ -84,4 +86,42 @@ function showPopup(element: Element) {
       popupWrapper.classList.remove('active-popup');
     }, POPUP_TIMEOUT);
   }
+}
+
+function initCodeBlockTouchHandler() {
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+  if (!isTouchDevice) {
+    return;
+  }
+
+  const CLASS_TOUCHED = 'js-touched';
+
+  const handleTouchStart = (event: TouchEvent) => {
+    const target = event.target as HTMLElement;
+
+    const codeBlock = target.closest('.sample-container');
+
+    document.querySelectorAll<HTMLElement>(`.${CLASS_TOUCHED}`).forEach((el) => {
+      if (el !== codeBlock) {
+        el.classList.remove(CLASS_TOUCHED);
+      }
+    });
+
+    if (codeBlock) {
+      codeBlock.classList.add(CLASS_TOUCHED);
+    }
+  };
+
+  document.addEventListener('touchstart', handleTouchStart);
+
+  document.addEventListener('touchend', (event: TouchEvent) => {
+    const touchedElement = event.target as HTMLElement;
+
+    if (!touchedElement.closest(`.${CLASS_TOUCHED}`)) {
+      document.querySelectorAll<HTMLElement>(`.${CLASS_TOUCHED}`).forEach((el) => {
+        el.classList.remove(CLASS_TOUCHED);
+      });
+    }
+  });
 }
