@@ -64,8 +64,8 @@ orderedList {
     }
     item {
         group(styles = setOf(TextStyle.Bold)) {
-            text("This is bald")
-            text("This is also bald")
+            text("This is bold")
+            text("This is also bold")
         }
     }
 }
