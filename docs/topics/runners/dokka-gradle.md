@@ -297,9 +297,9 @@ Single platform:
 ```text
 .
 ├── build.gradle.kts
-└── src
-    └── main
-        └── kotlin
+└── src/
+    └── main/
+        └── kotlin/
             └── HelloWorld.kt
 ```
 
@@ -328,9 +328,9 @@ Single platform:
 ```text
 .
 ├── build.gradle
-└── src
-    └── main
-        └── kotlin
+└── src/
+    └── main/
+        └── kotlin/
             └── HelloWorld.kt
 ```
 
