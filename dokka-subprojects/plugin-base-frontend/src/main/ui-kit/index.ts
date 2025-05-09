@@ -1,26 +1,27 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-import * as breadcrumbs from './breadcrumbs/index';
-import * as button from './button/index';
-import * as checkbox from './checkbox/index';
-import * as codeBlock from './code-block/index';
-import * as copyTooltip from './copy-tooltip/index';
-import * as dropdown from './dropdown/index';
-import * as filterSection from './filter-section/index';
-import * as footer from './footer/index';
-import * as icon from './icon/index';
-import * as inlineCode from './inline-code/index';
-import * as layout from './layout/index';
-import * as libraryName from './library-name/index';
-import * as libraryVersion from './library-version/index';
-import * as link from './link/index';
-import * as navbar from './navbar/index';
-import * as navbarButton from './navbar-button/index';
-import * as platformTag from './platform-tag/index';
-import * as platformTags from './platform-tags/index';
-import * as tabs from './tabs/index';
-import * as tocTree from './toc-tree/index';
+export * as breadcrumbs from './breadcrumbs/index';
+export * as button from './button/index';
+export * as checkbox from './checkbox/index';
+export * as codeBlock from './code-block/index';
+export * as copyTooltip from './copy-tooltip/index';
+export * as dropdown from './dropdown/index';
+export * as filterSection from './filter-section/index';
+export * as footer from './footer/index';
+export * as icon from './icon/index';
+export * as inlineCode from './inline-code/index';
+export * as layout from './layout/index';
+export * as libraryName from './library-name/index';
+export * as libraryVersion from './library-version/index';
+export * as link from './link/index';
+export * as navbar from './navbar/index';
+export * as navbarButton from './navbar-button/index';
+export * as platformTag from './platform-tag/index';
+export * as platformTags from './platform-tags/index';
+export * as table from './table/index';
+export * as tabs from './tabs/index';
+export * as tocTree from './toc-tree/index';
 import { removeBackwardCompatibilityStyles } from './utils';
 import './helpers.scss';
 import './global.scss';
@@ -29,29 +30,6 @@ import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-600.css';
 import '@fontsource/jetbrains-mono/latin-400.css';
 import '@fontsource/jetbrains-mono/latin-600.css';
-
-export {
-  button,
-  checkbox,
-  dropdown,
-  filterSection,
-  footer,
-  icon,
-  layout,
-  libraryName,
-  libraryVersion,
-  navbar,
-  navbarButton,
-  platformTag,
-  platformTags,
-  tabs,
-  tocTree,
-  link,
-  breadcrumbs,
-  inlineCode,
-  codeBlock,
-  copyTooltip,
-};
 
 document.addEventListener('DOMContentLoaded', () => {
   removeBackwardCompatibilityStyles();

@@ -670,24 +670,26 @@ public open class HtmlRenderer(
         pageContext: ContentPage,
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
-        table {
-            thead {
-                node.header.forEach {
-                    tr {
-                        it.children.forEach {
-                            th {
-                                it.build(this@table, pageContext, sourceSetRestriction)
+        div(classes = "table--container") {
+            table {
+                thead {
+                    node.header.forEach {
+                        tr {
+                            it.children.forEach {
+                                th {
+                                    it.build(this@table, pageContext, sourceSetRestriction)
+                                }
                             }
                         }
                     }
                 }
-            }
-            tbody {
-                node.children.forEach {
-                    tr {
-                        it.children.forEach {
-                            td {
-                                it.build(this, pageContext, sourceSetRestriction)
+                tbody {
+                    node.children.forEach {
+                        tr {
+                            it.children.forEach {
+                                td {
+                                    it.build(this, pageContext, sourceSetRestriction)
+                                }
                             }
                         }
                     }

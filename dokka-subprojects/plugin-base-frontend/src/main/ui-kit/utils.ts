@@ -59,3 +59,21 @@ export function removeBackwardCompatibilityStyles(): void {
     element.removeAttribute('style');
   });
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function debounce(func: (...args: any[]) => any, delay: number) {
+  let timer: number | null = null;
+
+  return function (this: unknown, ...args: unknown[]) {
+    const onComplete = () => {
+      func.apply(this, args);
+      timer = null;
+    };
+
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    timer = setTimeout(onComplete, delay);
+  };
+}
