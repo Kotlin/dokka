@@ -27,7 +27,7 @@
     --top-navigation-height: 73px;
     --white-10: hsla(0, 0%, 100%, .1);
 
-    --active-tab-border-color: #7F52FF;
+    --active-tab-border-color: var(--color-key-blue);
     --inactive-tab-border-color: rgba(164, 164, 170, 0.7);
 
     --active-section-color: #7F52FF;
@@ -126,26 +126,6 @@ img {
     max-width: 100%;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    padding: 5px;
-}
-
-th, td {
-    padding: 12px 10px 11px;
-    text-align: left;
-    vertical-align: top;
-}
-
-tbody > tr {
-    min-height: 56px;
-}
-
-td:first-child {
-    width: 20vw;
-}
-
 /* /---  global tags styles --- */
 
 /* ---  utils classes --- */
@@ -191,7 +171,7 @@ td:first-child {
     --copy-icon-color: hsla(0, 0%, 100%, 0.6);
     --copy-icon-hover-color: #fff;
 
-    --active-tab-border-color: var(--default-font-color);
+    --active-tab-border-color: var(--color-key-blue);
     --inactive-tab-border-color: hsla(0, 0%, 100%, 0.4);
 
     --active-section-color: var(--default-font-color);
@@ -437,11 +417,6 @@ Just in case of possible performance degradation it excluding tabs with briefs o
 
 .cover .with-platform-tabs {
     font-size: var(--default-font-size);
-}
-
-.cover > .with-platform-tabs > .content {
-    padding: 8px 16px;
-    border: 1px solid var(--border-color);
 }
 
 .cover > .block {

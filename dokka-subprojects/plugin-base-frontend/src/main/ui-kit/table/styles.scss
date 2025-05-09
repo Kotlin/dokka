@@ -1,0 +1,69 @@
+/*!
+ * Copyright 2014-2025  JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@import '../_tokens/index';
+
+.table {
+  &--container {
+    @media (width < $breakpoint-tablet-min) {
+      overflow: scroll;
+
+      width: calc(100% + 32px);
+      margin-left: -16px;
+    }
+  }
+}
+
+table {
+  width: 100%;
+
+  margin-top: 24px;
+  margin-bottom: 24px;
+
+  border-collapse: collapse;
+}
+
+th,
+td {
+  min-width: 40px;
+
+  text-align: left;
+  vertical-align: top;
+
+  border: 1px solid var(--color-b20);
+}
+
+th {
+  padding: 7.5px 15.5px;
+
+  background-color: var(--color-background-code-block);
+}
+
+td {
+  padding: 15.5px;
+}
+
+.theme-dark th,
+.theme-dark td {
+  border-color: var(--color-w16);
+}
+
+@media (width < $breakpoint-tablet-min) {
+  th:first-child,
+  td:first-child {
+    border-left: none;
+  }
+
+  th:last-child,
+  td:last-child {
+    border-right: none;
+  }
+}
+
+tbody > tr {
+  min-height: 56px;
+}
+
+td:first-child {
+  width: 20vw;
+}
