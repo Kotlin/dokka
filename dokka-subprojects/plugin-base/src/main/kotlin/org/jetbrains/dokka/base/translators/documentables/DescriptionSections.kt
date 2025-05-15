@@ -336,7 +336,13 @@ private fun PageContentBuilder.DocumentableContentBuilder.tableSectionContentBlo
     sourceSets: Set<DokkaConfiguration.DokkaSourceSet> = mainSourcesetData,
     body: PageContentBuilder.TableBuilder.() -> Unit,
 ) {
-    header(KDOC_TAG_HEADER_LEVEL, text = blockName, kind = kind, sourceSets = sourceSets)
+    header(
+        KDOC_TAG_HEADER_LEVEL,
+        text = blockName,
+        kind = kind,
+        sourceSets = sourceSets,
+        styles = setOf(ContentStyle.TableHeader)
+    )
     table(
         kind = kind,
         sourceSets = sourceSets,

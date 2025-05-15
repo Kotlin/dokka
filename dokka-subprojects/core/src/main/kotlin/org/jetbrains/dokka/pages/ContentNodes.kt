@@ -397,6 +397,7 @@ public enum class TextStyle : Style {
 }
 
 public enum class ContentStyle : Style {
+   TableHeader,
     RowTitle,
     /**
      * The style is used only for HTML. It is applied only for [ContentGroup].
