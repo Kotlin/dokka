@@ -41,7 +41,7 @@ public class DirectiveBasedHtmlTemplateProcessingStrategy(private val context: D
                 handleCommandAsComment(command, bodyTrimed, input, output)
             }
 
-            Files.write(output.toPath(), listOf(document.outerHtml()))
+            output.writeText(document.outerHtml())
             true
         } else false
 
