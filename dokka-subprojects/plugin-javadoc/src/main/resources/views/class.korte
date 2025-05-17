@@ -249,7 +249,7 @@
                                     <li class="blockList">
                                         <h4>{{ constructor.name }}</h4>
                                         <pre>{{ constructor.name }}({{ constructor.inlineParameters|raw }})</pre>
-                                        <div class="block">{{ constructor.brief|raw}}</div>
+                                        <div class="block">{{ constructor.description|raw}}</div>
                                         {% if constructor.parameters.size != 0 && hasAnyDescription(constructor.parameters) %}
                                         <dl>
                                             <dt><span class="paramLabel">Parameters:</span></dt>
