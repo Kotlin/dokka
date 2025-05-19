@@ -24,8 +24,8 @@ import kotlin.test.assertTrue
 
 class CoroutinesBuildVersionsArgumentsProvider : ArgumentsProvider {
     private val buildVersions = BuildVersions.permutations(
-        gradleVersions = listOf("7.4.2"),
-        kotlinVersions = listOf("1.8.10")
+        gradleVersions = listOf("8.13"),
+        kotlinVersions = listOf("2.1.0")
     )
 
     override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {

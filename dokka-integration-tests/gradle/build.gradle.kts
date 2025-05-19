@@ -204,13 +204,13 @@ testing.suites.named<JvmTestSuite>("test") {
 
 val checkoutKotlinxCoroutines by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx.coroutines.git"
-    commitId = "b78bbf518bd8e90e9ed2133ebdacc36441210cd6"
+    commitId = "f4f519b36734238ec686dfaec1e174086691781e"
     destination = templateProjectsDir.dir("coroutines/kotlinx-coroutines")
 }
 
 val checkoutKotlinxSerialization by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx.serialization.git"
-    commitId = "ed1b05707ec27f8864c8b42235b299bdb5e0015c"
+    commitId = "4667a1891a925dc9e3e10490c274a875b0be4da6"
     destination = templateProjectsDir.dir("serialization/kotlinx-serialization")
 }
 
