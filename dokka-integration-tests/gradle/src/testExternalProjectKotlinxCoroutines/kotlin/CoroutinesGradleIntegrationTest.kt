@@ -47,7 +47,6 @@ class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOut
         projectDir.toPath().updateProjectLocalMavenDir()
     }
 
-    @OnlyDescriptors
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(CoroutinesBuildVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
