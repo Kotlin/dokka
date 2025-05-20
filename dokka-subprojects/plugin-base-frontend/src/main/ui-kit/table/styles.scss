@@ -19,12 +19,15 @@
 }
 
 .tableheader {
+  margin-bottom: 0;
   padding: 7px 16px;
 
   border: 1px solid var(--color-b20);
   border-bottom-style: none;
 
   background-color: var(--color-background-code-block);
+
+  font: var(--font-h4);
 
   .theme-dark & {
     border-color: var(--color-w16);
