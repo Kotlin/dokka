@@ -265,6 +265,7 @@ public open class PageContentBuilder(
             renderWhenEmpty: Boolean = false,
             needsSorting: Boolean = true,
             headers: List<ContentGroup> = emptyList(),
+            headerStyles: Set<Style> = emptySet<Style>(),
             needsAnchors: Boolean = false,
             operation: DocumentableContentBuilder.(String, List<Documentable>) -> Unit
         ) {
