@@ -1,0 +1,47 @@
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 8b831e5..b63444a 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -22,6 +22,7 @@ val modularJavaToolchainVersion by ext(project.property("java.modularToolchainVe
+ 
+ allprojects {
+     repositories {
++        /* %{DOKKA_IT_MAVEN_REPO}% */
+         addTrainRepositories(project)
+         mavenCentral()
+     }
+diff --git a/gradle.properties b/gradle.properties
+index 5673f91..19c1f98 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -8,7 +8,7 @@ versionSuffix=SNAPSHOT
+ tzdbVersion=2025b
+ 
+ defaultKotlinVersion=2.1.20
+-dokkaVersion=2.0.0
++dokkaVersion=non-existing-sanity-check-SNAPSHOT
+ serializationVersion=1.6.2
+ benchmarksVersion=0.7.2
+ bcvVersion=0.17.0
+diff --git a/settings.gradle.kts b/settings.gradle.kts
+index 28c526f..611522b 100644
+--- a/settings.gradle.kts
++++ b/settings.gradle.kts
+@@ -1,14 +1,15 @@
+ pluginManagement {
+     repositories {
++        /* %{DOKKA_IT_MAVEN_REPO}% */
+         maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/kotlinx/maven")
+         mavenCentral()
+         gradlePluginPortal()
+     }
+-    val dokkaVersion: String by settings
++    val dokka_it_dokka_version: String by settings
+     val benchmarksVersion: String by settings
+     val bcvVersion: String by settings
+     plugins {
+-        id("org.jetbrains.dokka") version dokkaVersion
++        id("org.jetbrains.dokka") version dokka_it_dokka_version
+         id("me.champeau.jmh") version benchmarksVersion
+         id("org.jetbrains.kotlinx.binary-compatibility-validator") version bcvVersion
+     }
