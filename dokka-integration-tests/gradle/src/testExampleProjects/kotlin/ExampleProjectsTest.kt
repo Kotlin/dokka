@@ -37,7 +37,7 @@ import kotlin.streams.asStream
 /**
  * Test all Dokka Gradle v2 examples.
  *
- * Each `@Test` is parameterised, and will run for each example.
+ * Each test is parameterised, and will run for each example.
  *
  * #### Testing a specific project.
  *
