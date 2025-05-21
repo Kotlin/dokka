@@ -9,7 +9,6 @@ import org.jetbrains.dokka.it.TestOutputCopier
 import org.jetbrains.dokka.it.copyAndApplyGitDiff
 import org.jetbrains.dokka.it.gradle.AbstractGradleIntegrationTest
 import org.jetbrains.dokka.it.gradle.BuildVersions
-import org.jetbrains.dokka.it.gradle.OnlyDescriptors
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -55,7 +54,7 @@ class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOut
             ":dokkaHtmlMultiModule",
             jvmArgs = listOf(
                 "-Xmx2G",
-                "-XX:MaxMetaspaceSize=500m", // Intentionally small to verify that Dokka tasks do not cause leaks.
+                "-XX:MaxMetaspaceSize=700m", // Intentionally small to verify that Dokka tasks do not cause leaks.
             )
         ).buildRelaxed()
 
