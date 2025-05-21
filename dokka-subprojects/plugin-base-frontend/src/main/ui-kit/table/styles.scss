@@ -16,6 +16,8 @@
 .table {
   display: flex;
   flex-direction: column;
+
+  margin-bottom: 32px;
 }
 
 .tableheader {
@@ -78,8 +80,6 @@
 }
 
 .table-row:last-of-type {
-  margin-bottom: 32px;
-
   border-bottom-width: 1px;
   border-bottom-style: solid;
 }

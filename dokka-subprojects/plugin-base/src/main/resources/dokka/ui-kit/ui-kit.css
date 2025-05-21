@@ -1693,6 +1693,18 @@ code:not(.block) {
   position: relative;
   z-index: 1;
 }
+
+.main-content .content > hr {
+  border: none;
+  border-top: 1px solid var(--color-b20);
+  margin: 24px 0;
+  margin: var(--size-m1) 0;
+}
+
+.theme-dark .main-content .content > hr {
+  border-top: 1px solid hsla(0, 0%, 100%, 0.16);
+  border-top: 1px solid var(--color-w16);
+}
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -2623,6 +2635,7 @@ button.platform-tag:focus-visible {
 .table {
   display: flex;
   flex-direction: column;
+  margin-bottom: 32px;
 }
 
 .tableheader {
@@ -2685,7 +2698,6 @@ button.platform-tag:focus-visible {
 .table-row:last-of-type {
   border-bottom-style: solid;
   border-bottom-width: 1px;
-  margin-bottom: 32px;
 }
 
 .table-row_multimodule:last-of-type, .table-row_platform-tagged:last-of-type {
@@ -2867,6 +2879,8 @@ td:first-child {
 
 .platform-hinted > .platform-bookmarks-row, .tabs-section {
   border-bottom: 1px inset var(--text-outline);
+  margin-bottom: 32px;
+  margin-bottom: var(--size-m2);
 }
 
 .platform-hinted > .platform-bookmarks-row.tabs_wrapping, .tabs-section.tabs_wrapping {
@@ -2884,11 +2898,6 @@ td:first-child {
   font: 400 14px/20px Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
   font: var(--font-text-s);
   padding: 10px 16px 6px;
-}
-
-.platform-hinted > .platform-bookmarks-row {
-  margin-bottom: 16px;
-  margin-bottom: var(--size-s3);
 }
 
 .no-js .platform-bookmarks-row + .sourceset-dependent-content {
