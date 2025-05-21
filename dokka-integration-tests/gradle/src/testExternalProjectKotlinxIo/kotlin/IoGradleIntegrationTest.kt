@@ -10,6 +10,7 @@ import org.jetbrains.dokka.it.TestOutputCopier
 import org.jetbrains.dokka.it.copyAndApplyGitDiff
 import org.jetbrains.dokka.it.gradle.AbstractGradleIntegrationTest
 import org.jetbrains.dokka.it.gradle.BuildVersions
+import org.jetbrains.dokka.it.gradle.OnlyDescriptors
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -48,6 +49,7 @@ class IoGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopie
     }
 
     @ParameterizedTest(name = "{0}")
+    @OnlyDescriptors("#4116")
     @ArgumentsSource(IoBuildVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
         val result = createGradleRunner(buildVersions, ":dokkaHtmlMultiModule").buildRelaxed()
