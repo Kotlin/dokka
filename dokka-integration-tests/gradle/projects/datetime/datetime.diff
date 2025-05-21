@@ -10,6 +10,19 @@ index 8b831e5..b63444a 100644
          addTrainRepositories(project)
          mavenCentral()
      }
+diff --git a/core/build.gradle.kts b/core/build.gradle.kts
+index b12f85d..05e46c0 100644
+--- a/core/build.gradle.kts
++++ b/core/build.gradle.kts
+@@ -384,7 +384,7 @@ dokka {
+     }
+ 
+     dokkaPublications.html {
+-        failOnWarning.set(true)
++        failOnWarning.set(false)
+         // Enum members and undocumented toString()
+         suppressInheritedMembers.set(true)
+     }
 diff --git a/gradle.properties b/gradle.properties
 index 5673f91..19c1f98 100644
 --- a/gradle.properties
