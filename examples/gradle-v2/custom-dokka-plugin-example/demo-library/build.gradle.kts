@@ -2,8 +2,8 @@ import org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 
 plugins {
-    kotlin("jvm") version "2.0.21"
-    id("org.jetbrains.dokka") version "2.0.20-SNAPSHOT"
+    kotlin("jvm")
+    id("org.jetbrains.dokka")
 }
 
 dependencies {
@@ -29,7 +29,8 @@ dokka {
 /**
  * Define custom parameters for the HideInternalApi Dokka Plugin.
  *
- * Using a custom class for defining parameters means Gradle can accurately check for task up-to-date checks.
+ * Using a custom class for defining parameters means Gradle can check task input changes,
+ * so it can check if a task is up-to-date.
  *
  * If you find you need to re-use the plugin parameters configuration class in multiple buildscripts,
  * move the class into a shared location, like `buildSrc` (or another included-build for build conventions).

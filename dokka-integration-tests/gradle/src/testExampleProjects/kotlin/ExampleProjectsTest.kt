@@ -18,7 +18,6 @@ import org.jetbrains.dokka.it.gradle.TestConstants
 import org.jetbrains.dokka.it.gradle.loadConfigurationCacheReportData
 import org.jetbrains.dokka.it.gradle.shouldHaveOutcome
 import org.jetbrains.dokka.it.gradle.shouldHaveTask
-import org.jetbrains.dokka.it.optionalSystemProperty
 import org.jetbrains.dokka.it.systemProperty
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Named.named
@@ -37,7 +36,7 @@ import kotlin.streams.asStream
 /**
  * Test all Dokka Gradle v2 examples.
  *
- * Each test is parameterised, and will run for each example.
+ * Each test is parameterised and will run for each example.
  *
  * #### Testing a specific project.
  *
@@ -246,7 +245,7 @@ class ExampleProjectsTest {
     private fun testDokkaOutput(
         testCase: TestCase,
         format: String,
-        filesExcludedFromContentCheck : List<String> = emptyList(),
+        filesExcludedFromContentCheck: List<String> = emptyList(),
     ) {
         val expectedDataDir = testCase.expectedDataDir.resolve(format)
         val actualHtmlDir = testCase.dokkaOutputDir.resolve(format)
@@ -276,7 +275,10 @@ class ExampleProjectsTest {
                     }
 
                     withClue("expect directories are the same") {
-                        actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedDataDir, filesExcludedFromContentCheck)
+                        actualHtmlDir.shouldBeADirectoryWithSameContentAs(
+                            expectedDataDir,
+                            filesExcludedFromContentCheck
+                        )
                     }
                 }
             }
@@ -372,7 +374,6 @@ class ExampleProjectsTest {
 
                     ExampleProject.CustomDokkaPlugin -> {
                         shouldHaveTasksWithOutcome(
-                            ":demo-library:dokkaGenerateModuleHtml" to FROM_CACHE,
                             ":demo-library:dokkaGeneratePublicationHtml" to FROM_CACHE,
                             ":demo-library:dokkaGenerate" to UP_TO_DATE,
                         )

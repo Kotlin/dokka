@@ -1,8 +1,7 @@
 plugins {
-    `embedded-kotlin`
-    kotlin("plugin.serialization") version embeddedKotlinVersion
+    kotlin("jvm")
+    kotlin("plugin.serialization")
 }
-
 
 dependencies {
     val dokkaVersion = "2.0.20-SNAPSHOT"
