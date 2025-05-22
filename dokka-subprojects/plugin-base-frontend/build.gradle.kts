@@ -14,9 +14,9 @@ plugins {
 node {
     version = libs.versions.node
 
-    // https://github.com/node-gradle/gradle-node-plugin/blob/3.5.1/docs/faq.md#is-this-plugin-compatible-with-centralized-repositories-declaration
+    // https://github.com/node-gradle/gradle-node-plugin/blob/7.1.0/docs/faq.md#is-this-plugin-compatible-with-centralized-repositories-declaration
     download = true
-    distBaseUrl = null as String? // Strange cast to avoid overload ambiguity
+    distBaseUrl = provider { null } // set both convention and value to `null`.
 
     // Stop Gradle from monitoring node_modules dir; it will be managed by NPM. This helps performance and task-avoidance.
     fastNpmInstall = true
