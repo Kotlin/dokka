@@ -1,0 +1,61 @@
+diff --git a/build-logic/build.gradle.kts b/build-logic/build.gradle.kts
+index c26e65a2..394cfd04 100644
+--- a/build-logic/build.gradle.kts
++++ b/build-logic/build.gradle.kts
+@@ -8,6 +8,7 @@ plugins {
+ }
+ 
+ repositories {
++    /* %{DOKKA_IT_MAVEN_REPO}% */
+     mavenCentral()
+ }
+ 
+diff --git a/build-logic/settings.gradle.kts b/build-logic/settings.gradle.kts
+index 4b401d8b..fcfac2c6 100644
+--- a/build-logic/settings.gradle.kts
++++ b/build-logic/settings.gradle.kts
+@@ -11,6 +11,7 @@ dependencyResolutionManagement {
+     versionCatalogs {
+         create("libs") {
+             from(files("../gradle/libs.versions.toml"))
++            version("dokka", providers.gradleProperty("dokka_it_dokka_version").get())
+         }
+     }
+ }
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 2e45281b..411af247 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -17,6 +17,7 @@ plugins {
+ allprojects {
+     properties["DeployVersion"]?.let { version = it }
+     repositories {
++        /* %{DOKKA_IT_MAVEN_REPO}% */
+         mavenCentral()
+     }
+ }
+diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
+index 0c32461a..6e8701b8 100644
+--- a/gradle/libs.versions.toml
++++ b/gradle/libs.versions.toml
+@@ -2,7 +2,7 @@
+ kotlin = "2.1.0"
+ java = "8"
+ multi-release-toolchain = "17"
+-dokka = "2.0.0"
++dokka = "sanity-non-existent"
+ kover = "0.8.3"
+ bcv = "0.16.3"
+ benchmark = "0.4.13"
+diff --git a/settings.gradle.kts b/settings.gradle.kts
+index 79515254..f4fb9730 100644
+--- a/settings.gradle.kts
++++ b/settings.gradle.kts
+@@ -7,6 +7,7 @@ pluginManagement {
+     includeBuild("build-logic")
+ 
+     repositories {
++        /* %{DOKKA_IT_MAVEN_REPO}% */
+         mavenCentral()
+         google()
+         gradlePluginPortal()

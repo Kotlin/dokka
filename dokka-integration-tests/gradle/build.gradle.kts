@@ -111,6 +111,37 @@ registerTestProjectSuite("testTemplateProjectWasmBasic", "it-wasm-basic")
 registerTestProjectSuite("testTemplateProjectWasmJsWasiBasic", "it-wasm-js-wasi-basic")
 
 registerTestProjectSuite(
+    "testExternalProjectKotlinxIo",
+    "io/kotlinx-io",
+    jvm = JavaLanguageVersion.of(8)
+) {
+    targets.configureEach {
+        testTask.configure {
+            dependsOn(checkoutKotlinxIo)
+            // register the whole directory as an input because it contains the git diff
+            inputs
+                .dir(templateProjectsDir.file("io"))
+                .withPropertyName("ioProjectDir")
+        }
+    }
+}
+
+registerTestProjectSuite(
+    "testExternalProjectKotlinxDatetime",
+    "datetime/kotlinx-datetime",
+    jvm = JavaLanguageVersion.of(8)
+) {
+    targets.configureEach {
+        testTask.configure {
+            dependsOn(checkoutKotlinxDatetime)
+            // register the whole directory as an input because it contains the git diff
+            inputs
+                .dir(templateProjectsDir.file("datetime"))
+                .withPropertyName("datetimeProjectDir")
+        }
+    }
+}
+registerTestProjectSuite(
     "testExternalProjectKotlinxCoroutines",
     "coroutines/kotlinx-coroutines",
     jvm = JavaLanguageVersion.of(11) // kotlinx.coroutines requires JVM 11+ https://github.com/Kotlin/kotlinx.coroutines/issues/3665
@@ -203,15 +234,25 @@ testing.suites.named<JvmTestSuite>("test") {
     }
 }
 
+val checkoutKotlinxDatetime by tasks.registering(GitCheckoutTask::class) {
+    uri = "https://github.com/Kotlin/kotlinx-datetime.git"
+    commitId = "4dadf6fbe4956a1a846cab0dc9282cfef1aeac23"
+    destination = templateProjectsDir.dir("datetime/kotlinx-datetime")
+}
+val checkoutKotlinxIo by tasks.registering(GitCheckoutTask::class) {
+    uri = "https://github.com/Kotlin/kotlinx-io.git"
+    commitId = "8950a88f0d00ca2d23ad39db423a97840eea9dc2"
+    destination = templateProjectsDir.dir("io/kotlinx-io")
+}
 val checkoutKotlinxCoroutines by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx.coroutines.git"
-    commitId = "b78bbf518bd8e90e9ed2133ebdacc36441210cd6"
+    commitId = "f4f519b36734238ec686dfaec1e174086691781e"
     destination = templateProjectsDir.dir("coroutines/kotlinx-coroutines")
 }
 
 val checkoutKotlinxSerialization by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx.serialization.git"
-    commitId = "ed1b05707ec27f8864c8b42235b299bdb5e0015c"
+    commitId = "4667a1891a925dc9e3e10490c274a875b0be4da6"
     destination = templateProjectsDir.dir("serialization/kotlinx-serialization")
 }
 
