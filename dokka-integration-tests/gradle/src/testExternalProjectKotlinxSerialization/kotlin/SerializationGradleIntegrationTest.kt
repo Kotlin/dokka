@@ -23,8 +23,8 @@ import kotlin.test.assertTrue
 
 class SerializationBuildVersionsArgumentsProvider : ArgumentsProvider {
     private val buildVersions = BuildVersions.permutations(
-        gradleVersions = listOf("7.6.1"),
-        kotlinVersions = listOf("1.9.0")
+        gradleVersions = listOf("8.7"),
+        kotlinVersions = listOf("2.1.20")
     )
 
     override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
