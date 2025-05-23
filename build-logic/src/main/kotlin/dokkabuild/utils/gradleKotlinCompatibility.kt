@@ -18,8 +18,8 @@ fun Project.configureGradleKotlinCompatibility() {
 
     extensions.configure<KotlinJvmProjectExtension>("kotlin") {
         @OptIn(ExperimentalKotlinGradlePluginApi::class, ExperimentalBuildToolsApi::class)
-        compilerVersion.set("2.0.20")
-        coreLibrariesVersion = "2.0.20"
+        compilerVersion.set("2.0.21")
+        coreLibrariesVersion = "2.0.21"
         compilerOptions {
             languageVersion.set(KotlinVersion.fromVersion("1.4"))
             apiVersion.set(KotlinVersion.fromVersion("1.4"))
