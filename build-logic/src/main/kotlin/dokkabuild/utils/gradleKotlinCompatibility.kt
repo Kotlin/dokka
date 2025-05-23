@@ -22,7 +22,11 @@ fun Project.configureGradleKotlinCompatibility() {
         compilerOptions {
             languageVersion.set(KotlinVersion.fromVersion("1.4"))
             apiVersion.set(KotlinVersion.fromVersion("1.4"))
-            freeCompilerArgs.add("-Xsuppress-version-warnings")
+            freeCompilerArgs.addAll(
+                "-Xsuppress-version-warnings",
+                // we need this flag to be able to use newer Analysis API versions
+                "-Xskip-metadata-version-check"
+            )
         }
     }
 }
