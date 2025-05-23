@@ -507,7 +507,6 @@ public open class DefaultPageCreator(
                 extra = PropertyContainer.empty<ContentNode>() + TabbedContentTypeExtra(
                     BasicTabbedContentType.CONSTRUCTOR
                 ),
-                headerStyles = setOf(ContentStyle.TableHeader)
             ) { key, ds ->
                 link(key, ds.first().dri, kind = ContentKind.Main, styles = setOf(ContentStyle.RowTitle))
                 sourceSetDependentHint(
@@ -741,7 +740,6 @@ public open class DefaultPageCreator(
             extra = mainExtra,
             contentType = contentType,
             groups = groups,
-            headerStyles = setOf(ContentStyle.TableHeader)
         )
     }
 
@@ -766,13 +764,12 @@ public open class DefaultPageCreator(
         extra: PropertyContainer<ContentNode>,
         contentType: BasicTabbedContentType,
         groups: List<DivergentElementGroup>,
-        headerStyles: Set<ContentStyle> = emptySet()
     ) {
         if (groups.isEmpty()) return
 
         // be careful: extra here will be applied for children by default
         group(extra = extra + TabbedContentTypeExtra(contentType)) {
-            header(2, name, kind = kind, extra = extra, styles = headerStyles) { }
+            header(2, name, kind = kind, extra = extra, styles = setOf(ContentStyle.TableHeader)) { }
             table(kind, extra = extra, styles = emptySet()) {
                 header {
                     group { text("Name") }

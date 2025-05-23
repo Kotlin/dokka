@@ -265,14 +265,13 @@ public open class PageContentBuilder(
             renderWhenEmpty: Boolean = false,
             needsSorting: Boolean = true,
             headers: List<ContentGroup> = emptyList(),
-            headerStyles: Set<Style> = emptySet<Style>(),
             needsAnchors: Boolean = false,
             operation: DocumentableContentBuilder.(String, List<Documentable>) -> Unit
         ) {
 
             if (renderWhenEmpty || groupedElements.any()) {
                 group(extra = extra) {
-                    header(level, name, kind = kind, styles = headerStyles) { }
+                    header(level, name, kind = kind, styles = setOf(ContentStyle.TableHeader)) { }
                     contents += ContentTable(
                         header = headers,
                         children = groupedElements
