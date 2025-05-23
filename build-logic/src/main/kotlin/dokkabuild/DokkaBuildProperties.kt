@@ -62,7 +62,7 @@ abstract class DokkaBuildProperties @Inject constructor(
     /** Indicates whether Kotlin compatibility with older Gradle versions should be enforced */
     val enforceGradleKotlinCompatibility: Provider<Boolean> =
         dokkaProperty("enforceGradleKotlinCompatibility", String::toBoolean)
-            .orElse(true)
+            .orElse(false)
 
     /** Allows skipping running of integration tests */
     val integrationTestSkip: Provider<Boolean> =
