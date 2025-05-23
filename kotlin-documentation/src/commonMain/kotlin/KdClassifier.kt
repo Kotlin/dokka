@@ -49,9 +49,9 @@ public data class KdClass(
     override val annotations: List<KdAnnotation> = emptyList(),
 ) : KdClassifier()
 
-@SerialName("typeAlias")
+@SerialName("typealias")
 @Serializable
-public data class KdTypeAlias(
+public data class KdTypealias(
     override val id: KdClassifierId,
 
     public val underlyingType: KdType,
