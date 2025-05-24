@@ -62,6 +62,10 @@ const initPlayground = (theme) => {
     // Manually tag code fragments as not processed by playground since we also manually destroy all of its instances
     document.querySelectorAll('code.runnablesample').forEach(node => {
         node.removeAttribute("data-kotlin-playground-initialized");
+
+        if (node.parentNode) {
+            node.parentNode.setAttribute("runnable-code-sample", "");
+        }
     })
 
     KotlinPlayground('code.runnablesample', {

@@ -91,7 +91,7 @@ const TOC_SKIP_LINK_CLASS = 'toc--skip-link';
         tocToggleButton.setAttribute("aria-expanded", "true");
       }
       const tocPartId = tocPart.getAttribute('id');
-      safeLocalStorage.setItem(`${TOC_STATE_KEY_PREFIX}${tocPartId}`, 'true');
+      safeSessionStorage.setItem(`${TOC_STATE_KEY_PREFIX}${tocPartId}`, 'true');
     }
   };
 
@@ -100,10 +100,10 @@ const TOC_SKIP_LINK_CLASS = 'toc--skip-link';
    * LocalStorage keys are in the format of `TOC_STATE::${id}` where `id` is the id of the part
    */
   const restoreTocExpandedState = () => {
-    const allLocalStorageKeys = safeLocalStorage.getKeys();
+    const allLocalStorageKeys = safeSessionStorage.getKeys();
     const tocStateKeys = allLocalStorageKeys.filter((key) => key.startsWith(TOC_STATE_KEY_PREFIX));
     tocStateKeys.forEach((key) => {
-      const isExpandedTOCPart = safeLocalStorage.getItem(key) === 'true';
+      const isExpandedTOCPart = safeSessionStorage.getItem(key) === 'true';
       const tocPartId = key.substring(TOC_STATE_KEY_PREFIX.length);
       const tocPart = document.querySelector(`.toc--part[id="${tocPartId}"]`);
       if (tocPart !== null && isExpandedTOCPart) {
@@ -120,14 +120,14 @@ const TOC_SKIP_LINK_CLASS = 'toc--skip-link';
     const container = document.getElementById(TOC_SCROLL_CONTAINER_ID);
     if (container) {
       const currentScrollTop = container.scrollTop;
-      safeLocalStorage.setItem(`${TOC_STATE_KEY_PREFIX}SCROLL_TOP`, `${currentScrollTop}`);
+      safeSessionStorage.setItem(`${TOC_STATE_KEY_PREFIX}SCROLL_TOP`, `${currentScrollTop}`);
     }
   }
 
   function restoreTocScrollTop() {
     const container = document.getElementById(TOC_SCROLL_CONTAINER_ID);
     if (container) {
-      const storedScrollTop = safeLocalStorage.getItem(`${TOC_STATE_KEY_PREFIX}SCROLL_TOP`);
+      const storedScrollTop = safeSessionStorage.getItem(`${TOC_STATE_KEY_PREFIX}SCROLL_TOP`);
       if (storedScrollTop) {
         container.scrollTop = Number(storedScrollTop);
       }
@@ -148,11 +148,39 @@ const TOC_SKIP_LINK_CLASS = 'toc--skip-link';
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function resetTocState() {
+    const tocKeys = safeSessionStorage.getKeys();
+    tocKeys.forEach((key) => {
+      if (key.startsWith(TOC_STATE_KEY_PREFIX)) {
+        safeSessionStorage.removeItem(key);
+      }
+    });
+  }
+
+  function initLogoClickListener() {
+    const logo = document.querySelector('.library-name--link');
+    if (logo) {
+      logo.addEventListener('click', resetTocState);
+    }
+  }
+
+  /*
+    This is a work-around for safari being IE of our times.
+    It doesn't fire a DOMContentLoaded, presumably because eventListener is added after it wants to do it
+*/
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', () => {
+      displayToc();
+      initTocScrollListener();
+      initLogoClickListener();
+    })
+  } else {
     displayToc();
     initTocScrollListener();
-  });
+    initLogoClickListener();
+  }
 })();
+
 
 function handleTocButtonClick(event, navId) {
   const tocPart = document.getElementById(navId);
@@ -163,5 +191,5 @@ function handleTocButtonClick(event, navId) {
   const isExpandedTOCPart = !tocPart.classList.contains(TOC_PART_HIDDEN_CLASS);
   const button = tocPart.querySelector('button');
   button?.setAttribute("aria-expanded", `${isExpandedTOCPart}`);
-  safeLocalStorage.setItem(`${TOC_STATE_KEY_PREFIX}${navId}`, `${isExpandedTOCPart}`);
+  safeSessionStorage.setItem(`${TOC_STATE_KEY_PREFIX}${navId}`, `${isExpandedTOCPart}`);
 }
