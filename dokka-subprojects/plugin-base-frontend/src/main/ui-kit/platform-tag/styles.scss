@@ -12,6 +12,19 @@
 
   margin-bottom: -6px;
   margin-left: -4px;
+
+  @media (width < $breakpoint-tablet-min) {
+    margin-top: 0;
+    margin-left: 0;
+
+    &--wrapper {
+      float: none;
+
+      margin-top: 8px;
+
+      margin-left: -16px;
+    }
+  }
 }
 
 .platform-tag {
