@@ -2388,6 +2388,17 @@ a {
   top: -2px;
 }
 
+@media (max-width: 439px) {
+  .platform-tags {
+    margin-left: 0;
+    margin-top: 0;
+  }
+  .platform-tags--wrapper {
+    float: none;
+    margin-left: -16px;
+    margin-top: 8px;
+  }
+}
 .platform-tag {
   --platform-tag-color:#bababb;
   border: 0;
