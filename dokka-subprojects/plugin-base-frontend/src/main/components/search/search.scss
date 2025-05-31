@@ -105,15 +105,24 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
   }
 
   input {
+    width: calc(100% - 4px);
     height: $input-height-desktop;
+    margin-left: -40px;
 
     padding-right: 52px;
+    padding-left: 40px;
 
     color: #fff;
+
+    border-radius: 0;
 
     font-size: 16px;
 
     font-weight: normal !important;
+
+    &:focus-visible {
+      outline: var(--focus-outline);
+    }
 
     &::placeholder {
       color: transparent;
@@ -147,9 +156,11 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
     }
 
     &:focus-visible {
-      outline: var(--focus-outline);
-      outline-offset: -4px;
-      box-shadow: none;
+      box-shadow:
+        inset 4px 0 0 var(--color-key-blue-50),
+        inset -4px 0 0 var(--color-key-blue-50),
+        0 -4px 0 var(--color-key-blue-50),
+        0 4px 0 var(--color-key-blue-50);
     }
 
     &:hover {
@@ -286,6 +297,8 @@ div[data-test='ring-select-popup-filter'] {
 }
 
 div[data-test='ring-popup'] {
+  overflow: visible;
+
   border-radius: 0;
 
   & .ReactVirtualized__List {
