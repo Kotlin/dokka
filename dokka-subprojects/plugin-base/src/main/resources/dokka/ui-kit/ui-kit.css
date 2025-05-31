@@ -1128,6 +1128,7 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
   justify-content: flex-end;
   margin-right: 12px;
   max-height: 40px;
+  padding-left: 0;
   position: static;
   z-index: 1;
 }
@@ -2401,7 +2402,6 @@ a {
   cursor: pointer;
   font: 400 14px/20px Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
   font: var(--font-text-s);
-  font-size: 13px;
   padding: 10px 12px;
   position: relative;
   text-transform: capitalize;
