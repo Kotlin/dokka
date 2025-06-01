@@ -2641,6 +2641,8 @@ button.platform-tag:focus-visible {
 .table-row_multimodule, .table-row_platform-tagged {
   border-left: none;
   border-right: none;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .table-row_multimodule:first-of-type, .table-row_platform-tagged:first-of-type {
