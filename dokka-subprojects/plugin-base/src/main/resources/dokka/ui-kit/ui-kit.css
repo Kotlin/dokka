@@ -1694,6 +1694,10 @@ code:not(.block) {
   z-index: 1;
 }
 
+.table + hr {
+  display: none;
+}
+
 .main-content .content > hr {
   border: none;
   border-top: 1px solid var(--color-b20);
