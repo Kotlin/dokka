@@ -1564,6 +1564,37 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("#4056")
+    fun `primary constructor parameter should be marked as property for derived generic class`() = testRender(
+        """
+            |/src/main/kotlin/SomeClass.kt
+            |abstract class Parent<out RowType : Any>(val name: (String) -> RowType)
+            |abstract class Child<out RowType : Any>(name: (String) -> RowType) : Parent<RowType>(name)
+        """.trimMargin(),
+    ) {
+        renderedContent("root/[root]/-child/index.html").firstSignature().matchIgnoringSpans(
+            "abstract class", A("Child"), "<out", A("RowType"), " : ", A("Any"), ">(", Parameters(
+                Parameter("val name: (", A("String"), ") -> ", A("RowType"))
+            ), ") : ", A("Parent"), "<", A("RowType"), "> "
+        )
+    }
+
+    @Test
+    fun `primary constructor parameter should be marked as property for derived non-generic class`() = testRender(
+        """
+            |/src/main/kotlin/SomeClass.kt
+            |abstract class Parent(val name: (String) -> Int)
+            |abstract class Child(name: (String) -> Int) : Parent
+        """.trimMargin(),
+    ) {
+        renderedContent("root/[root]/-child/index.html").firstSignature().matchIgnoringSpans(
+            "abstract class", A("Child"), "(", Parameters(
+                Parameter("val name: (", A("String"), ") -> ", A("Int"))
+            ), ") : ", A("Parent")
+        )
+    }
+
+    @Test
     fun `should render actual keyword for constructor`() {
         val writerPlugin = TestOutputWriterPlugin()
 
