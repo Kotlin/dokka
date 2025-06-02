@@ -72,21 +72,23 @@ html, body {
 /* --- global tags styles --- */
 
 h1 {
-    font-size: 40px;
-    line-height: 48px;
-    letter-spacing: -1px;
+    font-size: 44px;
+    line-height: 44px;
 }
 
 h2 {
-    font-size: 31px;
-    line-height: 40px;
-    letter-spacing: -0.5px;
+    font-size: 32px;
+    line-height: 32px;
 }
 
 h3 {
-    font-size: 20px;
-    line-height: 28px;
-    letter-spacing: -0.2px;
+    font-size: 24px;
+    line-height: 24px;
+}
+
+h4 {
+    font-size: 16px;
+    line-height: 24px;
 }
 
 p, ul, ol, table, pre, dl {
