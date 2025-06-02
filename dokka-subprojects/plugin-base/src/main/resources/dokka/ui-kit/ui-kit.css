@@ -2398,6 +2398,7 @@ a {
     margin-top: 0;
   }
   .platform-tags--wrapper {
+    flex-basis: 100%;
     float: none;
     margin-left: -16px;
     margin-top: 8px;
