@@ -296,26 +296,15 @@ p.paragraph:first-child,
 }
 
 h1.cover {
-    font-size: 52px;
-    line-height: 56px;
-    letter-spacing: -1.5px;
-    margin-bottom: 0;
-    padding-bottom: 32px;
+    margin-bottom: 32px;
     display: block;
 }
 
-@media (max-width: 1119px) {
-    h1.cover {
-        font-size: 48px;
-        line-height: 48px;
-        padding-bottom: 8px;
-    }
-}
-
-@media (max-width: 759px) {
+@media (max-width: 899px) {
     h1.cover {
         font-size: 32px;
         line-height: 32px;
+        margin-bottom: 16px;
     }
 }
 
