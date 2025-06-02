@@ -3076,8 +3076,7 @@ td:first-child {
 }
 @media (hover: hover) {
   .toc--button:hover {
-    background-color: rgba(0, 0, 0, 0.08);
-    background-color: var(--toc-hover-color);
+    background: linear-gradient(270deg, transparent, rgba(0, 0, 0, 0.08));
   }
 }
 .toc--button:active {
@@ -3107,8 +3106,8 @@ td:first-child {
 }
 
 .toc--link:hover {
-  background-color: rgba(0, 0, 0, 0.08);
-  background-color: var(--toc-hover-color);
+  background: rgba(0, 0, 0, 0.08);
+  background: var(--toc-hover-color);
 }
 
 .toc--link.focus-visible {
@@ -3362,6 +3361,14 @@ td:first-child {
   height: 16px;
   line-height: 32px;
   width: 16px;
+}
+
+.theme-dark .toc--button:hover, .toc--button + .toc--link:hover {
+  background: linear-gradient(90deg, hsla(0, 0%, 100%, 0.08), rgba(17, 0, 0, 0.08));
+}
+
+.theme-dark .toc--button + .toc--link:hover {
+  background: linear-gradient(270deg, hsla(0, 0%, 100%, 0.08), rgba(17, 0, 0, 0.08));
 }
 
 .toc--icon.class:before {
