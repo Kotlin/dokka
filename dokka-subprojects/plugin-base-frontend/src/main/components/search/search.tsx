@@ -103,7 +103,7 @@ function onSearchPopupOpen() {
     });
   }
   document.body.style.overflow = 'hidden';
-  setTimeout(initActiveSearchOptionObserver, 0);
+  initActiveSearchOptionObserver();
 }
 
 function createSearchPopupCloseButton() {
