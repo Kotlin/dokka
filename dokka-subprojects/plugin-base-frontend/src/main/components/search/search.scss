@@ -302,6 +302,10 @@ div[data-test='ring-popup'] {
   border-radius: 0;
 
   & .ReactVirtualized__List {
+    &:focus-visible {
+      outline: var(--focus-outline);
+    }
+
     @media (width < $breakpoint-desktop-min) {
       max-height: calc(100vh - $input-height-mobile) !important;
     }
