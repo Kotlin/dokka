@@ -75,6 +75,17 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             )
         }
 
+        projectDir.resolve("gradle.properties").apply {
+            if (!exists()) createNewFile()
+            appendText(
+                """
+                |
+                |org.jetbrains.dokka.experimental.gradle.pluginMode=V1Enabled
+                |org.jetbrains.dokka.experimental.gradle.pluginMode.noWarn=true
+                |""".trimMargin()
+            )
+        }
+
         return GradleRunner.create()
             .withProjectDir(projectDir)
             .forwardOutput()
