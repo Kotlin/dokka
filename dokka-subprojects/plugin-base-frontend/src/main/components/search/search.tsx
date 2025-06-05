@@ -8,7 +8,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import '@jetbrains/ring-ui/components/input-size/input-size.css';
 import './search.scss';
 import { FocusTrap } from '../../ui-kit/dropdown/focus-trap';
-import { debounce } from '../../ui-kit/utils';
 import { relativizeUrlForRequest } from '../utils/requests';
 import { DokkaFuzzyFilterComponent } from './dokkaFuzzyFilter';
 import { DokkaSearchAnchor } from './dokkaSearchAnchor';
@@ -45,9 +44,9 @@ const WithFuzzySearchFilterComponent: React.FC<Props> = ({ data }: Props) => {
           customAnchor={({ wrapperProps, buttonProps, popup }: CustomAnchorProps) => (
             <DokkaSearchAnchor wrapperProps={wrapperProps} buttonProps={buttonProps} popup={popup} />
           )}
-          onFilter={resetOptionsObserver}
           onOpen={onSearchPopupOpen}
           onClose={onSearchPopupClose}
+          onFilter={resetSearchOptionsListScrollPosition}
         />
       </div>
     </div>
@@ -104,7 +103,7 @@ function onSearchPopupOpen() {
     });
   }
   document.body.style.overflow = 'hidden';
-  setTimeout(initOptionsObserver, 0);
+  setTimeout(initActiveSearchOptionObserver, 0);
 }
 
 function createSearchPopupCloseButton() {
@@ -117,7 +116,7 @@ function createSearchPopupCloseButton() {
 
 function onSearchPopupClose() {
   document.body.style.overflow = '';
-  destroyOptionsObserver();
+  destroyActiveSearchOptionsObserver();
 }
 
 function handleInputKeyDown(event: Event) {
@@ -167,58 +166,57 @@ function handleCloseSearchPopupButtonClick(event: Event) {
   }
 }
 
-let observer: MutationObserver | null = null;
+let activeSearchOptionsObserver: MutationObserver | null = null;
 
-const DEBOUNCE_DELAY = 300; // milliseconds
-const debouncedInitOptionsObserver = debounce(initOptionsObserver, DEBOUNCE_DELAY);
+function initActiveSearchOptionObserver() {
+  destroyActiveSearchOptionsObserver();
 
-function resetOptionsObserver() {
-  if (observer !== null) {
-    destroyOptionsObserver();
-  }
-  const listWrapper = document.querySelector('.ReactVirtualized__Grid');
-  if (listWrapper) {
-    listWrapper.scrollTop = 0;
-  }
-  setTimeout(initOptionsObserver, 0);
-}
-
-function initOptionsObserver() {
-  destroyOptionsObserver();
-  observer = new MutationObserver((mutations) => {
+  activeSearchOptionsObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
-      if ([...(mutation.target as HTMLElement).classList].some((className) => className.includes('hover'))) {
-        const hoveredItem = mutation.target as HTMLElement;
+      const searchOptionElement = mutation.target as HTMLElement;
 
-        if (!isListItemVisible(hoveredItem)) {
-          hoveredItem.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-            inline: 'center',
-          });
-          debouncedInitOptionsObserver();
-        }
+      if (isSearchOptionActive(searchOptionElement) && !isSearchOptionVisible(searchOptionElement)) {
+        searchOptionElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'center',
+        });
       }
     });
   });
 
-  const listItems = document.querySelectorAll('[data-test~="ring-list-item-custom"]');
+  const listWrapper = document.querySelector('.ReactVirtualized__Grid');
 
-  listItems.forEach((listItem) => {
-    observer?.observe(listItem, {
-      attributes: true,
-    });
+  if (!listWrapper || !activeSearchOptionsObserver) {
+    return;
+  }
+  activeSearchOptionsObserver.observe(listWrapper, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class'],
   });
 }
 
-function destroyOptionsObserver() {
-  if (observer !== null) {
-    observer.disconnect();
-    observer = null;
+function destroyActiveSearchOptionsObserver() {
+  if (activeSearchOptionsObserver !== null) {
+    activeSearchOptionsObserver.disconnect();
+    activeSearchOptionsObserver = null;
   }
 }
 
-function isListItemVisible(element: HTMLElement): boolean {
+function resetSearchOptionsListScrollPosition() {
+  const listWrapper = document.querySelector('.ReactVirtualized__Grid');
+  if (listWrapper) {
+    listWrapper.scrollTop = 0;
+  }
+}
+
+function isSearchOptionActive(element: HTMLElement): boolean {
+  return [...element.classList].some((className) => className.includes('hover'));
+}
+
+function isSearchOptionVisible(element: HTMLElement): boolean {
   const elementRect = element.getBoundingClientRect();
   const listWrapper = element.closest('.ReactVirtualized__Grid');
 
