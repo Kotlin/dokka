@@ -5,6 +5,7 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.dokka.gradle.utils.enableV1Plugin
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
@@ -12,6 +13,7 @@ import kotlin.test.assertTrue
 class CheckSourceSetDependenciesTest {
 
     private val project = ProjectBuilder.builder().build()
+        .enableV1Plugin()
 
     @Test
     fun `passes when properly configured`() {

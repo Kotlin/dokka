@@ -8,6 +8,7 @@ import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.dokka.gradle.utils.enableV1Plugin
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
@@ -18,6 +19,7 @@ class DokkaClassicPluginApplyTest {
     @Test
     fun `one task per format is registered`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.dokka")
 
         assertTrue(
@@ -44,6 +46,7 @@ class DokkaClassicPluginApplyTest {
     @Test
     fun `dokka plugin configurations extend dokkaPlugin`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.dokka")
 
         val dokkaPluginsConfiguration = project.maybeCreateDokkaDefaultPluginConfiguration()
@@ -59,6 +62,7 @@ class DokkaClassicPluginApplyTest {
     @Test
     fun `all dokka tasks are part of the documentation group`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.dokka")
         assertDokkaTasksHaveDocumentationGroup(project.tasks)
     }
@@ -66,7 +70,9 @@ class DokkaClassicPluginApplyTest {
     @Test
     fun `all dokka tasks are part of the documentation group in a multi module setup`() {
         val root = ProjectBuilder.builder().withName("root").build()
+            .enableV1Plugin()
         val child = ProjectBuilder.builder().withName("child").withParent(root).build()
+            .enableV1Plugin()
         root.plugins.apply("org.jetbrains.dokka")
         child.plugins.apply("org.jetbrains.dokka")
         assertDokkaTasksHaveDocumentationGroup(root.tasks)
@@ -76,7 +82,9 @@ class DokkaClassicPluginApplyTest {
     @Test
     fun `old dokka tasks are part of the deprecated group in a multi module setup`() {
         val root = ProjectBuilder.builder().withName("root").build()
+            .enableV1Plugin()
         val child = ProjectBuilder.builder().withName("child").withParent(root).build()
+            .enableV1Plugin()
         root.plugins.apply("org.jetbrains.dokka")
         child.plugins.apply("org.jetbrains.dokka")
         assertOldDokkaTasksHaveDeprecatedGroup(root.tasks)
@@ -86,6 +94,7 @@ class DokkaClassicPluginApplyTest {
     @Test
     fun `all dokka tasks provide a task description`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.dokka")
         assertDokkaTasksHaveDescription(project.tasks)
     }
@@ -93,7 +102,9 @@ class DokkaClassicPluginApplyTest {
     @Test
     fun `all dokka tasks provide a task description in a multi module setup`() {
         val root = ProjectBuilder.builder().withName("root").build()
+            .enableV1Plugin()
         val child = ProjectBuilder.builder().withName("child").withParent(root).build()
+            .enableV1Plugin()
         root.plugins.apply("org.jetbrains.dokka")
         child.plugins.apply("org.jetbrains.dokka")
         assertDokkaTasksHaveDescription(root.tasks)
@@ -103,7 +114,9 @@ class DokkaClassicPluginApplyTest {
     @Test
     fun `parent dokka tasks have children configured`() {
         val root = ProjectBuilder.builder().withName("root").build()
+            .enableV1Plugin()
         val child = ProjectBuilder.builder().withName("child").withParent(root).build()
+            .enableV1Plugin()
         root.plugins.apply("org.jetbrains.dokka")
         child.plugins.apply("org.jetbrains.dokka")
 

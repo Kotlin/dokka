@@ -9,6 +9,7 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.gradle.utils.enableV1Plugin
 import org.jetbrains.dokka.gradle.utils.isAgpRunnable
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
 import java.net.URI
@@ -17,6 +18,7 @@ import kotlin.test.*
 class GradleDokkaSourceSetBuilderTest {
 
     private val project = ProjectBuilder.builder().withName("root").build()
+        .enableV1Plugin()
 
     @Test
     fun sourceSetId() {

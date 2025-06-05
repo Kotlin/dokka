@@ -12,10 +12,7 @@ import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.gradle.AbstractDokkaTask
 import org.jetbrains.dokka.gradle.DokkaCollectorTask
 import org.jetbrains.dokka.gradle.DokkaTask
-import org.jetbrains.dokka.gradle.utils.all_
-import org.jetbrains.dokka.gradle.utils.allprojects_
-import org.jetbrains.dokka.gradle.utils.configureEach_
-import org.jetbrains.dokka.gradle.utils.withDependencies_
+import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.testApi.assertDokkaConfigurationEquals
 import java.io.File
 import kotlin.test.Test
@@ -28,7 +25,9 @@ class DokkaCollectorTaskTest {
     @Test
     fun buildDokkaConfiguration() {
         val rootProject = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         val childProject = ProjectBuilder.builder().withParent(rootProject).build()
+            .enableV1Plugin()
         childProject.plugins.apply("org.jetbrains.kotlin.jvm")
 
         rootProject.allprojects_ {
@@ -79,7 +78,9 @@ class DokkaCollectorTaskTest {
     @Test
     fun `verify that cacheRoot is optional, and not required to build DokkaConfiguration`() {
         val rootProject = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         val childProject = ProjectBuilder.builder().withParent(rootProject).build()
+            .enableV1Plugin()
         childProject.plugins.apply("org.jetbrains.kotlin.jvm")
 
         rootProject.allprojects_ {
@@ -110,6 +111,7 @@ class DokkaCollectorTaskTest {
     @Test
     fun `with no child tasks throws DokkaException`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         val collectorTask = project.tasks.create<DokkaCollectorTask>("collector")
         project.configurations.all_ { withDependencies_ { clear() } }
         assertFailsWith<DokkaException> { collectorTask.generateDocumentation() }

@@ -9,6 +9,7 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.gradle.DokkaMultiModuleFileLayout.CompactInParent
 import org.jetbrains.dokka.gradle.DokkaMultiModuleFileLayout.NoCopy
+import org.jetbrains.dokka.gradle.utils.enableV1Plugin
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -20,6 +21,7 @@ class DokkaMultiModuleFileLayoutTest {
     @Test
     fun `no copy`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.dokka")
 
         val child = project.tasks.create<DokkaTask>("child")
@@ -36,12 +38,16 @@ class DokkaMultiModuleFileLayoutTest {
     @Test
     fun `compact in parent`() {
         val rootProject = ProjectBuilder.builder().build()
+            .enableV1Plugin()
 
         val parentProject = ProjectBuilder.builder().withName("parent").withParent(rootProject).build()
+            .enableV1Plugin()
         parentProject.plugins.apply("org.jetbrains.dokka")
 
         val intermediateProject = ProjectBuilder.builder().withName("intermediate").withParent(parentProject).build()
+            .enableV1Plugin()
         val childProject = ProjectBuilder.builder().withName("child").withParent(intermediateProject).build()
+            .enableV1Plugin()
         childProject.plugins.apply("org.jetbrains.dokka")
 
         val parentTask = parentProject.tasks.create<DokkaMultiModuleTask>("parentTask")
@@ -59,6 +65,7 @@ class DokkaMultiModuleFileLayoutTest {
     fun copyChildOutputDirectory() {
         /* Prepare */
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.dokka")
 
         val childTask = project.tasks.create<DokkaTask>("child")
@@ -115,6 +122,7 @@ class DokkaMultiModuleFileLayoutTest {
     @Test
     fun `copyChildOutputDirectory target output directory within itself throws DokkaException`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.dokka")
 
         val childTask = project.tasks.create<DokkaTask>("child")
@@ -128,6 +136,7 @@ class DokkaMultiModuleFileLayoutTest {
     @Test
     fun `copyChildOutputDirectory NoCopy`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.dokka")
 
         val childTask = project.tasks.create<DokkaTask>("child")
