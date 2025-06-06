@@ -13,7 +13,7 @@ public data class KdCallableId(
     override val packageName: String,
     public val classNames: String?,
     public val callableName: String?, // if null -> constructor
-    public val parametersHash: String? // if null -> no parameters?
+    public val parametersHash: String? // if null -> no parameters? -> variable
 ) : KdDeclarationId() {
     public val classifierId: KdClassifierId? get() = classNames?.let { KdClassifierId(packageName, it) }
 }
@@ -86,6 +86,7 @@ public data class KdFunction(
     override val annotations: List<KdAnnotation> = emptyList(),
 ) : KdCallable()
 
+// TODO: probably we need to have `getter/setter` here to be able to correctly generate javadoc from this
 @SerialName("variable")
 @Serializable
 public data class KdVariable(
