@@ -4,6 +4,28 @@
 
 package org.jetbrains.kotlin.documentation
 
+/*
+Workflow:
+1. use sources to generate JSON for all fragments (N*KdFragment)
+2. take package docs and module docs (topics) from `/docs` (KdModule)
+3. get external dependencies links (M*KdExternalModule) (klibs.io + custom)
+4. get all modules data - dependencies, other projects, etc (K*KdModule)
+5. get project topics (KdProject)
+6. generate HTML (input = KdProject + N*KdModule + M*KdExternalModule)
+ */
+
+
+
+
+
+
+
+// TODO: external links and source information
+
+// declaration <- fragment <- module <- project
+
+// TODO: we should generate package-list (or module-list) for interoperability with javadoc
+
 /**
  * Overall we do have four parts of what is needed for documentation:
  * - declarations KDocs

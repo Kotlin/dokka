@@ -10,8 +10,13 @@ import kotlinx.serialization.Serializable
 // TODO: id is not enough, as we could have section references
 @Serializable
 public data class KdExternalModule(
-    // ID -> URL
-    public val mapping: Map<String, String>
+    public val links: List<KdExternalLink>
+)
+
+@Serializable
+public data class KdExternalLink(
+    public val id: KdElementId,
+    public val url: String
 )
 
 //public interface KdExternalModule {
@@ -29,3 +34,5 @@ public data class KdExternalModule(
 //
 //    public val declarations: Map<KdDeclarationId, KdSymbolLink>
 //}
+
+// to generate HTML: local modules (sources) + external modules (links)
