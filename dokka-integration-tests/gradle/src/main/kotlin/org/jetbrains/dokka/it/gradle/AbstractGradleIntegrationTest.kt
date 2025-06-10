@@ -17,7 +17,6 @@ import java.io.File
 import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.*
 import kotlin.io.path.*
 import kotlin.test.BeforeTest
 import kotlin.time.Duration.Companion.seconds
@@ -57,7 +56,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
          * Defaults to [gradleLogLevel], so that the Dokka logs are always produced.
          */
         dokkaLogLevel: LogLevel = gradleLogLevel,
-        dgpPluginMode: String = "V1Enabled",
+        dgpPluginMode: String? = "V1Enabled",
     ): GradleRunner {
 
         // TODO quick hack to add `android { namespace }` on AGP 7+ (it's mandatory in 8+).
@@ -76,10 +75,6 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                 """.trimMargin()
             )
         }
-
-        updateGradleProperties(
-            dgpPluginMode = dgpPluginMode,
-        )
 
         return GradleRunner.create()
             .withProjectDir(projectDir)
@@ -121,6 +116,11 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                         add("-P${TestEnvironment.TRY_K2}=true")
                     }
 
+                    if (dgpPluginMode != null) {
+                        add("-Porg.jetbrains.dokka.experimental.gradle.pluginMode=${dgpPluginMode}")
+                        add("-Porg.jetbrains.dokka.experimental.gradle.pluginMode.noWarn=true")
+                    }
+
                     // Decrease Gradle daemon idle timeout to prevent old agents lingering on CI.
                     // A lower timeout means slower tests, which is preferred over OOMs and locked processes.
                     add("-Dorg.gradle.daemon.idletimeout=" + 10.seconds.inWholeMilliseconds) // default is 3 hours!
@@ -142,29 +142,6 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             }
             throw e
         }
-    }
-
-    private fun updateGradleProperties(
-        dgpPluginMode: String,
-    ) {
-        val gradlePropertiesFile = projectDir.resolve("gradle.properties").apply {
-            if (!exists()) createNewFile()
-        }
-
-        val gradleProperties = Properties().apply {
-            gradlePropertiesFile.reader().use(::load)
-        }
-
-        gradleProperties.putIfAbsent("org.jetbrains.dokka.experimental.gradle.pluginMode", dgpPluginMode)
-        gradleProperties.putIfAbsent("org.jetbrains.dokka.experimental.gradle.pluginMode.noWarn", "true")
-
-        val updatedProperties = gradleProperties.toMap().entries
-            .sortedBy { it.key.toString() }
-            .joinToString(separator = "\n", postfix = "\n") { (k, v) ->
-                "$k=$v"
-            }
-
-        gradlePropertiesFile.writeText(updatedProperties)
     }
 
     companion object {
