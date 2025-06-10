@@ -102,7 +102,7 @@ include(
     ":dokka-subprojects:plugin-versioning",
 )
 
-includeBuild("kotlin-documentation")
+includeBuild("kdp")
 
 // This hack is required for included build support.
 // The name of the published artifact is `dokka-core`, but the module is named `core`.
