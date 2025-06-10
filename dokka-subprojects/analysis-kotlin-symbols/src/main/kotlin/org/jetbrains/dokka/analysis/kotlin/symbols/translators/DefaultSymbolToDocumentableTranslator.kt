@@ -899,7 +899,7 @@ internal class DokkaSymbolVisitor(
      */
     private fun KaSession.isDokkaOverride(symbol: KaCallableSymbol): Boolean {
         fun KaCallableSymbol.isCompilerOverride() =
-            if (this is KaPropertySymbol) isOverride else if (this is KaNamedFunctionSymbol) isOverride else throw IllegalStateException()
+            if (this is KaPropertySymbol) isOverride else if (this is KaNamedFunctionSymbol) isOverride else error("Should be property or function but was '${this::class}'")
         fun KaSymbol.isFake() = origin == KaSymbolOrigin.SUBSTITUTION_OVERRIDE || origin == KaSymbolOrigin.INTERSECTION_OVERRIDE
 
 
