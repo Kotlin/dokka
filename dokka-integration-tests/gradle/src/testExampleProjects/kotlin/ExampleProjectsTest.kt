@@ -419,13 +419,8 @@ class ExampleProjectsTest {
             .getPathMatcher("glob:**/build/reports/configuration-cache/**/configuration-cache-report.html")
         testCase.project
             .findFiles { file -> ccReportFileMatcher.matches(file) }
-            .mapNotNull {
-                generateSequence(it, Path::getParent).firstOrNull { parent ->
-                    parent.invariantSeparatorsPathString.endsWith("build/reports/configuration-cache")
-                }
-            }
             .distinct()
-            .forEach { it.deleteRecursively() }
+            .forEach { it.deleteExisting() }
 
         val configCacheRunner: GradleRunner =
             testCase.project.runner
