@@ -16,6 +16,7 @@ public sealed class KdDeclarationId : KdElementId() {
 @Serializable
 public sealed class KdDeclaration : KdElement() {
     abstract override val id: KdDeclarationId
+    // public abstract val fileId: KdFileId
 
     public abstract val sourceLanguage: KdSourceLanguage
     public abstract val visibility: KdVisibility

@@ -11,8 +11,22 @@ import kotlinx.serialization.Serializable
 @Serializable
 public data class KdAnnotation(
     val classifierId: KdClassifierId,
-    val arguments: List<KdAnnotationArgument>
+    val useSiteTargets: List<KdAnnotationUseSiteTarget>, // TODO: non-empty-list?
+    val arguments: List<KdAnnotationArgument> = emptyList(),
 )
+
+// TODO: take from AA? TBD
+public enum class KdAnnotationUseSiteTarget {
+    FILE,
+    PROPERTY,
+    FIELD,
+    GET,
+    SET,
+    RECEIVER,
+    PARAM,
+    SETPARAM,
+    DELEGATE
+}
 
 @Serializable
 public data class KdAnnotationArgument(
