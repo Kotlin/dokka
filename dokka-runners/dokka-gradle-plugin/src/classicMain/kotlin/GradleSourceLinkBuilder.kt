@@ -31,6 +31,7 @@ import java.net.URL
  * }
  * ```
  */
+@Deprecated(DOKKA_V1_DEPRECATION_MESSAGE)
 class GradleSourceLinkBuilder(
     @Transient @get:Internal internal val project: Project
 ) : DokkaConfigurationBuilder<SourceLinkDefinitionImpl> {

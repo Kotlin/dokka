@@ -11,12 +11,14 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.DokkaDefaults
+import org.jetbrains.dokka.gradle.DOKKA_V1_DEPRECATION_MESSAGE
 
 /**
  * The OG Dokka Gradle Plugin. A.K.A. DGP Classic, or Dokka V1.
  *
  * This plugin is planned for removal, see https://youtrack.jetbrains.com/issue/KT-71027/Remove-Dokka-Gradle-Plugin-v1
  */
+@Deprecated(DOKKA_V1_DEPRECATION_MESSAGE)
 open class DokkaClassicPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         if (GradleVersion.version(project.gradle.gradleVersion) < GradleVersion.version("5.6")) {
@@ -63,11 +65,11 @@ open class DokkaClassicPlugin : Plugin<Project> {
         name: String,
         multiModuleTaskSupported: Boolean = true,
         allModulesPageAndTemplateProcessing: Dependency = project.dokkaArtifacts.allModulesPage,
-        configuration: AbstractDokkaTask.() -> Unit = {}
+        configuration: @Suppress("DEPRECATION") AbstractDokkaTask.() -> Unit = {}
     ) {
         project.maybeCreateDokkaPluginConfiguration(name)
         project.maybeCreateDokkaRuntimeConfiguration(name)
-        project.tasks.register<DokkaTask>(name) {
+        project.tasks.register<@Suppress("DEPRECATION") DokkaTask>(name) {
             configuration()
         }
 
@@ -75,7 +77,7 @@ open class DokkaClassicPlugin : Plugin<Project> {
             val partialName = "${name}Partial"
             project.maybeCreateDokkaPluginConfiguration(partialName)
             project.maybeCreateDokkaRuntimeConfiguration(partialName)
-            project.tasks.register<DokkaTaskPartial>(partialName) {
+            project.tasks.register<@Suppress("DEPRECATION") DokkaTaskPartial>(partialName) {
                 configuration()
             }
         }
@@ -86,7 +88,7 @@ open class DokkaClassicPlugin : Plugin<Project> {
                 project.maybeCreateDokkaPluginConfiguration(multiModuleName, setOf(allModulesPageAndTemplateProcessing))
                 project.maybeCreateDokkaRuntimeConfiguration(multiModuleName)
 
-                project.tasks.register<DokkaMultiModuleTask>(multiModuleName) {
+                project.tasks.register<@Suppress("DEPRECATION") DokkaMultiModuleTask>(multiModuleName) {
                     @Suppress("DEPRECATION")
                     addSubprojectChildTasks("${name}Partial")
                     configuration()
@@ -103,7 +105,7 @@ open class DokkaClassicPlugin : Plugin<Project> {
                 }
             }
 
-            project.tasks.register<DokkaCollectorTask>("${name}Collector") {
+            project.tasks.register<@Suppress("DEPRECATION") DokkaCollectorTask>("${name}Collector") {
                 @Suppress("DEPRECATION")
                 addSubprojectChildTasks(name)
                 description =
@@ -113,7 +115,7 @@ open class DokkaClassicPlugin : Plugin<Project> {
     }
 
     private fun Project.configureEachAbstractDokkaTask() {
-        tasks.withType<AbstractDokkaTask>().configureEach task@{
+        tasks.withType<@Suppress("DEPRECATION") AbstractDokkaTask>().configureEach task@{
             val formatClassifier = name.removePrefix("dokka").decapitalize()
             outputDirectory.convention(project.layout.buildDirectory.dir("dokka/$formatClassifier"))
             cacheRoot.convention(project.layout.dir(providers.provider { DokkaDefaults.cacheRoot }))
@@ -124,7 +126,7 @@ open class DokkaClassicPlugin : Plugin<Project> {
     }
 
     private fun Project.configureEachDokkaMultiModuleTask() {
-        tasks.withType<DokkaMultiModuleTask>().configureEach {
+        tasks.withType<@Suppress("DEPRECATION") DokkaMultiModuleTask>().configureEach {
             sourceChildOutputDirectories.from({ childDokkaTasks.map { it.outputDirectory } })
         }
     }

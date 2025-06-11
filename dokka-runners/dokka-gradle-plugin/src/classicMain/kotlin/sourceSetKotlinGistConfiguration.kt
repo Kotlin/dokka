@@ -9,11 +9,12 @@ import org.jetbrains.dokka.gradle.kotlin.KotlinSourceSetGist
 import org.jetbrains.dokka.gradle.kotlin.gistOf
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
-fun GradleDokkaSourceSetBuilder.configureWithKotlinSourceSet(sourceSet: KotlinSourceSet) {
+@Deprecated(DOKKA_V1_DEPRECATION_MESSAGE)
+fun @Suppress("DEPRECATION") GradleDokkaSourceSetBuilder.configureWithKotlinSourceSet(sourceSet: KotlinSourceSet) {
     configureWithKotlinSourceSetGist(project.gistOf(sourceSet))
 }
 
-internal fun GradleDokkaSourceSetBuilder.configureWithKotlinSourceSetGist(sourceSet: KotlinSourceSetGist) {
+internal fun @Suppress("DEPRECATION") GradleDokkaSourceSetBuilder.configureWithKotlinSourceSetGist(sourceSet: KotlinSourceSetGist) {
     val dependentSourceSetIds = sourceSet.dependentSourceSetNames.map { sourceSetNames ->
         sourceSetNames.map { sourceSetName -> DokkaSourceSetID(sourceSetName) }
     }

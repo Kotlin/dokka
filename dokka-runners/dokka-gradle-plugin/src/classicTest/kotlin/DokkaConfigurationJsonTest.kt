@@ -24,7 +24,7 @@ class DokkaConfigurationJsonTest {
     fun `DokkaTask configuration toJsonString then parseJson`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("org.jetbrains.dokka")
-        val dokkaTask = project.tasks.withType<DokkaTask>().first()
+        val dokkaTask = project.tasks.withType<@Suppress("DEPRECATION")DokkaTask>().first()
         dokkaTask.plugins.withDependencies_ { clear() }
         dokkaTask.apply {
             this.failOnWarning.set(true)
