@@ -186,7 +186,6 @@ testing.suites {
     /** Functional tests suite */
     val testFunctional by registering(JvmTestSuite::class) {
         description = "Tests that use Gradle TestKit to test functionality"
-        testType.set(TestSuiteType.FUNCTIONAL_TEST)
 
         targets.all {
             testTask.configure {
