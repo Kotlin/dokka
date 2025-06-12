@@ -5,6 +5,8 @@
 
 .tabs-section,
 .platform-hinted > .platform-bookmarks-row {
+  margin-bottom: var(--size-m2);
+
   border-bottom: 1px inset var(--text-outline);
 
   &.tabs_wrapping {
@@ -26,10 +28,6 @@
   background-color: transparent;
 
   font: var(--font-text-s);
-}
-
-.platform-hinted > .platform-bookmarks-row {
-  margin-bottom: var(--size-s3);
 }
 
 .no-js .platform-bookmarks-row + .sourceset-dependent-content {
