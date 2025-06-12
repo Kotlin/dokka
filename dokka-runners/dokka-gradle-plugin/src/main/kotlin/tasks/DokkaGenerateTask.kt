@@ -10,8 +10,10 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.newInstance
+import org.gradle.kotlin.dsl.of
 import org.gradle.kotlin.dsl.submit
 import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.DokkaConfiguration
@@ -19,6 +21,7 @@ import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.gradle.DokkaBasePlugin.Companion.jsonMapper
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaGeneratorParametersSpec
 import org.jetbrains.dokka.gradle.engine.parameters.builders.DokkaParametersBuilder
+import org.jetbrains.dokka.gradle.internal.CdsSource
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
@@ -49,6 +52,10 @@ constructor(
      */
     pluginsConfiguration: DokkaPluginParametersContainer,
 ) : DokkaBaseTask() {
+
+    @InternalDokkaGradlePluginApi
+    @get:Inject
+    protected open val providers: ProviderFactory get() = error("injected")
 
     private val dokkaParametersBuilder = DokkaParametersBuilder(archives)
 
@@ -160,6 +167,15 @@ constructor(
                         isolation.minHeapSize.orNull?.let(this::setMinHeapSize)
                         isolation.jvmArgs.orNull?.filter { it.isNotBlank() }?.let(this::setJvmArgs)
                         isolation.systemProperties.orNull?.let(this::systemProperties)
+
+                        val cds = providers.of(CdsSource::class) {
+                            parameters {
+                                classpath.from(runtimeClasspath)
+                            }
+                        }
+                        jvmArgs(
+                            "-XX:SharedArchiveFile=${cds.get().absoluteFile.invariantSeparatorsPath}"
+                        )
                     }
                 }
         }
