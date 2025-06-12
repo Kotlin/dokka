@@ -172,14 +172,11 @@ constructor(
     ) {
         configureEach dss@{
             displayName.convention(
-                analysisPlatform.map { platform ->
-                    // Match existing Dokka naming conventions. (This should probably be simplified!)
-                    when {
-                        // Multiplatform source sets (e.g. commonMain, jvmMain, macosMain)
-                        name.endsWith("Main") -> name.substringBeforeLast("Main")
-
-                        // indeterminate source sets should use the name of the Kotlin platform
-                        else -> platform.displayName
+                this@dss.name.let { dssName ->
+                    if (dssName == "Main") {
+                        dssName
+                    } else {
+                        dssName.removeSuffix("Main")
                     }
                 }
             )
