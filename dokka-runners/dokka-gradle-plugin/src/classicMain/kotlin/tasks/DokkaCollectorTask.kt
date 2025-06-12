@@ -10,7 +10,8 @@ import org.gradle.api.tasks.CacheableTask
 import org.jetbrains.dokka.DokkaConfigurationImpl
 
 @CacheableTask
-abstract class DokkaCollectorTask : AbstractDokkaParentTask() {
+@Deprecated(DOKKA_V1_DEPRECATION_MESSAGE)
+abstract class DokkaCollectorTask : @Suppress("DEPRECATION") AbstractDokkaParentTask() {
 
     override fun generateDocumentation() {
         checkChildDokkaTasksIsNotEmpty()

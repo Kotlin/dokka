@@ -6,7 +6,7 @@ package org.jetbrains.dokka.gradle
 
 import org.jetbrains.dokka.DokkaException
 
-internal fun AbstractDokkaParentTask.checkChildDokkaTasksIsNotEmpty() {
+internal fun @Suppress("DEPRECATION") AbstractDokkaParentTask.checkChildDokkaTasksIsNotEmpty() {
     if (childDokkaTaskPaths.isEmpty()) {
         throw DokkaException(
             """

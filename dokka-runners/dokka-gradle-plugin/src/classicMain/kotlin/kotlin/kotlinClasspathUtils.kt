@@ -55,7 +55,8 @@ private fun KotlinCompilation.newCompileClasspathOf(project: Project): FileColle
         if (this is AbstractKotlinNativeCompilation) {
             val excludePlatformFiles = project.classpathProperty("excludeKonanPlatformDependencyFiles", default = false)
             if (!excludePlatformFiles) {
-                val kotlinNativeDistributionAccessor = KotlinNativeDistributionAccessor(project)
+                val kotlinNativeDistributionAccessor =
+                    @Suppress("DEPRECATION") KotlinNativeDistributionAccessor(project)
                 result.from(kotlinNativeDistributionAccessor.stdlibDir)
                 result.from(kotlinNativeDistributionAccessor.platformDependencies(konanTarget))
             }

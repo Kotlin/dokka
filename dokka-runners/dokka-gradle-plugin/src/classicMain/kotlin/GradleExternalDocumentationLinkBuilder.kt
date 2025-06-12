@@ -37,6 +37,7 @@ import java.net.URL
  * }
  * ```
  */
+@Deprecated(DOKKA_V1_DEPRECATION_MESSAGE)
 class GradleExternalDocumentationLinkBuilder(
     @Transient @get:Internal internal val project: Project
 ) : DokkaConfigurationBuilder<ExternalDocumentationLinkImpl> {
