@@ -53,7 +53,6 @@ class DatetimeGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutpu
         val result = createGradleRunner(
             buildVersions,
             ":kotlinx-datetime:dokkaGenerate",
-            dgpPluginMode = null,
         ).buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":kotlinx-datetime:dokkaGenerate")).outcome)

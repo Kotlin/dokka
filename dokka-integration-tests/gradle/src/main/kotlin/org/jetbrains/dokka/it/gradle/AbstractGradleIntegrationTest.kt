@@ -56,7 +56,6 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
          * Defaults to [gradleLogLevel], so that the Dokka logs are always produced.
          */
         dokkaLogLevel: LogLevel = gradleLogLevel,
-        dgpPluginMode: String? = "V1Enabled",
     ): GradleRunner {
 
         // TODO quick hack to add `android { namespace }` on AGP 7+ (it's mandatory in 8+).
@@ -114,11 +113,6 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                     // property flag to use K2
                     if (TestEnvironment.shouldUseK2()) {
                         add("-P${TestEnvironment.TRY_K2}=true")
-                    }
-
-                    if (dgpPluginMode != null) {
-                        add("-Porg.jetbrains.dokka.experimental.gradle.pluginMode=${dgpPluginMode}")
-                        add("-Porg.jetbrains.dokka.experimental.gradle.pluginMode.noWarn=true")
                     }
 
                     // Decrease Gradle daemon idle timeout to prevent old agents lingering on CI.

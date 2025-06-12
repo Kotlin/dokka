@@ -24,7 +24,6 @@ class UiShowcaseIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCop
         val result = createGradleRunner(
             buildVersions,
             ":dokkaGenerate",
-            dgpPluginMode = null,
         ).buildRelaxed()
 
         result.shouldHaveTask(":dokkaGeneratePublicationHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)
