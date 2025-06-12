@@ -23,7 +23,7 @@ dependencies {
     implementation(projects.dokkaSubprojects.analysisMarkdownJb)
 
     // Other
-    implementation(kotlin("reflect"))
+    implementation(libs.kotlin.reflect)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.jsoup)
     implementation(libs.freemarker)
@@ -36,7 +36,7 @@ dependencies {
     }
 
     // Test only
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
     testImplementation(libs.junit.jupiterParams)
 
     symbolsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))

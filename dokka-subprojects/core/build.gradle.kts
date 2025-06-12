@@ -12,7 +12,7 @@ plugins {
 overridePublicationArtifactId("dokka-core")
 
 dependencies {
-    implementation(kotlin("reflect"))
+    implementation(libs.kotlin.reflect)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.jackson.kotlin)
     implementation(libs.jackson.xml)
@@ -22,7 +22,7 @@ dependencies {
         }
     }
 
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
     testImplementation(projects.dokkaSubprojects.dokkaTestApi)
 }
 

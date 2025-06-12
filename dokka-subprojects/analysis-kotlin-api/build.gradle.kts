@@ -18,7 +18,7 @@ dependencies {
 
     testFixturesApi(projects.dokkaSubprojects.dokkaCore)
 
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
 
     symbolsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
     descriptorsTestImplementation(
