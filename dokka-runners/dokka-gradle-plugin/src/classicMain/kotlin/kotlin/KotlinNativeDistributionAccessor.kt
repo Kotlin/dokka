@@ -2,10 +2,10 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:Suppress("INVISIBLE_REFERENCE")
 package org.jetbrains.dokka.gradle.kotlin
 
 import org.gradle.api.Project
+import org.jetbrains.dokka.gradle.DOKKA_V1_DEPRECATION_MESSAGE
 import org.jetbrains.kotlin.commonizer.KonanDistribution
 import org.jetbrains.kotlin.commonizer.platformLibsDir
 import org.jetbrains.kotlin.commonizer.stdlib
@@ -23,6 +23,7 @@ import java.io.File
  *
  * It should not be used with Kotlin versions later than 1.9
  */
+@Deprecated(DOKKA_V1_DEPRECATION_MESSAGE)
 internal class KotlinNativeDistributionAccessor(
   project: Project
 ) {

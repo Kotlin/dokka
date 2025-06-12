@@ -2,6 +2,8 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("DEPRECATION")
+
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.artifacts.FileCollectionDependency

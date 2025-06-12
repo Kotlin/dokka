@@ -19,12 +19,13 @@ import java.io.File
 
 @Suppress("unused") // Shall provide source compatibility if possible
 @Deprecated("Use 'DokkaMultiModuleTask' instead", ReplaceWith("DokkaMultiModuleTask"), DeprecationLevel.ERROR)
-typealias DokkaMultimoduleTask = DokkaMultiModuleTask
+typealias DokkaMultimoduleTask = @Suppress("DEPRECATION") DokkaMultiModuleTask
 
 private typealias TaskPath = String
 
 @CacheableTask
-abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
+@Deprecated(DOKKA_V1_DEPRECATION_MESSAGE)
+abstract class DokkaMultiModuleTask : @Suppress("DEPRECATION") AbstractDokkaParentTask() {
 
     /**
      * List of Markdown files that contain
@@ -58,8 +59,9 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
     abstract val includes: ConfigurableFileCollection
 
     @Internal
-    val fileLayout: Property<DokkaMultiModuleFileLayout> = project.objects.property<DokkaMultiModuleFileLayout>()
-        .convention(DokkaMultiModuleFileLayout.CompactInParent)
+    val fileLayout: Property<@Suppress("DEPRECATION") DokkaMultiModuleFileLayout> =
+        project.objects.property<@Suppress("DEPRECATION") DokkaMultiModuleFileLayout>()
+            .convention(@Suppress("DEPRECATION") DokkaMultiModuleFileLayout.CompactInParent)
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -72,7 +74,7 @@ abstract class DokkaMultiModuleTask : AbstractDokkaParentTask() {
 
     @get:Input
     internal val childDokkaTaskIncludes: Map<TaskPath, Set<File>>
-        get() = childDokkaTasks.filterIsInstance<DokkaTaskPartial>().associate { task ->
+        get() = childDokkaTasks.filterIsInstance<@Suppress("DEPRECATION") DokkaTaskPartial>().associate { task ->
             task.path to task.dokkaSourceSets.flatMap { it.includes }.toSet()
         }
 

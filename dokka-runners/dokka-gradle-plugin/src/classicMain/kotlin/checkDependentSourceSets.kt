@@ -6,11 +6,11 @@ package org.jetbrains.dokka.gradle
 
 import org.jetbrains.dokka.DokkaSourceSetID
 
-internal fun checkSourceSetDependencies(sourceSets: List<GradleDokkaSourceSetBuilder>) {
+internal fun checkSourceSetDependencies(sourceSets: List<@Suppress("DEPRECATION") GradleDokkaSourceSetBuilder>) {
     checkSourceSetDependencies(sourceSets.associateBy { it.sourceSetID })
 }
 
-private fun checkSourceSetDependencies(sourceSets: Map<DokkaSourceSetID, GradleDokkaSourceSetBuilder>) {
+private fun checkSourceSetDependencies(sourceSets: Map<DokkaSourceSetID, @Suppress("DEPRECATION") GradleDokkaSourceSetBuilder>) {
     sourceSets.values.forEach { sourceSet ->
         sourceSet.dependentSourceSets.get().forEach { dependentSourceSetID ->
             val dependentSourceSet = requireNotNull(sourceSets[dependentSourceSetID]) {

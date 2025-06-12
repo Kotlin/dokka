@@ -11,7 +11,8 @@ import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.build
 
 @CacheableTask
-abstract class DokkaTask : AbstractDokkaLeafTask() {
+@Deprecated(DOKKA_V1_DEPRECATION_MESSAGE)
+abstract class DokkaTask : @Suppress("DEPRECATION") AbstractDokkaLeafTask() {
     override fun buildDokkaConfiguration(): DokkaConfigurationImpl =
         DokkaConfigurationImpl(
             moduleName = moduleName.get(),

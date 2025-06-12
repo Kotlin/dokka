@@ -33,7 +33,7 @@ internal fun addV2MigrationHelpers(
 }
 
 private fun configureDokkaTaskConventions(project: Project) {
-    project.tasks.withType<AbstractDokkaTask>().configureEach {
+    project.tasks.withType<@Suppress("DEPRECATION") AbstractDokkaTask>().configureEach {
         // The DGPv1 tasks are only present to prevent buildscripts with references to them from breaking.
         // The tasks are non-operable and should be hidden, to help nudge users to the DGPv2 tasks.
         // Setting tasks with group null will hide it when running `gradle tasks`,
@@ -84,7 +84,7 @@ private fun setupDokkaTasks(
         project.configurations.createDokkaRuntimeConfiguration(taskName = baseTaskName)
     }
 
-    project.tasks.register<DokkaTask>(baseTaskName) {
+    project.tasks.register<@Suppress("DEPRECATION") DokkaTask>(baseTaskName) {
         description = "$taskDesc Generates documentation in '$format' format."
     }
 
@@ -92,7 +92,7 @@ private fun setupDokkaTasks(
         val partialName = "${baseTaskName}Partial"
         project.configurations.createDokkaPluginConfiguration(taskName = partialName)
         project.configurations.createDokkaRuntimeConfiguration(taskName = partialName)
-        project.tasks.register<DokkaTaskPartial>(partialName) {
+        project.tasks.register<@Suppress("DEPRECATION") DokkaTaskPartial>(partialName) {
             description = "$taskDesc Generates documentation in '$format' format."
         }
     }
@@ -103,13 +103,13 @@ private fun setupDokkaTasks(
             project.configurations.createDokkaPluginConfiguration(taskName = multiModuleName)
             project.configurations.createDokkaRuntimeConfiguration(taskName = multiModuleName)
 
-            project.tasks.register<DokkaMultiModuleTask>(multiModuleName) {
+            project.tasks.register<@Suppress("DEPRECATION") DokkaMultiModuleTask>(multiModuleName) {
                 description =
                     "$taskDesc Runs all subprojects '$name' tasks and generates $format module navigation page."
             }
         }
 
-        project.tasks.register<DokkaCollectorTask>("${baseTaskName}Collector") {
+        project.tasks.register<@Suppress("DEPRECATION") DokkaCollectorTask>("${baseTaskName}Collector") {
             description =
                 "$taskDesc Generates documentation merging all subprojects '$baseTaskName' tasks into one virtual module."
         }

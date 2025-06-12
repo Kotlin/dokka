@@ -11,7 +11,6 @@ import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.pluginFeaturesService
 import org.jetbrains.dokka.gradle.internal.addV2MigrationHelpers
 import javax.inject.Inject
-import org.jetbrains.dokka.gradle.DokkaClassicPlugin as ClassicDokkaPlugin
 
 /**
  * Dokka Gradle Plugin.
@@ -33,7 +32,7 @@ constructor() : Plugin<Project> {
     }
 
     private fun applyV1(project: Project) {
-        project.pluginManager.apply(ClassicDokkaPlugin::class)
+        project.pluginManager.apply(@Suppress("DEPRECATION") DokkaClassicPlugin::class)
     }
 
     private fun applyV2(project: Project) {
