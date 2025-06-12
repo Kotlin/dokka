@@ -29,6 +29,7 @@ dependencies {
     testImplementation(kotlin("test-junit"))
     testImplementation("org.jetbrains.dokka:dokka-test-api:$dokkaVersion")
     testImplementation("org.jetbrains.dokka:dokka-base-test-utils:$dokkaVersion")
+    testImplementation("org.jetbrains.dokka:analysis-kotlin-symbols:$dokkaVersion")
 }
 
 kotlin {
