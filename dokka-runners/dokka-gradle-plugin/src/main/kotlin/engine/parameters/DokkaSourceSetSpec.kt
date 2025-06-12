@@ -326,22 +326,24 @@ constructor(
      * used for setting up analysis and [`@sample`](https://kotlinlang.org/docs/kotlin-doc.html#sample-identifier)
      * environment.
      *
+     * This is an optional property.
      * By default, the latest language version available to Dokka's embedded compiler will be used.
      */
     @get:Input
     @get:Optional
-    abstract val languageVersion: Property<String?>
+    abstract val languageVersion: Property<String>
 
     /**
      * [Kotlin API version](https://kotlinlang.org/docs/compatibility-modes.html)
      * used for setting up analysis and [`@sample`](https://kotlinlang.org/docs/kotlin-doc.html#sample-identifier)
      * environment.
      *
+     * This is an optional property.
      * By default, it will be deduced from [languageVersion].
      */
     @get:Input
     @get:Optional
-    abstract val apiVersion: Property<String?>
+    abstract val apiVersion: Property<String>
 
     /**
      * JDK version to use when generating external documentation links for Java types.
