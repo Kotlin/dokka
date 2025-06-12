@@ -6,6 +6,7 @@ package dokkabuild.utils
 
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dokkaBuild
+import org.gradle.kotlin.dsl.libs
 import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
@@ -16,13 +17,15 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 fun Project.configureGradleKotlinCompatibility() {
     if (!dokkaBuild.enforceGradleKotlinCompatibility.get()) return
 
+    @OptIn(ExperimentalKotlinGradlePluginApi::class, ExperimentalBuildToolsApi::class)
     extensions.configure<KotlinJvmProjectExtension>("kotlin") {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class, ExperimentalBuildToolsApi::class)
-        compilerVersion.set("2.0.21")
-        coreLibrariesVersion = "2.0.21"
+        val btaCompilerVersion = libs.versions.bta.kotlin.compiler
+        val btaLanguageVersion = libs.versions.bta.kotlin.language.map(KotlinVersion::fromVersion)
+        compilerVersion.set(btaCompilerVersion)
+        coreLibrariesVersion = btaCompilerVersion.get()
         compilerOptions {
-            languageVersion.set(KotlinVersion.fromVersion("1.4"))
-            apiVersion.set(KotlinVersion.fromVersion("1.4"))
+            languageVersion.set(btaLanguageVersion)
+            apiVersion.set(btaLanguageVersion)
             freeCompilerArgs.addAll(
                 "-Xsuppress-version-warnings",
                 // we need this flag to be able to use newer Analysis API versions
