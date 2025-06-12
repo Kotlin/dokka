@@ -18,10 +18,10 @@ dependencies {
 
     implementation(projects.dokkaSubprojects.pluginBase)
 
-    implementation(kotlin("reflect"))
+    implementation(libs.kotlin.reflect)
     implementation(libs.kotlinx.coroutines.core)
 
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
     testImplementation(libs.junit.jupiterParams)
 
     testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)

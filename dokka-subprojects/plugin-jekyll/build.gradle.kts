@@ -17,8 +17,8 @@ dependencies {
     implementation(projects.dokkaSubprojects.pluginBase)
     implementation(projects.dokkaSubprojects.pluginGfm)
 
-    implementation(kotlin("reflect"))
+    implementation(libs.kotlin.reflect)
 
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
     testImplementation(projects.dokkaSubprojects.dokkaTestApi)
 }

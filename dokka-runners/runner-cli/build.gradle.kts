@@ -16,7 +16,7 @@ dependencies {
     implementation("org.jetbrains.dokka:dokka-core")
     implementation(libs.kotlinx.cli)
 
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
 }
 
 tasks.shadowJar {
