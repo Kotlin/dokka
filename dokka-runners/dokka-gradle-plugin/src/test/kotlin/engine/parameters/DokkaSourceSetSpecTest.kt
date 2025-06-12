@@ -36,7 +36,7 @@ class DokkaSourceSetSpecTest : FunSpec({
             dss.dependentSourceSets.shouldBeEmpty()
         }
         test("displayName") {
-            dss.displayName.orNull shouldBe "jvm"
+            dss.displayName.orNull shouldBe "foo"
         }
         test("documentedVisibilities") {
             dss.documentedVisibilities.orNull.shouldContainExactlyInAnyOrder(Public)
@@ -108,6 +108,40 @@ class DokkaSourceSetSpecTest : FunSpec({
         }
         test("suppressedFiles") {
             dss.suppressedFiles.shouldBeEmpty()
+        }
+    }
+
+    context("DokkaSourceSetSpec displayName ->") {
+
+        test("given name 'Main', expect displayName is 'Main'") {
+            val project = createProject()
+            val dss = project.createDokkaSourceSetSpec("Main")
+            dss.displayName.orNull shouldBe "Main"
+        }
+
+        listOf(
+            "commonMain" to "common",
+            "customMain" to "custom",
+            "jvmMain" to "jvm",
+        ).forEach { (dssName, expectedDisplayName) ->
+            test("given name '$dssName', expect displayName drops 'Main' suffix") {
+                val project = createProject()
+                val dss = project.createDokkaSourceSetSpec(dssName)
+                dss.displayName.orNull shouldBe expectedDisplayName
+            }
+        }
+
+        listOf(
+            "main",
+            "MainCustom",
+            "domain",
+            "MultiDomain",
+        ).forEach { dssName ->
+            test("given name '$dssName', expect displayName is identical") {
+                val project = createProject()
+                val dss = project.createDokkaSourceSetSpec(dssName)
+                dss.displayName.orNull shouldBe dssName
+            }
         }
     }
 }) {
