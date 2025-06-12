@@ -149,7 +149,7 @@ index 966aa98e0..98f131768 100644
      }
  }
 diff --git a/gradle.properties b/gradle.properties
-index 7af5770c3..aa5f53f9b 100644
+index 7af5770c3..aae094fdb 100644
 --- a/gradle.properties
 +++ b/gradle.properties
 @@ -12,7 +12,7 @@ junit_version=4.12
@@ -161,6 +161,13 @@ index 7af5770c3..aa5f53f9b 100644
  byte_buddy_version=1.10.9
  reactor_version=3.4.1
  reactor_docs_version=3.4.5
+@@ -49,3 +49,6 @@ kotlinx.atomicfu.enableJvmIrTransformation=true
+ # usages of `moveForward` in `ConcurrentLinkedList.kt` correctly.
+ kotlinx.atomicfu.enableJsIrTransformation=false
+ kotlinx.atomicfu.enableNativeIrTransformation=true
++
++org.jetbrains.dokka.experimental.gradle.pluginMode=V1Enabled
++org.jetbrains.dokka.experimental.gradle.pluginMode.noWarn=true
 diff --git a/settings.gradle.kts b/settings.gradle.kts
 index 423c613f3..7bcebfa6d 100644
 --- a/settings.gradle.kts

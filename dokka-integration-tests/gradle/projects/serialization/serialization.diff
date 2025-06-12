@@ -77,7 +77,7 @@ index 529b81c1..218558c2 100644
 
  kotlin {
 diff --git a/buildSrc/settings.gradle.kts b/buildSrc/settings.gradle.kts
-index b450fd5e..9f189439 100644
+index b450fd5e..927b34b9 100644
 --- a/buildSrc/settings.gradle.kts
 +++ b/buildSrc/settings.gradle.kts
 @@ -14,6 +14,7 @@ dependencyResolutionManagement {
@@ -88,8 +88,15 @@ index b450fd5e..9f189439 100644
          }
      }
  }
+@@ -48,4 +49,4 @@ fun overriddenKotlinVersion(): String? {
+         return trainVersion ?: trainVersionFile ?: throw IllegalArgumentException("\"kotlin_snapshot_version\" should be defined when building with snapshot compiler")
+     }
+     return null
+-}
+\ No newline at end of file
++}
 diff --git a/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts b/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts
-index d3013727..0c443aa4 100644
+index d3013727..ed3311cd 100644
 --- a/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts
 +++ b/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts
 @@ -15,7 +15,12 @@ plugins {
@@ -106,6 +113,24 @@ index d3013727..0c443aa4 100644
  }
 
  tasks.withType<DokkaTaskPartial>().named("dokkaHtmlPartial") {
+@@ -76,4 +81,4 @@ tasks.withType<DokkaTaskPartial>().named("dokkaHtmlPartial") {
+             }
+         }
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/gradle.properties b/gradle.properties
+index deb1585f..774b0161 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -23,3 +23,6 @@ org.gradle.kotlin.dsl.allWarningsAsErrors=true
+ kotlin.native.distribution.type=prebuilt
+
+ org.gradle.jvmargs="-XX:+HeapDumpOnOutOfMemoryError"
++
++org.jetbrains.dokka.experimental.gradle.pluginMode=V1Enabled
++org.jetbrains.dokka.experimental.gradle.pluginMode.noWarn=true
 diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
 index 132a67b6..b851a68c 100644
 --- a/gradle/libs.versions.toml
