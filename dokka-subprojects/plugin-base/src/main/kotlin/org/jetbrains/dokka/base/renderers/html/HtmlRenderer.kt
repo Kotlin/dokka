@@ -499,7 +499,7 @@ public open class HtmlRenderer(
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildAnchor(contextNode)
-        div(classes = "table-row") {
+        div(classes = "table-row table-row_multimodule") {
             div("main-subrow " + contextNode.style.joinToString(separator = " ")) {
                 buildRowHeaderLink(toRender, pageContext, sourceSetRestriction, contextNode.anchor, "w-100")
                 div {
@@ -521,7 +521,7 @@ public open class HtmlRenderer(
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildAnchor(contextNode)
-        div(classes = "table-row") {
+        div(classes = "table-row table-row_platform-tagged") {
             addSourceSetFilteringAttributes(contextNode)
             div {
                 div("main-subrow " + contextNode.style.joinToString(separator = " ")) {
@@ -546,7 +546,7 @@ public open class HtmlRenderer(
         sourceSetRestriction: Set<DisplaySourceSet>?
     ) {
         buildAnchor(contextNode)
-        div(classes = "table-row") {
+        div(classes = "table-row table-row_content") {
             contextNode.extra.extraTabbedContentType()?.let { attributes[TOGGLEABLE_CONTENT_TYPE_ATTR] = it.value.toHtmlAttribute() }
             addSourceSetFilteringAttributes(contextNode)
             div("main-subrow keyValue " + contextNode.style.joinToString(separator = " ")) {

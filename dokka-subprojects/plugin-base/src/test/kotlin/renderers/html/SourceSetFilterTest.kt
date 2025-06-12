@@ -57,7 +57,7 @@ class SourceSetFilterTest : BaseAbstractTest() {
 
                 val testClassRow = packagePage
                     .select("div[data-togglable=TYPE]")
-                    .select("div[class=table-row]")
+                    .select("div[class~=table-row]")
                     .single()
 
                 assertEquals("Dokka Module/common,Dokka Module/jvm", testClassRow.attr("data-filterable-current"))

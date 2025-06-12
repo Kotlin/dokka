@@ -52,3 +52,16 @@
 
   cursor: ew-resize;
 }
+
+.main-content .content > hr {
+  margin: var(--size-m1) 0;
+
+  border-top: 1px solid var(--color-b20);
+  border-right: none;
+  border-bottom: none;
+  border-left: none;
+
+  .theme-dark & {
+    border-top: 1px solid var(--color-w16);
+  }
+}
