@@ -28,6 +28,7 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.arguments
 import org.junit.jupiter.params.provider.ArgumentsProvider
 import org.junit.jupiter.params.provider.ArgumentsSource
+import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.util.stream.Stream
 import kotlin.io.path.*
@@ -414,11 +415,12 @@ class ExampleProjectsTest {
         assumeTrue(testCase.isEnabled)
 
         // delete old configuration cache results and reports, to make sure we can fetch the newest report
-        testCase.project.findFiles {
-            val isCCDir = it.invariantSeparatorsPathString.endsWith(".gradle/configuration-cache")
-            val isCCReportDir = it.invariantSeparatorsPathString.endsWith("build/reports/configuration-cache")
-            it.isDirectory() && (isCCReportDir || isCCDir)
-        }.forEach { it.deleteRecursively() }
+        val ccReportFileMatcher = FileSystems.getDefault()
+            .getPathMatcher("glob:**/build/reports/configuration-cache/**/configuration-cache-report.html")
+        testCase.project
+            .findFiles { file -> ccReportFileMatcher.matches(file) }
+            .distinct()
+            .forEach { it.deleteExisting() }
 
         val configCacheRunner: GradleRunner =
             testCase.project.runner

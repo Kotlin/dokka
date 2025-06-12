@@ -131,7 +131,9 @@ constructor(
         when (mode) {
             V1Enabled -> logV1PluginMessage()
             V2EnabledWithHelpers -> logV2PluginMigrationMessage()
-            V2Enabled -> logV2PluginMessage()
+            V2Enabled -> {
+                // v2 is the default, don't log messages to avoid spamming users
+            }
         }
     }
 
@@ -141,7 +143,7 @@ constructor(
             logger.lifecycle(
                 """
                 |
-                |Dokka Gradle plugin V1 is deprecated, and will be removed in Dokka version 2.1.0
+                |Dokka Gradle plugin V1 is deprecated, and will be removed in Dokka version 2.2.0
                 |Please migrate to Dokka Gradle plugin V2. This will require updating your project.
                 |$`To learn about migrating read the migration guide`
                 |
@@ -176,25 +178,6 @@ constructor(
                 |to your project's `gradle.properties` file.
                 |
                 |$`We would appreciate your feedback`
-                |
-                """.trimMargin().prependIndent()
-            )
-        }
-    }
-
-    private fun logV2PluginMessage() {
-        if (primaryService && !pluginModeNoWarn) {
-            logger.lifecycle(
-                """
-                |
-                |Thank you for enabling Dokka Gradle plugin V2!
-                |$`To learn about migrating read the migration guide`
-                |
-                |$`We would appreciate your feedback`
-                |
-                |You can suppress this message by adding
-                |    ${PLUGIN_MODE_NO_WARN_FLAG_PRETTY}=true
-                |to your project's `gradle.properties` file.
                 |
                 """.trimMargin().prependIndent()
             )
@@ -240,7 +223,7 @@ constructor(
 
         companion object {
             /** The default value, if [Params.pluginMode] is not set. */
-            val Default: PluginMode = V1Enabled
+            val Default: PluginMode = V2EnabledWithHelpers
 
             val values: Set<PluginMode> = values().toSet()
 
@@ -267,7 +250,7 @@ constructor(
      * ORG_GRADLE_PROJECT_org.jetbrains.dokka.gradle.enabledLogHtmlPublicationLink=false
      * ```
      */
-      val enableLogHtmlPublicationLink: Provider<Boolean> =
+    val enableLogHtmlPublicationLink: Provider<Boolean> =
         providers.gradleProperty("org.jetbrains.dokka.gradle.enableLogHtmlPublicationLink")
             .toBoolean()
             .orElse(true)

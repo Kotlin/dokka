@@ -29,11 +29,16 @@ fun loadConfigurationCacheReportData(projectDir: Path): ConfigurationCacheReport
     require(ccReportFiles.isNotEmpty()) { "Expected 1 CC report file, but found none" }
 
     require(ccReportFiles.count() == 1) {
+        val ccReportsInfo = ccReportFiles.map { parseCCReportData(it) }.map { report ->
+            report.run { "$buildName, $requestedTasks, $cacheAction, $cacheActionDescription" }
+        }
         """
         Expected 1 CC report file, but found ${ccReportFiles.count()}.
         Make sure to delete the 'build/reports/configuration-cache/' dir before the Gradle build.
         All files:
-        ${ccReportFiles.joinToString("\n") { " - ${it.invariantSeparatorsPathString}" }} 
+        ${ccReportFiles.joinToString("\n") { " - ${it.invariantSeparatorsPathString}" }}
+        Reports information:
+        ${ccReportsInfo.joinToString("\n") { " - $it" }}
         """.trimIndent()
     }
 
@@ -74,7 +79,9 @@ data class ConfigurationCacheReportData(
     @Serializable
     data class ActionDescription(
         val text: String? = null,
-    )
+    ) {
+        override fun toString(): String = text ?: "<no-text>"
+    }
 }
 
 /**

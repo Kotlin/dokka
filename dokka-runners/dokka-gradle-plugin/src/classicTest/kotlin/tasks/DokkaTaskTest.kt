@@ -9,6 +9,7 @@ package org.jetbrains.dokka.gradle
 import org.gradle.kotlin.dsl.create
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.gradle.utils.all_
+import org.jetbrains.dokka.gradle.utils.enableV1Plugin
 import org.jetbrains.dokka.gradle.utils.register_
 import org.jetbrains.dokka.gradle.utils.withDependencies_
 import kotlin.test.Test
@@ -19,6 +20,7 @@ class DokkaTaskTest {
     @Test
     fun `no suppressed source sets are present after in built configuration`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.dokka")
 
         val task = project.tasks.create<DokkaTask>("dokkaTask")
@@ -40,6 +42,7 @@ class DokkaTaskTest {
     @Test
     fun `module version is not present if not specified`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.dokka")
 
         val task = project.tasks.create<DokkaTask>("dokkaTask")

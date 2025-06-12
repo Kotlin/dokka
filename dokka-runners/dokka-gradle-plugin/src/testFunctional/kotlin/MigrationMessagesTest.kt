@@ -37,11 +37,11 @@ class MigrationMessagesTest : FunSpec({
                 context("and log level is WARN") {
                     val output = project.getOutput(pluginMode = dgpFlag, pluginModeNoWarn = null, logLevel = WARN)
 
-                    test("output should contain V1 warning") {
-                        output shouldContainOnlyOnce expectedV1Warning
+                    test("output should contain V2 migration warning") {
+                        output shouldContainOnlyOnce expectedV2MigrationWarning
                     }
-                    test("output should NOT contain V1 message") {
-                        output shouldNotContain expectedV1Message
+                    test("output should NOT contain V2 migration message") {
+                        output shouldNotContain expectedV2MigrationMessage
                     }
                 }
 
@@ -51,11 +51,11 @@ class MigrationMessagesTest : FunSpec({
                         val output =
                             project.getOutput(pluginMode = dgpFlag, pluginModeNoWarn = null, logLevel = LIFECYCLE)
 
-                        test("output should contain V1 warning") {
-                            output shouldContainOnlyOnce expectedV1Warning
+                        test("output should contain V2 migration warning") {
+                            output shouldContainOnlyOnce expectedV2MigrationWarning
                         }
-                        test("output should contain V1 message") {
-                            output shouldContainOnlyOnce expectedV1Message
+                        test("output should contain V2 migration message") {
+                            output shouldContainOnlyOnce expectedV2MigrationMessage
                         }
                     }
 
@@ -137,7 +137,7 @@ class MigrationMessagesTest : FunSpec({
                         project.getOutput(pluginMode = pluginMode, pluginModeNoWarn = null, logLevel = LIFECYCLE)
 
                     test("output should contain V2 message") {
-                        output shouldContain expectedV2Message
+                        output shouldNotContain expectedV2Message
                     }
                 }
 

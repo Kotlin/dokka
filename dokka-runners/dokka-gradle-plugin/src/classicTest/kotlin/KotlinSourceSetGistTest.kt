@@ -9,6 +9,7 @@ import org.gradle.api.internal.project.DefaultProject
 import org.gradle.kotlin.dsl.get
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.gradle.kotlin.gistOf
+import org.jetbrains.dokka.gradle.utils.enableV1Plugin
 import org.jetbrains.dokka.gradle.utils.withDependencies_
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -24,6 +25,7 @@ class KotlinSourceSetGistTest {
     @Test
     fun `main source set with kotlin jvm`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.kotlin.jvm")
         val kotlin = project.kotlin as KotlinJvmProjectExtension
 
@@ -54,6 +56,7 @@ class KotlinSourceSetGistTest {
     @Test
     fun `test source set with kotlin jvm`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.kotlin.jvm")
         val kotlin = project.kotlin as KotlinJvmProjectExtension
 
@@ -75,6 +78,7 @@ class KotlinSourceSetGistTest {
     @Test
     fun `sourceRoots of main source set with kotlin jvm`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.kotlin.jvm")
         val kotlin = project.kotlin as KotlinJvmProjectExtension
         val mainSourceSet = kotlin.sourceSets.getByName("main")
@@ -116,6 +120,7 @@ class KotlinSourceSetGistTest {
     @Test
     fun `classpath of main source set with kotlin jvm`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.kotlin.jvm")
         val kotlin = project.kotlin as KotlinJvmProjectExtension
         val mainSourceSet = kotlin.sourceSets.getByName("main")
@@ -163,6 +168,7 @@ class KotlinSourceSetGistTest {
     @Test
     fun `common, jvm and macos source sets with kotlin multiplatform`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.kotlin.multiplatform")
         val kotlin = project.kotlin as KotlinMultiplatformExtension
         kotlin.jvm()

@@ -4,12 +4,12 @@ index c26e65a2..394cfd04 100644
 +++ b/build-logic/build.gradle.kts
 @@ -8,6 +8,7 @@ plugins {
  }
- 
+
  repositories {
 +    /* %{DOKKA_IT_MAVEN_REPO}% */
      mavenCentral()
  }
- 
+
 diff --git a/build-logic/settings.gradle.kts b/build-logic/settings.gradle.kts
 index 4b401d8b..fcfac2c6 100644
 --- a/build-logic/settings.gradle.kts
@@ -34,6 +34,17 @@ index 2e45281b..411af247 100644
          mavenCentral()
      }
  }
+diff --git a/gradle.properties b/gradle.properties
+index cb48c128..21630ed6 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -9,3 +9,6 @@ kotlin.code.style=official
+ org.gradle.jvmargs=-Xmx4G
+ nativeBenchmarksEnabled=true
+ kotlin.mpp.applyDefaultHierarchyTemplate=false
++
++org.jetbrains.dokka.experimental.gradle.pluginMode=V1Enabled
++org.jetbrains.dokka.experimental.gradle.pluginMode.noWarn=true
 diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
 index 0c32461a..6e8701b8 100644
 --- a/gradle/libs.versions.toml
@@ -53,7 +64,7 @@ index 79515254..f4fb9730 100644
 +++ b/settings.gradle.kts
 @@ -7,6 +7,7 @@ pluginManagement {
      includeBuild("build-logic")
- 
+
      repositories {
 +        /* %{DOKKA_IT_MAVEN_REPO}% */
          mavenCentral()

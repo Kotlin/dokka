@@ -11,6 +11,7 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.gradle.utils.enableV1Plugin
 import org.jetbrains.dokka.gradle.utils.subprojects_
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -19,6 +20,7 @@ import kotlin.test.assertFailsWith
 class AbstractDokkaParentTaskTest {
 
     private val rootProject = ProjectBuilder.builder().build()
+        .enableV1Plugin()
     private val subproject0 = ProjectBuilder.builder().withName("subproject0").withParent(rootProject).build()
     private val subproject1 = ProjectBuilder.builder().withName("subproject1").withParent(rootProject).build()
     private val subSubproject0 = ProjectBuilder.builder().withName("subSubproject0").withParent(subproject0).build()
