@@ -50,16 +50,14 @@ class DokkaFormatTasksTest : FunSpec({
 
         test("expect generate publication task created") {
             dokkaTasks.generatePublication.name shouldBe "dokkaGeneratePublicationTestFormatName"
-            dokkaTasks.generatePublication.get().description =
-                "Executes the Dokka Generator, generating a testFormatName publication"
+            dokkaTasks.generatePublication.get().description shouldBe "Executes the Dokka Generator, generating a testFormatName publication"
             dokkaTasks.generatePublication.get().group shouldBe "dokka"
             dokkaTasks.generatePublication.get().dependsOn.shouldBeEmpty()
         }
 
         test("expect generate module task created") {
             dokkaTasks.generateModule.name shouldBe "dokkaGenerateModuleTestFormatName"
-            dokkaTasks.generateModule.get().description =
-                "Executes the Dokka Generator, generating a testFormatName module"
+            dokkaTasks.generateModule.get().description shouldBe "Executes the Dokka Generator, generating a testFormatName module"
             dokkaTasks.generateModule.get().group shouldBe "dokka"
             dokkaTasks.generateModule.get().dependsOn.shouldBeEmpty()
         }
