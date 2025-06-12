@@ -44,6 +44,7 @@ import java.net.URL
  * }
  * ```
  */
+@Deprecated(DOKKA_V1_DEPRECATION_MESSAGE)
 open class GradleDokkaSourceSetBuilder(
     @Transient @get:Input val name: String,
     @Transient @get:Internal internal val project: Project,
@@ -188,8 +189,9 @@ open class GradleDokkaSourceSetBuilder(
      * Prefer using [sourceLink] action/closure for adding source links.
      */
     @Nested
-    val sourceLinks: SetProperty<GradleSourceLinkBuilder> = project.objects.setProperty<GradleSourceLinkBuilder>()
-        .convention(emptySet())
+    val sourceLinks: SetProperty<@Suppress("DEPRECATION") GradleSourceLinkBuilder> =
+        project.objects.setProperty<@Suppress("DEPRECATION") GradleSourceLinkBuilder>()
+            .convention(emptySet())
 
     /**
      * Allows to customize documentation generation options on a per-package basis.
@@ -197,8 +199,8 @@ open class GradleDokkaSourceSetBuilder(
      * @see GradlePackageOptionsBuilder for details
      */
     @Nested
-    val perPackageOptions: ListProperty<GradlePackageOptionsBuilder> =
-        project.objects.listProperty<GradlePackageOptionsBuilder>()
+    val perPackageOptions: ListProperty<@Suppress("DEPRECATION") GradlePackageOptionsBuilder> =
+        project.objects.listProperty<@Suppress("DEPRECATION") GradlePackageOptionsBuilder>()
             .convention(emptyList())
 
     /**
@@ -207,8 +209,8 @@ open class GradleDokkaSourceSetBuilder(
      * Prefer using [externalDocumentationLink] action/closure for adding links.
      */
     @Nested
-    val externalDocumentationLinks: SetProperty<GradleExternalDocumentationLinkBuilder> =
-        project.objects.setProperty<GradleExternalDocumentationLinkBuilder>()
+    val externalDocumentationLinks: SetProperty<@Suppress("DEPRECATION") GradleExternalDocumentationLinkBuilder> =
+        project.objects.setProperty<@Suppress("DEPRECATION") GradleExternalDocumentationLinkBuilder>()
             .convention(emptySet())
 
     /**
@@ -356,7 +358,7 @@ open class GradleDokkaSourceSetBuilder(
     /**
      * Convenient override to **append** source sets to [dependentSourceSets]
      */
-    fun dependsOn(sourceSet: GradleDokkaSourceSetBuilder) {
+    fun dependsOn(sourceSet: @Suppress("DEPRECATION") GradleDokkaSourceSetBuilder) {
         dependsOn(sourceSet.sourceSetID)
     }
 
@@ -411,8 +413,8 @@ open class GradleDokkaSourceSetBuilder(
      *
      * @see [GradleSourceLinkBuilder] for details.
      */
-    fun sourceLink(action: Action<in GradleSourceLinkBuilder>) {
-        val sourceLink = GradleSourceLinkBuilder(project)
+    fun sourceLink(action: Action<in @Suppress("DEPRECATION") GradleSourceLinkBuilder>) {
+        val sourceLink = @Suppress("DEPRECATION") GradleSourceLinkBuilder(project)
         action.execute(sourceLink)
         sourceLinks.add(sourceLink)
     }
@@ -433,8 +435,8 @@ open class GradleDokkaSourceSetBuilder(
      *
      * @see [GradlePackageOptionsBuilder] for details.
      */
-    fun perPackageOption(action: Action<in GradlePackageOptionsBuilder>) {
-        val option = GradlePackageOptionsBuilder(project)
+    fun perPackageOption(action: Action<in @Suppress("DEPRECATION") GradlePackageOptionsBuilder>) {
+        val option = @Suppress("DEPRECATION") GradlePackageOptionsBuilder(project)
         action.execute(option)
         perPackageOptions.add(option)
     }
@@ -455,8 +457,8 @@ open class GradleDokkaSourceSetBuilder(
      *
      * See [GradleExternalDocumentationLinkBuilder] for details.
      */
-    fun externalDocumentationLink(action: Action<in GradleExternalDocumentationLinkBuilder>) {
-        val link = GradleExternalDocumentationLinkBuilder(project)
+    fun externalDocumentationLink(action: Action<in @Suppress("DEPRECATION") GradleExternalDocumentationLinkBuilder>) {
+        val link = @Suppress("DEPRECATION") GradleExternalDocumentationLinkBuilder(project)
         action.execute(link)
         externalDocumentationLinks.add(link)
     }
@@ -473,7 +475,7 @@ open class GradleDokkaSourceSetBuilder(
      */
     fun externalDocumentationLink(url: URL, packageListUrl: URL? = null) {
         externalDocumentationLinks.add(
-            GradleExternalDocumentationLinkBuilder(project).apply {
+            @Suppress("DEPRECATION") GradleExternalDocumentationLinkBuilder(project).apply {
                 this.url.convention(url)
                 if (packageListUrl != null) {
                     this.packageListUrl.convention(packageListUrl)

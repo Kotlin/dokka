@@ -6,7 +6,8 @@
 /**
 http://localhost:8001/jvm/org.jetbrains.dokka.uitest.markdown/-markdown-code/index.html
  */
-.symbol:not(.token, .wrapped), code.block {
+.symbol:not(.token, .wrapped),
+code.block {
   position: relative;
 
   display: block;
@@ -16,6 +17,7 @@ http://localhost:8001/jvm/org.jetbrains.dokka.uitest.markdown/-markdown-code/ind
   padding: 12px 16px;
 
   white-space: pre-wrap;
+  word-break: break-word;
 
   border-radius: var(--size-s1);
   background-color: var(--color-background-code-block);
@@ -53,7 +55,8 @@ code.block {
 /**
 http://localhost:8001/jvm/org.jetbrains.dokka.uitest.types/-simple-deprecated-kotlin-class/index.html
  */
-.sample-container, div.CodeMirror {
+.sample-container,
+div.CodeMirror {
   position: relative;
 
   display: flex;
@@ -64,8 +67,8 @@ http://localhost:8001/jvm/org.jetbrains.dokka.uitest.types/-simple-deprecated-ko
 prevent prism.css to add custom shadows KTL-1774
  */
 pre[runnable-code-sample] {
-  &::before, &::after {
+  &::before,
+  &::after {
     display: none;
   }
 }
-

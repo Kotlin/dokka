@@ -1,5 +1,5 @@
 diff --git a/build.gradle.kts b/build.gradle.kts
-index f2cfd853..028c590d 100644
+index f2cfd853..b74e188a 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -21,13 +21,13 @@ plugins {
@@ -26,7 +26,13 @@ index f2cfd853..028c590d 100644
          mavenCentral()
          maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
      }
-@@ -143,7 +144,20 @@ tasks.withType<DokkaMultiModuleTask>().named("dokkaHtmlMultiModule") {
+@@ -138,12 +139,25 @@ tasks.register("dokka") {
+     dependsOn("dokkaHtmlMultiModule")
+ }
+
+-tasks.withType<DokkaMultiModuleTask>().named("dokkaHtmlMultiModule") {
++tasks.withType<@Suppress("DEPRECATION") DokkaMultiModuleTask>().named("dokkaHtmlMultiModule") {
+     pluginsMapConfiguration.put("org.jetbrains.dokka.base.DokkaBase", """{ "templatesDir": "${projectDir.toString().replace("\\", "/")}/dokka-templates" }""")
  }
 
  dependencies {
@@ -97,9 +103,19 @@ index b450fd5e..927b34b9 100644
 +}
 diff --git a/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts b/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts
 index d3013727..ed3311cd 100644
+index d3013727..b58ad96a 100644
 --- a/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts
 +++ b/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts
-@@ -15,7 +15,12 @@ plugins {
+@@ -2,6 +2,8 @@
+  * Copyright 2017-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+  */
+
++@file:Suppress("DEPRECATION")
++
+ import org.jetbrains.dokka.gradle.*
+ import java.net.URI
+
+@@ -15,7 +17,12 @@ plugins {
 
  val extens = extensions
  dependencies {
@@ -113,6 +129,39 @@ index d3013727..ed3311cd 100644
  }
 
  tasks.withType<DokkaTaskPartial>().named("dokkaHtmlPartial") {
+@@ -76,4 +83,4 @@ tasks.withType<DokkaTaskPartial>().named("dokkaHtmlPartial") {
+             }
+         }
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/formats/json-io/build.gradle.kts b/formats/json-io/build.gradle.kts
+index 2effe4f2..0adb4f1e 100644
+--- a/formats/json-io/build.gradle.kts
++++ b/formats/json-io/build.gradle.kts
+@@ -33,7 +33,7 @@ kotlin {
+
+ project.configureJava9ModuleInfo()
+
+-tasks.named<DokkaTaskPartial>("dokkaHtmlPartial") {
++tasks.named<@Suppress("DEPRECATION") DokkaTaskPartial>("dokkaHtmlPartial") {
+     dokkaSourceSets {
+         configureEach {
+             externalDocumentationLink {
+diff --git a/formats/json-okio/build.gradle.kts b/formats/json-okio/build.gradle.kts
+index 93513985..42b93ac2 100644
+--- a/formats/json-okio/build.gradle.kts
++++ b/formats/json-okio/build.gradle.kts
+@@ -34,7 +34,7 @@ kotlin {
+
+ project.configureJava9ModuleInfo()
+
+-tasks.named<DokkaTaskPartial>("dokkaHtmlPartial") {
++tasks.named<@Suppress("DEPRECATION") DokkaTaskPartial>("dokkaHtmlPartial") {
+     dokkaSourceSets {
+         configureEach {
+             externalDocumentationLink {
 @@ -76,4 +81,4 @@ tasks.withType<DokkaTaskPartial>().named("dokkaHtmlPartial") {
              }
          }
