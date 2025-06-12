@@ -65,12 +65,6 @@ internal fun @Suppress("DEPRECATION") DokkaMultiModuleTask.targetChildOutputDire
 ): Provider<Directory> = fileLayout.get().targetChildOutputDirectory(this, child)
 
 
-//internal fun DokkaMultiModuleTask.copyChildOutputDirectories() {
-//    childDokkaTasks.forEach { child ->
-//        this.copyChildOutputDirectory(child)
-//    }
-//}
-
 internal fun @Suppress("DEPRECATION") DokkaMultiModuleTask.copyChildOutputDirectory(child: @Suppress("DEPRECATION") AbstractDokkaTask) {
     val targetChildOutputDirectory = project.file(fileLayout.get().targetChildOutputDirectory(this, child))
     val sourceChildOutputDirectory = child.outputDirectory.asFile.get()
