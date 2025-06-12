@@ -105,7 +105,9 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
   }
 
   input {
-    width: calc(100% - 4px);
+    --outline-width: 4px;
+
+    width: calc(100% - var(--outline-width));
     height: $input-height-desktop;
     margin-left: -40px;
 
