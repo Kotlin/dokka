@@ -102,7 +102,6 @@ index b450fd5e..927b34b9 100644
 \ No newline at end of file
 +}
 diff --git a/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts b/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts
-index d3013727..ed3311cd 100644
 index d3013727..b58ad96a 100644
 --- a/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts
 +++ b/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts
@@ -162,13 +161,6 @@ index 93513985..42b93ac2 100644
      dokkaSourceSets {
          configureEach {
              externalDocumentationLink {
-@@ -76,4 +81,4 @@ tasks.withType<DokkaTaskPartial>().named("dokkaHtmlPartial") {
-             }
-         }
-     }
--}
-\ No newline at end of file
-+}
 diff --git a/gradle.properties b/gradle.properties
 index deb1585f..774b0161 100644
 --- a/gradle.properties
