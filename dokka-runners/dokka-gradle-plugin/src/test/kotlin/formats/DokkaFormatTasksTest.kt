@@ -43,7 +43,7 @@ class DokkaFormatTasksTest : FunSpec({
 
         test("expect lifecycle generate task created") {
             dokkaTasks.lifecycleGenerate.name shouldBe "dokkaGenerateTestFormatName"
-            dokkaTasks.generateModule.get().description shouldBe "Generate Dokka testFormat publications"
+            dokkaTasks.lifecycleGenerate.get().description shouldBe "Generate Dokka testFormatName publications"
             dokkaTasks.lifecycleGenerate.get().group shouldBe "dokka"
             dokkaTasks.lifecycleGenerate.get().dependsOn shouldHaveSingleElement dokkaTasks.generatePublication
         }
@@ -51,7 +51,7 @@ class DokkaFormatTasksTest : FunSpec({
         test("expect generate publication task created") {
             dokkaTasks.generatePublication.name shouldBe "dokkaGeneratePublicationTestFormatName"
             dokkaTasks.generatePublication.get().description =
-                "Executes the Dokka Generator, generating a $formatName publication"
+                "Executes the Dokka Generator, generating a testFormatName publication"
             dokkaTasks.generatePublication.get().group shouldBe "dokka"
             dokkaTasks.generatePublication.get().dependsOn.shouldBeEmpty()
         }
@@ -59,7 +59,7 @@ class DokkaFormatTasksTest : FunSpec({
         test("expect generate module task created") {
             dokkaTasks.generateModule.name shouldBe "dokkaGenerateModuleTestFormatName"
             dokkaTasks.generateModule.get().description =
-                "Executes the Dokka Generator, generating a $formatName module"
+                "Executes the Dokka Generator, generating a testFormatName module"
             dokkaTasks.generateModule.get().group shouldBe "dokka"
             dokkaTasks.generateModule.get().dependsOn.shouldBeEmpty()
         }
