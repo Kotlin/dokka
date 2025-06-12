@@ -217,13 +217,12 @@ function isSearchOptionActive(element: HTMLElement): boolean {
 }
 
 function isSearchOptionVisible(element: HTMLElement): boolean {
-  const elementRect = element.getBoundingClientRect();
   const listWrapper = element.closest('.ReactVirtualized__Grid');
-
   if (!listWrapper) {
     return false;
   }
 
   const listRect = listWrapper.getBoundingClientRect();
+  const elementRect = element.getBoundingClientRect();
   return elementRect.top >= listRect.top && elementRect.bottom <= listRect.bottom;
 }
