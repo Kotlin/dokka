@@ -82,8 +82,19 @@ function showPopup(element: Element) {
   if (popupWrapper) {
     popupWrapper.classList.add('active-popup');
 
+    // position the popup to the bottom to the right of the element
+    // if the element is close to the right edge of the screen
+    const elementRect = element.getBoundingClientRect();
+    const popupRect = popupWrapper.getBoundingClientRect();
+    if (elementRect.right + popupRect.width > window.innerWidth) {
+      popupWrapper.classList.add('copy-popup-wrapper_bottom');
+      if (elementRect.left - popupRect.width >= 0) {
+        popupWrapper.classList.add('copy-popup-wrapper_bottom-right');
+      }
+    }
+
     setTimeout(() => {
-      popupWrapper.classList.remove('active-popup');
+      popupWrapper.classList.remove('active-popup', 'copy-popup-wrapper_bottom', 'copy-popup-wrapper_bottom-right');
     }, POPUP_TIMEOUT);
   }
 }
