@@ -199,9 +199,10 @@ fun registerTestProjectSuite(
                     .inputFile("templateSettingsGradleKts", templateSettingsGradleKts)
                     .withPathSensitivity(NAME_ONLY)
 
-                if (jvm != null) {
-                    javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
-                }
+//                if (jvm != null) {
+//                    javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
+//                }
+                javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(17) }
             }
         }
         configure()

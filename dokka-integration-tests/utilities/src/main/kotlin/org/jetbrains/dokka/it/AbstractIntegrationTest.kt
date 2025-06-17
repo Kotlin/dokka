@@ -5,6 +5,7 @@
 package org.jetbrains.dokka.it
 
 import org.jsoup.Jsoup
+import org.junit.jupiter.api.io.CleanupMode
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.net.URL
@@ -15,7 +16,7 @@ import kotlin.test.assertTrue
 
 abstract class AbstractIntegrationTest {
 
-    @field:TempDir
+    @field:TempDir(cleanup = CleanupMode.NEVER)
     lateinit var tempFolder: File
 
     /** Working directory of the test. Contains the project that should be tested. */
