@@ -24,3 +24,9 @@ tasks.shadowJar {
         attributes("Main-Class" to "org.jetbrains.dokka.MainKt")
     }
 }
+
+tasks.jar {
+    manifest {
+        attributes("Main-Class" to "org.jetbrains.dokka.MainKt")
+    }
+}

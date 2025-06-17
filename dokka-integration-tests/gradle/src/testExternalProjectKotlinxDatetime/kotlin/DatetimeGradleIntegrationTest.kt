@@ -50,6 +50,7 @@ class DatetimeGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutpu
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(DatetimeBuildVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
+        println("TESTING PROJECT DIR " + projectDir.absoluteFile.invariantSeparatorsPath)
         val result = createGradleRunner(buildVersions, ":kotlinx-datetime:dokkaGenerate").buildRelaxed()
 
         assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":kotlinx-datetime:dokkaGenerate")).outcome)

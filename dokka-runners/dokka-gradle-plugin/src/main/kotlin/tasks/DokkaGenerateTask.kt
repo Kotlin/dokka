@@ -129,6 +129,12 @@ constructor(
         Publication,
     }
 
+    init {
+        outputs.upToDateWhen {
+            !providers.gradleProperty("enableDokkaCds").isPresent
+        }
+    }
+
     @InternalDokkaGradlePluginApi
     protected fun generateDocumentation(
         generationType: GeneratorMode,
@@ -168,14 +174,18 @@ constructor(
                         isolation.jvmArgs.orNull?.filter { it.isNotBlank() }?.let(this::setJvmArgs)
                         isolation.systemProperties.orNull?.let(this::systemProperties)
 
-                        val cds = providers.of(CdsSource::class) {
-                            parameters {
-                                classpath.from(runtimeClasspath)
+                        if (providers.gradleProperty("enableDokkaCds").orNull.toBoolean()) {
+                            val cds = providers.of(CdsSource::class) {
+                                parameters {
+                                    classpath.from(runtimeClasspath)
+                                }
+                            }
+                            cds.orNull?.let {
+                                jvmArgs(
+                                    "-XX:SharedArchiveFile=${it.absoluteFile.invariantSeparatorsPath}"
+                                )
                             }
                         }
-                        jvmArgs(
-                            "-XX:SharedArchiveFile=${cds.get().absoluteFile.invariantSeparatorsPath}"
-                        )
                     }
                 }
         }

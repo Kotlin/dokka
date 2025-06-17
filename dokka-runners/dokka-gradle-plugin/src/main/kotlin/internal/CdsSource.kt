@@ -5,8 +5,10 @@
 package org.jetbrains.dokka.gradle.internal
 
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.logging.Logging
 import org.gradle.api.provider.ValueSource
 import org.gradle.api.provider.ValueSourceParameters
+import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.process.ExecOperations
 import org.jetbrains.kotlin.konan.file.use
 import java.io.File
@@ -24,6 +26,7 @@ import java.util.concurrent.locks.ReentrantLock
 import java.util.jar.JarFile
 import javax.inject.Inject
 import kotlin.concurrent.withLock
+import kotlin.random.Random
 
 
 internal abstract class CdsSource
@@ -40,39 +43,33 @@ internal constructor(
         checksum(parameters.classpath)
     }
 
-    private val cacheDir: File by lazy {
-        val osName = System.getProperty("os.name").lowercase()
-        val homeDir = System.getProperty("user.home")
-        val appDataDir = System.getenv("APP_DATA") ?: homeDir
-
-        val userCacheDir = when {
-            "win" in osName -> "$appDataDir/Caches/"
-            "mac" in osName -> "$homeDir/Library/Caches/"
-            "nix" in osName -> "$homeDir/.cache/"
-            else -> "$homeDir/.cache/"
-        }
-
-        File(userCacheDir).resolve("dokka").apply {
-            mkdirs()
-        }
-    }
-
     private val cdsFile: File by lazy {
-        cacheDir.resolve("$classpathChecksum.jsa")
+        cdsCacheDir.resolve("$classpathChecksum.jsa")
     }
     private val lockFile: File by lazy {
-        cacheDir.resolve("$classpathChecksum.lock")
+        cdsCacheDir.resolve("$classpathChecksum.lock")
     }
 
-    override fun obtain(): File {
+    override fun obtain(): File? {
+        if (currentJavaVersion < 17) {
+            logger.warn("CDS generation is only supported for Java 17 and above. Current version $currentJavaVersion.")
+            return null
+        }
+        if (cdsFile.exists()) {
+            cdsFile.setLastModified(System.currentTimeMillis())
+            return cdsFile
+        }
+
         lock.withLock {
             RandomAccessFile(lockFile, "rw").use {
-                it.channel.lockWithRetries().use {
-                    if (!cdsFile.exists()) {
+                it.channel.lockLenient().use {
+                    if (cdsFile.exists()) {
+                        return cdsFile
+                    } else {
                         generateStaticCds()
+                        logger.warn("Using CDS ${cdsFile.absoluteFile.invariantSeparatorsPath}")
+                        return cdsFile
                     }
-                    println("Using CDS ${cdsFile.absoluteFile.invariantSeparatorsPath}")
-                    return cdsFile
                 }
             }
         }
@@ -80,28 +77,64 @@ internal constructor(
 
     private fun generateStaticCds() {
 
-        val classListFile = Files.createTempFile("asd", "classlist").toFile()
-        parameters.classpath.files.flatMap { file ->
-            getClassNamesFromJarFile(file)
-        }
-            .toSet()
+        val classListFile = Files.createTempFile("CdsSource", "classlist").toFile()
+        classListFile.deleteOnExit()
+
+        parameters.classpath.files
+            .flatMap { file -> getClassNamesFromJarFile(file) }
+            .distinct()
+            .sorted()
             .joinToString("\n")
             .let {
                 classListFile.writeText(it)
             }
+        logger.warn("Generating CDS from class list: ${classListFile.absoluteFile.invariantSeparatorsPath}")
 
-        execOps.javaexec {
-            jvmArgs(
+        execOps.exec {
+            executable("java")
+            args(
                 "-Xshare:dump",
                 "-XX:SharedArchiveFile=${cdsFile.absoluteFile.invariantSeparatorsPath}",
-                "-XX:SharedClassListFile=${classListFile.absoluteFile.invariantSeparatorsPath}"
+                "-XX:SharedClassListFile=${classListFile.absoluteFile.invariantSeparatorsPath}",
+                "-cp",
+                parameters.classpath.asPath,
+//                "${parameters.classpath.asPath}${File.pathSeparator}/Users/dev/projects/jetbrains/dokka/dokka-runners/runner-cli/build/libs/runner-cli-2.0.20-SNAPSHOT.jar",
+//                parameters.classpath.asPath,
+//                "org.jetbrains.dokka.MainKt"
             )
-            classpath(parameters.classpath)
+            //logger.warn("Generating CDS args: $args")
         }
     }
 
     companion object {
         private val lock: Lock = ReentrantLock()
+
+        private val logger = Logging.getLogger(CdsSource::class.java)
+
+        private val cdsCacheDir: File by lazy {
+            val cdsFromEnv = System.getenv("DOKKA_CDS_CACHE_DIR")
+
+            if (cdsFromEnv != null) {
+                File(cdsFromEnv).apply {
+                    mkdirs()
+                }
+            } else {
+                val osName = System.getProperty("os.name").lowercase()
+                val homeDir = System.getProperty("user.home")
+                val appDataDir = System.getenv("APP_DATA") ?: homeDir
+
+                val userCacheDir = when {
+                    "win" in osName -> "$appDataDir/Caches/"
+                    "mac" in osName -> "$homeDir/Library/Caches/"
+                    "nix" in osName -> "$homeDir/.cache/"
+                    else -> "$homeDir/.cache/"
+                }
+
+                File(userCacheDir).resolve("dokka-cds").apply {
+                    mkdirs()
+                }
+            }
+        }
     }
 }
 
@@ -112,23 +145,17 @@ private fun checksum(
     val md = MessageDigest.getInstance("md5")
     DigestOutputStream(nullOutputStream(), md).use { os ->
         os.write(files.asPath.encodeToByteArray())
-    }
-    return BigInteger(1, md.digest()).toString(16)
-        .padStart(md.digestLength * 2, '0')
-}
 
-private fun checksum(
-    files: Collection<File>
-): String {
-    val md = MessageDigest.getInstance("md5")
-    DigestOutputStream(nullOutputStream(), md).use { os ->
         files.forEach { file ->
-            file.inputStream().use { it.copyTo(os) }
+            file.inputStream().use {
+                it.copyTo(os)
+            }
         }
     }
     return BigInteger(1, md.digest()).toString(16)
         .padStart(md.digestLength * 2, '0')
 }
+
 
 private fun nullOutputStream(): OutputStream =
     object : OutputStream() {
@@ -149,30 +176,40 @@ private fun getClassNamesFromJarFile(source: File): Set<String> {
     }
 }
 
-private fun FileChannel.lockWithRetries(): FileLock {
-    var retries = 0
-    while (true) {
-        try {
-            return lock()
-        }
-        /*
-        Catching the OverlappingFileLockException which is caused by the same jvm (process) already having locked the file.
-        Since we do use a static re-entrant lock as a monitor to the cache, this can only happen
-        when this code is running in the same JVM but with in complete isolation
-        (e.g. Gradle classpath isolation, or composite builds).
+private val currentJavaVersion: Int =
+    System.getProperty("java.version")
+        .removePrefix("1.")
+        .substringBefore(".")
+        .toInt()
 
-        If we detect this case, we retry the locking after a short period, constantly logging that we're blocked
-        by some other thread using the cache.
 
-        The risk of deadlocking here is low, since we can only get into this code path, *if*
-        the code is very isolated and somebody locked the file.
-         */
-        catch (t: OverlappingFileLockException) {
-            Thread.sleep(25)
-            retries++
-//            if (retries % 10 == 0) {
-////                logInfo("Waiting to acquire lock: $file")
-//            }
-        }
+/**
+ * Leniently obtain a [FileLock] for the channel.
+ *
+ * @throws [InterruptedException] if the current thread is interrupted before the lock can be acquired.
+ */
+private tailrec fun FileChannel.lockLenient(): FileLock {
+    if (Thread.interrupted()) {
+        throw InterruptedException("Interrupted while waiting for lock on FileChannel@${this@lockLenient.hashCode()}")
     }
+
+    val lock = try {
+        tryLock()
+    } catch (_: OverlappingFileLockException) {
+        // ignore exception - it means the lock is already held by this process.
+        null
+    }
+
+    if (lock != null) {
+        return lock
+    }
+
+    try {
+        Thread.sleep(Random.nextLong(25, 125))
+    } catch (e: InterruptedException) {
+        Thread.currentThread().interrupt()
+        throw e
+    }
+
+    return lockLenient()
 }
