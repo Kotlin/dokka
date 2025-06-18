@@ -10,10 +10,7 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.*
-import org.jetbrains.dokka.gradle.utils.allprojects_
-import org.jetbrains.dokka.gradle.utils.configureEach_
-import org.jetbrains.dokka.gradle.utils.create_
-import org.jetbrains.dokka.gradle.utils.withDependencies_
+import org.jetbrains.dokka.gradle.utils.*
 import java.io.File
 import kotlin.test.*
 
@@ -22,11 +19,14 @@ class DokkaMultiModuleTaskTest {
     private val rootProject = ProjectBuilder.builder()
         .withName("root")
         .build()
+        .enableV1Plugin()
 
     private val childProject = ProjectBuilder.builder()
         .withName("child")
         .withProjectDir(rootProject.projectDir.resolve("child"))
-        .withParent(rootProject).build()
+        .withParent(rootProject)
+        .build()
+        .enableV1Plugin()
 
     private val childDokkaTask = childProject.tasks.create<DokkaTaskPartial>("childDokkaTask")
 
@@ -160,6 +160,7 @@ class DokkaMultiModuleTaskTest {
     @Test
     fun `multimodule task with no child tasks throws DokkaException`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         val multimodule = project.tasks.create<DokkaMultiModuleTask>("multimodule")
         project.configurations.configureEach_ { withDependencies_ { clear() } }
         assertFailsWith<DokkaException> { multimodule.generateDocumentation() }
@@ -204,8 +205,10 @@ class DokkaMultiModuleTaskTest {
     @Test
     fun sourceChildOutputDirectories() {
         val parent = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         parent.plugins.apply("org.jetbrains.dokka")
         val child = ProjectBuilder.builder().withName("child").withParent(parent).build()
+            .enableV1Plugin()
         child.plugins.apply("org.jetbrains.dokka")
 
         val parentTask = parent.tasks.create<DokkaMultiModuleTask>("parent")
@@ -224,7 +227,9 @@ class DokkaMultiModuleTaskTest {
     @Test
     fun targetChildOutputDirectories() {
         val parent = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         val child = ProjectBuilder.builder().withName("child").withParent(parent).build()
+            .enableV1Plugin()
 
         val parentTask = parent.tasks.create<DokkaMultiModuleTask>("parent")
         val childTask = child.tasks.create<DokkaTask>("child")
