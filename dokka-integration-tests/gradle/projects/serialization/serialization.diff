@@ -161,6 +161,17 @@ index 93513985..42b93ac2 100644
      dokkaSourceSets {
          configureEach {
              externalDocumentationLink {
+diff --git a/gradle.properties b/gradle.properties
+index deb1585f..774b0161 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -23,3 +23,6 @@ org.gradle.kotlin.dsl.allWarningsAsErrors=true
+ kotlin.native.distribution.type=prebuilt
+
+ org.gradle.jvmargs="-XX:+HeapDumpOnOutOfMemoryError"
++
++org.jetbrains.dokka.experimental.gradle.pluginMode=V1Enabled
++org.jetbrains.dokka.experimental.gradle.pluginMode.noWarn=true
 diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
 index 132a67b6..b851a68c 100644
 --- a/gradle/libs.versions.toml

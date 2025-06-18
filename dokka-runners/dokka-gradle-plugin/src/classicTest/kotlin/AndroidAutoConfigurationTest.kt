@@ -12,12 +12,14 @@ import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.dokka.gradle.utils.enableV1Plugin
 import org.jetbrains.dokka.gradle.utils.isAgpRunnable
 import kotlin.test.*
 
 class AndroidAutoConfigurationTest {
 
     private val project = ProjectBuilder.builder().build().also { project ->
+        project.enableV1Plugin()
         if (isAgpRunnable()) {
             project.plugins.apply("com.android.library")
             project.plugins.apply("org.jetbrains.kotlin.android")
