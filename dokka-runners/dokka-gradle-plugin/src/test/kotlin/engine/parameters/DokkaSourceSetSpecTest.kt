@@ -121,8 +121,8 @@ class DokkaSourceSetSpecTest : FunSpec({
 
         buildList {
             enumValues<KotlinPlatform>().forEach { platform ->
-                add(TestCase("main", platform, platform.name))
-                add(TestCase("Main", platform, platform.name))
+                add(TestCase("main", platform, platform.displayName))
+                add(TestCase("Main", platform, platform.displayName))
 
                 add(TestCase("commonMain", platform, "common"))
                 add(TestCase("jvmMain", platform, "jvm"))
