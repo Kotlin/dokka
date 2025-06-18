@@ -265,10 +265,6 @@ constructor(
                     dokkaExtension.dokkaSourceSets.filterNot { it.suppress.get() }
                 }
             )
-
-            generator.dokkaSourceSets.configureDefaults(
-                sourceSetScopeConvention = dokkaExtension.sourceSetScopeDefault
-            )
         }
 
         target.tasks.withType<DokkaGenerateModuleTask>().configureEach {
