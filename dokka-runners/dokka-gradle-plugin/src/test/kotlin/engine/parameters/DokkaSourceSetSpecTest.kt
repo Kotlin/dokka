@@ -113,34 +113,31 @@ class DokkaSourceSetSpecTest : FunSpec({
 
     context("DokkaSourceSetSpec displayName ->") {
 
-        test("given name 'Main', expect displayName is 'Main'") {
-            val project = createProject()
-            val dss = project.createDokkaSourceSetSpec("Main")
-            dss.displayName.orNull shouldBe "Main"
-        }
+        data class TestCase(
+            val name: String,
+            val platform: KotlinPlatform,
+            val expectedDisplayName: String,
+        )
 
-        listOf(
-            "commonMain" to "common",
-            "customMain" to "custom",
-            "jvmMain" to "jvm",
-        ).forEach { (dssName, expectedDisplayName) ->
-            test("given name '$dssName', expect displayName drops 'Main' suffix") {
-                val project = createProject()
-                val dss = project.createDokkaSourceSetSpec(dssName)
-                dss.displayName.orNull shouldBe expectedDisplayName
+        buildList {
+            enumValues<KotlinPlatform>().forEach { platform ->
+                add(TestCase("main", platform, platform.name))
+                add(TestCase("Main", platform, platform.name))
+
+                add(TestCase("commonMain", platform, "common"))
+                add(TestCase("jvmMain", platform, "jvm"))
+                add(TestCase("FooMain", platform, "Foo"))
+
+                add(TestCase("foo", platform, "foo"))
+                add(TestCase("Domain", platform, "Domain"))
+                add(TestCase("CustomMainActor", platform, "CustomMainActor"))
             }
-        }
-
-        listOf(
-            "main",
-            "MainCustom",
-            "domain",
-            "MultiDomain",
-        ).forEach { dssName ->
-            test("given name '$dssName', expect displayName is identical") {
+        }.forEach { (name, platform, expectedDisplayName) ->
+            test("given name '$name' and platform $platform, expect displayName is '$expectedDisplayName'") {
                 val project = createProject()
-                val dss = project.createDokkaSourceSetSpec(dssName)
-                dss.displayName.orNull shouldBe dssName
+                val dss = project.createDokkaSourceSetSpec(name)
+                dss.analysisPlatform.set(platform)
+                dss.displayName.orNull shouldBe expectedDisplayName
             }
         }
     }
