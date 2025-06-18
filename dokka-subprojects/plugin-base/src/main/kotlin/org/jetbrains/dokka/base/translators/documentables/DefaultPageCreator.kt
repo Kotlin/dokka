@@ -28,6 +28,7 @@ import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
 import org.jetbrains.dokka.base.DokkaBaseInternalConfiguration
 import org.jetbrains.dokka.base.pages.AllTypesPageNode
 import org.jetbrains.dokka.base.transformers.pages.annotations.SinceKotlinVersion
+import kotlin.collections.setOf
 import kotlin.reflect.KClass
 
 internal typealias GroupedTags = Map<KClass<out TagWrapper>, List<Pair<DokkaSourceSet?, TagWrapper>>>
@@ -709,7 +710,7 @@ public open class DefaultPageCreator(
         contentKind: ContentKind,
         contentType: BasicTabbedContentType,
         declarations: List<Documentable>,
-        extensions: List<Documentable>
+        extensions: List<Documentable>,
     ) {
         if (declarations.isEmpty() && extensions.isEmpty()) return
 
@@ -738,7 +739,7 @@ public open class DefaultPageCreator(
             kind = contentKind,
             extra = mainExtra,
             contentType = contentType,
-            groups = groups
+            groups = groups,
         )
     }
 
@@ -768,7 +769,7 @@ public open class DefaultPageCreator(
 
         // be careful: extra here will be applied for children by default
         group(extra = extra + TabbedContentTypeExtra(contentType)) {
-            header(2, name, kind = kind, extra = extra) { }
+            header(2, name, kind = kind, extra = extra, styles = setOf(ContentStyle.TableHeader)) { }
             table(kind, extra = extra, styles = emptySet()) {
                 header {
                     group { text("Name") }

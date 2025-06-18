@@ -46,6 +46,11 @@ Here's how to update an external project:
    git diff > $pathToProjectInDokka/project.diff
    ```
 
+   Or, on macOS, copied to the clipboard:
+   ```shell
+   git diff | pbcopy
+   ```
+
 4. Check that the corresponding `GradleIntegrationTest` passes locally and push
 
 ### Example projects

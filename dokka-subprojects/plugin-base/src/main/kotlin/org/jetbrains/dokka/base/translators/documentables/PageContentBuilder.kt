@@ -271,7 +271,7 @@ public open class PageContentBuilder(
 
             if (renderWhenEmpty || groupedElements.any()) {
                 group(extra = extra) {
-                    header(level, name, kind = kind) { }
+                    header(level, name, kind = kind, styles = setOf(ContentStyle.TableHeader)) { }
                     contents += ContentTable(
                         header = headers,
                         children = groupedElements

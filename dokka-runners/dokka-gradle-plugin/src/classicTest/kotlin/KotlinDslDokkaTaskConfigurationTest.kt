@@ -2,12 +2,15 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("DEPRECATION")
+
 package org.jetbrains.dokka.gradle
 
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.gradle.utils.configureEach_
 import org.jetbrains.dokka.gradle.utils.create_
+import org.jetbrains.dokka.gradle.utils.enableV1Plugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import java.io.File
 import kotlin.test.Test
@@ -17,6 +20,7 @@ class KotlinDslDokkaTaskConfigurationTest {
     @Test
     fun `configure dokka task`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.dokka")
         project.tasks.withType<DokkaTask>().configureEach_ {
             outputDirectory.set(File("test"))
@@ -30,6 +34,7 @@ class KotlinDslDokkaTaskConfigurationTest {
     @Test
     fun `sourceSet dependsOn by String`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.dokka")
 
         project.tasks.withType(DokkaTask::class.java).forEach { dokkaTask ->
@@ -64,6 +69,7 @@ class KotlinDslDokkaTaskConfigurationTest {
     @Test
     fun `sourceSet dependsOn by DokkaSourceSet`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.dokka")
 
         project.tasks.withType(DokkaTask::class.java).first().run {
@@ -83,6 +89,7 @@ class KotlinDslDokkaTaskConfigurationTest {
     @Test
     fun `sourceSet dependsOn by KotlinSourceSet`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.dokka")
         project.plugins.apply("org.jetbrains.kotlin.jvm")
 

@@ -405,7 +405,8 @@ public enum class ContentStyle : Style {
     TabbedContent,
 
     WithExtraAttributes, RunnableSample, InDocumentationAnchor, Caption,
-    Wrapped, Indented, KDocTag, Footnote
+    Wrapped, Indented, KDocTag, Footnote,
+    TableHeader
 }
 
 public enum class ListStyle : Style {

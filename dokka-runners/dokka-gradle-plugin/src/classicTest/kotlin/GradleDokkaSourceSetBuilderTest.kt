@@ -2,6 +2,8 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("DEPRECATION")
+
 package org.jetbrains.dokka.gradle
 
 import com.android.build.gradle.internal.api.DefaultAndroidSourceSet
@@ -9,6 +11,7 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.*
+import org.jetbrains.dokka.gradle.utils.enableV1Plugin
 import org.jetbrains.dokka.gradle.utils.isAgpRunnable
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
 import java.net.URI
@@ -17,6 +20,7 @@ import kotlin.test.*
 class GradleDokkaSourceSetBuilderTest {
 
     private val project = ProjectBuilder.builder().withName("root").build()
+        .enableV1Plugin()
 
     @Test
     fun sourceSetId() {

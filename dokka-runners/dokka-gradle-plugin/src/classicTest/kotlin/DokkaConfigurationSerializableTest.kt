@@ -9,6 +9,7 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.PluginConfigurationImpl
 import org.jetbrains.dokka.gradle.utils.create_
+import org.jetbrains.dokka.gradle.utils.enableV1Plugin
 import org.jetbrains.dokka.gradle.utils.externalDocumentationLink_
 import org.jetbrains.dokka.gradle.utils.withDependencies_
 import org.jetbrains.dokka.testApi.assertDokkaConfigurationEquals
@@ -24,8 +25,9 @@ class DokkaConfigurationSerializableTest {
     @Test
     fun `DokkaTask configuration write to file then parse`(@TempDir tempDirectory: File) {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.dokka")
-        val dokkaTask = project.tasks.withType<DokkaTask>().first()
+        val dokkaTask = project.tasks.withType<@Suppress("DEPRECATION")DokkaTask>().first()
         dokkaTask.plugins.withDependencies_ { clear() }
         dokkaTask.apply {
             this.failOnWarning.set(true)

@@ -14,14 +14,19 @@ import org.gradle.kotlin.dsl.container
 import org.gradle.work.DisableCachingByDefault
 
 @DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
-abstract class AbstractDokkaLeafTask : AbstractDokkaTask() {
+@Deprecated(DOKKA_V1_DEPRECATION_MESSAGE)
+abstract class AbstractDokkaLeafTask : @Suppress("DEPRECATION") AbstractDokkaTask() {
 
     @get:Internal
-    val dokkaSourceSets: NamedDomainObjectContainer<GradleDokkaSourceSetBuilder> =
-        project.container(GradleDokkaSourceSetBuilder::class, gradleDokkaSourceSetBuilderFactory()).also { container ->
+    val dokkaSourceSets: NamedDomainObjectContainer<@Suppress("DEPRECATION") GradleDokkaSourceSetBuilder> =
+        project.container(
+            @Suppress("DEPRECATION") GradleDokkaSourceSetBuilder::class,
+            @Suppress("DEPRECATION") gradleDokkaSourceSetBuilderFactory(),
+        ).also { container ->
             DslObject(this).extensions.add("dokkaSourceSets", container)
             project.kotlinOrNull?.sourceSets?.all sourceSet@{
                 container.register(name) {
+                    @Suppress("DEPRECATION")
                     configureWithKotlinSourceSet(this@sourceSet)
                 }
             }
@@ -33,7 +38,7 @@ abstract class AbstractDokkaLeafTask : AbstractDokkaTask() {
      * as task dependency graph.
      */
     @get:Nested
-    protected val unsuppressedSourceSets: List<GradleDokkaSourceSetBuilder>
+    protected val unsuppressedSourceSets: List<@Suppress("DEPRECATION") GradleDokkaSourceSetBuilder>
         get() = dokkaSourceSets
             .toList()
             .also(::checkSourceSetDependencies)

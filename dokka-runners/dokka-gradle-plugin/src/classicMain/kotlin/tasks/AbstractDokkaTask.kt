@@ -32,6 +32,7 @@ import java.util.function.BiConsumer
 import kotlin.reflect.full.createInstance
 
 @DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
+@Deprecated(DOKKA_V1_DEPRECATION_MESSAGE)
 abstract class AbstractDokkaTask : DefaultTask() {
 
     /**

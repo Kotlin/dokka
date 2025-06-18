@@ -2,6 +2,8 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("DEPRECATION")
+
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.artifacts.FileCollectionDependency
@@ -9,6 +11,7 @@ import org.gradle.kotlin.dsl.get
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.gradle.kotlin.KotlinSourceSetGist
+import org.jetbrains.dokka.gradle.utils.enableV1Plugin
 import org.jetbrains.dokka.gradle.utils.withDependencies_
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -20,6 +23,7 @@ class ConfigureWithKotlinSourceSetGistTest {
     @Test
     fun `example gist`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
 
         val f1Jar = project.file("f1.jar")
         val f2Jar = project.file("f2.jar")
@@ -70,6 +74,7 @@ class ConfigureWithKotlinSourceSetGistTest {
     @Test
     fun `display name for source set customMain`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
 
         val gist = KotlinSourceSetGist(
             name = "customMain",
@@ -93,6 +98,7 @@ class ConfigureWithKotlinSourceSetGistTest {
     @Test
     fun `configuration with kotlin source set is live`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         project.plugins.apply("org.jetbrains.kotlin.jvm")
         val kotlin = project.kotlin as KotlinJvmProjectExtension
         val mainSourceSet = kotlin.sourceSets["main"]
@@ -130,6 +136,7 @@ class ConfigureWithKotlinSourceSetGistTest {
     @Test
     fun `changing classpath`() {
         val project = ProjectBuilder.builder().build()
+            .enableV1Plugin()
         val dokkaSourceSet = GradleDokkaSourceSetBuilder("main", project)
         var classpath = project.files()
 
