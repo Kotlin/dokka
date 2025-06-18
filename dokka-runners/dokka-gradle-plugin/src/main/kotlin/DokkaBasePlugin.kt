@@ -171,15 +171,6 @@ constructor(
         sourceSetScopeConvention: Property<String>,
     ) {
         configureEach dss@{
-            displayName.convention(
-                this@dss.name.let { dssName ->
-                    if (dssName == "Main") {
-                        dssName
-                    } else {
-                        dssName.removeSuffix("Main")
-                    }
-                }
-            )
             documentedVisibilities.convention(setOf(VisibilityModifier.Public))
             jdkVersion.convention(11)
 
