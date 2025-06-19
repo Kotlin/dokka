@@ -40,6 +40,10 @@
     min-height: 40px;
 
     user-select: none; /* there's a weird bug with text selection */
+
+    @media (width < $breakpoint-desktop-min) {
+      min-height: 52px;
+    }
   }
 
   &--button {
@@ -79,6 +83,10 @@
       font-size: 0;
       line-height: 0;
       filter: invert(1);
+
+      @media (width < $breakpoint-desktop-min) {
+        top: 14px;
+      }
 
       .toc--part_hidden & {
         transform: rotate(-90deg);
@@ -121,6 +129,11 @@
     padding: 8px 4px 8px 0;
 
     color: inherit;
+
+    @media (width < $breakpoint-desktop-min) {
+      min-height: 52px;
+      padding: 14px 4px 14px 0;
+    }
 
     &:hover {
       background: var(--toc-hover-color);

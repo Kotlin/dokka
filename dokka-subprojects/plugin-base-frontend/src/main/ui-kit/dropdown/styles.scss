@@ -39,6 +39,8 @@
       top: 0;
       right: 0;
 
+      min-width: 360px;
+
       height: 100vh;
       max-height: unset;
 
@@ -117,6 +119,10 @@
 
     font: var(--font-text-m);
     gap: 8px;
+
+    @media (width < $breakpoint-desktop-min) {
+      padding: 14px 12px;
+    }
 
     &:hover {
       background-color: lighten(rgb(50, 50, 55), 10%); // color-background-nav-dt
