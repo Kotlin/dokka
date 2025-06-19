@@ -45,7 +45,9 @@
   background: var(--color-w10);
 }
 
-.js .sample-container:hover .copy-icon, .js-touched .copy-icon {
+/* stylelint-disable no-descending-specificity */
+.js .sample-container:hover .copy-icon,
+.js-touched .copy-icon {
   display: block;
 }
 
@@ -98,11 +100,22 @@
 
   .copy-popup-wrapper {
     position: absolute;
-    top: -10px;
+    top: -8px;
     left: 100%;
 
     width: max-content;
     margin-left: var(--size-s1);
+
+    &_bottom {
+      top: 32px;
+      left: calc(100% - 36px);
+    }
+
+    &_bottom-right {
+      top: 32px;
+      right: calc(100% - 32px);
+      left: unset;
+    }
   }
 }
 
