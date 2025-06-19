@@ -684,9 +684,20 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
   margin-left: 4px;
   margin-left: var(--size-s1);
   position: absolute;
-  top: -10px;
+  top: -8px;
   width: -moz-max-content;
   width: max-content;
+}
+
+.anchor-wrapper .copy-popup-wrapper_bottom {
+  left: calc(100% - 36px);
+  top: 32px;
+}
+
+.anchor-wrapper .copy-popup-wrapper_bottom-right {
+  left: auto;
+  right: calc(100% - 32px);
+  top: 32px;
 }
 
 .anchor-icon {
