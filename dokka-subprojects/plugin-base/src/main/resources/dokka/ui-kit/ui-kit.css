@@ -853,6 +853,7 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
     border: none;
     height: 100vh;
     max-height: none;
+    min-width: 360px;
     padding: 0;
     right: 0;
     top: 0;
@@ -918,6 +919,11 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
   position: relative;
 }
 
+@media (max-width: 899px) {
+  .dropdown--option {
+    padding: 14px 12px;
+  }
+}
 .dropdown--option:hover {
   background-color: #4a4a52;
 }
@@ -1915,8 +1921,8 @@ code:not(.block) {
   box-sizing: border-box;
   color: hsla(0, 0%, 100%, 0.96);
   color: var(--color-text-dt);
-  font: 400 14px/20px Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
-  font: var(--font-text-s);
+  font: 400 16px/24px Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
+  font: var(--font-text-m);
   padding-top: 1px;
 }
 
@@ -3043,6 +3049,11 @@ td:first-child {
   user-select: none;
 }
 
+@media (max-width: 899px) {
+  .toc--row {
+    min-height: 52px;
+  }
+}
 .toc--button {
   align-items: flex-start;
   background-color: inherit;
@@ -3072,6 +3083,11 @@ td:first-child {
   width: 24px;
 }
 
+@media (max-width: 899px) {
+  .toc--button:after {
+    top: 14px;
+  }
+}
 .toc--part_hidden .toc--button:after {
   transform: rotate(-90deg);
 }
@@ -3116,6 +3132,12 @@ td:first-child {
   width: 100%;
 }
 
+@media (max-width: 899px) {
+  .toc--link {
+    min-height: 52px;
+    padding: 14px 4px 14px 0;
+  }
+}
 .toc--link:hover {
   background: rgba(0, 0, 0, 0.08);
   background: var(--toc-hover-color);
