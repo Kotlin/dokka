@@ -5,25 +5,40 @@
 import { isDesktop, isFocusableElement } from '../utils';
 
 export class FocusTrap {
+  // Element that contains the focus inside itself
   private trapElement: HTMLElement;
+  // The focus will be moved only between elements that match this selector,
+  // it may differ depending on the screen size, that's why it is a function
+  private getInteractiveElementsSelector: () => string = () =>
+    'button, a, input, textarea, select, [tabindex]:not([tabindex="-1"])';
+  // Keys that allow navigation through the focusable elements
+  private navigationKeys: string[] = ['Tab'];
 
-  constructor(trapElement: HTMLElement) {
+  constructor({
+    trapElement,
+    navigationKeys,
+    interactiveElementsSelector,
+  }: {
+    trapElement: HTMLElement;
+    navigationKeys?: string[];
+    interactiveElementsSelector?: () => string;
+  }) {
     this.trapElement = trapElement;
+    if (navigationKeys) {
+      this.navigationKeys = navigationKeys;
+    }
+    if (interactiveElementsSelector) {
+      this.getInteractiveElementsSelector = interactiveElementsSelector;
+    }
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.trapElement.addEventListener('keydown', this.handleKeyDown);
   }
 
   private handleKeyDown(event: KeyboardEvent) {
-    const navigationKeys = ['Tab', 'ArrowDown', 'ArrowUp'];
-    /**
-     * On desktop we only deal with options in the dropdown lists,
-     * but on mobile and tablet ToC also behaves like a dropdown
-     * */
-    const trappedElementsSelector = isDesktop() ? '[role="option"]' : '[role="option"], .toc--link, .toc--button';
     const focusableElements = Array.from(
-      this.trapElement.querySelectorAll<HTMLElement>(trappedElementsSelector)
+      this.trapElement.querySelectorAll<HTMLElement>(this.getInteractiveElementsSelector())
     ).filter(isFocusableElement);
-    if (!navigationKeys.includes(event.key) || focusableElements.length === 0) {
+    if (!this.navigationKeys.includes(event.key) || focusableElements.length === 0) {
       return;
     }
 
@@ -67,17 +82,21 @@ export class FocusTrap {
     }
 
     if (event.key === 'Tab') {
-      if (event.shiftKey) {
-        if (document.activeElement === firstElement) {
-          lastElement.focus();
-          event.preventDefault();
-        }
-      } else {
-        if (document.activeElement === lastElement) {
-          firstElement.focus();
-          event.preventDefault();
-        }
+      const activeElementIndex = focusableElements.findIndex(
+        (element) => element && document.activeElement === element
+      );
+
+      if (activeElementIndex !== -1) {
+        const nextElementIndex = event.shiftKey
+          ? (activeElementIndex - 1 + focusableElements.length) % focusableElements.length
+          : (activeElementIndex + 1) % focusableElements.length;
+        (focusableElements[nextElementIndex] as HTMLElement).focus();
+        event.preventDefault();
       }
     }
+  }
+
+  destroy() {
+    this.trapElement.removeEventListener('keydown', this.handleKeyDown);
   }
 }

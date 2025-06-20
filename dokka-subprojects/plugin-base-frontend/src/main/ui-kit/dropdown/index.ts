@@ -2,7 +2,7 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 import './styles.scss';
-import { hasAncestorWithClass } from '../utils';
+import { hasAncestorWithClass, isDesktop } from '../utils';
 import { FocusTrap } from './focus-trap';
 
 const DROPDOWN = '[data-role="dropdown"]';
@@ -92,7 +92,15 @@ function preventScrollBySpaceKey(event: Event): void {
 }
 
 function addKeyboardNavigation(dropdown: HTMLElement): void {
-  new FocusTrap(dropdown);
+  new FocusTrap({
+    trapElement: dropdown,
+    navigationKeys: ['Tab', 'ArrowUp', 'ArrowDown'],
+    /**
+     * On desktop we only deal with options in the dropdown lists,
+     * but on mobile and tablet ToC also behaves like a dropdown
+     * */
+    interactiveElementsSelector: () => (isDesktop() ? '[role="option"]' : '[role="option"], .toc--link, .toc--button'),
+  });
   dropdown.addEventListener('keyup', function (event) {
     if (event.key === 'Escape') {
       onToggleDropdown(dropdown);

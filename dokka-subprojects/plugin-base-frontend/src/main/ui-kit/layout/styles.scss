@@ -53,6 +53,11 @@
   cursor: ew-resize;
 }
 
+// do not show divider after tables as they have borders now
+.table + hr {
+  display: none;
+}
+
 .main-content .content > hr {
   margin: var(--size-m1) 0;
 

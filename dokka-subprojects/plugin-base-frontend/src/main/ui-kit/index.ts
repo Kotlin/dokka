@@ -18,7 +18,6 @@ export * as link from './link/index';
 export * as navbar from './navbar/index';
 export * as navbarButton from './navbar-button/index';
 export * as platformTag from './platform-tag/index';
-export * as platformTags from './platform-tags/index';
 export * as table from './table/index';
 export * as tabs from './tabs/index';
 export * as tocTree from './toc-tree/index';
