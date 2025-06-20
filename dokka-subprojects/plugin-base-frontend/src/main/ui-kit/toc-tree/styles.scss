@@ -97,7 +97,7 @@
 
     @media (hover: hover) {
       &:hover {
-        background-color: var(--toc-hover-color);
+        background: linear-gradient(270deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.08) 100%);
       }
     }
 
@@ -123,7 +123,7 @@
     color: inherit;
 
     &:hover {
-      background-color: var(--toc-hover-color);
+      background: var(--toc-hover-color);
     }
 
     &:focus-visible {
@@ -225,6 +225,18 @@
     height: 16px;
 
     line-height: 32px;
+  }
+
+  .theme-dark &--button:hover {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0%, rgba(17, 0, 0, 0.08) 100%);
+  }
+
+  &--button + &--link:hover {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0%, rgba(17, 0, 0, 0.08) 100%);
+  }
+
+  .theme-dark &--button + &--link:hover {
+    background: linear-gradient(270deg, rgba(255, 255, 255, 0.08) 0%, rgba(17, 0, 0, 0.08) 100%);
   }
 
   &--icon.class::before {

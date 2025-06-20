@@ -526,7 +526,7 @@ public open class HtmlRenderer(
             div {
                 div("main-subrow " + contextNode.style.joinToString(separator = " ")) {
                     buildRowHeaderLink(toRender, pageContext, sourceSetRestriction, contextNode.anchor)
-                    div("pull-right") {
+                    div("pull-right platform-tags--wrapper") {
                         if (ContentKind.shouldBePlatformTagged(contextNode.dci.kind)) {
                             createPlatformTags(contextNode, cssClasses = "no-gutters")
                         }

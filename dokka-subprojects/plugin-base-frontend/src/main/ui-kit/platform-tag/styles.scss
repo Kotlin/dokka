@@ -3,6 +3,32 @@
  */
 @import '../_tokens/index';
 
+.platform-tags {
+  position: relative;
+  top: -2px;
+
+  display: flex;
+  flex-wrap: wrap;
+
+  margin-bottom: -6px;
+  margin-left: -4px;
+
+  @media (width < $breakpoint-tablet-min) {
+    margin-top: 0;
+    margin-left: 0;
+
+    &--wrapper {
+      float: none;
+
+      flex-basis: 100%;
+
+      margin-top: 8px;
+
+      margin-left: -16px;
+    }
+  }
+}
+
 .platform-tag {
   --platform-tag-color: #bababb;
 
@@ -19,6 +45,15 @@
   border-radius: var(--size-s1);
 
   font: var(--font-text-s);
+}
+
+.platform-tags .platform-tag {
+  display: flex;
+  align-items: center;
+
+  padding: 5px 8px;
+
+  font-size: 13px;
 }
 
 button.platform-tag {
@@ -44,11 +79,6 @@ button.platform-tag {
 .platform-tag.wasm-like,
 .platform-selector-option.wasm-like {
   text-transform: uppercase;
-}
-
-.platform-tags .platform-tag {
-  display: flex;
-  align-items: center;
 }
 
 .filter-section .platform-tag[data-active] {
