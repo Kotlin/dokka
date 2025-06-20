@@ -7,13 +7,6 @@ package org.jetbrains.kotlin.documentation
 import kotlinx.serialization.Serializable
 
 @Serializable
-public sealed class KdDeclarationId : KdElementId() {
-    public abstract val packageName: String
-
-    public val packageId: KdPackageId get() = KdPackageId(packageName)
-}
-
-@Serializable
 public sealed class KdDeclaration : KdElement() {
     abstract override val id: KdDeclarationId
     // public abstract val fileId: KdFileId
@@ -23,6 +16,12 @@ public sealed class KdDeclaration : KdElement() {
     public abstract val modality: KdModality
     public abstract val actuality: KdActuality?
 
-    public abstract val tags: List<KdTag>
+    public abstract val documentationTags: List<KdDocumentationTag>
     public abstract val annotations: List<KdAnnotation>
 }
+
+public class KdSourceFileInformation(
+    public val path: String, // path to file
+    public val language: KdSourceLanguage,
+    public val declarations: List<KdDeclarationId>
+)

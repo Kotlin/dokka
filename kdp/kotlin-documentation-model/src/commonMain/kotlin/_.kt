@@ -14,10 +14,11 @@ Workflow:
 6. generate HTML (input = KdProject + N*KdModule + M*KdExternalModule)
  */
 
-
-
-
-
+// outputs/inputs:
+// - model
+// - external links model - for cross-links - can it be used for source links?
+// - sources model - for links to sources - sources.jar?
+// - how to link to GH sources?
 
 
 // TODO: external links and source information
@@ -111,3 +112,30 @@ Workflow:
 // function:PACKAGE_NAME/CLASS_NAME/ENUM_ENTRY_NAME/XXX
 
 // topic:...
+
+private fun test() {
+    KdFragment(
+        documentation = KdDocumentation(listOf(KdDocumentationElement.Text("Module docs"))),
+        packages = listOf(
+            KdPackage(
+                id = KdPackageId("org.example.test"),
+                documentation = KdDocumentation(listOf(KdDocumentationElement.Text("Package docs"))),
+                classifiers = listOf(
+                    KdClass(
+                        id = KdClassifierId("org.example.test", "TestClass"),
+                        classKind = KdClassKind.CLASS,
+                        documentation = KdDocumentation(listOf(KdDocumentationElement.Text("Class docs"))),
+                        callables = listOf(
+                            KdVariable(
+                                id = KdCallableId("org.example.test", "TestClass", "test", null),
+                                variableKind = KdVariableKind.PROPERTY,
+                                returns = KdReturns(KdClassifierType(KdClassifierId("kotlin", "String"))),
+                                documentation = KdDocumentation(listOf(KdDocumentationElement.Text("Property docs")))
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    )
+}

@@ -34,16 +34,6 @@ public data class KdFunctionalType(
     override val isNullable: Boolean? = null,
 ) : KdType()
 
-//public interface KdSymbolReference
-//public interface KdTypeReference {
-//    // TODO: functional types
-//    public val isNullable: Boolean
-//    public val symbolReference: KdSymbolReference
-//    public val typeParameters: List<
-//            KdTypeParameter // + star projection
-//            >
-//}
-
 @Serializable
 public data class KdTypeArgument(
     val type: KdType? = null, // if null -> star

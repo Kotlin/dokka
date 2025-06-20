@@ -8,6 +8,16 @@ import kotlinx.serialization.Serializable
 
 // links for external libraries
 // TODO: id is not enough, as we could have section references
+// there should be shortcut if default linking form is used:
+// - modules/[module]/api/[package]/[class]/[callable]/index.html
+// - modules/[module]/api/[package]/[callable]/index.html
+// - modules/[module]/api/[package]/index.html
+// - modules/[module]/docs/[path]/[name]/index.html
+// - modules/[module]/index.html - module
+// - docs/[path]/[name].html
+// - package-list (single-module)
+// - element-list (multi-module)
+// upper case characters is replaced: `HeyX` -> `-hey-x`
 @Serializable
 public data class KdExternalModule(
     public val links: List<KdExternalLink>
@@ -17,6 +27,15 @@ public data class KdExternalModule(
 public data class KdExternalLink(
     public val id: KdElementId,
     public val url: String
+)
+
+private class SomeModule(
+    val sourceLinks: Links, // links declaration -> source location (GH)
+    val webLinks: Links,    // links declaration -> website location
+)
+
+private class Links(
+    val links: List<KdExternalLink> = emptyList()
 )
 
 //public interface KdExternalModule {

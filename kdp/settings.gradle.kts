@@ -19,5 +19,5 @@ dependencyResolutionManagement {
 rootProject.name = "kdp"
 
 include(":kotlin-documentation-model") // kotlinx.serialization based machine readable format
-//include(":kotlin-documentation-analyzer") // Kotlin Analysis API based analyzer
+include(":kotlin-documentation-analyzer") // Kotlin Analysis API based analyzer
 //include(":kotlin-documentation-renderer") // HTML renderer

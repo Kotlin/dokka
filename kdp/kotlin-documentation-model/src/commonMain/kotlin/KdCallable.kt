@@ -7,17 +7,6 @@ package org.jetbrains.kotlin.documentation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-// represents: constructor (no name), function, property, enum_entry
-@Serializable
-public data class KdCallableId(
-    override val packageName: String,
-    public val classNames: String?,
-    public val callableName: String?, // if null -> constructor
-    public val parametersHash: String? // if null -> no parameters? -> variable
-) : KdDeclarationId() {
-    public val classifierId: KdClassifierId? get() = classNames?.let { KdClassifierId(packageName, it) }
-}
-
 @Serializable
 public sealed class KdCallable : KdDeclaration() {
     abstract override val id: KdCallableId
@@ -52,7 +41,7 @@ public data class KdConstructor(
     override val actuality: KdActuality? = null,
 
     override val documentation: KdDocumentation?,
-    override val tags: List<KdTag> = emptyList(),
+    override val documentationTags: List<KdDocumentationTag> = emptyList(),
     override val annotations: List<KdAnnotation> = emptyList(),
 ) : KdCallable()
 
@@ -82,7 +71,7 @@ public data class KdFunction(
     override val actuality: KdActuality? = null,
 
     override val documentation: KdDocumentation?,
-    override val tags: List<KdTag> = emptyList(),
+    override val documentationTags: List<KdDocumentationTag> = emptyList(),
     override val annotations: List<KdAnnotation> = emptyList(),
 ) : KdCallable()
 
@@ -110,6 +99,6 @@ public data class KdVariable(
     override val actuality: KdActuality? = null,
 
     override val documentation: KdDocumentation?,
-    override val tags: List<KdTag> = emptyList(),
+    override val documentationTags: List<KdDocumentationTag> = emptyList(),
     override val annotations: List<KdAnnotation> = emptyList(),
 ) : KdCallable()

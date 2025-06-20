@@ -6,28 +6,27 @@ package org.jetbrains.kotlin.documentation
 
 import kotlinx.serialization.Serializable
 
-// fragment <- from code per source-set
+// class : org.example/ClassA - id
+// sources.jar: org/example | ClassA.kt - filepath (+ line number)
+// github: github.com/whyoleg/example | module-name/src/commonMain/kotlin/org/example | ClassA.kt - URL (+ line number)
+// external: klibs.io/whyoleg/example/org.example/ClassA
+
+// module(XXX) -> fragment(commonMain) -> package(org.example) -> file(Hell.kt) -> class -> declaration
+
+//@Serializable
+//public data class KdFragmentId(
+//    public val name: String
+//) : KdElementId()
+
+// fragment <- from code per KGP source-set
 @Serializable
 public data class KdFragment(
+//    override val id: KdFragmentId,
     // informational data
-    // val name: String (jvm, common, js, wasm, web, native, apple, etc) - what about test?
     // val platforms: List (jvm, mingwX64, etc) - duplicate info?
-    val declarations: List<KdDeclaration>,
-    val files: List<KdFile>,
-)
-
-@Serializable
-public data class KdFileId(
-    public val path: String, // path from source root, e.g. com/example/string/HelloWorld.kt
-) : KdElementId()
-
-// TODO:
-//  needed for javadoc generation (top-level classes facades names) and storing file-level annotations?
-@Serializable
-public data class KdFile(
-    override val id: KdElementId,
-    public val sourceLanguage: KdSourceLanguage = KdSourceLanguage.KOTLIN,
-    public val annotations: List<KdAnnotation> = emptyList(),
-) : KdElement() {
-    override val documentation: KdDocumentation? get() = null // no docs for file for now
-}
+    val documentation: KdDocumentation? = null, // a.k.a module-docs
+    public val packages: List<KdPackage> = emptyList(),
+//    public val topics: List<KdTopic> = emptyList() // in future
+    // val samples
+//    val files: List<KdFile>,
+) //: KdElement()
