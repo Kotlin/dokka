@@ -402,6 +402,11 @@ public abstract class org/jetbrains/dokka/gradle/formats/DokkaFormatPlugin : org
 public final class org/jetbrains/dokka/gradle/formats/DokkaFormatPlugin$Companion {
 }
 
+public final class org/jetbrains/dokka/gradle/formats/DokkaFormatTasks$inlined$sam$i$org_gradle_api_Action$0 : org/gradle/api/Action {
+	public fun <init> (Lkotlin/jvm/functions/Function1;)V
+	public final synthetic fun execute (Ljava/lang/Object;)V
+}
+
 public abstract class org/jetbrains/dokka/gradle/formats/DokkaHtmlPlugin : org/jetbrains/dokka/gradle/formats/DokkaFormatPlugin {
 	public static final field Companion Lorg/jetbrains/dokka/gradle/formats/DokkaHtmlPlugin$Companion;
 	public fun configure (Lorg/jetbrains/dokka/gradle/formats/DokkaFormatPlugin$DokkaFormatPluginContext;)V
