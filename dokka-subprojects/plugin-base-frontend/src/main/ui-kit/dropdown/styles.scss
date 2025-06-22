@@ -206,7 +206,7 @@
 
     content: '';
 
-    background-color: rgba(137, 137, 137, 0.5);
+    background-color: var(--color-b50);
 
     .dropdown--list_expanded + & {
       display: block;
