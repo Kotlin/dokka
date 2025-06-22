@@ -1001,7 +1001,8 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
 }
 
 .dropdown--overlay {
-  background-color: hsla(0, 0%, 54%, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--color-b50);
   bottom: 0;
   content: "";
   display: none;
@@ -3015,17 +3016,23 @@ td:first-child {
   --toc-hover-color:var(--color-b08);
   --toc-font:400 13px/24px var(--font-family-default);
   --toc-color:var(--color-text);
+  --toc-link-hover-gradient:linear-gradient(90deg,hsla(0,0%,100%,.08),rgba(17,0,0,.08));
+  --toc-button-hover-gradient:linear-gradient(270deg,transparent,rgba(0,0,0,.08));
 }
 
 .theme-dark {
   --toc-hover-color:var(--color-w08);
   --toc-color:var(--color-text-dt);
+  --toc-link-hover-gradient:linear-gradient(270deg,hsla(0,0%,100%,.08),rgba(17,0,0,0));
+  --toc-button-hover-gradient:linear-gradient(90deg,hsla(0,0%,100%,.08),rgba(17,0,0,0));
 }
 
 @media (max-width: 899px) {
   .theme-dark_mobile {
     --toc-color:var(--color-text-dt);
     --toc-hover-color:var(--color-w08);
+    --toc-link-hover-gradient:linear-gradient(270deg,hsla(0,0%,100%,.08),rgba(17,0,0,0));
+    --toc-button-hover-gradient:linear-gradient(90deg,hsla(0,0%,100%,.08),rgba(17,0,0,0));
   }
 }
 .toc--part {
@@ -3101,14 +3108,9 @@ td:first-child {
     filter: invert(0);
   }
 }
-@media (hover: hover) {
-  .toc--button:hover {
-    background: linear-gradient(270deg, transparent, rgba(0, 0, 0, 0.08));
-  }
-}
-.toc--button:active {
-  background-color: rgba(0, 0, 0, 0.08);
-  background-color: var(--toc-hover-color);
+.toc--button:hover {
+  background: linear-gradient(270deg, transparent, rgba(0, 0, 0, 0.08));
+  background: var(--toc-button-hover-gradient);
 }
 
 .toc--button.focus-visible {
@@ -3396,12 +3398,9 @@ td:first-child {
   width: 16px;
 }
 
-.theme-dark .toc--button:hover, .toc--button + .toc--link:hover {
+.toc--button + .toc--link:hover {
   background: linear-gradient(90deg, hsla(0, 0%, 100%, 0.08), rgba(17, 0, 0, 0.08));
-}
-
-.theme-dark .toc--button + .toc--link:hover {
-  background: linear-gradient(270deg, hsla(0, 0%, 100%, 0.08), rgba(17, 0, 0, 0.08));
+  background: var(--toc-link-hover-gradient);
 }
 
 .toc--icon.class:before {
@@ -3475,13 +3474,23 @@ td:first-child {
   color: var(--color-text-dt);
 }
 
-.toc--part[data-active] > .toc--row .toc--button:hover, .toc--part[data-active] > .toc--row .toc--link:hover {
+.toc--part[data-active] > .toc--row .toc--button:after, .toc--part[data-active] > .toc--row .toc--link:after {
+  filter: invert(0);
+}
+
+.toc--part[data-active] > .toc--row .toc--link:hover {
   background-color: #458cff;
   background-color: var(--color-key-blue-hover);
 }
 
-.toc--part[data-active] > .toc--row .toc--button:after, .toc--part[data-active] > .toc--row .toc--link:after {
-  filter: invert(0);
+.toc--part[data-active] > .toc--row .toc--button ~ .toc--link:hover {
+  background: linear-gradient(270deg, hsla(0, 0%, 100%, 0.16), rgba(17, 0, 0, 0)), #307fff;
+  background: linear-gradient(270deg, hsla(0, 0%, 100%, 0.16) 0, rgba(17, 0, 0, 0) 100%), var(--color-key-blue);
+}
+
+.toc--part[data-active] > .toc--row .toc--button:hover {
+  background: linear-gradient(90deg, hsla(0, 0%, 100%, 0.16), rgba(17, 0, 0, 0)), #307fff;
+  background: linear-gradient(90deg, hsla(0, 0%, 100%, 0.16) 0, rgba(17, 0, 0, 0) 100%), var(--color-key-blue);
 }
 
 .sidebar {
