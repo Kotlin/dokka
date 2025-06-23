@@ -98,6 +98,7 @@ internal fun KaSession.findKDoc(symbol: KaSymbol): KDocContent? {
             val paramSections = kdoc.findSectionsContainingTag(KDocKnownTag.PARAM)
             return KDocContent(constructorSection, paramSections)
         }
+        return KDocContent(kdoc.getDefaultSection(), kdoc.getAllSections())
     }
 
     // for generated function (e.g. `copy`) [KtSymbol.psi] is undefined (although actually returns a class psi), see test `data class kdocs over generated methods`
