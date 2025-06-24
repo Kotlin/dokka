@@ -19,9 +19,9 @@ dependencies {
     implementation(projects.dokkaSubprojects.pluginAllModulesPage)
     implementation(projects.dokkaSubprojects.pluginTemplating)
 
-    implementation(kotlin("reflect"))
+    implementation(libs.kotlin.reflect)
     implementation(libs.kotlinx.coroutines.core)
 
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
     testImplementation(projects.dokkaSubprojects.dokkaTestApi)
 }

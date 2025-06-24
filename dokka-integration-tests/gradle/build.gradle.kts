@@ -23,7 +23,7 @@ dependencies {
 
     api(libs.jsoup)
 
-    api(kotlin("test-junit5"))
+    api(libs.kotlin.test.junit5)
     api(libs.junit.jupiterApi)
     api(libs.junit.jupiterParams)
     api(libs.kotest.assertionsCore)

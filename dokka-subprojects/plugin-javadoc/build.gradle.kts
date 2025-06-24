@@ -19,12 +19,12 @@ dependencies {
     implementation(projects.dokkaSubprojects.pluginBase)
     implementation(projects.dokkaSubprojects.pluginKotlinAsJava)
 
-    implementation(kotlin("reflect"))
+    implementation(libs.kotlin.reflect)
     implementation(libs.korlibs.template)
     implementation(libs.kotlinx.html)
     implementation(libs.kotlinx.coroutines.core)
 
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
     symbolsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
     descriptorsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
     testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)
