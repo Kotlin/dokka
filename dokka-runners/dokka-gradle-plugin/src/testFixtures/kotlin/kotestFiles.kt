@@ -102,7 +102,7 @@ private fun describeFileDifferences(
                     /* contextSize = */ 0,
                 )
 
-                val maxDiffLines = 5
+                val maxDiffLines = 10
                 appendLine(diff.take(maxDiffLines).joinToString("\n").prependIndent())
                 if (diff.size > maxDiffLines) {
                     appendLine("[${diff.size - maxDiffLines} lines truncated]".prependIndent())
