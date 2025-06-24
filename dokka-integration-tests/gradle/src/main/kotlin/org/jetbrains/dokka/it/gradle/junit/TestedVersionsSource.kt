@@ -46,6 +46,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
             "1.9.25",
             "2.0.21",
             "2.1.0",
+            "2.2.0",
         )
 
         /**
@@ -57,6 +58,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
             "7.6.4",
             "8.8.0",
             //"8.10.2", // KGP 2.0.21 does not yet officially support 8.10
+            "9.0.0-rc-1",
         )
 
         private val allVersions = sequence {
