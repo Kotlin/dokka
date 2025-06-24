@@ -61,7 +61,7 @@ fun createSettingsXml(): String {
 
 private data class Repository(
     val id: String,
-    @Language("http-url-reference")
+    @param:Language("http-url-reference")
     val url: String,
 ) {
     @Language("XML")
