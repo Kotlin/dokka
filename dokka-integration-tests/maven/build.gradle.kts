@@ -19,7 +19,7 @@ plugins {
 dependencies {
     api(projects.utilities)
 
-    api(kotlin("test-junit5"))
+    api(libs.kotlin.test.junit5)
     api(libs.junit.jupiterApi)
 
     val dokkaVersion = project.version.toString()

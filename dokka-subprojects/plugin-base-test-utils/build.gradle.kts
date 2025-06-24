@@ -17,12 +17,12 @@ dependencies {
 
     api(projects.dokkaSubprojects.analysisKotlinApi)
 
-    implementation(kotlin("reflect"))
+    implementation(libs.kotlin.reflect)
     implementation(libs.jsoup)
 
-    implementation(kotlin("test"))
+    implementation(libs.kotlin.test)
     implementation(projects.dokkaSubprojects.dokkaTestApi)
 
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
     testImplementation(projects.dokkaSubprojects.dokkaTestApi)
 }

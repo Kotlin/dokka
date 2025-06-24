@@ -15,7 +15,7 @@ dependencies {
     implementation(projects.dokkaSubprojects.analysisMarkdownJb)
     implementation(projects.dokkaSubprojects.analysisJavaPsi)
 
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
     testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
     testImplementation(projects.dokkaSubprojects.dokkaTestApi)
     testImplementation(projects.dokkaSubprojects.analysisKotlinApi)
