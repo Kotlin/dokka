@@ -2546,6 +2546,11 @@ button.platform-tag:focus-visible {
   text-decoration: none;
 }
 
+.filter-section .platform-tag:not([data-active]):hover {
+  background-color: hsla(0, 0%, 100%, 0.16);
+  background-color: var(--color-w16);
+}
+
 .filter-section .platform-tag:not([data-active]):after {
   background-color: currentColor;
   content: "";
