@@ -39,7 +39,7 @@
       top: 0;
       right: 0;
 
-      min-width: 360px;
+      min-width: min(360px, 100vw);
 
       height: 100vh;
       max-height: unset;
