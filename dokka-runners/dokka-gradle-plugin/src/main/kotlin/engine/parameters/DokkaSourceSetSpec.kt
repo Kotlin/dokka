@@ -11,7 +11,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
-import org.gradle.kotlin.dsl.java
 import org.gradle.kotlin.dsl.newInstance
 import org.jetbrains.dokka.gradle.engine.parameters.SourceSetIdSpec.Companion.dokkaSourceSetIdSpec
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
@@ -461,6 +460,15 @@ constructor(
                     // When KotlinAdapter adds dokkaSourceSets, it will compute a sensible convention for 'suppress'.
                     suppress.convention(false)
                     analysisPlatform.convention(KotlinPlatform.DEFAULT)
+                    displayName.convention(
+                        analysisPlatform.map { platform ->
+                            if (name.equals("main", ignoreCase = true)) {
+                                platform.displayName
+                            } else {
+                                name.removeSuffix("Main")
+                            }
+                        }
+                    )
                 }
             }
     }
