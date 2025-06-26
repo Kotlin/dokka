@@ -267,6 +267,11 @@
   filter: none;
 }
 
+@media (max-width: 899px) {
+  .button_dropdown.search--close-button:after {
+    background-image: url(assets/cross.svg);
+  }
+}
 .button_dropdown_active {
   background-color: #307fff;
   background-color: var(--color-key-blue);
