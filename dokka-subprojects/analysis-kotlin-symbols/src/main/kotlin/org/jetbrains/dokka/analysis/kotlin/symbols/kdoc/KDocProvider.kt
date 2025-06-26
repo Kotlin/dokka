@@ -89,6 +89,8 @@ internal fun KaSession.findKDoc(symbol: KaSymbol): KDocContent? {
         val containingClass = symbol.fakeOverrideOriginal.containingSymbol as? KaClassSymbol
         if (containingClass?.origin != KaSymbolOrigin.SOURCE) return null
         val kdoc = (containingClass.psi as? KtDeclaration)?.docComment ?: return null
+
+        // duplicates the logic of IDE's `lookupOwnedKDoc`
         val constructorSection = kdoc.findSectionByTag(KDocKnownTag.CONSTRUCTOR)
         if (constructorSection != null) {
             // if annotated with @constructor tag and the caret is on constructor definition,
