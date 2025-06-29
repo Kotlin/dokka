@@ -2784,10 +2784,14 @@ td.content {
     word-break: break-word;
   }
 }
+.table--container {
+  overflow: auto;
+}
+
 @media (max-width: 439px) {
   .table--container {
     margin-left: -16px;
-    overflow: scroll;
+    overflow: auto;
     width: calc(100% + 32px);
   }
 }

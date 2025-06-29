@@ -147,8 +147,10 @@ td.content {
 /* Start: Markdown table styles */
 
 .table--container {
+  overflow: auto;
+
   @media (width < $breakpoint-tablet-min) {
-    overflow: scroll;
+    overflow: auto;
 
     width: calc(100% + 32px);
     margin-left: -16px;
