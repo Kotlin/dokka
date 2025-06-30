@@ -1719,6 +1719,7 @@ code:not(.block) {
   flex-direction: column;
   margin-left: -5px;
   overflow: auto !important;
+  scrollbar-gutter: stable;
 }
 
 .main-content {
@@ -2917,7 +2918,7 @@ td:first-child {
 }
 
 .platform-hinted > .platform-bookmarks-row, .tabs-section {
-  border-bottom: 1px inset var(--text-outline);
+  border-bottom: 1px solid var(--text-outline);
   margin-bottom: 32px;
   margin-bottom: var(--size-m2);
 }
@@ -2937,6 +2938,8 @@ td:first-child {
   font: 400 14px/20px Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
   font: var(--font-text-s);
   padding: 10px 16px 6px;
+  position: relative;
+  top: 1px;
 }
 
 .no-js .platform-bookmarks-row + .sourceset-dependent-content {
