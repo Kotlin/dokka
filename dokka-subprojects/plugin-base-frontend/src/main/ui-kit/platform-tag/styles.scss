@@ -123,6 +123,10 @@ button.platform-tag {
   color: var(--color-w50);
   background-color: var(--color-w10);
 
+  &:hover {
+    background-color: var(--color-w16);
+  }
+
   &::after {
     position: absolute;
     z-index: 1;

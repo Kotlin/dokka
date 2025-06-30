@@ -7,17 +7,23 @@
   --toc-hover-color: var(--color-b08);
   --toc-font: 400 13px/24px var(--font-family-default);
   --toc-color: var(--color-text);
+  --toc-link-hover-gradient: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0%, rgba(17, 0, 0, 0.08) 100%);
+  --toc-button-hover-gradient: linear-gradient(270deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.08) 100%);
 }
 
 .theme-dark {
   --toc-hover-color: var(--color-w08);
   --toc-color: var(--color-text-dt);
+  --toc-link-hover-gradient: linear-gradient(270deg, rgba(255, 255, 255, 0.08) 0%, rgba(17, 0, 0, 0) 100%);
+  --toc-button-hover-gradient: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0%, rgba(17, 0, 0, 0) 100%);
 }
 
 @media (width < $breakpoint-desktop-min) {
   .theme-dark_mobile {
     --toc-color: var(--color-text-dt);
     --toc-hover-color: var(--color-w08);
+    --toc-link-hover-gradient: linear-gradient(270deg, rgba(255, 255, 255, 0.08) 0%, rgba(17, 0, 0, 0) 100%);
+    --toc-button-hover-gradient: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0%, rgba(17, 0, 0, 0) 100%);
   }
 }
 
@@ -40,6 +46,10 @@
     min-height: 40px;
 
     user-select: none; /* there's a weird bug with text selection */
+
+    @media (width < $breakpoint-desktop-min) {
+      min-height: 52px;
+    }
   }
 
   &--button {
@@ -80,6 +90,10 @@
       line-height: 0;
       filter: invert(1);
 
+      @media (width < $breakpoint-desktop-min) {
+        top: 14px;
+      }
+
       .toc--part_hidden & {
         transform: rotate(-90deg);
       }
@@ -95,14 +109,8 @@
       }
     }
 
-    @media (hover: hover) {
-      &:hover {
-        background: linear-gradient(270deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.08) 100%);
-      }
-    }
-
-    &:active {
-      background-color: var(--toc-hover-color);
+    &:hover {
+      background: var(--toc-button-hover-gradient);
     }
 
     &:focus-visible {
@@ -121,6 +129,11 @@
     padding: 8px 4px 8px 0;
 
     color: inherit;
+
+    @media (width < $breakpoint-desktop-min) {
+      min-height: 52px;
+      padding: 14px 4px 14px 0;
+    }
 
     &:hover {
       background: var(--toc-hover-color);
@@ -227,16 +240,8 @@
     line-height: 32px;
   }
 
-  .theme-dark &--button:hover {
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0%, rgba(17, 0, 0, 0.08) 100%);
-  }
-
   &--button + &--link:hover {
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0%, rgba(17, 0, 0, 0.08) 100%);
-  }
-
-  .theme-dark &--button + &--link:hover {
-    background: linear-gradient(270deg, rgba(255, 255, 255, 0.08) 0%, rgba(17, 0, 0, 0.08) 100%);
+    background: var(--toc-link-hover-gradient);
   }
 
   &--icon.class::before {
@@ -310,13 +315,21 @@
     color: var(--color-text-dt);
     background-color: var(--color-key-blue);
 
-    &:hover {
-      background-color: var(--color-key-blue-hover);
-    }
-
     &::after {
       filter: invert(0);
     }
+  }
+
+  & .toc--link:hover {
+    background-color: var(--color-key-blue-hover);
+  }
+
+  & .toc--button ~ .toc--link:hover {
+    background: linear-gradient(270deg, rgba(255, 255, 255, 0.16) 0%, rgba(17, 0, 0, 0) 100%), var(--color-key-blue);
+  }
+
+  & .toc--button:hover {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.16) 0%, rgba(17, 0, 0, 0) 100%), var(--color-key-blue);
   }
 }
 
