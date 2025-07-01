@@ -65,6 +65,41 @@ class ShouldBeADirectoryWithSameContentAsTest : FunSpec({
         )
     }
 
+    test("given large diffs, expect lines are truncated") {
+        val expectedDir = tempDir().apply {
+            resolve("file0.txt")
+                .writeText(
+                    List(1000) { "expected line $it" }.joinToString("\n")
+                )
+        }
+
+        val actualDir = tempDir().apply {
+            resolve("file0.txt")
+                .writeText(
+                    List(1000) { "actual line $it" }.joinToString("\n")
+                )
+        }
+
+        val failure = shouldFail { expectedDir.shouldBeADirectoryWithSameContentAs(actualDir) }
+
+        failure.shouldHaveMessage(
+            """
+            file0.txt has 1 differences in content:
+                --- file0.txt
+                +++ file0.txt
+                @@ -1,1000 +1,1000 @@
+                -expected line 0
+                -expected line 1
+                -expected line 2
+                -expected line 3
+                -expected line 4
+                -expected line 5
+                -expected line 6
+                [1993 lines truncated]
+            """.trimIndent()
+        )
+    }
+
     test("when file in directories has different content, expect failure with contents of file") {
         val expectedDir = tempDir().apply {
             resolve("file.txt").writeText("content")
