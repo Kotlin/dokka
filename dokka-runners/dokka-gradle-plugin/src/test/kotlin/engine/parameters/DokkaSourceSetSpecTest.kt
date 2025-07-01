@@ -36,7 +36,7 @@ class DokkaSourceSetSpecTest : FunSpec({
             dss.dependentSourceSets.shouldBeEmpty()
         }
         test("displayName") {
-            dss.displayName.orNull shouldBe "jvm"
+            dss.displayName.orNull shouldBe "foo"
         }
         test("documentedVisibilities") {
             dss.documentedVisibilities.orNull.shouldContainExactlyInAnyOrder(Public)
@@ -108,6 +108,37 @@ class DokkaSourceSetSpecTest : FunSpec({
         }
         test("suppressedFiles") {
             dss.suppressedFiles.shouldBeEmpty()
+        }
+    }
+
+    context("DokkaSourceSetSpec displayName ->") {
+
+        data class TestCase(
+            val name: String,
+            val platform: KotlinPlatform,
+            val expectedDisplayName: String,
+        )
+
+        buildList {
+            enumValues<KotlinPlatform>().forEach { platform ->
+                add(TestCase("main", platform, platform.displayName))
+                add(TestCase("Main", platform, platform.displayName))
+
+                add(TestCase("commonMain", platform, "common"))
+                add(TestCase("jvmMain", platform, "jvm"))
+                add(TestCase("FooMain", platform, "Foo"))
+
+                add(TestCase("foo", platform, "foo"))
+                add(TestCase("Domain", platform, "Domain"))
+                add(TestCase("CustomMainActor", platform, "CustomMainActor"))
+            }
+        }.forEach { (name, platform, expectedDisplayName) ->
+            test("given name '$name' and platform $platform, expect displayName is '$expectedDisplayName'") {
+                val project = createProject()
+                val dss = project.createDokkaSourceSetSpec(name)
+                dss.analysisPlatform.set(platform)
+                dss.displayName.orNull shouldBe expectedDisplayName
+            }
         }
     }
 }) {

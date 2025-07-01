@@ -171,18 +171,6 @@ constructor(
         sourceSetScopeConvention: Property<String>,
     ) {
         configureEach dss@{
-            displayName.convention(
-                analysisPlatform.map { platform ->
-                    // Match existing Dokka naming conventions. (This should probably be simplified!)
-                    when {
-                        // Multiplatform source sets (e.g. commonMain, jvmMain, macosMain)
-                        name.endsWith("Main") -> name.substringBeforeLast("Main")
-
-                        // indeterminate source sets should use the name of the Kotlin platform
-                        else -> platform.displayName
-                    }
-                }
-            )
             documentedVisibilities.convention(setOf(VisibilityModifier.Public))
             jdkVersion.convention(11)
 
@@ -276,10 +264,6 @@ constructor(
                     // exclude suppressed source sets as early as possible, to avoid unnecessary dependency resolution
                     dokkaExtension.dokkaSourceSets.filterNot { it.suppress.get() }
                 }
-            )
-
-            generator.dokkaSourceSets.configureDefaults(
-                sourceSetScopeConvention = dokkaExtension.sourceSetScopeDefault
             )
         }
 
