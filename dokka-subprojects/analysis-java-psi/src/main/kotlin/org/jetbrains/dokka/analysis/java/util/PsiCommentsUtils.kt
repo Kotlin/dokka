@@ -7,7 +7,6 @@ package org.jetbrains.dokka.analysis.java.util
 import com.intellij.psi.JavaDocTokenType
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiJavaCodeReferenceElement
-import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.tree.JavaDocElementType
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.javadoc.PsiDocTag
@@ -44,7 +43,10 @@ internal fun PsiElement.referenceElementOrSelf(): PsiElement? =
     } else this
 
 internal fun PsiDocTag.linkElement(): PsiElement? =
-    valueElement ?: dataElements.firstOrNull { it !is PsiWhiteSpace }
+    dataElements.firstOrNull {
+        it.node.elementType == JavaDocElementType.DOC_REFERENCE_HOLDER ||
+                it.node.elementType == JavaDocElementType.DOC_METHOD_OR_FIELD_REF
+    }
 
 internal fun PsiElement.defaultLabel() = children.firstOrNull {
     it is PsiDocToken && it.text.isNotBlank() && !it.isSharpToken()
