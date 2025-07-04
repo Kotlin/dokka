@@ -6,7 +6,6 @@ package content.samples
 
 import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.base.transformers.pages.KOTLIN_PLAYGROUND_SCRIPT
 import org.jetbrains.dokka.model.DisplaySourceSet
 import utils.TestOutputWriterPlugin
 import utils.assertContains
@@ -15,7 +14,7 @@ import utils.findTestType
 import java.nio.file.Paths
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
+import kotlin.test.assertFalse
 
 class ContentForSamplesTest : BaseAbstractTest() {
     private val testDataDir = getTestDataDir("content/samples").toAbsolutePath()
@@ -62,7 +61,7 @@ class ContentForSamplesTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `samples block is rendered in the description`() {
+    fun `samples block is rendered as non-runnable by default`() {
         val writerPlugin = TestOutputWriterPlugin()
         testInline(
             """
@@ -78,7 +77,8 @@ class ContentForSamplesTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val page = module.findTestType("test", "Foo")
-                assertContains(page.embeddedResources, KOTLIN_PLAYGROUND_SCRIPT)
+                // Should not contain playground script by default
+                assertFalse(page.embeddedResources.any { it.contains("playground") })
                 page.content.assertNode {
                     group {
                         header(1) { +"Foo" }
@@ -107,7 +107,8 @@ class ContentForSamplesTest : BaseAbstractTest() {
                 }
             }
             renderingStage = { _, _ ->
-                assertNotEquals(-1, writerPlugin.writer.contents["root/test/-foo/index.html"]?.indexOf(KOTLIN_PLAYGROUND_SCRIPT))
+                // Should not contain playground script in the output
+                assertFalse(writerPlugin.writer.contents["root/test/-foo/index.html"]?.contains("playground") ?: false)
             }
         }
     }
@@ -142,7 +143,8 @@ class ContentForSamplesTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val page = module.findTestType("pageMerger", "Parent")
-                assertContains(page.embeddedResources, KOTLIN_PLAYGROUND_SCRIPT)
+                // Should not contain playground script by default  
+                assertFalse(page.embeddedResources.any { it.contains("playground") })
                 page.content.assertNode {
                     group {
                         header(1) { +"Parent" }

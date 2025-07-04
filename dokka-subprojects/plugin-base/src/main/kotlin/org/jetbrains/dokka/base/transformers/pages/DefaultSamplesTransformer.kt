@@ -17,9 +17,12 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.analysis.kotlin.sample.SampleAnalysisEnvironmentCreator
 import org.jetbrains.dokka.analysis.kotlin.sample.SampleSnippet
 
-internal const val KOTLIN_PLAYGROUND_SCRIPT = "https://unpkg.com/kotlin-playground@1/dist/playground.min.js"
-
 /**
+ * Transforms @sample tags into non-runnable code blocks.
+ * 
+ * This transformer processes @sample KDoc tags and replaces them with static code blocks.
+ * For runnable code samples, use the KotlinPlaygroundPlugin.
+ * 
  * It works ONLY with a content model from the base plugin.
  */
 internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransformer {
@@ -40,12 +43,22 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
                     resolveSample(sampleSourceSet, sample.name)
                         ?.let {
                             acc.addSample(page, sample.name, it)
-                        } ?: acc
+                        } ?: run {
+                            // Log a user-friendly message when sample cannot be resolved
+                            val documentableName = (page as? WithDocumentables)?.documentables?.firstOrNull()?.let { documentable ->
+                                "${documentable.dri.packageName.orEmpty()}${if (documentable.dri.packageName?.isNotEmpty() == true) "." else ""}${documentable.dri.classNames.orEmpty()}${if (documentable.dri.callable != null) ".${documentable.dri.callable!!.name}" else ""}"
+                            } ?: "unknown location"
+                            
+                            context.logger.warn(
+                                "The sample link '${sample.name}' used in '$documentableName' could not be resolved. " +
+                                "Please make sure it points to a reachable Kotlin function and that the sample source is included in the 'samples' configuration."
+                            )
+                            acc
+                        }
                 }
 
                 page.modified(
-                    content = newContent,
-                    embeddedResources = page.embeddedResources + KOTLIN_PLAYGROUND_SCRIPT
+                    content = newContent
                 )
             }
         }
@@ -143,7 +156,7 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
             language = language,
             dci = DCI(dri, ContentKind.Sample),
             sourceSets = sourceSets,
-            style = styles + ContentStyle.RunnableSample + TextStyle.Monospace,
+            style = styles + TextStyle.Monospace,
             extra = extra
         )
 }

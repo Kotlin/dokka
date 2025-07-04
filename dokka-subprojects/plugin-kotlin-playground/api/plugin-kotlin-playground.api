@@ -1,0 +1,37 @@
+# Kotlin Playground Plugin API
+
+This document describes the API of the Kotlin Playground Plugin for Dokka.
+
+## Classes
+
+### KotlinPlaygroundPlugin
+
+Main plugin class that registers the playground functionality.
+
+**Package:** `org.jetbrains.dokka.kotlinplayground`
+
+### KotlinPlaygroundConfiguration
+
+Configuration data class for the plugin.
+
+**Package:** `org.jetbrains.dokka.kotlinplayground`
+
+**Properties:**
+- `playgroundScript: String?` - URL to the Kotlin Playground script (optional)
+- `playgroundServerUrl: String?` - Base URL for the playground server (optional)
+
+### PlaygroundSamplesTransformer
+
+Internal transformer that processes sample code blocks to make them runnable.
+
+**Package:** `org.jetbrains.dokka.kotlinplayground`
+
+**Note:** This class is internal and should not be used directly.
+
+## Constants
+
+### DEFAULT_KOTLIN_PLAYGROUND_SCRIPT
+
+The default URL for the Kotlin Playground script.
+
+**Value:** `"https://unpkg.com/kotlin-playground@1/dist/playground.min.js"`
