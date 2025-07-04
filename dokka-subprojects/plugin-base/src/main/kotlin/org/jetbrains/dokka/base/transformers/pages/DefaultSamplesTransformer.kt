@@ -5,27 +5,35 @@
 package org.jetbrains.dokka.base.transformers.pages
 
 import org.jetbrains.dokka.analysis.kotlin.KotlinAnalysisPlugin
+import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.doc.Sample
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.analysis.kotlin.sample.SampleAnalysisEnvironmentCreator
 import org.jetbrains.dokka.analysis.kotlin.sample.SampleSnippet
 
-internal const val KOTLIN_PLAYGROUND_SCRIPT = "https://unpkg.com/kotlin-playground@1/dist/playground.min.js"
-
 /**
+ * Transforms @sample tags into code blocks.
+ * 
+ * By default, renders samples as static, non-runnable code blocks. 
+ * When playground configuration is enabled in DokkaBaseConfiguration, 
+ * adds Kotlin Playground functionality to make samples interactive.
+ * 
  * It works ONLY with a content model from the base plugin.
  */
 internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransformer {
 
     private val sampleAnalysisEnvironment: SampleAnalysisEnvironmentCreator =
         context.plugin<KotlinAnalysisPlugin>().querySingle { sampleAnalysisEnvironmentCreator }
+
+    private val configuration = context.configuration<DokkaBaseConfiguration>()
 
     override fun invoke(input: RootPageNode): RootPageNode {
         return sampleAnalysisEnvironment.use {
@@ -40,12 +48,36 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
                     resolveSample(sampleSourceSet, sample.name)
                         ?.let {
                             acc.addSample(page, sample.name, it)
-                        } ?: acc
+                        } ?: run {
+                            // Log a user-friendly message when sample cannot be resolved
+                            val documentableName = (page as? WithDocumentables)?.documentables?.firstOrNull()?.let { doc ->
+                                val packageName = doc.dri.packageName.orEmpty()
+                                val className = doc.dri.classNames.orEmpty()
+                                val callableName = doc.dri.callable?.name.orEmpty()
+                                val prefix = if (packageName.isNotEmpty()) "$packageName." else ""
+                                val suffix = if (callableName.isNotEmpty()) ".$callableName" else ""
+                                "$prefix$className$suffix"
+                            } ?: "unknown location"
+                            
+                            context.logger.warn(
+                                "The sample link '${sample.name}' used in '$documentableName' could not be resolved. " +
+                                "Please make sure it points to a reachable Kotlin function and that the sample source " +
+                                "is included in the 'samples' configuration."
+                            )
+                            acc
+                        }
+                }
+
+                // Add playground script only if enabled in configuration
+                val embeddedResources = if (configuration?.playgroundConfiguration?.enabled == true) {
+                    page.embeddedResources + (configuration.playgroundConfiguration.playgroundScript)
+                } else {
+                    page.embeddedResources
                 }
 
                 page.modified(
                     content = newContent,
-                    embeddedResources = page.embeddedResources + KOTLIN_PLAYGROUND_SCRIPT
+                    embeddedResources = embeddedResources
                 )
             }
         }
@@ -55,7 +87,8 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
         fqLink: String,
         sample: SampleSnippet,
     ): ContentNode {
-        val node = contentCode(contentPage.content.sourceSets, contentPage.dri, createSampleBody(sample.imports, sample.body), "kotlin")
+        val playgroundEnabled = configuration?.playgroundConfiguration?.enabled == true
+        val node = contentCode(contentPage.content.sourceSets, contentPage.dri, createSampleBody(sample.imports, sample.body), "kotlin", playgroundEnabled)
         return dfs(fqLink, node)
     }
 
@@ -127,6 +160,7 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
         dri: Set<DRI>,
         content: String,
         language: String,
+        playgroundEnabled: Boolean = false,
         styles: Set<Style> = emptySet(),
         extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
     ) =
@@ -143,7 +177,7 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
             language = language,
             dci = DCI(dri, ContentKind.Sample),
             sourceSets = sourceSets,
-            style = styles + ContentStyle.RunnableSample + TextStyle.Monospace,
+            style = styles + TextStyle.Monospace + if (playgroundEnabled) setOf(ContentStyle.RunnableSample) else emptySet(),
             extra = extra
         )
 }
