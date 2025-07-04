@@ -5,12 +5,14 @@
 package org.jetbrains.dokka.base.transformers.pages
 
 import org.jetbrains.dokka.analysis.kotlin.KotlinAnalysisPlugin
+import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.doc.Sample
 import org.jetbrains.dokka.model.properties.PropertyContainer
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.pages.PageTransformer
@@ -18,10 +20,11 @@ import org.jetbrains.dokka.analysis.kotlin.sample.SampleAnalysisEnvironmentCreat
 import org.jetbrains.dokka.analysis.kotlin.sample.SampleSnippet
 
 /**
- * Transforms @sample tags into non-runnable code blocks.
+ * Transforms @sample tags into code blocks.
  * 
- * This transformer processes @sample KDoc tags and replaces them with static code blocks.
- * For runnable code samples, use the KotlinPlaygroundPlugin.
+ * By default, renders samples as static, non-runnable code blocks. 
+ * When playground configuration is enabled in DokkaBaseConfiguration, 
+ * adds Kotlin Playground functionality to make samples interactive.
  * 
  * It works ONLY with a content model from the base plugin.
  */
@@ -29,6 +32,8 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
 
     private val sampleAnalysisEnvironment: SampleAnalysisEnvironmentCreator =
         context.plugin<KotlinAnalysisPlugin>().querySingle { sampleAnalysisEnvironmentCreator }
+
+    private val configuration = context.configuration<DokkaBaseConfiguration>()
 
     override fun invoke(input: RootPageNode): RootPageNode {
         return sampleAnalysisEnvironment.use {
@@ -63,8 +68,16 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
                         }
                 }
 
+                // Add playground script only if enabled in configuration
+                val embeddedResources = if (configuration?.playgroundConfiguration?.enabled == true) {
+                    page.embeddedResources + (configuration.playgroundConfiguration.playgroundScript)
+                } else {
+                    page.embeddedResources
+                }
+
                 page.modified(
-                    content = newContent
+                    content = newContent,
+                    embeddedResources = embeddedResources
                 )
             }
         }
@@ -74,7 +87,8 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
         fqLink: String,
         sample: SampleSnippet,
     ): ContentNode {
-        val node = contentCode(contentPage.content.sourceSets, contentPage.dri, createSampleBody(sample.imports, sample.body), "kotlin")
+        val playgroundEnabled = configuration?.playgroundConfiguration?.enabled == true
+        val node = contentCode(contentPage.content.sourceSets, contentPage.dri, createSampleBody(sample.imports, sample.body), "kotlin", playgroundEnabled)
         return dfs(fqLink, node)
     }
 
@@ -146,6 +160,7 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
         dri: Set<DRI>,
         content: String,
         language: String,
+        playgroundEnabled: Boolean = false,
         styles: Set<Style> = emptySet(),
         extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
     ) =
@@ -162,7 +177,7 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
             language = language,
             dci = DCI(dri, ContentKind.Sample),
             sourceSets = sourceSets,
-            style = styles + TextStyle.Monospace,
+            style = styles + TextStyle.Monospace + if (playgroundEnabled) setOf(ContentStyle.RunnableSample) else emptySet(),
             extra = extra
         )
 }
