@@ -45,13 +45,19 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
                             acc.addSample(page, sample.name, it)
                         } ?: run {
                             // Log a user-friendly message when sample cannot be resolved
-                            val documentableName = (page as? WithDocumentables)?.documentables?.firstOrNull()?.let { documentable ->
-                                "${documentable.dri.packageName.orEmpty()}${if (documentable.dri.packageName?.isNotEmpty() == true) "." else ""}${documentable.dri.classNames.orEmpty()}${if (documentable.dri.callable != null) ".${documentable.dri.callable!!.name}" else ""}"
+                            val documentableName = (page as? WithDocumentables)?.documentables?.firstOrNull()?.let { doc ->
+                                val packageName = doc.dri.packageName.orEmpty()
+                                val className = doc.dri.classNames.orEmpty()
+                                val callableName = doc.dri.callable?.name.orEmpty()
+                                val prefix = if (packageName.isNotEmpty()) "$packageName." else ""
+                                val suffix = if (callableName.isNotEmpty()) ".$callableName" else ""
+                                "$prefix$className$suffix"
                             } ?: "unknown location"
                             
                             context.logger.warn(
                                 "The sample link '${sample.name}' used in '$documentableName' could not be resolved. " +
-                                "Please make sure it points to a reachable Kotlin function and that the sample source is included in the 'samples' configuration."
+                                "Please make sure it points to a reachable Kotlin function and that the sample source " +
+                                "is included in the 'samples' configuration."
                             )
                             acc
                         }

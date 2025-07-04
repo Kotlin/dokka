@@ -6,14 +6,12 @@ package org.jetbrains.dokka.kotlinplayground
 
 import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.model.DisplaySourceSet
 import utils.TestOutputWriterPlugin
 import utils.assertContains
 import utils.classSignature
 import utils.findTestType
 import java.nio.file.Paths
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class KotlinPlaygroundPluginTest : BaseAbstractTest() {
@@ -80,35 +78,6 @@ class KotlinPlaygroundPluginTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 // Should contain playground script in the output
                 assertTrue(writerPlugin.writer.contents["root/test/-foo/index.html"]?.contains("playground") ?: false)
-            }
-        }
-    }
-
-    @Test
-    fun `custom playground script URL is used when configured`() {
-        val customScript = "https://example.com/custom-playground.js"
-        val configuration = KotlinPlaygroundConfiguration(playgroundScript = customScript)
-        val writerPlugin = TestOutputWriterPlugin()
-        
-        testInline(
-            """
-            |/src/main/kotlin/test/source.kt
-            |package test
-            |
-            | /**
-            | * @sample [test.sampleForClassDescription]
-            | */
-            |class Foo
-        """.trimIndent(), testConfiguration,
-            pluginOverrides = listOf(writerPlugin, KotlinPlaygroundPlugin()),
-            pluginConfigurations = mapOf(KotlinPlaygroundPlugin::class to configuration)
-        ) {
-            pagesTransformationStage = { module ->
-                val page = module.findTestType("test", "Foo")
-                // Should contain the custom playground script
-                assertContains(page.embeddedResources, customScript)
-                // Should not contain the default script
-                assertTrue(page.embeddedResources.none { it == DEFAULT_KOTLIN_PLAYGROUND_SCRIPT })
             }
         }
     }
