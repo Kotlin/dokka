@@ -16,8 +16,11 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.addAll
+import org.jetbrains.dokka.gradle.internal.describeType
 import org.jetbrains.dokka.gradle.internal.putIfNotNull
 import javax.inject.Inject
+import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
 
 
 /**
@@ -92,6 +95,8 @@ constructor(
     abstract val renderVersionsNavigationOnAllPages: Property<Boolean>
 
     override fun jsonEncode(): String {
+        validate()
+
         val versionsOrdering = versionsOrdering.orNull.orEmpty()
 
         return buildJsonObject {
@@ -107,6 +112,16 @@ constructor(
             }
             putIfNotNull("renderVersionsNavigationOnAllPages", renderVersionsNavigationOnAllPages.orNull)
         }.toString()
+    }
+
+    private fun validate() {
+        val olderVersionsDir = olderVersionsDir.orNull?.asFile?.toPath()?.takeIf { it.exists() }
+        if (olderVersionsDir != null) {
+            check(olderVersionsDir.isDirectory()) {
+                val type = olderVersionsDir.describeType()
+                "olderVersionsDir must either not exist, or be a directory. Actual type: $type. $olderVersionsDir"
+            }
+        }
     }
 
     companion object {
