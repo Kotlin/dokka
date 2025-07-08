@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 /**
  * Configuration for
- * [Dokka's Versioning plugin](https://github.com/Kotlin/dokka/tree/master/plugins/versioning#readme).
+ * [Dokka's Versioning plugin](https://kotl.in/dokka/versioning-plugin-readme).
  *
  * The versioning plugin provides the ability to host documentation for multiple versions of your
  * library/application with seamless switching between them. This, in turn, provides a better
@@ -66,7 +66,7 @@ constructor(
      * It requires a specific directory structure.
      *
      * For more information, see
-     * [Directory structure](https://github.com/Kotlin/dokka/blob/master/plugins/versioning/README.md#directory-structure).
+     * [Directory structure](https://kotl.in/dokka/versioning-plugin-readme#directory-structure).
      */
     @get:InputFiles
     @get:PathSensitive(RELATIVE)
