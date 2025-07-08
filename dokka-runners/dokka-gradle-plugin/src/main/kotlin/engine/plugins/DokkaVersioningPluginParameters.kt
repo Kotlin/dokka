@@ -9,17 +9,23 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.addAll
+import org.jetbrains.dokka.gradle.internal.describeType
 import org.jetbrains.dokka.gradle.internal.putIfNotNull
 import javax.inject.Inject
+import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
 
 
 /**
  * Configuration for
- * [Dokka's Versioning plugin](https://github.com/Kotlin/dokka/tree/master/plugins/versioning#readme).
+ * [Dokka's Versioning plugin](https://kotl.in/dokka/versioning-plugin-readme).
  *
  * The versioning plugin provides the ability to host documentation for multiple versions of your
  * library/application with seamless switching between them. This, in turn, provides a better
@@ -63,9 +69,9 @@ constructor(
      * It requires a specific directory structure.
      *
      * For more information, see
-     * [Directory structure](https://github.com/Kotlin/dokka/blob/master/plugins/versioning/README.md#directory-structure).
+     * [Directory structure](https://kotl.in/dokka/versioning-plugin-readme#directory-structure).
      */
-    @get:InputDirectory
+    @get:InputFiles
     @get:PathSensitive(RELATIVE)
     @get:Optional
     abstract val olderVersionsDir: DirectoryProperty
@@ -89,6 +95,8 @@ constructor(
     abstract val renderVersionsNavigationOnAllPages: Property<Boolean>
 
     override fun jsonEncode(): String {
+        validate()
+
         val versionsOrdering = versionsOrdering.orNull.orEmpty()
 
         return buildJsonObject {
@@ -104,6 +112,16 @@ constructor(
             }
             putIfNotNull("renderVersionsNavigationOnAllPages", renderVersionsNavigationOnAllPages.orNull)
         }.toString()
+    }
+
+    private fun validate() {
+        val olderVersionsDir = olderVersionsDir.orNull?.asFile?.toPath()?.takeIf { it.exists() }
+        if (olderVersionsDir != null) {
+            check(olderVersionsDir.isDirectory()) {
+                val type = olderVersionsDir.describeType()
+                "olderVersionsDir must either not exist, or be a directory. Actual type: $type. $olderVersionsDir"
+            }
+        }
     }
 
     companion object {
