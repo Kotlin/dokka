@@ -81,7 +81,7 @@ class DokkaFormatTasks(
      */
     val lifecycleGenerate: TaskProvider<DefaultTask> =
         project.tasks.register<DefaultTask>(taskNames.generate) {
-            description = "Generate Dokka $formatName publications"
+            description = "Generate Dokka $formatName publication"
             group = DokkaBasePlugin.TASK_GROUP
             dependsOn(generatePublication)
         }
