@@ -83,7 +83,7 @@
 
 .breadcrumbs .delimiter {
   color: var(--text-outline);
-  margin: 0 2px;
+  margin: 0 4px;
 }
 :root {
   --breakpoint-desktop-min:900px;
@@ -1749,7 +1749,7 @@ code:not(.block) {
   z-index: 1;
 }
 
-.table + hr {
+.table + hr, br {
   display: none;
 }
 
@@ -2679,6 +2679,7 @@ button.platform-tag:focus-visible {
   font: 600 16px/24px Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
   font: var(--font-h4);
   margin-bottom: 0;
+  margin-top: 0;
   padding: 7px 16px;
 }
 
