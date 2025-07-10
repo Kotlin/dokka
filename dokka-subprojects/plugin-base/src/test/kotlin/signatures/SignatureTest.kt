@@ -753,7 +753,7 @@ class SignatureTest : BaseAbstractTest() {
 
     @Test
     fun `functional interface`() {
-        val source = source("fun interface KRunnable")
+        val source = source("fun interface KRunnable { fun f(): Int }")
         val writerPlugin = TestOutputWriterPlugin()
 
         testInline(
