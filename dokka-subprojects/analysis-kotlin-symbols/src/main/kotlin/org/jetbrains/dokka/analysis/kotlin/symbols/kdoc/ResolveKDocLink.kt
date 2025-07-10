@@ -8,12 +8,16 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.dokka.analysis.kotlin.symbols.translators.getDRIFromSymbol
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaSession
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.projectStructure.KaSourceModule
 import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocLink
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocName
+import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
 /**
@@ -48,11 +52,19 @@ internal fun KaSession.resolveKDocTextLinkToDRI(link: String, context: PsiElemen
  */
 internal fun KaSession.resolveKDocTextLinkToSymbol(link: String, context: PsiElement? = null): KaSymbol? {
     val kDocLink = createKDocLink(link, context)
-    return kDocLink?.let { resolveToSymbol(it) }
+    return kDocLink?.let { analyze(kDocLink) { resolveToSymbol(it) } }
 }
 
-private fun KaSession.createKDocLink(link: String, context: PsiElement? = null): KDocLink? {
-    val psiFactory = context?.let { KtPsiFactory.contextual(it) } ?: KtPsiFactory(this.useSiteModule.project)
+private fun KaSession.createKDocLink(link: String, context: PsiElement?): KDocLink? {
+    // see https://kotlin.github.io/analysis-api/in-memory-file-analysis.html
+    val psiFactory = if(context != null)  KtPsiFactory.contextual(context)  else {
+        val currentModule: KaSourceModule = useSiteModule as? KaSourceModule
+            ?: throw IllegalStateException("Resolving KDoc links can be done only in a source module, not $useSiteModule")
+        val randomKtSourceFile: KtFile = @OptIn(KaExperimentalApi::class) currentModule.psiRoots.filterIsInstance<KtFile>().firstOrNull() ?: return null
+
+        KtPsiFactory.contextual(randomKtSourceFile)
+    }
+
     val kDoc = psiFactory.createComment(
         """
     /**
@@ -70,15 +82,17 @@ private fun KaSession.createKDocLink(link: String, context: PsiElement? = null):
  *
  * @return [DRI] or null if the [link] is unresolved
  */
-internal fun KaSession.resolveKDocLinkToDRI(link: KDocLink): DRI? {
-    val linkedSymbol = resolveToSymbol(link)
-    return if (linkedSymbol == null) null
-    else getDRIFromSymbol(linkedSymbol)
+internal fun resolveKDocLinkToDRI(kDocLink: KDocLink): DRI? {
+    analyze(kDocLink) {
+        val linkedSymbol = resolveToSymbol(kDocLink)
+        return if (linkedSymbol == null) null
+        else getDRIFromSymbol(linkedSymbol)
+    }
 }
 
 private fun KaSession.resolveToSymbol(kDocLink: KDocLink): KaSymbol? {
-    val lastNameSegment = kDocLink.children.filterIsInstance<KDocName>().lastOrNull()
-    return lastNameSegment?.mainReference?.resolveToSymbols()?.sortedWith(linkCandidatesComparator)?.firstOrNull()
+        val lastNameSegment = kDocLink.children.filterIsInstance<KDocName>().lastOrNull()
+        return lastNameSegment?.mainReference?.resolveToSymbols()?.sortedWith(linkCandidatesComparator)?.firstOrNull()
 }
 
 /**
