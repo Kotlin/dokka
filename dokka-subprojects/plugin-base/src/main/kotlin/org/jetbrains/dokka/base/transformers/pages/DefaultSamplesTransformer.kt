@@ -17,8 +17,6 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.analysis.kotlin.sample.SampleAnalysisEnvironmentCreator
 import org.jetbrains.dokka.analysis.kotlin.sample.SampleSnippet
 
-internal const val KOTLIN_PLAYGROUND_SCRIPT = "https://unpkg.com/kotlin-playground@1/dist/playground.min.js"
-
 /**
  * It works ONLY with a content model from the base plugin.
  */
@@ -44,58 +42,20 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
                 }
 
                 page.modified(
-                    content = newContent,
-                    embeddedResources = page.embeddedResources + KOTLIN_PLAYGROUND_SCRIPT
+                    content = newContent
                 )
             }
         }
     }
+
     private fun ContentNode.addSample(
         contentPage: ContentPage,
         fqLink: String,
         sample: SampleSnippet,
     ): ContentNode {
-        val node = contentCode(contentPage.content.sourceSets, contentPage.dri, createSampleBody(sample.imports, sample.body), "kotlin")
+        val node = contentCode(contentPage.content.sourceSets, contentPage.dri, sample.body, "kotlin")
         return dfs(fqLink, node)
     }
-
-    /**
-     * If both [imports] and [body] are present, it should return
-     *
-     * ```kotlin
-     * import com.example.One
-     * import com.example.Two
-     *
-     * fun main() {
-     *    //sampleStart
-     *    println("Sample function body")
-     *    println("Another line")
-     *    //sampleEnd
-     * }
-     * ```
-     *
-     * If [imports] are empty, it should return:
-     *
-     * ```kotlin
-     * fun main() {
-     *    //sampleStart
-     *    println("Sample function body")
-     *    println("Another line")
-     *    //sampleEnd
-     * }
-     * ```
-     *
-     * Notice the presence/absence of the new line before the body.
-     */
-    private fun createSampleBody(imports: List<String>, body: String) =
-        // takeIf {} is needed so that joinToString's postfix is not added for empty lists,
-        // and trimMargin() then removes the first empty line
-        """ |${imports.takeIf { it.isNotEmpty() }?.joinToString(separator = "\n", postfix = "\n") { "import $it" } ?: "" }
-            |fun main() { 
-            |   //sampleStart 
-            |   $body 
-            |   //sampleEnd
-            |}""".trimMargin()
 
     private fun ContentNode.dfs(fqName: String, node: ContentCodeBlock): ContentNode {
         return when (this) {
@@ -103,10 +63,12 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
             is ContentDivergentGroup -> @Suppress("UNCHECKED_CAST") copy(children.map {
                 it.dfs(fqName, node)
             } as List<ContentDivergentInstance>)
+
             is ContentDivergentInstance -> copy(
                 before.let { it?.dfs(fqName, node) },
                 divergent.dfs(fqName, node),
                 after.let { it?.dfs(fqName, node) })
+
             is ContentCodeBlock -> copy(children.map { it.dfs(fqName, node) })
             is ContentCodeInline -> copy(children.map { it.dfs(fqName, node) })
             is ContentDRILink -> copy(children.map { it.dfs(fqName, node) })
@@ -143,7 +105,7 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
             language = language,
             dci = DCI(dri, ContentKind.Sample),
             sourceSets = sourceSets,
-            style = styles + ContentStyle.RunnableSample + TextStyle.Monospace,
+            style = styles + TextStyle.Monospace,
             extra = extra
         )
 }
