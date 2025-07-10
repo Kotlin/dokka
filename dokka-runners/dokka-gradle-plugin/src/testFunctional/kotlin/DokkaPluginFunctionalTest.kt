@@ -32,30 +32,53 @@ class DokkaPluginFunctionalTest : FunSpec({
             """.trimMargin()
     }
 
-    test("expect Dokka Plugin creates Dokka tasks") {
-        testProject.runner
-            .addArguments("tasks", "--group=dokka", "--quiet")
-            .build {
-                withClue(output) {
-                    val dokkaTasks = output
-                        .substringAfter("Dokka tasks")
-                        .lines()
-                        .filter { it.contains(" - ") }
-                        .associate { it.splitToPair(" - ") }
+    context("Dokka task groups") {
+        test("lifecycle tasks should be in 'dokka' group") {
+            testProject.runner
+                .addArguments("tasks", "--group=dokka", "--quiet")
+                .build {
+                    withClue(output) {
+                        val dokkaTasks = output
+                            .substringAfter("Dokka tasks", "<missing start of group>")
+                            .substringBefore("\n\n", "<missing end of group>")
+                            .lines()
+                            .filter { " - " in it }
+                            .associate { it.splitToPair(" - ") }
 
-                    dokkaTasks.shouldContainExactly(
-                        //@formatter:off
-                        "dokkaGenerate"                   to "Generates Dokka publications for all formats",
-                        "dokkaGenerateHtml"               to "Generate Dokka html publication",
-                        "dokkaGenerateJavadoc"            to "Generate Dokka javadoc publication",
-                        "dokkaGenerateModuleHtml"         to "Executes the Dokka Generator, generating a html module",
-                        "dokkaGenerateModuleJavadoc"      to "Executes the Dokka Generator, generating a javadoc module",
-                        "dokkaGeneratePublicationHtml"    to "Executes the Dokka Generator, generating the html publication",
-                        "dokkaGeneratePublicationJavadoc" to "Executes the Dokka Generator, generating the javadoc publication",
-                        //@formatter:on
-                    )
+                        dokkaTasks.shouldContainExactly(
+                            //@formatter:off
+                            "dokkaGenerate"        to "Generates Dokka publications for all formats",
+                            "dokkaGenerateHtml"    to "Generate Dokka html publication",
+                            "dokkaGenerateJavadoc" to "Generate Dokka javadoc publication",
+                            //@formatter:on
+                        )
+                    }
                 }
-            }
+        }
+        test("Generator tasks should be in 'other' group") {
+            testProject.runner
+                .addArguments("tasks", "--all", "--quiet")
+                .build {
+                    withClue(output) {
+                        val dokkaTasks = output
+                            .substringAfter("Other tasks", "<missing start of group>")
+                            .substringBefore("\n\n", "<missing end of group>")
+                            .lines()
+                            .filter { " - " in it }
+                            .associate { it.splitToPair(" - ") }
+                            .filterKeys { it.startsWith("dokka") }
+
+                        dokkaTasks.shouldContainExactly(
+                            //@formatter:off
+                            "dokkaGenerateModuleHtml"         to "Executes the Dokka Generator, generating a html module",
+                            "dokkaGenerateModuleJavadoc"      to "Executes the Dokka Generator, generating a javadoc module",
+                            "dokkaGeneratePublicationHtml"    to "Executes the Dokka Generator, generating the html publication",
+                            "dokkaGeneratePublicationJavadoc" to "Executes the Dokka Generator, generating the javadoc publication",
+                            //@formatter:on
+                        )
+                    }
+                }
+        }
     }
 
     test("expect Dokka Plugin creates Dokka declarable configurations") {
