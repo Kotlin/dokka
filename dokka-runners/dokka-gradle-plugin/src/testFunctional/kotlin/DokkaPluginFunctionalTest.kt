@@ -46,8 +46,8 @@ class DokkaPluginFunctionalTest : FunSpec({
                     dokkaTasks.shouldContainExactly(
                         //@formatter:off
                         "dokkaGenerate"                   to "Generates Dokka publications for all formats",
-                        "dokkaGenerateHtml"               to "Generate Dokka html publications",
-                        "dokkaGenerateJavadoc"            to "Generate Dokka javadoc publications",
+                        "dokkaGenerateHtml"               to "Generate Dokka html publication",
+                        "dokkaGenerateJavadoc"            to "Generate Dokka javadoc publication",
                         "dokkaGenerateModuleHtml"         to "Executes the Dokka Generator, generating a html module",
                         "dokkaGenerateModuleJavadoc"      to "Executes the Dokka Generator, generating a javadoc module",
                         "dokkaGeneratePublicationHtml"    to "Executes the Dokka Generator, generating the html publication",

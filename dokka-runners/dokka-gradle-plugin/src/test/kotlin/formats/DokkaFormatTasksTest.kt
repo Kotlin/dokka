@@ -43,7 +43,7 @@ class DokkaFormatTasksTest : FunSpec({
 
         test("expect lifecycle generate task created") {
             dokkaTasks.lifecycleGenerate.name shouldBe "dokkaGenerateTestFormatName"
-            dokkaTasks.lifecycleGenerate.get().description shouldBe "Generate Dokka testFormatName publications"
+            dokkaTasks.lifecycleGenerate.get().description shouldBe "Generate Dokka testFormatName publication"
             dokkaTasks.lifecycleGenerate.get().group shouldBe "dokka"
             dokkaTasks.lifecycleGenerate.get().dependsOn shouldHaveSingleElement dokkaTasks.generatePublication
         }
