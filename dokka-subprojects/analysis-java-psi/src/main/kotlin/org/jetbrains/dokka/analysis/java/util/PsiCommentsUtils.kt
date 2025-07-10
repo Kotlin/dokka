@@ -44,6 +44,10 @@ internal fun PsiElement.referenceElementOrSelf(): PsiElement? =
 
 internal fun PsiDocTag.linkElement(): PsiElement? =
     dataElements.firstOrNull {
+        /**
+         * * According to the [com.intellij.java.syntax.parser.JavaDocParser],
+         * no other node is expected here for the reference (link)
+         */
         it.node.elementType == JavaDocElementType.DOC_REFERENCE_HOLDER ||
                 it.node.elementType == JavaDocElementType.DOC_METHOD_OR_FIELD_REF
     }
