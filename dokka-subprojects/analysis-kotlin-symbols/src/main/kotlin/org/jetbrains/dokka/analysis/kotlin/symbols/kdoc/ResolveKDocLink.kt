@@ -9,6 +9,7 @@ import org.jetbrains.dokka.analysis.kotlin.symbols.translators.getDRIFromSymbol
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.analysis.api.KaSession
+import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
@@ -70,15 +71,19 @@ private fun KaSession.createKDocLink(link: String, context: PsiElement? = null):
  *
  * @return [DRI] or null if the [link] is unresolved
  */
-internal fun KaSession.resolveKDocLinkToDRI(link: KDocLink): DRI? {
-    val linkedSymbol = resolveToSymbol(link)
-    return if (linkedSymbol == null) null
-    else getDRIFromSymbol(linkedSymbol)
+internal fun resolveKDocLinkToDRI(kDocLink: KDocLink): DRI? {
+    analyze(kDocLink) {
+        val linkedSymbol = resolveToSymbol(kDocLink)
+        return if (linkedSymbol == null) null
+        else getDRIFromSymbol(linkedSymbol)
+    }
 }
 
-private fun KaSession.resolveToSymbol(kDocLink: KDocLink): KaSymbol? {
-    val lastNameSegment = kDocLink.children.filterIsInstance<KDocName>().lastOrNull()
-    return lastNameSegment?.mainReference?.resolveToSymbols()?.sortedWith(linkCandidatesComparator)?.firstOrNull()
+private fun resolveToSymbol(kDocLink: KDocLink): KaSymbol? {
+    analyze(kDocLink) {
+        val lastNameSegment = kDocLink.children.filterIsInstance<KDocName>().lastOrNull()
+        return lastNameSegment?.mainReference?.resolveToSymbols()?.sortedWith(linkCandidatesComparator)?.firstOrNull()
+    }
 }
 
 /**
