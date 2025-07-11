@@ -24,6 +24,8 @@
   flex-direction: column;
 
   margin-left: -5px;
+
+  scrollbar-gutter: stable;
 }
 
 .main-content {
@@ -55,6 +57,10 @@
 
 // do not show divider after tables as they have borders now
 .table + hr {
+  display: none;
+}
+
+br {
   display: none;
 }
 

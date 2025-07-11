@@ -65,7 +65,13 @@ public class HtmlVersionsNavigationCreator(
                         attributes["aria-expanded"] = "false"
                         attributes["aria-label"] = "Select version"
                         attributes["tabindex"] = "0"
-                        activeVersion?.key?.let { text(it) }
+                        activeVersion?.key?.let {
+                                version ->
+                            attributes["title"] = version
+                            span(classes = "versions-dropdown-button-text") {
+                                text(version)
+                            }
+                        }
                     }
                     div(classes = "dropdown--list dropdown--list_positioned_left versions-dropdown-data") {
                         attributes["role"] = "listbox"
