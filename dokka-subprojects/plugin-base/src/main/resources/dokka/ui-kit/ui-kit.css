@@ -1,3 +1,6 @@
+/*!***************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/breadcrumbs/styles.scss ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -85,6 +88,9 @@
   color: var(--text-outline);
   margin: 0 4px;
 }
+/*!**********************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/button/styles.scss ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -288,6 +294,9 @@
   filter: invert(0);
   transform: rotate(-180deg);
 }
+/*!************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/checkbox/styles.scss ***!
+  \************************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -404,6 +413,9 @@
 .checkbox--input:focus-visible {
   outline: var(--focus-outline);
 }
+/*!**************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/code-block/styles.scss ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -527,6 +539,9 @@ code.block {
 pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
   display: none;
 }
+/*!****************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/copy-tooltip/styles.scss ***!
+  \****************************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -760,6 +775,9 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
 .js .main-subrow:hover .anchor-icon {
   opacity: 1;
 }
+/*!************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/dropdown/styles.scss ***!
+  \************************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -1081,6 +1099,9 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
   background-color: hsla(0, 0%, 100%, 0.16);
   background-color: var(--color-w16);
 }
+/*!******************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/filter-section/styles.scss ***!
+  \******************************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -1225,6 +1246,9 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
 .no-js .filter-section {
   display: none;
 }
+/*!**********************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/footer/styles.scss ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -1429,6 +1453,9 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
   min-height: 40px;
   text-align: right;
 }
+/*!********************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/icon/styles.scss ***!
+  \********************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -1540,6 +1567,9 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
 .ui-kit-icon_cross {
   background-image: url(assets/cross.svg);
 }
+/*!***************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/inline-code/styles.scss ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -1625,6 +1655,9 @@ code:not(.block) {
   font: var(--font-code);
   padding: 0 4px;
 }
+/*!**********************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/layout/styles.scss ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -1764,6 +1797,9 @@ code:not(.block) {
   border-top: 1px solid hsla(0, 0%, 100%, 0.16);
   border-top: 1px solid var(--color-w16);
 }
+/*!****************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/library-name/styles.scss ***!
+  \****************************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -1882,6 +1918,9 @@ code:not(.block) {
   max-width: 120px;
   width: var(--dokka-logo-width);
 }
+/*!*******************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/library-version/styles.scss ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -1978,6 +2017,9 @@ code:not(.block) {
     padding-top: 0;
   }
 }
+/*!********************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/link/styles.scss ***!
+  \********************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -2089,6 +2131,9 @@ a {
   box-shadow: 0 0 0 4px rgba(48, 127, 255, 0.5);
   box-shadow: 0 0 0 4px var(--color-key-blue-50);
 }
+/*!**********************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/navbar/styles.scss ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -2198,6 +2243,9 @@ a {
     min-width: 52px;
   }
 }
+/*!*****************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/navbar-button/styles.scss ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -2372,6 +2420,9 @@ a {
 .navigation-controls--btn_go-to-top {
   background-image: url(assets/go-to-top-icon.svg);
 }
+/*!****************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/platform-tag/styles.scss ***!
+  \****************************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -2579,6 +2630,9 @@ button.platform-tag:focus-visible {
   margin: 0 4px 0 8px;
   width: 8px;
 }
+/*!*********************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/table/styles.scss ***!
+  \*********************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -2842,6 +2896,9 @@ tbody > tr {
 td:first-child {
   width: 20vw;
 }
+/*!********************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/tabs/styles.scss ***!
+  \********************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -3014,6 +3071,9 @@ td:first-child {
 .js .platform-hinted > .content:not([data-active]), .js .tabs-section-body [data-togglable]:not([data-active]), .main-content[data-page-type=package] .tabs-section-body h2, .no-js .platform-bookmarks-row, .no-js .tabs-section {
   display: none;
 }
+/*!************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/toc-tree/styles.scss ***!
+  \************************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -3605,6 +3665,9 @@ td:first-child {
   padding-bottom: 12px;
   padding-top: 12px;
 }
+/*!****************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/helpers.scss ***!
+  \****************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -3691,6 +3754,9 @@ td:first-child {
     display: none;
   }
 }
+/*!***************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[2].use[3]!./node_modules/sass-loader/dist/cjs.js!./src/main/ui-kit/global.scss ***!
+  \***************************************************************************************************************************************************************************************************************************************************************/
 :root {
   --breakpoint-desktop-min:900px;
   --breakpoint-tablet-max:899px;
@@ -3797,6 +3863,9 @@ small {
   font: 400 14px/20px Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Oxygen, Droid Sans, Helvetica Neue, Arial;
   font: var(--font-text-s);
 }
+/*!************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/@fontsource/inter/latin-400.css ***!
+  \************************************************************************************************/
 /* inter-latin-400-normal */
 @font-face {
   font-family: 'Inter';
@@ -3805,6 +3874,9 @@ small {
   font-weight: 400;
   src: url(fonts/inter-latin-400-normal.woff2) format('woff2'), url(fonts/inter-latin-400-normal.woff) format('woff');
 }
+/*!************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/@fontsource/inter/latin-600.css ***!
+  \************************************************************************************************/
 /* inter-latin-600-normal */
 @font-face {
   font-family: 'Inter';
@@ -3813,6 +3885,9 @@ small {
   font-weight: 600;
   src: url(fonts/inter-latin-600-normal.woff2) format('woff2'), url(fonts/inter-latin-600-normal.woff) format('woff');
 }
+/*!*********************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/@fontsource/jetbrains-mono/latin-400.css ***!
+  \*********************************************************************************************************/
 /* jetbrains-mono-latin-400-normal */
 @font-face {
   font-family: 'JetBrains Mono';
@@ -3821,6 +3896,9 @@ small {
   font-weight: 400;
   src: url(fonts/jetbrains-mono-latin-400-normal.woff2) format('woff2'), url(fonts/jetbrains-mono-latin-400-normal.woff) format('woff');
 }
+/*!*********************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/@fontsource/jetbrains-mono/latin-600.css ***!
+  \*********************************************************************************************************/
 /* jetbrains-mono-latin-600-normal */
 @font-face {
   font-family: 'JetBrains Mono';

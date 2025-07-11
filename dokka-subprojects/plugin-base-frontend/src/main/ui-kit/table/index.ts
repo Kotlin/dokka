@@ -4,6 +4,9 @@
 import './styles.scss';
 import { debounce } from '../utils';
 
+const CONTAINER_PADDING = 48;
+const BORDER_WIDTH = 1;
+
 function getActualScrollBarWidth(): number {
   const scrollDiv = document.createElement('div');
   scrollDiv.style.width = '100px';
@@ -23,37 +26,39 @@ function initTables() {
 
   const tables = document.querySelectorAll('.table--container');
 
-  const prevMarginsRight: string[] = [];
-
   /**
    * Overflowing tables on desktop and tablet should be scrollable.
    * The left side of a table in such a case should align to the left,
    * when the right side of the table should exceed the content area as much as possible.
    * This is achieved by calculation a negative margin right for each table.
    * */
-  function enlargeTableToTheRightIfNeeded() {
-    tables.forEach((element, index) => {
+  function enlargeTableToTheRightIfNeeded(container: HTMLElement) {
+    tables.forEach((element) => {
       const table = element as HTMLTableElement;
-      let nextMarginRight = '';
-      if (table.scrollWidth > table.clientWidth) {
-        const overflowingWidth = table.scrollWidth - table.clientWidth;
-        const gapToViewportSide =
-          document.documentElement.clientWidth - table.getBoundingClientRect().right - getActualScrollBarWidth();
-        const negativeMargin = Math.min(overflowingWidth, gapToViewportSide);
-        const needsToChangeMargin = gapToViewportSide !== 0;
-        nextMarginRight = needsToChangeMargin ? `-${negativeMargin}px` : prevMarginsRight[index];
-      }
-      if (nextMarginRight !== prevMarginsRight[index]) {
-        table.style.marginRight = nextMarginRight;
-        prevMarginsRight[index] = nextMarginRight;
+      const containerWidth = container.clientWidth - CONTAINER_PADDING * 2;
+      if (table.scrollWidth > containerWidth) {
+        const tableOverflowOffset = table.scrollWidth - containerWidth + BORDER_WIDTH;
+        const availableRightSpace = Math.floor(
+          document.documentElement.clientWidth -
+            container.getBoundingClientRect().right +
+            CONTAINER_PADDING -
+            getActualScrollBarWidth()
+        );
+        const negativeMargin = Math.min(tableOverflowOffset, availableRightSpace);
+        table.style.marginRight = `-${negativeMargin}px`;
       }
     });
   }
 
-  const debouncedEnlargeTablesIfNeeded = debounce(enlargeTableToTheRightIfNeeded, 100);
+  const debouncedEnlargeTablesIfNeeded = debounce(enlargeTableToTheRightIfNeeded, 200);
 
-  const resizeObserver = new ResizeObserver(() => debouncedEnlargeTablesIfNeeded());
+  const resizeObserver = new ResizeObserver(() => {
+    debouncedEnlargeTablesIfNeeded(container);
+  });
   resizeObserver.observe(container);
+  window.addEventListener('resize', () => {
+    debouncedEnlargeTablesIfNeeded(container);
+  });
 }
 
 document.addEventListener('DOMContentLoaded', initTables);
