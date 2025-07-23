@@ -2,21 +2,10 @@
  * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 import './styles.scss';
-import { debounce } from '../utils';
+import { debounce, getActualScrollBarWidth } from '../utils';
 
 const CONTAINER_PADDING = 48;
 const BORDER_WIDTH = 1;
-
-function getActualScrollBarWidth(): number {
-  const scrollDiv = document.createElement('div');
-  scrollDiv.style.width = '100px';
-  scrollDiv.style.height = '100px';
-  scrollDiv.style.overflow = 'scroll';
-  document.body.appendChild(scrollDiv);
-  const width = scrollDiv.offsetWidth - scrollDiv.clientWidth;
-  document.body.removeChild(scrollDiv);
-  return width;
-}
 
 function initTables() {
   const container = document.getElementById('content');

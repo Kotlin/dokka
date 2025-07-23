@@ -49,6 +49,17 @@ export function isFocusableElement(element: HTMLElement): boolean {
   return true;
 }
 
+export function getActualScrollBarWidth(): number {
+  const scrollDiv = document.createElement('div');
+  scrollDiv.style.width = '100px';
+  scrollDiv.style.height = '100px';
+  scrollDiv.style.overflow = 'scroll';
+  document.body.appendChild(scrollDiv);
+  const width = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+  document.body.removeChild(scrollDiv);
+  return width;
+}
+
 /**
  * This is used to remove styles that were added for backward compatibility,
  * for example, in the version selector component in which we have new markup
