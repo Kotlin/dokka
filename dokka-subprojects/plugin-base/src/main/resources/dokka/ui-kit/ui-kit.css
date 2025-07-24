@@ -250,7 +250,7 @@
 }
 
 .button_dropdown:after {
-  background-image: url(assets/arrow-down.svg);
+  background-image: url(../images/arrow-down.svg);
   background-repeat: no-repeat;
   content: "";
   display: block;
@@ -269,7 +269,7 @@
 
 @media (max-width: 899px) {
   .button_dropdown.search--close-button:after {
-    background-image: url(assets/cross.svg);
+    background-image: url(../images/cross.svg);
   }
 }
 .button_dropdown_active {
@@ -379,7 +379,7 @@
 }
 
 .checkbox--icon {
-  background-image: url(assets/checkbox-off.svg);
+  background-image: url(../images/checkbox-off.svg);
   height: 24px;
   height: var(--size-m1);
   margin-left: -32px;
@@ -390,7 +390,7 @@
 }
 
 .checkbox--input:checked + .checkbox--icon {
-  background-image: url(assets/checkbox-on.svg);
+  background-image: url(../images/checkbox-on.svg);
 }
 
 .checkbox--input:disabled + .checkbox--icon {
@@ -634,8 +634,8 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
   display: block;
   flex: 0 0 auto;
   height: 24px;
-  -webkit-mask: url(assets/copy-icon.svg) no-repeat center/contain;
-  mask: url(assets/copy-icon.svg) no-repeat center/contain;
+  -webkit-mask: url(../images/copy-icon.svg) no-repeat center/contain;
+  mask: url(../images/copy-icon.svg) no-repeat center/contain;
   width: 24px;
 }
 
@@ -680,7 +680,7 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
 }
 
 .copy-popup-icon {
-  background-image: url(assets/success-icon.svg);
+  background-image: url(../images/success-icon.svg);
   background-position: 50%;
   background-repeat: no-repeat;
   background-size: contain;
@@ -742,8 +742,8 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
   content: "";
   display: block;
   height: 24px;
-  -webkit-mask: url(assets/anchor-copy-icon.svg) no-repeat center/contain;
-  mask: url(assets/anchor-copy-icon.svg) no-repeat center/contain;
+  -webkit-mask: url(../images/anchor-copy-icon.svg) no-repeat center/contain;
+  mask: url(../images/anchor-copy-icon.svg) no-repeat center/contain;
   width: 24px;
 }
 
@@ -1008,7 +1008,7 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
 }
 
 .dropdown--option-icon_selected {
-  background-image: url(assets/check.svg);
+  background-image: url(../images/check.svg);
 }
 
 .dropdown--option-text {
@@ -1180,7 +1180,7 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
   }
 }
 .filter-section--dropdown-toggle_as-filters {
-  background-image: url(assets/filter.svg);
+  background-image: url(../images/filter.svg);
   background-position: 50% 50%;
   background-repeat: no-repeat;
   min-width: 40px;
@@ -1199,7 +1199,7 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
     display: none;
   }
   .filter-section--dropdown-toggle {
-    background-image: url(assets/filter.svg);
+    background-image: url(../images/filter.svg);
     background-position: 50% 50%;
     background-repeat: no-repeat;
     position: relative;
@@ -1390,7 +1390,7 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
 }
 
 .footer--button_go-to-top {
-  background-image: url(assets/go-to-top-icon.svg);
+  background-image: url(../images/go-to-top-icon.svg);
 }
 
 .footer--link {
@@ -1530,15 +1530,15 @@ pre[runnable-code-sample]:after, pre[runnable-code-sample]:before {
   }
 }
 .ui-kit-icon_arrow-down {
-  background-image: url(assets/arrow-down.svg);
+  background-image: url(../images/arrow-down.svg);
 }
 
 .ui-kit-icon_placeholder {
-  background-image: url(assets/placeholder.svg);
+  background-image: url(../images/placeholder.svg);
 }
 
 .ui-kit-icon_cross {
-  background-image: url(assets/cross.svg);
+  background-image: url(../images/cross.svg);
 }
 :root {
   --breakpoint-desktop-min:900px;
@@ -2357,20 +2357,20 @@ a {
 }
 
 .navigation-controls--btn_theme {
-  background-image: url(assets/theme-toggle.svg);
+  background-image: url(../images/theme-toggle.svg);
 }
 
 .navigation-controls--btn_homepage {
-  background-image: url(assets/homepage.svg);
+  background-image: url(../images/homepage.svg);
 }
 
 .navigation-controls--btn_toc {
-  background-image: url(assets/burger.svg);
+  background-image: url(../images/burger.svg);
   margin-left: auto;
 }
 
 .navigation-controls--btn_go-to-top {
-  background-image: url(assets/go-to-top-icon.svg);
+  background-image: url(../images/go-to-top-icon.svg);
 }
 :root {
   --breakpoint-desktop-min:900px;
@@ -3151,7 +3151,7 @@ td:first-child {
 }
 
 .toc--button:after {
-  background-image: url(assets/arrow-down.svg);
+  background-image: url(../images/arrow-down.svg);
   background-repeat: no-repeat;
   background-size: 24px 24px;
   content: " ";
@@ -3479,67 +3479,67 @@ td:first-child {
 }
 
 .toc--icon.class:before {
-  content: url(assets/class.svg);
+  content: url(../images/class.svg);
 }
 
 .toc--icon.class-kt:before {
-  content: url(assets/class-kotlin.svg);
+  content: url(../images/class-kotlin.svg);
 }
 
 .toc--icon.function:before {
-  content: url(assets/function.svg);
+  content: url(../images/function.svg);
 }
 
 .toc--icon.enum-class:before {
-  content: url(assets/enum.svg);
+  content: url(../images/enum.svg);
 }
 
 .toc--icon.enum-class-kt:before {
-  content: url(assets/enum-kotlin.svg);
+  content: url(../images/enum-kotlin.svg);
 }
 
 .toc--icon.annotation-class:before {
-  content: url(assets/annotation.svg);
+  content: url(../images/annotation.svg);
 }
 
 .toc--icon.annotation-class-kt:before {
-  content: url(assets/annotation-kotlin.svg);
+  content: url(../images/annotation-kotlin.svg);
 }
 
 .toc--icon.abstract-class:before {
-  content: url(assets/abstract-class.svg);
+  content: url(../images/abstract-class.svg);
 }
 
 .toc--icon.abstract-class-kt:before {
-  content: url(assets/abstract-class-kotlin.svg);
+  content: url(../images/abstract-class-kotlin.svg);
 }
 
 .toc--icon.exception-class:before {
-  content: url(assets/exception-class.svg);
+  content: url(../images/exception-class.svg);
 }
 
 .toc--icon.interface:before {
-  content: url(assets/interface.svg);
+  content: url(../images/interface.svg);
 }
 
 .toc--icon.interface-kt:before {
-  content: url(assets/interface-kotlin.svg);
+  content: url(../images/interface-kotlin.svg);
 }
 
 .toc--icon.object:before {
-  content: url(assets/object.svg);
+  content: url(../images/object.svg);
 }
 
 .toc--icon.typealias-kt:before {
-  content: url(assets/typealias-kotlin.svg);
+  content: url(../images/typealias-kotlin.svg);
 }
 
 .toc--icon.val:before {
-  content: url(assets/field-value.svg);
+  content: url(../images/field-value.svg);
 }
 
 .toc--icon.var:before {
-  content: url(assets/field-variable.svg);
+  content: url(../images/field-variable.svg);
 }
 
 .toc--part[data-active] > .toc--row .toc--button, .toc--part[data-active] > .toc--row .toc--link {
