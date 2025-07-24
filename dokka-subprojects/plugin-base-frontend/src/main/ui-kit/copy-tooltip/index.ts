@@ -2,6 +2,7 @@
  * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 import './styles.scss';
+import { getActualScrollBarWidth } from '../utils';
 
 const COPY_CODE_SELECTOR = 'span.copy-icon';
 const COPY_ANCHOR_SELECTOR = 'span.anchor-icon';
@@ -88,13 +89,18 @@ function showPopup(element: Element) {
     const popupRect = popupWrapper.getBoundingClientRect();
     if (elementRect.right + popupRect.width > window.innerWidth) {
       popupWrapper.classList.add('copy-popup-wrapper_bottom');
-      if (elementRect.left - popupRect.width >= 0) {
+      if (elementRect.right - popupRect.width >= 0) {
         popupWrapper.classList.add('copy-popup-wrapper_bottom-right');
+      } else {
+        const scrollbarWidth = getActualScrollBarWidth();
+        const popupOverflowOffset = elementRect.right + popupRect.width - window.innerWidth + scrollbarWidth;
+        (popupWrapper as HTMLElement).style.left = `calc(100% - ${popupOverflowOffset}px)`;
       }
     }
 
     setTimeout(() => {
       popupWrapper.classList.remove('active-popup', 'copy-popup-wrapper_bottom', 'copy-popup-wrapper_bottom-right');
+      (popupWrapper as HTMLElement).style.left = '';
     }, POPUP_TIMEOUT);
   }
 }
