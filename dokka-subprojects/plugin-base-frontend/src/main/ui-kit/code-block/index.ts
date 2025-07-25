@@ -35,33 +35,40 @@ function wrapSymbolParameters(entry: ResizeObserverEntry) {
   const sourceButtonWidth =
     symbol.querySelector('[data-element-type="source-link"]')?.getBoundingClientRect().width || 0;
 
-  // Even though the script is marked as `defer` and we wait for `DOMContentLoaded` event,
-  // or if this block is a part of hidden tab, it can happen that `symbolBlockWidth` is 0,
-  // indicating that something hasn't been loaded.
-  // In this case, observer will be triggered onсe again when it will be ready.
+  /*
+  Even though the script is marked as `defer` and we wait for the `DOMContentLoaded` event,
+  or if this block is a part of a hidden tab, it can happen that `symbolBlockWidth` is 0,
+  indicating that something hasn't been loaded.
+  In this case, the observer will be triggered once again when it is ready
+  */
   if (symbolBlockWidth > 0) {
-    const node = symbol.querySelector('.parameters');
-
-    if (node) {
-      // if window resize happened and observer was triggered, reset previously wrapped
-      // parameters as they might not need wrapping anymore, and check again
-      node.classList.remove('wrapped');
-      node.querySelectorAll('.parameter .nbsp-indent').forEach((indent) => indent.remove());
-
-      const innerTextWidth = Array.from(symbol.children)
-        .filter((it) => !it.classList.contains('block')) // blocks are usually on their own (like annotations), so ignore it
-        .map((it) => it.getBoundingClientRect().width)
-        .reduce((a, b) => a + b, 0);
-
-      // if signature text takes up more than a single line, wrap params for readability
-      if (innerTextWidth > symbolBlockWidth - CODE_BLOCK_PADDING - sourceButtonWidth) {
-        node.classList.add('wrapped');
-        node.querySelectorAll('.parameter').forEach((param) => {
-          // has to be a physical indent so that it can be copied. styles like
-          // paddings and `::before { content: "    " }` do not work for that
-          param.prepend(createNbspIndent());
-        });
-      }
+    const parametersNodes = symbol.querySelectorAll('.parameters');
+    if (parametersNodes.length === 0) {
+      // no parameters, nothing to wrap
+      return;
     }
+    parametersNodes.forEach((parametersNode) => {
+      if (parametersNode) {
+        // if window resize happened and observer was triggered, reset previously wrapped
+        // parameters as they might not need wrapping anymore, and check again
+        parametersNode.classList.remove('wrapped');
+        parametersNode.querySelectorAll('.parameter .nbsp-indent').forEach((indent) => indent.remove());
+
+        const parametersTextWidth = Array.from(symbol.children)
+          .filter((it) => !it.classList.contains('block')) // blocks are usually on their own (like annotations), so ignore it
+          .map((it) => it.getBoundingClientRect().width)
+          .reduce((a, b) => a + b, 0);
+
+        // if the signature text takes up more than a single line, wrap params for readability
+        if (parametersTextWidth > symbolBlockWidth - CODE_BLOCK_PADDING - sourceButtonWidth) {
+          parametersNode.classList.add('wrapped');
+          parametersNode.querySelectorAll('.parameter').forEach((param) => {
+            // has to be a physical indent so that it can be copied. styles like
+            // paddings and `::before { content: "    " }` do not work for thatq
+            param.prepend(createNbspIndent());
+          });
+        }
+      }
+    });
   }
 }

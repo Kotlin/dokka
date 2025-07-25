@@ -6,8 +6,8 @@
 
 $font-color: rgba(255, 255, 255, 0.96);
 $secondary-font-color: rgba(255, 255, 255, 0.7);
-$input-height-desktop: 40px;
-$input-height-mobile: 50px;
+$input-height-desktop: 39px;
+$input-height-mobile: 51px;
 
 #pages-search {
   width: 40px;
@@ -64,7 +64,7 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
   left: 11px;
 
   @media (width < $breakpoint-desktop-min) {
-    top: 14px;
+    top: 16px;
     left: 11px;
   }
 
@@ -122,10 +122,6 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
 
     font-weight: normal !important;
 
-    &:focus-visible {
-      outline: var(--focus-outline);
-    }
-
     &::placeholder {
       color: transparent;
     }
@@ -139,11 +135,19 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
     color: #fff;
   }
 
+  div[data-test='ring-input'] {
+    @media (width < $breakpoint-desktop-min) {
+      overflow: hidden;
+    }
+  }
+
   button[data-test='ring-input-clear'] {
     top: 0;
     right: 40px;
 
-    padding: 10px 9px;
+    height: 39px;
+
+    padding: 9px 12px;
 
     transition: none;
 
@@ -154,7 +158,9 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
     line-height: 21px;
 
     @media (width < $breakpoint-desktop-min) {
-      right: 50px;
+      right: 52px;
+
+      height: 52px;
     }
 
     &:focus-visible {
@@ -163,6 +169,12 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
         inset -4px 0 0 var(--color-key-blue-50),
         0 -4px 0 var(--color-key-blue-50),
         0 4px 0 var(--color-key-blue-50);
+
+      @media (width < $breakpoint-desktop-min) {
+        outline: var(--focus-outline);
+        outline-offset: -4px;
+        box-shadow: none;
+      }
     }
 
     &:hover {
@@ -170,7 +182,7 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
     }
 
     @media (width < $breakpoint-desktop-min) {
-      padding: 15px 9px;
+      padding: 15.5px 12px;
     }
 
     span {
@@ -195,17 +207,32 @@ span[data-test-custom='ring-select-popup-filter-icon'] {
 
 .search--close-button {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: -1px;
+  right: -1px;
 
-  width: 40px;
-  height: 40px;
+  width: 41px;
+  height: 41px !important;
 
   border-radius: 0 !important;
 
   @media (width < $breakpoint-desktop-min) {
-    width: 50px;
-    height: 50px !important;
+    width: 52px;
+    height: 52px !important;
+
+    background-color: transparent !important;
+
+    &:hover {
+      background-color: var(--color-w10) !important;
+    }
+
+    &:active {
+      background-color: var(--color-w16) !important;
+    }
+
+    &:focus-visible {
+      outline: var(--focus-outline);
+      outline-offset: -4px;
+    }
   }
 }
 
@@ -304,6 +331,8 @@ div[data-test='ring-popup'] {
   border-radius: 0;
 
   & .ReactVirtualized__List {
+    max-height: 412px !important;
+
     &:focus-visible {
       outline: var(--focus-outline);
     }

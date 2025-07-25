@@ -26,6 +26,15 @@ kotlin {
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
         }
     }
+
+    targets.all {
+        compilations.all {
+            compilerOptions.configure {
+                freeCompilerArgs.add("-Xcontext-parameters")
+            }
+        }
+    }
+
 }
 
 dokka {

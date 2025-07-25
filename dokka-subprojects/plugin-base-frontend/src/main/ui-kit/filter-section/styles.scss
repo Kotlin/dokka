@@ -65,6 +65,14 @@
         border-radius: 0;
 
         outline-offset: -4px;
+
+        &:hover {
+          background-color: var(--color-w16) !important;
+        }
+
+        &:active {
+          background-color: var(--color-w21) !important;
+        }
       }
     }
   }

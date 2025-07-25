@@ -48,9 +48,17 @@
   font-size: 0;
   line-height: 0;
 
-  @media (hover: hover) {
-    &:hover {
-      background-color: var(--color-w10);
+  &:hover {
+    background-color: var(--color-w10);
+  }
+
+  @media (width < $breakpoint-desktop-min) {
+    .navigation-controls &:hover {
+      background-color: var(--color-w16);
+    }
+
+    .navigation-controls &:active {
+      background-color: var(--color-w21);
     }
   }
 

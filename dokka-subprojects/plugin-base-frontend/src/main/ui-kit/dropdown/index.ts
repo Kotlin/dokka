@@ -50,7 +50,7 @@ function toggleDropdownButton(button: Element): void {
 function toggleDropdownList(list: Element | null, minWidth?: number): void {
   if (list) {
     list.classList.toggle('dropdown--list_expanded');
-    if (list.classList.contains('dropdown--list_expanded')) {
+    if (list.classList.contains('dropdown--list_expanded') && isDesktop()) {
       setListMinWidth(list, minWidth);
     } else {
       setListMinWidth(list, undefined);
