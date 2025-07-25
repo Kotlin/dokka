@@ -7,7 +7,7 @@
 .platform-hinted > .platform-bookmarks-row {
   margin-bottom: var(--size-m2);
 
-  border-bottom: 1px inset var(--text-outline);
+  border-bottom: 1px solid var(--text-outline);
 
   &.tabs_wrapping {
     border-bottom: none;
@@ -16,6 +16,9 @@
 
 .section-tab, /* regular tabs */
 .platform-hinted > .platform-bookmarks-row > .platform-bookmark /* platform tabs but they look the same */ {
+  position: relative;
+  top: 1px;
+
   padding: 10px 16px 6px;
 
   cursor: pointer;

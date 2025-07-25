@@ -35,7 +35,7 @@ module.exports = (env) => {
     output: {
       path: path.resolve(__dirname, '../plugin-base/src/main/resources/dokka/ui-kit/'),
       filename: 'ui-kit.min.js',
-      assetModuleFilename: 'assets/[name][ext]',
+      assetModuleFilename: '../images/[name][ext]',
     },
     module: {
       rules: [

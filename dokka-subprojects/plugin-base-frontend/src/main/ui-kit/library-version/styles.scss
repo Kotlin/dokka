@@ -10,17 +10,17 @@
 
   color: var(--color-text-dt);
 
-  font: var(--font-text-s);
+  font: var(--font-text-m);
 
   @media (width < $breakpoint-desktop-min) {
     display: flex;
     align-items: center;
 
+    flex-grow: 100;
+
     height: 52px;
     padding-top: 0;
 
-    padding-left: 8px;
-
-    background-color: var(--color-text);
+    background-color: var(--color-b100);
   }
 }

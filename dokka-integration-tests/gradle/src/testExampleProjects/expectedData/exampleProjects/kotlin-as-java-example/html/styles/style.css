@@ -72,21 +72,31 @@ html, body {
 /* --- global tags styles --- */
 
 h1 {
-    font-size: 40px;
-    line-height: 48px;
-    letter-spacing: -1px;
+    font-size: 44px;
+    line-height: 44px;
+    margin-bottom: 24px;
+    margin-top: 48px;
 }
 
 h2 {
-    font-size: 31px;
-    line-height: 40px;
-    letter-spacing: -0.5px;
+    font-size: 32px;
+    line-height: 32px;
+    margin-bottom: 24px;
+    margin-top: 48px;
 }
 
 h3 {
-    font-size: 20px;
-    line-height: 28px;
-    letter-spacing: -0.2px;
+    font-size: 24px;
+    line-height: 24px;
+    margin-bottom: 24px;
+    margin-top: 48px;
+}
+
+h4, h5 {
+    font-size: 16px;
+    line-height: 24px;
+    margin-bottom: 24px;
+    margin-top: 24px;
 }
 
 p, ul, ol, table, pre, dl {
@@ -189,7 +199,7 @@ img {
 }
 
 .cover > .platform-hinted {
-    padding-bottom: 12px;
+    margin-bottom: 24px;
 }
 
 .cover {
@@ -236,10 +246,6 @@ p.paragraph:first-child,
 
 .content .kdoc-tag > p.paragraph {
     margin-top: 0;
-}
-
-.content h4 {
-    margin-bottom: 0;
 }
 
 .divergent-group {
@@ -294,26 +300,15 @@ p.paragraph:first-child,
 }
 
 h1.cover {
-    font-size: 52px;
-    line-height: 56px;
-    letter-spacing: -1.5px;
-    margin-bottom: 0;
-    padding-bottom: 32px;
+    margin-bottom: 24px;
     display: block;
 }
 
-@media (max-width: 1119px) {
-    h1.cover {
-        font-size: 48px;
-        line-height: 48px;
-        padding-bottom: 8px;
-    }
-}
-
-@media (max-width: 759px) {
+@media (max-width: 899px) {
     h1.cover {
         font-size: 32px;
         line-height: 32px;
+        margin-bottom: 24px;
     }
 }
 
