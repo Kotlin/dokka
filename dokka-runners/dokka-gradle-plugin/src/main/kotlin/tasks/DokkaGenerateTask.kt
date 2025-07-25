@@ -50,6 +50,14 @@ constructor(
     pluginsConfiguration: DokkaPluginParametersContainer,
 ) : DokkaBaseTask() {
 
+    init {
+        // Hide the 'generate module' and 'generate publication' tasks from the task list,
+        // because they are lower level and potentially confusing
+        // (for most users it's not obvious what the difference between a 'module' and 'publication' is).
+        // For general generation usage the lifecycle tasks should be used instead.
+        setGroup(null)
+    }
+
     private val dokkaParametersBuilder = DokkaParametersBuilder(archives)
 
     /**

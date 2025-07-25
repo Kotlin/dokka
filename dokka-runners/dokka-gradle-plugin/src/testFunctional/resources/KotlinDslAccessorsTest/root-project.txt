@@ -1266,6 +1266,12 @@ fun org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters.`ext`(co
 fun org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters.`ext`(configure: Action<org.gradle.api.plugins.ExtraPropertiesExtension>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("ext", configure)
 
+val TaskContainer.`dokkaGenerateHtml`: TaskProvider<org.gradle.api.DefaultTask>
+    get() = named<org.gradle.api.DefaultTask>("dokkaGenerateHtml")
+
+val TaskContainer.`dokkaGenerateJavadoc`: TaskProvider<org.gradle.api.DefaultTask>
+    get() = named<org.gradle.api.DefaultTask>("dokkaGenerateJavadoc")
+
 val TaskContainer.`dokkaGenerateModuleHtml`: TaskProvider<org.jetbrains.dokka.gradle.tasks.DokkaGenerateModuleTask>
     get() = named<org.jetbrains.dokka.gradle.tasks.DokkaGenerateModuleTask>("dokkaGenerateModuleHtml")
 
