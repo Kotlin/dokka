@@ -52,15 +52,31 @@ internal fun KaSession.resolveKDocTextLinkToDRI(link: String, context: PsiElemen
  */
 internal fun KaSession.resolveKDocTextLinkToSymbol(link: String, context: PsiElement? = null): KaSymbol? {
     val kDocLink = createKDocLink(link, context)
-    return kDocLink?.let { analyze(kDocLink) { resolveToSymbol(it) } }
+    return kDocLink?.let {
+        /**
+         *  Get [KaSession] is associated with [a dangling module][org.jetbrains.kotlin.analysis.api.projectStructure.KaDanglingFileModule]
+         */
+        analyze(kDocLink) { resolveToSymbol(it) }
+    }
 }
 
 private fun KaSession.createKDocLink(link: String, context: PsiElement?): KDocLink? {
-    // see https://kotlin.github.io/analysis-api/in-memory-file-analysis.html
-    val psiFactory = if(context != null)  KtPsiFactory.contextual(context)  else {
+    /**
+     * Creates a dangling file stored in-memory
+     * A such file belongs to [a separate module][org.jetbrains.kotlin.analysis.api.projectStructure.KaDanglingFileModule]
+     *
+     * Additional information: https://kotlin.github.io/analysis-api/in-memory-file-analysis.html#stand-alone-file-analysis
+     * @see [org.jetbrains.kotlin.analysis.api.projectStructure.KaDanglingFileModule]
+     */
+    val psiFactory = if (context != null) KtPsiFactory.contextual(context) else {
         val currentModule: KaSourceModule = useSiteModule as? KaSourceModule
             ?: throw IllegalStateException("Resolving KDoc links can be done only in a source module, not $useSiteModule")
-        val randomKtSourceFile: KtFile = @OptIn(KaExperimentalApi::class) currentModule.psiRoots.filterIsInstance<KtFile>().firstOrNull() ?: return null
+
+        // To pass context (dependencies) from the current source module to a dangling module,
+        // a random source file is selected as the context file
+        val randomKtSourceFile: KtFile =
+            @OptIn(KaExperimentalApi::class) currentModule.psiRoots.filterIsInstance<KtFile>().firstOrNull()
+                ?: return null
 
         KtPsiFactory.contextual(randomKtSourceFile)
     }
@@ -70,7 +86,7 @@ private fun KaSession.createKDocLink(link: String, context: PsiElement?): KDocLi
     /**
     * [$link]
     */
- """.trimIndent()
+    """.trimIndent()
     ) as? KDoc
 
     return kDoc?.getDefaultSection()?.children?.filterIsInstance<KDocLink>()?.singleOrNull()
@@ -83,6 +99,13 @@ private fun KaSession.createKDocLink(link: String, context: PsiElement?): KDocLi
  * @return [DRI] or null if the [link] is unresolved
  */
 internal fun resolveKDocLinkToDRI(kDocLink: KDocLink): DRI? {
+    /**
+     * [kDocLink] can belong to [a dangling module][org.jetbrains.kotlin.analysis.api.projectStructure.KaDanglingFileModule]
+     * or [a source module][org.jetbrains.kotlin.analysis.api.projectStructure.KaSourceModule]
+     *
+     * Since [KaSession] is associated with a specific module,
+     * [analyze] should be called to get a corresponding instance of [KaSession]
+     */
     analyze(kDocLink) {
         val linkedSymbol = resolveToSymbol(kDocLink)
         return if (linkedSymbol == null) null
@@ -91,8 +114,8 @@ internal fun resolveKDocLinkToDRI(kDocLink: KDocLink): DRI? {
 }
 
 private fun KaSession.resolveToSymbol(kDocLink: KDocLink): KaSymbol? {
-        val lastNameSegment = kDocLink.children.filterIsInstance<KDocName>().lastOrNull()
-        return lastNameSegment?.mainReference?.resolveToSymbols()?.sortedWith(linkCandidatesComparator)?.firstOrNull()
+    val lastNameSegment = kDocLink.children.filterIsInstance<KDocName>().lastOrNull()
+    return lastNameSegment?.mainReference?.resolveToSymbols()?.sortedWith(linkCandidatesComparator)?.firstOrNull()
 }
 
 /**
@@ -100,12 +123,12 @@ private fun KaSession.resolveToSymbol(kDocLink: KDocLink): KaSymbol? {
  *
  * TODO KT-64190
  */
-private var linkCandidatesComparator: Comparator<KaSymbol> = compareBy{
-    when(it) {
+private var linkCandidatesComparator: Comparator<KaSymbol> = compareBy {
+    when (it) {
         is KaClassifierSymbol -> 1
         is KaPackageSymbol -> 2
         is KaFunctionSymbol -> 3
-        is KaVariableSymbol-> 4
+        is KaVariableSymbol -> 4
         else -> 5
     }
 }
