@@ -50,11 +50,6 @@ public final class org/jetbrains/dokka/gradle/DokkaBasePlugin$Companion {
 	public final fun getTaskNames ()Lorg/jetbrains/dokka/gradle/tasks/TaskNames;
 }
 
-public final class org/jetbrains/dokka/gradle/DokkaBasePlugin$inlined$sam$i$org_gradle_api_Action$0 : org/gradle/api/Action {
-	public fun <init> (Lkotlin/jvm/functions/Function1;)V
-	public final synthetic fun execute (Ljava/lang/Object;)V
-}
-
 public final class org/jetbrains/dokka/gradle/DokkaBootstrapFactoryKt {
 	public static final fun DokkaBootstrap (Lorg/gradle/api/artifacts/Configuration;Lkotlin/reflect/KClass;)Lorg/jetbrains/dokka/DokkaBootstrap;
 }
@@ -63,11 +58,6 @@ public class org/jetbrains/dokka/gradle/DokkaClassicPlugin : org/gradle/api/Plug
 	public fun <init> ()V
 	public synthetic fun apply (Ljava/lang/Object;)V
 	public fun apply (Lorg/gradle/api/Project;)V
-}
-
-public final class org/jetbrains/dokka/gradle/DokkaClassicPlugin$inlined$sam$i$org_gradle_api_Action$0 : org/gradle/api/Action {
-	public fun <init> (Lkotlin/jvm/functions/Function1;)V
-	public final synthetic fun execute (Ljava/lang/Object;)V
 }
 
 public abstract class org/jetbrains/dokka/gradle/DokkaCollectorTask : org/jetbrains/dokka/gradle/AbstractDokkaParentTask {
@@ -403,13 +393,7 @@ public final class org/jetbrains/dokka/gradle/formats/DokkaFormatPlugin$Companio
 }
 
 public abstract class org/jetbrains/dokka/gradle/formats/DokkaHtmlPlugin : org/jetbrains/dokka/gradle/formats/DokkaFormatPlugin {
-	public static final field Companion Lorg/jetbrains/dokka/gradle/formats/DokkaHtmlPlugin$Companion;
 	public fun configure (Lorg/jetbrains/dokka/gradle/formats/DokkaFormatPlugin$DokkaFormatPluginContext;)V
-}
-
-public final class org/jetbrains/dokka/gradle/formats/DokkaHtmlPlugin$inlined$sam$i$org_gradle_api_Action$0 : org/gradle/api/Action {
-	public fun <init> (Lkotlin/jvm/functions/Function1;)V
-	public final synthetic fun execute (Ljava/lang/Object;)V
 }
 
 public abstract class org/jetbrains/dokka/gradle/formats/DokkaJavadocPlugin : org/jetbrains/dokka/gradle/formats/DokkaFormatPlugin {
@@ -438,11 +422,6 @@ public final class org/jetbrains/dokka/gradle/internal/AbstractDokkaTaskExtensio
 }
 
 public abstract interface annotation class org/jetbrains/dokka/gradle/internal/InternalDokkaGradlePluginApi : java/lang/annotation/Annotation {
-}
-
-public final class org/jetbrains/dokka/gradle/internal/V2MigrationUtilsKt$inlined$sam$i$org_gradle_api_Action$0 : org/gradle/api/Action {
-	public fun <init> (Lkotlin/jvm/functions/Function1;)V
-	public final synthetic fun execute (Ljava/lang/Object;)V
 }
 
 public abstract class org/jetbrains/dokka/gradle/tasks/DokkaBaseTask : org/gradle/api/DefaultTask {
