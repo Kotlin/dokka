@@ -7,6 +7,12 @@
 bta-kotlin-compiler = "2.0.21"
 bta-kotlin-language = "1.4"
 
+# The AA is built with the latest compiler version (a bootstrap compiler)
+# To be compatible with the AA, Dokka analysis should be compiled with approximately the same version
+# See https://kotlinlang.org/docs/kotlin-evolution-principles.html#evolving-the-binary-format
+bta-analysis-kotlin-compiler = "2.2.0"
+bta-analysis-kotlin-language = "2.2"
+
 gradlePlugin-kotlin = "2.2.0"
 # See: https://kotlinlang.org/docs/gradle-configure-project.html#apply-the-plugin
 gradlePlugin-android = "7.3.1"
@@ -76,6 +82,7 @@ eclipse-jgit = "5.13.3.202401111512-r" # jgit 6.X requires Java 11 to run
 # There should be no version in `kotlin-*` dependencies,
 # so that the version will be automatically provided by `coreLibrariesVersion` used in KGP
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5" }
 
