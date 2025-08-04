@@ -176,6 +176,13 @@ constructor(
      * Run some helper checks to log warnings if the [DokkaConfiguration] looks misconfigured.
      */
     private fun verifyDokkaConfiguration(dokkaConfiguration: DokkaConfiguration) {
+        checkModulePathsAreDistinct(dokkaConfiguration)
+        checkModulePathsAreInsidePublicationDir(dokkaConfiguration)
+    }
+
+    private fun checkModulePathsAreDistinct(
+        dokkaConfiguration: DokkaConfiguration,
+    ) {
         val modulesWithDuplicatePaths = dokkaConfiguration.modules
             .groupBy { it.relativePathToOutputDirectory.toString() }
             .filterValues { it.size > 1 }
@@ -197,9 +204,14 @@ constructor(
                 """.trimMargin()
             )
         }
+    }
 
+    private fun checkModulePathsAreInsidePublicationDir(
+        dokkaConfiguration: DokkaConfiguration,
+    ) {
         fun DokkaModuleDescription.resolvedOutputDir(): File =
             dokkaConfiguration.outputDir.resolve(relativePathToOutputDirectory)
+
 
         val modulesWithOutputDirOutsidePublicationDir = dokkaConfiguration.modules
             .filter { module ->
@@ -207,9 +219,10 @@ constructor(
                 !moduleOutputDir.startsWith(dokkaConfiguration.outputDir)
             }
         check(modulesWithOutputDirOutsidePublicationDir.isEmpty()) {
-            val modules = modulesWithOutputDirOutsidePublicationDir.map {
-                "${it.name} (modulePath: '${it.relativePathToOutputDirectory}')"
-            }.sorted()
+            val modules = modulesWithOutputDirOutsidePublicationDir
+                .map {
+                    "${it.name} (modulePath: '${it.relativePathToOutputDirectory}')"
+                }.sorted()
                 .joinToString("\n") { "  - $it" }
             """
             |[$path] Found ${modulesWithOutputDirOutsidePublicationDir.size} modules with output directories
@@ -220,15 +233,17 @@ constructor(
             |""".trimMargin()
         }
 
+
         val modulesWithOutputDirSameAsPublicationDir = dokkaConfiguration.modules
             .filter { module ->
                 val moduleOutputDir = module.resolvedOutputDir()
                 moduleOutputDir == dokkaConfiguration.outputDir
             }
         check(modulesWithOutputDirSameAsPublicationDir.isEmpty()) {
-            val modules = modulesWithOutputDirSameAsPublicationDir.map {
-                "${it.name} (modulePath: '${it.relativePathToOutputDirectory}')"
-            }.sorted()
+            val modules = modulesWithOutputDirSameAsPublicationDir
+                .map {
+                    "${it.name} (modulePath: '${it.relativePathToOutputDirectory}')"
+                }.sorted()
                 .joinToString("\n") { "  - $it" }
             """
             |[$path] Found ${modulesWithOutputDirSameAsPublicationDir.size} modules with output directories
