@@ -16,7 +16,7 @@ dependencies {
 
     implementation(projects.dokkaSubprojects.pluginBase)
 
-    implementation(kotlin("reflect"))
+    implementation(libs.kotlin.reflect)
     implementation(libs.jackson.kotlin)
     constraints {
         implementation(libs.jackson.databind) {
@@ -24,7 +24,7 @@ dependencies {
         }
     }
 
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
     testImplementation(projects.dokkaSubprojects.pluginBase)
     testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)
     testImplementation(projects.dokkaSubprojects.dokkaTestApi)

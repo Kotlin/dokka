@@ -92,7 +92,7 @@ private fun KotlinCompilation.classpathOf(project: Project): FileCollection {
 private fun KotlinCompilation.getKotlinCompileTask(kgpVersion: KotlinGradlePluginVersion? = null): KotlinCompile? {
     val shouldKeepBackwardsCompatibility = (kgpVersion != null && kgpVersion < KotlinGradlePluginVersion(1, 8, 0))
     return if (shouldKeepBackwardsCompatibility) {
-        @Suppress("DEPRECATION") // for `compileKotlinTask` property, deprecated with warning since 1.8.0
+        @Suppress("DEPRECATION_ERROR") // for `compileKotlinTask` property, deprecated with warning since 1.8.0
         this.compileKotlinTask as? KotlinCompile
     } else {
         this.compileTaskProvider.get() as? KotlinCompile // introduced in 1.8.0
@@ -105,7 +105,7 @@ private fun KotlinCompilation.platformDependencyFiles(project: Project): FileCol
     if (excludePlatformDependencyFiles) return project.files()
     return (this as? AbstractKotlinNativeCompilation)
         ?.target?.project?.configurations
-        ?.findByName(@Suppress("DEPRECATION") this.defaultSourceSet.implementationMetadataConfigurationName) // KT-58640
+        ?.findByName(@Suppress("DEPRECATION_ERROR") this.defaultSourceSet.implementationMetadataConfigurationName) // KT-58640
         ?: project.files()
 }
 

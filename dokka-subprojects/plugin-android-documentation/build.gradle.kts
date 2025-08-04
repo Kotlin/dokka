@@ -17,9 +17,9 @@ dependencies {
 
     implementation(projects.dokkaSubprojects.pluginBase)
 
-    implementation(kotlin("reflect"))
+    implementation(libs.kotlin.reflect)
 
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
     testImplementation(projects.dokkaSubprojects.pluginBase)
     testImplementation(projects.dokkaSubprojects.dokkaTestApi)
 

@@ -23,7 +23,7 @@ dependencies {
 
     implementation(libs.kotlinx.html)
 
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
     testImplementation(projects.dokkaSubprojects.pluginBase)
     testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)
     testImplementation(projects.dokkaSubprojects.pluginGfm)
