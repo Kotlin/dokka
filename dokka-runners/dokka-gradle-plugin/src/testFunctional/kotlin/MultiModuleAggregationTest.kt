@@ -4,58 +4,146 @@
 package org.jetbrains.dokka.gradle
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.test.TestScope
 import io.kotest.matchers.string.shouldContain
-import io.kotest.matchers.string.shouldNotContain
-import org.jetbrains.dokka.gradle.utils.addArguments
-import org.jetbrains.dokka.gradle.utils.build
-import org.jetbrains.dokka.gradle.utils.buildGradleKts
-import org.jetbrains.dokka.gradle.utils.createKotlinFile
+import org.gradle.testkit.runner.TaskOutcome
+import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.projects.initMultiModuleProject
-import kotlin.io.path.readText
 
 class MultiModuleAggregationTest : FunSpec({
 
-    context("when aggregating in root project") {
-        val project = initMultiModuleProject("root-aggregate") {
-            buildGradleKts = buildGradleKts
-                .replace(
-                    """kotlin("jvm") version embeddedKotlinVersion apply false""",
-                    """kotlin("jvm") version embeddedKotlinVersion""",
+    context("when aggregating subprojects and root project in root project") {
+
+        context("and default modulePath") {
+            val project = project()
+            project.runner
+                .addArguments(
+                    ":dokkaGeneratePublicationHtml",
+                    "--stacktrace",
+                    "--rerun",
                 )
-
-            buildGradleKts += """
-                |dependencies {
-                |  dokka(rootProject)
-                |}
-                |""".trimMargin()
-
-            createKotlinFile(
-                "src/main/kotlin/RootProjectClass.kt",
-                """
-                |class RootProjectClass {
-                |  fun thisClassIsInTheRootProject() {}
-                |}
-                |""".trimMargin()
-            )
+                .forwardOutput()
+                .buildAndFail {
+                    test("expect validation failure") {
+                        shouldHaveRunTask(":dokkaGeneratePublicationHtml", TaskOutcome.FAILED)
+                        output shouldContain """
+                            ┆> [:dokkaGeneratePublicationHtml] Found 1 modules with output directories that resolve to the same directory as the Dokka output directory.
+                            ┆    All module output directories must be a subdirectory inside the Dokka output directory.
+                            ┆    Specify `modulePath` in these modules:
+                            ┆    - root-aggregate (modulePath: '')
+                            ┆""".trimMargin("┆")
+                    }
+                }
         }
 
-        project.runner
-            .addArguments(
-                ":dokkaGeneratePublicationHtml",
-                "--stacktrace",
-            )
-            .forwardOutput()
-            .build {
-                test("expect build is successful") {
-                    output shouldContain "BUILD SUCCESSFUL"
+        context("and empty modulePath") {
+            val project = project {
+                buildGradleKts += """
+                dokka {
+                    modulePath.set("")
                 }
-
-                test("expect HTML site is generated") { // TODO better test name
-                    val navigationHtml = project.projectDir.resolve("build/dokka/html/navigation.html")
-
-                    navigationHtml.readText() shouldNotContain "..//[root]/-root-project-class/index.html"
-                    navigationHtml.readText() shouldContain "..//[root]/-root-project-class/index.html"
-                }
+             """.trimIndent()
             }
+            project.runner
+                .addArguments(
+                    ":dokkaGeneratePublicationHtml",
+                    "--stacktrace",
+                    "--rerun",
+                )
+                .forwardOutput()
+                .buildAndFail {
+                    test("expect validation failure") {
+                        shouldHaveRunTask(":dokkaGeneratePublicationHtml", TaskOutcome.FAILED)
+                        output shouldContain """
+                            ┆> [:dokkaGeneratePublicationHtml] Found 1 modules with output directories that resolve to the same directory as the Dokka output directory.
+                            ┆    All module output directories must be a subdirectory inside the Dokka output directory.
+                            ┆    Specify `modulePath` in these modules:
+                            ┆    - root-aggregate (modulePath: '')
+                            ┆""".trimMargin("┆")
+                    }
+                }
+        }
+
+        context("and custom valid modulePath") {
+            val project = project {
+                buildGradleKts += """
+                    |dokka {
+                    |    modulePath.set("root")
+                    |}
+                    |""".trimMargin()
+            }
+            project.runner
+                .addArguments(
+                    ":dokkaGeneratePublicationHtml",
+                    "--stacktrace",
+                    "--rerun",
+                )
+                .forwardOutput()
+                .build {
+                    test("expect validation failure") {
+                        shouldHaveRunTask(":dokkaGeneratePublicationHtml", TaskOutcome.SUCCESS)
+                    }
+                }
+        }
+
+        context("and modulePath escapes the output dir") {
+            val project = project {
+                buildGradleKts += """
+                dokka {
+                    modulePath.set("../../root")
+                }
+             """.trimIndent()
+            }
+            project.runner
+                .addArguments(
+                    ":dokkaGeneratePublicationHtml",
+                    "--stacktrace",
+                    "--rerun",
+                )
+                .forwardOutput()
+                .buildAndFail {
+                    test("expect validation failure") {
+                        shouldHaveRunTask(":dokkaGeneratePublicationHtml", TaskOutcome.FAILED)
+                        output shouldContain """
+                            ┆> [:dokkaGeneratePublicationHtml] Found 1 modules with directories that are outside the Dokka output directory.
+                            ┆    All module output directories must be a subdirectory inside the Dokka output directory.
+                            ┆    Update the `modulePath` in these modules:
+                            ┆    - root-aggregate (modulePath: '../../root')
+                            ┆""".trimMargin("┆")
+                    }
+                }
+        }
     }
 })
+
+
+private fun TestScope.project(
+    configure: GradleProjectTest.() -> Unit = {},
+): GradleProjectTest =
+    initMultiModuleProject(
+        testName = "root-aggregate-${testCase.name.testName.replaceNonAlphaNumeric()}",
+        rootProjectName = "root-aggregate",
+    ) {
+        buildGradleKts = buildGradleKts
+            .replace(
+                """kotlin("jvm") version embeddedKotlinVersion apply false""",
+                """kotlin("jvm") version embeddedKotlinVersion""",
+            )
+
+        buildGradleKts += """
+                |dependencies {
+                |  dokka(project)
+                |}
+                |""".trimMargin()
+
+        createKotlinFile(
+            "src/main/kotlin/RootProjectClass.kt",
+            """
+            |class RootProjectClass {
+            |  fun thisClassIsInTheRootProject() {}
+            |}
+            |""".trimMargin()
+        )
+
+        configure()
+    }
