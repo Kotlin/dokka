@@ -210,25 +210,23 @@ constructor(
         dokkaConfiguration: DokkaConfiguration,
     ) {
         fun DokkaModuleDescription.resolvedOutputDir(): File =
-            dokkaConfiguration.outputDir.resolve(relativePathToOutputDirectory)
+            dokkaConfiguration.outputDir.resolve(relativePathToOutputDirectory).normalize()
 
 
         val modulesWithOutputDirOutsidePublicationDir = dokkaConfiguration.modules
             .filter { module ->
                 val moduleOutputDir = module.resolvedOutputDir()
-                !moduleOutputDir.startsWith(dokkaConfiguration.outputDir)
+                !moduleOutputDir.startsWith(dokkaConfiguration.outputDir.normalize())
             }
         check(modulesWithOutputDirOutsidePublicationDir.isEmpty()) {
             val modules = modulesWithOutputDirOutsidePublicationDir
-                .map {
-                    "${it.name} (modulePath: '${it.relativePathToOutputDirectory}')"
-                }.sorted()
+                .map { "${it.name} (modulePath: '${it.relativePathToOutputDirectory}')" }
+                .sorted()
                 .joinToString("\n") { "  - $it" }
             """
-            |[$path] Found ${modulesWithOutputDirOutsidePublicationDir.size} modules with output directories
-            |  that resolve to directories outside the Dokka output directory.
+            |[$path] Found ${modulesWithOutputDirOutsidePublicationDir.size} modules with directories that are outside the Dokka output directory.
             |  All module output directories must be a subdirectory inside the Dokka output directory.
-            |  Please update the `modulePath`s of these modules:
+            |  Update the `modulePath` in these modules:
             |$modules
             |""".trimMargin()
         }
@@ -237,19 +235,17 @@ constructor(
         val modulesWithOutputDirSameAsPublicationDir = dokkaConfiguration.modules
             .filter { module ->
                 val moduleOutputDir = module.resolvedOutputDir()
-                moduleOutputDir == dokkaConfiguration.outputDir
+                moduleOutputDir == dokkaConfiguration.outputDir.normalize()
             }
         check(modulesWithOutputDirSameAsPublicationDir.isEmpty()) {
             val modules = modulesWithOutputDirSameAsPublicationDir
-                .map {
-                    "${it.name} (modulePath: '${it.relativePathToOutputDirectory}')"
-                }.sorted()
+                .map { "${it.name} (modulePath: '${it.relativePathToOutputDirectory}')" }
+                .sorted()
                 .joinToString("\n") { "  - $it" }
             """
-            |[$path] Found ${modulesWithOutputDirSameAsPublicationDir.size} modules with output directories
-            |  that resolve to the same directory as the Dokka output directory.
+            |[$path] Found ${modulesWithOutputDirSameAsPublicationDir.size} modules with output directories that resolve to the same directory as the Dokka output directory.
             |  All module output directories must be a subdirectory inside the Dokka output directory.
-            |  Please specify the `modulePath`s of these modules:
+            |  Specify `modulePath` in these modules:
             |$modules
             |""".trimMargin()
         }
