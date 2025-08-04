@@ -38,9 +38,9 @@ class DokkaPluginFunctionalTest : FunSpec({
                 .addArguments("tasks", "--group=dokka", "--quiet")
                 .build {
                     withClue(output) {
-                        val dokkaTasks = output
-                            .substringAfter("Dokka tasks", "<missing start of group>")
-                            .substringBefore("\n\n", "<missing end of group>")
+                        val dokkaTasks = output.normalizeLineEndings()
+                            .substringAfter("Dokka tasks")
+                            .substringBefore("\n\n")
                             .lines()
                             .filter { " - " in it }
                             .associate { it.splitToPair(" - ") }
@@ -60,9 +60,9 @@ class DokkaPluginFunctionalTest : FunSpec({
                 .addArguments("tasks", "--all", "--quiet")
                 .build {
                     withClue(output) {
-                        val dokkaTasks = output
-                            .substringAfter("Other tasks", "<missing start of group>")
-                            .substringBefore("\n\n", "<missing end of group>")
+                        val dokkaTasks = output.normalizeLineEndings()
+                            .substringAfter("Other tasks")
+                            .substringBefore("\n\n")
                             .lines()
                             .filter { " - " in it }
                             .associate { it.splitToPair(" - ") }
