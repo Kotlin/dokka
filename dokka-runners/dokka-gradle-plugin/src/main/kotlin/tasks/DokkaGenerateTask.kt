@@ -220,7 +220,7 @@ constructor(
             }
         check(modulesWithOutputDirOutsidePublicationDir.isEmpty()) {
             val modules = modulesWithOutputDirOutsidePublicationDir
-                .map { "${it.name} (modulePath: '${it.relativePathToOutputDirectory}')" }
+                .map { "${it.name} (modulePath: '${it.relativePathToOutputDirectory.invariantSeparatorsPath}')" }
                 .sorted()
                 .joinToString("\n") { "  - $it" }
             """
@@ -239,7 +239,7 @@ constructor(
             }
         check(modulesWithOutputDirSameAsPublicationDir.isEmpty()) {
             val modules = modulesWithOutputDirSameAsPublicationDir
-                .map { "${it.name} (modulePath: '${it.relativePathToOutputDirectory}')" }
+                .map { "${it.name} (modulePath: '${it.relativePathToOutputDirectory.invariantSeparatorsPath}')" }
                 .sorted()
                 .joinToString("\n") { "  - $it" }
             """
