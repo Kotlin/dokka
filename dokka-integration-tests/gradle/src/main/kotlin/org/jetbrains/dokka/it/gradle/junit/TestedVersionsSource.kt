@@ -4,6 +4,7 @@
 package org.jetbrains.dokka.it.gradle.junit
 
 import org.jetbrains.dokka.it.gradle.junit.TestedVersions.Companion.displayName
+import org.jetbrains.dokka.it.gradle.junit.TestedVersionsSource.Default.dokkaVersionOverride
 import org.jetbrains.dokka.it.gradle.utils.SemVer
 import org.jetbrains.dokka.it.gradle.utils.SemVer.Companion.contains
 import org.jetbrains.dokka.it.optionalSystemProperty
@@ -45,7 +46,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
         private val allKgpVersions: List<String> = listOf(
             "1.9.25",
             "2.0.21",
-            "2.1.0",
+            "2.1.21",
             "2.2.0",
         )
 
@@ -98,7 +99,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
          */
         private val allAgpVersions: List<String> = listOf(
             "7.4.2",
-            "8.5.2",
+            "8.12.0",
         )
 
         private val allVersions = sequence {
@@ -142,6 +143,11 @@ fun interface TestedVersionsSource<T : TestedVersions> {
             // AGP/Gradle compatibility definitions:
             // https://developer.android.com/build/releases/gradle-plugin?buildsystem=ndk-build#updating-gradle
             return when (agp.majorAndMinorVersions) {
+                "8.12" -> gradle in "8.13"..<"9.0.0"
+                "8.11" -> gradle in "8.13"..<"9.0.0"
+                "8.10" -> gradle in "8.11.1"..<"9.0.0"
+                "8.9" -> gradle in "8.11.1"..<"9.0.0"
+                "8.8" -> gradle in "8.10.2"..<"9.0.0"
                 "8.7" -> gradle in "8.9.0"..<"9.0.0"
                 "8.6" -> gradle in "8.7.0"..<"9.0.0"
                 "8.5" -> gradle in "8.7.0"..<"9.0.0"
