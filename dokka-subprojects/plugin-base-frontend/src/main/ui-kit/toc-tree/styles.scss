@@ -9,6 +9,16 @@
   --toc-color: var(--color-text);
   --toc-link-hover-gradient: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0%, rgba(17, 0, 0, 0.08) 100%);
   --toc-button-hover-gradient: linear-gradient(270deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.08) 100%);
+  --toc-item-padding-left: 8px;
+  --toc-item-padding-right: 4px;
+  --toc-item-padding-top: 8px;
+  --toc-item-padding-bottom: 8px;
+  --toc-item-padding-left-mobile: 8px;
+  --toc-item-padding-right-mobile: 4px;
+  --toc-item-padding-top-mobile: 14px;
+  --toc-item-padding-bottom-mobile: 14px;
+  --toc-icon-size: 24px;
+  --toc-button-width: calc(var(--toc-icon-size) + 2 * var(--toc-item-padding-left));
 }
 
 .theme-dark {
@@ -43,13 +53,8 @@
     align-items: center;
 
     box-sizing: border-box;
-    min-height: 40px;
 
     user-select: none; /* there's a weird bug with text selection */
-
-    @media (width < $breakpoint-desktop-min) {
-      min-height: 52px;
-    }
   }
 
   &--button {
@@ -60,10 +65,10 @@
     flex-shrink: 0;
     justify-content: flex-end;
 
-    min-width: 40px;
+    min-width: var(--toc-button-width);
     height: 100%;
 
-    padding: 0 8px 0 0;
+    padding: 0 var(--toc-item-padding-right) 0 0;
 
     cursor: pointer;
 
@@ -71,11 +76,12 @@
     background-color: inherit;
 
     &::after {
-      position: relative;
-      top: 8px;
+      position: absolute;
+      top: 50%;
 
-      width: 24px;
-      height: 24px;
+      width: var(--toc-icon-size);
+      height: var(--toc-icon-size);
+      margin-top: calc(var(--toc-icon-size) / -2);
 
       content: ' ';
 
@@ -84,15 +90,12 @@
       background-image: url('../_assets/arrow-down.svg');
 
       background-repeat: no-repeat;
+      background-position: center;
       background-size: 24px 24px;
 
       font-size: 0;
       line-height: 0;
       filter: invert(1);
-
-      @media (width < $breakpoint-desktop-min) {
-        top: 14px;
-      }
 
       .toc--part_hidden & {
         transform: rotate(-90deg);
@@ -123,16 +126,13 @@
     box-sizing: border-box;
 
     width: 100%;
-    height: calc(100% - 16px);
-    min-height: 40px;
-
-    padding: 8px 4px 8px 0;
+    padding: var(--toc-item-padding-top) var(--toc-item-padding-right) var(--toc-item-padding-bottom) 0;
 
     color: inherit;
 
     @media (width < $breakpoint-desktop-min) {
-      min-height: 52px;
-      padding: 14px 4px 14px 0;
+      padding: var(--toc-item-padding-top-mobile) var(--toc-item-padding-right-mobile)
+        var(--toc-item-padding-bottom-mobile) 0;
     }
 
     &:hover {
@@ -198,18 +198,18 @@
 
   @for $i from 0 through 10 {
     &--part[data-nesting-level='#{$i}'] {
-      $indent-width: calc(var(--size-m1) * $i);
+      $indent-width: calc(var(--toc-icon-size) * $i);
 
       .toc--row > .toc--link:first-child {
-        padding-left: calc(40px + #{$indent-width});
+        padding-left: calc(var(--toc-button-width) + #{$indent-width});
       }
 
       .toc--button + .toc--link {
-        margin-left: calc(40px + #{$indent-width});
+        margin-left: calc(var(--toc-button-width) + #{$indent-width});
       }
 
       .toc--button {
-        width: calc(40px + #{$indent-width});
+        width: calc(var(--toc-button-width) + #{$indent-width});
       }
     }
   }
@@ -355,7 +355,7 @@
   & .button {
     @media (width < $breakpoint-desktop-min) {
       min-width: 52px;
-      height: 52px;
+      min-height: 52px;
     }
   }
 }
