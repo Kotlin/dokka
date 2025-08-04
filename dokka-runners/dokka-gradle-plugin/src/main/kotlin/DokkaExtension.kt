@@ -78,7 +78,8 @@ constructor(
     abstract val moduleVersion: Property<String>
 
     /**
-     * Control the subdirectory used for files when aggregating this project as a Dokka Module into a Dokka Publication.
+     * Specify the subdirectory this module will be placed into when
+     * aggregating this project as a Dokka Module into a Dokka Publication.
      *
      * When Dokka performs aggregation the files from each Module must be placed into separate
      * subdirectories, within the Publication directory.
