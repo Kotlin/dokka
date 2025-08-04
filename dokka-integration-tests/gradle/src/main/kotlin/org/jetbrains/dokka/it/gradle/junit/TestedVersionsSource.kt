@@ -62,24 +62,27 @@ fun interface TestedVersionsSource<T : TestedVersions> {
             "9.0.0",
         )
 
-        private val allVersions = sequence {
-            allDokkaGradlePluginVersions.forEach { dgp ->
-                allKgpVersions.forEach { kgp ->
-                    allGradleVersions.forEach { gradle ->
-                        yield(
-                            TestedVersions.Default(
-                                dgp = SemVer(dgp),
-                                gradle = SemVer(gradle),
-                                kgp = SemVer(kgp),
+        private val allVersions: Sequence<TestedVersions.Default> =
+            sequence {
+                allDokkaGradlePluginVersions.forEach { dgp ->
+                    allKgpVersions.forEach { kgp ->
+                        allGradleVersions.forEach { gradle ->
+                            yield(
+                                TestedVersions.Default(
+                                    dgp = SemVer(dgp),
+                                    gradle = SemVer(gradle),
+                                    kgp = SemVer(kgp),
+                                )
                             )
-                        )
+                        }
                     }
                 }
-            }
-        }
+            }.filter { isKgpCompatibleWithGradle(kgp = it.kgp, gradle = it.gradle) }
 
-        override fun get(): Sequence<TestedVersions.Default> {
-            return allVersions
+        override fun get(): Sequence<TestedVersions.Default> = allVersions
+
+        private fun isKgpCompatibleWithGradle(kgp: SemVer, gradle: SemVer): Boolean {
+            return kgp.major < 2 && gradle.major < 9
         }
     }
 
