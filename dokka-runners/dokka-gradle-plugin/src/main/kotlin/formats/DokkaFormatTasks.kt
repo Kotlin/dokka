@@ -3,10 +3,12 @@
  */
 package org.jetbrains.dokka.gradle.formats
 
+import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.register
+import org.jetbrains.dokka.gradle.DokkaBasePlugin
 import org.jetbrains.dokka.gradle.dependencies.FormatDependenciesManager
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.configuring
@@ -72,5 +74,15 @@ class DokkaFormatTasks(
             outputDirectory.convention(publication.moduleOutputDirectory)
 
             applyFormatSpecificConfiguration()
+        }
+
+    /**
+     * The lifecycle task that will generate a Dokka Publication for the specific [formatName] output.
+     */
+    val lifecycleGenerate: TaskProvider<DefaultTask> =
+        project.tasks.register<DefaultTask>(taskNames.generate) {
+            description = "Generate Dokka $formatName publication"
+            group = DokkaBasePlugin.TASK_GROUP
+            dependsOn(generatePublication)
         }
 }
