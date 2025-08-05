@@ -4,6 +4,10 @@
 package org.jetbrains.dokka.gradle.utils
 
 
+fun String.normalizeLineEndings(): String =
+    lines().joinToString("\n")
+
+
 fun String.splitToPair(delimiter: String): Pair<String, String> =
     substringBefore(delimiter) to substringAfter(delimiter)
 
