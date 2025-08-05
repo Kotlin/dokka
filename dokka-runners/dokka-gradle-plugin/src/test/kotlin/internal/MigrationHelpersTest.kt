@@ -6,7 +6,6 @@ package org.jetbrains.dokka.gradle.internal
 import io.kotest.core.spec.style.FunSpec
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.dokka.gradle.AbstractDokkaTask
 import org.jetbrains.dokka.gradle.utils.enableV2Plugin
 import org.jetbrains.dokka.gradle.utils.shouldContainExactly
 
@@ -27,7 +26,8 @@ class MigrationHelpersTest : FunSpec({
         childProject.plugins.apply("org.jetbrains.dokka")
 
         context("in parent project") {
-            val parentProjectDokkaTasks = parentProject.tasks.withType<AbstractDokkaTask>()
+            val parentProjectDokkaTasks = parentProject.tasks
+                .withType<@Suppress("DEPRECATION") org.jetbrains.dokka.gradle.AbstractDokkaTask>()
             test("all DGPv1 tasks should have group 'null'") {
                 val dokkaTasks = parentProjectDokkaTasks.associate { it.name to it.group }
                 dokkaTasks.shouldContainExactly(
@@ -69,7 +69,8 @@ class MigrationHelpersTest : FunSpec({
         }
 
         context("in child project") {
-            val childProjectDokkaTasks = childProject.tasks.withType<AbstractDokkaTask>()
+            val childProjectDokkaTasks = childProject.tasks
+                .withType<@Suppress("DEPRECATION") org.jetbrains.dokka.gradle.AbstractDokkaTask>()
             test("all DGPv1 tasks should have group 'null'") {
                 val dokkaTasks = childProjectDokkaTasks.associate { it.name to it.group }
                 dokkaTasks.shouldContainExactly(
