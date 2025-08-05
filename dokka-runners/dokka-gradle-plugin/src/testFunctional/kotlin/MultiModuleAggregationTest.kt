@@ -23,26 +23,29 @@ class MultiModuleAggregationTest : FunSpec({
                     "--rerun",
                 )
                 .forwardOutput()
-                .buildAndFail {
-                    test("expect validation failure") {
-                        shouldHaveRunTask(":dokkaGeneratePublicationHtml", TaskOutcome.FAILED)
-                        output shouldContain """
-                            ┆> [:dokkaGeneratePublicationHtml] Found 1 modules with output directories that resolve to the same directory as the Dokka output directory.
-                            ┆    All module output directories must be a subdirectory inside the Dokka output directory.
-                            ┆    Specify `modulePath` in these modules:
-                            ┆    - root-aggregate (modulePath: '')
-                            ┆""".trimMargin("┆")
+                .build {
+                    test("expect validation success") {
+                        shouldHaveRunTask(":dokkaGeneratePublicationHtml", TaskOutcome.SUCCESS)
                     }
                 }
         }
 
         context("and empty modulePath") {
             val project = project {
-                buildGradleKts += """
-                dokka {
-                    modulePath.set("")
+                dir("subproject-goodbye") {
+                    buildGradleKts += """
+                        |dokka {
+                        |    modulePath.set("")
+                        |}
+                        |""".trimMargin()
                 }
-             """.trimIndent()
+                dir("subproject-hello") {
+                    buildGradleKts += """
+                        |dokka {
+                        |    modulePath.set(".")
+                        |}
+                        |""".trimMargin()
+                }
             }
             project.runner
                 .addArguments(
@@ -55,10 +58,11 @@ class MultiModuleAggregationTest : FunSpec({
                     test("expect validation failure") {
                         shouldHaveRunTask(":dokkaGeneratePublicationHtml", TaskOutcome.FAILED)
                         output shouldContain """
-                            ┆> [:dokkaGeneratePublicationHtml] Found 1 modules with output directories that resolve to the same directory as the Dokka output directory.
+                            ┆> [:dokkaGeneratePublicationHtml] Found 2 modules with output directories that resolve to the same directory as the Dokka output directory.
                             ┆    All module output directories must be a subdirectory inside the Dokka output directory.
                             ┆    Specify `modulePath` in these modules:
-                            ┆    - root-aggregate (modulePath: '')
+                            ┆    - subproject-goodbye (modulePath: '')
+                            ┆    - subproject-hello (modulePath: '.')
                             ┆""".trimMargin("┆")
                     }
                 }
@@ -80,7 +84,7 @@ class MultiModuleAggregationTest : FunSpec({
                 )
                 .forwardOutput()
                 .build {
-                    test("expect validation failure") {
+                    test("expect validation success") {
                         shouldHaveRunTask(":dokkaGeneratePublicationHtml", TaskOutcome.SUCCESS)
                     }
                 }

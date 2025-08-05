@@ -176,34 +176,8 @@ constructor(
      * Run some helper checks to log warnings if the [DokkaConfiguration] looks misconfigured.
      */
     private fun verifyDokkaConfiguration(dokkaConfiguration: DokkaConfiguration) {
-        checkModulePathsAreDistinct(dokkaConfiguration)
         checkModulePathsAreInsidePublicationDir(dokkaConfiguration)
-    }
-
-    private fun checkModulePathsAreDistinct(
-        dokkaConfiguration: DokkaConfiguration,
-    ) {
-        val modulesWithDuplicatePaths = dokkaConfiguration.modules
-            .groupBy { it.relativePathToOutputDirectory.toString() }
-            .filterValues { it.size > 1 }
-
-        if (modulesWithDuplicatePaths.isNotEmpty()) {
-            val modulePaths = modulesWithDuplicatePaths.entries
-                .map { (path, modules) ->
-                    "${modules.joinToString { "'${it.name}'" }} have modulePath '$path'"
-                }
-                .sorted()
-                .joinToString("\n") { "  - $it" }
-            logger.warn(
-                """
-                |[$path] Duplicate `modulePath`s in Dokka Generator parameters.
-                |  modulePaths must be distinct for each module, as they are used to determine the output
-                |  directory. Duplicates mean Dokka Generator may overwrite one module with another.
-                |$modulePaths
-                |
-                """.trimMargin()
-            )
-        }
+        checkModulePathsAreDistinct(dokkaConfiguration)
     }
 
     private fun checkModulePathsAreInsidePublicationDir(
@@ -248,6 +222,32 @@ constructor(
             |  Specify `modulePath` in these modules:
             |$modules
             |""".trimMargin()
+        }
+    }
+
+    private fun checkModulePathsAreDistinct(
+        dokkaConfiguration: DokkaConfiguration,
+    ) {
+        val modulesWithDuplicatePaths = dokkaConfiguration.modules
+            .groupBy { it.relativePathToOutputDirectory.toString() }
+            .filterValues { it.size > 1 }
+
+        if (modulesWithDuplicatePaths.isNotEmpty()) {
+            val modulePaths = modulesWithDuplicatePaths.entries
+                .map { (path, modules) ->
+                    "${modules.joinToString { "'${it.name}'" }} have modulePath '$path'"
+                }
+                .sorted()
+                .joinToString("\n") { "  - $it" }
+            logger.warn(
+                """
+                |[$path] Duplicate `modulePath`s in Dokka Generator parameters.
+                |  modulePaths must be distinct for each module, as they are used to determine the output
+                |  directory. Duplicates mean Dokka Generator may overwrite one module with another.
+                |$modulePaths
+                |
+                """.trimMargin()
+            )
         }
     }
 

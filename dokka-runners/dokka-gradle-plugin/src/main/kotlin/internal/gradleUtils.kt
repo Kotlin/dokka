@@ -345,3 +345,21 @@ internal fun Project.rootProjectName(): String {
         }
     }
 }
+
+
+/**
+ * Determine if the project is the root project.
+ *
+ * This function will try to be compatible with
+ * [Isolated Projects](https://docs.gradle.org/current/userguide/isolated_projects.html).
+ */
+internal fun Project.isRootProject(): Boolean {
+    return when {
+        CurrentGradleVersion >= "8.8" ->
+            @Suppress("UnstableApiUsage")
+            isolated == isolated.rootProject
+
+        else ->
+            this == rootProject
+    }
+}

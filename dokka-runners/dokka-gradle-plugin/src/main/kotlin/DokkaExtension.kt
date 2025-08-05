@@ -98,7 +98,8 @@ constructor(
      * If paths overlap then Dokka could overwrite the Modules files during aggregation,
      * resulting in a corrupted Publication.
      *
-     * Default: the current project's [path][org.gradle.api.Project.getPath] as a file path.
+     * Default: the current project's [path][org.gradle.api.Project.getPath] as a file path,
+     * unless the current project is the root project, in which case the default is [org.gradle.api.Project.getName].
      */
     abstract val modulePath: Property<String>
 
