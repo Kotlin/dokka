@@ -38,6 +38,7 @@ private fun configureDokkaTaskConventions(project: Project) {
         // The tasks are non-operable and should be hidden, to help nudge users to the DGPv2 tasks.
         // Setting tasks with group null will hide it when running `gradle tasks`,
         // and put it in the 'other' group in IntelliJ (which effectively hides it).
+        @Suppress("UsePropertyAccessSyntax") // property-access syntax doesn't accept `null`
         setGroup(null)
 
         notCompatibleWithConfigurationCache("Dokka V1 tasks use deprecated Gradle features. Please migrate to Dokka Plugin V2, which fully supports Configuration Cache. See https://kotl.in/dokka-gradle-migration")
@@ -144,7 +145,7 @@ private fun Configuration.deprecate(replaceWith: String) {
         if (this is DeprecatableConfiguration) {
             addDeclarationAlternatives(replaceWith)
         }
-    } catch (e: Throwable) {
+    } catch (_: Throwable) {
         // Deprecating configurations is an internal Gradle feature, so it might be unstable.
         // Because these migration helpers are temporary, just ignore all errors.
     }
