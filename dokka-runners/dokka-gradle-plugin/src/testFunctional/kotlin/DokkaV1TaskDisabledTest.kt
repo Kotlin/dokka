@@ -4,9 +4,10 @@
 package org.jetbrains.dokka.gradle
 
 import io.kotest.core.spec.style.FunSpec
-import org.gradle.testkit.runner.TaskOutcome.SKIPPED
+import io.kotest.matchers.string.shouldContain
+import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.jetbrains.dokka.gradle.utils.addArguments
-import org.jetbrains.dokka.gradle.utils.build
+import org.jetbrains.dokka.gradle.utils.buildAndFail
 import org.jetbrains.dokka.gradle.utils.projects.initNoConfigMultiModuleProject
 import org.jetbrains.dokka.gradle.utils.shouldHaveRunTask
 
@@ -21,12 +22,14 @@ class DokkaV1TaskDisabledTest : FunSpec({
             }
         }
 
-        test("v1 tasks should be skipped when v2 is enabled") {
+        test("v1 tasks should be fail (because v2 is enabled by default)") {
             project.runner
                 .addArguments("dokkaHtml")
-                .build {
-                    shouldHaveRunTask(":subproject-one:dokkaHtml", SKIPPED)
-                    shouldHaveRunTask(":subproject-two:dokkaHtml", SKIPPED)
+                .buildAndFail {
+                    shouldHaveRunTask(":subproject-one:dokkaHtml", FAILED)
+                    output shouldContain """
+                        Cannot run Dokka V1 task when V2 mode is enabled. Dokka Gradle plugin V1 mode is deprecated, and scheduled to be removed in Dokka v2.2.0. Migrate to V2 mode https://kotl.in/dokka-gradle-migration
+                    """.trimIndent()
                 }
         }
     }

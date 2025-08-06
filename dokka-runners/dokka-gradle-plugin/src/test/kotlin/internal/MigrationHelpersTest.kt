@@ -47,25 +47,6 @@ class MigrationHelpersTest : FunSpec({
                     "dokkaJekyllMultiModule" to null,
                 )
             }
-            test("all DGPv1 tasks should be disabled") {
-                val dokkaTasks = parentProjectDokkaTasks.associate { it.name to it.enabled }
-                dokkaTasks.shouldContainExactly(
-                    "dokkaGfm" to false,
-                    "dokkaGfmCollector" to false,
-                    "dokkaGfmMultiModule" to false,
-
-                    "dokkaHtml" to false,
-                    "dokkaHtmlCollector" to false,
-                    "dokkaHtmlMultiModule" to false,
-
-                    "dokkaJavadoc" to false,
-                    "dokkaJavadocCollector" to false,
-
-                    "dokkaJekyll" to false,
-                    "dokkaJekyllCollector" to false,
-                    "dokkaJekyllMultiModule" to false,
-                )
-            }
         }
 
         context("in child project") {
@@ -84,22 +65,6 @@ class MigrationHelpersTest : FunSpec({
 
                     "dokkaJekyll" to null,
                     "dokkaJekyllPartial" to null,
-                )
-            }
-            test("all DGPv1 tasks should be disabled") {
-                val dokkaTasks = childProjectDokkaTasks.associate { it.name to it.enabled }
-                dokkaTasks.shouldContainExactly(
-                    "dokkaGfm" to false,
-                    "dokkaGfmPartial" to false,
-
-                    "dokkaHtml" to false,
-                    "dokkaHtmlPartial" to false,
-
-                    "dokkaJavadoc" to false,
-                    "dokkaJavadocPartial" to false,
-
-                    "dokkaJekyll" to false,
-                    "dokkaJekyllPartial" to false,
                 )
             }
         }
