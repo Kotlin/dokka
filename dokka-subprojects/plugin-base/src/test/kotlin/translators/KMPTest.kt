@@ -4,10 +4,12 @@
 
 package translators
 
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import utils.AbstractModelTest
 import java.io.File
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class KMPTest : AbstractModelTest("/src/main/kotlin/kmp/Test.kt", "kmp") {
@@ -63,6 +65,50 @@ class KMPTest : AbstractModelTest("/src/main/kotlin/kmp/Test.kt", "kmp") {
             }
             with((this / "example" / "jvm").cast<DFunction>()) {
                 assertTrue(parameters[0].type is GenericTypeConstructor)
+            }
+        }
+    }
+
+    @Test
+    fun `should resolve a class from a transitive common dependency`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                val commonId =  sourceSet {
+                    sourceRoots = listOf("src/c1/kotlin")
+                    analysisPlatform = "common"
+                    name = "c1"
+                    classpath = listOf(getResourceAbsolutePath("jars/org.jetbrains.kotlin-kotlin-stdlib-2.2.0-commonMain-3ud7Cw.klib"))
+                }.value.sourceSetID
+                sourceSet {
+                    sourceRoots = listOf("src/c2/kotlin")
+                    analysisPlatform = "common"
+                    name = "c2"
+                    //classpath = listOf(getResourceAbsolutePath("jars/org.jetbrains.kotlin-kotlin-stdlib-2.2.0-commonMain-3ud7Cw.klib"))
+                    dependentSourceSets = setOf(commonId)
+                }
+
+            }
+        }
+        inlineModelTest(
+            """
+                |/src/c1/kotlin/main.kt
+                |package example
+                |
+                |public interface RawSink : AutoCloseable
+                |             
+                |/src/c2/kotlin/main.kt
+                |package example
+                |
+                |public interface RawSink2 : AutoCloseable
+            """,
+            configuration = configuration
+        ) {
+            with((this / "example" / "RawSink").cast<DInterface>()) {
+                assertEquals(DRI("kotlin", "AutoCloseable"), extra[ImplementedInterfaces]?.interfaces?.values?.firstOrNull()?.firstOrNull()?.dri)
+            }
+            with((this / "example" / "RawSink2").cast<DInterface>()) {
+                // unresolved in K2
+                assertEquals(DRI("kotlin", "AutoCloseable"), extra[ImplementedInterfaces]?.interfaces?.values?.firstOrNull()?.firstOrNull()?.dri)
             }
         }
     }
