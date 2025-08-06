@@ -9,9 +9,7 @@ pluginManagement {
     includeBuild("build-settings-logic")
 
     repositories {
-        maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2") {
-            name = "MavenCentral-JBCache"
-        }
+        mavenCentral { setUrl("https://cache-redirector.jetbrains.com/maven-central") }
         maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2") {
             name = "GradlePluginPortal-JBCache"
         }
@@ -21,25 +19,16 @@ pluginManagement {
 dependencyResolutionManagement {
     @Suppress("UnstableApiUsage")
     repositories {
-        maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide") {
-            name = "KotlinIde-JBCache"
-        }
-        maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies") {
-            name = "KotlinIdePluginDependencies-JBCache"
-        }
+        mavenCentral { setUrl("https://cache-redirector.jetbrains.com/maven-central") }
+
+        maven("https://redirector.kotlinlang.org/maven/kotlin-ide")
+        maven("https://redirector.kotlinlang.org/maven/kotlin-ide-plugin-dependencies")
 
         maven("https://cache-redirector.jetbrains.com/intellij-repository/releases") {
             name = "IjRepository-JBCache"
         }
         maven("https://cache-redirector.jetbrains.com/intellij-third-party-dependencies") {
             name = "IjThirdParty-JBCache"
-        }
-
-        maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2") {
-            name = "MavenCentral-JBCache"
-        }
-        maven("https://cache-redirector.jetbrains.com/dl.google.com.android.maven2") {
-            name = "Google-JBCache"
         }
 
         //region Declare the Node.js & Yarn download repositories

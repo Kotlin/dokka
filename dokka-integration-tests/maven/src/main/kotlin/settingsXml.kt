@@ -20,7 +20,7 @@ fun createSettingsXml(): String {
 
     val mavenCentralRepo = Repository(
         id = "MavenCentral-JBCached",
-        url = "https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2",
+        url = "https://cache-redirector.jetbrains.com/maven-central",
     )
 
     val pluginRepos = buildList {

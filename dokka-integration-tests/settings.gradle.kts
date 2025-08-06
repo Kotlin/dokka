@@ -9,8 +9,10 @@ pluginManagement {
     includeBuild("../build-settings-logic")
 
     repositories {
-        mavenCentral()
-        gradlePluginPortal()
+        mavenCentral { setUrl("https://cache-redirector.jetbrains.com/maven-central") }
+        maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2") {
+            name = "GradlePluginPortal-JBCache"
+        }
     }
 }
 
@@ -21,13 +23,7 @@ plugins {
 dependencyResolutionManagement {
     @Suppress("UnstableApiUsage")
     repositories {
-        maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide")
-        maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies")
-
-        maven("https://cache-redirector.jetbrains.com/intellij-repository/releases")
-        maven("https://cache-redirector.jetbrains.com/intellij-third-party-dependencies")
-
-        mavenCentral()
+        mavenCentral { setUrl("https://cache-redirector.jetbrains.com/maven-central") }
     }
 
     versionCatalogs {
