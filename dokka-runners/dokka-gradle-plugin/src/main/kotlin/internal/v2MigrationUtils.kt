@@ -39,11 +39,21 @@ private fun configureDokkaTaskConventions(project: Project) {
         // Setting tasks with group null will hide it when running `gradle tasks`,
         // and put it in the 'other' group in IntelliJ (which effectively hides it).
         setGroup(null)
-        onlyIf("Dokka V1 tasks are disabled due to the V2 flag being enabled") { false }
-        enabled = false
-        notCompatibleWithConfigurationCache("Dokka V1 tasks use deprecated Gradle features. Please migrate to Dokka Plugin V2, which fully supports Configuration Cache.")
+
+        notCompatibleWithConfigurationCache("Dokka V1 tasks use deprecated Gradle features. Please migrate to Dokka Plugin V2, which fully supports Configuration Cache. See https://kotl.in/dokka-gradle-migration")
+
+        // must have an output directory, else the doFirst won't run
+        outputDirectory.set(temporaryDir)
+
+        doFirst("Disable Dokka V1 task") {
+            throw DokkaV1TaskDisabledException()
+        }
     }
 }
+
+internal class DokkaV1TaskDisabledException : UnsupportedOperationException(
+    "Cannot run Dokka V1 task when V2 mode is enabled. $DOKKA_V1_DEPRECATION_MESSAGE"
+)
 
 /**
  * Creates dummy tasks and configurations for the given name and configuration, to help with migration.
