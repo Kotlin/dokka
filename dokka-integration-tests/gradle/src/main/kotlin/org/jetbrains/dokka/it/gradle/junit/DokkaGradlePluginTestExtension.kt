@@ -5,6 +5,7 @@ package org.jetbrains.dokka.it.gradle.junit
 
 import org.gradle.testkit.runner.GradleRunner
 import org.jetbrains.dokka.it.gradle.junit.DokkaGradlePluginTestExtension.CloseablePath.Companion.tmpDirCleanupMode
+import org.jetbrains.dokka.it.gradle.junit.DokkaGradlePluginTestExtension.Companion.installFailureTracker
 import org.jetbrains.dokka.it.gradle.junit.TestedVersions.Companion.dashSeparatedId
 import org.jetbrains.dokka.it.gradle.junit.TestedVersions.Companion.displayName
 import org.jetbrains.dokka.it.gradle.utils.SemVer
@@ -301,9 +302,13 @@ class DokkaGradlePluginTestExtension :
             return GradleRunner.create()
                 .withProjectDir(projectDir.toFile())
                 .withJetBrainsCachedGradleVersion(
-                    // Gradle doesn't strictly follow SemVer (fun fact: Gradle is older than SemVer).
+                    // Gradle 8 and below doesn't strictly follow SemVer (fun fact: Gradle is older than SemVer).
                     // If the patch is zero, Gradle doesn't include it.
-                    if (gradle.patch == 0) gradle.majorAndMinorVersions else gradle.version
+                    if (gradle.major < 9 && gradle.patch == 0) {
+                        gradle.majorAndMinorVersions
+                    } else {
+                        gradle.version
+                    }
                 )
                 .withReadOnlyDependencyCache()
                 .forwardOutput()
