@@ -145,13 +145,9 @@ constructor(
         logger.info("[$path] running with workerIsolation $isolation")
         val workQueue = when (isolation) {
             is ClassLoaderIsolation ->
-                workers.classLoaderIsolation {
-                    classpath.from(runtimeClasspath)
-                }
-
+                workers.classLoaderIsolation()
             is ProcessIsolation ->
                 workers.processIsolation {
-                    classpath.from(runtimeClasspath)
                     forkOptions {
                         isolation.defaultCharacterEncoding.orNull?.let(this::setDefaultCharacterEncoding)
                         isolation.debug.orNull?.let(this::setDebug)
@@ -165,6 +161,7 @@ constructor(
         }
 
         workQueue.submit(DokkaGeneratorWorker::class) {
+            this.dokkaClasspath.from(runtimeClasspath)
             this.dokkaParameters.set(dokkaConfiguration)
             this.logFile.set(workerLogFile)
             this.taskPath.set(this@DokkaGenerateTask.path)
