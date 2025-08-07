@@ -30,7 +30,10 @@ dependencyResolutionManagement {
             setUrl("https://cache-redirector.jetbrains.com/maven-central")
             name = "MavenCentral-JBCache"
         }
-        google { setUrl("https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2") }
+        google {
+            setUrl("https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2")
+            name = "Google-JBCache"
+        }
     }
 
     versionCatalogs {
