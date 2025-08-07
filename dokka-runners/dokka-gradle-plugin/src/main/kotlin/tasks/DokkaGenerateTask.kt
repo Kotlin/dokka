@@ -107,11 +107,10 @@ constructor(
 
     /**
      * The [DokkaConfiguration] by Dokka Generator can be saved to a file for debugging purposes.
-     * To disable this behaviour set this property to `null`.
+     * To disable this behaviour use [Property.unsetConvention] to clear the default value.
      */
     @InternalDokkaGradlePluginApi
-    @get:Optional
-    @get:OutputFile
+    @get:Internal
     abstract val dokkaConfigurationJsonFile: RegularFileProperty
 
     /**
