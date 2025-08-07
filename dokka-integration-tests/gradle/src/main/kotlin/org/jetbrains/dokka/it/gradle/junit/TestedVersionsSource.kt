@@ -82,7 +82,10 @@ fun interface TestedVersionsSource<T : TestedVersions> {
         override fun get(): Sequence<TestedVersions.Default> = allVersions
 
         private fun isKgpCompatibleWithGradle(kgp: SemVer, gradle: SemVer): Boolean {
-            return kgp.major < 2 && gradle.major < 9
+            return when {
+                kgp.major >= 2 -> gradle.major >= 9
+                else -> gradle.major < 9
+            }
         }
     }
 
@@ -105,10 +108,10 @@ fun interface TestedVersionsSource<T : TestedVersions> {
             "8.12.0",
         )
 
-        private val allVersions = sequence {
-            Default.get().forEach { v ->
-                allAgpVersions.forEach { agp ->
-                    if (isAgpCompatibleWithGradle(agp = SemVer(agp), gradle = v.gradle)) {
+        private val allVersions: Sequence<TestedVersions.Android> =
+            sequence {
+                Default.get().forEach { v ->
+                    allAgpVersions.forEach { agp ->
                         yield(
                             TestedVersions.Android(
                                 dgp = v.dgp,
@@ -119,8 +122,9 @@ fun interface TestedVersionsSource<T : TestedVersions> {
                         )
                     }
                 }
+            }.filter { v ->
+                isAgpCompatibleWithGradle(agp = v.agp, gradle = v.gradle)
             }
-        }
 
         /**
          * All major versions that _must_ be included in the sequence of all versions.
