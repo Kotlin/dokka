@@ -9,7 +9,8 @@ pluginManagement {
     includeBuild("build-settings-logic")
 
     repositories {
-        maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2") {
+        mavenCentral {
+            setUrl("https://cache-redirector.jetbrains.com/maven-central")
             name = "MavenCentral-JBCache"
         }
         maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2") {
@@ -21,11 +22,16 @@ pluginManagement {
 dependencyResolutionManagement {
     @Suppress("UnstableApiUsage")
     repositories {
-        maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide") {
-            name = "KotlinIde-JBCache"
+        mavenCentral {
+            setUrl("https://cache-redirector.jetbrains.com/maven-central")
+            name = "MavenCentral-JBCache"
         }
-        maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies") {
-            name = "KotlinIdePluginDependencies-JBCache"
+
+        maven("https://redirector.kotlinlang.org/maven/kotlin-ide") {
+            name = "KotlinIde-KRedirector"
+        }
+        maven("https://redirector.kotlinlang.org/maven/kotlin-ide-plugin-dependencies") {
+            name = "KotlinIdePluginDependencies-KRedirector"
         }
 
         maven("https://cache-redirector.jetbrains.com/intellij-repository/releases") {
@@ -35,19 +41,12 @@ dependencyResolutionManagement {
             name = "IjThirdParty-JBCache"
         }
 
-        maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2") {
-            name = "MavenCentral-JBCache"
-        }
-        maven("https://cache-redirector.jetbrains.com/dl.google.com.android.maven2") {
-            name = "Google-JBCache"
-        }
-
         //region Declare the Node.js & Yarn download repositories
         // Required by Gradle Node plugin: https://github.com/node-gradle/gradle-node-plugin/blob/3.5.1/docs/faq.md#is-this-plugin-compatible-with-centralized-repositories-declaration
         exclusiveContent {
             forRepository {
                 ivy("https://cache-redirector.jetbrains.com/nodejs.org/dist/") {
-                    name = "Node Distributions at $url"
+                    name = "Nodejs-JBCache"
                     patternLayout { artifact("v[revision]/[artifact](-v[revision]-[classifier]).[ext]") }
                     metadataSources { artifact() }
                     content { includeModule("org.nodejs", "node") }
@@ -59,7 +58,7 @@ dependencyResolutionManagement {
         exclusiveContent {
             forRepository {
                 ivy("https://cache-redirector.jetbrains.com/github.com/yarnpkg/yarn/releases/download") {
-                    name = "Yarn Distributions at $url"
+                    name = "Yarn-JBCache"
                     patternLayout { artifact("v[revision]/[artifact](-v[revision]).[ext]") }
                     metadataSources { artifact() }
                     content { includeModule("com.yarnpkg", "yarn") }
