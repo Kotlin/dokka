@@ -6,7 +6,10 @@ rootProject.name = "build-logic"
 
 pluginManagement {
     repositories {
-        mavenCentral { setUrl("https://cache-redirector.jetbrains.com/maven-central") }
+        mavenCentral {
+            setUrl("https://cache-redirector.jetbrains.com/maven-central")
+            name = "MavenCentral-JBCache"
+        }
         maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2") {
             name = "GradlePluginPortal-JBCache"
         }
@@ -17,7 +20,10 @@ pluginManagement {
 dependencyResolutionManagement {
     @Suppress("UnstableApiUsage")
     repositories {
-        mavenCentral { setUrl("https://cache-redirector.jetbrains.com/maven-central") }
+        mavenCentral {
+            setUrl("https://cache-redirector.jetbrains.com/maven-central")
+            name = "MavenCentral-JBCache"
+        }
         maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2") {
             name = "GradlePluginPortal-JBCache"
         }
