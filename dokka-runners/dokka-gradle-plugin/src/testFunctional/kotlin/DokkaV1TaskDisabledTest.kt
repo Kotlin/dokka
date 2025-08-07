@@ -22,7 +22,7 @@ class DokkaV1TaskDisabledTest : FunSpec({
             }
         }
 
-        test("v1 tasks should be fail (because v2 is enabled by default)") {
+        test("v1 tasks should fail (because v2 is enabled by default)") {
             project.runner
                 .addArguments("dokkaHtml")
                 .buildAndFail {
