@@ -85,7 +85,13 @@ constructor(
         ).apply {
             moduleName.convention(providers.provider { project.name })
             moduleVersion.convention(providers.provider { project.version.toString() })
-            modulePath.convention(project.pathAsFilePath())
+            modulePath.convention(
+                if (project.isRootProject()) {
+                    project.name
+                } else {
+                    project.pathAsFilePath()
+                }
+            )
             konanHome.convention(
                 providers
                     .provider {
