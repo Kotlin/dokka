@@ -27,8 +27,12 @@ dependencyResolutionManagement {
             name = "MavenCentral-JBCache"
         }
 
-        maven("https://redirector.kotlinlang.org/maven/kotlin-ide")
-        maven("https://redirector.kotlinlang.org/maven/kotlin-ide-plugin-dependencies")
+        maven("https://redirector.kotlinlang.org/maven/kotlin-ide") {
+            name = "KotlinIde-KRedirector"
+        }
+        maven("https://redirector.kotlinlang.org/maven/kotlin-ide-plugin-dependencies") {
+            name = "KotlinIdePluginDependencies-KRedirector"
+        }
 
         maven("https://cache-redirector.jetbrains.com/intellij-repository/releases") {
             name = "IjRepository-JBCache"
