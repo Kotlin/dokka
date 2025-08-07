@@ -42,7 +42,7 @@ dependencyResolutionManagement {
         exclusiveContent {
             forRepository {
                 ivy("https://cache-redirector.jetbrains.com/nodejs.org/dist/") {
-                    name = "Node Distributions at $url"
+                    name = "Nodejs-JBCache"
                     patternLayout { artifact("v[revision]/[artifact](-v[revision]-[classifier]).[ext]") }
                     metadataSources { artifact() }
                     content { includeModule("org.nodejs", "node") }
@@ -54,7 +54,7 @@ dependencyResolutionManagement {
         exclusiveContent {
             forRepository {
                 ivy("https://cache-redirector.jetbrains.com/github.com/yarnpkg/yarn/releases/download") {
-                    name = "Yarn Distributions at $url"
+                    name = "Yarn-JBCache"
                     patternLayout { artifact("v[revision]/[artifact](-v[revision]).[ext]") }
                     metadataSources { artifact() }
                     content { includeModule("com.yarnpkg", "yarn") }
