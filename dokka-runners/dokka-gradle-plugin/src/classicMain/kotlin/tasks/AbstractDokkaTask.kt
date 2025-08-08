@@ -25,9 +25,9 @@ import org.gradle.util.GradleVersion
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.dokka.*
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
+import org.jetbrains.dokka.gradle.internal.generateDocumentationViaDokkaBootstrap
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 import org.jetbrains.dokka.plugability.DokkaPlugin
-import java.util.concurrent.atomic.AtomicReference
 import java.util.function.BiConsumer
 import kotlin.reflect.full.createInstance
 
@@ -219,7 +219,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
     /**
      * Internal Dokka Gradle Plugin only.
      *
-     * Override the log level that [DokkaBootstrap] produces output logs. Intended for use in tests.
+     * Override the log level that [org.jetbrains.dokka.gradle.internal.DokkaBootstrap] produces output logs. Intended for use in tests.
      */
     private val dokkaGeneratorLogLevel: Provider<LogLevel>
         get() = providers.gradleProperty("org.jetbrains.dokka.internal.gradleLogLevel")
@@ -235,20 +235,11 @@ abstract class AbstractDokkaTask : DefaultTask() {
 
     @TaskAction
     internal open fun generateDocumentation() {
-        DokkaBootstrap(runtimeClasspath.files, DokkaBootstrapImpl::class).apply {
-            configure(buildDokkaConfiguration().toCompactJsonString(), createProxyLogger())
-            val uncaughtExceptionHolder = AtomicReference<Throwable?>()
-            /**
-             * Run in a new thread to avoid memory leaks that are related to ThreadLocal (that keeps `URLCLassLoader`)
-             * Currently, all `ThreadLocal`s leaking are in the compiler/IDE codebase.
-             */
-            Thread { generate() }.apply {
-                setUncaughtExceptionHandler { _, throwable -> uncaughtExceptionHolder.set(throwable) }
-                start()
-                join()
-            }
-            uncaughtExceptionHolder.get()?.let { throw it }
-        }
+        generateDocumentationViaDokkaBootstrap(
+            dokkaClasspath = runtimeClasspath.files,
+            dokkaConfiguration = buildDokkaConfiguration(),
+            logger = createProxyLogger()
+        )
     }
 
     internal abstract fun buildDokkaConfiguration(): DokkaConfigurationImpl
