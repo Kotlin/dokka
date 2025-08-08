@@ -45,8 +45,6 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
         val dokkaParameters = parameters.dokkaParameters.get()
         val classpath = parameters.dokkaClasspath.files
 
-
-
         prepareOutputDir(dokkaParameters)
 
         executeDokkaGenerator(
