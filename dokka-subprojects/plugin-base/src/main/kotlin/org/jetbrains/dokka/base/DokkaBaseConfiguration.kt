@@ -8,6 +8,20 @@ import org.jetbrains.dokka.plugability.ConfigurableBlock
 import java.io.File
 import java.time.Year
 
+/**
+ * Configuration for Kotlin Playground functionality in @sample code blocks.
+ * 
+ * @param enabled Whether to enable Kotlin Playground for sample code blocks. Default is false.
+ * @param playgroundScript URL to the Kotlin Playground JavaScript library. 
+ *        Default is "https://unpkg.com/kotlin-playground@1/dist/playground.min.js"
+ * @param serverUrl Custom playground server URL for advanced setups. Optional.
+ */
+public data class PlaygroundConfiguration(
+    var enabled: Boolean = false,
+    var playgroundScript: String = "https://unpkg.com/kotlin-playground@1/dist/playground.min.js",
+    var serverUrl: String? = null,
+) : ConfigurableBlock
+
 public data class DokkaBaseConfiguration(
     var customStyleSheets: List<File> = defaultCustomStyleSheets,
     var customAssets: List<File> = defaultCustomAssets,
@@ -16,6 +30,7 @@ public data class DokkaBaseConfiguration(
     var mergeImplicitExpectActualDeclarations: Boolean = mergeImplicitExpectActualDeclarationsDefault,
     var templatesDir: File? = defaultTemplatesDir,
     var homepageLink: String? = null,
+    var playgroundConfiguration: PlaygroundConfiguration = PlaygroundConfiguration(),
 ) : ConfigurableBlock {
     public companion object {
         public val defaultFooterMessage: String = "© ${Year.now().value} Copyright"
