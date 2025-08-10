@@ -5,6 +5,7 @@
 package org.jetbrains.dokka.base.resolvers.shared
 
 import java.net.URL
+import java.util.concurrent.ConcurrentHashMap
 
 public typealias Module = String
 
@@ -35,10 +36,35 @@ public data class PackageList(
         public const val DOKKA_PARAM_PREFIX: String = "\$dokka"
         public const val SINGLE_MODULE_NAME: String = ""
 
+        private val cache: ConcurrentHashMap<Pair<URL, Int>, PackageList> = ConcurrentHashMap()
+
+        public fun clearCache() {
+            cache.clear()
+        }
+
+        /**
+         * During the Dokka execution pipeline, usually, there exists only several instances of `PackageList`.
+         * Those are created to resolve links to external documentation, or in the case of multi-module documentation
+         * to resolve links to other modules.
+         * But because of the way Dokka works, it calls `PackageList.load` multiple times with the same URL.
+         * This causes downloading the same file again and again.
+         *
+         * So to avoid unnecessary computations and save a lot of CPU resources, we cache it.
+         *
+         * [clearCache] is used to clear the cache.
+         * It is called via [org.jetbrains.dokka.renderers.PostAction] in both single and multi-module [org.jetbrains.dokka.generation.Generation] pipelines
+         */
         public fun load(url: URL, jdkVersion: Int, offlineMode: Boolean = false): PackageList? {
             if (offlineMode && url.protocol.toLowerCase() != "file")
                 return null
 
+            return cache.getOrPut(url to jdkVersion) {
+                // we cache nothing on failure (when `download` returns null)
+                download(url, jdkVersion) ?: return null
+            }
+        }
+
+        private fun download(url: URL, jdkVersion: Int): PackageList? {
             val packageListStream = runCatching { url.readContent() }.onFailure {
                 println("Failed to download package-list from $url, this might suggest that remote resource is not available," +
                         " module is empty or dokka output got corrupted")
