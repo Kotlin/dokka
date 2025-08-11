@@ -15,16 +15,13 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 // We must use Kotlin language/api version 1.4 (DEPRECATED) to support Gradle 7,
 // and to do that we need to use old Kotlin version, which has support for such an old Kotlin version (e.g., 2.0.20)
 fun Project.configureGradleKotlinCompatibility() {
-    if (!dokkaBuild.enforceGradleKotlinCompatibility.get()) return
     val analysisK2Projects = listOf("analysis-kotlin-symbols")
+    if (!dokkaBuild.enforceGradleKotlinCompatibility.get() ||  project.name in analysisK2Projects) return
+
     @OptIn(ExperimentalKotlinGradlePluginApi::class, ExperimentalBuildToolsApi::class)
     extensions.configure<KotlinJvmProjectExtension>("kotlin") {
-        val btaCompilerVersion =
-            if (project.name in analysisK2Projects) libs.versions.bta.analysis.kotlin.compiler else libs.versions.bta.kotlin.compiler
-        val btaLanguageVersion =
-            (if (project.name in analysisK2Projects) libs.versions.bta.analysis.kotlin.language else libs.versions.bta.kotlin.language).map(
-                KotlinVersion::fromVersion
-            )
+        val btaCompilerVersion = libs.versions.bta.kotlin.compiler
+        val btaLanguageVersion = libs.versions.bta.kotlin.language.map(KotlinVersion::fromVersion)
         compilerVersion.set(btaCompilerVersion)
         coreLibrariesVersion = btaCompilerVersion.get()
         compilerOptions {

@@ -39,7 +39,6 @@ import org.jetbrains.kotlin.analysis.api.types.*
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.SpecialNames.UNDERSCORE_FOR_UNUSED_VAR
 import org.jetbrains.kotlin.psi.*
-import java.util.Locale.getDefault
 
 internal class DefaultSymbolToDocumentableTranslator(context: DokkaContext) : AsyncSourceToDocumentableTranslator {
     private val kotlinAnalysis = context.plugin<SymbolsAnalysisPlugin>().querySingle { kotlinAnalysis }
@@ -788,7 +787,7 @@ internal class DokkaSymbolVisitor(
 
     private fun KtExpression.toDefaultValueExpression(): Expression? = when (node?.elementType) {
         KtNodeTypes.INTEGER_CONSTANT -> PsiLiteralUtil.parseLong(node?.text)?.let { IntegerConstant(it) }
-        KtNodeTypes.FLOAT_CONSTANT -> if (node?.text?.lowercase(getDefault())?.endsWith('f') == true)
+        KtNodeTypes.FLOAT_CONSTANT -> if (node?.text?.lowercase()?.endsWith('f') == true)
             PsiLiteralUtil.parseFloat(node?.text)?.let { FloatConstant(it) }
         else PsiLiteralUtil.parseDouble(node?.text)?.let { DoubleConstant(it) }
 

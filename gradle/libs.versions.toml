@@ -7,12 +7,6 @@
 bta-kotlin-compiler = "2.0.21"
 bta-kotlin-language = "1.4"
 
-# The AA is built with the latest compiler version (a bootstrap compiler)
-# To be compatible with the AA, Dokka analysis should be compiled with approximately the same version
-# See https://kotlinlang.org/docs/kotlin-evolution-principles.html#evolving-the-binary-format
-bta-analysis-kotlin-compiler = "2.2.0"
-bta-analysis-kotlin-language = "2.2"
-
 gradlePlugin-kotlin = "2.2.0"
 # See: https://kotlinlang.org/docs/gradle-configure-project.html#apply-the-plugin
 gradlePlugin-android = "7.3.1"
