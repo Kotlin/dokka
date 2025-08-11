@@ -64,6 +64,13 @@ public data class PackageList(
             }
         }
 
+        internal fun loadWithoutCache(url: URL, jdkVersion: Int, offlineMode: Boolean = false): PackageList? {
+            if (offlineMode && url.protocol.toLowerCase() != "file")
+                return null
+
+            return download(url, jdkVersion)
+        }
+
         private fun download(url: URL, jdkVersion: Int): PackageList? {
             val packageListStream = runCatching { url.readContent() }.onFailure {
                 println("Failed to download package-list from $url, this might suggest that remote resource is not available," +
