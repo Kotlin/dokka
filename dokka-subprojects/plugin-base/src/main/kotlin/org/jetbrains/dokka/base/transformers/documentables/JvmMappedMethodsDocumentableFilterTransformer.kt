@@ -74,7 +74,10 @@ internal class JvmMappedMethodsDocumentableFilterTransformer(context: DokkaConte
 
     // copy-pasted from [here](https://github.com/JetBrains/kotlin/blob/0ef41d75b5901afea68a09cc3e762b52d8ce1e3c/core/compiler.common.jvm/src/org/jetbrains/kotlin/builtins/jvm/JvmBuiltInsSignatures.kt#L15)
     private val VISIBLE_METHOD_SIGNATURES: Set<String> = inJavaLang(
-        "CharSequence", "codePoints()Ljava/util/stream/IntStream;", "chars()Ljava/util/stream/IntStream;"
+        "CharSequence",
+        "codePoints()Ljava/util/stream/IntStream;",
+        "chars()Ljava/util/stream/IntStream;",
+        "getChars(II[CI)V"
     ) +
 
             inJavaUtil(
