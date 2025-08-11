@@ -27,18 +27,11 @@ dependencyResolutionManagement {
             name = "MavenCentral-JBCache"
         }
 
-        maven("https://redirector.kotlinlang.org/maven/kotlin-ide") {
-            name = "KotlinIde-KRedirector"
-        }
-        maven("https://redirector.kotlinlang.org/maven/kotlin-ide-plugin-dependencies") {
-            name = "KotlinIdePluginDependencies-KRedirector"
-        }
-
         maven("https://cache-redirector.jetbrains.com/intellij-repository/releases") {
             name = "IjRepository-JBCache"
         }
-        maven("https://cache-redirector.jetbrains.com/intellij-third-party-dependencies") {
-            name = "IjThirdParty-JBCache"
+        maven("https://cache-redirector.jetbrains.com/intellij-dependencies") {
+            name = "IjDependencies-JBCache"
         }
 
         //region Declare the Node.js & Yarn download repositories
