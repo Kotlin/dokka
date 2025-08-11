@@ -114,6 +114,39 @@ class ParserTest : KDocTest() {
     }
 
     @Test
+    fun `CodeBlock with angle brackets`() {
+        val kdoc = """
+        | Here is the code block:
+        | ```
+        | x > y
+        | and
+        | y < x
+        | ```
+        """.trimMargin()
+
+        val expectedDocumentationNode = DocumentationNode(
+            children = listOf(
+                Description(
+                    root = CustomDocTag(
+                        children = listOf(
+                            P(listOf(Text("Here is the code block:"))),
+                            CodeBlock(
+                                children = listOf(
+                                    Text("x > y"), Br,
+                                    Text("and"), Br,
+                                    Text("y < x")
+                                )
+                            )
+                        ),
+                        name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test
     fun `Multilined text`() {
         val kdoc = """
         | Text

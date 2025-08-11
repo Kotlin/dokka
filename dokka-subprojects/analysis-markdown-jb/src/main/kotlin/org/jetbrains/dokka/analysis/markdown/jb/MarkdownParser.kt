@@ -281,7 +281,7 @@ public open class MarkdownParser(
 
     private fun textHandler(node: ASTNode, keepAllFormatting: Boolean) = DocTagsFromIElementFactory.getInstance(
         MarkdownTokenTypes.TEXT,
-        body = text.substring(node.startOffset, node.endOffset).transform(),
+        body = preprocessTextElement(text.substring(node.startOffset, node.endOffset)),
         keepFormatting = keepAllFormatting
     )
 
@@ -524,11 +524,6 @@ public open class MarkdownParser(
         return LeafASTNode(type, startOffset, endOffset)
     }
 
-    private fun String.transform() = this
-        .replace(Regex("\n\n+"), "")        // Squashing new lines between paragraphs
-        .replace(Regex("\n"), " ")
-        .replace(Regex(" >+ +"), " ")      // Replacement used in blockquotes, get rid of garbage
-
     private fun detailedException(baseMessage: String, node: ASTNode) =
         IllegalStateException(
             baseMessage + " in ${kdocLocation ?: "unspecified location"}, element starts from offset ${node.startOffset} and ends ${node.endOffset}: ${
@@ -549,6 +544,35 @@ public open class MarkdownParser(
                 .joinToString(separator = ".")
                 .takeIf { it.isNotBlank() }
         }
+
+        // Note: Regex creation is a complex operation, and so it should be created once
+        private val blockquoteNewLineRegex = Regex("\n>+ ")
+
+        /**
+         * Performs preprocessing of the Markdown text element.
+         *
+         * First replacement: blockquotes handling
+         * Markdown parser,
+         * when handling blockquotes will handle (remove) `>` symbols only for the first line
+         * and will do nothing for further lines.
+         * So we need to do it manually, for example, when parsing the following Markdown:
+         * ```text
+         * > First line
+         * > Second line
+         * ```
+         * Text element will contain: `First line\n> Second line`.
+         *
+         * Second replacement: combining multiple lines into a single paragraph
+         * When parsing the following Markdown:
+         * ```text
+         * First line
+         * Second line
+         * ```
+         * Text element will contain: `First line\n Second line`.
+         * But it's still a single paragraph which should be concatenated into a single one.
+         */
+        private fun preprocessTextElement(text: String): String {
+            return text.replace(blockquoteNewLineRegex, "\n").replace('\n', ' ')
+        }
     }
 }
-
