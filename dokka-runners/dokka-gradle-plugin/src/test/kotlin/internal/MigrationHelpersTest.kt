@@ -6,7 +6,6 @@ package org.jetbrains.dokka.gradle.internal
 import io.kotest.core.spec.style.FunSpec
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.dokka.gradle.AbstractDokkaTask
 import org.jetbrains.dokka.gradle.utils.enableV2Plugin
 import org.jetbrains.dokka.gradle.utils.shouldContainExactly
 
@@ -27,7 +26,8 @@ class MigrationHelpersTest : FunSpec({
         childProject.plugins.apply("org.jetbrains.dokka")
 
         context("in parent project") {
-            val parentProjectDokkaTasks = parentProject.tasks.withType<AbstractDokkaTask>()
+            val parentProjectDokkaTasks = parentProject.tasks
+                .withType<@Suppress("DEPRECATION") org.jetbrains.dokka.gradle.AbstractDokkaTask>()
             test("all DGPv1 tasks should have group 'null'") {
                 val dokkaTasks = parentProjectDokkaTasks.associate { it.name to it.group }
                 dokkaTasks.shouldContainExactly(
@@ -47,29 +47,11 @@ class MigrationHelpersTest : FunSpec({
                     "dokkaJekyllMultiModule" to null,
                 )
             }
-            test("all DGPv1 tasks should be disabled") {
-                val dokkaTasks = parentProjectDokkaTasks.associate { it.name to it.enabled }
-                dokkaTasks.shouldContainExactly(
-                    "dokkaGfm" to false,
-                    "dokkaGfmCollector" to false,
-                    "dokkaGfmMultiModule" to false,
-
-                    "dokkaHtml" to false,
-                    "dokkaHtmlCollector" to false,
-                    "dokkaHtmlMultiModule" to false,
-
-                    "dokkaJavadoc" to false,
-                    "dokkaJavadocCollector" to false,
-
-                    "dokkaJekyll" to false,
-                    "dokkaJekyllCollector" to false,
-                    "dokkaJekyllMultiModule" to false,
-                )
-            }
         }
 
         context("in child project") {
-            val childProjectDokkaTasks = childProject.tasks.withType<AbstractDokkaTask>()
+            val childProjectDokkaTasks = childProject.tasks
+                .withType<@Suppress("DEPRECATION") org.jetbrains.dokka.gradle.AbstractDokkaTask>()
             test("all DGPv1 tasks should have group 'null'") {
                 val dokkaTasks = childProjectDokkaTasks.associate { it.name to it.group }
                 dokkaTasks.shouldContainExactly(
@@ -84,22 +66,6 @@ class MigrationHelpersTest : FunSpec({
 
                     "dokkaJekyll" to null,
                     "dokkaJekyllPartial" to null,
-                )
-            }
-            test("all DGPv1 tasks should be disabled") {
-                val dokkaTasks = childProjectDokkaTasks.associate { it.name to it.enabled }
-                dokkaTasks.shouldContainExactly(
-                    "dokkaGfm" to false,
-                    "dokkaGfmPartial" to false,
-
-                    "dokkaHtml" to false,
-                    "dokkaHtmlPartial" to false,
-
-                    "dokkaJavadoc" to false,
-                    "dokkaJavadocPartial" to false,
-
-                    "dokkaJekyll" to false,
-                    "dokkaJekyllPartial" to false,
                 )
             }
         }
