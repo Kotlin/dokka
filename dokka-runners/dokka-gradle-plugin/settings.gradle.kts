@@ -9,8 +9,13 @@ pluginManagement {
     includeBuild("../../build-settings-logic")
 
     repositories {
-        mavenCentral()
-        gradlePluginPortal()
+        mavenCentral {
+            setUrl("https://cache-redirector.jetbrains.com/maven-central")
+            name = "MavenCentral-JBCache"
+        }
+        maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2") {
+            name = "GradlePluginPortal-JBCache"
+        }
     }
 }
 
@@ -21,8 +26,14 @@ plugins {
 dependencyResolutionManagement {
     @Suppress("UnstableApiUsage")
     repositories {
-        mavenCentral()
-        google()
+        mavenCentral {
+            setUrl("https://cache-redirector.jetbrains.com/maven-central")
+            name = "MavenCentral-JBCache"
+        }
+        google {
+            setUrl("https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2")
+            name = "Google-JBCache"
+        }
     }
 
     versionCatalogs {
