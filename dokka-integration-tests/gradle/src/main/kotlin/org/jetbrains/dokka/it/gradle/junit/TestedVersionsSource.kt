@@ -83,7 +83,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
 
         private fun isKgpCompatibleWithGradle(kgp: SemVer, gradle: SemVer): Boolean {
             return when {
-                kgp.major >= 2 -> gradle.major >= 9
+                kgp >= SemVer("2.1.20") -> gradle.major >= 9
                 else -> gradle.major < 9
             }
         }
