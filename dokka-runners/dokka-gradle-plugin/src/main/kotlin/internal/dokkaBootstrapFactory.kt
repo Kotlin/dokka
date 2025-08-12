@@ -7,8 +7,6 @@ package org.jetbrains.dokka.gradle.internal
 import org.jetbrains.dokka.DokkaBootstrap
 import org.jetbrains.dokka.DokkaBootstrapImpl
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.gradle.DokkaPlugin
-import org.jetbrains.dokka.gradle.automagicTypedProxy
 import org.jetbrains.dokka.toCompactJsonString
 import java.io.File
 import java.net.URLClassLoader
@@ -24,10 +22,33 @@ internal fun DokkaBootstrap(classpath: Set<File>, bootstrapClass: KClass<out Dok
 
     val runtimeClassloaderBootstrapClass = runtimeClassLoader.loadClass(bootstrapClass.qualifiedName)
     val runtimeClassloaderBootstrapInstance = runtimeClassloaderBootstrapClass.constructors.first().newInstance()
-    return automagicTypedProxy(
-        DokkaPlugin::class.java.classLoader,
-        runtimeClassloaderBootstrapInstance
-    )
+
+    return object : DokkaBootstrap {
+        override fun configure(
+            serializedConfigurationJSON: String,
+            logger: BiConsumer<String, String>
+        ) {
+            val configureMethod = runtimeClassloaderBootstrapClass.getMethod(
+                "configure",
+                String::class.java,
+                BiConsumer::class.java // Use java.util.function.BiConsumer from *your* loader
+            )
+            configureMethod.invoke(
+                runtimeClassloaderBootstrapInstance,
+                serializedConfigurationJSON,
+                logger
+            )
+        }
+
+        override fun generate() {
+            val generateMethod = runtimeClassloaderBootstrapClass.getMethod(
+                "generate",
+            )
+            generateMethod.invoke(
+                runtimeClassloaderBootstrapInstance
+            )
+        }
+    }
 }
 
 internal fun generateDocumentationViaDokkaBootstrap(
@@ -40,7 +61,7 @@ internal fun generateDocumentationViaDokkaBootstrap(
         val uncaughtExceptionHolder = AtomicReference<Throwable?>()
         /**
          * Run in a new thread to avoid memory leaks that are related to ThreadLocal (that keeps `URLCLassLoader`)
-         * Currently, all `ThreadLocal`s leaking are in the compiler/IDE codebase.
+         * Without a new thread all `ThreadLocal in the compiler/IDE codebase will leak.
          */
         Thread { generate() }.apply {
             setUncaughtExceptionHandler { _, throwable -> uncaughtExceptionHolder.set(throwable) }
