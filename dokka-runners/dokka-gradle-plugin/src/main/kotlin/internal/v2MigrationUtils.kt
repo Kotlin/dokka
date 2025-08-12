@@ -52,16 +52,16 @@ private fun configureDokkaTaskConventions(project: Project) {
                     appendLine("Cannot run Dokka V1 tasks when V2 mode is enabled.")
                     appendLine("Dokka Gradle plugin V1 mode is deprecated, and scheduled to be removed in Dokka v2.2.0.")
                     appendLine("To finish migrating to V2 mode, please check the migration guide https://kotl.in/dokka-gradle-migration")
-                    append("Suggestion: ")
                     when {
                         "html" in this@task.name.lowercase() ->
-                            appendLine("Use `dokkaGenerate` or `dokkaGenerateHtml` tasks instead.")
+                            appendLine("Suggestion: Use `dokkaGenerate` or `dokkaGenerateHtml` tasks instead.")
 
                         "javadoc" in this@task.name.lowercase() ->
-                            appendLine("Use `dokkaGenerate` or `dokkaGenerateJavadoc` tasks instead.")
+                            appendLine("Suggestion: Use `dokkaGenerate` or `dokkaGenerateJavadoc` tasks instead.")
 
-                        else ->
-                            appendLine("Use `dokkaGenerate` task instead.")
+                        else -> {
+                            // Don't suggest alternative tasks for GFM and Jekyll, since DGPv2 does not support these formats
+                        }
                     }
                 }
             )

@@ -58,7 +58,6 @@ class DokkaV1TaskDisabledTest : FunSpec({
                             |> Cannot run Dokka V1 tasks when V2 mode is enabled.
                             |  Dokka Gradle plugin V1 mode is deprecated, and scheduled to be removed in Dokka v2.2.0.
                             |  To finish migrating to V2 mode, please check the migration guide https://kotl.in/dokka-gradle-migration
-                            |  Suggestion: Use `dokkaGenerate` task instead.
                             """.trimMargin()
                     }
             }
@@ -71,7 +70,6 @@ class DokkaV1TaskDisabledTest : FunSpec({
                             |> Cannot run Dokka V1 tasks when V2 mode is enabled.
                             |  Dokka Gradle plugin V1 mode is deprecated, and scheduled to be removed in Dokka v2.2.0.
                             |  To finish migrating to V2 mode, please check the migration guide https://kotl.in/dokka-gradle-migration
-                            |  Suggestion: Use `dokkaGenerate` task instead.
                             """.trimMargin()
                     }
             }
