@@ -114,6 +114,10 @@ constructor(
                 debug.convention(false)
                 jvmArgs.convention(
                     listOf(
+                        // https://openjdk.org/jeps/498
+                        // suppresses: sun.misc.Unsafe::objectFieldOffset has been called by com.intellij.util.containers.Unsafe
+                        // requires IntelliJ platform update to resolve the issue
+                        "--sun-misc-unsafe-memory-access=allow",
                         //"-XX:MaxMetaspaceSize=512m",
                         "-XX:+HeapDumpOnOutOfMemoryError",
                         "-XX:+AlwaysPreTouch", // https://github.com/gradle/gradle/issues/3093#issuecomment-387259298
