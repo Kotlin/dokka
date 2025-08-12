@@ -23,9 +23,7 @@ private val objectMapper = run {
         addSerializer(FileSerializer)
     }
     jacksonObjectMapper()
-        .apply {
-            typeFactory = PluginTypeFactory()
-        }
+        .setTypeFactory(TypeFactory.defaultInstance().withClassLoader(DokkaBase::class.java.classLoader))
         .registerModule(module)
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 }
@@ -53,10 +51,4 @@ private object FileSerializer : StdScalarSerializer<File>(File::class.java) {
     override fun serialize(value: File, g: JsonGenerator, provider: SerializerProvider) {
         g.writeString(value.path)
     }
-}
-
-@Suppress("DEPRECATION") // for TypeFactory constructor, no way to use non-deprecated one, it's essentially identical
-private class PluginTypeFactory: TypeFactory(null) {
-    override fun findClass(className: String): Class<out Any>? =
-        Class.forName(className, true, DokkaBase::class.java.classLoader) ?: super.findClass(className)
 }
