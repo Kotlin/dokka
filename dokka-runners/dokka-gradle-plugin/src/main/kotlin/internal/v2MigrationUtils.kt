@@ -33,7 +33,7 @@ internal fun addV2MigrationHelpers(
 }
 
 private fun configureDokkaTaskConventions(project: Project) {
-    project.tasks.withType<@Suppress("DEPRECATION") AbstractDokkaTask>().configureEach {
+    project.tasks.withType<@Suppress("DEPRECATION") AbstractDokkaTask>().configureEach task@{
         // The DGPv1 tasks are only present to prevent buildscripts with references to them from breaking.
         // The tasks are non-operable and should be hidden, to help nudge users to the DGPv2 tasks.
         // Setting tasks with group null will hide it when running `gradle tasks`,
@@ -47,14 +47,31 @@ private fun configureDokkaTaskConventions(project: Project) {
         outputDirectory.set(temporaryDir)
 
         doFirst("Disable Dokka V1 task") {
-            throw DokkaV1TaskDisabledException()
+            throw DokkaV1TaskDisabledException(
+                buildString {
+                    appendLine("Cannot run Dokka V1 tasks when V2 mode is enabled.")
+                    appendLine("Dokka Gradle plugin V1 mode is deprecated, and scheduled to be removed in Dokka v2.2.0.")
+                    appendLine("To finish migrating to V2 mode, please check the migration guide https://kotl.in/dokka-gradle-migration")
+                    append("Suggestion: ")
+                    when {
+                        "html" in this@task.name.lowercase() ->
+                            appendLine("Use `dokkaGenerate` or `dokkaGenerateHtml` tasks instead.")
+
+                        "javadoc" in this@task.name.lowercase() ->
+                            appendLine("Use `dokkaGenerate` or `dokkaGenerateJavadoc` tasks instead.")
+
+                        else ->
+                            appendLine("Use `dokkaGenerate` task instead.")
+                    }
+                }
+            )
         }
     }
 }
 
-internal class DokkaV1TaskDisabledException : UnsupportedOperationException(
-    "Cannot run Dokka V1 task when V2 mode is enabled. $DOKKA_V1_DEPRECATION_MESSAGE"
-)
+internal class DokkaV1TaskDisabledException(
+    message: String
+) : UnsupportedOperationException(message)
 
 /**
  * Creates dummy tasks and configurations for the given name and configuration, to help with migration.
