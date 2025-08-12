@@ -44,4 +44,4 @@ internal fun Project.isAndroidProject() = try {
 internal fun KotlinTarget.isAndroidTarget() = this.platformType == KotlinPlatformType.androidJvm
 
 internal const val DOKKA_V1_DEPRECATION_MESSAGE =
-    "Dokka Gradle plugin V1 mode is deprecated, and scheduled to be removed in Dokka v2.2.0. Migrate to v2 mode https://kotl.in/dokka-gradle-migration"
+    "Dokka Gradle plugin V1 mode is deprecated, and scheduled to be removed in Dokka v2.2.0. Migrate to V2 mode https://kotl.in/dokka-gradle-migration"
