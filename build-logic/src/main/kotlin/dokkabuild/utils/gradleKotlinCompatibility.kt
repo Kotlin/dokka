@@ -15,6 +15,11 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 // We must use Kotlin language/api version 1.4 (DEPRECATED) to support Gradle 7,
 // and to do that we need to use old Kotlin version, which has support for such an old Kotlin version (e.g., 2.0.20)
 fun Project.configureGradleKotlinCompatibility() {
+    /**
+     * The AA is built with the latest compiler version (a bootstrap compiler)
+     * To be compatible with the AA, Dokka analysis should be compiled with approximately the same version
+     * See https://kotlinlang.org/docs/kotlin-evolution-principles.html#evolving-the-binary-format
+     */
     val analysisK2Projects = listOf("analysis-kotlin-symbols")
     if (!dokkaBuild.enforceGradleKotlinCompatibility.get() ||  project.name in analysisK2Projects) return
 
