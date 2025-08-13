@@ -24,10 +24,6 @@ internal fun Project.gistOf(sourceSet: KotlinSourceSet): KotlinSourceSetGist = K
     platform = project.provider { platformOf(sourceSet) },
     isMain = project.provider { isMainSourceSet(sourceSet) },
     classpath = project.provider { classpathOf(sourceSet).filter { it.exists() } },
-    // TODO: Needs to respect filters.
-    //  We probably need to change from "sourceRoots" to support "sourceFiles"
-    //  https://github.com/Kotlin/dokka/issues/1215
     sourceRoots = sourceSet.kotlin.sourceDirectories.filter { it.exists() },
     dependentSourceSetNames = project.provider { sourceSet.dependsOn.map { it.name }.toSet() },
 )
-

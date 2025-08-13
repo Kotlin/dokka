@@ -550,10 +550,6 @@ private class KotlinSourceSetDetailsBuilder(
         kotlinSourceSet: KotlinSourceSet,
         allKotlinCompilationDetails: ListProperty<KotlinCompilationDetails>,
     ) {
-
-        // TODO: Needs to respect filters.
-        //  We probably need to change from "sourceRoots" to support "sourceFiles"
-        //  https://github.com/Kotlin/dokka/issues/1215
         val extantSourceDirectories = providers.provider {
             kotlinSourceSet.kotlin.sourceDirectories.filter { it.exists() }
         }
