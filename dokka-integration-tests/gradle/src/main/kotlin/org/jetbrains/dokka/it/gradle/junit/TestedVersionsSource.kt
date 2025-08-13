@@ -105,7 +105,8 @@ fun interface TestedVersionsSource<T : TestedVersions> {
          */
         private val allAgpVersions: List<String> = listOf(
             "7.4.2",
-            "8.12.0",
+            "8.11.1",
+            //"8.12.0", // requires Android SDK 35, which isn't available on TC yet?
         )
 
         private val allVersions: Sequence<TestedVersions.Android> =
