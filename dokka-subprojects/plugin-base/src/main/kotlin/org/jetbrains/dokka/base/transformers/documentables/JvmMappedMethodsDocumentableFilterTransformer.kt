@@ -77,6 +77,7 @@ internal class JvmMappedMethodsDocumentableFilterTransformer(context: DokkaConte
         "CharSequence",
         "codePoints()Ljava/util/stream/IntStream;",
         "chars()Ljava/util/stream/IntStream;",
+        // note: this method is not handled by the compiler (https://youtrack.jetbrains.com/issue/KT-80102)
         "getChars(II[CI)V"
     ) +
 
