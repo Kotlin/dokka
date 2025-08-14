@@ -152,7 +152,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
             // https://developer.android.com/build/releases/gradle-plugin?buildsystem=ndk-build#updating-gradle
             return when (agp.majorAndMinorVersions) {
                 "8.12" -> gradle in "8.13.0".."9.0.0"
-                "8.11" -> gradle in "8.13.0"..<"9.0.0"
+                "8.11" -> gradle in "8.13.0".."9.0.0"
                 "8.10" -> gradle in "8.11.1"..<"9.0.0"
                 "8.9" -> gradle in "8.11.1"..<"9.0.0"
                 "8.8" -> gradle in "8.10.2"..<"9.0.0"
