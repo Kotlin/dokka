@@ -130,9 +130,11 @@ constructor(
     private fun logPluginMessage(mode: PluginMode) {
         when (mode) {
             V1Enabled -> logV1PluginMessage()
-            V2EnabledWithHelpers -> logV2PluginMigrationMessage()
+            V2EnabledWithHelpers -> {
+                // this is the default, don't log messages to avoid spamming users
+            }
             V2Enabled -> {
-                // v2 is the default, don't log messages to avoid spamming users
+                // we want users to update to V2Enabled, don't log messages to avoid spamming users
             }
         }
     }
@@ -150,32 +152,6 @@ constructor(
                 |To start migrating to Dokka Gradle plugin V2 add
                 |    ${PLUGIN_MODE_FLAG}=${V2EnabledWithHelpers}
                 |into your project's `gradle.properties` file.
-                |
-                |$`We would appreciate your feedback`
-                |
-                """.trimMargin().prependIndent()
-            )
-        }
-    }
-
-    private fun logV2PluginMigrationMessage() {
-        if (primaryService) {
-            // Migration helpers are provided as a temporary solution to aid with migration to V2,
-            // and they should not be enabled long term because they are non-functional.
-            // To encourage disabling them always log a warning, regardless of the noWarn flag.
-            logger.warn("warning: Dokka Gradle plugin V2 migration helpers are enabled")
-        }
-        if (primaryService && !pluginModeNoWarn) {
-            logger.lifecycle(
-                """
-                |
-                |Thank you for migrating to Dokka Gradle plugin V2!
-                |Migration is in progress, and helpers have been enabled.
-                |$`To learn about migrating read the migration guide`
-                |
-                |Once you have finished migrating disable the migration helpers by adding
-                |    ${PLUGIN_MODE_FLAG}=${V2Enabled}
-                |to your project's `gradle.properties` file.
                 |
                 |$`We would appreciate your feedback`
                 |
