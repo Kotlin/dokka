@@ -22,7 +22,11 @@ class MultiModule0IntegrationTest : AbstractGradleIntegrationTest() {
             buildVersions,
             ":moduleA:dokkaHtmlMultiModule",
             ":moduleA:dokkaGfmMultiModule",
-            ":moduleA:dokkaJekyllMultiModule"
+            ":moduleA:dokkaJekyllMultiModule",
+           jvmArgs = listOf(
+                "-Xmx1G", "-XX:MaxMetaspaceSize=800m",
+                "-XX:SoftRefLRUPolicyMSPerMB=10" // to free up the metaspace on JVM 8, see https://youtrack.jetbrains.com/issue/KT-55831/
+            )
         ).buildRelaxed()
 
         result.shouldHaveTask(":moduleA:dokkaHtmlMultiModule").shouldHaveOutcome(SUCCESS, FROM_CACHE)
