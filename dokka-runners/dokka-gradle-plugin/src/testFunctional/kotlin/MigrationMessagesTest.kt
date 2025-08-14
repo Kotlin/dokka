@@ -4,7 +4,6 @@
 package org.jetbrains.dokka.gradle
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.core.spec.style.scopes.FunSpecContainerScope
 import io.kotest.matchers.string.shouldContainOnlyOnce
 import io.kotest.matchers.string.shouldNotContain
 import org.gradle.api.logging.LogLevel
@@ -28,115 +27,52 @@ class MigrationMessagesTest : FunSpec({
             }
         }
 
-        context("when no DGP flag is set") {
-            val dgpFlag = null
+        val logLevels = listOf(WARN, LIFECYCLE)
+        val dgpFlags = listOf(null, "V1Enabled", "V2EnabledWithHelpers", "V2Enabled")
+        val noWarns = listOf(null, true, false)
 
-            context("and log level is WARN") {
-                val output = project.getOutput(pluginMode = dgpFlag, pluginModeNoWarn = null, logLevel = WARN)
+        dgpFlags.forEach { dgpFlag ->
+            noWarns.forEach { noWarn ->
+                logLevels.forEach { logLevel ->
+                    context("when dgpFlag=$dgpFlag, pluginModeNoWarn=$noWarn, log level=$logLevel") {
 
-                testMessagesInOutput(output = output)
-            }
+                        val output = project.getOutput(
+                            pluginMode = dgpFlag,
+                            pluginModeNoWarn = noWarn,
+                            logLevel = logLevel,
+                        )
 
-            context("and log level is LIFECYCLE") {
+                        val shouldContainV1Warning = when (noWarn) {
+                            true -> false
+                            false -> dgpFlag == "V1Enabled"
+                            null -> dgpFlag == "V1Enabled"
+                        }
+                        if (shouldContainV1Warning) {
+                            test("output should contain V1 warning") {
+                                output shouldContainOnlyOnce expectedV1Warning
+                            }
+                        } else {
+                            test("output should NOT contain V1 warning") {
+                                output shouldNotContain expectedV1Warning
+                            }
+                        }
 
-                context("and pluginModeNoWarn is unset") {
-                    val output = project.getOutput(pluginMode = dgpFlag, pluginModeNoWarn = null, logLevel = LIFECYCLE)
-
-                    testMessagesInOutput(output = output)
-                }
-
-                context("and pluginModeNoWarn=true") {
-                    val output = project.getOutput(pluginMode = dgpFlag, pluginModeNoWarn = true, logLevel = LIFECYCLE)
-
-                    testMessagesInOutput(output = output)
-                }
-            }
-        }
-
-        context("when V1Enabled DGP flag is set") {
-            val dgpFlag = "V1Enabled"
-
-            context("and log level is WARN") {
-                val output = project.getOutput(pluginMode = dgpFlag, pluginModeNoWarn = null, logLevel = WARN)
-
-                testMessagesInOutput(
-                    output = output,
-                    shouldContainV1Warning = true,
-                )
-            }
-
-            context("and log level is LIFECYCLE") {
-
-                context("and pluginModeNoWarn is unset") {
-                    val output =
-                        project.getOutput(pluginMode = dgpFlag, pluginModeNoWarn = null, logLevel = LIFECYCLE)
-
-                    testMessagesInOutput(
-                        output = output,
-                        shouldContainV1Warning = true,
-                        shouldContainV1Message = true,
-                    )
-                }
-
-                context("and pluginModeNoWarn=true") {
-                    val output =
-                        project.getOutput(pluginMode = dgpFlag, pluginModeNoWarn = true, logLevel = LIFECYCLE)
-
-                    testMessagesInOutput(output = output)
-                }
-            }
-        }
-
-        context("when V2EnabledWithHelpers DGP flag is set") {
-            val pluginMode = "V2EnabledWithHelpers"
-
-            context("and log level is WARN") {
-                val output = project.getOutput(pluginMode = pluginMode, pluginModeNoWarn = null, logLevel = WARN)
-
-                testMessagesInOutput(output = output)
-            }
-
-            context("and log level is LIFECYCLE") {
-
-                context("and pluginModeNoWarn is unset") {
-                    val output =
-                        project.getOutput(pluginMode = pluginMode, pluginModeNoWarn = null, logLevel = LIFECYCLE)
-
-                    testMessagesInOutput(output = output)
-                }
-
-                context("and pluginModeNoWarn=true") {
-                    val output =
-                        project.getOutput(pluginMode = pluginMode, pluginModeNoWarn = true, logLevel = LIFECYCLE)
-
-                    testMessagesInOutput(output = output)
-                }
-            }
-        }
-
-        context("when V2Enabled DGP flag is set") {
-            val pluginMode = "V2Enabled"
-
-            context("and log level is WARN") {
-                val output = project.getOutput(pluginMode = pluginMode, pluginModeNoWarn = null, logLevel = WARN)
-
-                testMessagesInOutput(output = output)
-            }
-
-            context("and log level is LIFECYCLE") {
-
-                context("and pluginModeNoWarn is unset") {
-                    val output =
-                        project.getOutput(pluginMode = pluginMode, pluginModeNoWarn = null, logLevel = LIFECYCLE)
-
-                    testMessagesInOutput(output = output)
-                }
-
-                context("and pluginModeNoWarn=true") {
-                    val output =
-                        project.getOutput(pluginMode = pluginMode, pluginModeNoWarn = true, logLevel = LIFECYCLE)
-
-                    testMessagesInOutput(output = output)
+                        val shouldContainV1Message = when (noWarn) {
+                            true -> false
+                            false -> dgpFlag == "V1Enabled" && logLevel == LIFECYCLE
+                            null -> dgpFlag == "V1Enabled" && logLevel == LIFECYCLE
+                        }
+                        if (shouldContainV1Message) {
+                            test("output should contain V1 message") {
+                                output shouldContainOnlyOnce expectedV1Message
+                            }
+                        } else {
+                            test("output should NOT contain V1 message") {
+                                output shouldNotContain expectedV1Message
+                                output shouldNotContain expectedV1Message.trim().lines().first()
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -161,58 +97,6 @@ class MigrationMessagesTest : FunSpec({
                 .build().output
         }
 
-        private suspend fun FunSpecContainerScope.testMessagesInOutput(
-            output: String,
-            shouldContainV1Warning: Boolean = false,
-            shouldContainV1Message: Boolean = false,
-            shouldContainV2MigrationWarning: Boolean = false,
-            shouldContainV2EnabledMessage: Boolean = false,
-        ) {
-            if (shouldContainV1Warning) {
-                test("output should contain V1 warning") {
-                    output shouldContainOnlyOnce expectedV1Warning
-                }
-            } else {
-                test("output should NOT contain V1 warning") {
-                    output shouldNotContain expectedV1Warning
-                }
-            }
-
-            if (shouldContainV1Message) {
-                test("output should contain V1 message") {
-                    output shouldContainOnlyOnce expectedV1Message
-                }
-            } else {
-                test("output should NOT contain V1 message") {
-                    output shouldNotContain expectedV1Message
-                    output shouldNotContain expectedV1Message.trim().lines().first()
-                }
-            }
-
-            if (shouldContainV2MigrationWarning) {
-                test("output should contain V2 migration warning") {
-                    output shouldContainOnlyOnce expectedV2MigrationWarning
-                }
-            } else {
-                test("output should NOT contain V2 migration warning") {
-                    output shouldNotContain expectedV2MigrationWarning
-                    output shouldNotContain expectedV2MigrationWarning.trim().lines().first()
-                }
-            }
-
-            if (shouldContainV2EnabledMessage) {
-                test("output should contain V2 enabled message") {
-                    output shouldContainOnlyOnce expectedV2Message
-                }
-            } else {
-                test("output should NOT contain V2 message") {
-                    output shouldNotContain expectedV2Message
-                    output shouldNotContain expectedV2Message.trim().lines().first()
-                }
-            }
-        }
-
-
         private const val PLUGIN_MODE_FLAG =
             "org.jetbrains.dokka.experimental.gradle.pluginMode"
 
@@ -235,23 +119,6 @@ class MigrationMessagesTest : FunSpec({
             |We would appreciate your feedback!
             | - Please report any feedback or problems https://kotl.in/dokka-issues
             | - Chat with the community visit #dokka in https://kotlinlang.slack.com/ (To sign up visit https://kotl.in/slack)
-            """.trimMargin().prependIndent()
-
-        private val expectedV2MigrationWarning = /* language=text */ """
-            |warning: Dokka Gradle plugin V2 migration helpers are enabled
-            """.trimMargin()
-
-        private val expectedV2Message = /* language=text */ """
-            |Thank you for enabling Dokka Gradle plugin V2!
-            |To learn about migrating read the migration guide https://kotl.in/dokka-gradle-migration
-            |
-            |We would appreciate your feedback!
-            | - Please report any feedback or problems https://kotl.in/dokka-issues
-            | - Chat with the community visit #dokka in https://kotlinlang.slack.com/ (To sign up visit https://kotl.in/slack)
-            |
-            |You can suppress this message by adding
-            |    ${PLUGIN_MODE_NO_WARN_FLAG_PRETTY}=true
-            |to your project's `gradle.properties` file.
             """.trimMargin().prependIndent()
     }
 }
