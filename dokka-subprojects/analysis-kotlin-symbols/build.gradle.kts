@@ -21,6 +21,13 @@ dependencies {
     // it's harder to do it in the same as with `fastutil`
     // as several intellij dependencies share the same packages like `org.intellij.core`
     api(libs.intellij.java.psi.api) { isTransitive = false }
+    // at the same time, we need for the compiler to override all other classes,
+    // especially JavaVersion: https://github.com/JetBrains/kotlin/blob/e0bf708be3f9dbbc5e6671ecabad88196d4a10ca/compiler/cli/src/com/intellij/util/lang/JavaVersion.java
+    // because the version of current intellij platform doesn't support JDK 25,
+    // but the one in kotlin-compiler - supports it
+    // `api` is used, so that it's prioritized over other dependencies (somehow)
+    // will be fixed in https://youtrack.jetbrains.com/issue/KTI-2139/Update-IntelliJ-SDK-to-241.19671
+    api(libs.kotlin.compiler.k2) { isTransitive = false }
 
     implementation(projects.dokkaSubprojects.analysisKotlinApi)
     implementation(projects.dokkaSubprojects.analysisMarkdownJb)
@@ -51,9 +58,6 @@ dependencies {
     runtimeOnly("com.github.ben-manes.caffeine:caffeine:2.9.3")
 
     runtimeOnly(libs.kotlinx.collections.immutable)
-    implementation(libs.kotlin.compiler.k2) {
-        isTransitive = false
-    }
 
     // TODO [beresnev] get rid of it
     compileOnly(libs.kotlinx.coroutines.core)
