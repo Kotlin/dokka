@@ -239,4 +239,4 @@ A Build Scan may contain identifiable information. See the Terms of Use https://
 
 * If something cannot be done, not convenient, or does not work &mdash; submit an [issue](#submitting-issues).
 * Discussions and general inquiries &mdash; use `#dokka` channel in
-  [Kotlin Community Slack](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up).
+  [Kotlin Community Slack](https://kotl.in/slack).
