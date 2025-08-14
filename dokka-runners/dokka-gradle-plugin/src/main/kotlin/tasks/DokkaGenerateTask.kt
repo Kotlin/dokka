@@ -15,6 +15,7 @@ import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.submit
 import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
 import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.gradle.DokkaBasePlugin.Companion.jsonMapper
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaGeneratorParametersSpec
@@ -49,6 +50,14 @@ constructor(
      */
     pluginsConfiguration: DokkaPluginParametersContainer,
 ) : DokkaBaseTask() {
+
+    init {
+        // Hide the 'generate module' and 'generate publication' tasks from the task list,
+        // because they are lower level and potentially confusing
+        // (for most users it's not obvious what the difference between a 'module' and 'publication' is).
+        // For general generation usage the lifecycle tasks should be used instead.
+        setGroup(null)
+    }
 
     private val dokkaParametersBuilder = DokkaParametersBuilder(archives)
 
@@ -98,11 +107,10 @@ constructor(
 
     /**
      * The [DokkaConfiguration] by Dokka Generator can be saved to a file for debugging purposes.
-     * To disable this behaviour set this property to `null`.
+     * To disable this behaviour use [Property.unsetConvention] to clear the default value.
      */
     @InternalDokkaGradlePluginApi
-    @get:Optional
-    @get:OutputFile
+    @get:Internal
     abstract val dokkaConfigurationJsonFile: RegularFileProperty
 
     /**
@@ -175,6 +183,58 @@ constructor(
      * Run some helper checks to log warnings if the [DokkaConfiguration] looks misconfigured.
      */
     private fun verifyDokkaConfiguration(dokkaConfiguration: DokkaConfiguration) {
+        checkModulePathsAreInsidePublicationDir(dokkaConfiguration)
+        checkModulePathsAreDistinct(dokkaConfiguration)
+    }
+
+    private fun checkModulePathsAreInsidePublicationDir(
+        dokkaConfiguration: DokkaConfiguration,
+    ) {
+        fun DokkaModuleDescription.resolvedOutputDir(): File =
+            dokkaConfiguration.outputDir.resolve(relativePathToOutputDirectory).normalize()
+
+
+        val modulesWithOutputDirOutsidePublicationDir = dokkaConfiguration.modules
+            .filter { module ->
+                val moduleOutputDir = module.resolvedOutputDir()
+                !moduleOutputDir.startsWith(dokkaConfiguration.outputDir.normalize())
+            }
+        check(modulesWithOutputDirOutsidePublicationDir.isEmpty()) {
+            val modules = modulesWithOutputDirOutsidePublicationDir
+                .map { "${it.name} (modulePath: '${it.relativePathToOutputDirectory.invariantSeparatorsPath}')" }
+                .sorted()
+                .joinToString("\n") { "  - $it" }
+            """
+            |[$path] Found ${modulesWithOutputDirOutsidePublicationDir.size} modules with directories that are outside the Dokka output directory.
+            |  All module output directories must be a subdirectory inside the Dokka output directory.
+            |  Update the `modulePath` in these modules:
+            |$modules
+            |""".trimMargin()
+        }
+
+
+        val modulesWithOutputDirSameAsPublicationDir = dokkaConfiguration.modules
+            .filter { module ->
+                val moduleOutputDir = module.resolvedOutputDir()
+                moduleOutputDir == dokkaConfiguration.outputDir.normalize()
+            }
+        check(modulesWithOutputDirSameAsPublicationDir.isEmpty()) {
+            val modules = modulesWithOutputDirSameAsPublicationDir
+                .map { "${it.name} (modulePath: '${it.relativePathToOutputDirectory.invariantSeparatorsPath}')" }
+                .sorted()
+                .joinToString("\n") { "  - $it" }
+            """
+            |[$path] Found ${modulesWithOutputDirSameAsPublicationDir.size} modules with output directories that resolve to the same directory as the Dokka output directory.
+            |  All module output directories must be a subdirectory inside the Dokka output directory.
+            |  Specify `modulePath` in these modules:
+            |$modules
+            |""".trimMargin()
+        }
+    }
+
+    private fun checkModulePathsAreDistinct(
+        dokkaConfiguration: DokkaConfiguration,
+    ) {
         val modulesWithDuplicatePaths = dokkaConfiguration.modules
             .groupBy { it.relativePathToOutputDirectory.toString() }
             .filterValues { it.size > 1 }

@@ -33,17 +33,45 @@ internal fun addV2MigrationHelpers(
 }
 
 private fun configureDokkaTaskConventions(project: Project) {
-    project.tasks.withType<@Suppress("DEPRECATION") AbstractDokkaTask>().configureEach {
+    project.tasks.withType<@Suppress("DEPRECATION") AbstractDokkaTask>().configureEach task@{
         // The DGPv1 tasks are only present to prevent buildscripts with references to them from breaking.
         // The tasks are non-operable and should be hidden, to help nudge users to the DGPv2 tasks.
         // Setting tasks with group null will hide it when running `gradle tasks`,
         // and put it in the 'other' group in IntelliJ (which effectively hides it).
+        @Suppress("UsePropertyAccessSyntax") // property-access syntax doesn't accept `null`
         setGroup(null)
-        onlyIf("Dokka V1 tasks are disabled due to the V2 flag being enabled") { false }
-        enabled = false
-        notCompatibleWithConfigurationCache("Dokka V1 tasks use deprecated Gradle features. Please migrate to Dokka Plugin V2, which fully supports Configuration Cache.")
+
+        notCompatibleWithConfigurationCache("Dokka V1 tasks use deprecated Gradle features. Please migrate to Dokka Plugin V2, which fully supports Configuration Cache. See https://kotl.in/dokka-gradle-migration")
+
+        // must have an output directory, else the doFirst won't run
+        outputDirectory.set(temporaryDir)
+
+        doFirst("Disable Dokka V1 task") {
+            throw DokkaV1TaskDisabledException(
+                buildString {
+                    appendLine("Cannot run Dokka V1 tasks when V2 mode is enabled.")
+                    appendLine("Dokka Gradle plugin V1 mode is deprecated, and scheduled to be removed in Dokka v2.2.0.")
+                    appendLine("To finish migrating to V2 mode, please check the migration guide https://kotl.in/dokka-gradle-migration")
+                    when {
+                        "html" in this@task.name.lowercase() ->
+                            appendLine("Suggestion: Use `dokkaGenerate` or `dokkaGenerateHtml` tasks instead.")
+
+                        "javadoc" in this@task.name.lowercase() ->
+                            appendLine("Suggestion: Use `dokkaGenerate` or `dokkaGenerateJavadoc` tasks instead.")
+
+                        else -> {
+                            // Don't suggest alternative tasks for GFM and Jekyll, since DGPv2 does not support these formats
+                        }
+                    }
+                }
+            )
+        }
     }
 }
+
+internal class DokkaV1TaskDisabledException(
+    message: String
+) : UnsupportedOperationException(message)
 
 /**
  * Creates dummy tasks and configurations for the given name and configuration, to help with migration.
@@ -134,7 +162,7 @@ private fun Configuration.deprecate(replaceWith: String) {
         if (this is DeprecatableConfiguration) {
             addDeclarationAlternatives(replaceWith)
         }
-    } catch (e: Throwable) {
+    } catch (_: Throwable) {
         // Deprecating configurations is an internal Gradle feature, so it might be unstable.
         // Because these migration helpers are temporary, just ignore all errors.
     }

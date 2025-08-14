@@ -11,7 +11,7 @@ plugins {
 dependencies {
     // Classes from src rely on JUnit's @TempDir and Kotlin's @AfterTest,
     // thus these dependencies are needed. Ideally, they should be removed.
-    implementation(kotlin("test-junit5"))
+    implementation(libs.kotlin.test.junit5)
 
     implementation(libs.jsoup)
     implementation(libs.eclipse.jgit)

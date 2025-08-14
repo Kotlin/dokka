@@ -95,6 +95,12 @@
         filter: none;
       }
     }
+
+    &.search--close-button::after {
+      @media (width < $breakpoint-desktop-min) {
+        background-image: url('../_assets/cross.svg');
+      }
+    }
   }
 
   &_dropdown_active {

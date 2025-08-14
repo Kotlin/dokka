@@ -112,6 +112,14 @@ internal operator fun GradleVersion.compareTo(version: String): Int =
 internal operator fun <T> Spec<T>.not(): Spec<T> = Spec<T> { !this@not.isSatisfiedBy(it) }
 
 
+/**
+ * Convert a project path to a relative path.
+ *
+ * E.g. `:x:y:z:my-cool-subproject` → `x/y/z/my-cool-subproject`.
+ *
+ * Used for [org.jetbrains.dokka.gradle.DokkaExtension.modulePath].
+ * The path has to be unique per module - using the project path is a useful way to achieve this.
+ */
 internal fun Project.pathAsFilePath(): String = path
     .removePrefix(GradleProjectPath.SEPARATOR)
     .replace(GradleProjectPath.SEPARATOR, "/")
@@ -335,5 +343,23 @@ internal fun Project.rootProjectName(): String {
         else -> {
             rootProject.name
         }
+    }
+}
+
+
+/**
+ * Determine if the project is the root project.
+ *
+ * This function will try to be compatible with
+ * [Isolated Projects](https://docs.gradle.org/current/userguide/isolated_projects.html).
+ */
+internal fun Project.isRootProject(): Boolean {
+    return when {
+        CurrentGradleVersion >= "8.8" ->
+            @Suppress("UnstableApiUsage")
+            isolated == isolated.rootProject
+
+        else ->
+            this == rootProject
     }
 }

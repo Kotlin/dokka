@@ -20,7 +20,7 @@ fun createSettingsXml(): String {
 
     val mavenCentralRepo = Repository(
         id = "MavenCentral-JBCached",
-        url = "https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2",
+        url = "https://cache-redirector.jetbrains.com/maven-central",
     )
 
     val pluginRepos = buildList {
@@ -61,7 +61,7 @@ fun createSettingsXml(): String {
 
 private data class Repository(
     val id: String,
-    @Language("http-url-reference")
+    @param:Language("http-url-reference")
     val url: String,
 ) {
     @Language("XML")

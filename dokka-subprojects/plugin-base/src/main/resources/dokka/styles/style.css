@@ -74,21 +74,29 @@ html, body {
 h1 {
     font-size: 44px;
     line-height: 44px;
+    margin-bottom: 24px;
+    margin-top: 48px;
 }
 
 h2 {
     font-size: 32px;
     line-height: 32px;
+    margin-bottom: 24px;
+    margin-top: 48px;
 }
 
 h3 {
     font-size: 24px;
     line-height: 24px;
+    margin-bottom: 24px;
+    margin-top: 48px;
 }
 
-h4 {
+h4, h5 {
     font-size: 16px;
     line-height: 24px;
+    margin-bottom: 24px;
+    margin-top: 24px;
 }
 
 p, ul, ol, table, pre, dl {
@@ -191,7 +199,7 @@ img {
 }
 
 .cover > .platform-hinted {
-    padding-bottom: 12px;
+    margin-bottom: 24px;
 }
 
 .cover {
@@ -238,10 +246,6 @@ p.paragraph:first-child,
 
 .content .kdoc-tag > p.paragraph {
     margin-top: 0;
-}
-
-.content h4 {
-    margin-bottom: 0;
 }
 
 .divergent-group {
@@ -296,7 +300,7 @@ p.paragraph:first-child,
 }
 
 h1.cover {
-    margin-bottom: 32px;
+    margin-bottom: 24px;
     display: block;
 }
 
@@ -304,7 +308,7 @@ h1.cover {
     h1.cover {
         font-size: 32px;
         line-height: 32px;
-        margin-bottom: 16px;
+        margin-bottom: 24px;
     }
 }
 

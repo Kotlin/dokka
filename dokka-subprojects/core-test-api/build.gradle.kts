@@ -15,7 +15,7 @@ dependencies {
     api(projects.dokkaSubprojects.dokkaCore)
     // for assertions over `DokkaConfiguration/DokkaSourceSet`
     // it's compileOnly, so it should be able to handle both `junit` and `junit5`
-    compileOnly(kotlin("test"))
+    compileOnly(libs.kotlin.test)
 
-    implementation(kotlin("reflect"))
+    implementation(libs.kotlin.reflect)
 }
