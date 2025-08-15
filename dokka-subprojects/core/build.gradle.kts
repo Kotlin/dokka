@@ -12,6 +12,8 @@ plugins {
 overridePublicationArtifactId("dokka-core")
 
 dependencies {
+    runtimeOnly(libs.kotlin.stdlib) // to align version
+
     implementation(libs.kotlin.reflect)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.jackson.kotlin)

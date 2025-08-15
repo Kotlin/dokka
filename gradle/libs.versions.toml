@@ -77,6 +77,7 @@ eclipse-jgit = "5.13.3.202401111512-r" # jgit 6.X requires Java 11 to run
 # so that the version will be automatically provided by `coreLibrariesVersion` used in KGP
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "gradlePlugin-kotlin"}
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5" }
 
 #### Kotlin Libs ####

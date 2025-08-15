@@ -22,7 +22,7 @@ class MultiModule0IntegrationTest : AbstractGradleIntegrationTest() {
             buildVersions,
             ":moduleA:dokkaHtmlMultiModule",
             ":moduleA:dokkaGfmMultiModule",
-            ":moduleA:dokkaJekyllMultiModule"
+            ":moduleA:dokkaJekyllMultiModule",
         ).buildRelaxed()
 
         result.shouldHaveTask(":moduleA:dokkaHtmlMultiModule").shouldHaveOutcome(SUCCESS, FROM_CACHE)
