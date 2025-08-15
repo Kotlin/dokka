@@ -408,7 +408,6 @@ public final class org/jetbrains/dokka/gradle/formats/DokkaFormatTasks$inlined$s
 }
 
 public abstract class org/jetbrains/dokka/gradle/formats/DokkaHtmlPlugin : org/jetbrains/dokka/gradle/formats/DokkaFormatPlugin {
-	public static final field Companion Lorg/jetbrains/dokka/gradle/formats/DokkaHtmlPlugin$Companion;
 	public fun configure (Lorg/jetbrains/dokka/gradle/formats/DokkaFormatPlugin$DokkaFormatPluginContext;)V
 }
 

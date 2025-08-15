@@ -3,6 +3,7 @@
  */
 package org.jetbrains.dokka.gradle.workers
 
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -13,8 +14,10 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.LoggerAdapter
+import org.jetbrains.dokka.gradle.internal.generateDocumentationViaDokkaBootstrap
 import java.io.File
 import java.time.Duration
+import java.util.function.BiConsumer
 
 /**
  * Gradle Worker Daemon for running [DokkaGenerator].
@@ -27,6 +30,7 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
 
     @InternalDokkaGradlePluginApi
     interface Parameters : WorkParameters {
+        val dokkaClasspath: ConfigurableFileCollection
         val dokkaParameters: Property<DokkaConfiguration>
         val logFile: RegularFileProperty
 
@@ -39,12 +43,14 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
 
     override fun execute() {
         val dokkaParameters = parameters.dokkaParameters.get()
+        val classpath = parameters.dokkaClasspath.files
 
         prepareOutputDir(dokkaParameters)
 
         executeDokkaGenerator(
             parameters.logFile.get().asFile,
             dokkaParameters,
+            classpath
         )
     }
 
@@ -62,7 +68,8 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
 
     private fun executeDokkaGenerator(
         logFile: File,
-        dokkaParameters: DokkaConfiguration
+        dokkaParameters: DokkaConfiguration,
+        classpath: Set<File>
     ) {
         LoggerAdapter(
             logFile,
@@ -71,13 +78,32 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
         ).use { logger ->
             logger.progress("Executing DokkaGeneratorWorker with dokkaParameters: $dokkaParameters")
 
-            val generator = DokkaGenerator(dokkaParameters, logger)
-
-            val duration = measureTime { generator.generate() }
+            // A custom class loader (DokkaBootstrap) from DGPv1 is used due to https://github.com/gradle/gradle/issues/34442
+            // A shadowed stdlib from kotlin-analysis-* should be available
+            val duration = measureTime {
+                generateDocumentationViaDokkaBootstrap(
+                    dokkaClasspath = classpath,
+                    dokkaConfiguration = dokkaParameters,
+                    logger = createProxyLogger(logger)
+                )
+            }
 
             logger.info("DokkaGeneratorWorker completed in $duration")
         }
     }
+
+    private fun createProxyLogger(logger: LoggerAdapter): BiConsumer<String, String> =
+        BiConsumer<String, String> { level, message ->
+            // otherwise, map the Dokka log level (org.jetbrains.dokka.utilities.LoggingLevel)
+            // to an equivalent Gradle log level
+            when (level) {
+                "debug" -> logger.debug(message)
+                "info" -> logger.info(message)
+                "progress" -> logger.progress(message)
+                "warn" -> logger.warn(message)
+                "error" -> logger.error(message)
+            }
+        }
 
     @InternalDokkaGradlePluginApi
     companion object {
