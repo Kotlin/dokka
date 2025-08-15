@@ -453,11 +453,18 @@ private class KotlinCompilationDetailsBuilder(
             return when (this) {
                 is KotlinMetadataCompilation<*> -> true
 
+                // Use string-based comparison, not the actual classes, because AGP has deprecated and
+                // moved the Library/Application classes to a different package.
+                // Using strings is more widely compatible.
                 is KotlinJvmAndroidCompilation -> {
-                    // Use string-based comparison, not the actual classes, because AGP has deprecated and
-                    // moved the Library/Application classes to a different package.
-                    // Using strings is more widely compatible.
-                    val variantName = androidVariant::class.jvmName
+                    // `runCatching` is used here, in case `androidVariant` will be removed in a future version of KGP.
+                    val variantName = runCatching {
+                        // https://youtrack.jetbrains.com/issue/KT-77023:
+                        // `androidVariant` has `null` value in case of AGP/built-in Kotlin project.
+                        @Suppress("DEPRECATION", "UNNECESSARY_NOT_NULL_ASSERTION")
+                        androidVariant!!::class.jvmName
+                    }.getOrNull() ?: return true // published by default
+
                     "LibraryVariant" in variantName || "ApplicationVariant" in variantName
                 }
 
