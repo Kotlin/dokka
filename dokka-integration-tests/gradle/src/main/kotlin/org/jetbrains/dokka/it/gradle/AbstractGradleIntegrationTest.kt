@@ -222,7 +222,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
             |        includeGroup("org.jetbrains.dokka")
             |    }
             |}
-            |
+            |maven("https://redirector.kotlinlang.org/maven/dev")
             """.trimMargin()
         }
 
