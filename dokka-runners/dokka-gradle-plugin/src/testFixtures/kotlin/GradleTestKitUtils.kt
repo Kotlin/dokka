@@ -133,7 +133,7 @@ class GradleProjectTest(
             |        includeGroup("org.jetbrains.dokka-javadoc")
             |    }
             |}
-            |
+            |maven("https://redirector.kotlinlang.org/maven/dev")
             """.trimMargin()
         }
     }
