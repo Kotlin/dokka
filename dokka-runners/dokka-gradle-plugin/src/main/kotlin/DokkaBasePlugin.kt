@@ -108,6 +108,8 @@ constructor(
             dokkaEngineVersion.convention(DokkaConstants.DOKKA_VERSION)
         }
 
+//        dokkaExtension.dokkaGeneratorIsolation.convention(WorkerIsolation.None)
+//        dokkaExtension.dokkaGeneratorIsolation.convention(dokkaExtension.ClassLoaderIsolation())
         dokkaExtension.dokkaGeneratorIsolation.convention(
             dokkaExtension.ProcessIsolation {
                 maxHeapSize.convention("2g")
@@ -117,6 +119,7 @@ constructor(
                         //"-XX:MaxMetaspaceSize=512m",
                         "-XX:+HeapDumpOnOutOfMemoryError",
                         "-XX:+AlwaysPreTouch", // https://github.com/gradle/gradle/issues/3093#issuecomment-387259298
+                        "-XX:SoftRefLRUPolicyMSPerMB=10",
                         //"-XX:StartFlightRecording=disk=true,name={path.drop(1).map { if (it.isLetterOrDigit()) it else '-' }.joinToString("")},dumponexit=true,duration=30s",
                         //"-XX:FlightRecorderOptions=repository=$baseDir/jfr,stackdepth=512",
                     )

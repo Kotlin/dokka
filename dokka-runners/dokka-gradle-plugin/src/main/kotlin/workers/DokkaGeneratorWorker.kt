@@ -3,6 +3,7 @@
  */
 package org.jetbrains.dokka.gradle.workers
 
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -11,9 +12,13 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaGenerator
+import org.jetbrains.dokka.DokkaGeneratorProvider
+import org.jetbrains.dokka.InternalDokkaApi
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.LoggerAdapter
+import org.jetbrains.dokka.utilities.DokkaLogger
 import java.io.File
+import java.net.URLClassLoader
 import java.time.Duration
 
 /**
@@ -35,6 +40,8 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
          * Only used in log messages.
          */
         val taskPath: Property<String>
+
+        val runtimeClasspath: ConfigurableFileCollection
     }
 
     override fun execute() {
@@ -60,6 +67,22 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
         }
     }
 
+    @OptIn(InternalDokkaApi::class)
+    private fun loadDokkaGenerator(
+        dokkaParameters: DokkaConfiguration,
+        logger: DokkaLogger,
+    ): DokkaGenerator {
+        val classloader = URLClassLoader(
+            parameters.runtimeClasspath.map { it.toURI().toURL() }.toTypedArray(),
+            DokkaGeneratorWorker::class.java.classLoader,
+        )
+        val generatorProvider = DokkaGeneratorProvider.loadDefault(classloader)
+        return generatorProvider.create(
+            configuration = dokkaParameters,
+            logger = logger,
+        )
+    }
+
     private fun executeDokkaGenerator(
         logFile: File,
         dokkaParameters: DokkaConfiguration
@@ -71,7 +94,7 @@ abstract class DokkaGeneratorWorker : WorkAction<DokkaGeneratorWorker.Parameters
         ).use { logger ->
             logger.progress("Executing DokkaGeneratorWorker with dokkaParameters: $dokkaParameters")
 
-            val generator = DokkaGenerator(dokkaParameters, logger)
+            val generator = loadDokkaGenerator(dokkaParameters, logger)
 
             val duration = measureTime { generator.generate() }
 

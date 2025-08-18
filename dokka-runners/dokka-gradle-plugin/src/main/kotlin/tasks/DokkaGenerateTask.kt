@@ -17,15 +17,13 @@ import org.gradle.workers.WorkerExecutor
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.DokkaModuleDescription
 import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.InternalDokkaApi
 import org.jetbrains.dokka.gradle.DokkaBasePlugin.Companion.jsonMapper
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaGeneratorParametersSpec
 import org.jetbrains.dokka.gradle.engine.parameters.builders.DokkaParametersBuilder
 import org.jetbrains.dokka.gradle.internal.DokkaPluginParametersContainer
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
-import org.jetbrains.dokka.gradle.workers.ClassLoaderIsolation
-import org.jetbrains.dokka.gradle.workers.DokkaGeneratorWorker
-import org.jetbrains.dokka.gradle.workers.ProcessIsolation
-import org.jetbrains.dokka.gradle.workers.WorkerIsolation
+import org.jetbrains.dokka.gradle.workers.*
 import org.jetbrains.dokka.toPrettyJsonString
 import java.io.File
 import javax.inject.Inject
@@ -130,6 +128,7 @@ constructor(
         Publication,
     }
 
+    @OptIn(InternalDokkaApi::class)
     @InternalDokkaGradlePluginApi
     protected fun generateDocumentation(
         generationType: GeneratorMode,
@@ -147,19 +146,23 @@ constructor(
         verifyDokkaConfiguration(dokkaConfiguration)
         dumpDokkaConfigurationJson(dokkaConfiguration)
 
-        logger.info("DokkaGeneratorWorker runtimeClasspath: ${runtimeClasspath.asPath}")
+        logger.info("DokkaGeneratorWorker runtimeClasspath: ${this@DokkaGenerateTask.runtimeClasspath.asPath}")
 
         val isolation = workerIsolation.get()
         logger.info("[$path] running with workerIsolation $isolation")
         val workQueue = when (isolation) {
+//            is NoIsolation -> {
+//                workers.noIsolation()
+//            }
+
             is ClassLoaderIsolation ->
                 workers.classLoaderIsolation {
-                    classpath.from(runtimeClasspath)
+                    classpath.from(this@DokkaGenerateTask.runtimeClasspath)
                 }
 
             is ProcessIsolation ->
                 workers.processIsolation {
-                    classpath.from(runtimeClasspath)
+                    classpath.from(this@DokkaGenerateTask.runtimeClasspath)
                     forkOptions {
                         isolation.defaultCharacterEncoding.orNull?.let(this::setDefaultCharacterEncoding)
                         isolation.debug.orNull?.let(this::setDebug)
@@ -176,6 +179,7 @@ constructor(
             this.dokkaParameters.set(dokkaConfiguration)
             this.logFile.set(workerLogFile)
             this.taskPath.set(this@DokkaGenerateTask.path)
+            this.runtimeClasspath.from(this@DokkaGenerateTask.runtimeClasspath)
         }
     }
 

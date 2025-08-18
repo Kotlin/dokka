@@ -330,7 +330,6 @@ constructor(
     abstract val suppressInheritedMembers: Property<Boolean>
 
     /**
-     *
      * This property has moved to be configured on each [DokkaPublication].
      *
      * ```

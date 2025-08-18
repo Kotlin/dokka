@@ -82,10 +82,22 @@ sealed class WorkerIsolation {
 
         override fun toString(): String = "WorkerIsolation.Process"
     }
+
+//    object None : WorkerIsolation() {
+//        override fun toString(): String = "WorkerIsolation.None"
+//        override fun equals(other: Any?): Boolean {
+//            return other is None
+//        }
+//
+//        override fun hashCode(): Int = toString().hashCode()
+//    }
 }
 
 /** @see WorkerIsolation.ClassLoader */
 typealias ClassLoaderIsolation = WorkerIsolation.ClassLoader
+
+
+//typealias NoIsolation = WorkerIsolation.None
 
 /** @see WorkerIsolation.Process */
 typealias ProcessIsolation = WorkerIsolation.Process
