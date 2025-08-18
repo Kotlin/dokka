@@ -19,7 +19,7 @@ import org.jetbrains.dokka.utilities.DokkaLogger
  */
 public class DokkaGenerator(
     private val configuration: DokkaConfiguration,
-    private val logger: DokkaLogger
+    private val logger: DokkaLogger,
 ) {
     init {
         DisplaySourceSetCaches.clear()
