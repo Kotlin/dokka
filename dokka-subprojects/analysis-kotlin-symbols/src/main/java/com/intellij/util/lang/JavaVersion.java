@@ -3,7 +3,6 @@
  */
 package com.intellij.util.lang;
 
-import com.intellij.ReviseWhenPortedToJDK;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -198,7 +197,6 @@ public final class JavaVersion implements Comparable<JavaVersion> {
   /**
    * Attempts to use Runtime.version() method available since Java 9.
    */
-  @ReviseWhenPortedToJDK("9")
   private static @Nullable JavaVersion rtVersion() {
     try {
       Object version = Runtime.class.getMethod("version").invoke(null);
