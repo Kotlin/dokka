@@ -25,6 +25,9 @@ class DokkaGeneratorLoggingTest : FunSpec({
                 .build {
                     output.invariantNewlines() shouldContain """
                         > Task :dokkaGenerateModuleHtml
+                    """.trimIndent()
+
+                    output.invariantNewlines() shouldContain """
                         e: [:dokkaGenerateModuleHtml] test error message
                         w: [:dokkaGenerateModuleHtml] test warn message
                         """.trimIndent()
@@ -44,6 +47,9 @@ class DokkaGeneratorLoggingTest : FunSpec({
                 .build {
                     output.invariantNewlines() shouldContain """
                         > Task :dokkaGeneratePublicationHtml
+                        """.trimIndent()
+
+                    output.invariantNewlines() shouldContain """
                         e: [:dokkaGeneratePublicationHtml] test error message
                         w: [:dokkaGeneratePublicationHtml] test warn message
                         """.trimIndent()

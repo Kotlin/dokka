@@ -34,13 +34,7 @@ internal fun Project.maybeCreateDokkaPluginConfiguration(
         extendsFrom(maybeCreateDokkaDefaultPluginConfiguration())
         attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
         isCanBeConsumed = false
-        dependencies.add(
-            if (project.pluginFeaturesService.enableK2Analysis) {
-                project.dokkaArtifacts.analysisKotlinSymbols
-            } else {
-                project.dokkaArtifacts.analysisKotlinDescriptors
-            }
-        )
+
         dependencies.add(project.dokkaArtifacts.dokkaBase)
         dependencies.addAll(additionalDependencies)
     }
@@ -52,6 +46,16 @@ internal fun Project.maybeCreateDokkaRuntimeConfiguration(dokkaTaskName: String)
         attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
         isCanBeConsumed = false
         defaultDependencies {
+            dependencies.add(
+                // Analysis dependencies are not a plugin
+                // It should precede the core dependency in order
+                // to use the shadowed stdlib from the analysis dependencies
+                if (project.pluginFeaturesService.enableK2Analysis) {
+                    project.dokkaArtifacts.analysisKotlinSymbols
+                } else {
+                    project.dokkaArtifacts.analysisKotlinDescriptors
+                }
+            )
             add(project.dokkaArtifacts.dokkaCore)
         }
     }
