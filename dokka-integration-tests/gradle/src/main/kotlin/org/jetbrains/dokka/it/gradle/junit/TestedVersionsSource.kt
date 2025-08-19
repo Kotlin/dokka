@@ -4,6 +4,7 @@
 package org.jetbrains.dokka.it.gradle.junit
 
 import org.jetbrains.dokka.it.gradle.junit.TestedVersions.Companion.displayName
+import org.jetbrains.dokka.it.gradle.junit.TestedVersionsSource.Default.dokkaVersionOverride
 import org.jetbrains.dokka.it.gradle.utils.SemVer
 import org.jetbrains.dokka.it.gradle.utils.SemVer.Companion.contains
 import org.jetbrains.dokka.it.optionalSystemProperty
@@ -45,7 +46,8 @@ fun interface TestedVersionsSource<T : TestedVersions> {
         private val allKgpVersions: List<String> = listOf(
             "1.9.25",
             "2.0.21",
-            "2.1.0",
+            "2.1.21",
+            "2.2.0",
         )
 
         /**
@@ -55,28 +57,34 @@ fun interface TestedVersionsSource<T : TestedVersions> {
          */
         private val allGradleVersions: List<String> = listOf(
             "7.6.4",
-            "8.8.0",
-            //"8.10.2", // KGP 2.0.21 does not yet officially support 8.10
+            "8.14.3",
+            "9.0.0",
         )
 
-        private val allVersions = sequence {
-            allDokkaGradlePluginVersions.forEach { dgp ->
-                allKgpVersions.forEach { kgp ->
-                    allGradleVersions.forEach { gradle ->
-                        yield(
-                            TestedVersions.Default(
-                                dgp = SemVer(dgp),
-                                gradle = SemVer(gradle),
-                                kgp = SemVer(kgp),
+        private val allVersions: Sequence<TestedVersions.Default> =
+            sequence {
+                allDokkaGradlePluginVersions.forEach { dgp ->
+                    allKgpVersions.forEach { kgp ->
+                        allGradleVersions.forEach { gradle ->
+                            yield(
+                                TestedVersions.Default(
+                                    dgp = SemVer(dgp),
+                                    gradle = SemVer(gradle),
+                                    kgp = SemVer(kgp),
+                                )
                             )
-                        )
+                        }
                     }
                 }
-            }
-        }
+            }.filter { isKgpCompatibleWithGradle(kgp = it.kgp, gradle = it.gradle) }
 
-        override fun get(): Sequence<TestedVersions.Default> {
-            return allVersions
+        override fun get(): Sequence<TestedVersions.Default> = allVersions
+
+        private fun isKgpCompatibleWithGradle(kgp: SemVer, gradle: SemVer): Boolean {
+            return when {
+                kgp >= SemVer("2.1.20") -> gradle.major >= 9
+                else -> gradle.major < 9
+            }
         }
     }
 
@@ -96,13 +104,14 @@ fun interface TestedVersionsSource<T : TestedVersions> {
          */
         private val allAgpVersions: List<String> = listOf(
             "7.4.2",
-            "8.5.2",
+            "8.11.1",
+            "8.12.0",
         )
 
-        private val allVersions = sequence {
-            Default.get().forEach { v ->
-                allAgpVersions.forEach { agp ->
-                    if (isAgpCompatibleWithGradle(agp = SemVer(agp), gradle = v.gradle)) {
+        private val allVersions: Sequence<TestedVersions.Android> =
+            sequence {
+                Default.get().forEach { v ->
+                    allAgpVersions.forEach { agp ->
                         yield(
                             TestedVersions.Android(
                                 dgp = v.dgp,
@@ -113,8 +122,9 @@ fun interface TestedVersionsSource<T : TestedVersions> {
                         )
                     }
                 }
+            }.filter { v ->
+                isAgpCompatibleWithGradle(agp = v.agp, gradle = v.gradle)
             }
-        }
 
         /**
          * All major versions that _must_ be included in the sequence of all versions.
@@ -140,6 +150,11 @@ fun interface TestedVersionsSource<T : TestedVersions> {
             // AGP/Gradle compatibility definitions:
             // https://developer.android.com/build/releases/gradle-plugin?buildsystem=ndk-build#updating-gradle
             return when (agp.majorAndMinorVersions) {
+                "8.12" -> gradle in "8.13.0".."9.0.0"
+                "8.11" -> gradle in "8.13.0".."9.0.0"
+                "8.10" -> gradle in "8.11.1"..<"9.0.0"
+                "8.9" -> gradle in "8.11.1"..<"9.0.0"
+                "8.8" -> gradle in "8.10.2"..<"9.0.0"
                 "8.7" -> gradle in "8.9.0"..<"9.0.0"
                 "8.6" -> gradle in "8.7.0"..<"9.0.0"
                 "8.5" -> gradle in "8.7.0"..<"9.0.0"
