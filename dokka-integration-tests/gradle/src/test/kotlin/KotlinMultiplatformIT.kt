@@ -181,7 +181,24 @@ class KotlinMultiplatformIT {
             }
         }
 
-        withClue("second build should reuse the configuration cache") {
+        withClue("second build - because sometimes KGP needs to finish installing kotlin-native-prebuilt") {
+            // without this second build the test fails on TeamCity, because the CC entry isn't reused because of:
+            // Calculating task graph as configuration cache cannot be reused because directory '../../../../../../../home/.konan/kotlin-native-prebuilt-linux-x86_64-2.1.21/klib/platform/linux_x64' has changed
+            // Probably is related to KT-77218
+            clearCcReports()
+            configCacheRunner.build {
+                shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+
+                output shouldContain "Configuration cache entry stored"
+
+                loadConfigurationCacheReportData(projectDir = project.projectDir)
+                    .asClue { ccReport ->
+                        ccReport.totalProblemCount shouldBe 0
+                    }
+            }
+        }
+
+        withClue("third build should reuse the configuration cache") {
             configCacheRunner.build {
                 shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
                 output shouldContain "Configuration cache entry reused"
