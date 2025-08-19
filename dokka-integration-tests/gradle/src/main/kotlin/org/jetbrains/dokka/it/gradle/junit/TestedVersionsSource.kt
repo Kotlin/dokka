@@ -57,8 +57,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
          */
         private val allGradleVersions: List<String> = listOf(
             "7.6.4",
-            "8.8.0",
-            //"8.10.2", // KGP 2.0.21 does not yet officially support 8.10
+            "8.14.3",
             "9.0.0",
         )
 
