@@ -202,6 +202,7 @@ constructor(
             logger.lifecycle(
                 """
                 |Dokka K1 Analysis is deprecated. It can cause build failures or generate incorrect documentation.
+                |We recommend using Dokka K2 Analysis, which supports new language features like context parameters.
                 |
                 |To start using Dokka K2 Analysis remove
                 |    ${K2_ANALYSIS_ENABLED_FLAG}=false
