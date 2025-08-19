@@ -45,7 +45,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
         private val allKgpVersions: List<String> = listOf(
             "1.9.25",
             "2.0.21",
-            "2.1.0",
+            "2.2.20-RC-266",
         )
 
         /**
