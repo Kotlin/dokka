@@ -201,7 +201,7 @@ constructor(
             logger.warn("warning: Dokka K1 Analysis is enabled")
             logger.lifecycle(
                 """
-                |Dokka K1 Analysis is deprecated. It can cause build failures or generate incorrect documentation.
+                |Dokka K1 Analysis is deprecated and will be removed in a future release. It can cause build failures or generate incorrect documentation.
                 |Please use Dokka K2 Analysis, which is enabled by default, and supports new language features like context parameters.
                 |
                 |To start using Dokka K2 Analysis remove
