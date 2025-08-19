@@ -187,28 +187,27 @@ constructor(
     internal val enableK2Analysis: Boolean by lazy {
         // use lazy {} to ensure messages are only logged once
 
-        val enableK2Analysis = parameters.k2AnalysisEnabled.getOrElse(false)
+        val enableK2Analysis = parameters.k2AnalysisEnabled.getOrElse(true)
 
-        if (enableK2Analysis) {
-            logK2AnalysisMessage()
+        if (!enableK2Analysis) {
+            logK1AnalysisWarning()
         }
 
         enableK2Analysis
     }
 
-    private fun logK2AnalysisMessage() {
+    private fun logK1AnalysisWarning() {
         if (primaryService && !parameters.k2AnalysisNoWarn.getOrElse(false)) {
-            logger.warn("warning: Dokka K2 Analysis is enabled")
+            logger.warn("warning: Dokka K1 Analysis is enabled")
             logger.lifecycle(
                 """
-                |Dokka K2 Analysis is Experimental and is still under active development.
-                |It can cause build failures or generate incorrect documentation. 
+                |Dokka K1 Analysis is deprecated. It can cause build failures or generate incorrect documentation.
+                |
+                |To start using Dokka K2 Analysis remove
+                |    ${K2_ANALYSIS_ENABLED_FLAG}=false
+                |in your project's `gradle.properties` file.
                 |
                 |$`We would appreciate your feedback`
-                |
-                |You can suppress this message by adding
-                |    ${K2_ANALYSIS_NO_WARN_FLAG}=true
-                |to your project's `gradle.properties` file.
                 """.trimMargin().prependIndent()
             )
         }
