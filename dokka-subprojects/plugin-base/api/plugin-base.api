@@ -853,6 +853,7 @@ public final class org/jetbrains/dokka/base/resolvers/shared/PackageList {
 }
 
 public final class org/jetbrains/dokka/base/resolvers/shared/PackageList$Companion {
+	public final fun clearCache ()V
 	public final fun load (Ljava/net/URL;IZ)Lorg/jetbrains/dokka/base/resolvers/shared/PackageList;
 	public static synthetic fun load$default (Lorg/jetbrains/dokka/base/resolvers/shared/PackageList$Companion;Ljava/net/URL;IZILjava/lang/Object;)Lorg/jetbrains/dokka/base/resolvers/shared/PackageList;
 }

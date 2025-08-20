@@ -33,7 +33,7 @@ class JavadocExternalLocationProviderTest : BaseAbstractTest() {
 
     private fun getTestLocationProvider(context: DokkaContext? = null): DefaultExternalLocationProvider {
         val dokkaContext = context ?: DokkaContext.create(configuration, logger, emptyList())
-        val packageList = PackageList.load(jdkPackageListURL, 8, true)!!
+        val packageList = PackageList.loadWithoutCache(jdkPackageListURL, 8, true)!!
         val externalDocumentation =
             ExternalDocumentation(URL(jdk), packageList)
         return JavadocExternalLocationProvider(externalDocumentation, "--", "-", dokkaContext)

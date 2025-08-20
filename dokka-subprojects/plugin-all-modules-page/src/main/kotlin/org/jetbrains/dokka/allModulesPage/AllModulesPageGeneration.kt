@@ -6,6 +6,7 @@ package org.jetbrains.dokka.allModulesPage
 
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.Timer
+import org.jetbrains.dokka.base.resolvers.shared.PackageList
 import org.jetbrains.dokka.generation.Generation
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -21,7 +22,7 @@ public class AllModulesPageGeneration(private val context: DokkaContext) : Gener
     private val allModulesPagePlugin by lazy { context.plugin<AllModulesPagePlugin>() }
     private val templatingPlugin by lazy { context.plugin<TemplatingPlugin>() }
 
-    override fun Timer.generate() {
+    override fun Timer.generate(): Unit = try {
         report("Processing submodules")
         val generationContext = processSubmodules()
 
@@ -42,6 +43,8 @@ public class AllModulesPageGeneration(private val context: DokkaContext) : Gener
 
         report("Running post-actions")
         runPostActions()
+    } finally {
+        PackageList.clearCache()
     }
 
     override val generationName: String = "index page for project"
