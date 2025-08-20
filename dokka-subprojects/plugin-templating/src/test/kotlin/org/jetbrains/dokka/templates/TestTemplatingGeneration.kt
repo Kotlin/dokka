@@ -5,6 +5,7 @@
 package org.jetbrains.dokka.templates
 
 import org.jetbrains.dokka.Timer
+import org.jetbrains.dokka.base.resolvers.shared.PackageList
 import org.jetbrains.dokka.generation.Generation
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -15,12 +16,14 @@ class TestTemplatingGeneration(private val context: DokkaContext) : Generation {
 
     val templatingPlugin by lazy { context.plugin<TemplatingPlugin>() }
 
-    override fun Timer.generate() {
+    override fun Timer.generate(): Unit = try {
         report("Processing submodules")
         processSubmodules()
 
         report("Finishing processing")
         finishProcessing()
+    } finally {
+        PackageList.clearCache()
     }
 
     fun processSubmodules() =
