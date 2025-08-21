@@ -18,7 +18,7 @@ import kotlin.test.assertTrue
 class ParserTest : KDocTest() {
 
     private fun parseMarkdownToDocNode(text: String) =
-        MarkdownParser( { null }, "").parseStringToDocNode(text)
+        MarkdownParser({ null }, "").parseStringToDocNode(text)
 
     @Test
     fun `Simple text`() {
@@ -715,7 +715,6 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Ignore //TODO: ATX_2 to ATX_6 and sometimes ATX_1 from jetbrains parser consumes white space. Need to handle it in their library
     @Test
     fun `All headers`() {
         val kdoc = """
@@ -901,7 +900,59 @@ class ParserTest : KDocTest() {
         executeTest(kdoc, expectedDocumentationNode)
     }
 
-    @Ignore //TODO: Again ATX_1 consumes white space
+    @Test
+    fun `Blockquote right after text`() {
+        val kdoc = """
+        | text
+        | > quote
+         """.trimMargin()
+
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            P(listOf(Text("text"))),
+                            BlockQuote(listOf(P(listOf(Text("quote")))))
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test
+    fun `Blockquote right after text inside codeblock`() {
+        val kdoc = """
+        | ```md
+        | text
+        | > quote
+        | > quote
+        | ```
+         """.trimMargin()
+
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            CodeBlock(
+                                listOf(
+                                    Text("text"), Br,
+                                    Text("> quote"), Br,
+                                    Text("> quote")
+                                ),
+                                params = mapOf("lang" to "md")
+                            ),
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
     @Test
     fun `Blockquote nested with fancy text enhancement`() {
         val kdoc = """
@@ -928,7 +979,7 @@ class ParserTest : KDocTest() {
                                         listOf(
                                             Text("text "),
                                             B(listOf(Text("1"))),
-                                            Text("\ntext 2")
+                                            Text(" text 2")
                                         )
                                     ),
                                     BlockQuote(
