@@ -1,3 +1,24 @@
+public final class com/intellij/util/lang/JavaVersion : java/lang/Comparable {
+	public final field build I
+	public final field ea Z
+	public final field feature I
+	public final field minor I
+	public final field update I
+	public fun compareTo (Lcom/intellij/util/lang/JavaVersion;)I
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public static fun compose (I)Lcom/intellij/util/lang/JavaVersion;
+	public static fun compose (IIIIZ)Lcom/intellij/util/lang/JavaVersion;
+	public static fun current ()Lcom/intellij/util/lang/JavaVersion;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun isAtLeast (I)Z
+	public static fun parse (Ljava/lang/String;)Lcom/intellij/util/lang/JavaVersion;
+	public fun toFeatureMinorUpdateString ()Ljava/lang/String;
+	public fun toFeatureString ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+	public static fun tryParse (Ljava/lang/String;)Lcom/intellij/util/lang/JavaVersion;
+}
+
 public final class org/jetbrains/dokka/analysis/kotlin/symbols/plugin/SymbolsAnalysisPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
 }

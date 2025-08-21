@@ -12,7 +12,6 @@ plugins {
 
 java {
     withSourcesJar()
-    withJavadocJar()
 }
 
 tasks.shadowJar {
@@ -22,10 +21,15 @@ tasks.shadowJar {
     archiveClassifier = ""
 }
 
+// empty javadocJar to satisfy maven central requirements
+val javadocJar = tasks.register<Jar>("javadocJar") {
+    archiveClassifier.set("javadoc")
+}
+
 publishing.publications.register<MavenPublication>(PublicationName.JVM) {
     // shadow.component call should be after the shadowJar task is configured in a build script,
     // because if not, shadow uses the wrong archiveFile (as we change destinationDirectory and archiveClassifier)
     shadow.component(this)
     artifact(tasks.named("sourcesJar"))
-    artifact(tasks.named("javadocJar"))
+    artifact(javadocJar)
 }
