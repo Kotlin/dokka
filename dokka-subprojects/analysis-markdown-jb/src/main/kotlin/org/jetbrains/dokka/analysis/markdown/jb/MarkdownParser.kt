@@ -133,12 +133,21 @@ public open class MarkdownParser(
     private fun List<ASTNode>.evaluateChildrenWithDroppedEnclosingTokens(count: Int) =
         drop(count).dropLast(count).evaluateChildren()
 
-    private fun blockquotesHandler(node: ASTNode) =
-        DocTagsFromIElementFactory.getInstance(
+    /**
+     * Tracks if we are currently processing elements inside of [MarkdownElementTypes.BLOCK_QUOTE] element.
+     * More info on the specifics and why we need it, in the documentation of [preprocessTextElement]
+     */
+    private var isInsideBlockquote = false
+    private fun blockquotesHandler(node: ASTNode): List<DocTag> {
+        isInsideBlockquote = true
+        val result = DocTagsFromIElementFactory.getInstance(
             node.type, children = node.children
                 .filterIsInstance<CompositeASTNode>()
                 .evaluateChildren()
         )
+        isInsideBlockquote = false
+        return result
+    }
 
     private fun listsHandler(node: ASTNode): List<DocTag> {
 
@@ -281,7 +290,10 @@ public open class MarkdownParser(
 
     private fun textHandler(node: ASTNode, keepAllFormatting: Boolean) = DocTagsFromIElementFactory.getInstance(
         MarkdownTokenTypes.TEXT,
-        body = preprocessTextElement(text.substring(node.startOffset, node.endOffset)),
+        body = preprocessTextElement(
+            text = text.substring(node.startOffset, node.endOffset),
+            isInsideBlockquotesHandler = isInsideBlockquote
+        ),
         keepFormatting = keepAllFormatting
     )
 
@@ -551,7 +563,7 @@ public open class MarkdownParser(
         /**
          * Performs preprocessing of the Markdown text element.
          *
-         * First replacement: blockquotes handling
+         * First replacement: blockquotes' handling, executed if [isInsideBlockquotesHandler] is `true`
          * Markdown parser,
          * when handling blockquotes will handle (remove) `>` symbols only for the first line
          * and will do nothing for further lines.
@@ -569,10 +581,16 @@ public open class MarkdownParser(
          * Second line
          * ```
          * Text element will contain: `First line\n Second line`.
-         * But it's still a single paragraph which should be concatenated into a single one.
+         * But it's still a single paragraph that should be concatenated into a single one.
+         *
+         * @param isInsideBlockquotesHandler `true` if the text is inside of blockquotes, and so additional blockquotes preprocessing is required.
          */
-        private fun preprocessTextElement(text: String): String {
-            return text.replace(blockquoteNewLineRegex, "\n").replace('\n', ' ')
+        private fun preprocessTextElement(text: String, isInsideBlockquotesHandler: Boolean): String {
+            // Note: we need to first do blockquote replacement so that the next lines will be concatenated into a single paragraph.
+            return when {
+                isInsideBlockquotesHandler -> text.replace(blockquoteNewLineRegex, "\n")
+                else -> text
+            }.replace('\n', ' ')
         }
     }
 }
