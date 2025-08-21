@@ -433,7 +433,7 @@ public abstract class AbstractDokkaMojo(
             cacheRoot = cacheRoot?.let(::File),
             sourceSets = listOf(sourceSet),
             // TODO [beresnev] analysis switcher
-            pluginsClasspath = getArtifactByMaven("org.jetbrains.dokka", "analysis-kotlin-descriptors", dokkaVersion) +
+            pluginsClasspath = getArtifactByMaven("org.jetbrains.dokka", "analysis-kotlin-symbols", dokkaVersion) +
                     getArtifactByMaven("org.jetbrains.dokka", "dokka-base", dokkaVersion) +
                     dokkaPlugins.map { getArtifactByMaven(it.groupId, it.artifactId, it.version ?: dokkaVersion) }
                         .flatten(),
