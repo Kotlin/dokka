@@ -6,10 +6,12 @@ package org.jetbrains.dokka.gradle
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.string.shouldContainOnlyOnce
 import io.kotest.matchers.string.shouldNotContain
+import org.gradle.api.logging.LogLevel
+import org.gradle.api.logging.LogLevel.LIFECYCLE
+import org.gradle.api.logging.LogLevel.WARN
+import org.jetbrains.dokka.gradle.utils.GradleProjectTest
 import org.jetbrains.dokka.gradle.utils.addArguments
-import org.jetbrains.dokka.gradle.utils.build
 import org.jetbrains.dokka.gradle.utils.projects.initMultiModuleProject
-import org.jetbrains.dokka.gradle.utils.shouldNotContainAnyOf
 
 class TryK2MessagesTest : FunSpec({
 
@@ -19,63 +21,52 @@ class TryK2MessagesTest : FunSpec({
         // are multiple subprojects with Dokka only one message is logged.
         val project = initMultiModuleProject("TryK2MessagesTest")
 
-        context("when K2 enabled") {
-            context("and log level is set to 'warn'") {
-                project.runner
-                    .addArguments(
-                        ":dokkaGenerate",
-                        "--warn",
-                        "-P$K2_ANALYSIS_ENABLED_FLAG=true",
-                    )
-                    .build {
-                        test("output should contain K2 analysis warning") {
-                            output shouldContainOnlyOnce expectedK2AnalysisWarning
-                        }
-                        test("output not should contain K2 analysis message") {
-                            output shouldNotContain expectedK2AnalysisMessage
-                        }
-                    }
-            }
-            context("and log level is set to 'lifecycle'") {
-                project.runner
-                    .addArguments(
-                        ":dokkaGenerate",
-                        "-P$K2_ANALYSIS_ENABLED_FLAG=true",
-                    )
-                    .build {
-                        test("output should contain K2 analysis warning") {
-                            output shouldContainOnlyOnce expectedK2AnalysisWarning
-                        }
-                        test("output should contain K2 analysis message") {
-                            output shouldContainOnlyOnce expectedK2AnalysisMessage
-                        }
-                    }
-            }
+        val k2Flags = listOf(null, true, false)
+        val noWarns = listOf(null, true, false)
+        val logLevels = listOf(WARN, LIFECYCLE)
 
-            listOf(
-                K2_ANALYSIS_NO_WARN_FLAG,
-                K2_ANALYSIS_NO_WARN_FLAG_PRETTY,
-            ).forEach { noWarnFlag ->
-                context("and message is suppressed with $noWarnFlag") {
-                    project.runner
-                        .addArguments(
-                            ":dokkaGenerate",
-                            "-P$K2_ANALYSIS_ENABLED_FLAG=true",
-                            "-P$noWarnFlag=true",
+        k2Flags.forEach { k2Enabled ->
+            noWarns.forEach { noWarn ->
+                logLevels.forEach { logLevel ->
+                    context("when k2Enabled=$k2Enabled, pluginModeNoWarn=$noWarn, log level=$logLevel") {
+
+                        val output = project.getOutput(
+                            k2Enabled = k2Enabled,
+                            k2NoWarn = noWarn,
+                            logLevel = logLevel,
                         )
-                        .build {
-                            test("output should not contain any Dokka plugin message") {
-                                output.shouldNotContainAnyOf(
-                                    "Dokka K2 Analysis",
-                                    "https://github.com/Kotlin/dokka/issues/",
-                                    "org.jetbrains.dokka.experimental.gradlePlugin",
-                                    K2_ANALYSIS_ENABLED_FLAG,
-                                    K2_ANALYSIS_NO_WARN_FLAG,
-                                    K2_ANALYSIS_NO_WARN_FLAG_PRETTY,
-                                    noWarnFlag,
-                                )
+
+                        val shouldContainK1Warning = when (noWarn) {
+                            true -> false
+                            false -> k2Enabled == false
+                            null -> k2Enabled == false
+                        }
+                        if (shouldContainK1Warning) {
+                            test("output should contain K1 warning") {
+                                output shouldContainOnlyOnce expectedK1AnalysisWarning
+                            }
+                        } else {
+                            test("output should NOT contain K1 warning") {
+                                output shouldNotContain expectedK1AnalysisWarning
                             }
                         }
+
+                        val shouldContainK1Message = when (noWarn) {
+                            true -> false
+                            false -> k2Enabled == false && logLevel == LIFECYCLE
+                            null -> k2Enabled == false && logLevel == LIFECYCLE
+                        }
+                        if (shouldContainK1Message) {
+                            test("output should contain K1 message") {
+                                output shouldContainOnlyOnce expectedK1AnalysisMessage
+                            }
+                        } else {
+                            test("output should NOT contain V1 message") {
+                                output shouldNotContain expectedK1AnalysisMessage
+                                output shouldNotContain expectedK1AnalysisMessage.trim().lines().first()
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -86,26 +77,40 @@ class TryK2MessagesTest : FunSpec({
             "org.jetbrains.dokka.experimental.tryK2"
 
         private const val K2_ANALYSIS_NO_WARN_FLAG =
-            "$K2_ANALYSIS_ENABLED_FLAG.nowarn"
-
-        private const val K2_ANALYSIS_NO_WARN_FLAG_PRETTY =
             "$K2_ANALYSIS_ENABLED_FLAG.noWarn"
 
-        private val expectedK2AnalysisWarning = /* language=text */ """
-            |warning: Dokka K2 Analysis is enabled
+        private val expectedK1AnalysisWarning = /* language=text */ """
+            |warning: Dokka K1 Analysis is enabled
             """.trimMargin()
 
-        private val expectedK2AnalysisMessage = /* language=text */ """
-            |Dokka K2 Analysis is Experimental and is still under active development.
-            |It can cause build failures or generate incorrect documentation. 
+        private val expectedK1AnalysisMessage = /* language=text */ """
+            |Dokka K1 Analysis is deprecated and will be removed in a future release. It can cause build failures or generate incorrect documentation.
+            |Please use Dokka K2 Analysis, which is enabled by default, and supports new language features like context parameters.
+            |
+            |To start using Dokka K2 Analysis remove
+            |    $K2_ANALYSIS_ENABLED_FLAG=false
+            |in your project's `gradle.properties` file.
             |
             |We would appreciate your feedback!
             | - Please report any feedback or problems https://kotl.in/dokka-issues
             | - Chat with the community visit #dokka in https://kotlinlang.slack.com/ (To sign up visit https://kotl.in/slack)
-            |
-            |You can suppress this message by adding
-            |    ${K2_ANALYSIS_NO_WARN_FLAG}=true
-            |to your project's `gradle.properties`
             """.trimMargin().prependIndent()
+
+        private fun GradleProjectTest.getOutput(
+            k2Enabled: Boolean?,
+            k2NoWarn: Boolean?,
+            logLevel: LogLevel,
+        ): String {
+            val args = buildList {
+                add(":help")
+                add("--dry-run")
+                k2Enabled?.let { add("-P$K2_ANALYSIS_ENABLED_FLAG=$it") }
+                if (logLevel != LIFECYCLE) add("--${logLevel.name.lowercase()}")
+                k2NoWarn?.let { add("-P$K2_ANALYSIS_NO_WARN_FLAG=$it") }
+            }
+            return runner
+                .addArguments(args)
+                .build().output
+        }
     }
 }

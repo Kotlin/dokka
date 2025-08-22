@@ -111,9 +111,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                     }
 
                     // property flag to use K2
-                    if (TestEnvironment.shouldUseK2()) {
-                        add("-P${TestEnvironment.TRY_K2}=true")
-                    }
+                    add("-P${TestEnvironment.TRY_K2}=${TestEnvironment.shouldUseK2()}")
 
                     // Decrease Gradle daemon idle timeout to prevent old agents lingering on CI.
                     // A lower timeout means slower tests, which is preferred over OOMs and locked processes.
