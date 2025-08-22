@@ -23,7 +23,7 @@ publishing {
         }
         maven {
             name = "spaceDev"
-            url = uri("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
+            url = uri("https://packages.jetbrains.team/maven/p/kt/dokka-dev")
             credentials {
                 username = System.getenv("DOKKA_SPACE_PACKAGES_USER")
                 password = System.getenv("DOKKA_SPACE_PACKAGES_SECRET")
@@ -31,7 +31,7 @@ publishing {
         }
         maven {
             name = "spaceTest"
-            url = uri("https://maven.pkg.jetbrains.space/kotlin/p/dokka/test")
+            url = uri("https://packages.jetbrains.team/maven/p/kt/dokka-test")
             credentials {
                 username = System.getenv("DOKKA_SPACE_PACKAGES_USER")
                 password = System.getenv("DOKKA_SPACE_PACKAGES_SECRET")
