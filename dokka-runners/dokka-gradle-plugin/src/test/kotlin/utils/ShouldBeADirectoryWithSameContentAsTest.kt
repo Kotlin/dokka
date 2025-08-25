@@ -18,7 +18,7 @@ class ShouldBeADirectoryWithSameContentAsTest : FunSpec({
 
         expectedDir.deleteRecursively()
 
-        val failure = shouldFail { expectedDir.shouldBeADirectoryWithSameContentAs(actualDir) }
+        val failure = shouldFail { actualDir.shouldBeADirectoryWithSameContentAs(expectedDir) }
 
         failure.shouldHaveMessage("expectedDir '$expectedDir' is not a directory (exists:false, file:false)")
     }
@@ -29,7 +29,7 @@ class ShouldBeADirectoryWithSameContentAsTest : FunSpec({
 
         actualDir.deleteRecursively()
 
-        val failure = shouldFail { expectedDir.shouldBeADirectoryWithSameContentAs(actualDir) }
+        val failure = shouldFail { actualDir.shouldBeADirectoryWithSameContentAs(expectedDir) }
 
         failure.shouldHaveMessage("actualDir '$actualDir' is not a directory (exists:false, file:false)")
     }
@@ -49,7 +49,7 @@ class ShouldBeADirectoryWithSameContentAsTest : FunSpec({
             resolve("file-c.txt").writeText("not in expected")
         }
 
-        val failure = shouldFail { expectedDir.shouldBeADirectoryWithSameContentAs(actualDir) }
+        val failure = shouldFail { actualDir.shouldBeADirectoryWithSameContentAs(expectedDir) }
 
         failure.shouldHaveMessage(
             """
@@ -80,7 +80,7 @@ class ShouldBeADirectoryWithSameContentAsTest : FunSpec({
                 )
         }
 
-        val failure = shouldFail { expectedDir.shouldBeADirectoryWithSameContentAs(actualDir) }
+        val failure = shouldFail { actualDir.shouldBeADirectoryWithSameContentAs(expectedDir) }
 
         failure.shouldHaveMessage(
             """
@@ -109,7 +109,7 @@ class ShouldBeADirectoryWithSameContentAsTest : FunSpec({
             resolve("file.txt").writeText("unexpected content")
         }
 
-        val failure = shouldFail { expectedDir.shouldBeADirectoryWithSameContentAs(actualDir) }
+        val failure = shouldFail { actualDir.shouldBeADirectoryWithSameContentAs(expectedDir) }
 
         failure.shouldHaveMessage(
             """
@@ -132,7 +132,7 @@ class ShouldBeADirectoryWithSameContentAsTest : FunSpec({
             resolve("file.bin").writeBytes("This file in the actual dir has valid UTF-8 content".toByteArray())
         }
 
-        val failure = shouldFail { expectedDir.shouldBeADirectoryWithSameContentAs(actualDir) }
+        val failure = shouldFail { actualDir.shouldBeADirectoryWithSameContentAs(expectedDir) }
 
         failure.shouldHaveMessage(
             """
