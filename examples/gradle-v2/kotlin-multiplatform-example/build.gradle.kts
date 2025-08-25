@@ -1,6 +1,6 @@
 plugins {
     kotlin("multiplatform") version "2.2.0"
-    id("org.jetbrains.dokka") version "2.0.20-SNAPSHOT"
+    id("org.jetbrains.dokka") version "2.1.0-SNAPSHOT"
 }
 
 group = "org.dokka.example"
