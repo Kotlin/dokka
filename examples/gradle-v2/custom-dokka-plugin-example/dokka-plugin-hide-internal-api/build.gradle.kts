@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    val dokkaVersion = "2.1.0-SNAPSHOT"
+    val dokkaVersion = "2.1.0-Beta"
     compileOnly("org.jetbrains.dokka:dokka-core:$dokkaVersion")
     implementation("org.jetbrains.dokka:dokka-base:$dokkaVersion")
 
