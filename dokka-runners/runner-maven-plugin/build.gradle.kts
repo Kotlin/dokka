@@ -15,6 +15,11 @@ plugins {
 overridePublicationArtifactId("dokka-maven-plugin")
 
 dependencies {
+    // to override jackson from the compiler in `analysis-kotlin-symbols`
+    // https://github.com/JetBrains/kotlin/blob/b17a978c6165a43dfe8fdfcc2e6dc2e6856c3c9a/gradle/libs.versions.toml#L26
+    implementation(libs.jackson.kotlin)
+    implementation(libs.jackson.xml)
+
     // this version is required, so that it will be available in the POM of plugin
     implementation("org.jetbrains.dokka:analysis-kotlin-symbols:$version")
     implementation("org.jetbrains.dokka:dokka-core:$version")
