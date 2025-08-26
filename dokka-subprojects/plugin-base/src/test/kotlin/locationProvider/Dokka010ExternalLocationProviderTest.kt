@@ -32,7 +32,7 @@ class Dokka010ExternalLocationProviderTest : BaseAbstractTest() {
 
     private fun getTestLocationProvider(context: DokkaContext? = null): Dokka010ExternalLocationProvider {
         val dokkaContext = context ?: DokkaContext.create(configuration, logger, emptyList())
-        val packageList = PackageList.load(packageListURL, 8, true)!!
+        val packageList = PackageList.loadWithoutCache(packageListURL, 8, true)!!
         val externalDocumentation =
             ExternalDocumentation(URL(kotlinLang), packageList)
         return Dokka010ExternalLocationProvider(externalDocumentation, ".html", dokkaContext)

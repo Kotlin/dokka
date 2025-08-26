@@ -2,8 +2,6 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import java.net.URI
-
 plugins {
     id("dokkabuild.base")
     `maven-publish`
@@ -14,16 +12,8 @@ plugins {
 publishing {
     repositories {
         maven {
-            name = "mavenCentral"
-            url = mavenCentralRepositoryUri()
-            credentials {
-                username = System.getenv("DOKKA_SONATYPE_USER")
-                password = System.getenv("DOKKA_SONATYPE_PASSWORD")
-            }
-        }
-        maven {
             name = "spaceDev"
-            url = uri("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
+            url = uri("https://packages.jetbrains.team/maven/p/kt/dokka-dev")
             credentials {
                 username = System.getenv("DOKKA_SPACE_PACKAGES_USER")
                 password = System.getenv("DOKKA_SPACE_PACKAGES_SECRET")
@@ -31,7 +21,7 @@ publishing {
         }
         maven {
             name = "spaceTest"
-            url = uri("https://maven.pkg.jetbrains.space/kotlin/p/dokka/test")
+            url = uri("https://packages.jetbrains.team/maven/p/kt/dokka-test")
             credentials {
                 username = System.getenv("DOKKA_SPACE_PACKAGES_USER")
                 password = System.getenv("DOKKA_SPACE_PACKAGES_SECRET")
@@ -67,22 +57,6 @@ publishing {
                 url.convention("https://github.com/Kotlin/dokka")
             }
         }
-    }
-}
-
-/**
- * Due to Gradle running publishing tasks in parallel, multiple staging repositories
- * can be created within a couple of seconds with all artifact files scattered throughout them.
- *
- * While Gradle's parallelism can be disabled, the simplest and most reliable option is
- * to just publish to a pre-defined staging repository.
- */
-fun mavenCentralRepositoryUri(): URI {
-    val repositoryId: String? = System.getenv("DOKKA_MVN_CENTRAL_REPOSITORY_ID")
-    return if (repositoryId.isNullOrBlank()) {
-        URI("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-    } else {
-        URI("https://oss.sonatype.org/service/local/staging/deployByRepositoryId/$repositoryId")
     }
 }
 

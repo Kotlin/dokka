@@ -32,7 +32,7 @@ class MultiModuleLinkingTest : BaseAbstractTest() {
 
     private fun getTestLocationProvider(context: DokkaContext? = null): DefaultExternalLocationProvider {
         val dokkaContext = context ?: DokkaContext.create(configuration, logger, emptyList())
-        val packageList = PackageList.load(packageListURL, 8, true)!!
+        val packageList = PackageList.loadWithoutCache(packageListURL, 8, true)!!
         val externalDocumentation =
             ExternalDocumentation(URL(exampleDomain), packageList)
         return DefaultExternalLocationProvider(externalDocumentation, ".html", dokkaContext)
@@ -40,7 +40,7 @@ class MultiModuleLinkingTest : BaseAbstractTest() {
 
     private fun getStdlibTestLocationProvider(context: DokkaContext? = null): DefaultExternalLocationProvider {
         val dokkaContext = context ?: DokkaContext.create(configuration, logger, emptyList())
-        val packageList = PackageList.load(stdlibPackageListURL, 8, true)!!
+        val packageList = PackageList.loadWithoutCache(stdlibPackageListURL, 8, true)!!
         val externalDocumentation =
                 ExternalDocumentation(URL(kotlinLang), packageList)
         return DefaultExternalLocationProvider(externalDocumentation, ".html", dokkaContext)

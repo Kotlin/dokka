@@ -130,9 +130,11 @@ constructor(
     private fun logPluginMessage(mode: PluginMode) {
         when (mode) {
             V1Enabled -> logV1PluginMessage()
-            V2EnabledWithHelpers -> logV2PluginMigrationMessage()
+            V2EnabledWithHelpers -> {
+                // this is the default, don't log messages to avoid spamming users
+            }
             V2Enabled -> {
-                // v2 is the default, don't log messages to avoid spamming users
+                // we want users to update to V2Enabled, don't log messages to avoid spamming users
             }
         }
     }
@@ -158,57 +160,31 @@ constructor(
         }
     }
 
-    private fun logV2PluginMigrationMessage() {
-        if (primaryService) {
-            // Migration helpers are provided as a temporary solution to aid with migration to V2,
-            // and they should not be enabled long term because they are non-functional.
-            // To encourage disabling them always log a warning, regardless of the noWarn flag.
-            logger.warn("warning: Dokka Gradle plugin V2 migration helpers are enabled")
-        }
-        if (primaryService && !pluginModeNoWarn) {
-            logger.lifecycle(
-                """
-                |
-                |Thank you for migrating to Dokka Gradle plugin V2!
-                |Migration is in progress, and helpers have been enabled.
-                |$`To learn about migrating read the migration guide`
-                |
-                |Once you have finished migrating disable the migration helpers by adding
-                |    ${PLUGIN_MODE_FLAG}=${V2Enabled}
-                |to your project's `gradle.properties` file.
-                |
-                |$`We would appreciate your feedback`
-                |
-                """.trimMargin().prependIndent()
-            )
-        }
-    }
-
     internal val enableK2Analysis: Boolean by lazy {
         // use lazy {} to ensure messages are only logged once
 
-        val enableK2Analysis = parameters.k2AnalysisEnabled.getOrElse(false)
+        val enableK2Analysis = parameters.k2AnalysisEnabled.getOrElse(true)
 
-        if (enableK2Analysis) {
-            logK2AnalysisMessage()
+        if (!enableK2Analysis) {
+            logK1AnalysisWarning()
         }
 
         enableK2Analysis
     }
 
-    private fun logK2AnalysisMessage() {
+    private fun logK1AnalysisWarning() {
         if (primaryService && !parameters.k2AnalysisNoWarn.getOrElse(false)) {
-            logger.warn("warning: Dokka K2 Analysis is enabled")
+            logger.warn("warning: Dokka K1 Analysis is enabled")
             logger.lifecycle(
                 """
-                |Dokka K2 Analysis is Experimental and is still under active development.
-                |It can cause build failures or generate incorrect documentation. 
+                |Dokka K1 Analysis is deprecated and will be removed in a future release. It can cause build failures or generate incorrect documentation.
+                |Please use Dokka K2 Analysis, which is enabled by default, and supports new language features like context parameters.
+                |
+                |To start using Dokka K2 Analysis remove
+                |    ${K2_ANALYSIS_ENABLED_FLAG}=false
+                |in your project's `gradle.properties` file.
                 |
                 |$`We would appreciate your feedback`
-                |
-                |You can suppress this message by adding
-                |    ${K2_ANALYSIS_NO_WARN_FLAG}=true
-                |to your project's `gradle.properties` file.
                 """.trimMargin().prependIndent()
             )
         }
