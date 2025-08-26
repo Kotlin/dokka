@@ -11,7 +11,6 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
 import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
@@ -44,7 +43,6 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
 import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
 import java.io.File
 import javax.inject.Inject
-import kotlin.reflect.jvm.jvmName
 
 /**
  * The [KotlinAdapter] plugin will automatically register Kotlin source sets as Dokka source sets.
@@ -72,25 +70,8 @@ abstract class KotlinAdapter @Inject constructor(
     }
 
     private fun exec(project: Project) {
-        val kotlinExtension = project.extensions.findKotlinExtension()
+        val kotlinExtension = project.findKotlinExtension()
         if (kotlinExtension == null) {
-            if (project.extensions.findByName("kotlin") != null) {
-                // uh oh - the Kotlin extension is present but findKotlinExtension() failed.
-                // Is there a class loader issue? https://github.com/gradle/gradle/issues/27218
-                logger.warn {
-                    val allPlugins =
-                        project.plugins.joinToString { it::class.qualifiedName ?: "${it::class}" }
-                    val allExtensions =
-                        project.extensions.extensionsSchema.elements.joinToString { "${it.name} ${it.publicType}" }
-
-                    /* language=TEXT */
-                    """
-                    |$dkaName failed to get KotlinProjectExtension in ${project.path}
-                    |  Applied plugins: $allPlugins
-                    |  Available extensions: $allExtensions
-                    """.trimMargin()
-                }
-            }
             logger.info("Skipping applying $dkaName in ${project.path} - could not find KotlinProjectExtension")
             return
         }
@@ -215,24 +196,48 @@ abstract class KotlinAdapter @Inject constructor(
         private val logger = Logging.getLogger(KotlinAdapter::class.java)
 
         /** Try and get [KotlinProjectExtension], or `null` if it's not present. */
-        private fun ExtensionContainer.findKotlinExtension(): KotlinProjectExtension? =
-            try {
-                findByType()
-                // fallback to trying to get the JVM extension
-                // (not sure why I did this... maybe to be compatible with really old versions?)
-                    ?: findByType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension>()
-            } catch (e: Throwable) {
-                when (e) {
-                    is TypeNotPresentException,
-                    is ClassNotFoundException,
-                    is NoClassDefFoundError -> {
-                        logger.info("$dkaName failed to find KotlinExtension ${e::class} ${e.message}")
-                        null
-                    }
+        private fun Project.findKotlinExtension(): KotlinProjectExtension? {
+            val kotlinExtension =
+                try {
+                    extensions.findByType<KotlinProjectExtension>()
+                    // fallback to trying to get the JVM extension
+                    // (not sure why I did this... maybe to be compatible with really old versions?)
+                        ?: extensions.findByType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension>()
+                } catch (e: Throwable) {
+                    when (e) {
+                        is TypeNotPresentException,
+                        is ClassNotFoundException,
+                        is NoClassDefFoundError -> {
+                            logger.info("$dkaName failed to find KotlinExtension ${e::class} ${e.message}")
+                            null
+                        }
 
-                    else -> throw e
+                        else -> throw e
+                    }
+                }
+
+            if (kotlinExtension == null) {
+                if (project.extensions.findByName("kotlin") != null) {
+                    // uh oh - the Kotlin extension is present but findKotlinExtension() failed.
+                    // Is there a class loader issue? https://github.com/gradle/gradle/issues/27218
+                    logger.warn {
+                        val allPlugins =
+                            project.plugins.joinToString { it::class.qualifiedName ?: "${it::class}" }
+                        val allExtensions =
+                            project.extensions.extensionsSchema.elements.joinToString { "${it.name} ${it.publicType}" }
+
+                        /* language=TEXT */
+                        """
+                        |$dkaName failed to get KotlinProjectExtension in ${project.path}
+                        |  Applied plugins: $allPlugins
+                        |  Available extensions: $allExtensions
+                        """.trimMargin()
+                    }
                 }
             }
+
+            return kotlinExtension
+        }
 
         /** Get the version of the Kotlin Gradle Plugin currently used to compile the project. */
         // Must be lazy, else tests fail (because the KGP plugin isn't accessible)
@@ -274,7 +279,7 @@ private data class KotlinCompilationDetails(
      *
      * (E.g. 'main' compilations are published, 'test' compilations are not.)
      */
-    val publishedCompilation: Boolean,
+    val publishedCompilation: Provider<Boolean>,
 
     /** [KotlinCompilation.kotlinSourceSets] → [KotlinSourceSet.dependsOn] names. */
     val dependentSourceSetNames: Set<String>,
@@ -293,6 +298,7 @@ private class KotlinCompilationDetailsBuilder(
     private val konanHome: Provider<File>,
     private val project: Project,
 ) {
+    private val androidComponentsInfo: Provider<Set<AgpVariantInfo>> = getAgpVariantInfo(project)
 
     fun createCompilationDetails(
         kotlinProjectExtension: KotlinProjectExtension,
@@ -310,6 +316,69 @@ private class KotlinCompilationDetailsBuilder(
             })
 
         return details
+    }
+
+    private data class AgpVariantInfo(
+        val name: String,
+        val hasPublishedComponent: Boolean,
+    )
+
+    private fun getAgpVariantInfo(
+        project: Project,
+    ): Provider<Set<AgpVariantInfo>> {
+
+        val androidVariants = objects.setProperty(AgpVariantInfo::class)
+
+        fun collectAndroidVariants() {
+            val androidComponents = project.findAndroidComponentExtension()
+
+            androidComponents?.onVariants { variant ->
+                androidVariants.add(
+                    AgpVariantInfo(
+                        name = variant.name,
+                        hasPublishedComponent = variant.components.any { it is com.android.build.api.variant.Variant },
+                    )
+                )
+            }
+        }
+
+        project.pluginManager.apply {
+            withPlugin(PluginId.AndroidBase) { collectAndroidVariants() }
+            withPlugin(PluginId.AndroidApplication) { collectAndroidVariants() }
+            withPlugin(PluginId.AndroidLibrary) { collectAndroidVariants() }
+        }
+        return androidVariants
+
+//            try {
+//                project.extensions.findByType(AndroidComponentsExtension::class)
+//            } catch (ex: ClassNotFoundException) {
+//                KotlinCompilationDetailsBuilder.Companion.logger.info("Unable to find AndroidComponentsExtension in project $project", ex)
+//                null
+//            }
+//        if (androidComponents == null) {
+//            KotlinCompilationDetailsBuilder.Companion.logger.warn("AndroidComponentsExtension not available in project $project")
+//            return providers.provider { false }
+//        } else {
+//            val agpVariants = objects.listProperty(AgpVariantInfo::class)
+//
+//            androidComponents.onVariants { v ->
+//                println("[DOKKA KotlinAdapter] ${compilation.name} checking variant $v, ${v.name}, ${v.components.map { "${it.name}=${it::class}" }}")
+//                agpVariants.add(
+//                    AgpVariantInfo(
+//                        name = v.name,
+//                        hasPublishedComponent =
+//                            v.components.any { it is com.android.build.api.variant.Variant },
+//                    )
+//                )
+//            }
+//
+//            return agpVariants.map { agpVariants ->
+//                agpVariants
+//                    .singleOrNull { it.name == compilation.name }
+//                    ?.hasPublishedComponent
+//                    ?: false
+//            }
+//        }
     }
 
     /** Create a single [KotlinCompilationDetails] for [compilation]. */
@@ -438,40 +507,57 @@ private class KotlinCompilationDetailsBuilder(
         }
     }
 
-    companion object {
+    /**
+     * Determine if a [KotlinCompilation] is 'publishable', and so should be enabled by default
+     * when creating a Dokka publication.
+     *
+     * Typically, 'main' compilations are publishable and 'test' compilations should be suppressed.
+     * This can be overridden manually, though.
+     *
+     * @see DokkaSourceSetSpec.suppress
+     */
+    private fun KotlinCompilation<*>.isPublished(): Provider<Boolean> {
+        return when (this) {
+            is KotlinMetadataCompilation<*> ->
+                providers.provider { true }
 
-        /**
-         * Determine if a [KotlinCompilation] is 'publishable', and so should be enabled by default
-         * when creating a Dokka publication.
-         *
-         * Typically, 'main' compilations are publishable and 'test' compilations should be suppressed.
-         * This can be overridden manually, though.
-         *
-         * @see DokkaSourceSetSpec.suppress
-         */
-        private fun KotlinCompilation<*>.isPublished(): Boolean {
-            return when (this) {
-                is KotlinMetadataCompilation<*> -> true
+            // Use string-based comparison, not the actual classes, because AGP has deprecated and
+            // moved the Library/Application classes to a different package.
+            // Using strings is more widely compatible.
+            is KotlinJvmAndroidCompilation -> {
+                isJvmAndroidPublished(this)
+            }
 
-                // Use string-based comparison, not the actual classes, because AGP has deprecated and
-                // moved the Library/Application classes to a different package.
-                // Using strings is more widely compatible.
-                is KotlinJvmAndroidCompilation -> {
-                    // `runCatching` is used here, in case `androidVariant` will be removed in a future version of KGP.
-                    val variantName = runCatching {
-                        // https://youtrack.jetbrains.com/issue/KT-77023:
-                        // `androidVariant` has `null` value in case of AGP/built-in Kotlin project.
-                        @Suppress("DEPRECATION", "UNNECESSARY_NOT_NULL_ASSERTION")
-                        androidVariant!!::class.jvmName
-                    }.getOrNull() ?: return true // published by default
+            else ->
+                providers.provider { name == MAIN_COMPILATION_NAME }
+        }
+    }
 
-                    "LibraryVariant" in variantName || "ApplicationVariant" in variantName
+    private fun isJvmAndroidPublished(compilation: KotlinJvmAndroidCompilation): Provider<Boolean> {
+        println("[DOKKA KotlinAdapter] Checking if ${compilation.name} is publishable... (currentKotlinToolingVersion:${currentKotlinToolingVersion})")
+
+//        if (currentKotlinToolingVersion < KotlinToolingVersion("2.2.10")) { // TODO revert, I made it lower for easier manual testing
+        if (currentKotlinToolingVersion < KotlinToolingVersion("2.1.10")) {
+            val variantName = compilation.androidVariant.name
+            return providers.provider {
+                val x = "LibraryVariant" in variantName || "ApplicationVariant" in variantName
+                println("[DOKKA KotlinAdapter] ${compilation.name} publishable:$x, variant:$variantName")
+                x
+            }
+        } else {
+            return androidComponentsInfo.map { components ->
+                components.any { component ->
+                    val x = component.name == compilation.name
+                            && component.hasPublishedComponent
+                    println("[DOKKA KotlinAdapter] ${compilation.name} publishable:$x, component:${component.name}")
+                    x
                 }
-
-                else ->
-                    name == MAIN_COMPILATION_NAME
             }
         }
+    }
+
+    companion object {
+        private val logger = Logging.getLogger(KotlinCompilationDetailsBuilder::class.java)
     }
 }
 
@@ -515,7 +601,7 @@ private abstract class KotlinSourceSetDetails @Inject constructor(
      */
     fun isPublishedSourceSet(): Provider<Boolean> =
         allCompilations.map { values ->
-            values.any { it.publishedCompilation }
+            values.any { it.publishedCompilation.get() }
         }
 
     override fun getName(): String = named
@@ -624,4 +710,51 @@ private class KotlinSourceSetDetailsBuilder(
             allDependents = allDependents + next,
         )
     }
+}
+
+
+private typealias AndroidComponentsExtension = com.android.build.api.variant.AndroidComponentsExtension<*, *, *>
+
+
+/** Try and get [KotlinProjectExtension], or `null` if it's not present. */
+private fun Project.findAndroidComponentExtension(): AndroidComponentsExtension? {
+    val androidComponentsExtensionName = "androidComponents"
+    val androidComponentsExtension =
+        try {
+            val candidate = extensions.findByName(androidComponentsExtensionName)
+            candidate as? AndroidComponentsExtension
+        } catch (e: Throwable) {
+            when (e) {
+                is TypeNotPresentException,
+                is ClassNotFoundException,
+                is NoClassDefFoundError -> {
+                    logger.info("Dokka Gradle plugin failed to find AndroidComponentsExtension ${e::class} ${e.message}")
+                    null
+                }
+
+                else -> throw e
+            }
+        }
+
+    if (androidComponentsExtension == null) {
+        if (project.extensions.findByName(androidComponentsExtensionName) != null) {
+            // uh oh - extension is present but findAndroidComponentExtension() failed.
+            // Is there a class loader issue? https://github.com/gradle/gradle/issues/27218
+            logger.warn {
+                val allPlugins =
+                    project.plugins.joinToString { it::class.qualifiedName ?: "${it::class}" }
+                val allExtensions =
+                    project.extensions.extensionsSchema.elements.joinToString { "${it.name} ${it.publicType}" }
+
+                /* language=TEXT */
+                """
+                |Dokka Gradle plugin failed to get AndroidComponentsExtension in ${project.path}
+                |  Applied plugins: $allPlugins
+                |  Available extensions: $allExtensions
+                """.trimMargin()
+            }
+        }
+    }
+
+    return androidComponentsExtension
 }
