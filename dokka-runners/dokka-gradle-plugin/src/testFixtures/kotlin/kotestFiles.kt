@@ -21,7 +21,11 @@ import kotlin.io.path.*
  * Only files will be compared, directories are ignored.
  */
 fun Path.shouldBeADirectoryWithSameContentAs(path: Path, filesExcludedFromContentCheck: List<String> = emptyList()) {
-    val differences = describeFileDifferences(this, path, filesExcludedFromContentCheck)
+    val differences = describeFileDifferences(
+        actualDir = this,
+        expectedDir = path,
+        filesExcludedFromContentCheck = filesExcludedFromContentCheck,
+    )
     if (differences.isNotEmpty()) {
         fail(differences)
     }
