@@ -16,7 +16,10 @@ overridePublicationArtifactId("dokka-maven-plugin")
 
 dependencies {
     // this version is required, so that it will be available in the POM of plugin
+    implementation("org.jetbrains.dokka:analysis-kotlin-symbols:$version")
     implementation("org.jetbrains.dokka:dokka-core:$version")
+    // at runtime, the stdlib from analysis-kotlin-symbols should be used
+    compileOnly(libs.kotlin.stdlib)
 
     implementation(libs.apacheMaven.core)
     implementation(libs.apacheMaven.pluginApi)
