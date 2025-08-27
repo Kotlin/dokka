@@ -20,7 +20,7 @@ fun Project.configureGradleKotlinCompatibility() {
      * To be compatible with the AA, Dokka analysis should be compiled with approximately the same version
      * See https://kotlinlang.org/docs/kotlin-evolution-principles.html#evolving-the-binary-format
      */
-    val analysisK2Projects = listOf("analysis-kotlin-symbols")
+    val analysisK2Projects = listOf("analysis-kotlin-symbols", "runner-maven-plugin")
     if (!dokkaBuild.enforceGradleKotlinCompatibility.get() ||  project.name in analysisK2Projects) return
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class, ExperimentalBuildToolsApi::class)
