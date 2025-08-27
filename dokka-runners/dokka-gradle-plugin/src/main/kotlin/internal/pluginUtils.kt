@@ -28,7 +28,7 @@ internal inline fun <reified T : Any> Project.findExtensionLenient(
                 is TypeNotPresentException,
                 is ClassNotFoundException,
                 is NoClassDefFoundError -> {
-                    logger.info("Dokka Gradle plugin failed to find extension ${T::class.simpleName}. ${e::class} ${e.message}")
+                    logger.info("Dokka Gradle plugin failed to find extension $extensionName ${T::class.simpleName}. ${e::class} ${e.message}")
                     null
                 }
 
@@ -47,7 +47,7 @@ internal inline fun <reified T : Any> Project.findExtensionLenient(
                     project.extensions.extensionsSchema.elements.joinToString { "${it.name} ${it.publicType}" }
 
                 """
-                |Dokka Gradle plugin failed to get AndroidComponentsExtension in ${project.path}
+                |Dokka Gradle plugin failed to get extension $extensionName ${T::class.simpleName} in ${project.path}
                 |  Applied plugins: $allPlugins
                 |  Available extensions: $allExtensions
                 """.trimMargin()
