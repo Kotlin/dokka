@@ -111,10 +111,17 @@ Integration tests require a significant amount of available RAM (~20-30GB), take
 environment configuration to run. For these reasons, it's not expected that you run all integration tests locally
 as part of the everyday development process, they will be run on CI once you submit a PR.
 
-However, if you need to run all integration tests locally, you can use the `integrationTest` task:
+Integration tests are executed by default when running `check`, `test` or `build` tasks.
+It's possible to skip those by passing `-Porg.jetbrains.dokka.integration_test.skip=true` to the Gradle command, like:
 
-```shell
-./gradlew integrationTest
+```bash
+./gradlew check -Porg.jetbrains.dokka.integration_test.skip=true
+```
+
+Integration tests can be run explicitly by running `check` task in `:dokka-integration-tests` composite build:
+
+```bash
+./gradlew :dokka-integration-tests:check
 ```
 
 If you need to run a specific test locally, you can run it from your IDE or by calling the corresponding Gradle
