@@ -30,12 +30,6 @@ dependencyResolutionManagement {
             setUrl("https://cache-redirector.jetbrains.com/maven-central")
             name = "MavenCentral-JBCache"
         }
-        maven("https://cache-redirector.jetbrains.com/intellij-repository/releases") {
-            name = "IjRepository-JBCache"
-        }
-        maven("https://cache-redirector.jetbrains.com/intellij-dependencies") {
-            name = "IjDependencies-JBCache"
-        }
     }
 
     versionCatalogs {
