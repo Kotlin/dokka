@@ -22,7 +22,7 @@ dependencies {
 //region check consistent develocity version
 
 val checkBuildSettingsLogicPluginConsistency by tasks.registering {
-    description
+    description = "Check consistency of plugin versions in settings.gradle.kts with version catalog."
     group = LifecycleBasePlugin.VERIFICATION_GROUP
 
     val customUserDataVersion = libs.versions.gradlePlugin.gradle.customUserData
