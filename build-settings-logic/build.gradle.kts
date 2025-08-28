@@ -65,7 +65,7 @@ val checkBuildSettingsLogicPluginConsistency by tasks.registering {
                         appendLine("plugin $id: missing")
 
                     actualVersion != version ->
-                        appendLine("plugin $id: expected $version, actual ${pluginVersionsMap[id]}")
+                        appendLine("plugin $id: expected $version, actual $actualVersion")
                 }
             }
 
