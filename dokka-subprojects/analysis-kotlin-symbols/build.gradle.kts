@@ -24,7 +24,11 @@ dependencies {
 
     implementation(projects.dokkaSubprojects.analysisKotlinApi)
     implementation(projects.dokkaSubprojects.analysisMarkdownJb)
-    implementation(projects.dokkaSubprojects.analysisJavaPsi)
+    implementation(projects.dokkaSubprojects.analysisJavaPsi) {
+        // a stripped one is already presented in `kotlin-compiler`
+        // also, it prevents using `aalto-xml` in `jackson` by excluding Stax API services files
+       exclude("com.fasterxml", "aalto-xml")
+    }
 
     // ----------- Analysis dependencies ----------------------------------------------------------------------------
 
