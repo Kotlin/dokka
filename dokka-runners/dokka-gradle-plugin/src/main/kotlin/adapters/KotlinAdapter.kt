@@ -43,6 +43,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
 import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
 import java.io.File
 import javax.inject.Inject
+import kotlin.reflect.jvm.jvmName
 
 /**
  * The [KotlinAdapter] plugin will automatically register Kotlin source sets as Dokka source sets.
@@ -468,11 +469,11 @@ private class KotlinCompilationDetailsBuilder(
                 result
             }
         } else {
-            val variantName = compilation.androidVariant.name
+            val androidVariantJvmName = compilation.androidVariant::class.jvmName
             return providers.provider {
-                val result = "LibraryVariant" in variantName || "ApplicationVariant" in variantName
+                val result = "LibraryVariant" in androidVariantJvmName || "ApplicationVariant" in androidVariantJvmName
                 logger.info {
-                    "[KotlinAdapter isJvmAndroidPublished] ${compilation.name} publishable:$result, androidVariant:$variantName"
+                    "[KotlinAdapter isJvmAndroidPublished] ${compilation.name} publishable:$result, androidVariantJvmName:$androidVariantJvmName"
                 }
                 result
             }
