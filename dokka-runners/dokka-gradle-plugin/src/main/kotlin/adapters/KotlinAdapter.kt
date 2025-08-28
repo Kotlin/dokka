@@ -274,17 +274,30 @@ private class KotlinCompilationDetailsBuilder(
         return details
     }
 
+    /**
+     * Collect information about Android variants.
+     * Used to determine whether a source set is published or not.
+     * See [KotlinSourceSetDetails.isPublishedSourceSet].
+     *
+     * Android variant info must be fetched eagerly,
+     * since AGP doesn't provide a lazy way of accessing component information.
+     *
+     * @see collectAndroidVariants
+     * @see supportsAgpKotlinBuiltInCompilation
+     */
     private fun getAgpVariantInfo(
         project: Project,
     ): Provider<Set<AndroidVariantInfo>> {
-
         val androidVariants = objects.setProperty(AndroidVariantInfo::class)
 
-        project.pluginManager.apply {
-            withPlugin(PluginId.AndroidBase) { collectAndroidVariants(project, androidVariants) }
-            withPlugin(PluginId.AndroidApplication) { collectAndroidVariants(project, androidVariants) }
-            withPlugin(PluginId.AndroidLibrary) { collectAndroidVariants(project, androidVariants) }
+        if (currentKotlinToolingVersion.supportsAgpKotlinBuiltInCompilation()) {
+            project.pluginManager.apply {
+                withPlugin(PluginId.AndroidBase) { collectAndroidVariants(project, androidVariants) }
+                withPlugin(PluginId.AndroidApplication) { collectAndroidVariants(project, androidVariants) }
+                withPlugin(PluginId.AndroidLibrary) { collectAndroidVariants(project, androidVariants) }
+            }
         }
+
         return androidVariants
     }
 
@@ -445,21 +458,21 @@ private class KotlinCompilationDetailsBuilder(
     ): Provider<Boolean> {
 
         // in KGP 2.2.10 androidVariant will be nullable KT-77023
-        if (currentKotlinToolingVersion < KotlinToolingVersion("2.2.10")) {
-            val variantName = compilation.androidVariant.name
-            return providers.provider {
-                val result = "LibraryVariant" in variantName || "ApplicationVariant" in variantName
-                logger.info {
-                    "[KotlinAdapter isJvmAndroidPublished] ${compilation.name} publishable:$result, androidVariant:$variantName"
-                }
-                result
-            }
-        } else {
+        if (currentKotlinToolingVersion.supportsAgpKotlinBuiltInCompilation()) {
             return androidComponentsInfo.map { components ->
                 val compilationComponents = components.filter { it.name == compilation.name }
                 val result = compilationComponents.any { component -> component.hasPublishedComponent }
                 logger.info {
                     "[KotlinAdapter isJvmAndroidPublished] ${compilation.name} publishable:$result, compilationComponents:$compilationComponents"
+                }
+                result
+            }
+        } else {
+            val variantName = compilation.androidVariant.name
+            return providers.provider {
+                val result = "LibraryVariant" in variantName || "ApplicationVariant" in variantName
+                logger.info {
+                    "[KotlinAdapter isJvmAndroidPublished] ${compilation.name} publishable:$result, androidVariant:$variantName"
                 }
                 result
             }
@@ -672,3 +685,13 @@ private fun collectAndroidVariants(
         )
     }
 }
+
+/**
+ * KGP 2.2.10 will start delegating Kotlin compilation to AGP ("Built-in Kotlin").
+ *
+ * [KotlinJvmAndroidCompilation.androidVariant] will be deprecated and nullable.
+ *
+ * See https://youtrack.jetbrains.com/issue/KT-77023
+ */
+private fun KotlinToolingVersion.supportsAgpKotlinBuiltInCompilation(): Boolean =
+    this >= KotlinToolingVersion("2.2.10")
