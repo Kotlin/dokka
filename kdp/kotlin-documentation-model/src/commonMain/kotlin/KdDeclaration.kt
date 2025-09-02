@@ -18,6 +18,14 @@ public sealed class KdDeclaration : KdElement() {
 
     public abstract val documentationTags: List<KdDocumentationTag>
     public abstract val annotations: List<KdAnnotation>
+
+    // isExpect/isActual
+    // but when we publish those, names of fragments become relevant only inside one built model,
+    // as it's possible to have different ones, e.g `linux+macos`, in different libraries/projects
+    // so fragments (as in uklibs) are represented more based on targets/platforms?
+    //
+    // "expectFragmentId": "commonMain"
+    // "actualFragments": ["jvmMain": {...}, "nativeMain": {...}]
 }
 
 public class KdSourceFileInformation(

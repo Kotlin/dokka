@@ -10,3 +10,5 @@ tags:
 ---
 
 # Hello!
+
+`Hello!` will be the visible name of the module - if there is no `#` in the title - no custom name will be used.

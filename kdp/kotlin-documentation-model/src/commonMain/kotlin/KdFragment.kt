@@ -30,3 +30,11 @@ public data class KdFragment(
     // val samples
 //    val files: List<KdFile>,
 ) //: KdElement()
+
+// project(kotlinx.coroutines) ->
+//  module(coroutines-core) ->
+//   fragment(commonMain) ->
+//    package(kotlinx.coroutines) -> | can be shared between fragments
+//     [file(Job.kt)] ->
+//      class(Job) ->               | can be shared between fragments - expect/actual
+//       declaration(cancel)        | can be shared between fragments - expect/actual
