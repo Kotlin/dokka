@@ -28,6 +28,10 @@ class BasicGradleIntegrationTest : AbstractGradleIntegrationTest() {
             "dokkaJavadoc",
             "dokkaGfm",
             "dokkaJekyll",
+            jvmArgs = listOf(
+                "-Xmx1G", "-XX:MaxMetaspaceSize=800m",
+                "-XX:SoftRefLRUPolicyMSPerMB=10" // to free up the metaspace on JVM 8, see https://youtrack.jetbrains.com/issue/KT-55831/
+            )
         ).buildRelaxed()
 
         assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaHtml")).outcome)
