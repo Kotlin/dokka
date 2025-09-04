@@ -27,7 +27,7 @@ class BasicGradleIntegrationTest : AbstractGradleIntegrationTest() {
             "dokkaHtml",
             "dokkaJavadoc",
             "dokkaGfm",
-            "dokkaJekyll",
+            "dokkaJekyll"
         ).buildRelaxed()
 
         assertEquals(expectedOutcome, assertNotNull(result.task(":dokkaHtml")).outcome)

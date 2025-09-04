@@ -40,7 +40,7 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
     fun createGradleRunner(
         buildVersions: BuildVersions,
         vararg arguments: String,
-        jvmArgs: List<String> = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=1G"),
+        jvmArgs: List<String> = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=800m"),
         enableBuildCache: Boolean? = true,
         /**
          * The log level that Gradle will use.
@@ -120,7 +120,11 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                     addAll(arguments)
                 }
             )
-            .withJvmArguments(jvmArgs)
+            .withJvmArguments(jvmArgs +
+                    /**
+                     * Free up the metaspace on JVM 8 more aggressively by setting `SoftRefLRUPolicyMSPerMB`, see https://youtrack.jetbrains.com/issue/KT-55831/
+                     */
+                    "-XX:SoftRefLRUPolicyMSPerMB=10")
     }
 
     fun GradleRunner.buildRelaxed(): BuildResult {
