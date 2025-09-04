@@ -40,7 +40,9 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
     fun createGradleRunner(
         buildVersions: BuildVersions,
         vararg arguments: String,
-        jvmArgs: List<String> = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=1G"),
+        jvmArgs: List<String> = listOf("-Xmx2G", "-XX:MaxMetaspaceSize=800m",
+            "-XX:SoftRefLRUPolicyMSPerMB=10" // to free up the metaspace on JVM 8, see https://youtrack.jetbrains.com/issue/KT-55831/
+        ),
         enableBuildCache: Boolean? = true,
         /**
          * The log level that Gradle will use.
