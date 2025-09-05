@@ -74,7 +74,7 @@ internal fun parseFromKDocTag(
                         val dri = pointedLink(tag)
                         See(
                             parseStringToDocNode(tag.getContent(), externalDRIProvider),
-                            dri?.fqDeclarationName() ?: tag.getSubjectName().orEmpty(),
+                            tag.getSubjectName().orEmpty(),
                             dri,
                         )
                     }

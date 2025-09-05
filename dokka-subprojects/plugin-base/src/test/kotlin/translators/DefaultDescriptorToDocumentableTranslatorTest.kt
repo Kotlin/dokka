@@ -14,6 +14,7 @@ import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
 import utils.OnlyDescriptors
+import utils.OnlySymbols
 import utils.text
 import kotlin.test.*
 
@@ -772,7 +773,8 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
     }
 
     @Test
-    fun `should correctly parse multiple see tags with static function and property links`() {
+    @OnlyDescriptors("#3680: difference in behavior of K1 and K2")
+    fun `should correctly parse multiple see tags with static function and property links K1`() {
         testInline(
             """
             |/src/main/kotlin/com/example/package/CollectionExtensions.kt
@@ -854,6 +856,96 @@ val soapXml = node("soap-env:Envelope", soapAttrs,
                 assertSeeTag(
                     tag = documentationTags[6],
                     expectedName = "com.example.util.CollectionExtensions.property",
+                    expectedDescription = "static property"
+                )
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols("#3680: difference in behavior of K1 and K2")
+    fun `should correctly parse multiple see tags with static function and property links K2`() {
+        testInline(
+            """
+            |/src/main/kotlin/com/example/package/CollectionExtensions.kt
+            |package com.example.util
+            |
+            |object CollectionExtensions {
+            |    val property = "Hi"
+            |
+            |    fun emptyList() {}
+            |    fun emptyMap() {}
+            |    fun emptySet() {}
+            |}
+            |
+            |/src/main/kotlin/com/example/foo.kt
+            |package com.example
+            |
+            |import com.example.util.CollectionExtensions.emptyMap
+            |import com.example.util.CollectionExtensions.emptyList
+            |import com.example.util.CollectionExtensions.emptySet
+            |import com.example.util.CollectionExtensions.property
+            |
+            |/**
+            | * @see [List] stdlib list
+            | * @see [Map] stdlib map
+            | * @see [emptyMap] static emptyMap
+            | * @see [emptyList] static emptyList
+            | * @see [emptySet] static emptySet
+            | * @see [property] static property
+            | */
+            |fun foo() {}
+            """.trimIndent(),
+            configuration
+        ) {
+            fun assertSeeTag(tag: TagWrapper, expectedName: String, expectedDescription: String) {
+                assertTrue(tag is See)
+                assertEquals(expectedName, tag.name)
+                val description = tag.children.joinToString { it.text().trim() }
+                assertEquals(expectedDescription, description)
+            }
+
+            documentablesMergingStage = { module ->
+                val testFunction = module.packages.find { it.name == "com.example" }
+                    ?.functions
+                    ?.single { it.name == "foo" }
+                assertNotNull(testFunction)
+
+                val documentationTags = testFunction.documentation.values.single().children
+                assertEquals(7, documentationTags.size)
+
+                val descriptionTag = documentationTags[0]
+                assertTrue(descriptionTag is Description, "Expected first tag to be empty description")
+                assertTrue(descriptionTag.children.isEmpty(), "Expected first tag to be empty description")
+
+                assertSeeTag(
+                    tag = documentationTags[1],
+                    expectedName = "List",
+                    expectedDescription = "stdlib list"
+                )
+                assertSeeTag(
+                    tag = documentationTags[2],
+                    expectedName = "Map",
+                    expectedDescription = "stdlib map"
+                )
+                assertSeeTag(
+                    tag = documentationTags[3],
+                    expectedName = "emptyMap",
+                    expectedDescription = "static emptyMap"
+                )
+                assertSeeTag(
+                    tag = documentationTags[4],
+                    expectedName = "emptyList",
+                    expectedDescription = "static emptyList"
+                )
+                assertSeeTag(
+                    tag = documentationTags[5],
+                    expectedName = "emptySet",
+                    expectedDescription = "static emptySet"
+                )
+                assertSeeTag(
+                    tag = documentationTags[6],
+                    expectedName = "property",
                     expectedDescription = "static property"
                 )
             }

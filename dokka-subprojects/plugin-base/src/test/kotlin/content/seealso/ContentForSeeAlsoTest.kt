@@ -687,7 +687,8 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should prefix static function and property links with class name`() {
+    @OnlyDescriptors("#3680: difference in behavior of K1 and K2")
+    fun `should prefix static function and property links with class name K1`() {
         testInline(
             """
             |/src/main/kotlin/com/example/package/CollectionExtensions.kt
@@ -745,6 +746,218 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                                         group {
                                             group { +"static emptyList" }
                                         }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols("#3680: difference in behavior of K1 and K2")
+    fun `should prefix static function and property links with class name K2`() {
+        testInline(
+            """
+            |/src/main/kotlin/com/example/package/CollectionExtensions.kt
+            |package com.example.util
+            |
+            |object CollectionExtensions {
+            |    val property = "Hi"
+            |    fun emptyList() {}
+            |}
+            |
+            |/src/main/kotlin/com/example/foo.kt
+            |package com.example
+            |
+            |import com.example.util.CollectionExtensions.property
+            |import com.example.util.CollectionExtensions.emptyList
+            |
+            |/**
+            | * @see [property] static property
+            | * @see [emptyList] static emptyList
+            | */
+            |fun function() {}
+            """.trimIndent(),
+            testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("com.example", "function")
+
+                page.content.assertNode {
+                    group {
+                        header(1) { +"function" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature(
+                                    annotations = emptyMap(),
+                                    visibility = "",
+                                    modifier = "",
+                                    keywords = emptySet(),
+                                    name = "function",
+                                    returnType = null,
+                                )
+                            }
+                            after {
+                                header(4) { +"See also" }
+                                table {
+                                    group {
+                                        link { +"property" }
+                                        group {
+                                            group { +"static property" }
+                                        }
+                                    }
+                                    group {
+                                        link { +"emptyList" }
+                                        group {
+                                            group { +"static emptyList" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    @OnlyDescriptors("#3680: difference in behavior of K1 and K2")
+    fun `inherited declaration in @see block K1`() {
+        testInline(
+            """
+            |/src/main/kotlin/com/example/foo.kt
+            |package com.example
+            |import com.example.O.property
+            |object O {
+            |    val property = ""
+            |}
+            |open class Bar { fun foo() {} }
+            |class Foo : Bar()
+            |/**
+            | * link to [Foo.foo]
+            | * link to [property]
+            | *
+            | * @see [Foo.foo]
+            | * @see [property]
+            | */
+            |fun usage() {}
+            """.trimIndent(),
+            testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("com.example", "usage")
+
+                page.content.assertNode {
+                    group {
+                        header(1) { +"usage" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature(
+                                    annotations = emptyMap(),
+                                    visibility = "",
+                                    modifier = "",
+                                    keywords = emptySet(),
+                                    name = "usage",
+                                    returnType = null,
+                                )
+                            }
+                            after {
+                                group {
+                                    group {
+                                        group {
+                                            +"link to "
+                                            link { +"Foo.foo" }
+                                            +" link to "
+                                            link { +"property" }
+                                        }
+                                    }
+                                }
+                                header(4) { +"See also" }
+                                table {
+                                    group {
+                                        link { +"Foo.foo" }
+                                    }
+                                    group {
+                                        link { +"O.property" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols("#3680: difference in behavior of K1 and K2")
+    fun `inherited declaration in @see block K2`() {
+        testInline(
+            """
+            |/src/main/kotlin/com/example/foo.kt
+            |package com.example
+            |import com.example.O.property
+            |object O {
+            |    val property = ""
+            |}
+            |open class Bar { fun foo() {} }
+            |class Foo : Bar()
+            |/**
+            | * link to [Foo.foo]
+            | * link to [property]
+            | *
+            | * @see [Foo.foo]
+            | * @see [property]
+            | */
+            |fun usage() {}
+            """.trimIndent(),
+            testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("com.example", "usage")
+
+                page.content.assertNode {
+                    group {
+                        header(1) { +"usage" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature(
+                                    annotations = emptyMap(),
+                                    visibility = "",
+                                    modifier = "",
+                                    keywords = emptySet(),
+                                    name = "usage",
+                                    returnType = null,
+                                )
+                            }
+                            after {
+                                group {
+                                    group {
+                                        group {
+                                            +"link to "
+                                            link { +"Foo.foo" }
+                                            +" link to "
+                                            link { +"property" }
+                                        }
+                                    }
+                                }
+                                header(4) { +"See also" }
+                                table {
+                                    group {
+                                        link { +"Foo.foo" }
+                                    }
+                                    group {
+                                        link { +"property" }
                                     }
                                 }
                             }
