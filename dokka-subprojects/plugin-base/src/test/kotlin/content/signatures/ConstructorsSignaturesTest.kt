@@ -727,4 +727,194 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `annotation class with explicit actual constructor`() {
+        testInline(
+            """
+            |/src/common/test.kt
+            |expect annotation class A(val name: String)
+            |/src/jvm/test.kt
+            |actual annotation class A actual constructor(actual val name: String)
+        """.trimIndent(), multiplatformConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page =
+                    module.children.single { it.name == "[root]" }
+                        .children.single { it.name == "A" } as ContentPage
+                page.content.assertNode {
+                    group {
+                        header(1) { +"A" }
+                        platformHinted {
+                            check {
+                                assertEquals(setOf("common", "jvm"), sourceSets.map(DisplaySourceSet::name).toSet())
+                            }
+                            group {
+                                check {
+                                    assertEquals("common", this.sourceSets.single().name)
+                                }
+                                +"expect annotation class "
+                                link { +"A" }
+                                +"("
+                                group {
+                                    group {
+                                        +"val name: "
+                                        group { link { +"String" } }
+                                    }
+                                }
+                                +")"
+                            }
+                            group {
+                                check {
+                                    assertEquals("jvm", this.sourceSets.single().name)
+                                }
+                                +"actual annotation class "
+                                link { +"A" }
+                                +"("
+                                group {
+                                    group {
+                                        +"val name: "
+                                        group { link { +"String" } }
+                                    }
+                                }
+                                +")"
+                            }
+                        }
+                    }
+                    group {
+                        group {
+                            group {
+                                header(2) { +"Properties" }
+                                table {
+                                    group {
+                                        link { +"name" }
+                                        divergentGroup {
+                                            divergentInstance {
+                                                group {
+                                                    group {
+                                                        group {
+                                                            +"expect val "
+                                                            link { +"name" }
+                                                            +": "
+                                                            group {
+                                                                link { +"String" }
+                                                            }
+                                                        }
+                                                        group {
+                                                            +"actual val "
+                                                            link { +"name" }
+                                                            +": "
+                                                            group {
+                                                                link { +"String" }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        skipAllNotMatching()
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `annotation class with implicit actual constructor`() {
+        testInline(
+            """
+            |/src/common/test.kt
+            |expect annotation class A(val name: String)
+            |/src/jvm/test.kt
+            |actual annotation class A(actual val name: String)
+        """.trimIndent(), multiplatformConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page =
+                    module.children.single { it.name == "[root]" }
+                        .children.single { it.name == "A" } as ContentPage
+                page.content.assertNode {
+                    group {
+                        header(1) { +"A" }
+                        platformHinted {
+                            check {
+                                assertEquals(setOf("common", "jvm"), sourceSets.map(DisplaySourceSet::name).toSet())
+                            }
+                            group {
+                                check {
+                                    assertEquals("common", this.sourceSets.single().name)
+                                }
+                                +"expect annotation class "
+                                link { +"A" }
+                                +"("
+                                group {
+                                    group {
+                                        +"val name: "
+                                        group { link { +"String" } }
+                                    }
+                                }
+                                +")"
+                            }
+                            group {
+                                check {
+                                    assertEquals("jvm", this.sourceSets.single().name)
+                                }
+                                +"actual annotation class "
+                                link { +"A" }
+                                +"("
+                                group {
+                                    group {
+                                        +"val name: "
+                                        group { link { +"String" } }
+                                    }
+                                }
+                                +")"
+                            }
+                        }
+                    }
+                    group {
+                        group {
+                            group {
+                                header(2) { +"Properties" }
+                                table {
+                                    group {
+                                        link { +"name" }
+                                        divergentGroup {
+                                            divergentInstance {
+                                                group {
+                                                    group {
+                                                        group {
+                                                            +"expect val "
+                                                            link { +"name" }
+                                                            +": "
+                                                            group {
+                                                                link { +"String" }
+                                                            }
+                                                        }
+                                                        group {
+                                                            +"actual val "
+                                                            link { +"name" }
+                                                            +": "
+                                                            group {
+                                                                link { +"String" }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        skipAllNotMatching()
+                    }
+                }
+            }
+        }
+    }
 }
