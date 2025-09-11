@@ -71,11 +71,10 @@ internal fun parseFromKDocTag(
                     KDocKnownTag.RECEIVER -> Receiver(parseStringToDocNode(tag.getContent(), externalDRIProvider))
                     KDocKnownTag.RETURN -> Return(parseStringToDocNode(tag.getContent(), externalDRIProvider))
                     KDocKnownTag.SEE -> {
-                        val dri = pointedLink(tag)
                         See(
                             parseStringToDocNode(tag.getContent(), externalDRIProvider),
                             tag.getSubjectName().orEmpty(),
-                            dri,
+                            pointedLink(tag),
                         )
                     }
                     KDocKnownTag.SINCE -> Since(parseStringToDocNode(tag.getContent(), externalDRIProvider))
