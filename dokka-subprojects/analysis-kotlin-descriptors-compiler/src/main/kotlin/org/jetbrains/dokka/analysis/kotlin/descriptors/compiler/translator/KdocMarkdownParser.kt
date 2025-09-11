@@ -6,7 +6,6 @@ package org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.translator
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.dokka.analysis.markdown.jb.MarkdownParser
-import org.jetbrains.dokka.analysis.markdown.jb.MarkdownParser.Companion.fqDeclarationName
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Suppress
@@ -42,19 +41,17 @@ internal fun parseFromKDocTag(
                     )
                     KDocKnownTag.AUTHOR -> Author(parseStringToDocNode(it.getContent()))
                     KDocKnownTag.THROWS -> {
-                        val dri = pointedLink(it)
                         Throws(
                             parseStringToDocNode(it.getContent()),
-                            dri?.fqDeclarationName() ?: it.getSubjectName().orEmpty(),
-                            dri,
+                            it.getSubjectName().orEmpty(),
+                            pointedLink(it),
                         )
                     }
                     KDocKnownTag.EXCEPTION -> {
-                        val dri = pointedLink(it)
                         Throws(
                             parseStringToDocNode(it.getContent()),
-                            dri?.fqDeclarationName() ?: it.getSubjectName().orEmpty(),
-                            dri
+                            it.getSubjectName().orEmpty(),
+                            pointedLink(it)
                         )
                     }
                     KDocKnownTag.PARAM -> Param(
@@ -64,11 +61,10 @@ internal fun parseFromKDocTag(
                     KDocKnownTag.RECEIVER -> Receiver(parseStringToDocNode(it.getContent()))
                     KDocKnownTag.RETURN -> Return(parseStringToDocNode(it.getContent()))
                     KDocKnownTag.SEE -> {
-                        val dri = pointedLink(it)
                         See(
                             parseStringToDocNode(it.getContent()),
-                            dri?.fqDeclarationName() ?: it.getSubjectName().orEmpty(),
-                            dri,
+                            it.getSubjectName().orEmpty(),
+                            pointedLink(it),
                         )
                     }
                     KDocKnownTag.SINCE -> Since(parseStringToDocNode(it.getContent()))
