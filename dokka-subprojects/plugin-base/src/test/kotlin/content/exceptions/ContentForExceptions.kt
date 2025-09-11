@@ -430,6 +430,130 @@ class ContentForExceptions : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `throws with FQ rendering`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/exception.kt
+            |package test
+            |
+            |class CustomException : Throwable()
+            |
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            |/**
+            |* @throws test.CustomException
+            |* @throws CustomException
+            |*/
+            |fun function(abc: String) {
+            |    println(abc)
+            |}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("test", "function")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"function" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
+                            }
+                            after {
+                                header(4) { +"Throws" }
+                                table {
+                                    group {
+                                        group {
+                                            link { +"test.CustomException" }
+                                        }
+                                    }
+                                    group {
+                                        group {
+                                            link { +"CustomException" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `exception with FQ rendering`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/exception.kt
+            |package test
+            |
+            |class CustomException : Throwable()
+            |
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            |/**
+            |* @exception test.CustomException
+            |* @exception CustomException
+            |*/
+            |fun function(abc: String) {
+            |    println(abc)
+            |}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("test", "function")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"function" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature(
+                                    emptyMap(),
+                                    "",
+                                    "",
+                                    emptySet(),
+                                    "function",
+                                    null,
+                                    "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
+                                )
+                            }
+                            after {
+                                header(4) { +"Throws" }
+                                table {
+                                    group {
+                                        group {
+                                            link { +"test.CustomException" }
+                                        }
+                                    }
+                                    group {
+                                        group {
+                                            link { +"CustomException" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 private fun Set<DisplaySourceSet>.assertSourceSet(expectedName: String) {

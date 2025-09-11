@@ -216,7 +216,6 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors("issue #3179")
     @Test
     fun `undocumented seealso with reference to property for class`() {
         testInline(
@@ -246,7 +245,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             header(4) { +"See also" }
                             table {
                                 group {
-                                    link { +"Foo.abc" }
+                                    link { +"abc" }
                                 }
                             }
                         }
@@ -309,7 +308,6 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors("issue #3179")
     @Test
     fun `documented seealso with reference to property for class`() {
         testInline(
@@ -339,7 +337,7 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                             header(4) { +"See also" }
                             table {
                                 group {
-                                    link { +"Foo.abc" }
+                                    link { +"abc" }
                                     group {
                                         group { +"Comment to abc" }
                                     }
@@ -735,16 +733,86 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
                                 header(4) { +"See also" }
                                 table {
                                     group {
-                                        link { +"CollectionExtensions.property" }
+                                        link { +"property" }
                                         group {
                                             group { +"static property" }
                                         }
                                     }
                                     group {
-                                        link { +"CollectionExtensions.emptyList" }
+                                        link { +"emptyList" }
                                         group {
                                             group { +"static emptyList" }
                                         }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `inherited declaration in @see block`() {
+        testInline(
+            """
+            |/src/main/kotlin/com/example/foo.kt
+            |package com.example
+            |import com.example.O.property
+            |object O {
+            |    val property = ""
+            |}
+            |open class Bar { fun foo() {} }
+            |class Foo : Bar()
+            |/**
+            | * link to [Foo.foo]
+            | * link to [property]
+            | *
+            | * @see [Foo.foo]
+            | * @see [property]
+            | */
+            |fun usage() {}
+            """.trimIndent(),
+            testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("com.example", "usage")
+
+                page.content.assertNode {
+                    group {
+                        header(1) { +"usage" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            divergent {
+                                bareSignature(
+                                    annotations = emptyMap(),
+                                    visibility = "",
+                                    modifier = "",
+                                    keywords = emptySet(),
+                                    name = "usage",
+                                    returnType = null,
+                                )
+                            }
+                            after {
+                                group {
+                                    group {
+                                        group {
+                                            +"link to "
+                                            link { +"Foo.foo" }
+                                            +" link to "
+                                            link { +"property" }
+                                        }
+                                    }
+                                }
+                                header(4) { +"See also" }
+                                table {
+                                    group {
+                                        link { +"Foo.foo" }
+                                    }
+                                    group {
+                                        link { +"property" }
                                     }
                                 }
                             }
