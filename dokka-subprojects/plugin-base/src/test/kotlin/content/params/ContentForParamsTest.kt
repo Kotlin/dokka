@@ -478,13 +478,13 @@ class ContentForParamsTest : BaseAbstractTest() {
                                 table {
                                     group {
                                         group {
-                                            link { +"IllegalStateException" }
+                                            link { +"java.lang.IllegalStateException" }
                                         }
                                         comment { +"if the Dialog has not yet been created (before onCreateDialog) or has been destroyed (after onDestroyView)." }
                                     }
                                     group {
                                         group {
-                                            link { +"RuntimeException" }
+                                            link { +"java.lang.RuntimeException" }
                                         }
                                         comment {
                                             +"when "
@@ -541,7 +541,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                                                         (this as ContentDRILink).address.toString()
                                                     )
                                                 }
-                                                +"IllegalStateException"
+                                                +"java.lang.IllegalStateException"
                                             }
                                         }
                                         comment { +"if the Dialog has not yet been created (before onCreateDialog) or has been destroyed (after onDestroyView)." }
@@ -667,7 +667,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                                                         (this as ContentDRILink).address.toString()
                                                     )
                                                 }
-                                                +"IllegalStateException"
+                                                +"java.lang.IllegalStateException"
                                             }
                                         }
                                         comment { +"if the Dialog has not yet been created (before onCreateDialog) or has been destroyed (after onDestroyView)." }
@@ -681,7 +681,7 @@ class ContentForParamsTest : BaseAbstractTest() {
                                                         (this as ContentDRILink).address.toString()
                                                     )
                                                 }
-                                                +"RuntimeException"
+                                                +"java.lang.RuntimeException"
                                             }
                                         }
                                         comment {
