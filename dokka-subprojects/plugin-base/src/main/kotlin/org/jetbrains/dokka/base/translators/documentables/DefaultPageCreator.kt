@@ -397,6 +397,7 @@ public open class DefaultPageCreator(
         dri = @Suppress("UNCHECKED_CAST") (scopes as List<Documentable>).dri,
         sourceSets = sourceSets,
         types = scopes.flatMap { it.classlikes } +
+                scopes.flatMap { it.typealiases } +
                 scopes.filterIsInstance<DPackage>().flatMap { it.typealiases },
         functions = scopes.flatMap { it.functions },
         properties = scopes.flatMap { it.properties },

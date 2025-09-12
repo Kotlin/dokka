@@ -189,7 +189,7 @@ internal class DokkaSymbolVisitor(
         val isActual = namedClassSymbol.isActual
         val documentation = getDocumentation(namedClassSymbol)?.toSourceSetDependent() ?: emptyMap()
 
-        val (constructors, functions, properties, classlikesWithoutCompanion) = getDokkaScopeFrom(namedClassSymbol, dri)
+        val (constructors, functions, properties, classlikesWithoutCompanion, typeAliases) = getDokkaScopeFrom(namedClassSymbol, dri)
 
         val companionObject = namedClassSymbol.companionObject?.let {
             visitClassSymbol(
@@ -222,6 +222,7 @@ internal class DokkaSymbolVisitor(
                     functions = functions,
                     properties = properties,
                     classlikes = classlikes,
+                    typealiases = typeAliases,
                     sources = namedClassSymbol.getSource(),
                     expectPresentInSet = sourceSet.takeIf { isExpect },
                     visibility = namedClassSymbol.getDokkaVisibility().toSourceSetDependent(),
@@ -245,6 +246,7 @@ internal class DokkaSymbolVisitor(
                 functions = functions,
                 properties = properties,
                 classlikes = classlikes,
+                typealiases = typeAliases,
                 sources = namedClassSymbol.getSource(),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 visibility = namedClassSymbol.getDokkaVisibility().toSourceSetDependent(),
@@ -269,6 +271,7 @@ internal class DokkaSymbolVisitor(
                 functions = functions,
                 properties = properties,
                 classlikes = classlikes,
+                typealiases = typeAliases,
                 sources = namedClassSymbol.getSource(), //
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 visibility = namedClassSymbol.getDokkaVisibility().toSourceSetDependent(),
@@ -294,6 +297,7 @@ internal class DokkaSymbolVisitor(
                 functions = functions,
                 properties = properties,
                 classlikes = classlikes,
+                typealiases = typeAliases,
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
@@ -343,6 +347,7 @@ internal class DokkaSymbolVisitor(
                     functions = functions,
                     properties = properties,
                     classlikes = classlikes,
+                    typealiases = typeAliases,
                     sources = namedClassSymbol.getSource(),
                     expectPresentInSet = sourceSet.takeIf { isExpect },
                     visibility = namedClassSymbol.getDokkaVisibility().toSourceSetDependent(),
@@ -371,7 +376,8 @@ internal class DokkaSymbolVisitor(
         val constructors: List<DFunction>,
         val functions: List<DFunction>,
         val properties: List<DProperty>,
-        val classlikesWithoutCompanion: List<DClasslike>
+        val classlikesWithoutCompanion: List<DClasslike>,
+        val typeAliases: List<DTypeAlias>,
     )
 
     /**
@@ -429,6 +435,8 @@ internal class DokkaSymbolVisitor(
                 syntheticJavaProperties.map { visitPropertySymbol(it, dri) } +
                 javaFields.map { visitJavaFieldSymbol(it, dri) }
 
+        val typealiases = classifiers.filterIsInstance<KaTypeAliasSymbol>()
+            .map { visitTypeAliasSymbol(it, dri) }.toList()
 
         fun Sequence<KaNamedClassSymbol>.filterOutCompanion() =
                 filterNot {
@@ -443,7 +451,8 @@ internal class DokkaSymbolVisitor(
             constructors = constructors,
             functions = functions,
             properties = properties,
-            classlikesWithoutCompanion = classlikes.toList()
+            classlikesWithoutCompanion = classlikes.toList(),
+            typeAliases = typealiases,
         )
     }
 
@@ -460,6 +469,7 @@ internal class DokkaSymbolVisitor(
             functions = scope.functions,
             properties = scope.properties,
             classlikes = emptyList(), // always empty, see https://github.com/Kotlin/dokka/issues/3129
+            typealiases = emptyList(),
             sourceSets = setOf(sourceSet),
             expectPresentInSet = sourceSet.takeIf { isExpect },
             extra = PropertyContainer.withAll(

@@ -41,6 +41,7 @@ public interface WithScope {
     public val functions: List<DFunction>
     public val properties: List<DProperty>
     public val classlikes: List<DClasslike>
+    public val typealiases: List<DTypeAlias>
 }
 
 public interface WithVisibility {
@@ -124,7 +125,7 @@ public data class DPackage(
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
-    val typealiases: List<DTypeAlias>,
+    override val typealiases: List<DTypeAlias>,
     override val documentation: SourceSetDependent<DocumentationNode>,
     override val expectPresentInSet: DokkaSourceSet? = null,
     override val sourceSets: Set<DokkaSourceSet>,
@@ -153,6 +154,7 @@ public data class DClass(
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
+    override val typealiases: List<DTypeAlias>,
     override val sources: SourceSetDependent<DocumentableSource>,
     override val visibility: SourceSetDependent<Visibility>,
     override val companion: DObject?,
@@ -183,6 +185,7 @@ public data class DEnum(
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
+    override val typealiases: List<DTypeAlias>,
     override val visibility: SourceSetDependent<Visibility>,
     override val companion: DObject?,
     override val constructors: List<DFunction>,
@@ -205,6 +208,7 @@ public data class DEnumEntry(
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
+    override val typealiases: List<DTypeAlias>,
     override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DEnumEntry> = PropertyContainer.empty()
 ) : Documentable(), WithScope, WithExtraProperties<DEnumEntry> {
@@ -321,6 +325,7 @@ public data class DInterface(
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
+    override val typealiases: List<DTypeAlias>,
     override val visibility: SourceSetDependent<Visibility>,
     override val companion: DObject?,
     override val generics: List<DTypeParameter>,
@@ -345,6 +350,7 @@ public data class DObject(
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
+    override val typealiases: List<DTypeAlias>,
     override val visibility: SourceSetDependent<Visibility>,
     override val supertypes: SourceSetDependent<List<TypeConstructorWithKind>>,
     override val sourceSets: Set<DokkaSourceSet>,
@@ -366,6 +372,7 @@ public data class DAnnotation(
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
+    override val typealiases: List<DTypeAlias>,
     override val visibility: SourceSetDependent<Visibility>,
     override val companion: DObject?,
     override val constructors: List<DFunction>,

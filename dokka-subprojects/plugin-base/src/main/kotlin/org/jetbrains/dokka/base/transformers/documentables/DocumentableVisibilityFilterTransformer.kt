@@ -4,6 +4,7 @@
 
 package org.jetbrains.dokka.base.transformers.documentables
 
+import kotlinx.coroutines.async
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.DokkaDefaults
@@ -233,6 +234,7 @@ public class DocumentableVisibilityFilterTransformer(
                     val functions = filterFunctions(entry.functions) { _, data -> data in intersection }
                     val properties = filterProperties(entry.properties) { _, data -> data in intersection }
                     val classlikes = filterClasslikes(entry.classlikes) { _, data -> data in intersection }
+                    val typealiases = filterTypeAliases(entry.typealiases) { _, data -> data in intersection}
 
                     DEnumEntry(
                         entry.dri,
@@ -242,6 +244,7 @@ public class DocumentableVisibilityFilterTransformer(
                         functions.second,
                         properties.second,
                         classlikes.second,
+                        typealiases.second,
                         intersection,
                         entry.extra
                     ).let { Pair(functions.first || properties.first || classlikes.first, acc.second + it) }
