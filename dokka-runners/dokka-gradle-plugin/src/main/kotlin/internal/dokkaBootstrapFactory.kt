@@ -9,45 +9,55 @@ import org.jetbrains.dokka.DokkaBootstrapImpl
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.toCompactJsonString
 import java.io.File
+import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.BiConsumer
 import kotlin.reflect.KClass
 
 internal fun DokkaBootstrap(classpath: Set<File>, bootstrapClass: KClass<out DokkaBootstrap>): DokkaBootstrap {
-    val runtimeClassLoader = URLClassLoader(
+    return DokkaBootstrapProxy(classpath, bootstrapClass)
+}
+
+private class DokkaBootstrapProxy(
+    classpath: Set<File>,
+    bootstrapClass: KClass<out DokkaBootstrap>
+) : DokkaBootstrap {
+    private val runtimeClassLoader = URLClassLoader(
         classpath.map { it.toURI().toURL() }.toTypedArray(),
         ClassLoader.getSystemClassLoader().parent
     )
 
-    val runtimeClassloaderBootstrapClass = runtimeClassLoader.loadClass(bootstrapClass.qualifiedName)
-    val runtimeClassloaderBootstrapInstance = runtimeClassloaderBootstrapClass.constructors.first().newInstance()
+    private val runtimeClassloaderBootstrapClass = runtimeClassLoader.loadClass(bootstrapClass.qualifiedName)
+    private val runtimeClassloaderBootstrapInstance =
+        runtimeClassloaderBootstrapClass.constructors.first().newInstance()
 
-    return object : DokkaBootstrap {
-        override fun configure(
-            serializedConfigurationJSON: String,
-            logger: BiConsumer<String, String>
-        ) {
-            val configureMethod = runtimeClassloaderBootstrapClass.getMethod(
-                "configure",
-                String::class.java,
-                BiConsumer::class.java // Use java.util.function.BiConsumer from *your* loader
-            )
-            configureMethod.invoke(
-                runtimeClassloaderBootstrapInstance,
-                serializedConfigurationJSON,
-                logger
-            )
-        }
+    private fun invokeMethod(
+        name: String,
+        parameterTypes: Array<Class<*>>,
+        args: Array<Any?>
+    ): Any? = try {
+        runtimeClassloaderBootstrapClass
+            .getMethod(name, *parameterTypes)
+            .invoke(runtimeClassloaderBootstrapInstance, *args)
+    } catch (e: InvocationTargetException) {
+        throw e.targetException
+    }
 
-        override fun generate() {
-            val generateMethod = runtimeClassloaderBootstrapClass.getMethod(
-                "generate",
-            )
-            generateMethod.invoke(
-                runtimeClassloaderBootstrapInstance
-            )
-        }
+    override fun configure(serializedConfigurationJSON: String, logger: BiConsumer<String, String>) {
+        invokeMethod(
+            name = "configure",
+            parameterTypes = arrayOf(String::class.java, BiConsumer::class.java),
+            args = arrayOf(serializedConfigurationJSON, logger)
+        )
+    }
+
+    override fun generate() {
+        invokeMethod(
+            name = "generate",
+            parameterTypes = emptyArray(),
+            args = emptyArray()
+        )
     }
 }
 
