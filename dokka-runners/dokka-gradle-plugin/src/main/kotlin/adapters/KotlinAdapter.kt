@@ -3,6 +3,7 @@
  */
 package org.jetbrains.dokka.gradle.adapters
 
+import com.android.build.api.variant.AndroidComponentsExtension
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
@@ -642,11 +643,9 @@ private fun Project.findKotlinExtension(): KotlinProjectExtension? =
     findExtensionLenient<KotlinProjectExtension>("kotlin")
 
 
-private typealias AndroidComponentsExtension = com.android.build.api.variant.AndroidComponentsExtension<*, *, *>
-
 /** Try and get [AndroidComponentsExtension], or `null` if it's not present. */
-private fun Project.findAndroidComponentExtension(): AndroidComponentsExtension? =
-    findExtensionLenient<AndroidComponentsExtension>("androidComponents")
+private fun Project.findAndroidComponentExtension(): AndroidComponentsExtension<*, *, *>? =
+    findExtensionLenient<AndroidComponentsExtension<*, *, *>>("androidComponents")
 
 
 /**
