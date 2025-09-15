@@ -443,9 +443,6 @@ private class KotlinCompilationDetailsBuilder(
             is KotlinMetadataCompilation<*> ->
                 providers.provider { true }
 
-            // Use string-based comparison, not the actual classes, because AGP has deprecated and
-            // moved the Library/Application classes to a different package.
-            // Using strings is more widely compatible.
             is KotlinJvmAndroidCompilation -> {
                 isJvmAndroidPublished(this)
             }
@@ -472,6 +469,9 @@ private class KotlinCompilationDetailsBuilder(
         } else {
             val androidVariantJvmName = compilation.androidVariant::class.jvmName
             return providers.provider {
+                // Use string-based comparison for the class names, not the actual classes,
+                // because AGP has deprecated and moved the Library/Application classes to a different package.
+                // Using strings is more widely compatible.
                 val result = "LibraryVariant" in androidVariantJvmName || "ApplicationVariant" in androidVariantJvmName
                 logger.info {
                     "[KotlinAdapter isJvmAndroidPublished] ${compilation.name} publishable:$result, androidVariantJvmName:$androidVariantJvmName"
