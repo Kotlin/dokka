@@ -56,11 +56,6 @@ abstract class AndroidAdapter @Inject constructor(
         val androidExt = AndroidExtensionWrapper(project) ?: return
 
         dokkaExtension.dokkaSourceSets.configureEach {
-
-            classpath.from(
-                androidExt.bootClasspath()
-            )
-
             classpath.from(
                 analysisPlatform.map { analysisPlatform ->
                     when (analysisPlatform) {
@@ -186,6 +181,7 @@ private object AndroidClasspathCollector {
     ): FileCollection {
         val compilationClasspath = objects.fileCollection()
 
+        compilationClasspath.from(androidExt.bootClasspath())
         compilationClasspath.from({ androidExt.variantsCompileClasspath() })
 
         return compilationClasspath
