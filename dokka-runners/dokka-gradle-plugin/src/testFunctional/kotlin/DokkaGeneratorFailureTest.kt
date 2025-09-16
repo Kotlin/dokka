@@ -11,26 +11,7 @@ import org.jetbrains.dokka.gradle.utils.*
 
 class DokkaGeneratorFailureTest : FunSpec({
     context("DokkaGenerator failure:") {
-        val project = gradleKtsProjectTest("dokka-generator-failure") {
-            buildGradleKts = """
-                |plugins {
-                |    kotlin("jvm") version embeddedKotlinVersion
-                |    id("org.jetbrains.dokka") version "$DOKKA_VERSION"
-                |}
-                |
-                |dokka {
-                |  dokkaSourceSets.configureEach {
-                |    suppress = false // to enable documentation for `test` source set
-                |    sourceRoots.from("src/shared/kotlin") // causes an error in Dokka generator checker
-                |  }
-                |}
-                |
-                """.trimMargin()
-
-            createKotlinFile("src/main/kotlin/Main.kt", "class Main")
-            createKotlinFile("src/test/kotlin/Test.kt", "class Test")
-            createKotlinFile("src/shared/kotlin/Shared.kt", "class Shared")
-        }
+        val project = createProject()
 
         test("expect failure message from checkers to be shown by default") {
             project.runner
@@ -39,8 +20,7 @@ class DokkaGeneratorFailureTest : FunSpec({
                     "--rerun",
                 )
                 .buildAndFail {
-                    output shouldContain "Pre-generation validity check failed"
-                    output shouldContain "Source sets 'java' and 'javaTest' have the common source roots"
+                    output shouldContain "Pre-generation validity check failed: Some failure"
                 }
 
             project.runner
@@ -49,9 +29,77 @@ class DokkaGeneratorFailureTest : FunSpec({
                     "--rerun",
                 )
                 .buildAndFail {
-                    output shouldContain "Pre-generation validity check failed"
-                    output shouldContain "Source sets 'java' and 'javaTest' have the common source roots"
+                    output shouldContain "Pre-generation validity check failed: Some failure"
                 }
         }
     }
 })
+
+private fun createProject(): GradleProjectTest = gradleKtsProjectTest("dokka-generator-failure") {
+    buildGradleKts = """
+        |import org.jetbrains.dokka.gradle.tasks.*
+        |
+        |plugins {
+        |    kotlin("jvm") version embeddedKotlinVersion
+        |    id("org.jetbrains.dokka") version "$DOKKA_VERSION"
+        |}
+        |
+        |dependencies {
+        |    dokkaPlugin(project(":dokka-test-plugin"))
+        |}
+        |
+        """.trimMargin()
+
+    settingsGradleKts += """
+        |include(":dokka-test-plugin")        
+        |
+        """.trimMargin()
+
+    createKotlinFile("src/main/kotlin/Foo.kt", "class Foo")
+
+    dir("dokka-test-plugin") {
+        buildGradleKts = """
+            |plugins {
+            |    kotlin("jvm")
+            |}
+            |
+            |dependencies {
+            |    compileOnly("org.jetbrains.dokka:dokka-core:$DOKKA_VERSION")
+            |    compileOnly("org.jetbrains.dokka:dokka-base:$DOKKA_VERSION")
+            |}
+            """.trimMargin()
+
+        createKotlinFile(
+            "src/main/kotlin/DokkaTestPlugin.kt", """
+            |package dokkatest
+            |
+            |import org.jetbrains.dokka.*
+            |import org.jetbrains.dokka.plugability.*
+            |import org.jetbrains.dokka.validity.*
+            |
+            |class DokkaTestPlugin : DokkaPlugin() {
+            |
+            |    @DokkaPluginApiPreview
+            |    override fun pluginApiPreviewAcknowledgement() = PluginApiPreviewAcknowledgement
+            |
+            |    val failingPreGenerationChecker by extending {
+            |        CoreExtensions.preGenerationCheck providing ::FailingPreGenerationChecker
+            |    }
+            |}
+            |
+            |class FailingPreGenerationChecker(private val context: DokkaContext) : PreGenerationChecker {
+            |    override fun invoke(): PreGenerationCheckerOutput = PreGenerationCheckerOutput(
+            |        result = false,
+            |        messages = listOf("Some failure")
+            |    )
+            |}
+            |
+            """.trimMargin()
+        )
+
+        createFile(
+            "src/main/resources/META-INF/services/org.jetbrains.dokka.plugability.DokkaPlugin",
+            "dokkatest.DokkaTestPlugin",
+        )
+    }
+}
