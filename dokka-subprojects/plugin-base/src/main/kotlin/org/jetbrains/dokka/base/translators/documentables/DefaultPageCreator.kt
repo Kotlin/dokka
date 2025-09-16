@@ -148,6 +148,7 @@ public open class DefaultPageCreator(
         val nestedClasslikes = classlikes.flatMap { it.classlikes }
         val functions = classlikes.flatMap { it.filteredFunctions }
         val props = classlikes.flatMap { it.filteredProperties }
+        val typealiases = classlikes.flatMap { it.typealiases }
         val entries = classlikes.flatMap { if (it is DEnum) it.entries else emptyList() }
 
         val childrenPages = constructors.map(::pageForFunction) +
@@ -155,11 +156,13 @@ public open class DefaultPageCreator(
                     nestedClasslikes.mergeClashingDocumentable().map(::pageForClasslikes) +
                             functions.mergeClashingDocumentable().map(::pageForFunctions) +
                             props.mergeClashingDocumentable().map(::pageForProperties) +
-                            entries.mergeClashingDocumentable().map(::pageForEnumEntries)
+                            entries.mergeClashingDocumentable().map(::pageForEnumEntries) +
+                            typealiases.mergeClashingDocumentable().map(::pageForClasslikes)
                 else
                     nestedClasslikes.renameClashingDocumentable().map(::pageForClasslike) +
                             (functions + props).renameClashingDocumentable().mapNotNull(::pageForMember)  +
-                            entries.renameClashingDocumentable().map(::pageForEnumEntry)
+                            entries.renameClashingDocumentable().map(::pageForEnumEntry) +
+                            typealiases.mergeClashingDocumentable().map(::pageForClasslikes)
 
 
         return ClasslikePageNode(
@@ -645,13 +648,9 @@ public open class DefaultPageCreator(
     private fun DocumentableContentBuilder.typesBlock(types: List<Documentable>) {
         if (types.isEmpty()) return
 
-        val grouped = types
-            // This groupBy should probably use LocationProvider
-            .groupBy(Documentable::name)
-            .mapValues { (_, elements) ->
-                // This hacks displaying actual typealias signatures along classlike ones
-                if (elements.any { it is DClasslike }) elements.filter { it !is DTypeAlias } else elements
-            }
+        // TODO: understand what this changes
+        // This groupBy should probably use LocationProvider
+        val grouped = types.groupBy(Documentable::name)
 
         val groups = grouped.entries
             .sortedWith(compareBy(nullsFirst(canonicalAlphabeticalOrder)) { it.key })
