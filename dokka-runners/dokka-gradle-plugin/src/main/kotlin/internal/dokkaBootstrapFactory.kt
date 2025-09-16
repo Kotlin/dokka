@@ -15,17 +15,21 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.function.BiConsumer
 import kotlin.reflect.KClass
 
-internal fun DokkaBootstrap(classpath: Set<File>, bootstrapClass: KClass<out DokkaBootstrap>): DokkaBootstrap {
-    return DokkaBootstrapProxy(classpath, bootstrapClass)
-}
-
-private class DokkaBootstrapProxy(
-    classpath: Set<File>,
+internal class DokkaBootstrapProxy
+// this constructor is used in tests (DokkaBootstrapTest)
+internal constructor(
+    runtimeClassLoader: ClassLoader,
     bootstrapClass: KClass<out DokkaBootstrap>
 ) : DokkaBootstrap {
-    private val runtimeClassLoader = URLClassLoader(
-        classpath.map { it.toURI().toURL() }.toTypedArray(),
-        ClassLoader.getSystemClassLoader().parent
+    constructor(
+        classpath: Set<File>,
+        bootstrapClass: KClass<out DokkaBootstrap>
+    ) : this(
+        runtimeClassLoader = URLClassLoader(
+            classpath.map { it.toURI().toURL() }.toTypedArray(),
+            ClassLoader.getSystemClassLoader().parent
+        ),
+        bootstrapClass = bootstrapClass
     )
 
     private val runtimeClassloaderBootstrapClass = runtimeClassLoader.loadClass(bootstrapClass.qualifiedName)
@@ -66,7 +70,7 @@ internal fun generateDocumentationViaDokkaBootstrap(
     dokkaConfiguration: DokkaConfiguration,
     logger: BiConsumer<String, String>
 ) {
-    DokkaBootstrap(dokkaClasspath, DokkaBootstrapImpl::class).apply {
+    DokkaBootstrapProxy(dokkaClasspath, DokkaBootstrapImpl::class).apply {
         configure(dokkaConfiguration.toCompactJsonString(), logger)
         val uncaughtExceptionHolder = AtomicReference<Throwable?>()
         /**

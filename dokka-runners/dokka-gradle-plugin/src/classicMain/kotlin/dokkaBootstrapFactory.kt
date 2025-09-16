@@ -5,15 +5,15 @@
 package org.jetbrains.dokka.gradle
 
 import org.gradle.api.artifacts.Configuration
-import org.jetbrains.dokka.gradle.internal.DokkaBootstrap
 import org.jetbrains.dokka.DokkaBootstrap
+import org.jetbrains.dokka.gradle.internal.DokkaBootstrapProxy
 import kotlin.reflect.KClass
 
 
 @Deprecated(DOKKA_V1_DEPRECATION_MESSAGE)
 @Suppress("DeprecatedCallableAddReplaceWith")
 fun DokkaBootstrap(configuration: Configuration, bootstrapClass: KClass<out DokkaBootstrap>): DokkaBootstrap {
-    return DokkaBootstrap(
+    return DokkaBootstrapProxy(
         classpath = configuration.resolve(),
         bootstrapClass = bootstrapClass,
     )
