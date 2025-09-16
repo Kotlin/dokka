@@ -270,6 +270,7 @@ internal class JvmMappedMethodsDocumentableFilterTransformer(context: DokkaConte
         if (d.isOnlyInJVM()) {
             when (d) {
                 is DFunction -> d.shouldBeSuppressed()
+                // Note that, if the Java class only has a setter, it isn't visible as a property in Kotlin because Kotlin doesn't support set-only properties
                 is DProperty -> d.getter?.shouldBeSuppressed() ?: false
                 else -> false
             }
