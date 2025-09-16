@@ -160,7 +160,7 @@ public open class DefaultPageCreator(
                             typealiases.mergeClashingDocumentable().map(::pageForClasslikes)
                 else
                     nestedClasslikes.renameClashingDocumentable().map(::pageForClasslike) +
-                            (functions + props).renameClashingDocumentable().mapNotNull(::pageForMember)  +
+                            (functions + props).renameClashingDocumentable().mapNotNull(::pageForMember) +
                             entries.renameClashingDocumentable().map(::pageForEnumEntry) +
                             typealiases.mergeClashingDocumentable().map(::pageForClasslikes)
 
@@ -648,11 +648,8 @@ public open class DefaultPageCreator(
     private fun DocumentableContentBuilder.typesBlock(types: List<Documentable>) {
         if (types.isEmpty()) return
 
-        // TODO: understand what this changes
         // This groupBy should probably use LocationProvider
-        val grouped = types.groupBy(Documentable::name)
-
-        val groups = grouped.entries
+        val groups = types.groupBy(Documentable::name).entries
             .sortedWith(compareBy(nullsFirst(canonicalAlphabeticalOrder)) { it.key })
             .map { (name, elements) ->
                 DivergentElementGroup(

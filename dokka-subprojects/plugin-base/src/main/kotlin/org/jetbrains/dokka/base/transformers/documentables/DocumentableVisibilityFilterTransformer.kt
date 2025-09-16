@@ -4,7 +4,6 @@
 
 package org.jetbrains.dokka.base.transformers.documentables
 
-import kotlinx.coroutines.async
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.DokkaDefaults
