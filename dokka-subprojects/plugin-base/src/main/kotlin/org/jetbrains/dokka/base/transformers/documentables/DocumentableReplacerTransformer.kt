@@ -43,6 +43,7 @@ public abstract class DocumentableReplacerTransformer(
         val functions = classlike.functions.map { processFunction(it) }
         val classlikes = classlike.classlikes.map { processClassLike(it) }
         val properties = classlike.properties.map { processProperty(it) }
+        val typealiases = classlike.typealiases.map { processTypeAlias(it) }
         val companion = (classlike as? WithCompanion)?.companion?.let { processClassLike(it) }
 
         val wasClasslikeChanged = (functions + classlikes + properties).any { it.changed } || companion?.changed == true
@@ -55,6 +56,7 @@ public abstract class DocumentableReplacerTransformer(
                 (classlike.takeIf { !wasClassChange } ?: classlike.copy(
                     functions = functions.mapNotNull { it.target },
                     classlikes = classlikes.mapNotNull { it.target },
+                    typealiases = typealiases.mapNotNull { it.target },
                     properties = properties.mapNotNull { it.target },
                     constructors = constructors.mapNotNull { it.target },
                     generics = generics.mapNotNull { it.target },

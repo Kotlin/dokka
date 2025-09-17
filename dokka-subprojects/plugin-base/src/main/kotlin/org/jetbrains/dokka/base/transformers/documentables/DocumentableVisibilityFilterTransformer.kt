@@ -278,6 +278,11 @@ public class DocumentableVisibilityFilterTransformer(
                                 modified = modified || listModified
                                 list
                             }
+                        val typealiases =
+                            filterTypeAliases(typealiases) { _, data -> data in filteredPlatforms }.let { (listModified, list) ->
+                                modified = modified || listModified
+                                list
+                            }
                         val companion =
                             if (this is WithCompanion) filterClasslikes(listOfNotNull(companion)) { _, data -> data in filteredPlatforms }.let { (listModified, list) ->
                                 modified = modified || listModified
@@ -303,6 +308,7 @@ public class DocumentableVisibilityFilterTransformer(
                                 functions = functions,
                                 properties = properties,
                                 classlikes = classlikes,
+                                typealiases = typealiases,
                                 sources = sources.filtered(filteredPlatforms),
                                 visibility = visibility.filtered(filteredPlatforms),
                                 companion = companion,
@@ -319,6 +325,7 @@ public class DocumentableVisibilityFilterTransformer(
                                 functions = functions,
                                 properties = properties,
                                 classlikes = classlikes,
+                                typealiases = typealiases,
                                 visibility = visibility.filtered(filteredPlatforms),
                                 companion = companion,
                                 constructors = constructors,
@@ -333,6 +340,7 @@ public class DocumentableVisibilityFilterTransformer(
                                 functions = functions,
                                 properties = properties,
                                 classlikes = classlikes,
+                                typealiases = typealiases,
                                 visibility = visibility.filtered(filteredPlatforms),
                                 companion = companion,
                                 constructors = constructors,
@@ -346,6 +354,7 @@ public class DocumentableVisibilityFilterTransformer(
                                 functions = functions,
                                 properties = properties,
                                 classlikes = classlikes,
+                                typealiases = typealiases,
                                 visibility = visibility.filtered(filteredPlatforms),
                                 companion = companion,
                                 generics = generics,
@@ -359,6 +368,7 @@ public class DocumentableVisibilityFilterTransformer(
                                 functions = functions,
                                 properties = properties,
                                 classlikes = classlikes,
+                                typealiases = typealiases,
                                 supertypes = supertypes.filtered(filteredPlatforms),
                                 sourceSets = filteredPlatforms
                             )
