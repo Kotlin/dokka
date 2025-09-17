@@ -5,10 +5,11 @@ package org.jetbrains.dokka.it.gradle
 
 import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
-import io.kotest.matchers.sequences.shouldBeEmpty
+import io.kotest.inspectors.shouldForAll
+import io.kotest.matchers.paths.shouldBeAFile
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import kotlinx.serialization.json.Json
+import io.kotest.matchers.string.shouldNotContain
 import org.gradle.testkit.runner.TaskOutcome.*
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
@@ -17,8 +18,9 @@ import org.jetbrains.dokka.it.gradle.junit.DokkaGradlePluginTest
 import org.jetbrains.dokka.it.gradle.junit.DokkaGradleProjectRunner
 import org.jetbrains.dokka.it.gradle.junit.TestsDGPv2
 import org.jetbrains.dokka.it.gradle.junit.TestsKotlinMultiplatform
-import org.junit.jupiter.api.Disabled
-import kotlin.io.path.*
+import kotlin.io.path.deleteRecursively
+import kotlin.io.path.name
+import kotlin.io.path.readText
 
 /**
  * Integration test for the `it-kotlin-multiplatform` project.
@@ -27,81 +29,58 @@ import kotlin.io.path.*
 @TestsDGPv2
 class KotlinMultiplatformIT {
 
-    @Disabled("KMP: References to shared code is not linked when there is an intermediate level https://github.com/Kotlin/dokka/issues/3382")
     @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-multiplatform")
     fun `generate dokka HTML`(project: DokkaGradleProjectRunner) {
         project.runner
             .addArguments(
+                "clean",
                 ":dokkaGenerate",
+                "--stacktrace",
+                "--rerun-tasks",
             )
             .build {
                 withClue("expect project builds successfully") {
-                    shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(SUCCESS, UP_TO_DATE)
+                    shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(SUCCESS)
+                }
+
+                withClue("expect all dokka workers are successful") {
+                    project
+                        .findFiles { it.name == "dokka-worker.log" }
+                        .shouldForAll { dokkaWorkerLog ->
+                            dokkaWorkerLog.shouldBeAFile()
+                            dokkaWorkerLog.readText().shouldNotContainAnyOf(
+                                "[ERROR]",
+                                "[WARN]",
+                            )
+                        }
+                }
+
+                withClue("expect configurations are not resolved during configuration time") {
+                    output shouldNotContain Regex("""Configuration '.*' was resolved during configuration time""")
+                    output shouldNotContain "https://github.com/gradle/gradle/issues/2298"
                 }
             }
 
-        withClue("expect actual generated HTML matches expected HTML") {
+        withClue("expect the same HTML is generated") {
             val expectedHtml = project.projectDir.resolve("expectedData/html")
             val actualHtmlDir = project.projectDir.resolve("build/dokka/html")
 
-            val dokkaConfigurationJsonFiles = project.findFiles { it.name == "dokka-configuration.json" }
-            val dokkaConfigContent = dokkaConfigurationJsonFiles.joinToString("\n\n") { dcFile ->
-                // re-encode the JSON to a compact format, to prevent the log output being completely spammed
-                val compactJson = Json.parseToJsonElement(dcFile.readText())
-                """
-                - ${dcFile.invariantSeparatorsPathString}
-                  $compactJson
-                """.trimIndent()
-            }
-
             withClue(
                 """
-                |expectedHtml: ${expectedHtml.toUri()}
-                |actualHtmlDir: ${actualHtmlDir.toUri()}
-                |dokkaConfigurationJsons [${dokkaConfigurationJsonFiles.count()}]:
-                |$dokkaConfigContent
-                """.trimMargin()
+                expectedHtml: ${expectedHtml.toUri()}
+                actualHtmlDir: ${actualHtmlDir.toUri()}
+                """.trimIndent()
             ) {
                 val expectedFileTree = expectedHtml.toTreeString()
                 val actualFileTree = actualHtmlDir.toTreeString()
                 withClue((actualFileTree to expectedFileTree).sideBySide()) {
-                    actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedHtml)
-                }
-            }
-        }
-    }
+                    actualFileTree shouldBe expectedFileTree
 
-    @Disabled("KMP: References to shared code is not linked when there is an intermediate level https://github.com/Kotlin/dokka/issues/3382")
-    @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-multiplatform")
-    fun `verify generated HTML contains no class resolution errors`(project: DokkaGradleProjectRunner) {
-        project.runner
-            .addArguments(
-                ":dokkaGenerate",
-            )
-            .build {
-                withClue("expect project builds successfully") {
-                    shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(SUCCESS, UP_TO_DATE)
+                    actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedHtml, TestConstants.DokkaHtmlAssetsFiles)
                 }
             }
 
-        withClue("expect actual generated HTML contains no class resolution errors") {
-            val actualHtmlDir = project.projectDir.resolve("build/dokka/html")
-
-            val filesWithErrors = actualHtmlDir.walk()
-                .filter { it.isRegularFile() }
-                .filter { file ->
-                    file.useLines { lines ->
-                        lines.any { line ->
-                            "Error class: unknown class" in line || "Error type: Unresolved type" in line
-                        }
-                    }
-                }
-
-            withClue(
-                "${filesWithErrors.count()} file(s) with errors:\n${filesWithErrors.joinToString("\n") { " - ${it.toUri()}" }}"
-            ) {
-                filesWithErrors.shouldBeEmpty()
-            }
+            assertNoUnknownClassErrorsInHtml(actualHtmlDir)
         }
     }
 
@@ -163,7 +142,9 @@ class KotlinMultiplatformIT {
 
         val configCacheRunner =
             project.runner.addArguments(
+                "clean",
                 ":dokkaGenerate",
+                "--no-build-cache",
                 "--configuration-cache",
             )
 
