@@ -121,7 +121,7 @@ internal fun createAnalysisSession(
                     platform = targetPlatform
                     moduleName = "<module ${sourceSet.displayName}>"
 
-                    // can be removed after https://youtrack.jetbrains.com/issue/KT-81107 is implemented
+                    // can be removed after https://youtrack.jetbrains.com/issue/KT-81107 is implemented (see #4266)
                     // here we mimic the logic, which happens inside AA during building KaModule, but we follow symlinks
                     // https://github.com/JetBrains/kotlin/blob/dcd24449718cba21bd86428e5cddb9b25e5612af/analysis/analysis-api-standalone/src/org/jetbrains/kotlin/analysis/project/structure/builder/KaSourceModuleBuilder.kt#L80
                     if (isSampleProject) {
