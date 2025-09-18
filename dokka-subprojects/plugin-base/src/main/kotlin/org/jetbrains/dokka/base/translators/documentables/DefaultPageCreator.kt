@@ -148,21 +148,22 @@ public open class DefaultPageCreator(
         val nestedClasslikes = classlikes.flatMap { it.classlikes }
         val functions = classlikes.flatMap { it.filteredFunctions }
         val props = classlikes.flatMap { it.filteredProperties }
-        val typealiases = classlikes.flatMap { it.typealiases }
+        val typealiases = classlikes.flatMap { (it as? WithTypealiases)?.typealiases.orEmpty() }
         val entries = classlikes.flatMap { if (it is DEnum) it.entries else emptyList() }
+
+
 
         val childrenPages = constructors.map(::pageForFunction) +
                 if (mergeImplicitExpectActualDeclarations)
-                    nestedClasslikes.mergeClashingDocumentable().map(::pageForClasslikes) +
+                    (nestedClasslikes + typealiases).mergeClashingDocumentable().map(::pageForClasslikes) +
                             functions.mergeClashingDocumentable().map(::pageForFunctions) +
                             props.mergeClashingDocumentable().map(::pageForProperties) +
-                            entries.mergeClashingDocumentable().map(::pageForEnumEntries) +
-                            typealiases.mergeClashingDocumentable().map(::pageForClasslikes)
+                            entries.mergeClashingDocumentable().map(::pageForEnumEntries)
                 else
                     nestedClasslikes.renameClashingDocumentable().map(::pageForClasslike) +
                             (functions + props).renameClashingDocumentable().mapNotNull(::pageForMember) +
                             entries.renameClashingDocumentable().map(::pageForEnumEntry) +
-                            typealiases.mergeClashingDocumentable().map(::pageForClasslikes)
+                            typealiases.renameClashingDocumentable().map(::pageForClasslike)
 
 
         return ClasslikePageNode(
@@ -400,8 +401,7 @@ public open class DefaultPageCreator(
         dri = @Suppress("UNCHECKED_CAST") (scopes as List<Documentable>).dri,
         sourceSets = sourceSets,
         types = scopes.flatMap { it.classlikes } +
-                scopes.flatMap { it.typealiases } +
-                scopes.filterIsInstance<DPackage>().flatMap { it.typealiases },
+                scopes.flatMap { (it as? WithTypealiases)?.typealiases.orEmpty() },
         functions = scopes.flatMap { it.functions },
         properties = scopes.flatMap { it.properties },
         extensions = extensions,

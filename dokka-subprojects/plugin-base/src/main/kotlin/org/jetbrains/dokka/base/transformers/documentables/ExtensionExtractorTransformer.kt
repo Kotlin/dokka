@@ -48,7 +48,7 @@ public class ExtensionExtractorTransformer : DocumentableTransformer {
             ?.classlikes
             ?.map { async { it.addExtensionInformation(classGraph, extensionMap) } }
             .orEmpty()
-        val newTypealiases = (this@addExtensionInformation as? WithScope)
+        val newTypealiases = (this@addExtensionInformation as? WithTypealiases)
             ?.typealiases
             ?.map { async { it.addExtensionInformation(classGraph, extensionMap) } }
             .orEmpty()
@@ -74,6 +74,7 @@ public class ExtensionExtractorTransformer : DocumentableTransformer {
 
             is DInterface -> copy(
                 classlikes = newClasslikes.awaitAll(),
+                typealiases = newTypealiases.awaitAll(),
                 extra = extra + findExtensions(classGraph, extensionMap)
             )
 
@@ -85,7 +86,6 @@ public class ExtensionExtractorTransformer : DocumentableTransformer {
 
             is DAnnotation -> copy(
                 classlikes = newClasslikes.awaitAll(),
-                typealiases = newTypealiases.awaitAll(),
                 extra = extra + findExtensions(classGraph, extensionMap)
             )
 

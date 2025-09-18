@@ -297,7 +297,6 @@ internal class DokkaSymbolVisitor(
                 functions = functions,
                 properties = properties,
                 classlikes = classlikes,
-                typealiases = typeAliases,
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
@@ -406,7 +405,10 @@ internal class DokkaSymbolVisitor(
 
         // Dokka K1 does not show inherited nested and inner classes,
         // so it should show only classifiers (classes and objects) explicitly declared
-        val classifiers = if(includeStaticScope) namedClassOrObjectSymbol.staticMemberScope.classifiers else emptySequence()
+        val classifiers = when {
+            includeStaticScope -> namedClassOrObjectSymbol.staticMemberScope.classifiers.toList()
+            else -> emptyList()
+        }
 
         val syntheticJavaProperties =
             namedClassOrObjectSymbol.defaultType.syntheticJavaPropertiesScope?.getCallableSignatures()
@@ -436,15 +438,15 @@ internal class DokkaSymbolVisitor(
                 javaFields.map { visitJavaFieldSymbol(it, dri) }
 
         val typealiases = classifiers.filterIsInstance<KaTypeAliasSymbol>()
-            .map { visitTypeAliasSymbol(it, dri) }.toList()
+            .map { visitTypeAliasSymbol(it, dri) }
 
-        fun Sequence<KaNamedClassSymbol>.filterOutCompanion() =
+        fun List<KaNamedClassSymbol>.filterOutCompanion() =
                 filterNot {
                     it.classKind == KaClassKind.COMPANION_OBJECT
                 }
 
         val classlikes = classifiers.filterIsInstance<KaNamedClassSymbol>()
-            .filterOutCompanion() // also, this is a hack to filter out companion for enum
+            .filterOutCompanion()
             .map { visitClassSymbol(it, dri) }
 
         return DokkaScope(
@@ -469,7 +471,6 @@ internal class DokkaSymbolVisitor(
             functions = scope.functions,
             properties = scope.properties,
             classlikes = emptyList(), // always empty, see https://github.com/Kotlin/dokka/issues/3129
-            typealiases = emptyList(),
             sourceSets = setOf(sourceSet),
             expectPresentInSet = sourceSet.takeIf { isExpect },
             extra = PropertyContainer.withAll(

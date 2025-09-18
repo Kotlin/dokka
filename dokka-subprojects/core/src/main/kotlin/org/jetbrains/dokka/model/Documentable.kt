@@ -41,7 +41,6 @@ public interface WithScope {
     public val functions: List<DFunction>
     public val properties: List<DProperty>
     public val classlikes: List<DClasslike>
-    public val typealiases: List<DTypeAlias>
 }
 
 public interface WithVisibility {
@@ -85,9 +84,14 @@ public interface WithConstructors {
 public interface WithGenerics {
     public val generics: List<DTypeParameter>
 }
+
 @ExperimentalDokkaApi
 public interface WithContextParameters {
     public val contextParameters: List<DParameter>
+}
+
+public interface WithTypealiases {
+    public val typealiases: List<DTypeAlias>
 }
 
 public interface WithSupertypes {
@@ -130,7 +134,7 @@ public data class DPackage(
     override val expectPresentInSet: DokkaSourceSet? = null,
     override val sourceSets: Set<DokkaSourceSet>,
     override val extra: PropertyContainer<DPackage> = PropertyContainer.empty()
-) : Documentable(), WithScope, WithExtraProperties<DPackage> {
+) : Documentable(), WithScope, WithTypealiases, WithExtraProperties<DPackage> {
 
     val packageName: String = dri.packageName.orEmpty()
 
@@ -154,7 +158,6 @@ public data class DClass(
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
-    override val typealiases: List<DTypeAlias>,
     override val sources: SourceSetDependent<DocumentableSource>,
     override val visibility: SourceSetDependent<Visibility>,
     override val companion: DObject?,
@@ -165,12 +168,13 @@ public data class DClass(
     override val modifier: SourceSetDependent<Modifier>,
     override val sourceSets: Set<DokkaSourceSet>,
     override val isExpectActual: Boolean,
-    override val extra: PropertyContainer<DClass> = PropertyContainer.empty()
+    override val extra: PropertyContainer<DClass> = PropertyContainer.empty(),
+    override val typealiases: List<DTypeAlias> = emptyList(),
 ) : DClasslike(), WithAbstraction, WithCompanion, WithConstructors, WithGenerics, WithSupertypes,
-    WithExtraProperties<DClass> {
+    WithExtraProperties<DClass>, WithTypealiases {
 
     override val children: List<Documentable>
-        get() = (functions + properties + classlikes + constructors)
+        get() = (functions + properties + classlikes + constructors + typealiases)
 
     override fun withNewExtras(newExtras: PropertyContainer<DClass>): DClass = copy(extra = newExtras)
 }
@@ -185,17 +189,17 @@ public data class DEnum(
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
-    override val typealiases: List<DTypeAlias>,
     override val visibility: SourceSetDependent<Visibility>,
     override val companion: DObject?,
     override val constructors: List<DFunction>,
     override val supertypes: SourceSetDependent<List<TypeConstructorWithKind>>,
     override val sourceSets: Set<DokkaSourceSet>,
     override val isExpectActual: Boolean,
-    override val extra: PropertyContainer<DEnum> = PropertyContainer.empty()
-) : DClasslike(), WithCompanion, WithConstructors, WithSupertypes, WithExtraProperties<DEnum> {
+    override val extra: PropertyContainer<DEnum> = PropertyContainer.empty(),
+    override val typealiases: List<DTypeAlias> = emptyList(),
+) : DClasslike(), WithCompanion, WithConstructors, WithSupertypes, WithExtraProperties<DEnum>, WithTypealiases {
     override val children: List<Documentable>
-        get() = (entries + functions + properties + classlikes + constructors)
+        get() = (entries + functions + properties + classlikes + constructors + typealiases)
 
     override fun withNewExtras(newExtras: PropertyContainer<DEnum>): DEnum = copy(extra = newExtras)
 }
@@ -208,9 +212,8 @@ public data class DEnumEntry(
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
-    override val typealiases: List<DTypeAlias>,
     override val sourceSets: Set<DokkaSourceSet>,
-    override val extra: PropertyContainer<DEnumEntry> = PropertyContainer.empty()
+    override val extra: PropertyContainer<DEnumEntry> = PropertyContainer.empty(),
 ) : Documentable(), WithScope, WithExtraProperties<DEnumEntry> {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes)
@@ -236,7 +239,7 @@ public data class DFunction(
     override val extra: PropertyContainer<DFunction> = PropertyContainer.empty(),
     @property:ExperimentalDokkaApi
     override val contextParameters: List<DParameter> = emptyList(),
-    ) : Documentable(), Callable, WithGenerics, WithExtraProperties<DFunction> {
+) : Documentable(), Callable, WithGenerics, WithExtraProperties<DFunction> {
 
     @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
     public constructor(
@@ -291,7 +294,7 @@ public data class DFunction(
         sourceSets: Set<DokkaSourceSet>,
         isExpectActual: Boolean,
         extra: PropertyContainer<DFunction> = PropertyContainer.empty()
-    ) : DFunction = DFunction(
+    ): DFunction = DFunction(
         dri = dri,
         name = name,
         isConstructor = isConstructor,
@@ -325,7 +328,6 @@ public data class DInterface(
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
-    override val typealiases: List<DTypeAlias>,
     override val visibility: SourceSetDependent<Visibility>,
     override val companion: DObject?,
     override val generics: List<DTypeParameter>,
@@ -333,8 +335,10 @@ public data class DInterface(
     override val modifier: SourceSetDependent<Modifier>,
     override val sourceSets: Set<DokkaSourceSet>,
     override val isExpectActual: Boolean,
-    override val extra: PropertyContainer<DInterface> = PropertyContainer.empty()
-) : DClasslike(), WithAbstraction, WithCompanion, WithGenerics, WithSupertypes, WithExtraProperties<DInterface> {
+    override val extra: PropertyContainer<DInterface> = PropertyContainer.empty(),
+    override val typealiases: List<DTypeAlias> = emptyList(),
+) : DClasslike(), WithAbstraction, WithCompanion, WithGenerics, WithSupertypes, WithExtraProperties<DInterface>,
+    WithTypealiases {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes)
 
@@ -350,13 +354,13 @@ public data class DObject(
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
-    override val typealiases: List<DTypeAlias>,
     override val visibility: SourceSetDependent<Visibility>,
     override val supertypes: SourceSetDependent<List<TypeConstructorWithKind>>,
     override val sourceSets: Set<DokkaSourceSet>,
     override val isExpectActual: Boolean,
-    override val extra: PropertyContainer<DObject> = PropertyContainer.empty()
-) : DClasslike(), WithSupertypes, WithExtraProperties<DObject> {
+    override val extra: PropertyContainer<DObject> = PropertyContainer.empty(),
+    override val typealiases: List<DTypeAlias> = emptyList(),
+) : DClasslike(), WithSupertypes, WithExtraProperties<DObject>, WithTypealiases {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes)
 
@@ -372,7 +376,6 @@ public data class DAnnotation(
     override val functions: List<DFunction>,
     override val properties: List<DProperty>,
     override val classlikes: List<DClasslike>,
-    override val typealiases: List<DTypeAlias>,
     override val visibility: SourceSetDependent<Visibility>,
     override val companion: DObject?,
     override val constructors: List<DFunction>,
@@ -620,7 +623,7 @@ public data class FunctionalTypeConstructor(
         isSuspendable: Boolean = false,
         presentableName: String? = null,
         extra: PropertyContainer<FunctionalTypeConstructor> = PropertyContainer.empty()
-    ) : FunctionalTypeConstructor = FunctionalTypeConstructor(
+    ): FunctionalTypeConstructor = FunctionalTypeConstructor(
         dri = dri,
         projections = projections,
         isExtensionFunction = isExtensionFunction,

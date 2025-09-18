@@ -228,7 +228,6 @@ public class DefaultDocumentableMerger(context: DokkaContext) : DocumentableMerg
         functions = mergeExpectActual(functions + other.functions) { f1, f2 -> f1.mergeWith(f2) },
         properties = mergeExpectActual(properties + other.properties) { p1, p2 -> p1.mergeWith(p2) },
         classlikes = mergeExpectActual(classlikes + other.classlikes) { c1, c2 -> c1.mergeWith(c2) },
-        typealiases = merge(typealiases + other.typealiases) { ta1, ta2 -> ta1.mergeWith(ta2) },
         documentation = documentation + other.documentation,
         expectPresentInSet = expectPresentInSet ?: other.expectPresentInSet,
         sourceSets = sourceSets + other.sourceSets
@@ -269,7 +268,6 @@ public class DefaultDocumentableMerger(context: DokkaContext) : DocumentableMerg
         functions = mergeExpectActual(functions + other.functions) { f1, f2 -> f1.mergeWith(f2) },
         properties = mergeExpectActual(properties + other.properties) { p1, p2 -> p1.mergeWith(p2) },
         classlikes = mergeExpectActual(classlikes + other.classlikes) { c1, c2 -> c1.mergeWith(c2) },
-        typealiases = merge(typealiases + other.typealiases) { ta1, ta2 -> ta1.mergeWith(ta2) },
         companion = companion?.let { c -> other.companion?.let { c.mergeWith(it) } ?: c } ?: other.companion,
         documentation = documentation + other.documentation,
         expectPresentInSet = expectPresentInSet ?: other.expectPresentInSet,

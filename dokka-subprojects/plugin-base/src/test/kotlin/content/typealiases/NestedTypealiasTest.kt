@@ -125,6 +125,159 @@ class NestedTypealiasTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `nested typealias in object`() {
+        testInline(
+            """
+        |/src/main/kotlin/test/test.kt
+        |package example
+        |
+        |object Foo {
+        |    /**
+        |     * Brief text
+        |     * 
+        |     * some text
+        |     *
+        |     * @see String
+        |     * @throws Unit
+        |     */
+        |    typealias A = String
+        |}
+        """,
+            configuration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("example", "Foo")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"Foo" }
+                        platformHinted {
+                            group {
+                                +"object "
+                                link { +"Foo" }
+                            }
+                        }
+                    }
+
+                    group {
+                        group {
+                            group {
+                                header(2) { +"Types" }
+                                table {
+                                    group {
+                                        link { +"A" }
+
+                                        divergentGroup {
+                                            divergentInstance {
+                                                group {
+                                                    group {
+                                                        group {
+                                                            group {
+                                                                +"typealias "
+                                                                group { group { link { +"Foo.A" } } }
+                                                                +" = "
+                                                                group { link { +"String" } }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                group {
+                                                    group {
+                                                        group {
+                                                            group { +"Brief text" }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `nested typealias in interface`() {
+        testInline(
+            """
+        |/src/main/kotlin/test/test.kt
+        |package example
+        |
+        |interface Foo {
+        |    /**
+        |     * Brief text
+        |     * 
+        |     * some text
+        |     *
+        |     * @see String
+        |     * @throws Unit
+        |     */
+        |    typealias A = String
+        |}
+        """,
+            configuration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("example", "Foo")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"Foo" }
+                        platformHinted {
+                            group {
+                                +"interface "
+                                link { +"Foo" }
+                            }
+                        }
+                    }
+
+                    group {
+                        group {
+                            group {
+                                header(2) { +"Types" }
+                                table {
+                                    group {
+                                        link { +"A" }
+
+                                        divergentGroup {
+                                            divergentInstance {
+                                                group {
+                                                    group {
+                                                        group {
+                                                            group {
+                                                                +"typealias "
+                                                                group { group { link { +"Foo.A" } } }
+                                                                +" = "
+                                                                group { link { +"String" } }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                group {
+                                                    group {
+                                                        group {
+                                                            group { +"Brief text" }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    @Test
     fun `nested typealias dedicated page`() {
         testInline(
             """

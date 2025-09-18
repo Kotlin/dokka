@@ -277,7 +277,6 @@ internal class DokkaPsiParser(
                         functions = allFunctions.await(),
                         properties = allFields.await(),
                         classlikes = classlikes.await(),
-                        typealiases = emptyList(),
                         visibility = visibility,
                         companion = null,
                         constructors = parseConstructors(dri),
@@ -303,7 +302,6 @@ internal class DokkaPsiParser(
                             functions = emptyList(),
                             properties = emptyList(),
                             classlikes = emptyList(),
-                            typealiases = emptyList(),
                             sourceSets = setOf(sourceSetData),
                             extra = PropertyContainer.withAll(
                                 implementedInterfacesExtra,
