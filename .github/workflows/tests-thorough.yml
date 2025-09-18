@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
-        javaVersion: [ 8, 11, 17, 21 ]
+        javaVersion: [ 8, 11, 17, 21, 25 ]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
