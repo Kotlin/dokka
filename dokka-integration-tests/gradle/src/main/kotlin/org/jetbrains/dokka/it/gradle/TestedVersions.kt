@@ -24,10 +24,7 @@ object TestedVersions {
     val ALL_SUPPORTED =
         BuildVersions.permutations(
             gradleVersions = listOf("7.6.3"),
-            kotlinVersions = listOf("2.1.21", "2.0.21", "1.9.23", "1.8.20", "1.7.20", "1.6.21", "1.5.31"),
-        ) + BuildVersions.permutations(
-            gradleVersions = listOf(*ifExhaustive("7.0", "6.1.1")),
-            kotlinVersions = listOf(*ifExhaustive("1.8.0", "1.7.0", "1.6.0", "1.5.0"))
+            kotlinVersions = listOf("2.1.21", "2.0.21", "1.9.25"),
         ) + LATEST
 
     /**
@@ -44,9 +41,9 @@ object TestedVersions {
             kotlinVersions = listOf("2.2.0", "2.1.21", "2.0.21"),
             androidGradlePluginVersions = listOf("8.3.0")
         ) + BuildVersions.permutations(
-            gradleVersions = listOf("7.6.3", *ifExhaustive("7.0")),
-            kotlinVersions = listOf("1.7.20", "1.6.21", "1.5.31", "1.4.32"),
-            androidGradlePluginVersions = listOf("7.2.0")
+            gradleVersions = listOf("7.6.3"),
+            kotlinVersions = listOf("1.9.25"),
+            androidGradlePluginVersions = listOf("7.4.2")
         )
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin-wrappers/kotlin-react
