@@ -73,7 +73,6 @@ public class JvmNameDocumentableTransformer : DocumentableTransformer {
                     functions = functions.map { transform(it, context) },
                     properties = properties.map { transform(it, context) },
                     classlikes = classlikes.map { transform(it, context) },
-                    typealiases = typealiases.map { transform(it, context) },
                 )
                 is DObject -> copy(
                     functions = functions.map { transform(it, context) },

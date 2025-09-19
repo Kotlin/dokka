@@ -4,6 +4,7 @@
 
 package content.typealiases
 
+import matchers.content.ContentMatcherBuilder
 import matchers.content.assertNode
 import matchers.content.divergentGroup
 import matchers.content.divergentInstance
@@ -15,6 +16,11 @@ import matchers.content.table
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.ClasslikePageNode
+import org.jetbrains.dokka.pages.ContentDivergentInstance
+import org.jetbrains.dokka.pages.ContentGroup
+import org.jetbrains.dokka.pages.ContentLink
+import org.jetbrains.dokka.pages.ContentTable
+import org.jetbrains.dokka.pages.MemberPage
 import org.jetbrains.dokka.pages.PlatformHintedContent
 import utils.assertNotNull
 import utils.findTestType
@@ -30,7 +36,6 @@ class NestedTypealiasTest : BaseAbstractTest() {
             }
         }
     }
-
 
     @Test
     fun `nested typealias in class`() {
@@ -67,55 +72,28 @@ class NestedTypealiasTest : BaseAbstractTest() {
                     }
 
                     group {
-                        group {
+                        table2("Constructors") {
                             group {
-                                header(2) { +"Constructors" }
-                                table {
+                                link { +"Foo" }
+                                platformHinted {
                                     group {
-                                        link { +"Foo" }
-                                        platformHinted {
-                                            group {
-                                                +"constructor()"
-                                            }
-                                        }
+                                        +"constructor()"
                                     }
                                 }
                             }
                         }
 
-                        group {
-                            group {
-                                header(2) { +"Types" }
-                                table {
-                                    group {
-                                        link { +"A" }
+                        table2("Types") {
+                            element("A") {
+                                group4 {
+                                    +"typealias "
+                                    group { groupedLink { +"Foo.A" } }
+                                    +" = "
+                                    groupedLink { +"String" }
 
-                                        divergentGroup {
-                                            divergentInstance {
-                                                group {
-                                                    group {
-                                                        group {
-                                                            group {
-                                                                +"typealias "
-                                                                group { group { link { +"Foo.A" } } }
-                                                                +" = "
-                                                                group { link { +"String" } }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-
-                                                group {
-                                                    group {
-                                                        group {
-                                                            group { +"Brief text" }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
                                 }
+
+                                group4 { +"Brief text" }
                             }
                         }
                     }
@@ -158,41 +136,17 @@ class NestedTypealiasTest : BaseAbstractTest() {
                         }
                     }
 
-                    group {
-                        group {
-                            group {
-                                header(2) { +"Types" }
-                                table {
-                                    group {
-                                        link { +"A" }
+                    table3("Types") {
+                        element("A") {
+                            group4 {
+                                +"typealias "
+                                group { groupedLink { +"Foo.A" } }
+                                +" = "
+                                groupedLink { +"String" }
 
-                                        divergentGroup {
-                                            divergentInstance {
-                                                group {
-                                                    group {
-                                                        group {
-                                                            group {
-                                                                +"typealias "
-                                                                group { group { link { +"Foo.A" } } }
-                                                                +" = "
-                                                                group { link { +"String" } }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-
-                                                group {
-                                                    group {
-                                                        group {
-                                                            group { +"Brief text" }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
                             }
+
+                            group4 { +"Brief text" }
                         }
                     }
                 }
@@ -234,41 +188,15 @@ class NestedTypealiasTest : BaseAbstractTest() {
                         }
                     }
 
-                    group {
-                        group {
-                            group {
-                                header(2) { +"Types" }
-                                table {
-                                    group {
-                                        link { +"A" }
-
-                                        divergentGroup {
-                                            divergentInstance {
-                                                group {
-                                                    group {
-                                                        group {
-                                                            group {
-                                                                +"typealias "
-                                                                group { group { link { +"Foo.A" } } }
-                                                                +" = "
-                                                                group { link { +"String" } }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-
-                                                group {
-                                                    group {
-                                                        group {
-                                                            group { +"Brief text" }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                    table3("Types") {
+                        element("A") {
+                            group4 {
+                                +"typealias "
+                                group { groupedLink { +"Foo.A" } }
+                                +" = "
+                                groupedLink { +"String" }
                             }
+                            group4 { +"Brief text" }
                         }
                     }
                 }
@@ -303,32 +231,26 @@ class NestedTypealiasTest : BaseAbstractTest() {
                 val platformHinted = content.dfs { it is PlatformHintedContent }
                 platformHinted.assertNotNull("platformHinted").assertNode {
                     group {
-                        group {
-                            group {
-                                +"typealias "
-                                group { group { link { +"Foo.A" } } }
-                                +" = "
-                                group { link { +"String" } }
-                            }
+                        group2 {
+                            +"typealias "
+                            group { groupedLink { +"Foo.A" } }
+                            +" = "
+                            groupedLink { +"String" }
                         }
 
-                        group {
-                            group {
-                                group {
-                                    group { +"Brief text" }
-                                    group { +"some text" }
-                                }
-                            }
+                        group3 {
+                            group { +"Brief text" }
+                            group { +"some text" }
                         }
 
                         header { +"See also" }
                         table {
-                            group { link { +"String" } }
+                            groupedLink { +"String" }
                         }
 
                         header { +"Throws" }
                         table {
-                            group { group { link { +"Unit" } } }
+                            group { groupedLink { +"Unit" } }
                         }
                     }
                 }
@@ -336,4 +258,227 @@ class NestedTypealiasTest : BaseAbstractTest() {
         }
     }
 
+
+    @Test
+    fun `nested typealias use cases`() {
+        testInline(
+            """
+        |/src/main/kotlin/test/test.kt
+        |package example
+        |
+        |interface Foo {
+        |    typealias A = String
+        |
+        |    val property: A
+        |
+        |    fun A.extension(): Unit {}
+        |    fun parameter(a: A): Unit {}
+        |    fun returnValue(): A {
+        |        return ""
+        |    }
+        |}
+        """,
+            configuration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("example", "Foo")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"Foo" }
+                        platformHinted {
+                            group {
+                                +"interface "
+                                link { +"Foo" }
+                            }
+                        }
+                    }
+
+                    group2 {
+                        table("Types") {
+                            element("A") {
+                                group4 {
+                                    +"typealias "
+                                    group { groupedLink { +"Foo.A" } }
+                                    +" = "
+                                    groupedLink { +"String" }
+                                }
+                            }
+                        }
+
+                        table("Properties") {
+                            element("property") {
+                                group3 {
+                                    +"abstract val "
+                                    link { +"property" }
+                                    +": "
+                                    groupedLink { +"Foo.A" }
+                                }
+                            }
+                        }
+
+                        table("Functions") {
+                            element("extension") {
+                                group3 {
+                                    +"open fun "
+                                    groupedLink { +"Foo.A" }
+                                    +"."
+                                    link { +"extension" }
+                                    +"()"
+                                }
+                            }
+
+                            element("parameter") {
+                                group3 {
+                                    +"open fun "
+                                    link { +"parameter" }
+                                    +"("
+                                    group2 {
+                                        +"a: "
+                                        groupedLink { +"Foo.A" }
+                                    }
+                                    +")"
+                                }
+                            }
+
+                            element("returnValue") {
+                                group3 {
+                                    +"open fun "
+                                    link { +"returnValue" }
+                                    +"(): "
+                                    groupedLink { +"Foo.A" }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    @Test
+    fun `nested typealias use in KDoc`() {
+        testInline(
+            """
+        |/src/main/kotlin/test/test.kt
+        |package example
+        |
+        |interface Foo {
+        |    typealias A = String
+        |
+        |    /**
+        |    * Link to [A]
+        |    * 
+        |    * @see A
+        |    * @throws A
+        |    */
+        |    val property: A
+        |}
+        """,
+            configuration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.dfs { it.name == "property" } as MemberPage
+                page.content.assertNode {
+                    group {
+                        header(1) { +"property" }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"abstract val "
+                                link { +"property" }
+                                +": "
+                                groupedLink { +"Foo.A" }
+                            }
+
+                            group {
+                                group3 {
+                                    +"Link to "
+                                    link { +"A" }
+                                }
+
+                                header(4) { +"See also" }
+                                table { groupedLink { +"Foo.A" } }
+
+                                header(4) { +"Throws" }
+                                table { group { groupedLink { +"Foo.A" } } }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun ContentMatcherBuilder<*>.group2(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) {
+    group { group(block) }
+}
+
+private fun ContentMatcherBuilder<*>.group3(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) {
+    group { group2(block) }
+}
+
+private fun ContentMatcherBuilder<*>.group4(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) {
+    group { group3(block) }
+}
+
+private fun ContentMatcherBuilder<*>.table(
+    title: String,
+    headerSize: Int = 2,
+    block: ContentMatcherBuilder<ContentTable>.() -> Unit
+) {
+    group {
+        header(headerSize) { +title }
+        table {
+            block()
+        }
+    }
+}
+
+private fun ContentMatcherBuilder<*>.table2(
+    title: String,
+    headerSize: Int = 2,
+    block: ContentMatcherBuilder<ContentTable>.() -> Unit
+) {
+    group2 {
+        header(headerSize) { +title }
+        table {
+            block()
+        }
+    }
+}
+
+private fun ContentMatcherBuilder<*>.table3(
+    title: String,
+    headerSize: Int = 2,
+    block: ContentMatcherBuilder<ContentTable>.() -> Unit
+) {
+    group3 {
+        header(headerSize) { +title }
+        table {
+            block()
+        }
+    }
+}
+
+private fun ContentMatcherBuilder<*>.element(
+    name: String,
+    block: ContentMatcherBuilder<ContentDivergentInstance>.() -> Unit
+) {
+    group {
+        link { +name }
+
+        divergentGroup {
+            divergentInstance {
+                block()
+            }
+        }
+    }
+
+}
+
+private fun ContentMatcherBuilder<*>.groupedLink(block: ContentMatcherBuilder<ContentLink>.() -> Unit) {
+    group { link(block) }
 }

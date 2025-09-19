@@ -366,7 +366,6 @@ private class DokkaDescriptorVisitor(
             val functions = async { descriptorsWithKind.functions.visitFunctions(driWithPlatform) }
             val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform) }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
-            val typealiases = async { descriptorsWithKind.typealiases.visitTypealiases() }
 
             DEnumEntry(
                 dri = driWithPlatform.dri.withEnumEntryExtra(),
@@ -375,7 +374,6 @@ private class DokkaDescriptorVisitor(
                 functions = functions.await(),
                 properties = properties.await(),
                 classlikes = classlikes.await(),
-                typealiases = typealiases.await(),
                 sourceSets = setOf(sourceSet),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 extra = PropertyContainer.withAll(
@@ -398,7 +396,6 @@ private class DokkaDescriptorVisitor(
             val functions = async { descriptorsWithKind.functions.visitFunctions(driWithPlatform) }
             val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform) }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
-            val typealiases = async { descriptorsWithKind.typealiases.visitTypealiases() }
             val generics = async { descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter() } }
             val constructors =
                 async { descriptor.constructors.parallelMap { visitConstructorDescriptor(it, driWithPlatform) } }
@@ -410,7 +407,6 @@ private class DokkaDescriptorVisitor(
                 functions = functions.await(),
                 properties = properties.await(),
                 classlikes = classlikes.await(),
-                typealiases = typealiases.await(),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
