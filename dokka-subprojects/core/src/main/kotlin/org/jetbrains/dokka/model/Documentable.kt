@@ -340,7 +340,7 @@ public data class DInterface(
 ) : DClasslike(), WithAbstraction, WithCompanion, WithGenerics, WithSupertypes, WithExtraProperties<DInterface>,
     WithTypealiases {
     override val children: List<Documentable>
-        get() = (functions + properties + classlikes)
+        get() = (functions + properties + classlikes + typealiases)
 
     override fun withNewExtras(newExtras: PropertyContainer<DInterface>): DInterface = copy(extra = newExtras)
 }
@@ -362,7 +362,7 @@ public data class DObject(
     override val typealiases: List<DTypeAlias> = emptyList(),
 ) : DClasslike(), WithSupertypes, WithExtraProperties<DObject>, WithTypealiases {
     override val children: List<Documentable>
-        get() = (functions + properties + classlikes)
+        get() = (functions + properties + classlikes + typealiases)
 
     override fun withNewExtras(newExtras: PropertyContainer<DObject>): DObject = copy(extra = newExtras)
 }

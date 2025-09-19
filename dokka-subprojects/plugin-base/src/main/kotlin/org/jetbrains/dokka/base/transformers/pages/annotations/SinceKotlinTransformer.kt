@@ -112,7 +112,7 @@ public class SinceKotlinTransformer(
                 classlikes = classlikes.map { it.transform(versions) as DClasslike },
                 functions = functions.map { it.transform(versions) as DFunction },
                 properties = properties.map { it.transform(versions) as DProperty },
-                typealiases = typealiases.map { it.transform() as DTypeAlias },
+                typealiases = typealiases.map { it.transform(versions) as DTypeAlias },
             )
 
             is DEnum -> copy(
@@ -120,7 +120,7 @@ public class SinceKotlinTransformer(
                 classlikes = classlikes.map { it.transform(versions) as DClasslike },
                 functions = functions.map { it.transform(versions) as DFunction },
                 properties = properties.map { it.transform(versions) as DProperty },
-                typealiases = typealiases.map { it.transform() as DTypeAlias },
+                typealiases = typealiases.map { it.transform(versions) as DTypeAlias },
             )
 
             is DInterface -> copy(
@@ -128,7 +128,7 @@ public class SinceKotlinTransformer(
                 classlikes = classlikes.map { it.transform(versions) as DClasslike },
                 functions = functions.map { it.transform(versions) as DFunction },
                 properties = properties.map { it.transform(versions) as DProperty },
-                typealiases = typealiases.map { it.transform() as DTypeAlias },
+                typealiases = typealiases.map { it.transform(versions) as DTypeAlias },
             )
 
             is DObject -> copy(
@@ -136,7 +136,7 @@ public class SinceKotlinTransformer(
                 classlikes = classlikes.map { it.transform(versions) as DClasslike },
                 functions = functions.map { it.transform(versions) as DFunction },
                 properties = properties.map { it.transform(versions) as DProperty },
-                typealiases = typealiases.map { it.transform() as DTypeAlias },
+                typealiases = typealiases.map { it.transform(versions) as DTypeAlias },
             )
 
             is DTypeAlias -> copy(

@@ -52,7 +52,7 @@ public abstract class SuppressedByConditionDocumentableFilterTransformer(
         val properties = classlike.properties.map { processProperty(it) }
         val companion = (classlike as? WithCompanion)?.companion?.let { processClassLike(it) }
 
-        val wasClasslikeChanged = (functions + classlikes + properties).any { it.changed } || companion?.changed == true
+        val wasClasslikeChanged = (functions + classlikes + properties + typealiases).any { it.changed } || companion?.changed == true
         return when (classlike) {
             is DClass -> {
                 val constructors = classlike.constructors.map { processMember(it) }
