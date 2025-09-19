@@ -27,23 +27,8 @@ internal fun Project.classpathOf(sourceSet: KotlinSourceSet): FileCollection {
 }
 
 private fun KotlinCompilation.compileClasspathOf(project: Project): FileCollection {
-    val kgpVersion = project.getKgpVersion()
-
-    // if KGP version < 1.9 or org.jetbrains.dokka.classpath.useOldResolution=true
-    // we will use old (pre 1.9) resolution of classpath
-    if (kgpVersion == null ||
-        kgpVersion < KotlinGradlePluginVersion(1, 9, 0) ||
-        project.classpathProperty("useOldResolution", default = false)
-    ) {
-        return oldCompileClasspathOf(project)
-    }
-
-    return newCompileClasspathOf(project)
-}
-
-private fun KotlinCompilation.newCompileClasspathOf(project: Project): FileCollection {
     if (this.target.isAndroidTarget()) { // Workaround for https://youtrack.jetbrains.com/issue/KT-33893
-        return this.classpathOf(project)
+        return (compileTaskProvider.get() as? KotlinCompile)?.libraries ?: project.files()
     }
 
     val result = project.objects.fileCollection()
@@ -64,49 +49,6 @@ private fun KotlinCompilation.newCompileClasspathOf(project: Project): FileColle
     }
 
     return result
-}
-
-private fun KotlinCompilation.oldCompileClasspathOf(project: Project): FileCollection {
-    if (this.target.isAndroidTarget()) { // Workaround for https://youtrack.jetbrains.com/issue/KT-33893
-        return this.classpathOf(project)
-    }
-
-    return this.compileDependencyFiles + platformDependencyFiles(project) + this.classpathOf(project)
-}
-
-private fun KotlinCompilation.classpathOf(project: Project): FileCollection {
-    val kgpVersion = project.getKgpVersion()
-    val kotlinCompile = this.getKotlinCompileTask(kgpVersion) ?: return project.files()
-
-    val shouldKeepBackwardsCompatibility = (kgpVersion != null && kgpVersion < KotlinGradlePluginVersion(1, 7, 0))
-    return if (shouldKeepBackwardsCompatibility) {
-        // removed since 1.9.0, left for compatibility with < Kotlin 1.7
-        val classpathGetter = kotlinCompile::class.members
-            .first { it.name == "getClasspath" }
-        classpathGetter.call(kotlinCompile) as FileCollection
-    } else {
-        kotlinCompile.libraries // introduced in 1.7.0
-    }
-}
-
-private fun KotlinCompilation.getKotlinCompileTask(kgpVersion: KotlinGradlePluginVersion? = null): KotlinCompile? {
-    val shouldKeepBackwardsCompatibility = (kgpVersion != null && kgpVersion < KotlinGradlePluginVersion(1, 8, 0))
-    return if (shouldKeepBackwardsCompatibility) {
-        @Suppress("DEPRECATION_ERROR") // for `compileKotlinTask` property, deprecated with warning since 1.8.0
-        this.compileKotlinTask as? KotlinCompile
-    } else {
-        this.compileTaskProvider.get() as? KotlinCompile // introduced in 1.8.0
-    }
-}
-
-private fun KotlinCompilation.platformDependencyFiles(project: Project): FileCollection {
-    val excludePlatformDependencyFiles = project.classpathProperty("excludePlatformDependencyFiles", default = false)
-
-    if (excludePlatformDependencyFiles) return project.files()
-    return (this as? AbstractKotlinNativeCompilation)
-        ?.target?.project?.configurations
-        ?.findByName(@Suppress("DEPRECATION_ERROR") this.defaultSourceSet.implementationMetadataConfigurationName) // KT-58640
-        ?: project.files()
 }
 
 private fun Project.classpathProperty(name: String, default: Boolean): Boolean =
