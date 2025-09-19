@@ -151,8 +151,6 @@ public open class DefaultPageCreator(
         val typealiases = classlikes.flatMap { (it as? WithTypealiases)?.typealiases.orEmpty() }
         val entries = classlikes.flatMap { if (it is DEnum) it.entries else emptyList() }
 
-
-
         val childrenPages = constructors.map(::pageForFunction) +
                 if (mergeImplicitExpectActualDeclarations)
                     (nestedClasslikes + typealiases).mergeClashingDocumentable().map(::pageForClasslikes) +
@@ -160,10 +158,9 @@ public open class DefaultPageCreator(
                             props.mergeClashingDocumentable().map(::pageForProperties) +
                             entries.mergeClashingDocumentable().map(::pageForEnumEntries)
                 else
-                    nestedClasslikes.renameClashingDocumentable().map(::pageForClasslike) +
+                    (nestedClasslikes + typealiases).renameClashingDocumentable().map(::pageForClasslike) +
                             (functions + props).renameClashingDocumentable().mapNotNull(::pageForMember) +
-                            entries.renameClashingDocumentable().map(::pageForEnumEntry) +
-                            typealiases.renameClashingDocumentable().map(::pageForClasslike)
+                            entries.renameClashingDocumentable().map(::pageForEnumEntry)
 
 
         return ClasslikePageNode(

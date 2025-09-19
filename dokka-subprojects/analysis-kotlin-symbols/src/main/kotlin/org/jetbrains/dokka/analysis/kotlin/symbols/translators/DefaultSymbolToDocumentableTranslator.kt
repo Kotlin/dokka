@@ -20,7 +20,6 @@ import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.hasGeneratedKDocDocument
 import org.jetbrains.dokka.analysis.kotlin.symbols.translators.AnnotationTranslator.Companion.getPresentableName
 import org.jetbrains.dokka.analysis.kotlin.symbols.utils.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.links.*
-import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Visibility
 import org.jetbrains.dokka.model.doc.*

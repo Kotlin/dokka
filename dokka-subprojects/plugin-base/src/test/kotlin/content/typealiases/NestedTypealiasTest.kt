@@ -16,6 +16,7 @@ import matchers.content.table
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.ClasslikePageNode
+import org.jetbrains.dokka.pages.ContentDivergentGroup
 import org.jetbrains.dokka.pages.ContentDivergentInstance
 import org.jetbrains.dokka.pages.ContentGroup
 import org.jetbrains.dokka.pages.ContentLink
@@ -33,6 +34,31 @@ class NestedTypealiasTest : BaseAbstractTest() {
                 sourceRoots = listOf("src/")
                 classpath = listOf(commonStdlibPath!!, jvmStdlibPath!!)
                 externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
+            }
+        }
+    }
+
+    private val multiplatformConfiguration = dokkaConfiguration {
+        sourceSets {
+            val commonId = sourceSet {
+                sourceRoots = listOf("src/common/")
+                analysisPlatform = "common"
+                name = "common"
+                displayName = "common"
+            }.value.sourceSetID
+            sourceSet {
+                sourceRoots = listOf("src/jvm/")
+                analysisPlatform = "jvm"
+                name = "jvm"
+                displayName = "jvm"
+                dependentSourceSets = setOf(commonId)
+            }
+            sourceSet {
+                sourceRoots = listOf("src/native/")
+                analysisPlatform = "native"
+                name = "native"
+                displayName = "native"
+                dependentSourceSets = setOf(commonId)
             }
         }
     }
@@ -85,15 +111,17 @@ class NestedTypealiasTest : BaseAbstractTest() {
 
                         table2("Types") {
                             element("A") {
-                                group4 {
-                                    +"typealias "
-                                    group { groupedLink { +"Foo.A" } }
-                                    +" = "
-                                    groupedLink { +"String" }
+                                divergentInstance {
+                                    group4 {
+                                        +"typealias "
+                                        group { groupedLink { +"Foo.A" } }
+                                        +" = "
+                                        groupedLink { +"String" }
 
+                                    }
+
+                                    group4 { +"Brief text" }
                                 }
-
-                                group4 { +"Brief text" }
                             }
                         }
                     }
@@ -138,15 +166,17 @@ class NestedTypealiasTest : BaseAbstractTest() {
 
                     table3("Types") {
                         element("A") {
-                            group4 {
-                                +"typealias "
-                                group { groupedLink { +"Foo.A" } }
-                                +" = "
-                                groupedLink { +"String" }
+                            divergentInstance {
+                                group4 {
+                                    +"typealias "
+                                    group { groupedLink { +"Foo.A" } }
+                                    +" = "
+                                    groupedLink { +"String" }
 
+                                }
+
+                                group4 { +"Brief text" }
                             }
-
-                            group4 { +"Brief text" }
                         }
                     }
                 }
@@ -190,13 +220,15 @@ class NestedTypealiasTest : BaseAbstractTest() {
 
                     table3("Types") {
                         element("A") {
-                            group4 {
-                                +"typealias "
-                                group { groupedLink { +"Foo.A" } }
-                                +" = "
-                                groupedLink { +"String" }
+                            divergentInstance {
+                                group4 {
+                                    +"typealias "
+                                    group { groupedLink { +"Foo.A" } }
+                                    +" = "
+                                    groupedLink { +"String" }
+                                }
+                                group4 { +"Brief text" }
                             }
-                            group4 { +"Brief text" }
                         }
                     }
                 }
@@ -258,7 +290,6 @@ class NestedTypealiasTest : BaseAbstractTest() {
         }
     }
 
-
     @Test
     fun `nested typealias use cases`() {
         testInline(
@@ -296,56 +327,66 @@ class NestedTypealiasTest : BaseAbstractTest() {
                     group2 {
                         table("Types") {
                             element("A") {
-                                group4 {
-                                    +"typealias "
-                                    group { groupedLink { +"Foo.A" } }
-                                    +" = "
-                                    groupedLink { +"String" }
+                                divergentInstance {
+                                    group4 {
+                                        +"typealias "
+                                        group { groupedLink { +"Foo.A" } }
+                                        +" = "
+                                        groupedLink { +"String" }
+                                    }
                                 }
                             }
                         }
 
                         table("Properties") {
                             element("property") {
-                                group3 {
-                                    +"abstract val "
-                                    link { +"property" }
-                                    +": "
-                                    groupedLink { +"Foo.A" }
+                                divergentInstance {
+                                    group3 {
+                                        +"abstract val "
+                                        link { +"property" }
+                                        +": "
+                                        groupedLink { +"Foo.A" }
+                                    }
                                 }
                             }
                         }
 
                         table("Functions") {
                             element("extension") {
-                                group3 {
-                                    +"open fun "
-                                    groupedLink { +"Foo.A" }
-                                    +"."
-                                    link { +"extension" }
-                                    +"()"
+                                divergentInstance {
+                                    group3 {
+                                        +"open fun "
+                                        groupedLink { +"Foo.A" }
+                                        +"."
+                                        link { +"extension" }
+                                        +"()"
+                                    }
                                 }
                             }
 
                             element("parameter") {
-                                group3 {
-                                    +"open fun "
-                                    link { +"parameter" }
-                                    +"("
-                                    group2 {
-                                        +"a: "
-                                        groupedLink { +"Foo.A" }
+                                divergentInstance {
+                                    group3 {
+                                        +"open fun "
+                                        link { +"parameter" }
+                                        +"("
+                                        group2 {
+                                            +"a: "
+                                            groupedLink { +"Foo.A" }
+                                        }
+                                        +")"
                                     }
-                                    +")"
                                 }
                             }
 
                             element("returnValue") {
-                                group3 {
-                                    +"open fun "
-                                    link { +"returnValue" }
-                                    +"(): "
-                                    groupedLink { +"Foo.A" }
+                                divergentInstance {
+                                    group3 {
+                                        +"open fun "
+                                        link { +"returnValue" }
+                                        +"(): "
+                                        groupedLink { +"Foo.A" }
+                                    }
                                 }
                             }
                         }
@@ -410,6 +451,102 @@ class NestedTypealiasTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `nested typealiases in multiplatform`() {
+        testInline(
+            """
+        |/src/common/kotlin/test/test.kt
+        |package example
+        |expect class A
+        |/src/jvm/kotlin/test/test.kt
+        |package example
+        |actual class A { 
+        |    typealias B = String
+        |    class C
+        |}
+        |/src/native/kotlin/test/test.kt
+        |package example
+        |actual class A { 
+        |    class B
+        |    class C
+        |}
+        """, multiplatformConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.dfs { it.name == "A" } as ClasslikePageNode
+                page.content.assertNode {
+                    group {
+                        header(1) { +"A" }
+                        platformHinted {
+                            group {
+                                +"expect class "
+                                link { +"A" }
+                            }
+                            group {
+                                +"actual class "
+                                link { +"A" }
+                            }
+                            group {
+                                +"actual class "
+                                link { +"A" }
+                            }
+                        }
+                    }
+
+                    group {
+                        table2("Constructors") {
+                            group {
+                                link { +"A" }
+                                platformHinted {
+                                    group {
+                                        +"constructor()"
+                                    }
+                                    group {
+                                        +"constructor()"
+                                    }
+                                }
+                            }
+                        }
+
+                        table2("Types") {
+                            element("B") {
+                                divergentInstance {
+                                    group3 {
+                                        +"class "
+                                        link { +"B" }
+                                    }
+                                }
+                                divergentInstance {
+                                    group4 {
+                                        +"typealias "
+                                        group { groupedLink { +"A.B" } }
+                                        +" = "
+                                        groupedLink { +"String" }
+                                    }
+                                }
+                            }
+
+                            element("C") {
+                                divergentInstance {
+                                    group3 {
+                                        +"class "
+                                        link { +"C" }
+                                    }
+                                }
+                                divergentInstance {
+                                    group3 {
+                                        +"class "
+                                        link { +"C" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 private fun ContentMatcherBuilder<*>.group2(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) {
@@ -465,15 +602,13 @@ private fun ContentMatcherBuilder<*>.table3(
 
 private fun ContentMatcherBuilder<*>.element(
     name: String,
-    block: ContentMatcherBuilder<ContentDivergentInstance>.() -> Unit
+    block: ContentMatcherBuilder<ContentDivergentGroup>.() -> Unit
 ) {
     group {
         link { +name }
 
         divergentGroup {
-            divergentInstance {
-                block()
-            }
+            block()
         }
     }
 
