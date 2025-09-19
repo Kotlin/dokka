@@ -17,7 +17,6 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ContentDivergentGroup
-import org.jetbrains.dokka.pages.ContentDivergentInstance
 import org.jetbrains.dokka.pages.ContentGroup
 import org.jetbrains.dokka.pages.ContentLink
 import org.jetbrains.dokka.pages.ContentTable
@@ -549,7 +548,7 @@ class NestedTypealiasTest : BaseAbstractTest() {
     }
 }
 
-private fun ContentMatcherBuilder<*>.group2(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) {
+internal fun ContentMatcherBuilder<*>.group2(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) {
     group { group(block) }
 }
 
@@ -574,7 +573,7 @@ private fun ContentMatcherBuilder<*>.table(
     }
 }
 
-private fun ContentMatcherBuilder<*>.table2(
+internal fun ContentMatcherBuilder<*>.table2(
     title: String,
     headerSize: Int = 2,
     block: ContentMatcherBuilder<ContentTable>.() -> Unit
@@ -614,6 +613,6 @@ private fun ContentMatcherBuilder<*>.element(
 
 }
 
-private fun ContentMatcherBuilder<*>.groupedLink(block: ContentMatcherBuilder<ContentLink>.() -> Unit) {
+internal fun ContentMatcherBuilder<*>.groupedLink(block: ContentMatcherBuilder<ContentLink>.() -> Unit) {
     group { link(block) }
 }

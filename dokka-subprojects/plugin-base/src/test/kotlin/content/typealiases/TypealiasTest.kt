@@ -24,6 +24,31 @@ class TypealiasTest : BaseAbstractTest() {
         }
     }
 
+    private val multiplatformConfiguration = dokkaConfiguration {
+        sourceSets {
+            val commonId = sourceSet {
+                sourceRoots = listOf("src/common/")
+                analysisPlatform = "common"
+                name = "common"
+                displayName = "common"
+            }.value.sourceSetID
+            sourceSet {
+                sourceRoots = listOf("src/jvm/")
+                analysisPlatform = "jvm"
+                name = "jvm"
+                displayName = "jvm"
+                dependentSourceSets = setOf(commonId)
+            }
+            sourceSet {
+                sourceRoots = listOf("src/native/")
+                analysisPlatform = "native"
+                name = "native"
+                displayName = "native"
+                dependentSourceSets = setOf(commonId)
+            }
+        }
+    }
+
     @Test
     fun `typealias should have a dedicated page with full documentation`() {
         testInline(
@@ -75,6 +100,64 @@ class TypealiasTest : BaseAbstractTest() {
                         table {
                             group { group { link { +"Unit" } } }
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `typealias in a multiplatform project`() {
+        testInline(
+            """
+            |/src/common/kotlin/test/test.kt
+            |package example
+            |expect class A
+            |/src/jvm/kotlin/test/test.kt
+            |package example
+            |actual typealias A = String
+            |/src/native/kotlin/test/test.kt
+            |package example
+            |actual class A
+            """,
+            multiplatformConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.dfs { it.name == "A" } as ClasslikePageNode
+                page.content.assertNode {
+                    group {
+                        header(1) { +"A" }
+                        platformHinted {
+                            group {
+                                +"expect class "
+                                link { +"A" }
+                            }
+                            group {
+                                +"actual class "
+                                link { +"A" }
+                            }
+                            group2 {
+                                +"actual typealias "
+                                group { groupedLink { +"A" } }
+                                +" = "
+                                groupedLink { +"String" }
+                            }
+                        }
+                    }
+
+                    group {
+                        table2("Constructors") {
+                            group {
+                                link { +"A" }
+                                platformHinted {
+                                    group {
+                                        +"constructor()"
+                                    }
+                                }
+                            }
+                        }
+
+                        group { }
                     }
                 }
             }
