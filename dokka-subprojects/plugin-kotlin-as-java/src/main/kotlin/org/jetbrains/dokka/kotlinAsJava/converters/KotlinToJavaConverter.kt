@@ -293,12 +293,13 @@ public class KotlinToJavaConverter(
      * Companion objects requires some custom logic for rendering as Java.
      * They are excluded from usual classlikes rendering and added after.
      */
-    internal fun DClass.classlikesInJava(): List<DClasslike> {
+    internal fun <T> T.classlikesInJava(): List<DClasslike> where T : DClasslike, T : WithCompanion {
         val classlikes = classlikes
             .filter { it.name != companion?.name }
             .map { it.asJava() }
 
         val companionAsJava = companion?.companionAsJava()
+        println("Class: $name, classlikes: ${classlikes.map { it.name }}, companion: ${companionAsJava?.name}")
         return if (companionAsJava != null) classlikes.plus(companionAsJava) else classlikes
     }
 
@@ -442,9 +443,10 @@ public class KotlinToJavaConverter(
             .filterNot { it.hasJvmSynthetic() }
             .flatMap { it.asJava(dri.classNames ?: name) },
         properties = emptyList(),
-        classlikes = classlikes.map { it.asJava() }, // TODO: public static final class DefaultImpls with impls for methods
+        classlikes = classlikesInJava(), // TODO: public static final class DefaultImpls with impls for methods
         generics = generics.map { it.asJava() },
-        supertypes = supertypes.mapValues { it.value.map { it.asJava() } }
+        supertypes = supertypes.mapValues { it.value.map { it.asJava() } },
+        companion = companion?.companionAsJava()
     )
 
     internal fun DAnnotation.asJava(): DAnnotation = copy(
