@@ -55,7 +55,7 @@ public class KotlinToJavaConverter(
                         name = syntheticClassName.name,
                         properties = nodes
                             .filterIsInstance<DProperty>()
-                            .filterNot { it.hasJvmSynthetic() }
+                            .filterNot { it.hasJvmSynthetic() || it.isExtension() }
                             .map { it.asJava(true) },
                         constructors = emptyList(),
                         functions = (
@@ -315,11 +315,11 @@ public class KotlinToJavaConverter(
     internal fun DClass.propertiesInJava(): List<DProperty> {
         val propertiesFromCompanion = companion
             .staticPropertiesForJava()
-            .filterNot { it.hasJvmSynthetic() }
+            .filterNot { it.hasJvmSynthetic() || it.isExtension() }
             .map { it.asJava(isFromObjectOrCompanion = true) }
         val companionInstanceProperty = companion?.companionInstancePropertyForJava()
         val ownProperties = properties
-            .filterNot { it.hasJvmSynthetic() }
+            .filterNot { it.hasJvmSynthetic() || it.isExtension() }
             .map { it.asJava() }
 
         return propertiesFromCompanion + ownProperties + listOfNotNull(companionInstanceProperty)
@@ -376,7 +376,7 @@ public class KotlinToJavaConverter(
             .filterNot { it.hasJvmSynthetic() }
             .flatMap { it.asJava(dri.classNames ?: name) },
         properties = properties
-            .filterNot { it.hasJvmSynthetic() }
+            .filterNot { it.hasJvmSynthetic() || it.isExtension() }
             .map { it.asJava() },
         classlikes = classlikes.map { it.asJava() },
         supertypes = supertypes.mapValues { it.value.map { it.asJava() } }
@@ -403,7 +403,7 @@ public class KotlinToJavaConverter(
             .filterNot { it.hasJvmSynthetic() }
             .flatMap { it.asJava(dri.classNames ?: name.orEmpty()) },
         properties = properties
-            .filterNot { it.hasJvmSynthetic() }
+            .filterNot { it.hasJvmSynthetic() || it.isExtension() }
             .filterNot { it in excludedProps }
             .map { it.asJava(isFromObjectOrCompanion = true) } +
                 DProperty(
