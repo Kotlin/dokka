@@ -16,6 +16,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
+import org.jetbrains.dokka.links.DriOfUnit
 
 public val jvmNameProvider: JvmNameProvider = JvmNameProvider()
 internal const val OBJECT_INSTANCE_NAME = "INSTANCE"
@@ -206,7 +207,7 @@ public class KotlinToJavaConverter(
         return copy(
             dri = dri.copy(classNames = containingClassName, callable = dri.callable?.copy(name = newName)),
             name = newName,
-            type = type.asJava(),
+            type = type.asJava(unitAsVoid = true),
             modifier = if (modifier.all { (_, v) -> v is KotlinModifier.Final } && isConstructor)
                 sourceSets.associateWith { JavaModifier.Empty }
             else sourceSets.associateWith { modifier.values.first() },
@@ -338,12 +339,16 @@ public class KotlinToJavaConverter(
         is Bound -> asJava()
     }
 
-    private fun Bound.asJava(): Bound = when (this) {
+    private fun Bound.asJava(unitAsVoid: Boolean = false): Bound = when (this) {
         is TypeParameter -> copy(dri.possiblyAsJava())
-        is GenericTypeConstructor -> copy(
-            dri = dri.possiblyAsJava(),
-            projections = projections.map { it.asJava() }
-        )
+        is GenericTypeConstructor -> if (unitAsVoid && dri == DriOfUnit) {
+            Void
+        } else {
+            copy(
+                dri = dri.possiblyAsJava(),
+                projections = projections.map { it.asJava() }
+            )
+        }
 
         is FunctionalTypeConstructor -> copy(
             dri = dri.possiblyAsJava(),
