@@ -1590,6 +1590,10 @@ public final class org/jetbrains/dokka/model/ExtraModifiers$JavaOnlyModifiers$Vo
 	public static final field INSTANCE Lorg/jetbrains/dokka/model/ExtraModifiers$JavaOnlyModifiers$Volatile;
 }
 
+public final class org/jetbrains/dokka/model/ExtraModifiers$JavaOnlyModifiers$Default : org/jetbrains/dokka/model/ExtraModifiers$JavaOnlyModifiers {
+    public static final field INSTANCE Lorg/jetbrains/dokka/model/ExtraModifiers$JavaOnlyModifiers$Default;
+}
+
 public abstract class org/jetbrains/dokka/model/ExtraModifiers$KotlinOnlyModifiers : org/jetbrains/dokka/model/ExtraModifiers {
 	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 }
