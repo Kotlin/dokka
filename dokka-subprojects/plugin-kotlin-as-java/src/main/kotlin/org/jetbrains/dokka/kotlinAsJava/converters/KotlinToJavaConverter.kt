@@ -299,7 +299,6 @@ public class KotlinToJavaConverter(
             .map { it.asJava() }
 
         val companionAsJava = companion?.companionAsJava()
-        println("Class: $name, classlikes: ${classlikes.map { it.name }}, companion: ${companionAsJava?.name}")
         return if (companionAsJava != null) classlikes.plus(companionAsJava) else classlikes
     }
 
