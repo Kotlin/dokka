@@ -4,7 +4,6 @@
 
 package org.jetbrains.dokka.kotlinAsJava.converters
 
-import org.jetbrains.dokka.kotlinAsJava.jvmStatic
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -17,15 +16,29 @@ internal fun DObject?.staticFunctionsForJava(): List<DFunction> {
     return (functions + propFunctions).filter { it.isJvmStatic }
 }
 
+internal fun DObject?.staticPropertyAccessorsForJava(): List<DFunction> {
+    if (this == null) return emptyList()
+    val staticProps = properties.filter { it.isThisOrAccessorsStatic }
+        .flatMap { listOfNotNull(it.getter, it.setter) }
+        .map {
+            it.copy(
+                extra = PropertyContainer.withAll(sourceSets.map {
+                    mapOf(it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)).toAdditionalModifiers()
+                })
+            )
+        }
+    val propFunctions = properties.flatMap { listOfNotNull(it.getter, it.setter) }.filter { it.isJvmStatic }
+    return (staticProps + propFunctions).distinctBy { it.dri }
+}
+
 /**
  * @return properties that will be visible as static for java.
  * See [Static fields](https://kotlinlang.org/docs/java-to-kotlin-interop.html#static-fields)
  */
 internal fun DObject?.staticPropertiesForJava(): List<DProperty> {
     if (this == null) return emptyList()
-    return properties.filter { prop ->
-        val movedToTop = listOfNotNull(prop.getter, prop.setter).all { it.isJvmStatic } || prop.jvmStatic() != null
-        prop.isJvmField || prop.isConst || prop.isLateInit || movedToTop
+    return properties.filter {
+        it.isJvmField || it.isConst || it.isLateInit || it.isThisOrAccessorsStatic
     }
 }
 

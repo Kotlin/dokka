@@ -32,6 +32,9 @@ internal val DProperty.isJvmField: Boolean
 internal val DFunction.isJvmStatic: Boolean
     get() = jvmStatic() != null
 
+internal val DProperty.isThisOrAccessorsStatic: Boolean
+    get() = jvmStatic() != null || listOfNotNull(getter, setter).all { it.isJvmStatic }
+
 private fun DProperty.hasModifier(modifier: ExtraModifiers.KotlinOnlyModifiers): Boolean =
     extra[AdditionalModifiers]
         ?.content
@@ -309,6 +312,7 @@ public class KotlinToJavaConverter(
             .flatMap { property -> listOfNotNull(property.getter, property.setter) }
             .plus(functions)
             .plus(companion.staticFunctionsForJava())
+            .plus(companion.staticPropertyAccessorsForJava())
             .filterNot { it.hasJvmSynthetic() }
             .flatMap { it.asJava(it.dri.classNames ?: it.name) }
 
@@ -498,7 +502,7 @@ public class KotlinToJavaConverter(
 
         return asJava(
             excludedProps = staticPropertiesForJava(),
-            excludedFunctions = staticFunctionsForJava()
+            excludedFunctions = staticFunctionsForJava() + staticPropertyAccessorsForJava()
         )
     }
 

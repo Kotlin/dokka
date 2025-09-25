@@ -243,6 +243,11 @@ class CompanionAsJavaTest : BaseAbstractTest() {
             documentablesTransformationStage = { module ->
                 val parentClass = module.findClass("MyClass")
 
+                val getter = parentClass.findFunction("getDelegatedProp")
+                assertNotNull(getter, "Parent class should contains the companion jvmStatic getter")
+                assertIsStatic(getter)
+                val setter = parentClass.findFunction("setDelegatedProp")
+                assertNotNull(setter, "Parent class should contains the companion jvmStatic setter")
                 assertCompanionNotRendered(parentClass)
             }
         }
