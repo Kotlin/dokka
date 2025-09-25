@@ -4,6 +4,7 @@
 
 package org.jetbrains.dokka.kotlinAsJava.converters
 
+import org.jetbrains.dokka.kotlinAsJava.jvmStatic
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -12,7 +13,8 @@ private const val DEFAULT_COMPANION_NAME = "Companion"
 
 internal fun DObject?.staticFunctionsForJava(): List<DFunction> {
     if (this == null) return emptyList()
-    return functions.filter { it.isJvmStatic }
+    val propFunctions = properties.flatMap { listOfNotNull(it.getter, it.setter) }
+    return (functions + propFunctions).filter { it.isJvmStatic }
 }
 
 /**
@@ -21,7 +23,10 @@ internal fun DObject?.staticFunctionsForJava(): List<DFunction> {
  */
 internal fun DObject?.staticPropertiesForJava(): List<DProperty> {
     if (this == null) return emptyList()
-    return properties.filter { it.isJvmField || it.isConst || it.isLateInit }
+    return properties.filter { prop ->
+        val movedToTop = listOfNotNull(prop.getter, prop.setter).all { it.isJvmStatic } || prop.jvmStatic() != null
+        prop.isJvmField || prop.isConst || prop.isLateInit || movedToTop
+    }
 }
 
 internal fun DObject.companionInstancePropertyForJava(): DProperty? {
