@@ -32,6 +32,16 @@ internal val DProperty.isJvmField: Boolean
 internal val DFunction.isJvmStatic: Boolean
     get() = jvmStatic() != null
 
+internal val DProperty.documentedGetter: DFunction?
+    get() = getter?.let {  getter ->
+        getter.copy(documentation = getter.documentation.takeIf { it.isNotEmpty() } ?: this.documentation)
+    }
+
+internal val DProperty.documentedSetter: DFunction?
+    get() = setter?.let { setter ->
+        setter.copy(documentation = setter.documentation.takeIf { it.isNotEmpty() } ?: this.documentation)
+    }
+
 private fun DProperty.hasModifier(modifier: ExtraModifiers.KotlinOnlyModifiers): Boolean =
     extra[AdditionalModifiers]
         ?.content
@@ -306,7 +316,7 @@ public class KotlinToJavaConverter(
     internal fun DClass.functionsInJava(): List<DFunction> =
         properties
             .filter { !it.isJvmField && !it.hasJvmSynthetic() }
-            .flatMap { property -> listOfNotNull(property.getter, property.setter) }
+            .flatMap { property -> listOfNotNull(property.documentedGetter, property.documentedSetter) }
             .plus(functions)
             .plus(companion.staticFunctionsForJava())
             .filterNot { it.hasJvmSynthetic() }
@@ -370,7 +380,7 @@ public class KotlinToJavaConverter(
             .plus(
                 properties
                     .filter { !it.isJvmField && !it.hasJvmSynthetic() }
-                    .flatMap { listOf(it.getter, it.setter) }
+                    .flatMap { listOf(it.documentedGetter, it.documentedSetter) }
             )
             .filterNotNull()
             .filterNot { it.hasJvmSynthetic() }
@@ -396,7 +406,7 @@ public class KotlinToJavaConverter(
                 properties
                     .filterNot { it in excludedProps }
                     .filter { !it.isJvmField && !it.isConst && !it.isLateInit && !it.hasJvmSynthetic() }
-                    .flatMap { listOf(it.getter, it.setter) }
+                    .flatMap { listOf(it.documentedGetter, it.documentedSetter) }
             )
             .filterNotNull()
             .filterNot { it in excludedFunctions }
@@ -436,7 +446,7 @@ public class KotlinToJavaConverter(
             .plus(
                 properties
                     .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
-                    .flatMap { listOf(it.getter, it.setter) }
+                    .flatMap { listOf(it.documentedGetter, it.documentedSetter) }
             )
             .filterNotNull()
             .filterNot { it.hasJvmSynthetic() }
