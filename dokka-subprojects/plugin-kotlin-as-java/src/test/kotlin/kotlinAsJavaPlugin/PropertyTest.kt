@@ -5,6 +5,7 @@
 package kotlinAsJavaPlugin
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.doc.DocTag
 import org.jetbrains.dokka.model.doc.Text
 import kotlin.test.*
@@ -41,11 +42,43 @@ class PropertyTest : BaseAbstractTest() {
                 assertNotNull(getter)
                 assertNotNull(setter)
 
-                assertEquals("Some doc", getter.documentation.values.first().children.first().root.text)
+                assertEquals("Some doc", getter.docText)
+                assertEquals("Some doc", setter.docText)
+            }
+        }
+
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |/**
+            |* @property property Some doc
+            |*/
+            |class MyClass {
+            |    var property: String = TODO()
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val classLike = module.packages.flatMap { it.classlikes }.first()
+                val getter = classLike.functions.firstOrNull { it.name == "getProperty" }
+                val setter = classLike.functions.firstOrNull { it.name == "setProperty" }
+                assertNotNull(getter)
+                assertNotNull(setter)
+
+                assertEquals("Some doc", getter.docText)
+                assertEquals("Some doc", setter.docText)
             }
         }
     }
 }
+
+private val Documentable.docText: String
+    get() = this.documentation.values
+        .flatMap { it.children }
+        .map { it.root }
+        .joinToString("") { it.text }
 
 private val DocTag.text: String
     get() = if (this is Text) body else children.joinToString("") { it.text }

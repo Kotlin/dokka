@@ -16,6 +16,9 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
+import org.jetbrains.dokka.model.doc.Description
+import org.jetbrains.dokka.model.doc.DocumentationNode
+import org.jetbrains.dokka.model.doc.Property
 
 public val jvmNameProvider: JvmNameProvider = JvmNameProvider()
 internal const val OBJECT_INSTANCE_NAME = "INSTANCE"
@@ -32,15 +35,32 @@ internal val DProperty.isJvmField: Boolean
 internal val DFunction.isJvmStatic: Boolean
     get() = jvmStatic() != null
 
-internal val DProperty.documentedGetter: DFunction?
-    get() = getter?.let {  getter ->
-        getter.copy(documentation = getter.documentation.takeIf { it.isNotEmpty() } ?: this.documentation)
+/**
+ * Converts any `@property` tags into descriptions for the Java accessors
+ */
+private fun transformAccessorDocs(docs: SourceSetDependent<DocumentationNode>): SourceSetDependent<DocumentationNode> {
+    return docs.mapValues { (_, node) ->
+        node.copy(
+            children = node.children.map { tag ->
+                if (tag is Property) {
+                    Description(tag.root)
+                } else {
+                    tag
+                }
+            }
+        )
     }
+}
+
+internal val DProperty.documentedGetter: DFunction?
+    get() = getter?.copy(
+        documentation = transformAccessorDocs(getter?.documentation?.takeIf { it.isNotEmpty() } ?: documentation)
+    )
 
 internal val DProperty.documentedSetter: DFunction?
-    get() = setter?.let { setter ->
-        setter.copy(documentation = setter.documentation.takeIf { it.isNotEmpty() } ?: this.documentation)
-    }
+    get() = setter?.copy(
+        documentation = transformAccessorDocs(setter?.documentation?.takeIf { it.isNotEmpty() } ?: documentation)
+    )
 
 private fun DProperty.hasModifier(modifier: ExtraModifiers.KotlinOnlyModifiers): Boolean =
     extra[AdditionalModifiers]
