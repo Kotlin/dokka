@@ -65,5 +65,14 @@ interface DokkaAttribute {
          */
         val DokkaClasspathAttribute: Attribute<String> =
             Attribute("org.jetbrains.dokka.classpath")
+
+        /**
+         * The usage attribute for Dokka jars.
+         * We are not using [org.gradle.api.attributes.Usage.JAVA_RUNTIME] because this would create
+         * two outgoing variants exposing jars and potentially confuse consumers.
+         *
+         * See https://github.com/adamko-dev/dokkatoo/issues/165
+         */
+        val DokkaJavaRuntimeUsage = "dokka-java-runtime"
     }
 }

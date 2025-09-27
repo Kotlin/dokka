@@ -22,6 +22,7 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.named
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaClasspathAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaFormatAttribute
+import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaJavaRuntimeUsage
 import org.jetbrains.dokka.gradle.internal.*
 
 /**
@@ -51,18 +52,13 @@ class FormatDependenciesManager(
             formatName = formatName,
         )
 
-    init {
-        project.dependencies {
-            applyAttributeHacks()
-        }
-    }
-
     private fun AttributeContainer.jvmJar() {
-        attribute(USAGE_ATTRIBUTE, objects.named(AttributeHackPrefix + JAVA_RUNTIME))
-        attribute(CATEGORY_ATTRIBUTE, objects.named(AttributeHackPrefix + LIBRARY))
-        attribute(BUNDLING_ATTRIBUTE, objects.named(AttributeHackPrefix + EXTERNAL))
-        attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, objects.named(AttributeHackPrefix + STANDARD_JVM))
-        attribute(LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(AttributeHackPrefix + JAR))
+        attribute(USAGE_ATTRIBUTE, objects.named(DokkaAttribute.DokkaJavaRuntimeUsage))
+        attribute(LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(JAR))
+
+        attribute(CATEGORY_ATTRIBUTE, objects.named(LIBRARY))
+        attribute(BUNDLING_ATTRIBUTE, objects.named(EXTERNAL))
+        attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, objects.named(STANDARD_JVM))
     }
 
     //region Dokka Generator Plugins
