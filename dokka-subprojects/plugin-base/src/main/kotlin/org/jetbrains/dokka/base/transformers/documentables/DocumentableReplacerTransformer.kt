@@ -46,7 +46,7 @@ public abstract class DocumentableReplacerTransformer(
         val typealiases = (classlike as? WithTypealiases)?.typealiases?.map { processTypeAlias(it) }.orEmpty()
         val companion = (classlike as? WithCompanion)?.companion?.let { processClassLike(it) }
 
-        val wasClasslikeChanged = (functions + classlikes + properties).any { it.changed } || companion?.changed == true
+        val wasClasslikeChanged = (functions + classlikes + properties + typealiases).any { it.changed } || companion?.changed == true
         return when (classlike) {
             is DClass -> {
                 val constructors = classlike.constructors.map { processFunction(it) }
