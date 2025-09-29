@@ -447,14 +447,14 @@ class NestedTypealiasTest : BaseAbstractTest() {
 
                                 header(4) { +"See also" }
                                 table {
-                                    groupedLink { +"Foo.A" }
-                                    groupedLink { +"Foo.B" }
+                                    groupedLink { +"A" }
+                                    groupedLink { +"B" }
                                 }
 
                                 header(4) { +"Throws" }
                                 table {
-                                    group { groupedLink { +"Foo.A" } }
-                                    group { groupedLink { +"Foo.B" } }
+                                    group { groupedLink { +"A" } }
+                                    group { groupedLink { +"B" } }
                                 }
                             }
                         }
