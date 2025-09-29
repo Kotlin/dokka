@@ -405,12 +405,16 @@ class NestedTypealiasTest : BaseAbstractTest() {
         |
         |interface Foo {
         |    typealias A = String
+        |    class B
         |
         |    /**
-        |    * Link to [A]
+        |    * Link to [A]. Link to [B].
         |    * 
         |    * @see A
+        |    * @see B
+        |    * 
         |    * @throws A
+        |    * @throws B
         |    */
         |    val property: A
         |}
@@ -436,13 +440,22 @@ class NestedTypealiasTest : BaseAbstractTest() {
                                 group3 {
                                     +"Link to "
                                     link { +"A" }
+                                    +". Link to "
+                                    link { +"B" }
+                                    +"."
                                 }
 
                                 header(4) { +"See also" }
-                                table { groupedLink { +"Foo.A" } }
+                                table {
+                                    groupedLink { +"Foo.A" }
+                                    groupedLink { +"Foo.B" }
+                                }
 
                                 header(4) { +"Throws" }
-                                table { group { groupedLink { +"Foo.A" } } }
+                                table {
+                                    group { groupedLink { +"Foo.A" } }
+                                    group { groupedLink { +"Foo.B" } }
+                                }
                             }
                         }
                     }
