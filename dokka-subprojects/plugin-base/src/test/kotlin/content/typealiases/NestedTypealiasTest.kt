@@ -113,7 +113,7 @@ class NestedTypealiasTest : BaseAbstractTest() {
                                 divergentInstance {
                                     group4 {
                                         +"typealias "
-                                        group { groupedLink { +"Foo.A" } }
+                                        group { groupedLink { +"A" } }
                                         +" = "
                                         groupedLink { +"String" }
 
@@ -168,7 +168,7 @@ class NestedTypealiasTest : BaseAbstractTest() {
                             divergentInstance {
                                 group4 {
                                     +"typealias "
-                                    group { groupedLink { +"Foo.A" } }
+                                    group { groupedLink { +"A" } }
                                     +" = "
                                     groupedLink { +"String" }
 
@@ -222,7 +222,7 @@ class NestedTypealiasTest : BaseAbstractTest() {
                             divergentInstance {
                                 group4 {
                                     +"typealias "
-                                    group { groupedLink { +"Foo.A" } }
+                                    group { groupedLink { +"A" } }
                                     +" = "
                                     groupedLink { +"String" }
                                 }
@@ -264,7 +264,7 @@ class NestedTypealiasTest : BaseAbstractTest() {
                     group {
                         group2 {
                             +"typealias "
-                            group { groupedLink { +"Foo.A" } }
+                            group { groupedLink { +"A" } }
                             +" = "
                             groupedLink { +"String" }
                         }
@@ -329,7 +329,7 @@ class NestedTypealiasTest : BaseAbstractTest() {
                                 divergentInstance {
                                     group4 {
                                         +"typealias "
-                                        group { groupedLink { +"Foo.A" } }
+                                        group { groupedLink { +"A" } }
                                         +" = "
                                         groupedLink { +"String" }
                                     }
@@ -532,7 +532,7 @@ class NestedTypealiasTest : BaseAbstractTest() {
                                 divergentInstance {
                                     group4 {
                                         +"typealias "
-                                        group { groupedLink { +"A.B" } }
+                                        group { groupedLink { +"B" } }
                                         +" = "
                                         groupedLink { +"String" }
                                     }

@@ -413,7 +413,7 @@ public class KotlinSignatureProvider(
                 processExtraModifiers(t)
                 keyword("typealias ")
                 group(styles = mainStyles + t.stylesIfDeprecated(sourceSet)) {
-                    signatureForProjection(t.type)
+                    signatureForProjection(t.type, linkText = t.name)
                 }
                 operator(" = ")
                 signatureForTypealiasTarget(t, type)
@@ -447,7 +447,7 @@ public class KotlinSignatureProvider(
     }
 
     private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(
-        p: Projection, showFullyQualifiedName: Boolean = false
+        p: Projection, showFullyQualifiedName: Boolean = false, linkText: String? = null,
     ) {
         return when (p) {
             is TypeParameter -> {
@@ -461,15 +461,17 @@ public class KotlinSignatureProvider(
             is FunctionalTypeConstructor -> +funType(mainDRI.single(), mainSourcesetData, p)
             is GenericTypeConstructor ->
                 group(styles = emptySet()) {
-                    val linkText = if (showFullyQualifiedName && p.dri.packageName != null) {
-                        "${p.dri.packageName}.${p.dri.classNames.orEmpty()}"
-                    } else p.dri.classNames.orEmpty()
+                    val actualLinkText = when {
+                        linkText != null -> linkText
+                        showFullyQualifiedName && p.dri.packageName != null -> "${p.dri.packageName}.${p.dri.classNames.orEmpty()}"
+                        else -> p.dri.classNames.orEmpty()
+                    }
                     if (p.presentableName != null) {
                         text(p.presentableName!!)
                         operator(": ")
                     }
                     annotationsInline(p)
-                    link(linkText, p.dri)
+                    link(actualLinkText, p.dri)
                     list(p.projections, prefix = "<", suffix = ">",
                         separatorStyles = mainStyles + TokenStyle.Punctuation,
                         surroundingCharactersStyle = mainStyles + TokenStyle.Operator) {
