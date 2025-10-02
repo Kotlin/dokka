@@ -145,7 +145,7 @@ class DokkaPluginFunctionalTest : FunSpec({
                         |    - :DokkaPluginFunctionalTest:unspecified (default capability)
                         |Attributes
                         |    - org.gradle.usage                     = org.jetbrains.dokka
-                        |    - org.jetbrains.dokka.classpath        = poison
+                        |    - org.jetbrains.dokka.classpath        = none
                         |    - org.jetbrains.dokka.format           = $format
                         |    - org.jetbrains.dokka.module-component = ModuleOutputDirectories
                         |Artifacts
