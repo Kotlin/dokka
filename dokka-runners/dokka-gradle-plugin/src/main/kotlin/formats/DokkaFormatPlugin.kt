@@ -181,7 +181,7 @@ abstract class DokkaFormatPlugin(
                 if (isCanBeConsumed) {
                     attributes {
                         if (this.contains(Usage.USAGE_ATTRIBUTE) && !this.contains(DokkaClasspathAttribute)) {
-                            attribute(DokkaClasspathAttribute, "poison")
+                            attribute(DokkaClasspathAttribute, "none")
                         }
                     }
                 }
