@@ -165,7 +165,7 @@ abstract class DokkaFormatPlugin(
              * - Dokka consumers are able to resolve plugins transitive dependencies thanks to
              * the compatibility rule.
              * - Dokka consumers disambiguate the traditional variants by forcing the `org.jetbrains.dokka.classpath`
-             * attribute on all consumable configurations to a "poison" value.
+             * attribute on all consumable configurations to a "none" value.
              * - Traditional consumers disambiguate the Dokka plugins variants because the
              * compatibility rule is one way. If the consumer asks for `java-runtime`, `dokka-java-runtime`
              * is not considered compatible.
