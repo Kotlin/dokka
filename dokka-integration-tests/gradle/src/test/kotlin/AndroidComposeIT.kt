@@ -79,6 +79,8 @@ class AndroidComposeIT {
                     actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedHtml, TestConstants.DokkaHtmlAssetsFiles)
                 }
             }
+
+            assertNoUnknownClassErrorsInHtml(actualHtmlDir)
         }
     }
 
