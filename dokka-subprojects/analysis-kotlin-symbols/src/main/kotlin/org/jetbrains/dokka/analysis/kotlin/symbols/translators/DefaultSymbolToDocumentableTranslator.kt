@@ -452,7 +452,7 @@ internal class DokkaSymbolVisitor(
             constructors = constructors,
             functions = functions,
             properties = properties,
-            classlikesWithoutCompanion = classlikes.toList(),
+            classlikesWithoutCompanion = classlikes,
             typeAliases = typealiases,
         )
     }
