@@ -76,7 +76,7 @@ class TypealiasTest : BaseAbstractTest() {
                         group {
                             group {
                                 +"typealias "
-                                group { group { link { +"A" } } }
+                                group { link { +"A" } }
                                 +" = "
                                 group { link { +"String" } }
                             }
@@ -138,7 +138,7 @@ class TypealiasTest : BaseAbstractTest() {
                             }
                             group2 {
                                 +"actual typealias "
-                                group { groupedLink { +"A" } }
+                                groupedLink { +"A" }
                                 +" = "
                                 groupedLink { +"String" }
                             }

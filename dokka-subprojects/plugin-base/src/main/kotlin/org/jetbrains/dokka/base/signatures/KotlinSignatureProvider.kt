@@ -412,8 +412,14 @@ public class KotlinSignatureProvider(
                 if (t.expectPresentInSet != null) keyword("actual ")
                 processExtraModifiers(t)
                 keyword("typealias ")
-                group(styles = mainStyles + t.stylesIfDeprecated(sourceSet)) {
-                    signatureForProjection(t.type, linkText = t.name)
+                group {
+                    link(t.name, t.dri, styles = mainStyles + t.stylesIfDeprecated(sourceSet))
+                    list(t.generics, prefix = "<", suffix = ">",
+                        separatorStyles = mainStyles + TokenStyle.Punctuation,
+                        surroundingCharactersStyle = mainStyles + TokenStyle.Operator) {
+                        annotationsInline(it)
+                        +buildSignature(it)
+                    }
                 }
                 operator(" = ")
                 signatureForTypealiasTarget(t, type)
@@ -447,7 +453,7 @@ public class KotlinSignatureProvider(
     }
 
     private fun PageContentBuilder.DocumentableContentBuilder.signatureForProjection(
-        p: Projection, showFullyQualifiedName: Boolean = false, linkText: String? = null,
+        p: Projection, showFullyQualifiedName: Boolean = false
     ) {
         return when (p) {
             is TypeParameter -> {
@@ -461,8 +467,7 @@ public class KotlinSignatureProvider(
             is FunctionalTypeConstructor -> +funType(mainDRI.single(), mainSourcesetData, p)
             is GenericTypeConstructor ->
                 group(styles = emptySet()) {
-                    val actualLinkText = when {
-                        linkText != null -> linkText
+                    val linkText = when {
                         showFullyQualifiedName && p.dri.packageName != null -> "${p.dri.packageName}.${p.dri.classNames.orEmpty()}"
                         else -> p.dri.classNames.orEmpty()
                     }
@@ -471,7 +476,7 @@ public class KotlinSignatureProvider(
                         operator(": ")
                     }
                     annotationsInline(p)
-                    link(actualLinkText, p.dri)
+                    link(linkText, p.dri)
                     list(p.projections, prefix = "<", suffix = ">",
                         separatorStyles = mainStyles + TokenStyle.Punctuation,
                         surroundingCharactersStyle = mainStyles + TokenStyle.Operator) {
