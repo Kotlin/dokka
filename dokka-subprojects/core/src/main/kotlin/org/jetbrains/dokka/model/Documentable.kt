@@ -173,6 +173,86 @@ public data class DClass(
 ) : DClasslike(), WithAbstraction, WithCompanion, WithConstructors, WithGenerics, WithSupertypes,
     WithExtraProperties<DClass>, WithTypealiases {
 
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public constructor(
+        dri: DRI,
+        name: String,
+        constructors: List<DFunction>,
+        functions: List<DFunction>,
+        properties: List<DProperty>,
+        classlikes: List<DClasslike>,
+        sources: SourceSetDependent<DocumentableSource>,
+        visibility: SourceSetDependent<Visibility>,
+        companion: DObject?,
+        generics: List<DTypeParameter>,
+        supertypes: SourceSetDependent<List<TypeConstructorWithKind>>,
+        documentation: SourceSetDependent<DocumentationNode>,
+        expectPresentInSet: DokkaSourceSet?,
+        modifier: SourceSetDependent<Modifier>,
+        sourceSets: Set<DokkaSourceSet>,
+        isExpectActual: Boolean,
+        extra: PropertyContainer<DClass> = PropertyContainer.empty(),
+    ) : this(
+        dri = dri,
+        name = name,
+        constructors = constructors,
+        functions = functions,
+        properties = properties,
+        classlikes = classlikes,
+        sources = sources,
+        visibility = visibility,
+        companion = companion,
+        generics = generics,
+        supertypes = supertypes,
+        documentation = documentation,
+        expectPresentInSet = expectPresentInSet,
+        modifier = modifier,
+        sourceSets = sourceSets,
+        isExpectActual = isExpectActual,
+        extra = extra,
+        typealiases = emptyList(),
+    )
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public fun copy(
+        dri: DRI,
+        name: String,
+        constructors: List<DFunction>,
+        functions: List<DFunction>,
+        properties: List<DProperty>,
+        classlikes: List<DClasslike>,
+        sources: SourceSetDependent<DocumentableSource>,
+        visibility: SourceSetDependent<Visibility>,
+        companion: DObject?,
+        generics: List<DTypeParameter>,
+        supertypes: SourceSetDependent<List<TypeConstructorWithKind>>,
+        documentation: SourceSetDependent<DocumentationNode>,
+        expectPresentInSet: DokkaSourceSet?,
+        modifier: SourceSetDependent<Modifier>,
+        sourceSets: Set<DokkaSourceSet>,
+        isExpectActual: Boolean,
+        extra: PropertyContainer<DClass> = PropertyContainer.empty(),
+    ): DClass = DClass(
+        dri = dri,
+        name = name,
+        constructors = constructors,
+        functions = functions,
+        properties = properties,
+        classlikes = classlikes,
+        sources = sources,
+        visibility = visibility,
+        companion = companion,
+        generics = generics,
+        supertypes = supertypes,
+        documentation = documentation,
+        expectPresentInSet = expectPresentInSet,
+        modifier = modifier,
+        sourceSets = sourceSets,
+        isExpectActual = isExpectActual,
+        extra = extra,
+        typealiases = emptyList(),
+    )
+
     override val children: List<Documentable>
         get() = (functions + properties + classlikes + constructors + typealiases)
 
@@ -200,6 +280,82 @@ public data class DEnum(
 ) : DClasslike(), WithCompanion, WithConstructors, WithSupertypes, WithExtraProperties<DEnum>, WithTypealiases {
     override val children: List<Documentable>
         get() = (entries + functions + properties + classlikes + constructors + typealiases)
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public constructor(
+        dri: DRI,
+        name: String,
+        entries: List<DEnumEntry>,
+        documentation: SourceSetDependent<DocumentationNode>,
+        expectPresentInSet: DokkaSourceSet?,
+        sources: SourceSetDependent<DocumentableSource>,
+        functions: List<DFunction>,
+        properties: List<DProperty>,
+        classlikes: List<DClasslike>,
+        visibility: SourceSetDependent<Visibility>,
+        companion: DObject?,
+        constructors: List<DFunction>,
+        supertypes: SourceSetDependent<List<TypeConstructorWithKind>>,
+        sourceSets: Set<DokkaSourceSet>,
+        isExpectActual: Boolean,
+        extra: PropertyContainer<DEnum> = PropertyContainer.empty(),
+    ) : this(
+        dri = dri,
+        name = name,
+        entries = entries,
+        documentation = documentation,
+        expectPresentInSet = expectPresentInSet,
+        sources = sources,
+        functions = functions,
+        properties = properties,
+        classlikes = classlikes,
+        visibility = visibility,
+        companion = companion,
+        constructors = constructors,
+        supertypes = supertypes,
+        sourceSets = sourceSets,
+        isExpectActual = isExpectActual,
+        extra = extra,
+        typealiases = emptyList(),
+    )
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public fun copy(
+        dri: DRI,
+        name: String,
+        entries: List<DEnumEntry>,
+        documentation: SourceSetDependent<DocumentationNode>,
+        expectPresentInSet: DokkaSourceSet?,
+        sources: SourceSetDependent<DocumentableSource>,
+        functions: List<DFunction>,
+        properties: List<DProperty>,
+        classlikes: List<DClasslike>,
+        visibility: SourceSetDependent<Visibility>,
+        companion: DObject?,
+        constructors: List<DFunction>,
+        supertypes: SourceSetDependent<List<TypeConstructorWithKind>>,
+        sourceSets: Set<DokkaSourceSet>,
+        isExpectActual: Boolean,
+        extra: PropertyContainer<DEnum> = PropertyContainer.empty(),
+    ): DEnum = DEnum(
+        dri = dri,
+        name = name,
+        entries = entries,
+        documentation = documentation,
+        expectPresentInSet = expectPresentInSet,
+        sources = sources,
+        functions = functions,
+        properties = properties,
+        classlikes = classlikes,
+        visibility = visibility,
+        companion = companion,
+        constructors = constructors,
+        supertypes = supertypes,
+        sourceSets = sourceSets,
+        isExpectActual = isExpectActual,
+        extra = extra,
+        typealiases = emptyList(),
+    )
 
     override fun withNewExtras(newExtras: PropertyContainer<DEnum>): DEnum = copy(extra = newExtras)
 }
@@ -342,6 +498,82 @@ public data class DInterface(
     override val children: List<Documentable>
         get() = (functions + properties + classlikes + typealiases)
 
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public constructor(
+        dri: DRI,
+        name: String,
+        documentation: SourceSetDependent<DocumentationNode>,
+        expectPresentInSet: DokkaSourceSet?,
+        sources: SourceSetDependent<DocumentableSource>,
+        functions: List<DFunction>,
+        properties: List<DProperty>,
+        classlikes: List<DClasslike>,
+        visibility: SourceSetDependent<Visibility>,
+        companion: DObject?,
+        generics: List<DTypeParameter>,
+        supertypes: SourceSetDependent<List<TypeConstructorWithKind>>,
+        modifier: SourceSetDependent<Modifier>,
+        sourceSets: Set<DokkaSourceSet>,
+        isExpectActual: Boolean,
+        extra: PropertyContainer<DInterface> = PropertyContainer.empty(),
+    ) : this(
+        dri = dri,
+        name = name,
+        documentation = documentation,
+        expectPresentInSet = expectPresentInSet,
+        sources = sources,
+        functions = functions,
+        properties = properties,
+        classlikes = classlikes,
+        visibility = visibility,
+        companion = companion,
+        generics = generics,
+        supertypes = supertypes,
+        modifier = modifier,
+        sourceSets = sourceSets,
+        isExpectActual = isExpectActual,
+        extra = extra,
+        typealiases = emptyList(),
+    )
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public fun copy(
+        dri: DRI,
+        name: String,
+        documentation: SourceSetDependent<DocumentationNode>,
+        expectPresentInSet: DokkaSourceSet?,
+        sources: SourceSetDependent<DocumentableSource>,
+        functions: List<DFunction>,
+        properties: List<DProperty>,
+        classlikes: List<DClasslike>,
+        visibility: SourceSetDependent<Visibility>,
+        companion: DObject?,
+        generics: List<DTypeParameter>,
+        supertypes: SourceSetDependent<List<TypeConstructorWithKind>>,
+        modifier: SourceSetDependent<Modifier>,
+        sourceSets: Set<DokkaSourceSet>,
+        isExpectActual: Boolean,
+        extra: PropertyContainer<DInterface> = PropertyContainer.empty(),
+    ): DInterface = DInterface(
+        dri = dri,
+        name = name,
+        documentation = documentation,
+        expectPresentInSet = expectPresentInSet,
+        sources = sources,
+        functions = functions,
+        properties = properties,
+        classlikes = classlikes,
+        visibility = visibility,
+        companion = companion,
+        generics = generics,
+        supertypes = supertypes,
+        modifier = modifier,
+        sourceSets = sourceSets,
+        isExpectActual = isExpectActual,
+        extra = extra,
+        typealiases = emptyList(),
+    )
+
     override fun withNewExtras(newExtras: PropertyContainer<DInterface>): DInterface = copy(extra = newExtras)
 }
 
@@ -363,6 +595,70 @@ public data class DObject(
 ) : DClasslike(), WithSupertypes, WithExtraProperties<DObject>, WithTypealiases {
     override val children: List<Documentable>
         get() = (functions + properties + classlikes + typealiases)
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public constructor(
+        name: String?,
+        dri: DRI,
+        documentation: SourceSetDependent<DocumentationNode>,
+        expectPresentInSet: DokkaSourceSet?,
+        sources: SourceSetDependent<DocumentableSource>,
+        functions: List<DFunction>,
+        properties: List<DProperty>,
+        classlikes: List<DClasslike>,
+        visibility: SourceSetDependent<Visibility>,
+        supertypes: SourceSetDependent<List<TypeConstructorWithKind>>,
+        sourceSets: Set<DokkaSourceSet>,
+        isExpectActual: Boolean,
+        extra: PropertyContainer<DObject> = PropertyContainer.empty(),
+    ) : this(
+        name = name,
+        dri = dri,
+        documentation = documentation,
+        expectPresentInSet = expectPresentInSet,
+        sources = sources,
+        functions = functions,
+        properties = properties,
+        classlikes = classlikes,
+        visibility = visibility,
+        supertypes = supertypes,
+        sourceSets = sourceSets,
+        isExpectActual = isExpectActual,
+        extra = extra,
+        typealiases = emptyList(),
+    )
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public fun copy(
+        name: String?,
+        dri: DRI,
+        documentation: SourceSetDependent<DocumentationNode>,
+        expectPresentInSet: DokkaSourceSet?,
+        sources: SourceSetDependent<DocumentableSource>,
+        functions: List<DFunction>,
+        properties: List<DProperty>,
+        classlikes: List<DClasslike>,
+        visibility: SourceSetDependent<Visibility>,
+        supertypes: SourceSetDependent<List<TypeConstructorWithKind>>,
+        sourceSets: Set<DokkaSourceSet>,
+        isExpectActual: Boolean,
+        extra: PropertyContainer<DObject> = PropertyContainer.empty(),
+    ): DObject = DObject(
+        name = name,
+        dri = dri,
+        documentation = documentation,
+        expectPresentInSet = expectPresentInSet,
+        sources = sources,
+        functions = functions,
+        properties = properties,
+        classlikes = classlikes,
+        visibility = visibility,
+        supertypes = supertypes,
+        sourceSets = sourceSets,
+        isExpectActual = isExpectActual,
+        extra = extra,
+        typealiases = emptyList(),
+    )
 
     override fun withNewExtras(newExtras: PropertyContainer<DObject>): DObject = copy(extra = newExtras)
 }
