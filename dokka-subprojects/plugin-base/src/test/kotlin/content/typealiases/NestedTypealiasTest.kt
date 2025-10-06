@@ -237,6 +237,69 @@ class NestedTypealiasTest : BaseAbstractTest() {
 
 
     @Test
+    fun `nested typealias with type parameter in interface`() {
+        testInline(
+            """
+        |/src/main/kotlin/test/test.kt
+        |package example
+        |
+        |interface Foo {
+        |    /**
+        |     * Brief text
+        |     * 
+        |     * some text
+        |     *
+        |     * @see String
+        |     * @throws Unit
+        |     */
+        |    typealias A<T> = List<T>
+        |}
+        """,
+            configuration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("example", "Foo")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"Foo" }
+                        platformHinted {
+                            group {
+                                +"interface "
+                                link { +"Foo" }
+                            }
+                        }
+                    }
+
+                    table3("Types") {
+                        element("A") {
+                            divergentInstance {
+                                group4 {
+                                    +"typealias "
+                                    group2 {
+                                        link { +"A" }
+                                        +"<"
+                                        groupedLink { +"T" }
+                                        +">"
+                                    }
+                                    +" = "
+                                    group {
+                                        link { +"List" }
+                                        +"<"
+                                        groupedLink { +"T" }
+                                        +">"
+                                    }
+                                }
+                                group4 { +"Brief text" }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    @Test
     fun `nested typealias dedicated page`() {
         testInline(
             """
