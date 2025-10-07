@@ -267,9 +267,7 @@ fun ContentMatcherBuilder<*>.typealiasSignature(name: String, expressionTarget: 
                                             group {
                                                 +"typealias "
                                                 group {
-                                                    group {
-                                                        link { +name }
-                                                    }
+                                                    link { +name }
                                                     skipAllNotMatching()
                                                 }
                                                 +" = "

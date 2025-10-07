@@ -412,8 +412,14 @@ public class KotlinSignatureProvider(
                 if (t.expectPresentInSet != null) keyword("actual ")
                 processExtraModifiers(t)
                 keyword("typealias ")
-                group(styles = mainStyles + t.stylesIfDeprecated(sourceSet)) {
-                    signatureForProjection(t.type)
+                group {
+                    link(t.name, t.dri, styles = mainStyles + t.stylesIfDeprecated(sourceSet))
+                    list(t.generics, prefix = "<", suffix = ">",
+                        separatorStyles = mainStyles + TokenStyle.Punctuation,
+                        surroundingCharactersStyle = mainStyles + TokenStyle.Operator) {
+                        annotationsInline(it)
+                        +buildSignature(it)
+                    }
                 }
                 operator(" = ")
                 signatureForTypealiasTarget(t, type)
@@ -461,9 +467,10 @@ public class KotlinSignatureProvider(
             is FunctionalTypeConstructor -> +funType(mainDRI.single(), mainSourcesetData, p)
             is GenericTypeConstructor ->
                 group(styles = emptySet()) {
-                    val linkText = if (showFullyQualifiedName && p.dri.packageName != null) {
-                        "${p.dri.packageName}.${p.dri.classNames.orEmpty()}"
-                    } else p.dri.classNames.orEmpty()
+                    val linkText = when {
+                        showFullyQualifiedName && p.dri.packageName != null -> "${p.dri.packageName}.${p.dri.classNames.orEmpty()}"
+                        else -> p.dri.classNames.orEmpty()
+                    }
                     if (p.presentableName != null) {
                         text(p.presentableName!!)
                         operator(": ")
