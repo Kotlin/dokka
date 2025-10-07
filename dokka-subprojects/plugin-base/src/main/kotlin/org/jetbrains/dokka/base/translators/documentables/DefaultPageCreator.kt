@@ -148,17 +148,18 @@ public open class DefaultPageCreator(
         val nestedClasslikes = classlikes.flatMap { it.classlikes }
         val functions = classlikes.flatMap { it.filteredFunctions }
         val props = classlikes.flatMap { it.filteredProperties }
+        val typealiases = classlikes.flatMap { (it as? WithTypealiases)?.typealiases.orEmpty() }
         val entries = classlikes.flatMap { if (it is DEnum) it.entries else emptyList() }
 
         val childrenPages = constructors.map(::pageForFunction) +
                 if (mergeImplicitExpectActualDeclarations)
-                    nestedClasslikes.mergeClashingDocumentable().map(::pageForClasslikes) +
+                    (nestedClasslikes + typealiases).mergeClashingDocumentable().map(::pageForClasslikes) +
                             functions.mergeClashingDocumentable().map(::pageForFunctions) +
                             props.mergeClashingDocumentable().map(::pageForProperties) +
                             entries.mergeClashingDocumentable().map(::pageForEnumEntries)
                 else
-                    nestedClasslikes.renameClashingDocumentable().map(::pageForClasslike) +
-                            (functions + props).renameClashingDocumentable().mapNotNull(::pageForMember)  +
+                    (nestedClasslikes + typealiases).renameClashingDocumentable().map(::pageForClasslike) +
+                            (functions + props).renameClashingDocumentable().mapNotNull(::pageForMember) +
                             entries.renameClashingDocumentable().map(::pageForEnumEntry)
 
 
@@ -397,7 +398,7 @@ public open class DefaultPageCreator(
         dri = @Suppress("UNCHECKED_CAST") (scopes as List<Documentable>).dri,
         sourceSets = sourceSets,
         types = scopes.flatMap { it.classlikes } +
-                scopes.filterIsInstance<DPackage>().flatMap { it.typealiases },
+                scopes.flatMap { (it as? WithTypealiases)?.typealiases.orEmpty() },
         functions = scopes.flatMap { it.functions },
         properties = scopes.flatMap { it.properties },
         extensions = extensions,
@@ -644,15 +645,8 @@ public open class DefaultPageCreator(
     private fun DocumentableContentBuilder.typesBlock(types: List<Documentable>) {
         if (types.isEmpty()) return
 
-        val grouped = types
-            // This groupBy should probably use LocationProvider
-            .groupBy(Documentable::name)
-            .mapValues { (_, elements) ->
-                // This hacks displaying actual typealias signatures along classlike ones
-                if (elements.any { it is DClasslike }) elements.filter { it !is DTypeAlias } else elements
-            }
-
-        val groups = grouped.entries
+        // This groupBy should probably use LocationProvider
+        val groups = types.groupBy(Documentable::name).entries
             .sortedWith(compareBy(nullsFirst(canonicalAlphabeticalOrder)) { it.key })
             .map { (name, elements) ->
                 DivergentElementGroup(

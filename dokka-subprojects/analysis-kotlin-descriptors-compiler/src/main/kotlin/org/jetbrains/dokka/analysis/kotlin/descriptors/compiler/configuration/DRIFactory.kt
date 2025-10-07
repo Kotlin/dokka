@@ -23,7 +23,7 @@ internal fun DRI.Companion.from(descriptor: DeclarationDescriptor) = descriptor.
 
     DRI(
         packageName = firstIsInstanceOrNull<PackageFragmentDescriptor>()?.fqName?.asString() ?: "",
-        classNames = (filterIsInstance<ClassDescriptor>() + filterIsInstance<TypeAliasDescriptor>()).toList()
+        classNames = filter { it is ClassDescriptor || it is TypeAliasDescriptor }.toList()
             .takeIf { it.isNotEmpty() }
             ?.asReversed()
             ?.joinToString(separator = ".") { it.name.asString() },
