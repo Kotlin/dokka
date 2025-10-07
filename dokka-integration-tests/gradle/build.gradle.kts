@@ -107,7 +107,6 @@ registerTestProjectSuite("testTemplateProjectMultimoduleInterModuleLinks", "it-m
 registerTestProjectSuite("testTemplateProjectMultiplatform", "it-multiplatform-0")
 registerTestProjectSuite("testTemplateProjectMultiplatformMultimodule", "it-multiplatform-multimodule")
 registerTestProjectSuite("testTemplateProjectTasksExecutionStress", "it-sequential-tasks-execution-stress")
-registerTestProjectSuite("testTemplateProjectWasmBasic", "it-wasm-basic")
 registerTestProjectSuite("testTemplateProjectWasmJsWasiBasic", "it-wasm-js-wasi-basic")
 
 registerTestProjectSuite(
