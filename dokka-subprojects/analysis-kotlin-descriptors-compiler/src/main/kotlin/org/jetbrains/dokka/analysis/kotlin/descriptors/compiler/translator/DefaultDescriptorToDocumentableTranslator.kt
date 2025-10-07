@@ -227,6 +227,7 @@ private class DokkaDescriptorVisitor(
             val functions = async { descriptorsWithKind.functions.visitFunctions(driWithPlatform) }
             val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform) }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
+            val typealiases = async { descriptorsWithKind.typealiases.visitTypealiases() }
             val generics = async { descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter() } }
 
             DInterface(
@@ -235,6 +236,7 @@ private class DokkaDescriptorVisitor(
                 functions = functions.await(),
                 properties = properties.await(),
                 classlikes = classlikes.await(),
+                typealiases = typealiases.await(),
                 sources = descriptor.createSources(),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
@@ -269,6 +271,7 @@ private class DokkaDescriptorVisitor(
             val functions = async { descriptorsWithKind.functions.visitFunctions(driWithPlatform) }
             val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform) }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
+            val typealiases = async { descriptorsWithKind.typealiases.visitTypealiases() }
 
             DObject(
                 dri = driWithPlatform.dri,
@@ -276,6 +279,7 @@ private class DokkaDescriptorVisitor(
                 functions = functions.await(),
                 properties = properties.await(),
                 classlikes = classlikes.await(),
+                typealiases = typealiases.await(),
                 sources = descriptor.createSources(),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
@@ -307,6 +311,7 @@ private class DokkaDescriptorVisitor(
             val functions = async { descriptorsWithKind.functions.visitFunctions(driWithPlatform) }
             val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform) }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
+            val typealiases = async { descriptorsWithKind.typealiases.visitTypealiases() }
             val constructors =
                 async { descriptor.constructors.parallelMap { visitConstructorDescriptor(it, driWithPlatform) } }
             val entries = async { descriptorsWithKind.enumEntries.visitEnumEntries(driWithPlatform) }
@@ -319,6 +324,7 @@ private class DokkaDescriptorVisitor(
                 functions = functions.await(),
                 properties = properties.await(),
                 classlikes = classlikes.await(),
+                typealiases = typealiases.await(),
                 sources = descriptor.createSources(),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
@@ -438,6 +444,7 @@ private class DokkaDescriptorVisitor(
             val functions = async { regularFunctions.visitFunctions(driWithPlatform) }
             val properties = async { descriptorsWithKind.properties.visitProperties(driWithPlatform, accessors) }
             val classlikes = async { descriptorsWithKind.classlikes.visitClasslikes(driWithPlatform) }
+            val typealiases = async { descriptorsWithKind.typealiases.visitTypealiases() }
             val generics = async { descriptor.declaredTypeParameters.parallelMap { it.toVariantTypeParameter() } }
             val constructors = async {
                 descriptor.constructors.parallelMap {
@@ -456,6 +463,7 @@ private class DokkaDescriptorVisitor(
                 functions = functions.await(),
                 properties = properties.await(),
                 classlikes = classlikes.await(),
+                typealiases = typealiases.await(),
                 sources = actual,
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 visibility = descriptor.visibility.toDokkaVisibility().toSourceSetDependent(),
