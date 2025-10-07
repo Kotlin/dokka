@@ -21,7 +21,6 @@ import java.nio.file.Files
 import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import java.nio.file.Paths
-import kotlin.io.path.ExperimentalPathApi
 
 // TODO: take dokka configuration from file
 public abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : DokkaTestGenerator<M>>(
@@ -171,8 +170,7 @@ public abstract class AbstractTest<M : TestMethods, T : TestBuilder<M>, D : Dokk
         Files.write(file, content.toByteArray(charset))
     }
 
-    @OptIn(ExperimentalPathApi::class)
-    private fun createTempDir(): File = kotlin.io.path.createTempDirectory().toFile()
+    private fun createTempDir(): File = Files.createTempDirectory("dokka-test").toFile()
 
     protected fun dokkaConfiguration(block: TestDokkaConfigurationBuilder.() -> Unit): DokkaConfigurationImpl =
         testApi.testRunner.dokkaConfiguration(block)
