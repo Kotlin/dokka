@@ -55,20 +55,15 @@
   cursor: ew-resize;
 }
 
-// do not show divider after tables as they have borders now
-.table + hr {
-  display: none;
-}
-
 .main-content .content > hr {
   margin: var(--size-m1) 0;
 
-  border-top: 1px solid var(--color-b20);
+  border-top: 3px double var(--color-b50);
   border-right: none;
   border-bottom: none;
   border-left: none;
 
   .theme-dark & {
-    border-top: 1px solid var(--color-w16);
+    border-top: 3px double var(--color-w50);
   }
 }

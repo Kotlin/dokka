@@ -45,6 +45,10 @@
   }
 }
 
+h4.tableheader {
+  margin-top: var(--size-m1);
+}
+
 .table-row {
   display: flex;
   flex-direction: column;
