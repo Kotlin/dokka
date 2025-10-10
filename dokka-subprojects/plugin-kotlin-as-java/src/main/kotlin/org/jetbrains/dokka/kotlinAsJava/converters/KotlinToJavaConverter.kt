@@ -16,6 +16,9 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
+import org.jetbrains.dokka.model.doc.Description
+import org.jetbrains.dokka.model.doc.DocumentationNode
+import org.jetbrains.dokka.model.doc.Property
 
 public val jvmNameProvider: JvmNameProvider = JvmNameProvider()
 internal const val OBJECT_INSTANCE_NAME = "INSTANCE"
@@ -31,6 +34,33 @@ internal val DProperty.isJvmField: Boolean
 
 internal val DFunction.isJvmStatic: Boolean
     get() = jvmStatic() != null
+
+/**
+ * Converts any `@property` tags into descriptions for the Java accessors
+ */
+private fun transformAccessorDocs(docs: SourceSetDependent<DocumentationNode>): SourceSetDependent<DocumentationNode> {
+    return docs.mapValues { (_, node) ->
+        node.copy(
+            children = node.children.map { tag ->
+                if (tag is Property) {
+                    Description(tag.root)
+                } else {
+                    tag
+                }
+            }
+        )
+    }
+}
+
+internal val DProperty.documentedGetter: DFunction?
+    get() = getter?.copy(
+        documentation = transformAccessorDocs(getter?.documentation?.takeIf { it.isNotEmpty() } ?: documentation)
+    )
+
+internal val DProperty.documentedSetter: DFunction?
+    get() = setter?.copy(
+        documentation = transformAccessorDocs(setter?.documentation?.takeIf { it.isNotEmpty() } ?: documentation)
+    )
 
 private fun DProperty.hasModifier(modifier: ExtraModifiers.KotlinOnlyModifiers): Boolean =
     extra[AdditionalModifiers]
@@ -307,7 +337,7 @@ public class KotlinToJavaConverter(
     internal fun DClass.functionsInJava(): List<DFunction> =
         properties
             .filter { !it.isJvmField && !it.hasJvmSynthetic() }
-            .flatMap { property -> listOfNotNull(property.getter, property.setter) }
+            .flatMap { property -> listOfNotNull(property.documentedGetter, property.documentedSetter) }
             .plus(functions)
             .plus(companion.staticFunctionsForJava())
             .filterNot { it.hasJvmSynthetic() }
@@ -371,7 +401,7 @@ public class KotlinToJavaConverter(
             .plus(
                 properties
                     .filter { !it.isJvmField && !it.hasJvmSynthetic() }
-                    .flatMap { listOf(it.getter, it.setter) }
+                    .flatMap { listOf(it.documentedGetter, it.documentedSetter) }
             )
             .filterNotNull()
             .filterNot { it.hasJvmSynthetic() }
@@ -397,7 +427,7 @@ public class KotlinToJavaConverter(
                 properties
                     .filterNot { it in excludedProps }
                     .filter { !it.isJvmField && !it.isConst && !it.isLateInit && !it.hasJvmSynthetic() }
-                    .flatMap { listOf(it.getter, it.setter) }
+                    .flatMap { listOf(it.documentedGetter, it.documentedSetter) }
             )
             .filterNotNull()
             .filterNot { it in excludedFunctions }
@@ -437,7 +467,7 @@ public class KotlinToJavaConverter(
             .plus(
                 properties
                     .filter { it.jvmField() == null && !it.hasJvmSynthetic() }
-                    .flatMap { listOf(it.getter, it.setter) }
+                    .flatMap { listOf(it.documentedGetter, it.documentedSetter) }
             )
             .filterNotNull()
             .filterNot { it.hasJvmSynthetic() }
