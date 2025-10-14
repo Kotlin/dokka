@@ -186,8 +186,10 @@ abstract class KotlinAdapter @Inject constructor(
 
     private fun determineClasspath(
         details: KotlinSourceSetDetails
-    ): Provider<FileCollection> {
-        return details.primaryCompilations.map { compilations: List<KotlinCompilationDetails> ->
+    ): FileCollection {
+        val aggregatedClasspath = objects.fileCollection()
+
+        val directClasspath = details.primaryCompilations.map { compilations: List<KotlinCompilationDetails> ->
             val classpath = objects.fileCollection()
 
             if (compilations.isNotEmpty()) {
@@ -200,6 +202,24 @@ abstract class KotlinAdapter @Inject constructor(
                     .from(details.sourceDirectoriesOfDependents)
             }
         }
+        aggregatedClasspath.from(directClasspath)
+
+        val combinedClasspath = details.allCompilations.map { compilations: List<KotlinCompilationDetails> ->
+            val classpath = objects.fileCollection()
+
+            if (compilations.none { it.isMetadata }) {
+                logger.info("[$dkaName] No metadata compilation found for ${details.name}, also including all compilations")
+                classpath.from(compilations.map { it.compilationClasspath })
+                compilations.fold(classpath) { acc, compilation ->
+                    acc.from(compilation.compilationClasspath)
+                }
+            }
+
+            classpath
+        }
+        aggregatedClasspath.from(combinedClasspath)
+
+        return aggregatedClasspath
     }
 
     @InternalDokkaGradlePluginApi
@@ -335,7 +355,7 @@ private class KotlinCompilationDetailsBuilder(
             dependentSourceSetNames = dependentSourceSetNames.toSet(),
             compilationClasspath = compilationClasspath,
             defaultSourceSetName = compilation.defaultSourceSet.name,
-            isMetadata = compilation is KotlinMetadataTarget,
+            isMetadata = compilation.target is KotlinMetadataTarget,
         )
     }
 
