@@ -11,6 +11,13 @@ HTML as an output format is supported by all runners. To generate HTML documenta
 your build tool or runner:
 
 * For [Gradle](dokka-gradle.md#generate-documentation), run `dokkaHtml` or `dokkaHtmlMultiModule` tasks.
+
+  > Starting from Dokka 2.0.0, [the Gradle tasks to generate documentation changed](dokka-migration.md#generate-documentation-with-the-updated-task).
+  >
+  > For more details and the full list of changes, see the [Migration guide](dokka-migration.md).
+  >
+  {style="note"}
+
 * For [Maven](dokka-maven.md#generate-documentation), run the `dokka:dokka` goal.
 * For [CLI runner](dokka-cli.md#generate-documentation), run with HTML dependencies set.
 
