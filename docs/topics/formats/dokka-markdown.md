@@ -3,6 +3,8 @@
 > The Markdown output formats are still in Alpha, so you may find bugs and experience migration issues when using them.
 > **You use them at your own risk.**
 >
+> Experimental formats like Markdown and Jekyll are not supported by default in Dokka 2.0.0. 
+> Workarounds for enabling these formats will be added soon.
 {style="warning"}
 
 Dokka is able to generate documentation in [GitHub Flavored](#gfm) and [Jekyll](#jekyll) compatible Markdown.
