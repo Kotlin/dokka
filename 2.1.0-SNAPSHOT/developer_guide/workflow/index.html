@@ -1412,7 +1412,7 @@ will review API changes thoroughly, so please make sure it's intentional and rat
 <p>Having built Dokka locally, you can publish it to <code>mavenLocal()</code>. This will allow you to test your changes in another
 project as well as debug code remotely.</p>
 <ol>
-<li>Publish a custom version of Dokka to Maven Local: <code>./gradlew publishToMavenLocal -Pversion=2.0.0-my-fix-SNAPSHOT</code>. 
+<li>Publish a custom version of Dokka to Maven Local: <code>./gradlew publishToMavenLocal -Pversion=2.1.0-my-fix-SNAPSHOT</code>. 
    This version will be propagated to plugins that reside inside Dokka's project (<code>mathjax</code>, <code>kotlin-as-java</code>, etc),
    and its artifacts should appear in <code>~/.m2</code></li>
 <li>In the project you want to generate documentation for or debug on, add maven local as a plugin/dependency
@@ -1423,7 +1423,7 @@ project as well as debug code remotely.</p>
 </code></pre></div></li>
 <li>Update your Dokka dependency to the version you've just published:
 <div class="highlight"><pre><span></span><code><span class="n">plugins</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.0.0-my-fix-SNAPSHOT&quot;</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.jetbrains.dokka&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.1.0-my-fix-SNAPSHOT&quot;</span>
 <span class="p">}</span>
 </code></pre></div></li>
 </ol>
