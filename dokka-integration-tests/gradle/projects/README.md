@@ -3,8 +3,8 @@
 Projects used to run integration tests could be opened in or build independently by following these steps:
 
 1. open `gradle.properties` file of a specific project and change commented variables:
-    1. `dokka_it_kotlin_version` to required version of Kotlin Gradle Plugin, e.g 2.0.0
-    2. `dokka_it_dokka_version` to required version to Dokka Gradle plugin, e.g 2.0.0
+    1. `dokka_it_kotlin_version` to required version of Kotlin Gradle Plugin, e.g 2.1.0
+    2. `dokka_it_dokka_version` to required version to Dokka Gradle plugin, e.g 2.1.0
     3. replace all other commented properties if needed, like `dokka_it_android_gradle_plugin_version`
 2. open `settings.gradle.kts` and replace `apply(from = "template.settings.gradle.kts")` with
    `apply(from = "../template.settings.gradle.kts")` (so the path should be prefixed with `../`)
