@@ -1,10 +1,5 @@
 [//]: # (title: Migrate to Dokka Gradle plugin v2)
 
-> The Dokka Gradle plugin v2 is an [Experimental](https://kotlinlang.org/docs/components-stability.html#stability-levels-explained) feature. 
-> It may be changed at any time. We appreciate your feedback on [GitHub](https://github.com/Kotlin/dokka/issues).
->
-{style="warning"}
-
 The Dokka Gradle plugin (DGP) is a tool for generating comprehensive API documentation for Kotlin projects built with Gradle.
 
 DGP seamlessly processes both Kotlin's KDoc comments and Java's Javadoc comments to extract information and create 
@@ -37,6 +32,12 @@ Ensure that your project meets the minimum version requirements:
 | [Kotlin Gradle plugin](https://kotlinlang.org/docs/gradle-configure-project.html) | 1.9 or higher |
 
 ### Enable DGP v2
+
+> Starting from Dokka 2.1.0, DGP v2 is enabled by default.
+> If you are using or updating to Dokka 2.1.0 or later,
+> you can skip this step and go directly to [Migrate your project](#migrate-your-project).
+>
+{style="note"}
 
 Update the Dokka version to 2.0.0 in the `plugins {}` block of your project’s `build.gradle.kts` file:
 
@@ -233,7 +234,7 @@ documentedVisibilities.set(
 documentedVisibilities(VisibilityModifier.Public)
 ```
 
-Additionally, use DGP v2's [utility function](https://github.com/Kotlin/dokka/blob/v2.0.0/dokka-runners/dokka-gradle-plugin/src/main/kotlin/engine/parameters/HasConfigurableVisibilityModifiers.kt#L14-L16) to add documented visibilities:
+Additionally, use DGP v2's [utility function](https://github.com/Kotlin/dokka/blob/v2.1.0/dokka-runners/dokka-gradle-plugin/src/main/kotlin/engine/parameters/HasConfigurableVisibilityModifiers.kt#L14-L16) to add documented visibilities:
 
 ```kotlin
 fun documentedVisibilities(vararg visibilities: VisibilityModifier): Unit =
@@ -522,7 +523,7 @@ dokka {
 For an example of the DGP v2 configuration, see the
 [Dokka's versioning plugin](https://github.com/Kotlin/dokka/tree/master/examples/gradle-v2/versioning-multimodule-example).
 
-Dokka 2.0.0 allows you to extend its functionality by [configuring custom plugins](https://github.com/Kotlin/dokka/blob/ae3840edb4e4afd7b3e3768a5fddfe8ec0e08f31/examples/gradle-v2/custom-dokka-plugin-example/demo-library/build.gradle.kts).
+DGP v2 allows you to extend its functionality by [configuring custom plugins](https://github.com/Kotlin/dokka/blob/ae3840edb4e4afd7b3e3768a5fddfe8ec0e08f31/examples/gradle-v2/custom-dokka-plugin-example/demo-library/build.gradle.kts).
 Custom plugins enable additional processing or modifications to the documentation generation process.
 
 ### Share Dokka configuration across modules
@@ -759,7 +760,7 @@ Here is a list of the plugin `id` and Gradle task that correspond to each format
 
 ### Address deprecations and removals
 
-* **Output format support:** Dokka 2.0.0 only supports HTML and Javadoc output. Experimental formats like Markdown and Jekyll are no longer supported.
+* **Output format support:** DGP v2 only supports HTML and Javadoc output. Experimental formats like Markdown and Jekyll are no longer supported.
 * **Collector task:** `DokkaCollectorTask` has been removed. Now, you need to generate the documentation separately for
   each subproject and then [aggregate the documentation](#update-documentation-aggregation-in-multi-module-projects) if necessary.
 

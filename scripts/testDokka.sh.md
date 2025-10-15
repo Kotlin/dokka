@@ -30,7 +30,7 @@ By default it applied to the `./examples/gradle/dokka-gradle-example` project
 ### Specify Dokka version
 
 ```bash
-./testDokka.sh -v 2.0.0-my-fix-SNAPSHOT
+./testDokka.sh -v 2.1.0-my-fix-SNAPSHOT
 ```
 
 ### Specify port
@@ -42,7 +42,7 @@ By default it applied to the `./examples/gradle/dokka-gradle-example` project
 ### All together
 
 ```bash
-./testDokka.sh -d ./examples/gradle/dokka-gradle-example -v 2.0.0-my-fix-SNAPSHOT -p 8001
+./testDokka.sh -d ./examples/gradle/dokka-gradle-example -v 2.1.0-my-fix-SNAPSHOT -p 8001
 ```
 
 ### Apply to a multi-module project
@@ -64,4 +64,4 @@ To run the server you need to have Python 3 installed.
     It is not automated and should be done manually.
 
 * if occurs `Failed to write org.jetbrains.dokka.base.renderers.FileWriter@628cef4a. Parent job is Cancelling`
-  * then try to change the dokka version specified by `-v` parameter (e.g. `-v 2.0.0-my-fix1-SNAPSHOT`)
+  * then try to change the dokka version specified by `-v` parameter (e.g. `-v 2.1.0-my-fix1-SNAPSHOT`)

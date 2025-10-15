@@ -44,7 +44,7 @@ Apply the Gradle plugin for Dokka in the root build script of your project:
 
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "2.0.0"
+    id("org.jetbrains.dokka") version "2.1.0"
 }
 ```
 
@@ -66,7 +66,7 @@ Apply Gradle plugin for Dokka in the root project:
 
 ```groovy
 plugins {
-    id 'org.jetbrains.dokka' version '2.0.0'
+    id 'org.jetbrains.dokka' version '2.1.0'
 }
 ```
 
@@ -100,7 +100,7 @@ Add the Dokka Maven plugin to the `plugins` section of your POM file:
         <plugin>
             <groupId>org.jetbrains.dokka</groupId>
             <artifactId>dokka-maven-plugin</artifactId>
-            <version>2.0.0</version>
+            <version>2.1.0</version>
             <executions>
                 <execution>
                     <phase>pre-site</phase>
@@ -139,7 +139,7 @@ which aims to improve documentation experience on the Android platform:
 
 ```kotlin
 dependencies {
-    dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:2.0.0")
+    dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:2.1.0")
 }
 ```
 
@@ -150,7 +150,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    dokkaPlugin 'org.jetbrains.dokka:android-documentation-plugin:2.0.0'
+    dokkaPlugin 'org.jetbrains.dokka:android-documentation-plugin:2.1.0'
 }
 ```
 
@@ -169,7 +169,7 @@ dependencies {
             <plugin>
                 <groupId>org.jetbrains.dokka</groupId>
                 <artifactId>android-documentation-plugin</artifactId>
-                <version>2.0.0</version>
+                <version>2.1.0</version>
             </plugin>
         </dokkaPlugins>
     </configuration>
@@ -216,7 +216,7 @@ implement plugins for missing or very specific features that are not provided ou
 Learn more about Dokka plugins and their configuration in [Dokka plugins](https://kotlinlang.org/docs/dokka-plugins.html).
 
 If you want to learn how to develop Dokka plugins, see
-[Developer guides](https://kotlin.github.io/dokka/2.0.0/developer_guide/introduction/).
+[Developer guides](https://kotlin.github.io/dokka/2.1.0/developer_guide/introduction/).
 
 Dokka allows you to extend its functionality by [configuring custom plugins](https://github.com/Kotlin/dokka/blob/ae3840edb4e4afd7b3e3768a5fddfe8ec0e08f31/examples/gradle-v2/custom-dokka-plugin-example/demo-library/build.gradle.kts),
 which enable additional processing or modifications to the documentation generation process.

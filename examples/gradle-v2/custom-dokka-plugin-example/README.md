@@ -3,7 +3,7 @@
 This project demonstrates how to create and configure a custom Dokka plugin using DGPv2.
 
 For more details about Dokka plugin development, see the Dokka developer docs:
-https://kotlin.github.io/dokka/2.0.0/developer_guide/plugin-development/introduction/
+https://kotlin.github.io/dokka/2.1.0/developer_guide/plugin-development/introduction/
 
 ## Details
 

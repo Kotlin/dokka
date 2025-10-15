@@ -8,7 +8,7 @@ The Kotlin as Java plugin is published to maven central as a
 [separate artifact](https://mvnrepository.com/artifact/org.jetbrains.dokka/kotlin-as-java-plugin):
 
 ```text
-org.jetbrains.dokka:kotlin-as-java-plugin:2.0.0
+org.jetbrains.dokka:kotlin-as-java-plugin:2.1.0
 ```
 
 **This plugin is at its early stages**, so you may experience issues and encounter bugs. Feel free to
