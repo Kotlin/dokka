@@ -61,6 +61,7 @@ constructor(
             )
             register<DokkaVersioningPluginParameters>(DOKKA_VERSIONING_PLUGIN_PARAMETERS_NAME)
             withType<DokkaVersioningPluginParameters>().configureEach {
+                olderVersionsDirName.convention("older")
                 renderVersionsNavigationOnAllPages.convention(true)
             }
         }

@@ -381,6 +381,7 @@ public abstract class org/jetbrains/dokka/gradle/engine/plugins/DokkaVersioningP
 	public static final field DOKKA_VERSIONING_PLUGIN_PARAMETERS_NAME Ljava/lang/String;
 	public abstract fun getOlderVersions ()Lorg/gradle/api/file/ConfigurableFileCollection;
 	public abstract fun getOlderVersionsDir ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getOlderVersionsDirName ()Lorg/gradle/api/provider/Property;
 	public abstract fun getRenderVersionsNavigationOnAllPages ()Lorg/gradle/api/provider/Property;
 	public abstract fun getVersion ()Lorg/gradle/api/provider/Property;
 	public abstract fun getVersionsOrdering ()Lorg/gradle/api/provider/ListProperty;
