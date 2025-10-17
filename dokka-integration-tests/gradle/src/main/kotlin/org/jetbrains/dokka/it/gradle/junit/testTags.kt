@@ -49,7 +49,9 @@ annotation class TestsKotlinMultiplatform
 @Target(FUNCTION, CLASS)
 @MustBeDocumented
 @Inherited
-annotation class TestsAndroid
+annotation class TestsAndroid(
+    val agpVersions: String = "",
+)
 
 
 /**
@@ -64,4 +66,6 @@ annotation class TestsAndroid
 @Target(FUNCTION, CLASS)
 @MustBeDocumented
 @Inherited
-annotation class TestsAndroidCompose
+annotation class TestsAndroidCompose(
+    val agpVersions: String = "",
+)

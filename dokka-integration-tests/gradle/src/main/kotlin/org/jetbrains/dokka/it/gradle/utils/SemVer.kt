@@ -11,12 +11,10 @@ data class SemVer(
 ) : Comparable<SemVer> {
     val major: Int
 
-    //region These fields are private to avoid IJ warnings, feel free to make them public if it's helpful.
-    private val minor: Int
+    val minor: Int
     val patch: Int
     private val prerelease: String?
     private val metadata: String?
-    //endregion
 
     init {
         val match = semverRegex.matchEntire(version) ?: error("Invalid version '$version'")
@@ -33,6 +31,7 @@ data class SemVer(
             this.major != other.major -> this.major.compareTo(other.major)
             this.minor != other.minor -> this.minor.compareTo(other.minor)
             this.patch != other.patch -> this.patch.compareTo(other.patch)
+
             this.prerelease != other.prerelease -> {
                 when {
                     this.prerelease == null -> 1

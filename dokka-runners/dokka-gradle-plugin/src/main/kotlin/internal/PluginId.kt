@@ -17,4 +17,5 @@ internal object PluginId {
     const val AndroidBase = "com.android.base"
     const val AndroidApplication = "com.android.application"
     const val AndroidLibrary = "com.android.library"
+    const val AndroidBuiltInKotlin = "com.android.experimental.built-in-kotlin"
 }

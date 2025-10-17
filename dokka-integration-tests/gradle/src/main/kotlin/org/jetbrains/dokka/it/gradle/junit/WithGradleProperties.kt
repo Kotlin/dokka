@@ -36,7 +36,16 @@ fun interface GradlePropertiesProvider {
 
     object Android : GradlePropertiesProvider {
         override fun get(): Map<String, String> = buildMap {
+            putAll(Default.get())
             put("android.useAndroidX", "true")
+            put("android.builtInKotlin", "false")
+        }
+    }
+
+    object AndroidKotlinBuiltIn : GradlePropertiesProvider {
+        override fun get(): Map<String, String> = buildMap {
+            putAll(Android.get())
+            put("android.builtInKotlin", "true")
         }
     }
 }
