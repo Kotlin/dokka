@@ -108,6 +108,7 @@ include(
     ":dokka-subprojects:plugin-mathjax",
     ":dokka-subprojects:plugin-templating",
     ":dokka-subprojects:plugin-versioning",
+    ":dokka-subprojects:plugin-runnable-samples"
 )
 
 // This hack is required for included build support.

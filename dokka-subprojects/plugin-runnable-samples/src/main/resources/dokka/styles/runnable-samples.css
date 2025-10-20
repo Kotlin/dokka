@@ -1,0 +1,8 @@
+div.runnablesample {
+    height: fit-content;
+}
+
+/* Hide copy button for runnable samples, overlap with Kotlin Playground run button */
+.sample-container pre[runnable-code-sample] ~ .copy-tooltip {
+    display: none !important;
+}
