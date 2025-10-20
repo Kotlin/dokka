@@ -1,0 +1,47 @@
+public final class org/jetbrains/dokka/runnablesamples/RunnableSamplesConfiguration : org/jetbrains/dokka/plugability/ConfigurableBlock {
+	public static final field Companion Lorg/jetbrains/dokka/runnablesamples/RunnableSamplesConfiguration$Companion;
+	public static final field defaultKotlinPlaygroundScript Ljava/lang/String;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lorg/jetbrains/dokka/runnablesamples/RunnableSamplesConfiguration;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/runnablesamples/RunnableSamplesConfiguration;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/runnablesamples/RunnableSamplesConfiguration;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKotlinPlaygroundScript ()Ljava/lang/String;
+	public fun hashCode ()I
+	public final fun setKotlinPlaygroundScript (Ljava/lang/String;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/runnablesamples/RunnableSamplesConfiguration$Companion {
+}
+
+public final class org/jetbrains/dokka/runnablesamples/RunnableSamplesPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public static final field Companion Lorg/jetbrains/dokka/runnablesamples/RunnableSamplesPlugin$Companion;
+	public static final field FQN Ljava/lang/String;
+	public fun <init> ()V
+	public final fun getRunnableSamplesScriptsInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getRunnableSamplesStylesInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getRunnableSamplesTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
+}
+
+public final class org/jetbrains/dokka/runnablesamples/RunnableSamplesPlugin$Companion {
+}
+
+public final class org/jetbrains/dokka/runnablesamples/RunnableSamplesScriptsInstaller : org/jetbrains/dokka/transformers/pages/PageTransformer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
+}
+
+public final class org/jetbrains/dokka/runnablesamples/RunnableSamplesStylesInstaller : org/jetbrains/dokka/transformers/pages/PageTransformer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
+}
+
+public final class org/jetbrains/dokka/runnablesamples/RunnableSamplesTransformer : org/jetbrains/dokka/transformers/pages/PageTransformer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
+}
+
