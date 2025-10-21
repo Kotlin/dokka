@@ -14,7 +14,6 @@ import org.jetbrains.dokka.model.doc.Description
 import org.jetbrains.dokka.model.doc.P
 import org.jetbrains.dokka.model.doc.Text
 import utils.AbstractModelTest
-import utils.OnlyDescriptors
 import utils.assertNotNull
 import utils.comments
 import kotlin.test.Test
@@ -759,7 +758,6 @@ class InheritorsTest : AbstractModelTest("/src/main/kotlin/inheritors/Test.kt", 
     }
 
     @Test
-    @OnlyDescriptors("#3857")
     fun `fake intersected and overridden fake fun should have correct DRI`() {
         inlineModelTest(
             """
