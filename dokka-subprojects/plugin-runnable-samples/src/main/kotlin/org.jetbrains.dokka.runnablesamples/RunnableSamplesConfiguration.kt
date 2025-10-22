@@ -3,7 +3,8 @@ package org.jetbrains.dokka.runnablesamples
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 
 public data class RunnableSamplesConfiguration(
-    var kotlinPlaygroundScript: String = defaultKotlinPlaygroundScript
+    var kotlinPlaygroundScript: String = defaultKotlinPlaygroundScript,
+    var playgroundServer: String? = null
 ) : ConfigurableBlock {
     public companion object {
         public const val defaultKotlinPlaygroundScript: String =
