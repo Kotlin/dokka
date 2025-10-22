@@ -2,15 +2,18 @@ public final class org/jetbrains/dokka/runnablesamples/RunnableSamplesConfigurat
 	public static final field Companion Lorg/jetbrains/dokka/runnablesamples/RunnableSamplesConfiguration$Companion;
 	public static final field defaultKotlinPlaygroundScript Ljava/lang/String;
 	public fun <init> ()V
-	public fun <init> (Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;)Lorg/jetbrains/dokka/runnablesamples/RunnableSamplesConfiguration;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/runnablesamples/RunnableSamplesConfiguration;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/runnablesamples/RunnableSamplesConfiguration;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/runnablesamples/RunnableSamplesConfiguration;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/runnablesamples/RunnableSamplesConfiguration;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/runnablesamples/RunnableSamplesConfiguration;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getKotlinPlaygroundScript ()Ljava/lang/String;
+	public final fun getPlaygroundServer ()Ljava/lang/String;
 	public fun hashCode ()I
 	public final fun setKotlinPlaygroundScript (Ljava/lang/String;)V
+	public final fun setPlaygroundServer (Ljava/lang/String;)V
 	public fun toString ()Ljava/lang/String;
 }
 

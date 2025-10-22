@@ -3,6 +3,10 @@ let instances = [];
 const samplesDarkThemeName = 'darcula'
 const samplesLightThemeName = 'idea'
 
+// This variable is set by RunnableSamplesInstaller when the user provides a custom server URL
+// via the configuration. Leave as null to use the default playground server.
+const playgroundServer = null
+
 window.onDarkModeChanged = (darkModeEnabled) => {
     initPlayground(darkModeEnabled ? samplesDarkThemeName : samplesLightThemeName)
 }
@@ -21,12 +25,14 @@ const initPlayground = (theme) => {
         }
     })
 
-    KotlinPlayground('code.runnablesample', {
+    const options = {
         getInstance: playgroundInstance => {
             instances.push(playgroundInstance)
         },
         theme: theme
-    });
+    };
+    if (playgroundServer != null) options.server = playgroundServer;
+    KotlinPlayground('code.runnablesample', options);
 }
 
 // We check if type is accessible from the current scope to determine if samples script is present
