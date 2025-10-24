@@ -1,10 +1,12 @@
 /*
- * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.dokka.base.transformers.pages
+package org.jetbrains.dokka.runnablesamples
 
 import org.jetbrains.dokka.analysis.kotlin.KotlinAnalysisPlugin
+import org.jetbrains.dokka.analysis.kotlin.sample.SampleAnalysisEnvironmentCreator
+import org.jetbrains.dokka.analysis.kotlin.sample.SampleSnippet
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.doc.Sample
@@ -13,17 +15,21 @@ import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.transformers.pages.PageTransformer
-import org.jetbrains.dokka.analysis.kotlin.sample.SampleAnalysisEnvironmentCreator
-import org.jetbrains.dokka.analysis.kotlin.sample.SampleSnippet
 
 /**
- * It works ONLY with a content model from the base plugin.
+ * Replaces DefaultSamplesTransformer, adds runnable samples functionality with Kotlin Playground.
  */
-internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransformer {
+public class RunnableSamplesTransformer(public val context: DokkaContext) : PageTransformer {
 
     private val sampleAnalysisEnvironment: SampleAnalysisEnvironmentCreator =
         context.plugin<KotlinAnalysisPlugin>().querySingle { sampleAnalysisEnvironmentCreator }
+
+    private val config = configuration<RunnableSamplesPlugin, RunnableSamplesConfiguration>(context)
+
+    private val kotlinPlaygroundScript = config?.kotlinPlaygroundScript
+        ?: RunnableSamplesConfiguration.defaultKotlinPlaygroundScript
 
     override fun invoke(input: RootPageNode): RootPageNode {
         return sampleAnalysisEnvironment.use {
@@ -42,7 +48,8 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
                 }
 
                 page.modified(
-                    content = newContent
+                    content = newContent,
+                    embeddedResources = page.embeddedResources + kotlinPlaygroundScript
                 )
             }
         }
@@ -53,9 +60,54 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
         fqLink: String,
         sample: SampleSnippet,
     ): ContentNode {
-        val node = contentCode(contentPage.content.sourceSets, contentPage.dri, sample.body, "kotlin")
+        val node = contentCode(
+            contentPage.content.sourceSets,
+            contentPage.dri,
+            createSampleBody(sample.imports, sample.body),
+            "kotlin"
+        )
         return dfs(fqLink, node)
     }
+
+    /**
+     * If both [imports] and [body] are present, it should return
+     *
+     * ```kotlin
+     * import com.example.One
+     * import com.example.Two
+     *
+     * fun main() {
+     *    //sampleStart
+     *    println("Sample function body")
+     *    println("Another line")
+     *    //sampleEnd
+     * }
+     * ```
+     *
+     * If [imports] are empty, it should return:
+     *
+     * ```kotlin
+     * fun main() {
+     *    //sampleStart
+     *    println("Sample function body")
+     *    println("Another line")
+     *    //sampleEnd
+     * }
+     * ```
+     *
+     * Notice the presence/absence of the new line before the body.
+     */
+    private fun createSampleBody(imports: List<String>, body: String) =
+    // takeIf {} is needed so that joinToString's postfix is not added for empty lists,
+        // and trimMargin() then removes the first empty line
+        """ |${
+            imports.takeIf { it.isNotEmpty() }?.joinToString(separator = "\n", postfix = "\n") { "import $it" } ?: ""
+        }
+            |fun main() { 
+            |   //sampleStart 
+            |   $body 
+            |   //sampleEnd
+            |}""".trimMargin()
 
     private fun ContentNode.dfs(fqName: String, node: ContentCodeBlock): ContentNode {
         return when (this) {
@@ -105,7 +157,7 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
             language = language,
             dci = DCI(dri, ContentKind.Sample),
             sourceSets = sourceSets,
-            style = styles + TextStyle.Monospace,
+            style = styles + ContentStyle.RunnableSample + TextStyle.Monospace,
             extra = extra
         )
 }
