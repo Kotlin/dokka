@@ -48,7 +48,7 @@ class RunnableSamplesConfigurationTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { root ->
                 val contentPages = root.children.filterIsInstance<ContentPage>()
-                val defaultScriptIncluded = contentPages.any {
+                val defaultScriptIncluded = contentPages.all {
                     defaultScript in it.embeddedResources
                 }
                 assertTrue(defaultScriptIncluded, "Default Kotlin Playground script should be included")
@@ -66,7 +66,7 @@ class RunnableSamplesConfigurationTest : BaseAbstractTest() {
             }
             pluginsConfigurations.add(
                 PluginConfigurationImpl(
-                    "org.jetbrains.dokka.runnablesamples.RunnableSamplesPlugin",
+                    RunnableSamplesPlugin.FQN,
                     DokkaConfiguration.SerializationFormat.JSON,
                     "{\"kotlinPlaygroundScript\": \"customKotlinPlaygroundScript.js\"}"
                 )
@@ -91,7 +91,7 @@ class RunnableSamplesConfigurationTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { root ->
                 val contentPages = root.children.filterIsInstance<ContentPage>()
-                val defaultScriptIncluded = contentPages.any {
+                val defaultScriptIncluded = contentPages.all {
                     defaultScript in it.embeddedResources
                 }
 
@@ -100,7 +100,7 @@ class RunnableSamplesConfigurationTest : BaseAbstractTest() {
                     "When custom kotlin playground script is included, page shouldn't contain default kotlin playground script"
                 )
 
-                val customScriptIncluded = contentPages.any {
+                val customScriptIncluded = contentPages.all {
                     "customKotlinPlaygroundScript.js" in it.embeddedResources
                 }
                 assertTrue(customScriptIncluded, "Should contain custom kotlin playground script")
