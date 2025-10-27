@@ -12,6 +12,6 @@
 | [plugin-jekyll](plugin-jekyll)                               | Provides the ability to generate documentation in `Jekyll Flavoured Markdown` format.         |
 | [plugin-kotlin-as-java](plugin-kotlin-as-java)               | Renders all Kotlin signatures as Java signatures.                                             |
 | [plugin-mathjax](plugin-mathjax)                             | Allows rendering mathematics in the web pages.                                                |
-| [plugin-runnable-samples](plugin-runnable-samples)           | Makes `@sample` code blocks interactive and runnable using the Kotlin Playground.                   |
+| [plugin-runnable-samples](plugin-runnable-samples)           | Makes @sample code blocks interactive and runnable using the Kotlin Playground.                   |
 | [plugin-templating](plugin-templating)                       | An internal Dokka plugin that handles HTML template processing.                               |
 | [plugin-versioning](plugin-versioning)                       | Provides the ability to host documentation for multiple versions of your library/application. |
