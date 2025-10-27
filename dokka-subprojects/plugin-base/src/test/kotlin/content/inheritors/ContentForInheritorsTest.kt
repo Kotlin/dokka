@@ -9,11 +9,16 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.PluginConfigurationImpl
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.dfs
+import org.jetbrains.dokka.pages.MemberPageNode
 import utils.OnlyDescriptors
 import utils.classSignature
 import utils.findTestType
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class ContentForInheritorsTest : BaseAbstractTest() {
     private val testConfiguration = dokkaConfiguration {
@@ -498,6 +503,96 @@ class ContentForInheritorsTest : BaseAbstractTest() {
                     }
                     skipAllNotMatching()
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `fake intersected and overridden fake function does not generate redundant page`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            |class NamedDomainObjectContainerScope<T : Any> 
+            | : NamedDomainObjectContainerDelegate<T>(), PolymorphicDomainObjectContainer<T> 
+            | 
+            |abstract class NamedDomainObjectContainerDelegate<T : Any> : NamedDomainObjectContainer<T> {
+            |  override fun getNamer(): T? = null
+            |}
+            |
+            |interface PolymorphicDomainObjectContainer<T>: NamedDomainObjectContainer<T>
+            |
+            |interface NamedDomainObjectContainer<T> {
+            |  fun getNamer(): T?  = null
+            |}
+            """.trimMargin(),
+            testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val targetDRI = DRI(
+                    "test",
+                    "NamedDomainObjectContainerDelegate",
+                    org.jetbrains.dokka.links.Callable("getNamer", null, emptyList())
+                )
+                val fakeDRI = DRI(
+                    "test",
+                    "NamedDomainObjectContainerScope",
+                    org.jetbrains.dokka.links.Callable("getNamer", null, emptyList())
+                )
+                assertNull(
+                    module.dfs { it.name == "getNamer" && (it as? MemberPageNode)?.dri?.singleOrNull() == fakeDRI },
+                    "There should be no page for NamedDomainObjectContainerScope::getNamer"
+                )
+                assertNotNull(
+                    module.dfs { it.name == "getNamer" && (it as? MemberPageNode)?.dri?.singleOrNull() == targetDRI },
+                    "There should be a page for NamedDomainObjectContainerScope::getNamer"
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `fake intersected and overridden fake property does not generate redundant page`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |
+            |class NamedDomainObjectContainerScope<T : Any> 
+            | : NamedDomainObjectContainerDelegate<T>(), PolymorphicDomainObjectContainer<T> 
+            | 
+            |abstract class NamedDomainObjectContainerDelegate<T : Any> : NamedDomainObjectContainer<T> {
+            |  override var namer: T? = null
+            |}
+            |
+            |interface PolymorphicDomainObjectContainer<T>: NamedDomainObjectContainer<T>
+            |
+            |interface NamedDomainObjectContainer<T> {
+            |  var namer: T?  = null
+            |}
+            """.trimMargin(),
+            testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val targetDRI = DRI(
+                    "test",
+                    "NamedDomainObjectContainerDelegate",
+                    org.jetbrains.dokka.links.Callable("namer", null, emptyList())
+                )
+                val fakeDRI = DRI(
+                    "test",
+                    "NamedDomainObjectContainerScope",
+                    org.jetbrains.dokka.links.Callable("namer", null, emptyList())
+                )
+                assertNull(
+                    module.dfs { it.name == "namer" && (it as? MemberPageNode)?.dri?.singleOrNull() == fakeDRI },
+                    "There should be no page for NamedDomainObjectContainerScope::namer"
+                )
+                assertNotNull(
+                    module.dfs { it.name == "namer" && (it as? MemberPageNode)?.dri?.singleOrNull() == targetDRI },
+                    "There should be a page for NamedDomainObjectContainerScope::namer"
+                )
             }
         }
     }
