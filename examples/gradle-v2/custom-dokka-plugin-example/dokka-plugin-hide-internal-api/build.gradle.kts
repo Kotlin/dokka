@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    val dokkaVersion = "2.1.0"
+    val dokkaVersion = providers.gradleProperty("dokkaVersion").getOrElse("2.1.0")
     compileOnly("org.jetbrains.dokka:dokka-core:$dokkaVersion")
     implementation("org.jetbrains.dokka:dokka-base:$dokkaVersion")
 
