@@ -174,9 +174,12 @@ public open class DefaultPageCreator(
 
     private fun <T : Documentable> List<T>.renameClashingDocumentable(): List<T> =
         groupBy { it.dri }.values.flatMap { elements ->
-            // do not rename [elements] if there is an explicit expect-actual
-            // they should be merged by [SameMethodNamePageMergerStrategy]
-            if(elements.any { it is WithIsExpectActual && it.isExpectActual }) return elements
+            //special case: property and function with the same DRI
+            if(elements.any { it is DProperty } && elements.any { it is DFunction }) {
+                // do not rename [elements] if there is an explicit expect-actual
+                // they should be merged by [SameMethodNamePageMergerStrategy]
+                if(elements.any { it is WithIsExpectActual && it.isExpectActual }) return elements
+            }
 
             if (elements.size == 1) elements else elements.mapNotNull { element ->
                 element.renameClashingDocumentable()
