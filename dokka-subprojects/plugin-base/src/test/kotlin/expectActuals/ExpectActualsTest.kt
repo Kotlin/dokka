@@ -579,6 +579,42 @@ class ExpectActualsTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    fun `should merge an explicit-expectActual function with a single function #3685`() = testInline(
+        """
+        /src/common/test.kt
+        expect class Skiko {
+            fun isShowing(): Boolean
+        }
+
+        /src/jvm/test.kt
+        actual class Skiko actual constructor() {
+             fun isShowing(b: Boolean): Boolean {
+                return b
+            }
+             actual fun isShowing(): Boolean {
+                return false
+            }
+        }
+        
+        /src/native/test.kt
+        actual class Skiko actual constructor(){
+            actual fun isShowing(): Boolean
+        }
+        """.trimMargin(),
+        multiplatformConfiguration
+    ) {
+        pagesGenerationStage = { root ->
+            val cl = root.dfs { it.name == "Skiko" && it is ClasslikePageNode } ?: throw IllegalStateException()
+            // before page merging
+            assertEquals(2, cl.children.count { it.name == "isShowing" })
+        }
+        renderingStage = { root, _ ->
+            val documentables = (root.dfs { it.name == "isShowing" } as MemberPageNode).documentables
+            // after page merging
+            assertEquals(listOf(DFunction::class, DFunction::class), documentables.map { it::class })
+        }
+    }
 
     @Test
     @OnlySymbols("context parameters")
