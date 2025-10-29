@@ -51,28 +51,37 @@ internal fun KaSession.getDRIFromTypeParameter(symbol: KaTypeParameterSymbol): D
     return getDRIFromSymbol(containingSymbol).copy(target = PointingToGenericParameters(index))
 }
 
+@OptIn(KaExperimentalApi::class)
 internal fun KaSession.getDRIFromConstructor(symbol: KaConstructorSymbol): DRI {
     val containingClassId =
         symbol.containingClassId ?: throw IllegalStateException("Can not get class Id due to it is local")
     return containingClassId.createDRI().copy(
         callable = Callable(
             name = containingClassId.shortClassName.asString(),
-            params = symbol.valueParameters.map { getTypeReferenceFrom(it.returnType) }
+            params = symbol.valueParameters.map {
+                val parameterType = it.varargArrayType ?: it.returnType
+                getTypeReferenceFrom(parameterType)
+            }
         )
     )
 }
 
+@OptIn(KaExperimentalApi::class)
 internal fun KaSession.getDRIFromVariable(symbol: KaVariableSymbol): DRI {
     val callableId = symbol.callableId ?: throw IllegalStateException("Can not get callable Id due to it is local")
     val receiver = symbol.receiverType?.let(::getTypeReferenceFrom)
-    val contextParams = @OptIn(KaExperimentalApi::class) symbol.contextParameters.map { getTypeReferenceFrom(it.returnType) }
+    val contextParams = symbol.contextParameters.map { getTypeReferenceFrom(it.returnType) }
     return callableId.createDRI(receiver, emptyList(), contextParams)
 }
 
 
+@OptIn(KaExperimentalApi::class)
 internal fun KaSession.getDRIFromFunction(symbol: KaFunctionSymbol): DRI {
-    val params = symbol.valueParameters.map { getTypeReferenceFrom(it.returnType) }
-    val contextParams = @OptIn(KaExperimentalApi::class) symbol.contextParameters.map { getTypeReferenceFrom(it.returnType) }
+    val params = symbol.valueParameters.map {
+        val parameterType = it.varargArrayType ?: it.returnType
+        getTypeReferenceFrom(parameterType)
+    }
+    val contextParams = symbol.contextParameters.map { getTypeReferenceFrom(it.returnType) }
     val receiver = symbol.receiverType?.let {
         getTypeReferenceFrom(it)
     }
@@ -100,7 +109,7 @@ internal fun KaSession.getDRIFromReceiverParameter(receiverParameterSymbol: KaRe
     getDRIFromReceiverType(receiverParameterSymbol.returnType)
 
 private fun KaSession.getDRIFromReceiverType(type: KaType): DRI {
-    return when(type) {
+    return when (type) {
         is KaClassType -> getDRIFromClassType(type)
         is KaTypeParameterType -> getDRIFromTypeParameter(type.symbol)
         is KaDefinitelyNotNullType -> getDRIFromReceiverType(type.original)
@@ -140,6 +149,7 @@ private fun KaSession.getDRIFromNonCallablePossibleLocalSymbol(symbol: KaSymbol)
  * Currently, it's used only for functions from enum entry,
  * For its members: `memberSymbol.callableIdIfNonLocal=null`
  */
+@OptIn(KaExperimentalApi::class)
 private fun KaSession.getDRIFromLocalFunction(symbol: KaFunctionSymbol): DRI {
     /**
      * A function is inside local object
@@ -149,7 +159,10 @@ private fun KaSession.getDRIFromLocalFunction(symbol: KaFunctionSymbol): DRI {
     return containingSymbolDRI.copy(
         callable = Callable(
             (symbol as? KaNamedSymbol)?.name?.asString() ?: "",
-            params = symbol.valueParameters.map { getTypeReferenceFrom(it.returnType) },
+            params = symbol.valueParameters.map {
+                val parameterType = it.varargArrayType ?: it.returnType
+                getTypeReferenceFrom(parameterType)
+            },
             receiver = symbol.receiverType?.let {
                 getTypeReferenceFrom(it)
             }
