@@ -23,8 +23,8 @@ It is open source and you can find the source code on [GitHub](https://github.co
 
 ## Generate Javadoc documentation
 
-> Starting from Dokka 2.0.0, [the Gradle tasks to generate documentation changed](dokka-migration.md#select-documentation-output-format).
-> For more details and the full list of changes, see the [Migration guide](dokka-migration.md).
+> These instructions reflect Dokka v1 configuration and tasks. Starting from Dokka 2.0.0, [the Gradle tasks to generate documentation changed](dokka-migration.md#select-documentation-output-format).
+> For more details and the full list of changes in Dokka Gradle Plugin v2, see the [Migration guide](dokka-migration.md).
 >
 > The Javadoc format does not support multiplatform projects.
 >
