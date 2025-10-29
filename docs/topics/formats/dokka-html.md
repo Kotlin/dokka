@@ -12,7 +12,7 @@ your build tool or runner:
 
 * For [Gradle](dokka-gradle.md#generate-documentation), run `dokkaHtml` or `dokkaHtmlMultiModule` tasks.
 
-  > These instructions reflect Dokka v1 configuration and tasks. Starting from Dokka 2.0.0, [the Gradle tasks to generate documentation changed](dokka-migration.md#generate-documentation-with-the-updated-task).
+  > These instructions reflect Dokka Gradle plugin v1 configuration and tasks. Starting from Dokka 2.0.0, [the Gradle tasks to generate documentation changed](dokka-migration.md#generate-documentation-with-the-updated-task).
   >
   > For more details and the full list of changes in Dokka Gradle Plugin v2, see the [Migration guide](dokka-migration.md).
   >
