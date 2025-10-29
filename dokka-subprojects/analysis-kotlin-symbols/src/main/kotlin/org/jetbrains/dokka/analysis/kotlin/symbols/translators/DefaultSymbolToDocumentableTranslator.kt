@@ -497,8 +497,8 @@ internal class DokkaSymbolVisitor(
                 contextParameters = @OptIn(KaExperimentalApi::class) propertySymbol.contextParameters
                     .mapIndexed { index, symbol -> visitContextParameter(index, symbol, dri) },
                 sources = propertySymbol.getSource(),
-                getter = propertySymbol.getter?.let { visitPropertyAccessor(it, propertySymbol, dri) },
-                setter = propertySymbol.setter?.let { visitPropertyAccessor(it, propertySymbol, dri) },
+                getter = propertySymbol.getter?.let { visitPropertyAccessor(it, propertySymbol, dri, parent) },
+                setter = propertySymbol.setter?.let { visitPropertyAccessor(it, propertySymbol, dri, parent) },
                 visibility = propertySymbol.visibility.toDokkaVisibility().toSourceSetDependent(),
                 documentation = getDocumentation(propertySymbol)?.toSourceSetDependent() ?: emptyMap(), // TODO
                 modifier = propertySymbol.getDokkaModality().toSourceSetDependent(),
@@ -562,7 +562,8 @@ internal class DokkaSymbolVisitor(
     private fun KaSession.visitPropertyAccessor(
         propertyAccessorSymbol: KaPropertyAccessorSymbol,
         propertySymbol: KaPropertySymbol,
-        propertyDRI: DRI
+        propertyDRI: DRI,
+        propertyParentDRI: DRI
     ): DFunction = withExceptionCatcher(propertyAccessorSymbol) {
         val isGetter = propertyAccessorSymbol is KaPropertyGetterSymbol
         // it also covers @JvmName annotation
@@ -577,8 +578,8 @@ internal class DokkaSymbolVisitor(
             propertyDRI.copy(
                 callable = Callable(name, null, propertyAccessorSymbol.valueParameters.map { getTypeReferenceFrom(it.returnType) })
             )
-        // for SyntheticJavaProperty
-        val inheritedFrom = if(propertyAccessorSymbol.origin == KaSymbolOrigin.JAVA_SYNTHETIC_PROPERTY) dri.copy(callable = null) else null
+
+        val inheritedFrom = if(propertyAccessorSymbol.origin == KaSymbolOrigin.JAVA_SYNTHETIC_PROPERTY) dri.copy(callable = null) else dri.getInheritedFromDRI(propertyParentDRI)
 
         @OptIn(KaExperimentalApi::class) // due to typeParameters
         val generics = propertyAccessorSymbol.typeParameters.mapIndexed { index, symbol ->
