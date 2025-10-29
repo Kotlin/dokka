@@ -7,6 +7,7 @@ package model
 import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.driOrNull
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.model.*
 import utils.AbstractModelTest
 import utils.OnlySymbols
@@ -169,6 +170,50 @@ class TypesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "types")
                         projections.map { ((it as Invariance<*>).inner as GenericTypeConstructor).dri.classNames }
                     classNamesOfProjections equals listOf("String", "Double", "Boolean", "Int", "String")
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `varags test`() {
+        inlineModelTest(
+            """
+                |fun withObjectVararg(i: Int, vararg s: String) {}
+                |fun withPrimitiveVararg(i: Int, vararg s: Int) {}
+        """
+        ) {
+            with((this / "types" / "withObjectVararg").cast<DFunction>()) {
+                dri equals DRI(
+                    "types", null,
+                    org.jetbrains.dokka.links.Callable(
+                        name = "withObjectVararg",
+                        receiver = null,
+                        params = listOf(
+                            TypeConstructor("kotlin.Int", emptyList()),
+                            TypeConstructor(
+                                "kotlin.Array",
+                                listOf(TypeConstructor("kotlin.String", emptyList()))
+                            )
+                        )
+                    )
+                )
+            }
+
+            with((this / "types" / "withPrimitiveVararg").cast<DFunction>()) {
+                dri equals DRI(
+                    "types", null,
+                    org.jetbrains.dokka.links.Callable(
+                        name = "withPrimitiveVararg",
+                        receiver = null,
+                        params = listOf(
+                            TypeConstructor("kotlin.Int", emptyList()),
+                            TypeConstructor(
+                                "kotlin.Array",
+                                listOf(TypeConstructor("kotlin.Int", emptyList()))
+                            )
+                        )
+                    )
+                )
             }
         }
     }
