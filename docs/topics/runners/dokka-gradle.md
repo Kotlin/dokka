@@ -1,6 +1,6 @@
 [//]: # (title: Gradle)
 
-> These instructions reflect Dokka v1 configuration and tasks. Starting from Dokka 2.0.0, several configuration options, Gradle tasks, and steps to generate your documentation have been updated, including:
+> These instructions reflect Dokka Gradle plugin v1 configuration and tasks. Starting from Dokka 2.0.0, several configuration options, Gradle tasks, and steps to generate your documentation have been updated, including:
 >
 > * [Adjust configuration options](dokka-migration.md#adjust-configuration-options)
 > * [Work with multi-module projects](dokka-migration.md#share-dokka-configuration-across-modules)
