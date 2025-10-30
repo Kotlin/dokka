@@ -142,7 +142,6 @@ private fun KaSession.getDRIFromNonCallablePossibleLocalSymbol(symbol: KaSymbol)
  * Currently, it's used only for functions from enum entry,
  * For its members: `memberSymbol.callableIdIfNonLocal=null`
  */
-@OptIn(KaExperimentalApi::class)
 private fun KaSession.getDRIFromLocalFunction(symbol: KaFunctionSymbol): DRI {
     /**
      * A function is inside local object

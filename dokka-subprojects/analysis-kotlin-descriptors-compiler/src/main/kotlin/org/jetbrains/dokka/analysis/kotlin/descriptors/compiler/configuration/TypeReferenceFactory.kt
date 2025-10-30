@@ -30,10 +30,7 @@ internal fun TypeReference.Companion.from(d: ReceiverParameterDescriptor): TypeR
 internal fun TypeReference.Companion.from(d: ValueParameterDescriptor): TypeReference =
     when {
         d.isVararg -> Vararg(fromPossiblyNullable(d.varargElementType!!, emptyList()))
-        else -> fromPossiblyNullable(
-            d.type,
-            emptyList()
-        )
+        else -> fromPossiblyNullable(d.type, emptyList())
     }
 
 internal fun TypeReference.Companion.from(@Suppress("UNUSED_PARAMETER") p: PsiClass) = TypeReference
