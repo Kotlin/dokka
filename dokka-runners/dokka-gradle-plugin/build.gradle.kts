@@ -49,8 +49,18 @@ dependencies {
 
     compileOnly(libs.gradlePlugin.kotlin)
     compileOnly(libs.gradlePlugin.kotlin.klibCommonizerApi)
-    compileOnly(libs.gradlePlugin.android)
-    compileOnly(libs.gradlePlugin.androidApi)
+    compileOnly(libs.gradlePlugin.android) {
+        attributes {
+            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 11)
+        }
+        isTransitive = false
+    }
+    compileOnly(libs.gradlePlugin.androidApi) {
+        attributes {
+            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 11)
+        }
+        isTransitive = false
+    }
 
     implementation(platform(libs.kotlinxSerialization.bom))
     implementation(libs.kotlinxSerialization.json)

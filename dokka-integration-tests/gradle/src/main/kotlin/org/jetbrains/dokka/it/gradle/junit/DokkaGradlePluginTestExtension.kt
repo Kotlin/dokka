@@ -9,6 +9,7 @@ import org.jetbrains.dokka.it.gradle.junit.DokkaGradlePluginTestExtension.Compan
 import org.jetbrains.dokka.it.gradle.junit.TestedVersions.Companion.dashSeparatedId
 import org.jetbrains.dokka.it.gradle.junit.TestedVersions.Companion.displayName
 import org.jetbrains.dokka.it.gradle.utils.SemVer
+import org.jetbrains.dokka.it.gradle.utils.SemVerRange
 import org.jetbrains.dokka.it.gradle.withJetBrainsCachedGradleVersion
 import org.jetbrains.dokka.it.gradle.withReadOnlyDependencyCache
 import org.jetbrains.dokka.it.systemProperty
@@ -21,7 +22,6 @@ import org.junit.platform.commons.logging.Logger
 import org.junit.platform.commons.logging.LoggerFactory
 import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.AnnotationSupport.findAnnotation
-import org.junit.platform.commons.support.AnnotationSupport.isAnnotated
 import org.junit.platform.commons.support.ReflectionSupport
 import org.opentest4j.TestAbortedException
 import java.nio.file.Files
@@ -85,8 +85,8 @@ class DokkaGradlePluginTestExtension :
         val projectInitializer = ReflectionSupport.newInstance(dgpTest.projectInitializer.java)
         val sourceProjectDir = dgpTest.sourceProjectName
 
-        val isAndroidTest = context.hasOrParentHasAnnotation<TestsAndroid>()
-        val isAndroidComposeTest = context.hasOrParentHasAnnotation<TestsAndroidCompose>()
+        val testAndroidAnnotation = context.findFirstAnnotationFromParents<TestsAndroid>()
+        val testsAndroidComposeAnnotation = context.findFirstAnnotationFromParents<TestsAndroidCompose>()
 
         val gradleProperties = computeGradleProperties(
             context,
@@ -94,8 +94,14 @@ class DokkaGradlePluginTestExtension :
         )
 
         val testedVersionsSource = when {
-            isAndroidComposeTest -> TestedVersionsSource.AndroidCompose
-            isAndroidTest -> TestedVersionsSource.Android
+            testsAndroidComposeAnnotation != null -> TestedVersionsSource.AndroidCompose(
+                agpVersionRange = SemVerRange.parseOrNullIfBlank(testsAndroidComposeAnnotation.agpVersions),
+            )
+
+            testAndroidAnnotation != null -> TestedVersionsSource.Android(
+                agpVersionRange = SemVerRange.parseOrNullIfBlank(testAndroidAnnotation.agpVersions),
+            )
+
             else -> TestedVersionsSource.Default
         }
 
@@ -327,11 +333,15 @@ class DokkaGradlePluginTestExtension :
          */
         internal val templateProjectsDir by systemProperty(::Path)
 
+        // TODO update kdoc
         /**
          * Check if this [ExtensionContext] or any of its parents is annotated with [T].
          */
-        private inline fun <reified T : Annotation> ExtensionContext.hasOrParentHasAnnotation(): Boolean =
+        // TODO better name
+        private inline fun <reified T : Annotation> ExtensionContext.findFirstAnnotationFromParents(): T? =
             generateSequence(this) { it.parent.getOrNull() }
-                .any { isAnnotated(it.element, T::class.java) }
+                .firstNotNullOfOrNull {
+                    findAnnotation(it.element, T::class.java).getOrNull()
+                }
     }
 }

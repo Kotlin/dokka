@@ -22,9 +22,12 @@ import kotlin.io.path.readText
 /**
  * Integration test for the `it-android` project.
  */
-@TestsAndroid
+@TestsAndroid(
+    agpVersions = "[,9.0.0["
+)
 @TestsDGPv2
 @WithGradleProperties(GradlePropertiesProvider.Android::class)
+@WithGradleProperties
 class AndroidProjectIT {
 
     @DokkaGradlePluginTest(sourceProjectName = "it-android")
