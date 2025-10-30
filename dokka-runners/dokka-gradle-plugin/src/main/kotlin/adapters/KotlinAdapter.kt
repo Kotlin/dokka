@@ -3,6 +3,7 @@
  */
 package org.jetbrains.dokka.gradle.adapters
 
+import com.android.build.api.variant.AndroidComponentsExtension
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
@@ -11,7 +12,6 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
 import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
@@ -72,25 +72,8 @@ abstract class KotlinAdapter @Inject constructor(
     }
 
     private fun exec(project: Project) {
-        val kotlinExtension = project.extensions.findKotlinExtension()
+        val kotlinExtension = project.findKotlinExtension()
         if (kotlinExtension == null) {
-            if (project.extensions.findByName("kotlin") != null) {
-                // uh oh - the Kotlin extension is present but findKotlinExtension() failed.
-                // Is there a class loader issue? https://github.com/gradle/gradle/issues/27218
-                logger.warn {
-                    val allPlugins =
-                        project.plugins.joinToString { it::class.qualifiedName ?: "${it::class}" }
-                    val allExtensions =
-                        project.extensions.extensionsSchema.elements.joinToString { "${it.name} ${it.publicType}" }
-
-                    /* language=TEXT */
-                    """
-                    |$dkaName failed to get KotlinProjectExtension in ${project.path}
-                    |  Applied plugins: $allPlugins
-                    |  Available extensions: $allExtensions
-                    """.trimMargin()
-                }
-            }
             logger.info("Skipping applying $dkaName in ${project.path} - could not find KotlinProjectExtension")
             return
         }
@@ -214,26 +197,6 @@ abstract class KotlinAdapter @Inject constructor(
 
         private val logger = Logging.getLogger(KotlinAdapter::class.java)
 
-        /** Try and get [KotlinProjectExtension], or `null` if it's not present. */
-        private fun ExtensionContainer.findKotlinExtension(): KotlinProjectExtension? =
-            try {
-                findByType()
-                // fallback to trying to get the JVM extension
-                // (not sure why I did this... maybe to be compatible with really old versions?)
-                    ?: findByType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension>()
-            } catch (e: Throwable) {
-                when (e) {
-                    is TypeNotPresentException,
-                    is ClassNotFoundException,
-                    is NoClassDefFoundError -> {
-                        logger.info("$dkaName failed to find KotlinExtension ${e::class} ${e.message}")
-                        null
-                    }
-
-                    else -> throw e
-                }
-            }
-
         /** Get the version of the Kotlin Gradle Plugin currently used to compile the project. */
         // Must be lazy, else tests fail (because the KGP plugin isn't accessible)
         internal val currentKotlinToolingVersion: KotlinToolingVersion by lazy {
@@ -274,7 +237,7 @@ private data class KotlinCompilationDetails(
      *
      * (E.g. 'main' compilations are published, 'test' compilations are not.)
      */
-    val publishedCompilation: Boolean,
+    val publishedCompilation: Provider<Boolean>,
 
     /** [KotlinCompilation.kotlinSourceSets] → [KotlinSourceSet.dependsOn] names. */
     val dependentSourceSetNames: Set<String>,
@@ -293,6 +256,7 @@ private class KotlinCompilationDetailsBuilder(
     private val konanHome: Provider<File>,
     private val project: Project,
 ) {
+    private val androidComponentsInfo: Provider<Set<AndroidVariantInfo>> = getAgpVariantInfo(project)
 
     fun createCompilationDetails(
         kotlinProjectExtension: KotlinProjectExtension,
@@ -310,6 +274,33 @@ private class KotlinCompilationDetailsBuilder(
             })
 
         return details
+    }
+
+    /**
+     * Collect information about Android variants.
+     * Used to determine whether a source set is published or not.
+     * See [KotlinSourceSetDetails.isPublishedSourceSet].
+     *
+     * Android variant info must be fetched eagerly,
+     * since AGP doesn't provide a lazy way of accessing component information.
+     *
+     * @see collectAndroidVariants
+     * @see supportsAgpKotlinBuiltInCompilation
+     */
+    private fun getAgpVariantInfo(
+        project: Project,
+    ): Provider<Set<AndroidVariantInfo>> {
+        val androidVariants = objects.setProperty(AndroidVariantInfo::class)
+
+        if (currentKotlinToolingVersion.supportsAgpKotlinBuiltInCompilation()) {
+            project.pluginManager.apply {
+                withPlugin(PluginId.AndroidBase) { collectAndroidVariants(project, androidVariants) }
+                withPlugin(PluginId.AndroidApplication) { collectAndroidVariants(project, androidVariants) }
+                withPlugin(PluginId.AndroidLibrary) { collectAndroidVariants(project, androidVariants) }
+            }
+        }
+
+        return androidVariants
     }
 
     /** Create a single [KotlinCompilationDetails] for [compilation]. */
@@ -438,33 +429,60 @@ private class KotlinCompilationDetailsBuilder(
         }
     }
 
-    companion object {
+    /**
+     * Determine if a [KotlinCompilation] is 'publishable', and so should be enabled by default
+     * when creating a Dokka publication.
+     *
+     * Typically, 'main' compilations are publishable and 'test' compilations should be suppressed.
+     * This can be overridden manually, though.
+     *
+     * @see DokkaSourceSetSpec.suppress
+     */
+    private fun KotlinCompilation<*>.isPublished(): Provider<Boolean> {
+        return when (this) {
+            is KotlinMetadataCompilation<*> ->
+                providers.provider { true }
 
-        /**
-         * Determine if a [KotlinCompilation] is 'publishable', and so should be enabled by default
-         * when creating a Dokka publication.
-         *
-         * Typically, 'main' compilations are publishable and 'test' compilations should be suppressed.
-         * This can be overridden manually, though.
-         *
-         * @see DokkaSourceSetSpec.suppress
-         */
-        private fun KotlinCompilation<*>.isPublished(): Boolean {
-            return when (this) {
-                is KotlinMetadataCompilation<*> -> true
+            is KotlinJvmAndroidCompilation -> {
+                isJvmAndroidPublished(this)
+            }
 
-                is KotlinJvmAndroidCompilation -> {
-                    // Use string-based comparison, not the actual classes, because AGP has deprecated and
-                    // moved the Library/Application classes to a different package.
-                    // Using strings is more widely compatible.
-                    val variantName = androidVariant::class.jvmName
-                    "LibraryVariant" in variantName || "ApplicationVariant" in variantName
+            else ->
+                providers.provider { name == MAIN_COMPILATION_NAME }
+        }
+    }
+
+    private fun isJvmAndroidPublished(
+        compilation: KotlinJvmAndroidCompilation,
+    ): Provider<Boolean> {
+
+        // in KGP 2.2.10 androidVariant will be nullable KT-77023
+        if (currentKotlinToolingVersion.supportsAgpKotlinBuiltInCompilation()) {
+            return androidComponentsInfo.map { components ->
+                val compilationComponents = components.filter { it.name == compilation.name }
+                val result = compilationComponents.any { component -> component.hasPublishedComponent }
+                logger.info {
+                    "[KotlinAdapter isJvmAndroidPublished] ${compilation.name} publishable:$result, compilationComponents:$compilationComponents"
                 }
-
-                else ->
-                    name == MAIN_COMPILATION_NAME
+                result
+            }
+        } else {
+            val androidVariantJvmName = compilation.androidVariant::class.jvmName
+            return providers.provider {
+                // Use string-based comparison for the class names, not the actual classes,
+                // because AGP has deprecated and moved the Library/Application classes to a different package.
+                // Using strings is more widely compatible.
+                val result = "LibraryVariant" in androidVariantJvmName || "ApplicationVariant" in androidVariantJvmName
+                logger.info {
+                    "[KotlinAdapter isJvmAndroidPublished] ${compilation.name} publishable:$result, androidVariantJvmName:$androidVariantJvmName"
+                }
+                result
             }
         }
+    }
+
+    companion object {
+        private val logger = Logging.getLogger(KotlinAdapter::class.java)
     }
 }
 
@@ -508,7 +526,7 @@ private abstract class KotlinSourceSetDetails @Inject constructor(
      */
     fun isPublishedSourceSet(): Provider<Boolean> =
         allCompilations.map { values ->
-            values.any { it.publishedCompilation }
+            values.any { it.publishedCompilation.get() }
         }
 
     override fun getName(): String = named
@@ -618,3 +636,62 @@ private class KotlinSourceSetDetailsBuilder(
         )
     }
 }
+
+
+/** Try and get [KotlinProjectExtension], or `null` if it's not present. */
+private fun Project.findKotlinExtension(): KotlinProjectExtension? =
+    findExtensionLenient<KotlinProjectExtension>("kotlin")
+
+
+/** Try and get [AndroidComponentsExtension], or `null` if it's not present. */
+private fun Project.findAndroidComponentExtension(): AndroidComponentsExtension<*, *, *>? =
+    findExtensionLenient<AndroidComponentsExtension<*, *, *>>("androidComponents")
+
+
+/**
+ * Store details about a [com.android.build.api.variant.Variant].
+ *
+ * @param[name] [com.android.build.api.variant.Variant.name].
+ * @param[hasPublishedComponent] `true` if any component of the variant is 'published',
+ * i.e. it is an instance of [com.android.build.api.variant.Variant].
+ */
+private data class AndroidVariantInfo(
+    val name: String,
+    val hasPublishedComponent: Boolean,
+)
+
+/**
+ * Collect [AndroidVariantInfo]s for all variants in the project.
+ *
+ * Should only be called when AGP is applied (otherwise the `androidComponents` extension will be missing).
+ */
+private fun collectAndroidVariants(
+    project: Project,
+    androidVariants: SetProperty<AndroidVariantInfo>,
+) {
+    val androidComponents = project.findAndroidComponentExtension()
+
+    androidComponents?.onVariants { variant ->
+        val hasPublishedComponent =
+            variant.components.any { component ->
+                component is com.android.build.api.variant.Variant
+            }
+
+        androidVariants.add(
+            AndroidVariantInfo(
+                name = variant.name,
+                hasPublishedComponent = hasPublishedComponent,
+            )
+        )
+    }
+}
+
+/**
+ * KGP 2.2.10 will start delegating Kotlin compilation to AGP ("Built-in Kotlin").
+ *
+ * [KotlinJvmAndroidCompilation.androidVariant] will be deprecated and nullable.
+ *
+ * See https://youtrack.jetbrains.com/issue/KT-77023
+ */
+private fun KotlinToolingVersion.supportsAgpKotlinBuiltInCompilation(): Boolean =
+    this >= KotlinToolingVersion("2.2.10")
