@@ -57,11 +57,7 @@ internal fun KaSession.getDRIFromConstructor(symbol: KaConstructorSymbol): DRI {
     return containingClassId.createDRI().copy(
         callable = Callable(
             name = containingClassId.shortClassName.asString(),
-            params = symbol.valueParameters.map {
-                val referenceType = getTypeReferenceFrom(it.returnType)
-                if (it.isVararg) Vararg(referenceType)
-                else referenceType
-            }
+            params = symbol.valueParameters.map { getTypeReferenceFrom(it.returnType, isVararg = it.isVararg) }
         )
     )
 }
@@ -77,11 +73,7 @@ internal fun KaSession.getDRIFromVariable(symbol: KaVariableSymbol): DRI {
 
 @OptIn(KaExperimentalApi::class)
 internal fun KaSession.getDRIFromFunction(symbol: KaFunctionSymbol): DRI {
-    val params = symbol.valueParameters.map {
-        val referenceType = getTypeReferenceFrom(it.returnType)
-        if (it.isVararg) Vararg(referenceType)
-        else referenceType
-    }
+    val params = symbol.valueParameters.map { getTypeReferenceFrom(it.returnType, isVararg = it.isVararg) }
     val contextParams = symbol.contextParameters.map { getTypeReferenceFrom(it.returnType) }
     val receiver = symbol.receiverType?.let {
         getTypeReferenceFrom(it)
@@ -160,11 +152,7 @@ private fun KaSession.getDRIFromLocalFunction(symbol: KaFunctionSymbol): DRI {
     return containingSymbolDRI.copy(
         callable = Callable(
             (symbol as? KaNamedSymbol)?.name?.asString() ?: "",
-            params = symbol.valueParameters.map {
-                val referenceType = getTypeReferenceFrom(it.returnType)
-                if (it.isVararg) Vararg(referenceType)
-                else referenceType
-            },
+            params = symbol.valueParameters.map { getTypeReferenceFrom(it.returnType, isVararg = it.isVararg) },
             receiver = symbol.receiverType?.let {
                 getTypeReferenceFrom(it)
             }
