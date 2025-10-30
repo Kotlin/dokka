@@ -98,4 +98,26 @@ class JavadocExternalLocationProviderTest : BaseAbstractTest() {
             locationProvider.resolve(dri)
         )
     }
+
+    @Test
+    fun `#2881 link to Java function with vararg parameter`() {
+        val locationProvider = getTestLocationProvider()
+        val dri = DRI(
+            packageName = "java.nio.file",
+            classNames = "Files",
+            callable = Callable(
+                name = "createDirectories",
+                params = listOf(
+                    Nullable(TypeConstructor("java.nio.file.Path", emptyList())),
+                    Nullable(Vararg(TypeConstructor("java.nio.file.attribute.FileAttribute", emptyList())))
+                ),
+            ),
+            target = PointingToDeclaration
+        )
+
+        assertEquals(
+            "https://docs.oracle.com/javase/8/docs/api/java/nio/file/Files.html#createDirectories-java.nio.file.Path-java.nio.file.attribute.FileAttribute...-",
+            locationProvider.resolve(dri)
+        )
+    }
 }

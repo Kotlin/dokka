@@ -51,7 +51,6 @@ internal fun KaSession.getDRIFromTypeParameter(symbol: KaTypeParameterSymbol): D
     return getDRIFromSymbol(containingSymbol).copy(target = PointingToGenericParameters(index))
 }
 
-@OptIn(KaExperimentalApi::class)
 internal fun KaSession.getDRIFromConstructor(symbol: KaConstructorSymbol): DRI {
     val containingClassId =
         symbol.containingClassId ?: throw IllegalStateException("Can not get class Id due to it is local")
@@ -59,8 +58,9 @@ internal fun KaSession.getDRIFromConstructor(symbol: KaConstructorSymbol): DRI {
         callable = Callable(
             name = containingClassId.shortClassName.asString(),
             params = symbol.valueParameters.map {
-                val parameterType = it.varargArrayType ?: it.returnType
-                getTypeReferenceFrom(parameterType)
+                val referenceType = getTypeReferenceFrom(it.returnType)
+                if (it.isVararg) Vararg(referenceType)
+                else referenceType
             }
         )
     )
@@ -78,8 +78,9 @@ internal fun KaSession.getDRIFromVariable(symbol: KaVariableSymbol): DRI {
 @OptIn(KaExperimentalApi::class)
 internal fun KaSession.getDRIFromFunction(symbol: KaFunctionSymbol): DRI {
     val params = symbol.valueParameters.map {
-        val parameterType = it.varargArrayType ?: it.returnType
-        getTypeReferenceFrom(parameterType)
+        val referenceType = getTypeReferenceFrom(it.returnType)
+        if (it.isVararg) Vararg(referenceType)
+        else referenceType
     }
     val contextParams = symbol.contextParameters.map { getTypeReferenceFrom(it.returnType) }
     val receiver = symbol.receiverType?.let {
@@ -160,8 +161,9 @@ private fun KaSession.getDRIFromLocalFunction(symbol: KaFunctionSymbol): DRI {
         callable = Callable(
             (symbol as? KaNamedSymbol)?.name?.asString() ?: "",
             params = symbol.valueParameters.map {
-                val parameterType = it.varargArrayType ?: it.returnType
-                getTypeReferenceFrom(parameterType)
+                val referenceType = getTypeReferenceFrom(it.returnType)
+                if (it.isVararg) Vararg(referenceType)
+                else referenceType
             },
             receiver = symbol.receiverType?.let {
                 getTypeReferenceFrom(it)
