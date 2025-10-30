@@ -5,7 +5,6 @@
 package org.jetbrains.dokka.analysis.kotlin.descriptors.ide
 
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.KLibService
-import org.jetbrains.kotlin.analysis.decompiler.konan.CachingIdeKlibMetadataLoader
 import org.jetbrains.kotlin.library.metadata.KlibMetadataModuleDescriptorFactory
 import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
@@ -13,7 +12,7 @@ import org.jetbrains.kotlin.descriptors.PackageFragmentProvider
 import org.jetbrains.kotlin.idea.klib.compatibilityInfo
 import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.library.KotlinLibrary
-import org.jetbrains.kotlin.resolve.CompilerDeserializationConfiguration
+import org.jetbrains.kotlin.resolve.KlibCompilerDeserializationConfiguration
 import org.jetbrains.kotlin.storage.StorageManager
 
 internal class IdeKLibService : KLibService {
@@ -43,15 +42,13 @@ internal fun KotlinLibrary.createKlibPackageFragmentProvider(
 ): PackageFragmentProvider? {
     if (!compatibilityInfo.isCompatible) return null
 
-    val packageFragmentNames = CachingIdeKlibMetadataLoader.loadModuleHeader(this).packageFragmentNameList
-
     return metadataModuleDescriptorFactory.createPackageFragmentProvider(
         library = this,
-        packageAccessHandler = CachingIdeKlibMetadataLoader,
-        packageFragmentNames = packageFragmentNames,
+        packageAccessHandler = null,
+        customMetadataProtoLoader = CachingIdeKlibMetadataLoader,
         storageManager = storageManager,
         moduleDescriptor = moduleDescriptor,
-        configuration = CompilerDeserializationConfiguration(languageVersionSettings),
+        configuration = KlibCompilerDeserializationConfiguration(languageVersionSettings),
         compositePackageFragmentAddend = null,
         lookupTracker = lookupTracker
     )

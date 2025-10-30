@@ -14,8 +14,6 @@ import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.StandardFileSystems
-import com.intellij.psi.PsiNameHelper
-import com.intellij.psi.impl.PsiNameHelperImpl
 import com.intellij.psi.impl.source.javadoc.JavadocManagerImpl
 import com.intellij.psi.javadoc.CustomJavadocTagProvider
 import com.intellij.psi.javadoc.JavadocManager
@@ -27,6 +25,7 @@ import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.AnalysisContextC
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.KLibService
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.MockApplicationHack
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration.resolve.*
+import org.jetbrains.kotlin.K1Deprecation
 import org.jetbrains.kotlin.analyzer.*
 import org.jetbrains.kotlin.analyzer.common.CommonAnalysisParameters
 import org.jetbrains.kotlin.analyzer.common.CommonDependenciesContainer
@@ -112,6 +111,7 @@ public class AnalysisEnvironment(
             Platform.js, Platform.wasm -> EnvironmentConfigFiles.JS_CONFIG_FILES
         }
 
+        @OptIn(K1Deprecation::class)
         val environment = KotlinCoreEnvironment.createForProduction(this, configuration, configFiles)
         val projectComponentManager = environment.project as MockComponentManager
 
@@ -137,11 +137,6 @@ public class AnalysisEnvironment(
         projectComponentManager.registerService(
             JavadocManager::class.java,
             JavadocManagerImpl(environment.project)
-        )
-
-        projectComponentManager.registerService(
-            PsiNameHelper::class.java,
-            PsiNameHelperImpl(environment.project)
         )
 
         projectComponentManager.registerService(
@@ -302,7 +297,9 @@ public class AnalysisEnvironment(
 
     @OptIn(ExperimentalStdlibApi::class)
     private fun resolveKotlinLibraries(): Map<AbsolutePathString, KotlinLibrary> {
-        return if (analysisPlatform == Platform.jvm) emptyMap() else buildMap {
+        return if (analysisPlatform == Platform.jvm) emptyMap() else {
+            val result = mutableMapOf<AbsolutePathString, KotlinLibrary>()
+
             classpath
                 .filter { it.isDirectory || it.extension == KLIB_FILE_EXTENSION }
                 .forEach { libraryFile ->
@@ -313,7 +310,7 @@ public class AnalysisEnvironment(
                         )
                         if (kLibService.isAnalysisCompatible(kotlinLibrary)) {
                             // exists, is KLIB, has compatible format
-                            put(
+                            result.put(
                                 libraryFile.absolutePath,
                                 kotlinLibrary
                             )
@@ -323,6 +320,7 @@ public class AnalysisEnvironment(
                             .report(CompilerMessageSeverity.WARNING, "Can not resolve KLIB. " + e.message)
                     }
                 }
+            result
         }
     }
 
