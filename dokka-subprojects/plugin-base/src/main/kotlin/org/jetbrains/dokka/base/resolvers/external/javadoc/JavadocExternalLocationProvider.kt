@@ -68,6 +68,7 @@ public open class JavadocExternalLocationProvider(
                     (if (params.isNotEmpty()) "[${params.joinToString(",") { it.toJavadocURL() }}]" else "")
             is TypeParam -> toString()
             is RecursiveType -> "^".repeat(rank + 1)
+            is Vararg -> "${elementType.toJavadocURL()}..."
         }
     }
 }
