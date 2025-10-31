@@ -13,9 +13,11 @@ import org.gradle.testkit.runner.TaskOutcome.*
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.it.gradle.TestConstants
 import org.jetbrains.dokka.it.gradle.assertNoUnknownClassErrorsInHtml
+import org.jetbrains.dokka.it.gradle.examples.ExampleProjectsTest.TestCase.Companion.exampleProjectFilter
 import org.jetbrains.dokka.it.gradle.loadConfigurationCacheReportData
 import org.jetbrains.dokka.it.gradle.shouldHaveOutcome
 import org.jetbrains.dokka.it.gradle.shouldHaveTask
+import org.jetbrains.dokka.it.optionalSystemProperty
 import org.jetbrains.dokka.it.systemProperty
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Named.named
@@ -81,6 +83,9 @@ class ExampleProjectsTest {
             /** Base directory that contains all expected output data for the Gradle example projects. */
             private val expectedDataDir by systemProperty(::Path)
 
+            private val dokkaVersionOverride: String? by optionalSystemProperty()
+            private val dokkaVersion: String by systemProperty { dokkaVersionOverride ?: it }
+
             /** Create a new [GradleProjectTest] copied from the source project in [sourceProjectDir]. */
             private fun initProject(
                 sourceProjectDir: Path,
@@ -89,7 +94,33 @@ class ExampleProjectsTest {
                 return GradleProjectTest(destinationDir).apply {
                     sourceProjectDir.copyToRecursively(projectDir, overwrite = true, followLinks = false)
                     updateSettingsRepositories()
+                    updateDokkaVersion()
                 }
+            }
+
+            private fun GradleProjectTest.updateDokkaVersion() {
+                projectDir.walk()
+                    .filter { it.name == "build.gradle.kts" }
+                    .forEach { buildFile ->
+                        buildFile.writeText(
+                            buildFile.readText()
+                                .lines()
+                                .joinToString("\n", postfix = "\n") { line ->
+                                    when {
+                                        line.contains("""id("org.jetbrains.dokka") version """) ->
+                                            """id("org.jetbrains.dokka") version "$dokkaVersion""""
+
+                                        line.contains("""id("org.jetbrains.dokka-javadoc") version """) ->
+                                            """id("org.jetbrains.dokka-javadoc") version "$dokkaVersion""""
+
+                                        line.contains("""val dokkaVersion = providers.gradleProperty("dokkaVersion").getOrElse(""") ->
+                                            """val dokkaVersion = providers.gradleProperty("dokkaVersion").getOrElse("$dokkaVersion")"""
+
+                                        else -> line
+                                    }
+                                }
+                        )
+                    }
             }
         }
     }
@@ -170,7 +201,7 @@ class ExampleProjectsTest {
              *
              * This property is set in the Gradle build config.
              */
-            private val exampleProjectFilter by org.jetbrains.dokka.it.optionalSystemProperty()
+            private val exampleProjectFilter by optionalSystemProperty()
         }
     }
 

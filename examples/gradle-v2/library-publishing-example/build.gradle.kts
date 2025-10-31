@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "2.2.0"
-    id("org.jetbrains.dokka") version "2.1.0-SNAPSHOT"
-    id("org.jetbrains.dokka-javadoc") version "2.1.0-SNAPSHOT"
+    id("org.jetbrains.dokka") version "2.1.0"
+    id("org.jetbrains.dokka-javadoc") version "2.1.0"
     `maven-publish`
 }
 
@@ -11,13 +11,13 @@ group = "demo"
 
 val dokkaJavadocJar by tasks.registering(Jar::class) {
     description = "A Javadoc JAR containing Dokka Javadoc"
-    from(tasks.dokkaGeneratePublicationJavadoc.flatMap { it.outputDirectory })
+    from(tasks.dokkaGeneratePublicationJavadoc)
     archiveClassifier.set("javadoc")
 }
 
 val dokkaHtmlJar by tasks.registering(Jar::class) {
     description = "A HTML Documentation JAR containing Dokka HTML"
-    from(tasks.dokkaGeneratePublicationHtml.flatMap { it.outputDirectory })
+    from(tasks.dokkaGeneratePublicationHtml)
     archiveClassifier.set("html-doc")
 }
 
