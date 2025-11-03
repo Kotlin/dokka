@@ -14,6 +14,7 @@ import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.it.gradle.TestConstants
 import org.jetbrains.dokka.it.gradle.assertNoUnknownClassErrorsInHtml
 import org.jetbrains.dokka.it.gradle.examples.ExampleProjectsTest.TestCase.Companion.exampleProjectFilter
+import org.jetbrains.dokka.it.gradle.examples.ExampleProjectsTest.TestCaseProvider.Companion.dokkaVersion
 import org.jetbrains.dokka.it.gradle.loadConfigurationCacheReportData
 import org.jetbrains.dokka.it.gradle.shouldHaveOutcome
 import org.jetbrains.dokka.it.gradle.shouldHaveTask
@@ -104,24 +105,25 @@ class ExampleProjectsTest {
                     .forEach { buildFile ->
                         buildFile.writeText(
                             buildFile.readText()
-                                .lines()
-                                .joinToString("\n", postfix = "\n") { line ->
-                                    when {
-                                        line.contains("""id("org.jetbrains.dokka") version """) ->
-                                            """id("org.jetbrains.dokka") version "$dokkaVersion""""
-
-                                        line.contains("""id("org.jetbrains.dokka-javadoc") version """) ->
-                                            """id("org.jetbrains.dokka-javadoc") version "$dokkaVersion""""
-
-                                        line.contains("""val dokkaVersion = providers.gradleProperty("dokkaVersion").getOrElse(""") ->
-                                            """val dokkaVersion = providers.gradleProperty("dokkaVersion").getOrElse("$dokkaVersion")"""
-
-                                        else -> line
-                                    }
-                                }
+                                .replaceDokkaPluginsVersion()
+                                .replaceDokkaDependencyCoords()
                         )
                     }
             }
+
+            /** Replace the version of any Dokka plugin with [dokkaVersion]. */
+            private fun String.replaceDokkaPluginsVersion(): String =
+                replace(
+                    """(id\("org\.jetbrains\.dokka[^"]*"\) version ")[^"]+(")""".toRegex(),
+                    """$1${dokkaVersion}$2""",
+                )
+
+            /** Replace the version of any Dokka dependency coord with [dokkaVersion]. */
+            private fun String.replaceDokkaDependencyCoords(): String =
+                replace(
+                    """("org\.jetbrains\.dokka:[^:]*:)[^"]+(")""".toRegex(),
+                    """$1${dokkaVersion}$2""",
+                )
         }
     }
 
