@@ -14,7 +14,7 @@ DOKKA_REPO_PATH="$SCRIPT_PATH/../"
 TEST_PROJECT_PATH="./examples/gradle/dokka-gradle-example"
 
 # New version to be published
-NEW_VERSION="2.0.0-my-fix-SNAPSHOT"
+NEW_VERSION="2.1.0-my-fix-SNAPSHOT"
 
 # Port to view results
 PORT=8001

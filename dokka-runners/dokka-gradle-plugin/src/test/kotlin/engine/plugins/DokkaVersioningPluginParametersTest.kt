@@ -49,6 +49,9 @@ class DokkaVersioningPluginParametersTest : FunSpec({
         test("expect olderVersions is empty") {
             params.olderVersions.shouldBeEmpty()
         }
+        test("expect olderVersionsDirName is 'older'") {
+            params.olderVersionsDirName.orNull shouldBe "older"
+        }
         test("expect renderVersionsNavigationOnAllPages is true") {
             params.renderVersionsNavigationOnAllPages.orNull shouldBe true
         }
@@ -57,6 +60,7 @@ class DokkaVersioningPluginParametersTest : FunSpec({
             params.jsonEncode() shouldEqualJson /* language=JSON */ """
                 |{
                 |  "olderVersions": [],
+                |  "olderVersionsDirName": "older",
                 |  "renderVersionsNavigationOnAllPages": true
                 |}
             """.trimMargin()
@@ -70,6 +74,7 @@ class DokkaVersioningPluginParametersTest : FunSpec({
             versionsOrdering.set(listOf("a.b.c", "x.y.z", "1.2.3"))
             olderVersionsDir.set(project.layout.buildDirectory.dir("older-versions-dir"))
             olderVersions.from(project.layout.buildDirectory.dir("older-versions"))
+            olderVersionsDirName.set("versions")
             renderVersionsNavigationOnAllPages.set(false)
         }
 
@@ -87,6 +92,7 @@ class DokkaVersioningPluginParametersTest : FunSpec({
                 |  "olderVersions": [
                 |    "${buildDir}/older-versions"
                 |  ],
+                |  "olderVersionsDirName": "versions",
                 |  "renderVersionsNavigationOnAllPages": false
                 |}
             """.trimMargin()
@@ -107,6 +113,7 @@ class DokkaVersioningPluginParametersTest : FunSpec({
             params.jsonEncode() shouldEqualJson /* language=JSON */ """
                 |{
                 |  "olderVersions": [],
+                |  "olderVersionsDirName": "older",
                 |  "renderVersionsNavigationOnAllPages": true
                 |}
             """.trimMargin()

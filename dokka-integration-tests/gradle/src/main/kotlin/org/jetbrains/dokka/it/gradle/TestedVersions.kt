@@ -14,7 +14,7 @@ open class AllSupportedTestedVersionsArgumentsProvider : TestedVersionsArguments
 
 object TestedVersions {
 
-    val LATEST = BuildVersions("8.14.2", "2.2.0")
+    val LATEST = BuildVersions("8.14.3", "2.2.20")
 
     /**
      * All supported Gradle/Kotlin versions, including [LATEST]
@@ -24,10 +24,7 @@ object TestedVersions {
     val ALL_SUPPORTED =
         BuildVersions.permutations(
             gradleVersions = listOf("7.6.3"),
-            kotlinVersions = listOf("2.1.21", "2.0.21", "1.9.23", "1.8.20", "1.7.20", "1.6.21", "1.5.31"),
-        ) + BuildVersions.permutations(
-            gradleVersions = listOf(*ifExhaustive("7.0", "6.1.1")),
-            kotlinVersions = listOf(*ifExhaustive("1.8.0", "1.7.0", "1.6.0", "1.5.0"))
+            kotlinVersions = listOf("2.1.21", "2.0.21", "1.9.25"),
         ) + LATEST
 
     /**
@@ -44,28 +41,17 @@ object TestedVersions {
             kotlinVersions = listOf("2.2.0", "2.1.21", "2.0.21"),
             androidGradlePluginVersions = listOf("8.3.0")
         ) + BuildVersions.permutations(
-            gradleVersions = listOf("7.6.3", *ifExhaustive("7.0")),
-            kotlinVersions = listOf("1.7.20", "1.6.21", "1.5.31", "1.4.32"),
-            androidGradlePluginVersions = listOf("7.2.0")
+            gradleVersions = listOf("7.6.3"),
+            kotlinVersions = listOf("1.9.25"),
+            androidGradlePluginVersions = listOf("7.4.2")
         )
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin-wrappers/kotlin-react
     val KT_REACT_WRAPPER_MAPPING = mapOf(
-        "1.5.0" to "17.0.2-pre.204-kotlin-1.5.0",
-        "1.6.0" to "17.0.2-pre.280-kotlin-1.6.0",
-        "1.5.31" to "17.0.2-pre.265-kotlin-1.5.31",
-        "1.6.21" to "18.0.0-pre.332-kotlin-1.6.21",
-        "1.7.20" to "18.2.0-pre.391",
-        "1.8.0" to "18.2.0-pre.467",
-        "1.8.10" to "18.2.0-pre.490",
-        "1.8.20" to "18.2.0-pre.546",
-        "1.9.0" to "18.2.0-pre.597",
-        "1.9.10" to "18.2.0-pre.597",
-        "1.9.23" to "18.2.0-pre.682",
-        "2.0.0" to "18.2.0-pre.726",
+        "1.9.25" to "18.2.0-pre.682",
         "2.0.21" to "18.3.1-pre.758",
         "2.1.21" to "2025.6.2-19.1.0",
-        "2.2.0" to "2025.6.10-19.1.0",
+        "2.2.20" to "2025.10.3-19.2.0",
     )
 }
 

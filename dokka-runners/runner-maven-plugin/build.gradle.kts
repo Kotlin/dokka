@@ -4,6 +4,8 @@
 
 import dokkabuild.overridePublicationArtifactId
 import dokkabuild.tasks.MvnExec
+import org.gradle.api.attributes.Bundling.BUNDLING_ATTRIBUTE
+import org.gradle.api.attributes.Bundling.SHADOWED
 
 plugins {
     id("dokkabuild.kotlin-jvm")
@@ -16,7 +18,14 @@ overridePublicationArtifactId("dokka-maven-plugin")
 
 dependencies {
     // this version is required, so that it will be available in the POM of plugin
+    implementation("org.jetbrains.dokka:analysis-kotlin-symbols:$version") {
+        attributes {
+            attribute(BUNDLING_ATTRIBUTE, project.objects.named(SHADOWED))
+        }
+    }
     implementation("org.jetbrains.dokka:dokka-core:$version")
+    // at runtime, the stdlib from analysis-kotlin-symbols should be used
+    compileOnly(libs.kotlin.stdlib)
 
     implementation(libs.apacheMaven.core)
     implementation(libs.apacheMaven.pluginApi)

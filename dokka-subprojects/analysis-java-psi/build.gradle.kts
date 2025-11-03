@@ -16,7 +16,7 @@ dependencies {
     implementation(libs.intellij.java.psi.impl) {
         exclude("org.jetbrains.intellij.deps", "log4j")
     }
-
+    implementation(libs.intellij.util)
     implementation(projects.dokkaSubprojects.analysisMarkdownJb)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.jsoup)

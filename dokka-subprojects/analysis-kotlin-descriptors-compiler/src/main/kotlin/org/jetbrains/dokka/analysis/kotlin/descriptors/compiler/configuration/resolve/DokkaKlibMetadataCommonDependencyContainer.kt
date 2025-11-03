@@ -16,13 +16,15 @@ import org.jetbrains.kotlin.library.metadata.DeserializedKlibModuleOrigin
 import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.library.metadata.KlibMetadataFactories
 import org.jetbrains.kotlin.library.KotlinLibrary
+import org.jetbrains.kotlin.library.components.metadata
 import org.jetbrains.kotlin.library.metadata.NullFlexibleTypeDeserializer
 import org.jetbrains.kotlin.library.metadata.parseModuleHeader
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.resolve.CompilerDeserializationConfiguration
+import org.jetbrains.kotlin.resolve.KlibCompilerDeserializationConfiguration
 import org.jetbrains.kotlin.library.metadata.impl.KlibMetadataModuleDescriptorFactoryImpl
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import org.jetbrains.kotlin.storage.StorageManager
+import org.jetbrains.kotlin.utils.keysToMap
 
 /**
  * Adapted from org.jetbrains.kotlin.cli.metadata.KlibMetadataDependencyContainer
@@ -43,8 +45,8 @@ internal class DokkaKlibMetadataCommonDependencyContainer(
     private val mutableDependenciesForAllModules = mutableListOf<ModuleInfo>()
 
     private val moduleDescriptorsForKotlinLibraries: Map<KotlinLibrary, ModuleDescriptorImpl> =
-        kotlinLibraries.associateBy({ it }) { library ->
-            val moduleHeader = parseModuleHeader(library.moduleHeaderData)
+        kotlinLibraries.keysToMap { library ->
+            val moduleHeader = parseModuleHeader(library.metadata.moduleHeaderData)
             val moduleName = Name.special(moduleHeader.moduleName)
             val moduleOrigin = DeserializedKlibModuleOrigin(library)
             MetadataFactories.DefaultDescriptorFactory.createDescriptor(
@@ -116,15 +118,14 @@ internal class DokkaKlibMetadataCommonDependencyContainer(
         val languageVersionSettings = configuration.languageVersionSettings
 
         val libraryModuleDescriptor = moduleDescriptorsForKotlinLibraries.getValue(library)
-        val packageFragmentNames = parseModuleHeader(library.moduleHeaderData).packageFragmentNameList
 
         return klibMetadataModuleDescriptorFactory.createPackageFragmentProvider(
-            library,
+            library = library,
             packageAccessHandler = null,
-            packageFragmentNames = packageFragmentNames,
+            customMetadataProtoLoader = null,
             storageManager = LockBasedStorageManager("KlibMetadataPackageFragmentProvider"),
             moduleDescriptor = libraryModuleDescriptor,
-            configuration = CompilerDeserializationConfiguration(languageVersionSettings),
+            configuration = KlibCompilerDeserializationConfiguration(languageVersionSettings),
             compositePackageFragmentAddend = null,
             lookupTracker = LookupTracker.DO_NOTHING
         ).also {

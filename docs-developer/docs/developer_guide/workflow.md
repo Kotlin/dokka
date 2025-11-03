@@ -43,7 +43,7 @@ will review API changes thoroughly, so please make sure it's intentional and rat
 Having built Dokka locally, you can publish it to `mavenLocal()`. This will allow you to test your changes in another
 project as well as debug code remotely.
 
-1. Publish a custom version of Dokka to Maven Local: `./gradlew publishToMavenLocal -Pversion=2.0.0-my-fix-SNAPSHOT`. 
+1. Publish a custom version of Dokka to Maven Local: `./gradlew publishToMavenLocal -Pversion=2.1.0-my-fix-SNAPSHOT`. 
    This version will be propagated to plugins that reside inside Dokka's project (`mathjax`, `kotlin-as-java`, etc),
    and its artifacts should appear in `~/.m2`
 2. In the project you want to generate documentation for or debug on, add maven local as a plugin/dependency
@@ -56,7 +56,7 @@ repositories {
 3. Update your Dokka dependency to the version you've just published:
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "2.0.0-my-fix-SNAPSHOT"
+    id("org.jetbrains.dokka") version "2.1.0-my-fix-SNAPSHOT"
 }
 ```
 
@@ -111,10 +111,17 @@ Integration tests require a significant amount of available RAM (~20-30GB), take
 environment configuration to run. For these reasons, it's not expected that you run all integration tests locally
 as part of the everyday development process, they will be run on CI once you submit a PR.
 
-However, if you need to run all integration tests locally, you can use the `integrationTest` task:
+Integration tests are executed by default when running `check`, `test` or `build` tasks.
+It's possible to skip those by passing `-Porg.jetbrains.dokka.integration_test.skip=true` to the Gradle command, like:
 
-```shell
-./gradlew integrationTest
+```bash
+./gradlew check -Porg.jetbrains.dokka.integration_test.skip=true
+```
+
+Integration tests can be run explicitly by running `check` task in `:dokka-integration-tests` composite build:
+
+```bash
+./gradlew :dokka-integration-tests:check
 ```
 
 If you need to run a specific test locally, you can run it from your IDE or by calling the corresponding Gradle

@@ -5,6 +5,17 @@ Below you can find simple instructions to help you get started with Dokka.
 <tabs group="build-script">
 <tab title="Gradle Kotlin DSL" group-key="kotlin">
 
+> These instructions reflect Dokka Gradle plugin v1 configuration and tasks. Starting from Dokka 2.0.0, several configuration options, Gradle tasks, and steps to generate your documentation have been updated, including:
+>
+> * [Adjust configuration options](dokka-migration.md#adjust-configuration-options)
+> * [Work with multi-module projects](dokka-migration.md#share-dokka-configuration-across-modules)
+> * [Generate documentation with the updated tasks](dokka-migration.md#generate-documentation-with-the-updated-task)
+> * [Specify an output directory](dokka-migration.md#output-directory)
+>
+> For more details and the full list of changes in Dokka Gradle Plugin v2, see the [Migration guide](dokka-migration.md).
+>
+{style="note"}
+
 Apply the Gradle plugin for Dokka in the root build script of your project:
 
 ```kotlin
@@ -93,13 +104,3 @@ To learn more about using Dokka with Maven, see [Maven](dokka-maven.md).
 
 </tab>
 </tabs>
-
-> In Dokka 2.0.0, several steps and tasks for getting started have been updated, including:
->
-> * [Configure multi-project builds](dokka-migration.md#share-dokka-configuration-across-modules)
-> * [Generate documentation with the updated tasks](dokka-migration.md#generate-documentation-with-the-updated-task)
-> * [Specify an output directory](dokka-migration.md#output-directory)
-> 
-> For more details and the full list of changes, see the [Migration guide](dokka-migration.md).
-> 
-{style="note"}

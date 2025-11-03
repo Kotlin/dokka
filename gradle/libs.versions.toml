@@ -21,14 +21,14 @@ ktor = "2.3.11"
 javaDiffUtils = "4.12"
 
 ## Analysis
-kotlin-compiler = "2.2.0-dev-8822"
-kotlin-compiler-k2 = "2.3.0-dev-4019"
+kotlin-compiler = "2.3.20-dev-1838"
+kotlin-compiler-k2 = "2.3.20-dev-1838"
 
 # MUST match the version of the intellij platform used in the kotlin compiler,
 # otherwise this will lead to different versions of psi API and implementations
 # on the classpath and will fail with hard to debug problems in runtime.
 # See: https://github.com/JetBrains/kotlin/blob/79b4def109dc73f882ec8a291a69d0197ad55c58/gradle/versions.properties#L1
-intellij-platform = "241.19416.19"
+intellij-platform = "251.27812.49"
 
 ## HTML
 jsoup = "1.16.1"
@@ -62,9 +62,9 @@ gradlePlugin-gradleNode = "7.1.0"
 
 ## Gradle Develocity
 # versions should be kept in sync with `build-settings-logic/settings.gradle.kts`
-gradlePlugin-gradle-customUserData = "2.0.2"
-gradlePlugin-gradle-develocity = "3.18.2"
-gradlePlugin-gradle-foojayToolchains = "0.7.0"
+gradlePlugin-gradle-customUserData = "2.3"
+gradlePlugin-gradle-develocity = "3.19"
+gradlePlugin-gradle-foojayToolchains = "0.10.0"
 
 ## Test
 junit = "5.9.3"
@@ -76,6 +76,7 @@ eclipse-jgit = "5.13.3.202401111512-r" # jgit 6.X requires Java 11 to run
 # There should be no version in `kotlin-*` dependencies,
 # so that the version will be automatically provided by `coreLibrariesVersion` used in KGP
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5" }
 
@@ -120,6 +121,7 @@ kotlin-symbol-light-classes = { module = "org.jetbrains.kotlin:symbol-light-clas
 #### Java analysis ####
 intellij-java-psi-api = { module = "com.jetbrains.intellij.java:java-psi", version.ref = "intellij-platform" }
 intellij-java-psi-impl = { module = "com.jetbrains.intellij.java:java-psi-impl", version.ref = "intellij-platform" }
+intellij-util= { module = "com.jetbrains.intellij.platform:util", version.ref = "intellij-platform" }
 
 #### HTML ####
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }

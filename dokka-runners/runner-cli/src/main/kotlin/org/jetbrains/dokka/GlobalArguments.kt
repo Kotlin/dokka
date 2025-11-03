@@ -117,7 +117,7 @@ public class GlobalArguments(args: Array<String>) : DokkaConfiguration {
 
     public val loggingLevel: LoggingLevel by parser.option(
         ArgType.Choice(toVariant = {
-            when (it.toUpperCase().trim()) {
+            when (it.uppercase().trim()) {
                 "DEBUG", "" -> LoggingLevel.DEBUG
                 "PROGRESS" -> LoggingLevel.PROGRESS
                 "INFO" -> LoggingLevel.INFO

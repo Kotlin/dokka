@@ -5,19 +5,20 @@ package org.jetbrains.dokka.it.gradle.examples
 
 import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
-import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.paths.shouldBeADirectory
-import io.kotest.matchers.sequences.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import io.kotest.matchers.string.shouldNotContain
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.*
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.it.gradle.TestConstants
+import org.jetbrains.dokka.it.gradle.assertNoUnknownClassErrorsInHtml
+import org.jetbrains.dokka.it.gradle.examples.ExampleProjectsTest.TestCase.Companion.exampleProjectFilter
+import org.jetbrains.dokka.it.gradle.examples.ExampleProjectsTest.TestCaseProvider.Companion.dokkaVersion
 import org.jetbrains.dokka.it.gradle.loadConfigurationCacheReportData
 import org.jetbrains.dokka.it.gradle.shouldHaveOutcome
 import org.jetbrains.dokka.it.gradle.shouldHaveTask
+import org.jetbrains.dokka.it.optionalSystemProperty
 import org.jetbrains.dokka.it.systemProperty
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Named.named
@@ -83,6 +84,9 @@ class ExampleProjectsTest {
             /** Base directory that contains all expected output data for the Gradle example projects. */
             private val expectedDataDir by systemProperty(::Path)
 
+            private val dokkaVersionOverride: String? by optionalSystemProperty()
+            private val dokkaVersion: String by systemProperty { dokkaVersionOverride ?: it }
+
             /** Create a new [GradleProjectTest] copied from the source project in [sourceProjectDir]. */
             private fun initProject(
                 sourceProjectDir: Path,
@@ -91,8 +95,35 @@ class ExampleProjectsTest {
                 return GradleProjectTest(destinationDir).apply {
                     sourceProjectDir.copyToRecursively(projectDir, overwrite = true, followLinks = false)
                     updateSettingsRepositories()
+                    updateDokkaVersion()
                 }
             }
+
+            private fun GradleProjectTest.updateDokkaVersion() {
+                projectDir.walk()
+                    .filter { it.name == "build.gradle.kts" }
+                    .forEach { buildFile ->
+                        buildFile.writeText(
+                            buildFile.readText()
+                                .replaceDokkaPluginsVersion()
+                                .replaceDokkaDependencyCoords()
+                        )
+                    }
+            }
+
+            /** Replace the version of any Dokka plugin with [dokkaVersion]. */
+            private fun String.replaceDokkaPluginsVersion(): String =
+                replace(
+                    """(id\("org\.jetbrains\.dokka[-\w]*"\) version ").+(")""".toRegex(),
+                    """$1${dokkaVersion}$2""",
+                )
+
+            /** Replace the version of any Dokka dependency coord with [dokkaVersion]. */
+            private fun String.replaceDokkaDependencyCoords(): String =
+                replace(
+                    """(\("org\.jetbrains\.dokka:[-\w]+:).+("\))""".toRegex(),
+                    """$1${dokkaVersion}$2""",
+                )
         }
     }
 
@@ -172,7 +203,7 @@ class ExampleProjectsTest {
              *
              * This property is set in the Gradle build config.
              */
-            private val exampleProjectFilter by org.jetbrains.dokka.it.optionalSystemProperty()
+            private val exampleProjectFilter by optionalSystemProperty()
         }
     }
 
@@ -226,7 +257,7 @@ class ExampleProjectsTest {
             filesExcludedFromContentCheck = TestConstants.DokkaHtmlAssetsFiles,
         )
 
-        verifyNoUnknownClassErrorsInHtml(
+        assertNoUnknownClassErrorsInHtml(
             dokkaOutputDir = testCase.dokkaOutputDir.resolve("html")
         )
     }
@@ -284,27 +315,6 @@ class ExampleProjectsTest {
                 }
             }
     }
-
-    private fun verifyNoUnknownClassErrorsInHtml(
-        dokkaOutputDir: Path,
-    ) {
-        withClue("expect no 'unknown class' message in output files") {
-            val htmlFiles = dokkaOutputDir.walk()
-                .filter { it.isRegularFile() && it.extension == "html" }
-
-            htmlFiles.shouldNotBeEmpty()
-
-            htmlFiles.forEach { file ->
-                val relativePath = file.relativeTo(dokkaOutputDir)
-                withClue("$relativePath should not contain Error class: unknown class") {
-                    file.useLines { lines ->
-                        lines.shouldForAll { line -> line.shouldNotContain("Error class: unknown class") }
-                    }
-                }
-            }
-        }
-    }
-
 
     @ParameterizedTest
     @ArgumentsSource(TestCaseProvider::class)

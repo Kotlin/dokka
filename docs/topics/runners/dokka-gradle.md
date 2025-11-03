@@ -1,5 +1,17 @@
 [//]: # (title: Gradle)
 
+> These instructions reflect Dokka Gradle plugin v1 configuration and tasks. Starting from Dokka 2.0.0, several configuration options, Gradle tasks, and steps to generate your documentation have been updated, including:
+>
+> * [Adjust configuration options](dokka-migration.md#adjust-configuration-options)
+> * [Work with multi-module projects](dokka-migration.md#share-dokka-configuration-across-modules)
+> * [Generate documentation with the updated tasks](dokka-migration.md#generate-documentation-with-the-updated-task)
+> * [Specify an output directory](dokka-migration.md#output-directory)
+>
+> For more details and the full list of changes in Dokka Gradle Plugin v2, see the [Migration guide](dokka-migration.md).
+>
+{style="note"}
+
+
 To generate documentation for a Gradle-based project, you can use the 
 [Gradle plugin for Dokka](https://plugins.gradle.org/plugin/org.jetbrains.dokka).
 

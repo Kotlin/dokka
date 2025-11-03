@@ -205,8 +205,7 @@ internal fun PageContentBuilder.DocumentableContentBuilder.throwsSectionContent(
                 row(sourceSets = setOf(sourceSet)) {
                     group(styles = mainStyles + ContentStyle.RowTitle) {
                         throws.exceptionAddress?.let {
-                            val className = it.takeIf { it.target is PointingToDeclaration }?.classNames
-                            link(text = className ?: throwsName, address = it)
+                            link(text = throwsName, address = it)
                         } ?: text(throwsName)
                     }
                     if (throws.isNotEmpty()) {

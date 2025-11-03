@@ -324,7 +324,7 @@ private class KotlinCompilationDetailsBuilder(
             dependentSourceSetNames = dependentSourceSetNames.toSet(),
             compilationClasspath = compilationClasspath,
             defaultSourceSetName = compilation.defaultSourceSet.name,
-            isMetadata = compilation is KotlinMetadataTarget,
+            isMetadata = compilation.target is KotlinMetadataTarget,
         )
     }
 

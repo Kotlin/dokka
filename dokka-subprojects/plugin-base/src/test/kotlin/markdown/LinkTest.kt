@@ -930,11 +930,11 @@ class LinkTest : BaseAbstractTest() {
             |interface MyListWithNumber : List<Number>
             |
             |/**
-            | * 1 [List.foo] is resolved
-            | * 2 [MutableList.foo] is unresolved
-            | * 3 [MyListWithT.foo] is unresolved
-            | * 4 [MyListWithTNumberBound.foo] is unresolved in K2
-            | * 5 [MyListWithNumber.foo] is unresolved in K2
+            | * 1 [List.foo] 
+            | * 2 [MutableList.foo] is resolved only in K2, but unresolved in K1
+            | * 3 [MyListWithT.foo] is resolved only in K2, but unresolved in K1
+            | * 4 [MyListWithTNumberBound.foo]
+            | * 5 [MyListWithNumber.foo] 
             | */
             |fun usage() {}
         """.trimMargin(),
@@ -952,9 +952,65 @@ class LinkTest : BaseAbstractTest() {
                 )
                 assertEquals(
                     listOf(
-                        "List.foo" to fooDRI
+                        "List.foo" to fooDRI,
+                        "MutableList.foo" to fooDRI,
+                        "MyListWithT.foo" to fooDRI,
+                        "MyListWithTNumberBound.foo" to fooDRI,
+                        "MyListWithNumber.foo" to fooDRI,
                     ), module.getAllLinkDRIFrom("usage")
                 )
+            }
+        }
+    }
+
+    // based on https://github.com/Kotlin/KEEP/blob/main/proposals/KEEP-0385-kdoc-links-to-extensions.md
+    @Test
+    @OnlySymbols("#3555")
+    fun `links to extensions with type parameters should be resolved correctly`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |/**
+            | * all should be resolved to extensions on Iterable
+            | * - [Iterable.map]
+            | * - [Iterable.flatMap]
+            | * - [Iterable.flatten]
+            | * - [Iterable.min]
+            | * - [List.map]
+            | * - [List.flatMap]
+            | * - [List.flatten]
+            | * - [List.min]
+            | */
+            |fun usage() {}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val links = module.getAllLinkDRIFrom("usage").toMap()
+
+                fun assertResolvesTo(link: String, functionName: String) {
+                    val dri = links.getValue(link)
+
+                    // we do assert only required properties, ignoring type and callable parameters
+                    assertEquals("kotlin.collections", dri.packageName)
+                    assertEquals(null, dri.classNames)
+                    assertEquals(functionName, dri.callable?.name)
+                    assertEquals("kotlin.collections.Iterable", (dri.callable?.receiver as? TypeConstructor)?.fullyQualifiedName)
+                    assertEquals(PointingToDeclaration, dri.target)
+                    assertEquals(null, dri.extra)
+                }
+
+                // there should be all 8 resolved links
+                assertEquals(links.size, 8)
+                assertResolvesTo("Iterable.map", "map")
+                assertResolvesTo("Iterable.flatMap", "flatMap")
+                assertResolvesTo("Iterable.flatten", "flatten")
+                assertResolvesTo("Iterable.min", "min")
+                assertResolvesTo("List.map", "map")
+                assertResolvesTo("List.flatMap", "flatMap")
+                assertResolvesTo("List.flatten", "flatten")
+                assertResolvesTo("List.min", "min")
             }
         }
     }
@@ -1126,7 +1182,7 @@ class LinkTest : BaseAbstractTest() {
             |/src/main/kotlin/Testing.kt
             |/**
             |* Text
-            |* [some 
+            |* [some
             |* link](https://www.google.com/)
             |*
             |* Text:
@@ -1205,6 +1261,34 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("#3356")
+    fun `KDoc Link to a class with quoted name should be resolved`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |/**
+            |* Class: [Quoted Class Name] is unresolved in K2, but resolved in K1
+            |* [`Quoted Class Name`] is resolved in K2, but unresolved in K1 
+            |* [example.`Quoted Class Name`] is resolved in K2 and K1
+            |*/
+            |class `Quoted Class Name`
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                assertEquals(
+                    listOf(
+                        "`Quoted Class Name`" to DRI("example", "Quoted Class Name"),
+                        "example.`Quoted Class Name`" to DRI("example", "Quoted Class Name"),
+                    ),
+                    module.getAllLinkDRIFrom("Quoted Class Name")
+                )
+            }
+        }
+    }
+
+    @Test
     fun `should resolve KDoc links in package documentation`() {
         val configuration = dokkaConfiguration {
             sourceSets {
@@ -1253,6 +1337,133 @@ class LinkTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    fun `should resolve KDoc links in the second line of @param tag`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |interface Call
+            |/**
+            | * @param text some description with reference.
+            | *     But with a few lines and indent [Call]
+            | */
+            |fun protocol(text: String) {}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                assertEquals(
+                    listOf(
+                        "Call" to DRI("example", "Call"),
+                    ),
+                    module.getAllLinkDRIFrom("protocol")
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should resolve KDoc links in the second line of @constructor tag`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |interface Call
+            |/**
+            |* @constructor text some description with reference.
+            |*     But with a few lines and indent [Call]
+            |*/
+            |class A(val text: String) 
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                assertEquals(
+                    listOf(
+                        "Call" to DRI("example", "Call"),
+                    ),
+                    module.getAllLinkDRIFrom("A")
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should resolve KDoc links in the second level of a list`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |interface IllegalTimeZoneException
+            |interface UTC
+            |
+            |/**
+            | * ...
+            | * How exactly the time zone is acquired is system-dependent. The current implementation:
+            | * - JVM: `java.time.ZoneId.systemDefault()` is queried.
+            | * - Kotlin/Native:
+            | *     - Darwin: first, `NSTimeZone.resetSystemTimeZone` is called to clear the cache of the system timezone.
+            | *       Then, `NSTimeZone.systemTimeZone.name` is used to obtain the up-to-date timezone name.
+            | *     - Linux: this function checks the `/etc/localtime` symbolic link.
+            | *       If the link is missing, [UTC] is used.
+            | *       If the file is not a link but a plain file,
+            | *       the contents of `/etc/timezone` are additionally checked for the timezone name.
+            | *       [IllegalTimeZoneException] is thrown if the timezone name cannot be determined
+            | *       or is invalid.
+            | * ...
+            | */
+            |fun currentSystemDefault(g) {}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                assertEquals(
+                    listOf(
+                        "UTC" to DRI("example", "UTC"),
+                        "IllegalTimeZoneException" to DRI("example", "IllegalTimeZoneException"),
+                    ),
+                    module.getAllLinkDRIFrom("currentSystemDefault")
+                )
+            }
+        }
+    }
+
+    @Test
+    @OnlyDescriptors("#3385")
+    fun `should resolve KDoc links that goes after markdown blocks`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |interface JavaNetCookieJar
+            |
+            |/**
+            | * Markdown syntax ```code```
+            | * This references doesn't work: [System.currentTimeMillis] and [JavaNetCookieJar].
+            | */
+            |fun saveFromResponse(url: String)
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                assertEquals(
+                    listOf(
+                        "System.currentTimeMillis" to DRI(
+                            "java.lang", "System", Callable(
+                                "currentTimeMillis",
+                                receiver = null,
+                                params = emptyList()
+                            )
+                        ),
+                        "JavaNetCookieJar" to DRI("example", "JavaNetCookieJar"),
+                    ),
+                    module.getAllLinkDRIFrom("saveFromResponse")
+                )
+            }
+        }
+    }
+
     private fun DModule.getLinkDRIFrom(name: String): DRI? {
         val doc = this.dfs { it.name == name }?.documentation?.values?.single()
             ?: throw IllegalStateException("Can't find documentation for declaration '$name'")
@@ -1263,9 +1474,20 @@ class LinkTest : BaseAbstractTest() {
     private fun DModule.getAllLinkDRIFrom(name: String): List<Pair<String, DRI>> {
         val result = mutableListOf<Pair<String, DRI>>()
         this.dfs { it.name == name }?.documentation?.values?.single()?.dfs {
-            if (it is DocumentationLink) result.add(it.firstChildOfType<Text>().body to it.dri)
+            if (it is DocumentationLink) result.add(it.textWithCodeInline() to it.dri)
             false
         }
         return result
+    }
+
+    /**
+     * Adapted from [DocTag.text]
+     */
+    fun DocTag.textWithCodeInline(): String = when (val t = this) {
+        is Text -> t.body
+        is CodeInline -> "`" + t.children.joinToString("\n") { it.textWithCodeInline() } + "`"
+        is Code -> t.children.joinToString("\n") { it.textWithCodeInline() }
+        is P -> t.children.joinToString("") { it.textWithCodeInline() } + "\n"
+        else -> t.children.joinToString("") { it.textWithCodeInline() }
     }
 }

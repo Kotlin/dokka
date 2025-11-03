@@ -23,10 +23,10 @@ Bug reports, feature requests and questions are welcome. Submit issues [here](ht
 
 ## Submitting PRs
 
-Dokka has extensive [Developer Guides](https://kotlin.github.io/dokka/2.0.0/developer_guide/introduction/)
+Dokka has extensive [Developer Guides](https://kotlin.github.io/dokka/2.1.0/developer_guide/introduction/)
 documentation
-which goes over the development [Workflow](https://kotlin.github.io/dokka/2.0.0/developer_guide/workflow/) and
-[Dokka's architecture](https://kotlin.github.io/dokka/2.0.0/developer_guide/architecture/architecture_overview/),
+which goes over the development [Workflow](https://kotlin.github.io/dokka/2.1.0/developer_guide/workflow/) and
+[Dokka's architecture](https://kotlin.github.io/dokka/2.1.0/developer_guide/architecture/architecture_overview/),
 which can help you understand how to achieve what you want and where to look.
 
 All development (both new features and bugfixes) takes place in the `master` branch, it contains sources for the next
@@ -64,16 +64,16 @@ not take much time (~2-5 minutes), so please make sure they pass before submitti
 ### Use/test locally built Dokka
 
 Below you will find a bare-bones instruction on how to use and test locally built Dokka. For more details and examples,
-visit [Workflow](https://kotlin.github.io/dokka/2.0.0/developer_guide/workflow/) topic.
+visit [Workflow](https://kotlin.github.io/dokka/2.1.0/developer_guide/workflow/) topic.
 
-1. Publish a custom version of Dokka to Maven Local: `./gradlew publishToMavenLocal -Pversion=2.0.0-my-fix-SNAPSHOT`
+1. Publish a custom version of Dokka to Maven Local: `./gradlew publishToMavenLocal -Pversion=2.1.0-my-fix-SNAPSHOT`
 2. In the project for which you want to generate documentation add Maven Local as a buildscript/dependency
    repository (`mavenLocal()`)
 3. Update your Dokka dependency to the version you've just published:
 
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "2.0.0-my-fix-SNAPSHOT"
+    id("org.jetbrains.dokka") version "2.1.0-my-fix-SNAPSHOT"
 }
 ```
 
@@ -122,10 +122,17 @@ Integration tests require a significant amount of available RAM (~20-30GB), take
 environment configuration to run. For these reasons, it's not expected that you run all integration tests locally
 as part of the everyday development process, they will be run on CI once you submit a PR.
 
-However, if you need to run all integration tests locally, you can use the `integrationTest` task:
+Integration tests are executed by default when running `check`, `test` or `build` tasks.
+It's possible to skip those by passing `-Porg.jetbrains.dokka.integration_test.skip=true` to the Gradle command, like:
 
 ```bash
-./gradlew integrationTest
+./gradlew check -Porg.jetbrains.dokka.integration_test.skip=true
+```
+
+Integration tests can be run explicitly by running `check` task in `:dokka-integration-tests` composite build:
+
+```bash
+./gradlew :dokka-integration-tests:check
 ```
 
 If you need to run a specific test locally, you can run it from your IDE or by calling the corresponding Gradle
@@ -139,7 +146,7 @@ It's possible to run integration tests with a custom Dokka version published to
 via `org.jetbrains.dokka.integration_test.dokkaVersionOverride` Gradle property:
 
 ```bash
-./gradlew :dokka-integration-tests:gradle:testExternalProjectKotlinxCoroutines -Porg.jetbrains.dokka.integration_test.dokkaVersionOverride=2.0.0-dev-329
+./gradlew :dokka-integration-tests:gradle:testExternalProjectKotlinxCoroutines -Porg.jetbrains.dokka.integration_test.dokkaVersionOverride=2.1.0-dev-329
 ```
 
 Additionally, it's possible to open the Gradle integration test projects in IDEA.
