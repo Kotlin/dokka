@@ -114,14 +114,14 @@ class ExampleProjectsTest {
             /** Replace the version of any Dokka plugin with [dokkaVersion]. */
             private fun String.replaceDokkaPluginsVersion(): String =
                 replace(
-                    """(id\("org\.jetbrains\.dokka(?:-\w\d)*"\) version ").+(")""".toRegex(),
+                    """(id\("org\.jetbrains\.dokka[-\w]*"\) version ").+(")""".toRegex(),
                     """$1${dokkaVersion}$2""",
                 )
 
             /** Replace the version of any Dokka dependency coord with [dokkaVersion]. */
             private fun String.replaceDokkaDependencyCoords(): String =
                 replace(
-                    """(\("org\.jetbrains\.dokka:(?:-\w\d)*:).+("\))""".toRegex(),
+                    """(\("org\.jetbrains\.dokka:[-\w]+:).+("\))""".toRegex(),
                     """$1${dokkaVersion}$2""",
                 )
         }
