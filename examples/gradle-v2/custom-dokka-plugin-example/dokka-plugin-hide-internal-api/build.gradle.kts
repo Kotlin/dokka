@@ -4,9 +4,8 @@ plugins {
 }
 
 dependencies {
-    val dokkaVersion = "2.1.0-SNAPSHOT"
-    compileOnly("org.jetbrains.dokka:dokka-core:$dokkaVersion")
-    implementation("org.jetbrains.dokka:dokka-base:$dokkaVersion")
+    compileOnly("org.jetbrains.dokka:dokka-core:2.1.0")
+    implementation("org.jetbrains.dokka:dokka-base:2.1.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
 }
