@@ -162,12 +162,18 @@ abstract class KotlinAdapter @Inject constructor(
             val singlePlatform = allPlatforms.singleOrNull()
 
             if (singlePlatform == null) {
+                val defaultPlatform =
+                    if (allPlatforms.all { it == KotlinPlatform.JVM || it == KotlinPlatform.AndroidJVM }) {
+                        KotlinPlatform.JVM
+                    } else {
+                        KotlinPlatform.Common
+                    }
                 logger.info(
                     "[$projectPath] Dokka could not determine KotlinPlatform for ${details.name} from targets ${compilations.map { it.target }}. " +
-                            "Dokka will assume this is a ${KotlinPlatform.Common} source set. " +
+                            "Dokka will assume this is a ${defaultPlatform} source set. " +
                             "(All platforms: $allPlatforms)"
                 )
-                KotlinPlatform.Common
+                defaultPlatform
             } else {
                 singlePlatform
             }
