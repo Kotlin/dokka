@@ -4,17 +4,13 @@
 package org.jetbrains.dokka.gradle.formats
 
 import org.gradle.api.Action
-import org.gradle.api.Named
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ExternalModuleDependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
-import org.gradle.api.attributes.AttributeCompatibilityRule
 import org.gradle.api.attributes.AttributeContainer
-import org.gradle.api.attributes.CompatibilityCheckDetails
-import org.gradle.api.attributes.Usage
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.logging.Logging
@@ -28,15 +24,12 @@ import org.jetbrains.dokka.gradle.adapters.AndroidAdapter
 import org.jetbrains.dokka.gradle.adapters.JavaAdapter
 import org.jetbrains.dokka.gradle.adapters.KotlinAdapter
 import org.jetbrains.dokka.gradle.dependencies.DependencyContainerNames
-import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaClasspathAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaFormatAttribute
 import org.jetbrains.dokka.gradle.dependencies.FormatDependenciesManager
-import org.jetbrains.dokka.gradle.internal.Attribute
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.pluginFeaturesService
 import javax.inject.Inject
-import kotlin.jvm.java
 
 /**
  * Base Gradle Plugin for setting up a Dokka Publication for a specific output format.
@@ -148,44 +141,6 @@ abstract class DokkaFormatPlugin(
                 }
                 //endregion
             }
-
-            /**
-             * When using Dokka, a given project exposes 2 "jar" outgoing variants:
-             * - The traditional one, containing the code of the project.
-             * - The Dokka one, containing dokka plugins.
-             *
-             * This creates a tension:
-             * - Dokka wants to resolve transitive dependencies of plugins using `java-runtime`
-             * usage.
-             * - But by using `java-runtime`, it potentially confuses all other regular consumers
-             * that are now going to resolve plugins when they really wanted the "traditional" jar file.
-             *
-             * To solve this, we use `dokka-java-runtime` for usage and a compatibility
-             * rule:
-             * - Dokka consumers are able to resolve plugins transitive dependencies thanks to
-             * the compatibility rule.
-             * - Dokka consumers disambiguate the traditional variants by forcing the `org.jetbrains.dokka.classpath`
-             * attribute on all consumable configurations to a "none" value.
-             * - Traditional consumers disambiguate the Dokka plugins variants because the
-             * compatibility rule is one way. If the consumer asks for `java-runtime`, `dokka-java-runtime`
-             * is not considered compatible.
-             *
-             * See https://github.com/adamko-dev/dokkatoo/issues/165
-             */
-            target.dependencies.attributesSchema {
-                attribute(Usage.USAGE_ATTRIBUTE) {
-                    compatibilityRules.add(DokkaCompatibilityRule::class.java)
-                }
-            }
-            target.configurations.configureEach {
-                if (isCanBeConsumed) {
-                    attributes {
-                        if (this.contains(Usage.USAGE_ATTRIBUTE) && !this.contains(DokkaClasspathAttribute)) {
-                            attribute(DokkaClasspathAttribute, "none")
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -275,13 +230,5 @@ abstract class DokkaFormatPlugin(
 
     companion object {
         private val logger = Logging.getLogger(DokkaFormatPlugin::class.java)
-    }
-}
-
-internal open class DokkaCompatibilityRule : AttributeCompatibilityRule<Usage> {
-    override fun execute(details: CompatibilityCheckDetails<Usage>): Unit = details.run {
-        if (consumerValue?.name == DokkaAttribute.DokkaJavaRuntimeUsage && producerValue?.name == Usage.JAVA_RUNTIME) {
-            compatible()
-        }
     }
 }
