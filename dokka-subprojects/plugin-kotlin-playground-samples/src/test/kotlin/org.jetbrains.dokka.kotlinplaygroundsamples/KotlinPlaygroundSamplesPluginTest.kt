@@ -2,14 +2,14 @@
  * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.dokka.runnablesamples
+package org.jetbrains.dokka.kotlinplaygroundsamples
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.plugability.plugin
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 
-class RunnableSamplesPluginTest : BaseAbstractTest() {
+class KotlinPlaygroundSamplesPluginTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
         sourceSets {
             sourceSet {
@@ -19,7 +19,7 @@ class RunnableSamplesPluginTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `RunnableSamplesPlugin is loaded into DokkaContext`() {
+    fun `KotlinPlaygroundSamplesPlugin is loaded into DokkaContext`() {
         testInline(
             """
             |/src/main/kotlin/Sample.kt
@@ -37,8 +37,8 @@ class RunnableSamplesPluginTest : BaseAbstractTest() {
             configuration = configuration
         ) {
             pluginsSetupStage = { context ->
-                val runnableSamplesPlugin = context.plugin<RunnableSamplesPlugin>()
-                assertNotNull(runnableSamplesPlugin)
+                val kotlinPlaygroundSamplesPlugin = context.plugin<KotlinPlaygroundSamplesPlugin>()
+                assertNotNull(kotlinPlaygroundSamplesPlugin)
             }
         }
     }

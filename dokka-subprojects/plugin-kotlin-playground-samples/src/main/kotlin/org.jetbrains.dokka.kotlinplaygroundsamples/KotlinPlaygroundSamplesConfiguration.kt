@@ -2,13 +2,13 @@
  * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.dokka.runnablesamples
+package org.jetbrains.dokka.kotlinplaygroundsamples
 
 import org.jetbrains.dokka.plugability.ConfigurableBlock
 
-public data class RunnableSamplesConfiguration(
+public data class KotlinPlaygroundSamplesConfiguration(
     var kotlinPlaygroundScript: String = defaultKotlinPlaygroundScript,
-    var playgroundServer: String? = null
+    var kotlinPlaygroundServer: String? = null
 ) : ConfigurableBlock {
     public companion object {
         public const val defaultKotlinPlaygroundScript: String =

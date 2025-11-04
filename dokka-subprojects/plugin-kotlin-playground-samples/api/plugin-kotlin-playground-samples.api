@@ -1,0 +1,50 @@
+public final class org/jetbrains/dokka/kotlinplaygroundsamples/KotlinPlaygroundSamplesConfiguration : org/jetbrains/dokka/plugability/ConfigurableBlock {
+	public static final field Companion Lorg/jetbrains/dokka/kotlinplaygroundsamples/KotlinPlaygroundSamplesConfiguration$Companion;
+	public static final field defaultKotlinPlaygroundScript Ljava/lang/String;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/kotlinplaygroundsamples/KotlinPlaygroundSamplesConfiguration;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/kotlinplaygroundsamples/KotlinPlaygroundSamplesConfiguration;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/kotlinplaygroundsamples/KotlinPlaygroundSamplesConfiguration;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKotlinPlaygroundScript ()Ljava/lang/String;
+	public final fun getKotlinPlaygroundServer ()Ljava/lang/String;
+	public fun hashCode ()I
+	public final fun setKotlinPlaygroundScript (Ljava/lang/String;)V
+	public final fun setKotlinPlaygroundServer (Ljava/lang/String;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/kotlinplaygroundsamples/KotlinPlaygroundSamplesConfiguration$Companion {
+}
+
+public final class org/jetbrains/dokka/kotlinplaygroundsamples/KotlinPlaygroundSamplesPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public static final field Companion Lorg/jetbrains/dokka/kotlinplaygroundsamples/KotlinPlaygroundSamplesPlugin$Companion;
+	public static final field FQN Ljava/lang/String;
+	public fun <init> ()V
+	public final fun getKotlinPlaygroundSamplesScriptsInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getKotlinPlaygroundSamplesStylesInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getKotlinPlaygroundSamplesTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
+}
+
+public final class org/jetbrains/dokka/kotlinplaygroundsamples/KotlinPlaygroundSamplesPlugin$Companion {
+}
+
+public final class org/jetbrains/dokka/kotlinplaygroundsamples/KotlinPlaygroundSamplesScriptsInstaller : org/jetbrains/dokka/transformers/pages/PageTransformer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
+}
+
+public final class org/jetbrains/dokka/kotlinplaygroundsamples/KotlinPlaygroundSamplesStylesInstaller : org/jetbrains/dokka/transformers/pages/PageTransformer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
+}
+
+public final class org/jetbrains/dokka/kotlinplaygroundsamples/KotlinPlaygroundSamplesTransformer : org/jetbrains/dokka/transformers/pages/PageTransformer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
+}
+

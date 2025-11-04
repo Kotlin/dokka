@@ -2,7 +2,7 @@
  * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.dokka.runnablesamples
+package org.jetbrains.dokka.kotlinplaygroundsamples
 
 import org.jetbrains.dokka.analysis.kotlin.KotlinAnalysisPlugin
 import org.jetbrains.dokka.analysis.kotlin.sample.SampleAnalysisEnvironmentCreator
@@ -21,15 +21,15 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 /**
  * Replaces DefaultSamplesTransformer, adds runnable samples functionality with Kotlin Playground.
  */
-public class RunnableSamplesTransformer(public val context: DokkaContext) : PageTransformer {
+public class KotlinPlaygroundSamplesTransformer(public val context: DokkaContext) : PageTransformer {
 
     private val sampleAnalysisEnvironment: SampleAnalysisEnvironmentCreator =
         context.plugin<KotlinAnalysisPlugin>().querySingle { sampleAnalysisEnvironmentCreator }
 
-    private val config = configuration<RunnableSamplesPlugin, RunnableSamplesConfiguration>(context)
+    private val config = configuration<KotlinPlaygroundSamplesPlugin, KotlinPlaygroundSamplesConfiguration>(context)
 
     private val kotlinPlaygroundScript = config?.kotlinPlaygroundScript
-        ?: RunnableSamplesConfiguration.defaultKotlinPlaygroundScript
+        ?: KotlinPlaygroundSamplesConfiguration.defaultKotlinPlaygroundScript
 
     override fun invoke(input: RootPageNode): RootPageNode {
         return sampleAnalysisEnvironment.use {
@@ -98,7 +98,7 @@ public class RunnableSamplesTransformer(public val context: DokkaContext) : Page
      * Notice the presence/absence of the new line before the body.
      */
     private fun createSampleBody(imports: List<String>, body: String) =
-    // takeIf {} is needed so that joinToString's postfix is not added for empty lists,
+        // takeIf {} is needed so that joinToString's postfix is not added for empty lists,
         // and trimMargin() then removes the first empty line
         """ |${
             imports.takeIf { it.isNotEmpty() }?.joinToString(separator = "\n", postfix = "\n") { "import $it" } ?: ""

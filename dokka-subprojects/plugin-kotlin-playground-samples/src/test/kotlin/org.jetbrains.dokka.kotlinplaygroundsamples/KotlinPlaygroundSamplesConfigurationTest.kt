@@ -2,7 +2,7 @@
  * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.dokka.runnablesamples
+package org.jetbrains.dokka.kotlinplaygroundsamples
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.PluginConfigurationImpl
@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class RunnableSamplesConfigurationTest : BaseAbstractTest() {
+class KotlinPlaygroundSamplesConfigurationTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
         sourceSets {
             sourceSet {
@@ -22,7 +22,7 @@ class RunnableSamplesConfigurationTest : BaseAbstractTest() {
         }
     }
 
-    private val defaultScript = RunnableSamplesConfiguration.defaultKotlinPlaygroundScript
+    private val defaultScript = KotlinPlaygroundSamplesConfiguration.defaultKotlinPlaygroundScript
 
     @Test
     fun `default kotlinPlaygroundScript is correct`() {
@@ -70,7 +70,7 @@ class RunnableSamplesConfigurationTest : BaseAbstractTest() {
             }
             pluginsConfigurations.add(
                 PluginConfigurationImpl(
-                    RunnableSamplesPlugin.FQN,
+                    KotlinPlaygroundSamplesPlugin.FQN,
                     DokkaConfiguration.SerializationFormat.JSON,
                     "{\"kotlinPlaygroundScript\": \"customKotlinPlaygroundScript.js\"}"
                 )
