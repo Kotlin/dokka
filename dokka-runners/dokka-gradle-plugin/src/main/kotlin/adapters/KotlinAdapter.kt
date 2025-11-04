@@ -650,9 +650,44 @@ private data class AndroidVariantInfo(
 )
 
 /**
- * Collect [AndroidVariantInfo]s for all variants in the project.
+ * Collect [AndroidVariantInfo]s of the Android [Variant]s in this Android project.
  *
- * Should only be called when AGP is applied (otherwise the `androidComponents` extension will be missing).
+ * We store the collected data in a custom class to aid with Configuration Cache compatibility.
+ *
+ * This function must only be called when AGP is applied
+ * (otherwise [findAndroidComponentExtension] will return `null`),
+ * i.e. inside a `withPlugin(...) {}` block.
+ *
+ * ## How to determine publishability of AGP Variants
+ *
+ * There are several Android Gradle plugins.
+ * Each AGP has a specific associated [Variant]:
+ * - `com.android.application` - [com.android.build.api.variant.ApplicationVariant]
+ * - `com.android.library` - [com.android.build.api.variant.DynamicFeatureVariant]
+ * - `com.android.test` - [com.android.build.api.variant.LibraryVariant]
+ * - `com.android.dynamic-feature` - [com.android.build.api.variant.TestVariant]
+ *
+ * A [Variant] is 'published' (or otherwise shared with other projects).
+ * Note that a [Variant] might have [nestedComponents][Variant.nestedComponents].
+ * If any of these [com.android.build.api.variant.Component]s are [Variant]s,
+ * then the [Variant] itself should be considered 'publishable'.
+ *
+ * If a [KotlinSourceSet] has an associated [Variant],
+ * it should therefore be documented by Dokka by default.
+ *
+ * ### Associating Variants with Compilations with SourceSets
+ *
+ * So, how can we associate a [KotlinSourceSet] with a [Variant]?
+ *
+ * Fortunately, Dokka already knows about the [KotlinCompilation]s associated with a specific [KotlinSourceSet].
+ *
+ * So, for each [KotlinCompilation], find a [Variant] with the same name,
+ * i.e. [KotlinCompilation.getName] is the same as [Variant.name].
+ *
+ * Next, determine if the [Variant] associated with a [KotlinCompilation] is 'publishable' by
+ * checking if it _or_ any of its [nestedComponents][Variant.nestedComponents]
+ * are 'publishable' (i.e. is an instance of [Variant]).
+ * (We can we use [Variant.components] to check both the [Variant] and its `nestedComponents` the same time.)
  */
 private fun collectAndroidVariants(
     project: Project,
@@ -663,6 +698,8 @@ private fun collectAndroidVariants(
     androidComponents?.onVariants { variant ->
         val hasPublishedComponent =
             variant.components.any { component ->
+                // a Variant is a subtype of a Component that is shared with consumers,
+                // so Dokka should consider it 'publishable'
                 component is Variant
             }
 
