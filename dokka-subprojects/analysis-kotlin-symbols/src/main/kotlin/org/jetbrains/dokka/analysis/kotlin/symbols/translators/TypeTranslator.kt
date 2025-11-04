@@ -85,12 +85,15 @@ internal class TypeTranslator(
     )
 
 
-    fun KaSession.toBoundFrom(type: KaType): Bound =
+    fun KaSession.toBoundFrom(type: KaType, ignoreTypealiases: Boolean = false): Bound =
         when (type) {
             is KaUsualClassType -> {
                 // after KT-66996, [type] is an expanded type
                 val abbreviation = type.abbreviation
-                if (abbreviation != null) toBoundFromTypeAliased(abbreviation, toTypeConstructorFrom(type))
+                if (abbreviation != null && !ignoreTypealiases) toBoundFromTypeAliased(
+                    abbreviation,
+                    toBoundFrom(type, ignoreTypealiases = true)
+                )
                 else toTypeConstructorFrom(type)
             }
 
@@ -107,9 +110,13 @@ internal class TypeTranslator(
             is KaFunctionType -> {
                 // after KT-66996, [type] is an expanded type
                 val abbreviation = type.abbreviation
-                if (abbreviation != null) toBoundFromTypeAliased(abbreviation, toFunctionalTypeConstructorFrom(type))
+                if (abbreviation != null && !ignoreTypealiases) toBoundFromTypeAliased(
+                    abbreviation,
+                    toBoundFrom(type, ignoreTypealiases = true)
+                )
                 else toFunctionalTypeConstructorFrom(type)
             }
+
             is KaDynamicType -> Dynamic
             is KaDefinitelyNotNullType -> DefinitelyNonNullable(
                 toBoundFrom(type.original)
@@ -128,8 +135,14 @@ internal class TypeTranslator(
             is KaIntersectionType -> throw NotImplementedError()
             else -> throw NotImplementedError()
         }.let {
-            if (type.isMarkedNullable) Nullable(it) else it
+            val abbreviation = type.abbreviation
+            if (abbreviation != null && !ignoreTypealiases) asNullableIfMarked(abbreviation, it)
+            else asNullableIfMarked(type, it)
         }
+
+    private fun KaSession.asNullableIfMarked(type: KaType, bound: Bound): Bound =
+        if (type.isMarkedNullable) Nullable(bound) else bound
+
 
     fun KaSession.buildAncestryInformationFrom(
         type: KaType
