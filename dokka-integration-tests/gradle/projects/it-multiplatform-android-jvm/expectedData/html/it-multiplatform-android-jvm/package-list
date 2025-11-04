@@ -1,0 +1,16 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:it.mpp.android////PointingToDeclaration/it-multiplatform-android-jvm/it.mpp.android/index.html
+$dokka.location:it.mpp.android/AndroidAndJvmMainClass///PointingToDeclaration/it-multiplatform-android-jvm/it.mpp.android/-android-and-jvm-main-class/index.html
+$dokka.location:it.mpp.android/AndroidAndJvmMainClass/AndroidAndJvmMainClass/#/PointingToDeclaration/it-multiplatform-android-jvm/it.mpp.android/-android-and-jvm-main-class/-android-and-jvm-main-class.html
+$dokka.location:it.mpp.android/AndroidAndJvmMainClass/getFiles/#java.io.File/PointingToDeclaration/it-multiplatform-android-jvm/it.mpp.android/-android-and-jvm-main-class/get-files.html
+$dokka.location:it.mpp.android/AndroidMainClass///PointingToDeclaration/it-multiplatform-android-jvm/it.mpp.android/-android-main-class/index.html
+$dokka.location:it.mpp.android/AndroidMainClass/AndroidMainClass/#/PointingToDeclaration/it-multiplatform-android-jvm/it.mpp.android/-android-main-class/-android-main-class.html
+$dokka.location:it.mpp.android/AndroidMainClass/getFiles/#java.io.File/PointingToDeclaration/it-multiplatform-android-jvm/it.mpp.android/-android-main-class/get-files.html
+$dokka.location:it.mpp.android/CommonClass///PointingToDeclaration/it-multiplatform-android-jvm/it.mpp.android/-common-class/index.html
+$dokka.location:it.mpp.android/CommonClass/CommonClass/#/PointingToDeclaration/it-multiplatform-android-jvm/it.mpp.android/-common-class/-common-class.html
+$dokka.location:it.mpp.android/CommonClass/getFiles/#java.io.File/PointingToDeclaration/it-multiplatform-android-jvm/it.mpp.android/-common-class/get-files.html
+$dokka.location:it.mpp.android/JvmMainClass///PointingToDeclaration/it-multiplatform-android-jvm/it.mpp.android/-jvm-main-class/index.html
+$dokka.location:it.mpp.android/JvmMainClass/JvmMainClass/#/PointingToDeclaration/it-multiplatform-android-jvm/it.mpp.android/-jvm-main-class/-jvm-main-class.html
+$dokka.location:it.mpp.android/JvmMainClass/getFiles/#java.io.File/PointingToDeclaration/it-multiplatform-android-jvm/it.mpp.android/-jvm-main-class/get-files.html
+it.mpp.android
