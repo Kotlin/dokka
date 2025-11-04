@@ -292,7 +292,6 @@ private class KotlinCompilationDetailsBuilder(
      * since AGP doesn't provide a lazy way of accessing component information.
      *
      * @see collectAndroidVariants
-     * @see supportsAgpKotlinBuiltInCompilation
      */
     private fun getAgpVariantInfo(
         project: Project,
