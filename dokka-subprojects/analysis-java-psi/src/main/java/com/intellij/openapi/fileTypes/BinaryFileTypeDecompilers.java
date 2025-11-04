@@ -10,6 +10,7 @@ import com.intellij.util.KeyedLazyInstance;
 
 // The fix https://github.com/JetBrains/kotlin/commit/e17ddcf600d36555781c0bf240127c78338e6153 is copied
 // since IntelliJ platform rewrites it
+// TODO: #4336
 
 /**
  * @see BinaryFileDecompiler
