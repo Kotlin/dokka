@@ -1,3 +1,8 @@
+public final class com/intellij/openapi/fileTypes/BinaryFileTypeDecompilers : com/intellij/openapi/fileTypes/FileTypeExtension {
+	public static fun getInstance ()Lcom/intellij/openapi/fileTypes/BinaryFileTypeDecompilers;
+	public fun notifyDecompilerSetChange ()V
+}
+
 public final class org/jetbrains/dokka/analysis/java/AuthorJavadocTag : org/jetbrains/dokka/analysis/java/JavadocTag {
 	public static final field INSTANCE Lorg/jetbrains/dokka/analysis/java/AuthorJavadocTag;
 }
