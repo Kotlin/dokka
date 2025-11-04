@@ -4,12 +4,14 @@
 package org.jetbrains.dokka.gradle.adapters
 
 import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.Variant
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
+import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
@@ -44,13 +46,12 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
 import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
 import java.io.File
 import javax.inject.Inject
-import kotlin.reflect.jvm.jvmName
 
 /**
  * The [KotlinAdapter] plugin will automatically register Kotlin source sets as Dokka source sets.
  *
  * This is an internal Dokka plugin and should not be used externally.
- * It is not a standalone plugin, it requires [org.jetbrains.dokka.gradle.DokkaBasePlugin] is also applied.
+ * It is not a standalone plugin, it requires [DokkaBasePlugin] is also applied.
  */
 @InternalDokkaGradlePluginApi
 abstract class KotlinAdapter @Inject constructor(
@@ -292,12 +293,10 @@ private class KotlinCompilationDetailsBuilder(
     ): Provider<Set<AndroidVariantInfo>> {
         val androidVariants = objects.setProperty(AndroidVariantInfo::class)
 
-        if (currentKotlinToolingVersion.supportsAgpKotlinBuiltInCompilation()) {
-            project.pluginManager.apply {
-                withPlugin(PluginId.AndroidBase) { collectAndroidVariants(project, androidVariants) }
-                withPlugin(PluginId.AndroidApplication) { collectAndroidVariants(project, androidVariants) }
-                withPlugin(PluginId.AndroidLibrary) { collectAndroidVariants(project, androidVariants) }
-            }
+        project.pluginManager.apply {
+            withPlugin(PluginId.AndroidBase) { collectAndroidVariants(project, androidVariants) }
+            withPlugin(PluginId.AndroidApplication) { collectAndroidVariants(project, androidVariants) }
+            withPlugin(PluginId.AndroidLibrary) { collectAndroidVariants(project, androidVariants) }
         }
 
         return androidVariants
@@ -455,34 +454,18 @@ private class KotlinCompilationDetailsBuilder(
     private fun isJvmAndroidPublished(
         compilation: KotlinJvmAndroidCompilation,
     ): Provider<Boolean> {
-
-        // in KGP 2.2.10 androidVariant will be nullable KT-77023
-        if (currentKotlinToolingVersion.supportsAgpKotlinBuiltInCompilation()) {
-            return androidComponentsInfo.map { components ->
-                val compilationComponents = components.filter { it.name == compilation.name }
-                val result = compilationComponents.any { component -> component.hasPublishedComponent }
-                logger.info {
-                    "[KotlinAdapter isJvmAndroidPublished] ${compilation.name} publishable:$result, compilationComponents:$compilationComponents"
-                }
-                result
+        return androidComponentsInfo.map { components ->
+            val compilationComponents = components.filter { it.name == compilation.name }
+            val result = compilationComponents.any { component -> component.hasPublishedComponent }
+            logger.info {
+                "[KotlinAdapter isJvmAndroidPublished] ${compilation.name} publishable:$result, compilationComponents:$compilationComponents"
             }
-        } else {
-            val androidVariantJvmName = compilation.androidVariant::class.jvmName
-            return providers.provider {
-                // Use string-based comparison for the class names, not the actual classes,
-                // because AGP has deprecated and moved the Library/Application classes to a different package.
-                // Using strings is more widely compatible.
-                val result = "LibraryVariant" in androidVariantJvmName || "ApplicationVariant" in androidVariantJvmName
-                logger.info {
-                    "[KotlinAdapter isJvmAndroidPublished] ${compilation.name} publishable:$result, androidVariantJvmName:$androidVariantJvmName"
-                }
-                result
-            }
+            result
         }
     }
 
     companion object {
-        private val logger = Logging.getLogger(KotlinAdapter::class.java)
+        private val logger: Logger = Logging.getLogger(KotlinAdapter::class.java)
     }
 }
 
@@ -649,11 +632,11 @@ private fun Project.findAndroidComponentExtension(): AndroidComponentsExtension<
 
 
 /**
- * Store details about a [com.android.build.api.variant.Variant].
+ * Store details about a [Variant].
  *
- * @param[name] [com.android.build.api.variant.Variant.name].
+ * @param[name] [Variant.name].
  * @param[hasPublishedComponent] `true` if any component of the variant is 'published',
- * i.e. it is an instance of [com.android.build.api.variant.Variant].
+ * i.e. it is an instance of [Variant].
  */
 private data class AndroidVariantInfo(
     val name: String,
@@ -674,7 +657,7 @@ private fun collectAndroidVariants(
     androidComponents?.onVariants { variant ->
         val hasPublishedComponent =
             variant.components.any { component ->
-                component is com.android.build.api.variant.Variant
+                component is Variant
             }
 
         androidVariants.add(
@@ -685,13 +668,3 @@ private fun collectAndroidVariants(
         )
     }
 }
-
-/**
- * KGP 2.2.10 will start delegating Kotlin compilation to AGP ("Built-in Kotlin").
- *
- * [KotlinJvmAndroidCompilation.androidVariant] will be deprecated and nullable.
- *
- * See https://youtrack.jetbrains.com/issue/KT-77023
- */
-private fun KotlinToolingVersion.supportsAgpKotlinBuiltInCompilation(): Boolean =
-    this >= KotlinToolingVersion("2.2.10")
