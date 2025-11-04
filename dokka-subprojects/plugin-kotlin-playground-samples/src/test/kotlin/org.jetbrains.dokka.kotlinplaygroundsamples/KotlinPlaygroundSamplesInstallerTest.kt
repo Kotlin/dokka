@@ -2,7 +2,7 @@
  * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.dokka.runnablesamples
+package org.jetbrains.dokka.kotlinplaygroundsamples
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import utils.TestOutputWriterPlugin
@@ -11,7 +11,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class RunnableSamplesInstallerTest : BaseAbstractTest() {
+class KotlinPlaygroundSamplesInstallerTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
         sourceSets {
             sourceSet {
@@ -23,7 +23,7 @@ class RunnableSamplesInstallerTest : BaseAbstractTest() {
     val writerPlugin = TestOutputWriterPlugin()
 
     @Test
-    fun `should inject runnable-samples resources in html files`() {
+    fun `should inject kotlin-playground-samples resources in html files`() {
         testInline(
             """
             |/src/main/kotlin/Sample.kt
@@ -48,15 +48,15 @@ class RunnableSamplesInstallerTest : BaseAbstractTest() {
                     .filter { (key, _) -> key.endsWith(".html") && key != "navigation.html" }
 
                 allHtmlFiles.forEach {
-                    assertTrue(it.value.contains(Regex("<link href=\"[./]*styles/runnable-samples.css\" rel=\"Stylesheet\">")))
-                    assertTrue(it.value.contains(Regex("<script type=\"text/javascript\" src=\"[./]*scripts/runnable-samples.js\" async=\"async\"></script>")))
+                    assertTrue(it.value.contains(Regex("<link href=\"[./]*styles/kotlin-playground-samples.css\" rel=\"Stylesheet\">")))
+                    assertTrue(it.value.contains(Regex("<script type=\"text/javascript\" src=\"[./]*scripts/kotlin-playground-samples.js\" async=\"async\"></script>")))
                 }
             }
         }
     }
 
     @Test
-    fun `should contain runnable-samples's resources`() {
+    fun `should contain kotlin-playground-samples's resources`() {
         testInline(
             """
             |/src/main/kotlin/Sample.kt
@@ -77,17 +77,17 @@ class RunnableSamplesInstallerTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 val contents = writerPlugin.writer.contents
 
-                assertNotNull(contents["scripts/runnable-samples.js"])
-                assertNotNull(contents["styles/runnable-samples.css"])
+                assertNotNull(contents["scripts/kotlin-playground-samples.js"])
+                assertNotNull(contents["styles/kotlin-playground-samples.css"])
             }
         }
     }
 
     @Test
-    fun `should override playgroundServer with custom configuration`() {
-        val playgroundServer = "https://custom-playground-server.example.com"
+    fun `should override kotlinPlaygroundServer with custom configuration`() {
+        val kotlinPlaygroundServer = "https://custom-playground-server.example.com"
 
-        val customPlaygroundServerConfiguration = dokkaConfiguration {
+        val customKotlinPlaygroundServerConfiguration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/main/kotlin")
@@ -95,9 +95,9 @@ class RunnableSamplesInstallerTest : BaseAbstractTest() {
             }
             pluginsConfigurations.add(
                 org.jetbrains.dokka.PluginConfigurationImpl(
-                    RunnableSamplesPlugin.FQN,
+                    KotlinPlaygroundSamplesPlugin.FQN,
                     org.jetbrains.dokka.DokkaConfiguration.SerializationFormat.JSON,
-                    "{\"playgroundServer\": \"$playgroundServer\"}"
+                    "{\"kotlinPlaygroundServer\": \"$kotlinPlaygroundServer\"}"
                 )
             )
         }
@@ -116,20 +116,20 @@ class RunnableSamplesInstallerTest : BaseAbstractTest() {
             | */
             |class Foo
             """.trimMargin(),
-            configuration = customPlaygroundServerConfiguration,
+            configuration = customKotlinPlaygroundServerConfiguration,
             pluginOverrides = listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val scriptContent = writerPlugin.writer.contents["scripts/runnable-samples.js"]
+                val scriptContent = writerPlugin.writer.contents["scripts/kotlin-playground-samples.js"]
 
                 assertNotNull(scriptContent, "Script should be present")
                 assertTrue(
-                    scriptContent.contains("const playgroundServer = \"$playgroundServer\""),
-                    "Custom playgroundServer should be injected into the script"
+                    scriptContent.contains("const kotlinPlaygroundServer = \"$kotlinPlaygroundServer\""),
+                    "Custom kotlinPlaygroundServer should be injected into the script"
                 )
                 assertFalse(
-                    scriptContent.contains("const playgroundServer = null"),
-                    "Default playgroundServer value should be replaced"
+                    scriptContent.contains("const kotlinPlaygroundServer = null"),
+                    "Default kotlinPlaygroundServer value should be replaced"
                 )
             }
         }

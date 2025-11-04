@@ -2,14 +2,14 @@
  * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.dokka.runnablesamples
+package org.jetbrains.dokka.kotlinplaygroundsamples
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.pages.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class RunnableSamplesTransformerTest : BaseAbstractTest() {
+class KotlinPlaygroundSamplesTransformerTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
         sourceSets {
             sourceSet {
@@ -37,12 +37,12 @@ class RunnableSamplesTransformerTest : BaseAbstractTest() {
             configuration = configuration
         ) {
             pagesTransformationStage = { rootPageNode ->
-                val runnableSamples = findRunnableSamples(rootPageNode)
-                assertEquals(1, runnableSamples.size)
-                val runnableSample = runnableSamples[0]
-                assertEquals("kotlin", runnableSample.language)
-                assertEquals(setOf<Style>(ContentStyle.RunnableSample, TextStyle.Monospace), runnableSample.style)
-                val child = runnableSample.children[0]
+                val kotlinPlaygroundSamples = findKotlinPlaygroundSamples(rootPageNode)
+                assertEquals(1, kotlinPlaygroundSamples.size)
+                val kotlinPlaygroundSample = kotlinPlaygroundSamples[0]
+                assertEquals("kotlin", kotlinPlaygroundSample.language)
+                assertEquals(setOf<Style>(ContentStyle.RunnableSample, TextStyle.Monospace), kotlinPlaygroundSample.style)
+                val child = kotlinPlaygroundSample.children[0]
                 if (child is ContentText) {
                     assertEquals(
                         """
@@ -91,11 +91,11 @@ class RunnableSamplesTransformerTest : BaseAbstractTest() {
             configuration = configuration
         ) {
             pagesTransformationStage = { rootPageNode ->
-                val runnableSamples = findRunnableSamples(rootPageNode)
-                assertEquals(2, runnableSamples.size)
+                val kotlinPlaygroundSamples = findKotlinPlaygroundSamples(rootPageNode)
+                assertEquals(2, kotlinPlaygroundSamples.size)
 
                 // Verify first sample
-                val firstSample = runnableSamples[0]
+                val firstSample = kotlinPlaygroundSamples[0]
                 assertEquals("kotlin", firstSample.language)
                 assertEquals(setOf<Style>(ContentStyle.RunnableSample, TextStyle.Monospace), firstSample.style)
                 val firstChild = firstSample.children[0]
@@ -115,7 +115,7 @@ class RunnableSamplesTransformerTest : BaseAbstractTest() {
                 }
 
                 // Verify second sample
-                val secondSample = runnableSamples[1]
+                val secondSample = kotlinPlaygroundSamples[1]
                 assertEquals("kotlin", secondSample.language)
                 assertEquals(setOf<Style>(ContentStyle.RunnableSample, TextStyle.Monospace), secondSample.style)
                 val secondChild = secondSample.children[0]
@@ -181,11 +181,11 @@ class RunnableSamplesTransformerTest : BaseAbstractTest() {
             configuration = configuration
         ) {
             pagesTransformationStage = { rootPageNode ->
-                val runnableSamples = findRunnableSamples(rootPageNode)
-                assertEquals(3, runnableSamples.size)
+                val kotlinPlaygroundSamples = findKotlinPlaygroundSamples(rootPageNode)
+                assertEquals(3, kotlinPlaygroundSamples.size)
 
                 // Verify first sample
-                val firstSample = runnableSamples[0]
+                val firstSample = kotlinPlaygroundSamples[0]
                 assertEquals("kotlin", firstSample.language)
                 assertEquals(setOf<Style>(ContentStyle.RunnableSample, TextStyle.Monospace), firstSample.style)
                 val firstChild = firstSample.children[0]
@@ -205,7 +205,7 @@ class RunnableSamplesTransformerTest : BaseAbstractTest() {
                 }
 
                 // Verify second sample
-                val secondSample = runnableSamples[1]
+                val secondSample = kotlinPlaygroundSamples[1]
                 assertEquals("kotlin", secondSample.language)
                 assertEquals(setOf<Style>(ContentStyle.RunnableSample, TextStyle.Monospace), secondSample.style)
                 val secondChild = secondSample.children[0]
@@ -225,7 +225,7 @@ class RunnableSamplesTransformerTest : BaseAbstractTest() {
                 }
 
                 // Verify third sample
-                val thirdSample = runnableSamples[2]
+                val thirdSample = kotlinPlaygroundSamples[2]
                 assertEquals("kotlin", thirdSample.language)
                 assertEquals(setOf<Style>(ContentStyle.RunnableSample, TextStyle.Monospace), thirdSample.style)
                 val thirdChild = thirdSample.children[0]
@@ -273,14 +273,14 @@ class RunnableSamplesTransformerTest : BaseAbstractTest() {
             configuration = configuration
         ) {
             pagesTransformationStage = { rootPageNode ->
-                val runnableSamples = findRunnableSamples(rootPageNode)
-                assertEquals(1, runnableSamples.size)
+                val kotlinPlaygroundSamples = findKotlinPlaygroundSamples(rootPageNode)
+                assertEquals(1, kotlinPlaygroundSamples.size)
 
-                val runnableSample = runnableSamples[0]
-                assertEquals("kotlin", runnableSample.language)
-                assertEquals(setOf<Style>(ContentStyle.RunnableSample, TextStyle.Monospace), runnableSample.style)
+                val kotlinPlaygroundSample = kotlinPlaygroundSamples[0]
+                assertEquals("kotlin", kotlinPlaygroundSample.language)
+                assertEquals(setOf<Style>(ContentStyle.RunnableSample, TextStyle.Monospace), kotlinPlaygroundSample.style)
 
-                val child = runnableSample.children[0]
+                val child = kotlinPlaygroundSample.children[0]
                 if (child is ContentText) {
                     assertEquals(
                         """
@@ -302,23 +302,23 @@ class RunnableSamplesTransformerTest : BaseAbstractTest() {
         }
     }
 
-    private fun findRunnableSamples(node: PageNode): List<ContentCodeBlock> {
+    private fun findKotlinPlaygroundSamples(node: PageNode): List<ContentCodeBlock> {
         val samples = mutableListOf<ContentCodeBlock>()
 
         when (node) {
             is ContentPage -> {
-                samples.addAll(findRunnableSamplesInContent(node.content))
+                samples.addAll(findKotlinPlaygroundSamplesInContent(node.content))
             }
         }
 
         node.children.forEach { child ->
-            samples.addAll(findRunnableSamples(child))
+            samples.addAll(findKotlinPlaygroundSamples(child))
         }
 
         return samples
     }
 
-    private fun findRunnableSamplesInContent(content: ContentNode): List<ContentCodeBlock> {
+    private fun findKotlinPlaygroundSamplesInContent(content: ContentNode): List<ContentCodeBlock> {
         val samples = mutableListOf<ContentCodeBlock>()
 
         when (content) {
@@ -327,74 +327,74 @@ class RunnableSamplesTransformerTest : BaseAbstractTest() {
                     samples.add(content)
                 }
                 content.children.forEach { child ->
-                    samples.addAll(findRunnableSamplesInContent(child))
+                    samples.addAll(findKotlinPlaygroundSamplesInContent(child))
                 }
             }
 
             is ContentHeader -> {
                 content.children.forEach { child ->
-                    samples.addAll(findRunnableSamplesInContent(child))
+                    samples.addAll(findKotlinPlaygroundSamplesInContent(child))
                 }
             }
 
             is ContentDivergentGroup -> {
                 content.children.forEach { child ->
-                    samples.addAll(findRunnableSamplesInContent(child.divergent))
-                    child.before?.let { samples.addAll(findRunnableSamplesInContent(it)) }
-                    child.after?.let { samples.addAll(findRunnableSamplesInContent(it)) }
+                    samples.addAll(findKotlinPlaygroundSamplesInContent(child.divergent))
+                    child.before?.let { samples.addAll(findKotlinPlaygroundSamplesInContent(it)) }
+                    child.after?.let { samples.addAll(findKotlinPlaygroundSamplesInContent(it)) }
                 }
             }
 
             is ContentDivergentInstance -> {
-                content.before?.let { samples.addAll(findRunnableSamplesInContent(it)) }
-                samples.addAll(findRunnableSamplesInContent(content.divergent))
-                content.after?.let { samples.addAll(findRunnableSamplesInContent(it)) }
+                content.before?.let { samples.addAll(findKotlinPlaygroundSamplesInContent(it)) }
+                samples.addAll(findKotlinPlaygroundSamplesInContent(content.divergent))
+                content.after?.let { samples.addAll(findKotlinPlaygroundSamplesInContent(it)) }
             }
 
             is ContentCodeInline -> {
                 content.children.forEach { child ->
-                    samples.addAll(findRunnableSamplesInContent(child))
+                    samples.addAll(findKotlinPlaygroundSamplesInContent(child))
                 }
             }
 
             is ContentDRILink -> {
                 content.children.forEach { child ->
-                    samples.addAll(findRunnableSamplesInContent(child))
+                    samples.addAll(findKotlinPlaygroundSamplesInContent(child))
                 }
             }
 
             is ContentResolvedLink -> {
                 content.children.forEach { child ->
-                    samples.addAll(findRunnableSamplesInContent(child))
+                    samples.addAll(findKotlinPlaygroundSamplesInContent(child))
                 }
             }
 
             is ContentEmbeddedResource -> {
                 content.children.forEach { child ->
-                    samples.addAll(findRunnableSamplesInContent(child))
+                    samples.addAll(findKotlinPlaygroundSamplesInContent(child))
                 }
             }
 
             is ContentTable -> {
                 content.children.forEach { child ->
-                    samples.addAll(findRunnableSamplesInContent(child))
+                    samples.addAll(findKotlinPlaygroundSamplesInContent(child))
                 }
             }
 
             is ContentList -> {
                 content.children.forEach { child ->
-                    samples.addAll(findRunnableSamplesInContent(child))
+                    samples.addAll(findKotlinPlaygroundSamplesInContent(child))
                 }
             }
 
             is ContentGroup -> {
                 content.children.forEach { child ->
-                    samples.addAll(findRunnableSamplesInContent(child))
+                    samples.addAll(findKotlinPlaygroundSamplesInContent(child))
                 }
             }
 
             is PlatformHintedContent -> {
-                samples.addAll(findRunnableSamplesInContent(content.inner))
+                samples.addAll(findKotlinPlaygroundSamplesInContent(content.inner))
             }
         }
 

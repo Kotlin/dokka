@@ -9,7 +9,7 @@ plugins {
     id("dokkabuild.publish-jvm")
 }
 
-overridePublicationArtifactId("runnable-samples-plugin")
+overridePublicationArtifactId("kotlin-playground-samples-plugin")
 
 dependencies {
     compileOnly(projects.dokkaSubprojects.dokkaCore)
