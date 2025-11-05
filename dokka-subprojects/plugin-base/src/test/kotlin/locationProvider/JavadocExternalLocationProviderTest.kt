@@ -109,7 +109,7 @@ class JavadocExternalLocationProviderTest : BaseAbstractTest() {
                 name = "createDirectories",
                 params = listOf(
                     Nullable(TypeConstructor("java.nio.file.Path", emptyList())),
-                    Nullable(Vararg(TypeConstructor("java.nio.file.attribute.FileAttribute", emptyList())))
+                    Nullable(Vararg(TypeConstructor("java.nio.file.attribute.FileAttribute", listOf(StarProjection))))
                 ),
             ),
             target = PointingToDeclaration
