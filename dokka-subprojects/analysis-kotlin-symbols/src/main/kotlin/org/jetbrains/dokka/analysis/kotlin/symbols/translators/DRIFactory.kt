@@ -62,19 +62,17 @@ internal fun KaSession.getDRIFromConstructor(symbol: KaConstructorSymbol): DRI {
     )
 }
 
-@OptIn(KaExperimentalApi::class)
 internal fun KaSession.getDRIFromVariable(symbol: KaVariableSymbol): DRI {
     val callableId = symbol.callableId ?: throw IllegalStateException("Can not get callable Id due to it is local")
     val receiver = symbol.receiverType?.let(::getTypeReferenceFrom)
-    val contextParams = symbol.contextParameters.map { getTypeReferenceFrom(it.returnType) }
+    val contextParams = @OptIn(KaExperimentalApi::class) symbol.contextParameters.map { getTypeReferenceFrom(it.returnType) }
     return callableId.createDRI(receiver, emptyList(), contextParams)
 }
 
 
-@OptIn(KaExperimentalApi::class)
 internal fun KaSession.getDRIFromFunction(symbol: KaFunctionSymbol): DRI {
     val params = symbol.valueParameters.map { getTypeReferenceFrom(it.returnType, isVararg = it.isVararg) }
-    val contextParams = symbol.contextParameters.map { getTypeReferenceFrom(it.returnType) }
+    val contextParams = @OptIn(KaExperimentalApi::class) symbol.contextParameters.map { getTypeReferenceFrom(it.returnType) }
     val receiver = symbol.receiverType?.let {
         getTypeReferenceFrom(it)
     }
