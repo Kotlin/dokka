@@ -8,6 +8,7 @@ import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.ClasslikePageNode
+import org.jetbrains.dokka.pages.MemberPageNode
 import org.jetbrains.dokka.pages.PlatformHintedContent
 import utils.assertNotNull
 import kotlin.test.Test
@@ -158,6 +159,114 @@ class TypealiasTest : BaseAbstractTest() {
                         }
 
                         group { }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `non-nullable typealias to nullable type`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/Test.kt
+            |package example
+            |
+            |typealias A = String?
+            |
+            |val a: A
+            """,
+            configuration
+        ) {
+            pagesTransformationStage = { module ->
+                val content = (module.dfs { it.name == "a" } as MemberPageNode).content
+                content.assertNode {
+                    group {
+                        header(1) { +"a"  }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"val "
+                                link { +"a" }
+                                +": "
+                                groupedLink { +"A" }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `nullable typealias to non-nullable type`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/Test.kt
+            |package example
+            |
+            |typealias A = String
+            |
+            |val a: A?
+            """,
+            configuration
+        ) {
+            pagesTransformationStage = { module ->
+                val content = (module.dfs { it.name == "a" } as MemberPageNode).content
+                content.assertNode {
+                    group {
+                        header(1) { +"a"  }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"val "
+                                link { +"a" }
+                                +": "
+                                group {
+                                    groupedLink { +"A" }
+                                    +"?"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `nullable typealias to nullable type`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/Test.kt
+            |package example
+            |
+            |typealias A = String?
+            |
+            |val a: A?
+            """,
+            configuration
+        ) {
+            pagesTransformationStage = { module ->
+                val content = (module.dfs { it.name == "a" } as MemberPageNode).content
+                content.assertNode {
+                    group {
+                        header(1) { +"a"  }
+                    }
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"val "
+                                link { +"a" }
+                                +": "
+                                group {
+                                    groupedLink { +"A" }
+                                    +"?"
+                                }
+                            }
+                        }
                     }
                 }
             }
