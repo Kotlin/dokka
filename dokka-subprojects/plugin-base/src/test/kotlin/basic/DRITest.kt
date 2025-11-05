@@ -398,6 +398,10 @@ class DRITest : BaseAbstractTest() {
                 val withPrimitiveVararg = module.dfs { it.name == "withPrimitiveVararg" }!!
 
                 assertEquals(
+                    "test//withObjectVararg/#vararg(kotlin.String)/PointingToDeclaration/",
+                    withObjectVararg.dri.toString()
+                )
+                assertEquals(
                     DRI(
                         "test", null,
                         Callable(
@@ -410,6 +414,10 @@ class DRITest : BaseAbstractTest() {
                     ), withObjectVararg.dri
                 )
 
+                assertEquals(
+                    "test//withPrimitiveVararg/#vararg(kotlin.Int)/PointingToDeclaration/",
+                    withPrimitiveVararg.dri.toString()
+                )
                 assertEquals(
                     DRI(
                         "test", null,
@@ -444,6 +452,10 @@ class DRITest : BaseAbstractTest() {
                 assertNotEquals(f1.dri, f2.dri, "Expected different DRI for vararg and array")
 
                 assertEquals(
+                    "test//f1/#vararg(kotlin.String)/PointingToDeclaration/",
+                    f1.dri.toString()
+                )
+                assertEquals(
                     expected = DRI(
                         "test", null,
                         Callable(
@@ -457,6 +469,10 @@ class DRITest : BaseAbstractTest() {
                     actual = f1.dri
                 )
 
+                assertEquals(
+                    "test//f2/#kotlin.Array[kotlin.String]/PointingToDeclaration/",
+                    f2.dri.toString()
+                )
                 assertEquals(
                     expected = DRI(
                         "test", null,
