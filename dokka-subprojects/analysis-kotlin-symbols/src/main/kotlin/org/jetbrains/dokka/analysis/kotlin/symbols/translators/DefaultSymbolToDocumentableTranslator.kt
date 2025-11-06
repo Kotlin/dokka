@@ -794,18 +794,17 @@ internal class DokkaSymbolVisitor(
      * It may be `null` if the owner function comes from a non-source file.
      */
     private fun KaSession.getDefaultValue(symbol: KaValueParameterSymbol, parameterIndex: Int): Expression? {
-        fun KaValueParameterSymbol.getDefaultValue(): Expression? =
+        fun KaValueParameterSymbol.getExplicitDefaultValue(): Expression? =
             if (origin == KaSymbolOrigin.SOURCE) (psi as? KtParameter)?.defaultValue?.toDefaultValueExpression() else null
+        fun KaDeclarationSymbol.findMatchingParameterWithDefaultValue(): Expression? =
+            (this as? KaFunctionSymbol)?.valueParameters?.getOrNull(parameterIndex)?.getExplicitDefaultValue()
 
-        val result = symbol.getDefaultValue()
+        val result = symbol.getExplicitDefaultValue()
         return if (result != null)
             result
         else { // in the case of fake declarations
-            @OptIn(KaContextParameterApi::class)
             val ownerFunction = symbol.containingDeclaration as? KaNamedFunctionSymbol ?: return null
 
-            fun KaDeclarationSymbol.findMatchingParameterWithDefaultValue(): Expression? =
-                (this as? KaFunctionSymbol)?.valueParameters?.getOrNull(parameterIndex)?.getDefaultValue()
             //overriding function
             if (ownerFunction.isOverride)
                 ownerFunction.allOverriddenSymbols.firstNotNullOfOrNull { it.findMatchingParameterWithDefaultValue() }
