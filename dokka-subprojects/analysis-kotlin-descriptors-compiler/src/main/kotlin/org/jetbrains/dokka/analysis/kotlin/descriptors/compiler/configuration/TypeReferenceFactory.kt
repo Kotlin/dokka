@@ -9,6 +9,7 @@ import org.jetbrains.dokka.links.*
 import org.jetbrains.kotlin.descriptors.ReceiverParameterDescriptor
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
+import org.jetbrains.kotlin.resolve.calls.components.isVararg
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.scopes.receivers.ExtensionReceiver
 import org.jetbrains.kotlin.types.KotlinType
@@ -27,7 +28,10 @@ internal fun TypeReference.Companion.from(d: ReceiverParameterDescriptor): TypeR
     }
 
 internal fun TypeReference.Companion.from(d: ValueParameterDescriptor): TypeReference =
-    fromPossiblyNullable(d.type, emptyList())
+    when {
+        d.isVararg -> Vararg(fromPossiblyNullable(d.varargElementType!!, emptyList()))
+        else -> fromPossiblyNullable(d.type, emptyList())
+    }
 
 internal fun TypeReference.Companion.from(@Suppress("UNUSED_PARAMETER") p: PsiClass) = TypeReference
 
@@ -54,6 +58,7 @@ private fun TypeReference.Companion.from(t: KotlinType, paramTrace: List<KotlinT
         is TypeParameterDescriptor -> TypeParam(
             d.upperBounds.map { fromPossiblyNullable(it, paramTrace + t) }
         )
+
         else -> TypeConstructor(
             t.constructorName.orEmpty(),
             t.arguments.map { fromProjection(it, paramTrace) }

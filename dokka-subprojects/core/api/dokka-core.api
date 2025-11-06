@@ -665,6 +665,17 @@ public abstract class org/jetbrains/dokka/links/TypeReference {
 public final class org/jetbrains/dokka/links/TypeReference$Companion {
 }
 
+public final class org/jetbrains/dokka/links/Vararg : org/jetbrains/dokka/links/TypeReference {
+	public fun <init> (Lorg/jetbrains/dokka/links/TypeReference;)V
+	public final fun component1 ()Lorg/jetbrains/dokka/links/TypeReference;
+	public final fun copy (Lorg/jetbrains/dokka/links/TypeReference;)Lorg/jetbrains/dokka/links/Vararg;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/links/Vararg;Lorg/jetbrains/dokka/links/TypeReference;ILjava/lang/Object;)Lorg/jetbrains/dokka/links/Vararg;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getElementType ()Lorg/jetbrains/dokka/links/TypeReference;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class org/jetbrains/dokka/model/ActualTypealias : org/jetbrains/dokka/model/properties/ExtraProperty {
 	public static final field Companion Lorg/jetbrains/dokka/model/ActualTypealias$Companion;
 	public fun <init> (Lorg/jetbrains/dokka/model/DTypeAlias;)V

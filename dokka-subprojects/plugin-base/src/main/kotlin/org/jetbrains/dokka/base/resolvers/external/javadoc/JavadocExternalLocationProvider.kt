@@ -64,10 +64,10 @@ public open class JavadocExternalLocationProvider(
             is StarProjection -> "?"
 
             // TODO #3502
-            is TypeConstructor -> fullyQualifiedName +
-                    (if (params.isNotEmpty()) "[${params.joinToString(",") { it.toJavadocURL() }}]" else "")
+            is TypeConstructor -> fullyQualifiedName
             is TypeParam -> toString()
             is RecursiveType -> "^".repeat(rank + 1)
+            is Vararg -> "${elementType.toJavadocURL()}..."
         }
     }
 }
