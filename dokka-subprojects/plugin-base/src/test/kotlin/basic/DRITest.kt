@@ -42,8 +42,8 @@ class DRITest : BaseAbstractTest() {
             documentablesMergingStage = { module ->
                 val expected = TypeConstructor(
                     "kotlin.Function1", listOf(
-                        TypeParam(listOf(Nullable(TypeConstructor("kotlin.Any", emptyList())))),
-                        Nullable(TypeParam(listOf(TypeConstructor("kotlin.Comparable", listOf(RecursiveType(0))))))
+                        TypeParam("T", listOf(Nullable(TypeConstructor("kotlin.Any", emptyList())))),
+                        Nullable(TypeParam("R", listOf(TypeConstructor("kotlin.Comparable", listOf(RecursiveType(0))))))
                     )
                 )
                 val actual = module.packages.single()
@@ -69,6 +69,7 @@ class DRITest : BaseAbstractTest() {
             documentablesMergingStage = { module ->
                 val expected = Nullable(
                     TypeParam(
+                        "T",
                         listOf(
                             TypeConstructor(
                                 "kotlin.Comparable",
@@ -100,6 +101,7 @@ class DRITest : BaseAbstractTest() {
             documentablesMergingStage = { module ->
                 val expected = Nullable(
                     TypeParam(
+                        "T",
                         listOf(
                             TypeConstructor(
                                 "kotlin.Comparable",
@@ -150,6 +152,7 @@ class DRITest : BaseAbstractTest() {
                         "qux", TypeConstructor(
                             "Foo", listOf(
                                 TypeParam(
+                                    "T",
                                     listOf(
                                         TypeConstructor(
                                             "kotlin.Comparable", listOf(
@@ -307,13 +310,33 @@ class DRITest : BaseAbstractTest() {
                 val documentable = extensionFunction.documentables.firstOrNull() as DFunction
 
                 assertEquals(
-                    "example//extensionFunction/kotlin.collections.List[TypeParam(bounds=[kotlin.Any?])]#/PointingToDeclaration/",
+                    "example//extensionFunction/kotlin.collections.List[TypeParam(name=T, bounds=[kotlin.Any?])]#/PointingToDeclaration/",
                     extensionFunction.dri.first().toString()
+                )
+                assertEquals(
+                    DRI(
+                        packageName = "example",
+                        classNames = null,
+                        callable = Callable(
+                            name = "extensionFunction",
+                            receiver = TypeConstructor(
+                                "kotlin.collections.List",
+                                listOf(
+                                    TypeParam(
+                                        "T",
+                                        bounds = listOf(Nullable(TypeConstructor("kotlin.Any", emptyList())))
+                                    )
+                                )
+                            ),
+                            params = emptyList()
+                        )
+                    ),
+                    extensionFunction.dri.first()
                 )
                 assertEquals(1, documentable.generics.size)
                 assertEquals("T", documentable.generics.first().name)
                 assertEquals(
-                    "example//extensionFunction/kotlin.collections.List[TypeParam(bounds=[kotlin.Any?])]#/PointingToGenericParameters(0)/",
+                    "example//extensionFunction/kotlin.collections.List[TypeParam(name=T, bounds=[kotlin.Any?])]#/PointingToGenericParameters(0)/",
                     documentable.generics.first().dri.toString()
                 )
 
@@ -336,7 +359,7 @@ class DRITest : BaseAbstractTest() {
             documentablesMergingStage = { module ->
                 val function = module.dfs { it.name == "recursiveBound" }
                 assertEquals(
-                    "example//recursiveBound/#TypeParam(bounds=[kotlin.collections.List[TypeParam(bounds=[kotlin.collections.List[TypeParam(bounds=[kotlin.collections.List[^^]])]])]])#TypeParam(bounds=[kotlin.collections.List[TypeParam(bounds=[kotlin.collections.List[^]])]])#TypeParam(bounds=[kotlin.collections.List[TypeParam(bounds=[kotlin.collections.List[^]])]])/PointingToDeclaration/",
+                    "example//recursiveBound/#TypeParam(name=T, bounds=[kotlin.collections.List[TypeParam(name=S, bounds=[kotlin.collections.List[TypeParam(name=R, bounds=[kotlin.collections.List[^^]])]])]])#TypeParam(name=S, bounds=[kotlin.collections.List[TypeParam(name=R, bounds=[kotlin.collections.List[^]])]])#TypeParam(name=R, bounds=[kotlin.collections.List[TypeParam(name=S, bounds=[kotlin.collections.List[^]])]])/PointingToDeclaration/",
                     function?.dri?.toString(),
                 )
             }

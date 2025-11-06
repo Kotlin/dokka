@@ -31,6 +31,7 @@ class LinkTest : BaseAbstractTest() {
             }
         }
     }
+
     @Test
     fun linkToClassLoader() {
         val configuration = dokkaConfiguration {
@@ -776,6 +777,7 @@ class LinkTest : BaseAbstractTest() {
             }
         }
     }
+
     @Test
     fun `link should be stable for overloads in different files`() {
         testInline(
@@ -888,7 +890,10 @@ class LinkTest : BaseAbstractTest() {
                     null,
                     callable = Callable(
                         "foo",
-                        receiver = TypeConstructor("kotlin.collections.List", params = listOf(TypeParam(listOf(TypeConstructor("kotlin.Number", emptyList()))))),
+                        receiver = TypeConstructor(
+                            "kotlin.collections.List",
+                            params = listOf(TypeParam("T", listOf(TypeConstructor("kotlin.Number", emptyList()))))
+                        ),
                         params = emptyList()
                     )
                 )
@@ -946,7 +951,10 @@ class LinkTest : BaseAbstractTest() {
                     null,
                     callable = Callable(
                         "foo",
-                        receiver = TypeConstructor("kotlin.collections.List", params = listOf(TypeParam(listOf(TypeConstructor("kotlin.Number", emptyList()))))),
+                        receiver = TypeConstructor(
+                            "kotlin.collections.List",
+                            params = listOf(TypeParam("T", listOf(TypeConstructor("kotlin.Number", emptyList()))))
+                        ),
                         params = emptyList()
                     )
                 )

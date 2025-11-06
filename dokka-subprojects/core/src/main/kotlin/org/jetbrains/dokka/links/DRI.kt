@@ -128,7 +128,7 @@ public data class JavaClassReference(val name: String) : TypeReference() {
     override fun toString(): String = name
 }
 
-public data class TypeParam(val bounds: List<TypeReference>) : TypeReference()
+public data class TypeParam(val name: String, val bounds: List<TypeReference>) : TypeReference()
 
 public data class TypeConstructor(
     val fullyQualifiedName: String,

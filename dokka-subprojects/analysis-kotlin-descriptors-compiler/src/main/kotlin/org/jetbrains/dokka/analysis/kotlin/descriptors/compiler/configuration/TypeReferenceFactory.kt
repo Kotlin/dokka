@@ -56,6 +56,7 @@ private fun TypeReference.Companion.from(t: KotlinType, paramTrace: List<KotlinT
     }
     return when (val d = t.constructor.declarationDescriptor) {
         is TypeParameterDescriptor -> TypeParam(
+            d.name.asString(),
             d.upperBounds.map { fromPossiblyNullable(it, paramTrace + t) }
         )
 
