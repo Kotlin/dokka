@@ -126,7 +126,7 @@ data class GradlePropertiesBuilder(
             putNotNull("org.gradle.logging.level", logLevel?.name?.lowercase())
             putNotNull("org.gradle.workers.max", maxWorkers)
             putNotNull("org.gradle.parallel", parallel)
-            putNotNull("org.gradle.stacktrace", stacktrace)
+            putNotNull("org.gradle.logging.stacktrace", stacktrace)
             putNotNull("org.gradle.warning.mode", warningMode)
             jvmArgs.buildString().takeIf { it.isNotBlank() }?.let {
                 put("org.gradle.jvmargs", it)
