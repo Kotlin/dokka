@@ -90,6 +90,7 @@ dependencies {
     devPublication("org.jetbrains.dokka:plugin-jekyll:${project.version}")
     devPublication("org.jetbrains.dokka:plugin-jekyll-template-processing:${project.version}")
     devPublication("org.jetbrains.dokka:plugin-kotlin-as-java:${project.version}")
+    devPublication("org.jetbrains.dokka:plugin-kotlin-playground-samples:${project.version}")
     devPublication("org.jetbrains.dokka:plugin-mathjax:${project.version}")
     devPublication("org.jetbrains.dokka:plugin-templating:${project.version}")
     devPublication("org.jetbrains.dokka:plugin-versioning:${project.version}")
