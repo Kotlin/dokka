@@ -60,34 +60,10 @@ You can specify the Kotlin Playground JS script and the Kotlin Playground server
 ```kotlin
 dokka {
     pluginsConfiguration {
-        registerBinding(KotlinPlaygroundSamplesParameters::class, KotlinPlaygroundSamplesParameters::class)
-        register<KotlinPlaygroundSamplesParameters>("KotlinPlaygroundSamplesPlugin") {
+        kotlinPlaygroundSamples {
             kotlinPlaygroundScript = "https://customKotlinPlaygroundScript/example.js"
             kotlinPlaygroundServer = "https://kotlinPlaygroundServer.example.com/"
         }
-    }
-}
-
-@OptIn(InternalDokkaGradlePluginApi::class)
-abstract class KotlinPlaygroundSamplesParameters @Inject constructor(
-    name: String
-) : DokkaPluginParametersBaseSpec(
-    name,
-    "org.jetbrains.dokka.kotlinplaygroundsamples.KotlinPlaygroundSamplesPlugin",
-) {
-    @get:Input
-    abstract val kotlinPlaygroundScript: Property<String>
-
-    @get:Input
-    abstract val kotlinPlaygroundServer: Property<String>
-
-    override fun jsonEncode(): String {
-        return """
-        {
-          "kotlinPlaygroundScript": "${kotlinPlaygroundScript.get()}",
-          "kotlinPlaygroundServer": "${kotlinPlaygroundServer.get()}"
-        }
-        """.trimIndent()
     }
 }
 ```
