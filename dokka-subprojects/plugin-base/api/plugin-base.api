@@ -279,12 +279,6 @@ public final class org/jetbrains/dokka/base/renderers/PackageListService$Compani
 	public final fun renderPackageList (Ljava/util/Map;Ljava/util/Map;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 }
 
-public final class org/jetbrains/dokka/base/renderers/PackageListServiceKt {
-	public static final fun toLocationString (Lorg/jetbrains/dokka/links/Callable;)Ljava/lang/String;
-	public static final fun toLocationString (Lorg/jetbrains/dokka/links/DRI;)Ljava/lang/String;
-	public static final fun toLocationString (Lorg/jetbrains/dokka/links/TypeReference;)Ljava/lang/String;
-}
-
 public final class org/jetbrains/dokka/base/renderers/RootCreator : org/jetbrains/dokka/transformers/pages/PageTransformer {
 	public static final field INSTANCE Lorg/jetbrains/dokka/base/renderers/RootCreator;
 	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;

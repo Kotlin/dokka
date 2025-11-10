@@ -89,7 +89,7 @@ public class PackageListService(
     }
 }
 
-public fun DRI.toLocationString(): String {
+internal fun DRI.toLocationString(): String {
     return "${packageName.orEmpty()}/" +
             "${classNames.orEmpty()}/" +
             "${callable?.name.orEmpty()}/" +
@@ -98,7 +98,7 @@ public fun DRI.toLocationString(): String {
             extra.orEmpty()
 }
 
-public fun Callable.toLocationString(): String {
+internal fun Callable.toLocationString(): String {
     val contextParameters = @OptIn(ExperimentalDokkaApi::class) contextParameters.joinToString("#") { it.toLocationString() }
     val receiver = receiver?.toLocationString().orEmpty()
     val params = params.joinToString("#") { it.toLocationString() }
@@ -108,7 +108,7 @@ public fun Callable.toLocationString(): String {
     }
 }
 
-public fun TypeReference.toLocationString(): String {
+internal fun TypeReference.toLocationString(): String {
     return when (this) {
         is JavaClassReference -> toString()
         is Nullable -> toString()
