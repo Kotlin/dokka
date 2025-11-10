@@ -11,6 +11,7 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.javadoc.PsiDocToken
 import com.intellij.psi.javadoc.PsiInlineDocTag
+import com.intellij.psi.javadoc.PsiSnippetDocTag
 import org.jetbrains.dokka.analysis.java.doccomment.DocumentationContent
 import org.jetbrains.dokka.analysis.java.JavadocTag
 import org.jetbrains.dokka.analysis.java.doccomment.PsiDocumentationContent
@@ -123,9 +124,16 @@ internal class PsiElementToHtmlConverter(
                         }?.parsedLine.orEmpty()
                     html
                 }
+                "snippet" -> "<pre><code>${processSnippet(this as PsiSnippetDocTag)}</code></pre>"
 
                 else -> this.text
             }
+
+        private fun processSnippet(snippet: PsiSnippetDocTag): String {
+            return snippet.valueElement?.body?.content?.joinToString("\n") {
+                it.stringifyElementAsText(keepFormatting = true).orEmpty()
+            }?.htmlEscape() ?: "// snippet not resolved"
+        }
 
         private fun DocumentationContent.toInheritDocHtml(
             parserState: HtmlParserState,
