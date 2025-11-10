@@ -3,12 +3,7 @@
  */
 package org.jetbrains.dokka.gradle.adapters
 
-import com.android.build.api.variant.AndroidComponentsExtension
-import com.android.build.api.variant.Variant
-import org.gradle.api.Named
-import org.gradle.api.NamedDomainObjectContainer
-import org.gradle.api.Plugin
-import org.gradle.api.Project
+import org.gradle.api.*
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
 import org.gradle.api.logging.Logger
@@ -33,12 +28,9 @@ import org.jetbrains.kotlin.commonizer.stdlib
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
+import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.androidJvm
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataCompilation
@@ -62,17 +54,6 @@ abstract class KotlinAdapter @Inject constructor(
     override fun apply(project: Project) {
         logger.info("Applying $dkaName to ${project.path}")
 
-        project.plugins.withType<DokkaBasePlugin>().configureEach {
-            project.pluginManager.apply {
-                withPlugin(PluginId.KotlinAndroid) { exec(project) }
-                withPlugin(PluginId.KotlinJs) { exec(project) }
-                withPlugin(PluginId.KotlinJvm) { exec(project) }
-                withPlugin(PluginId.KotlinMultiplatform) { exec(project) }
-            }
-        }
-    }
-
-    private fun exec(project: Project) {
         val kotlinExtension = project.findKotlinExtension()
         if (kotlinExtension == null) {
             logger.info("Skipping applying $dkaName in ${project.path} - could not find KotlinProjectExtension")
@@ -170,7 +151,7 @@ abstract class KotlinAdapter @Inject constructor(
                     }
                 logger.info(
                     "[$projectPath] Dokka could not determine KotlinPlatform for ${details.name} from targets ${compilations.map { it.target }}. " +
-                            "Dokka will assume this is a ${defaultPlatform} source set. " +
+                            "Dokka will assume this is a $defaultPlatform source set. " +
                             "(All platforms: $allPlatforms)"
                 )
                 defaultPlatform
@@ -210,6 +191,73 @@ abstract class KotlinAdapter @Inject constructor(
             val kgpVersion = getKotlinPluginVersion(logger)
             KotlinToolingVersion(kgpVersion)
         }
+
+        /**
+         * Applies [KotlinAdapter] to the current project when any plugin of type [KotlinBasePlugin]
+         * is applied.
+         *
+         * [KotlinBasePlugin] is the parent type for the Kotlin/JVM, Kotlin/Multiplatform, Kotlin/JS plugins,
+         * as well as AGP's kotlin-built-in plugin.
+         */
+        internal fun applyTo(project: Project) {
+            findKotlinBasePlugins(project)?.all {
+                project.pluginManager.apply(KotlinAdapter::class)
+            }
+        }
+
+        /**
+         * Tries fetching all plugins with type [KotlinBasePlugin],
+         * returning `null` if the class is not available in the current classloader.
+         *
+         * (The class might not be available if the current project is a Java or Android project,
+         * or the buildscripts have an inconsistent classpath https://github.com/gradle/gradle/issues/27218)
+         */
+        private fun findKotlinBasePlugins(project: Project): DomainObjectCollection<KotlinBasePlugin>? {
+            return try {
+                project.plugins.withType<KotlinBasePlugin>()
+            } catch (ex: Throwable) {
+                when (ex) {
+                    is ClassNotFoundException,
+                    is NoClassDefFoundError -> {
+                        logger.info("Dokka Gradle Plugin could not load KotlinBasePlugin in project ${project.displayName} - ${ex::class.qualifiedName} ${ex.message}")
+                        logWarningIfKgpApplied(
+                            project,
+                            kotlinBasePluginNotFoundException = ex,
+                        )
+                        null
+                    }
+
+                    else -> throw ex
+                }
+            }
+        }
+
+        /**
+         * Check all plugins to see if they are a subtype of [KotlinBasePlugin].
+         * If any are, log a warning.
+         *
+         * ##### Motivation
+         *
+         * If the buildscript classpath is inconsistent, it might not be possible for DGP
+         * to react to KGP because the [KotlinBasePlugin] class can't be loaded.
+         * If so, DGP will be lenient and not cause errors,
+         * but it must display a prominent warning to help users find the problem.
+         *
+         * @param[kotlinBasePluginNotFoundException] The exception thrown when [KotlinBasePlugin] is not available.
+         */
+        private fun logWarningIfKgpApplied(
+            project: Project,
+            kotlinBasePluginNotFoundException: Throwable,
+        ) {
+            PluginId.kgpPlugins.forEach { pluginId ->
+                project.pluginManager.withPlugin(pluginId) {
+                    logger.warn(
+                        "Dokka Gradle Plugin could not load KotlinBasePlugin in project ${project.displayName}, but plugin $id is applied",
+                        kotlinBasePluginNotFoundException,
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -220,7 +268,6 @@ abstract class KotlinAdapter @Inject constructor(
  * The compilation details may come from a multiplatform project ([KotlinMultiplatformExtension])
  * or a single-platform project ([KotlinSingleTargetExtension]).
  */
-@InternalDokkaGradlePluginApi
 private data class KotlinCompilationDetails(
     /** [KotlinCompilation.target] name. */
     val target: String,
@@ -305,6 +352,11 @@ private class KotlinCompilationDetailsBuilder(
         }
 
         return androidVariants
+    }
+
+    private fun collectAndroidVariants(project: Project, androidVariants: SetProperty<AndroidVariantInfo>) {
+        val androidComponents = project.findAndroidComponentsExtension() ?: return
+        collectAndroidVariants(androidComponents, androidVariants)
     }
 
     /** Create a single [KotlinCompilationDetails] for [compilation]. */
@@ -629,84 +681,3 @@ private class KotlinSourceSetDetailsBuilder(
 /** Try and get [KotlinProjectExtension], or `null` if it's not present. */
 private fun Project.findKotlinExtension(): KotlinProjectExtension? =
     findExtensionLenient<KotlinProjectExtension>("kotlin")
-
-
-/** Try and get [AndroidComponentsExtension], or `null` if it's not present. */
-private fun Project.findAndroidComponentExtension(): AndroidComponentsExtension<*, *, *>? =
-    findExtensionLenient<AndroidComponentsExtension<*, *, *>>("androidComponents")
-
-
-/**
- * Store details about a [Variant].
- *
- * @param[name] [Variant.name].
- * @param[hasPublishedComponent] `true` if any component of the variant is 'published',
- * i.e. it is an instance of [Variant].
- */
-private data class AndroidVariantInfo(
-    val name: String,
-    val hasPublishedComponent: Boolean,
-)
-
-/**
- * Collect [AndroidVariantInfo]s of the Android [Variant]s in this Android project.
- *
- * We store the collected data in a custom class to aid with Configuration Cache compatibility.
- *
- * This function must only be called when AGP is applied
- * (otherwise [findAndroidComponentExtension] will return `null`),
- * i.e. inside a `withPlugin(...) {}` block.
- *
- * ## How to determine publishability of AGP Variants
- *
- * There are several Android Gradle plugins.
- * Each AGP has a specific associated [Variant]:
- * - `com.android.application` - [com.android.build.api.variant.ApplicationVariant]
- * - `com.android.library` - [com.android.build.api.variant.DynamicFeatureVariant]
- * - `com.android.test` - [com.android.build.api.variant.LibraryVariant]
- * - `com.android.dynamic-feature` - [com.android.build.api.variant.TestVariant]
- *
- * A [Variant] is 'published' (or otherwise shared with other projects).
- * Note that a [Variant] might have [nestedComponents][Variant.nestedComponents].
- * If any of these [com.android.build.api.variant.Component]s are [Variant]s,
- * then the [Variant] itself should be considered 'publishable'.
- *
- * If a [KotlinSourceSet] has an associated [Variant],
- * it should therefore be documented by Dokka by default.
- *
- * ### Associating Variants with Compilations with SourceSets
- *
- * So, how can we associate a [KotlinSourceSet] with a [Variant]?
- *
- * Fortunately, Dokka already knows about the [KotlinCompilation]s associated with a specific [KotlinSourceSet].
- *
- * So, for each [KotlinCompilation], find a [Variant] with the same name,
- * i.e. [KotlinCompilation.getName] is the same as [Variant.name].
- *
- * Next, determine if the [Variant] associated with a [KotlinCompilation] is 'publishable' by
- * checking if it _or_ any of its [nestedComponents][Variant.nestedComponents]
- * are 'publishable' (i.e. is an instance of [Variant]).
- * (We can we use [Variant.components] to check both the [Variant] and its `nestedComponents` the same time.)
- */
-private fun collectAndroidVariants(
-    project: Project,
-    androidVariants: SetProperty<AndroidVariantInfo>,
-) {
-    val androidComponents = project.findAndroidComponentExtension()
-
-    androidComponents?.onVariants { variant ->
-        val hasPublishedComponent =
-            variant.components.any { component ->
-                // a Variant is a subtype of a Component that is shared with consumers,
-                // so Dokka should consider it 'publishable'
-                component is Variant
-            }
-
-        androidVariants.add(
-            AndroidVariantInfo(
-                name = variant.name,
-                hasPublishedComponent = hasPublishedComponent,
-            )
-        )
-    }
-}

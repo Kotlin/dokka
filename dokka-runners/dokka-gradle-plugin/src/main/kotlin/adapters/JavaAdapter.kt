@@ -20,10 +20,7 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
-import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
-import org.jetbrains.dokka.gradle.internal.PluginId
-import org.jetbrains.dokka.gradle.internal.or
-import org.jetbrains.dokka.gradle.internal.uppercaseFirstChar
+import org.jetbrains.dokka.gradle.internal.*
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import javax.inject.Inject
 
@@ -118,10 +115,7 @@ abstract class JavaAdapter @Inject constructor(
     ): Provider<Boolean> {
 
         val projectHasKotlinPlugin = providers.provider {
-            project.pluginManager.hasPlugin(PluginId.KotlinAndroid)
-                    || project.pluginManager.hasPlugin(PluginId.KotlinJs)
-                    || project.pluginManager.hasPlugin(PluginId.KotlinJvm)
-                    || project.pluginManager.hasPlugin(PluginId.KotlinMultiplatform)
+            PluginId.kgpPlugins.any { project.pluginManager.hasPlugin(it) }
         }
 
         val projectHasAndroidPlugin = providers.provider {
