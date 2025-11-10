@@ -318,7 +318,8 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                         "kotlin.collections.List",
                         listOf(
                             TypeParam(
-                                "T", listOf(Nullable(TypeConstructor("kotlin.Any", emptyList())))
+                                name = "T",
+                                bounds = listOf(Nullable(TypeConstructor("kotlin.Any", emptyList())))
                             )
                         )
                     )
@@ -336,7 +337,8 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                         "kotlin.collections.List",
                         listOf(
                             TypeParam(
-                                "T", listOf(Nullable(TypeConstructor("kotlin.Any", emptyList())))
+                                name = "T",
+                                bounds = listOf(Nullable(TypeConstructor("kotlin.Any", emptyList())))
                             )
                         )
                     )
@@ -345,8 +347,8 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                     this.dri.callable?.receiver equals receiver
                     this.dri.callable?.params equals listOf(
                         TypeParam(
-                            "T",
-                            listOf(
+                            name = "T",
+                            bounds = listOf(
                                 Nullable(
                                     TypeConstructor(
                                         "kotlin.Any",

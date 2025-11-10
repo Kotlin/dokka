@@ -45,7 +45,7 @@ private fun KaSession.getTypeReferenceFromPossiblyRecursive(
                 type.symbol.upperBounds.takeIf { it.isNotEmpty() } ?: listOf(this.builtinTypes.nullableAny)
 
             TypeParam(
-                type.name.asString(),
+                name = type.name.asString(),
                 bounds = upperBoundsOrNullableAny.map {
                     getTypeReferenceFromPossiblyRecursive(
                         it,

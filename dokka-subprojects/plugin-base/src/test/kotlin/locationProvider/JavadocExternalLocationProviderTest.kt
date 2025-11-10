@@ -130,7 +130,7 @@ class JavadocExternalLocationProviderTest : BaseAbstractTest() {
             callable = Callable(
                 name = "asList",
                 params = listOf(
-                    Nullable(Vararg(TypeParam("T", listOf(TypeConstructor("kotlin.Any", emptyList())))))
+                    Nullable(Vararg(TypeParam(name = "T", bounds = listOf(TypeConstructor("kotlin.Any", emptyList())))))
                 ),
             ),
             target = PointingToDeclaration

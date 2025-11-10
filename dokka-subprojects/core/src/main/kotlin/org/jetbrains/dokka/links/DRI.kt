@@ -128,7 +128,23 @@ public data class JavaClassReference(val name: String) : TypeReference() {
     override fun toString(): String = name
 }
 
-public data class TypeParam(val name: String, val bounds: List<TypeReference>) : TypeReference()
+public data class TypeParam(
+    val bounds: List<TypeReference>,
+    val name: String,
+) : TypeReference() {
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public constructor(
+        bounds: List<TypeReference>,
+    ) : this(bounds, "")
+
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public fun copy(
+        bounds: List<TypeReference>
+    ): TypeParam = copy(bounds = bounds, name = name)
+}
+
 
 public data class TypeConstructor(
     val fullyQualifiedName: String,
