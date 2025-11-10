@@ -37,7 +37,7 @@ internal class JavadocAccessorNamingTest : AbstractJavadocTemplateMapTest() {
             /**
              * Test links:
              * - [TestCase.issuesFetched]
-             * - [TestCase.isFoo()]
+             * - [TestCase.isFoo]
              */
             data class TestCase(
                var issuesFetched: Int,
