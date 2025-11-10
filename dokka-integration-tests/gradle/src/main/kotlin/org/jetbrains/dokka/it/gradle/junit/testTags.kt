@@ -44,12 +44,18 @@ annotation class TestsKotlinMultiplatform
  * If a test is annotated with [TestsAndroid] then
  * [DokkaGradlePluginTestExtension] will run the test multiple times,
  * and provide a [DokkaGradleProjectRunner] using [TestedVersions.Android].
+ *
+ * @param[minAgpVersion] Inclusive lower-bound for AGP versions.
+ * @param[maxAgpVersion] Exclusive upper-bound for AGP versions.
  */
 @Tag("Android")
 @Target(FUNCTION, CLASS)
 @MustBeDocumented
 @Inherited
-annotation class TestsAndroid
+annotation class TestsAndroid(
+    val minAgpVersion: String = "",
+    val maxAgpVersion: String = "",
+)
 
 
 /**
@@ -58,10 +64,16 @@ annotation class TestsAndroid
  * If a test is annotated with [TestsAndroid] then
  * [DokkaGradlePluginTestExtension] will run the test multiple times,
  * and provide a [DokkaGradleProjectRunner] using [TestedVersions.AndroidCompose].
+ *
+ * @param[minAgpVersion] Inclusive lower-bound for AGP versions.
+ * @param[maxAgpVersion] Exclusive upper-bound for AGP versions.
  */
 @Tag("Compose")
 @TestsAndroid
 @Target(FUNCTION, CLASS)
 @MustBeDocumented
 @Inherited
-annotation class TestsAndroidCompose
+annotation class TestsAndroidCompose(
+    val minAgpVersion: String = "",
+    val maxAgpVersion: String = "",
+)
