@@ -1,5 +1,5 @@
 plugins {
-    kotlin("multiplatform") version "2.2.0"
+    kotlin("multiplatform") version "2.2.21"
     id("org.jetbrains.dokka") version "2.1.0"
 }
 
@@ -9,7 +9,12 @@ version = "1.0-SNAPSHOT"
 kotlin {
     jvm()
 
-    js(IR) {
+    js {
+        browser()
+    }
+
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
         browser()
     }
 

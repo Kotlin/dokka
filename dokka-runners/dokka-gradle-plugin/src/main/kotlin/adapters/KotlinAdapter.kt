@@ -181,20 +181,20 @@ abstract class KotlinAdapter @Inject constructor(
         }
         aggregatedClasspath.from(directClasspath)
 
-        val combinedClasspath = details.allCompilations.map { compilations: List<KotlinCompilationDetails> ->
-            val classpath = objects.fileCollection()
-
-            if (compilations.none { it.isMetadata }) {
-                logger.info("[$dkaName] No metadata compilation found for ${details.name}. The classpath of all compilations will also be used.")
-                classpath.from(compilations.map { it.compilationClasspath })
-                compilations.fold(classpath) { acc, compilation ->
-                    acc.from(compilation.compilationClasspath)
-                }
-            }
-
-            classpath
-        }
-        aggregatedClasspath.from(combinedClasspath)
+//        val combinedClasspath = details.allCompilations.map { compilations: List<KotlinCompilationDetails> ->
+//            val classpath = objects.fileCollection()
+//
+//            if (compilations.none { it.isMetadata }) {
+//                logger.info("[$dkaName] No metadata compilation found for ${details.name}. The classpath of all compilations will also be used.")
+//                classpath.from(compilations.map { it.compilationClasspath })
+//                compilations.fold(classpath) { acc, compilation ->
+//                    acc.from(compilation.compilationClasspath)
+//                }
+//            }
+//
+//            classpath
+//        }
+//        aggregatedClasspath.from(combinedClasspath)
 
         return aggregatedClasspath
     }

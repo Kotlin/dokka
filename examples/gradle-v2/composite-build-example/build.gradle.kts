@@ -21,3 +21,10 @@ tasks.clean {
         gradle.includedBuild("module-kea").task(":clean"),
     )
 }
+
+tasks.assemble {
+    dependsOn(
+        gradle.includedBuild("module-kakapo").task(":assemble"),
+        gradle.includedBuild("module-kea").task(":assemble"),
+    )
+}
