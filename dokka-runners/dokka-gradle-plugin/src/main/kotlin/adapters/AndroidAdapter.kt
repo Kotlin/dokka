@@ -132,6 +132,7 @@ private interface AndroidExtensionWrapper {
             return object : AndroidExtensionWrapper {
                 private val androidVariants: SetProperty<AndroidVariantInfo> =
                     objects.setProperty(AndroidVariantInfo::class)
+                        .collectFrom(androidComponents)
 
                 /**
                  * Get the `android.jar` for the current project.
@@ -146,10 +147,6 @@ private interface AndroidExtensionWrapper {
                             .sdkComponents
                             .bootClasspath
                     }
-
-                init {
-                    collectAndroidVariants(androidComponents, androidVariants)
-                }
 
                 /** Fetch all configuration names used by all variants. */
                 override fun variantsCompileClasspath(): FileCollection {

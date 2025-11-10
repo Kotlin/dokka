@@ -356,7 +356,7 @@ private class KotlinCompilationDetailsBuilder(
 
     private fun collectAndroidVariants(project: Project, androidVariants: SetProperty<AndroidVariantInfo>) {
         val androidComponents = project.findAndroidComponentsExtension() ?: return
-        collectAndroidVariants(androidComponents, androidVariants)
+        androidVariants.collectFrom(androidComponents)
     }
 
     /** Create a single [KotlinCompilationDetails] for [compilation]. */

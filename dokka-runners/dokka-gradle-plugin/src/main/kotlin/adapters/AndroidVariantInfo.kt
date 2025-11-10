@@ -79,11 +79,12 @@ internal fun Project.findAndroidComponentsExtension(): AndroidComponentsExtensio
  * checking if it _or_ any of its [nestedComponents][Variant.nestedComponents]
  * are 'publishable' (i.e. is an instance of [Variant]).
  * (We can we use [Variant.components] to check both the [Variant] and its `nestedComponents` the same time.)
+ *
+ * @returns the receiver [SetProperty] of [AndroidVariantInfo]s.
  */
-internal fun collectAndroidVariants(
+internal fun SetProperty<AndroidVariantInfo>.collectFrom(
     androidComponents: AndroidComponentsExtension<*, *, *>,
-    androidVariants: SetProperty<AndroidVariantInfo>,
-) {
+): SetProperty<AndroidVariantInfo> {
     androidComponents.onVariants { variant ->
         val hasPublishedComponent =
             variant.components.any { component ->
@@ -92,7 +93,7 @@ internal fun collectAndroidVariants(
                 component is Variant
             }
 
-        androidVariants.add(
+        add(
             AndroidVariantInfo(
                 name = variant.name,
                 hasPublishedComponent = hasPublishedComponent,
@@ -101,4 +102,6 @@ internal fun collectAndroidVariants(
             )
         )
     }
+
+    return this
 }
