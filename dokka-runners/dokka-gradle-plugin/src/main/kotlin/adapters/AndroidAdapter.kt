@@ -120,6 +120,9 @@ private interface AndroidExtensionWrapper {
 
     fun variantsCompileClasspath(): FileCollection
 
+    /**
+     * Get the `android.jar` for the current project.
+     */
     fun bootClasspath(): Provider<List<File>>
 
     companion object {
@@ -134,19 +137,10 @@ private interface AndroidExtensionWrapper {
                     objects.setProperty(AndroidVariantInfo::class)
                         .collectFrom(androidComponents)
 
-                /**
-                 * Get the `android.jar` for the current project.
-                 *
-                 * Need to double-wrap with [Provider] because AGP will only
-                 * compute the boot classpath after the compilation options have been finalized.
-                 * Otherwise, AGP throws an exception.
-                 */
-                private val bootClasspath: Provider<Provider<List<RegularFile>>> =
-                    providers.provider {
-                        androidComponents
-                            .sdkComponents
-                            .bootClasspath
-                    }
+                private val bootClasspath: Provider<List<RegularFile>> =
+                    androidComponents
+                        .sdkComponents
+                        .bootClasspath
 
                 /** Fetch all configuration names used by all variants. */
                 override fun variantsCompileClasspath(): FileCollection {
@@ -158,10 +152,8 @@ private interface AndroidExtensionWrapper {
                 }
 
                 override fun bootClasspath(): Provider<List<File>> {
-                    return bootClasspath.flatMap { bootClasspath ->
-                        bootClasspath.map { contents ->
-                            contents.map(RegularFile::getAsFile)
-                        }
+                    return bootClasspath.map { bootClasspath ->
+                        bootClasspath.map(RegularFile::getAsFile)
                     }
                 }
             }
