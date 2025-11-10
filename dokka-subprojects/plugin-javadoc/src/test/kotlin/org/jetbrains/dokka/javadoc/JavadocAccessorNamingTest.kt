@@ -37,7 +37,7 @@ internal class JavadocAccessorNamingTest : AbstractJavadocTemplateMapTest() {
             /**
              * Test links:
              * - [TestCase.issuesFetched]
-             * - [TestCase.isFoo]
+             * - [TestCase.isFoo()]
              */
             data class TestCase(
                var issuesFetched: Int,
@@ -80,7 +80,7 @@ internal class JavadocAccessorNamingTest : AbstractJavadocTemplateMapTest() {
 
                 assertEquals(setOf(
                     "issuesFetched",
-                    "isFoo()",
+                    "isFoo",
                 ), descriptionLinks.toSet())
 
                 // Make sure that the ids from above actually exist
