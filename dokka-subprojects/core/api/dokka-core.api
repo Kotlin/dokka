@@ -648,11 +648,13 @@ public final class org/jetbrains/dokka/links/TypeConstructor : org/jetbrains/dok
 }
 
 public final class org/jetbrains/dokka/links/TypeParam : org/jetbrains/dokka/links/TypeReference {
-	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/util/List;
-	public final fun copy (Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/links/TypeParam;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/links/TypeParam;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/links/TypeParam;
+	public synthetic fun <init> (Ljava/util/List;)V
+	public fun <init> (Ljava/util/List;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/lang/String;
+	public final synthetic fun copy (Ljava/util/List;)Lorg/jetbrains/dokka/links/TypeParam;
+	public final fun copy (Ljava/util/List;Ljava/lang/String;)Lorg/jetbrains/dokka/links/TypeParam;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/links/TypeParam;Ljava/util/List;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/links/TypeParam;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getBounds ()Ljava/util/List;
 	public final fun getName ()Ljava/lang/String;
