@@ -148,7 +148,7 @@ public open class DocTagToContentConverter : CommentsToContentConverter {
             is CodeInline -> listOf(
                 ContentCodeInline(
                     buildChildren(docTag),
-                    "",
+                    docTag.params.getOrDefault("lang", ""),
                     dci,
                     sourceSets.toDisplaySourceSets(),
                     styles
