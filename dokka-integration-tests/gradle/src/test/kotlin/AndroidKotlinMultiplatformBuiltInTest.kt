@@ -19,10 +19,14 @@ import kotlin.io.path.readText
 
 /**
  * Integration test for the `it-android-kotlin-mp-builtin` project.
+ *
+ * `com.android.kotlin.multiplatform.library` was added in 8.10.0
+ * https://developer.android.com/kotlin/multiplatform/plugin#prerequisites
+ * Let's test the latest AGP 8.x version and above.
  */
 @TestsDGPv2
 @TestsAndroid(
-    minAgpVersion = "9.0.0",
+    minAgpVersion = "8.13.0",
 )
 @WithGradleProperties(GradlePropertiesProvider.AndroidKotlinBuiltIn::class)
 class AndroidKotlinMultiplatformBuiltInTest {
