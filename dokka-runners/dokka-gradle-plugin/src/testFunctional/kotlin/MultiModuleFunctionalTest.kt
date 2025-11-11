@@ -527,7 +527,7 @@ class MultiModuleFunctionalTest : FunSpec({
                 )
                 .build {
                     // the root project doesn't have KGP applied, so KotlinAdapter shouldn't be applied
-                    output shouldContain "Dokka Gradle Plugin could not load KotlinBasePlugin in project root project 'kpe-warning'"
+                    output shouldContain "Dokka Gradle Plugin could not load KotlinBasePlugin in root project 'kpe-warning'"
                     output shouldNotContain "Applying KotlinAdapter to :\n"
                 }
         }
