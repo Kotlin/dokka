@@ -14,7 +14,6 @@ kotlin {
         compileSdk = 33
         minSdk = 24
 
-        withHostTestBuilder {}.configure {}
         withDeviceTestBuilder {
             sourceSetTreeName = "test"
         }
