@@ -15,6 +15,7 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSet.MAIN_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSet.TEST_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.dokka.gradle.DokkaExtension
@@ -142,5 +143,9 @@ abstract class JavaAdapter @Inject constructor(
         fun SourceSet.isPublished(): Boolean =
             name != TEST_SOURCE_SET_NAME
                     && name.startsWith(MAIN_SOURCE_SET_NAME)
+
+        internal fun applyTo(project: Project) {
+            project.pluginManager.apply(type = JavaAdapter::class)
+        }
     }
 }
