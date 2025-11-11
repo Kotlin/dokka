@@ -29,13 +29,7 @@ internal data class AndroidVariantInfo(
 
 /** Try and get [AndroidComponentsExtension], or `null` if it's not present. */
 internal fun Project.findAndroidComponentsExtension(): AndroidComponentsExtension<*, *, *>? =
-    try {
-        findExtensionLenient<AndroidComponentsExtension<*, *, *>>("androidComponents")
-    } catch (_: NoClassDefFoundError) {
-        null
-    } catch (_: ClassNotFoundException) {
-        null
-    }
+    findExtensionLenient<AndroidComponentsExtension<*, *, *>>("androidComponents")
 
 
 /**
