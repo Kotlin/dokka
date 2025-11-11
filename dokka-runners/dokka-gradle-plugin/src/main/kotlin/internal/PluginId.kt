@@ -25,4 +25,11 @@ internal object PluginId {
     const val AndroidLibrary = "com.android.library"
     const val AndroidTest = "com.android.test"
     const val AndroidDynamicFeature = "com.android.dynamic-feature"
+    val androidPlugins: Set<String> = setOf(
+        AndroidBase,
+        AndroidApplication,
+        AndroidLibrary,
+        AndroidTest,
+        AndroidDynamicFeature,
+    )
 }

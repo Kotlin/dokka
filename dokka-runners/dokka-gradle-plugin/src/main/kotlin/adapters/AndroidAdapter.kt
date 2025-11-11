@@ -75,12 +75,10 @@ abstract class AndroidAdapter @Inject constructor(
          */
         internal fun applyTo(project: Project) {
             project.plugins.withType<DokkaBasePlugin>().all {
-                project.pluginManager.apply {
-                    withPlugin(PluginId.AndroidBase) { apply(AndroidAdapter::class) }
-                    withPlugin(PluginId.AndroidApplication) { apply(AndroidAdapter::class) }
-                    withPlugin(PluginId.AndroidLibrary) { apply(AndroidAdapter::class) }
-                    withPlugin(PluginId.AndroidTest) { apply(AndroidAdapter::class) }
-                    withPlugin(PluginId.AndroidDynamicFeature) { apply(AndroidAdapter::class) }
+                PluginId.androidPlugins.forEach { pluginId ->
+                    project.pluginManager.withPlugin(pluginId) {
+                        project.pluginManager.apply(AndroidAdapter::class)
+                    }
                 }
             }
         }

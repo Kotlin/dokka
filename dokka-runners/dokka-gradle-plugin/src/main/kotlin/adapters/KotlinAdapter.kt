@@ -349,6 +349,8 @@ private class KotlinCompilationDetailsBuilder(
             withPlugin(PluginId.AndroidBase) { collectAndroidVariants(project, androidVariants) }
             withPlugin(PluginId.AndroidApplication) { collectAndroidVariants(project, androidVariants) }
             withPlugin(PluginId.AndroidLibrary) { collectAndroidVariants(project, androidVariants) }
+            withPlugin(PluginId.AndroidDynamicFeature) { collectAndroidVariants(project, androidVariants) }
+            withPlugin(PluginId.AndroidTest) { collectAndroidVariants(project, androidVariants) }
         }
 
         return androidVariants
