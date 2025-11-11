@@ -25,14 +25,5 @@ kotlin {
                 implementation("androidx.appcompat:appcompat:1.1.0")
             }
         }
-        getByName("androidHostTest") {
-            dependencies {
-            }
-        }
-
-        getByName("androidDeviceTest") {
-            dependencies {
-            }
-        }
     }
 }
