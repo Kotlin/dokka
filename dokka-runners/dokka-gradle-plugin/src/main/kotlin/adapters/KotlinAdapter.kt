@@ -513,7 +513,7 @@ private class KotlinCompilationDetailsBuilder(
     ): Provider<Boolean> {
         return androidComponentsInfo.map { components ->
             val compilationComponents = components.filter { it.name == compilation.name }
-            val result = compilationComponents.any { component -> component.hasPublishedComponent }
+            val result = compilationComponents.any { component -> component.isPublishable }
             logger.info {
                 "[KotlinAdapter isJvmAndroidPublished] ${compilation.name} publishable:$result, compilationComponents:$compilationComponents"
             }

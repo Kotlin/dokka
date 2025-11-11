@@ -18,12 +18,3 @@ android {
 dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
 }
-
-// WORKAROUND https://github.com/Kotlin/dokka/issues/3701
-afterEvaluate {
-    dokka.dokkaSourceSets
-        .matching { it.name == "debug" }
-        .configureEach {
-            sourceRoots.setFrom(emptyList<String>())
-        }
-}

@@ -11,19 +11,18 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.SetProperty
 import org.jetbrains.dokka.gradle.internal.findExtensionLenient
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 /**
  * Store details about a [Variant].
  *
  * @param[name] [Variant.name].
- * @param[hasPublishedComponent] `true` if any component of the variant is 'published',
+ * @param[isPublishable] `true` if any component of the variant is 'published',
  * i.e. it is an instance of [Variant].
  * @param[compileClasspath] The value of [Variant.compileClasspath].
  */
 internal data class AndroidVariantInfo(
     val name: String,
-    val hasPublishedComponent: Boolean,
+    val isPublishable: Boolean,
     val compileClasspath: FileCollection,
 )
 
@@ -48,7 +47,20 @@ internal fun Project.findAndroidComponentsExtension(): AndroidComponentsExtensio
  * (otherwise [findAndroidComponentsExtension] will return `null`),
  * i.e. inside a `withPlugin(...) {}` block.
  *
- * ## How to determine publishability of AGP Variants
+ * ### tl;dr:
+ *
+ * 1. Fetch all [Variant]s from [AndroidComponentsExtension].
+ * 2. Check if a `Variant` is publishable:
+ *   are any of its [com.android.build.api.variant.Component]s publishable?
+ *   A `Component` is publishable if it is an instance of `Variant` *and* [Variant.buildType] is `release`.
+ * 3. Each [KotlinCompilation] is associated with a single `Variant`.
+ * 4. Each [org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet]
+ *   has an associated list of `KotlinCompilation`s.
+ *
+ * Therefore, Dokka must simply check if any of the
+ * `Component`s associated with a `KotlinSourceSet` are publishable.
+ *
+ * ### How to determine publishability of AGP Variants
  *
  * There are several Android Gradle plugins.
  * Each AGP has a specific associated [Variant]:
@@ -57,48 +69,38 @@ internal fun Project.findAndroidComponentsExtension(): AndroidComponentsExtensio
  * - `com.android.test` - [com.android.build.api.variant.LibraryVariant]
  * - `com.android.dynamic-feature` - [com.android.build.api.variant.TestVariant]
  *
- * A [Variant] is 'published' (or otherwise shared with other projects).
- * Note that a [Variant] might have [nestedComponents][Variant.nestedComponents].
- * If any of these [com.android.build.api.variant.Component]s are [Variant]s,
- * then the [Variant] itself should be considered 'publishable'.
+ * (`com.android.base` is the shared base of these plugins.)
  *
- * If a [KotlinSourceSet] has an associated [Variant],
- * it should therefore be documented by Dokka by default.
+ * Each [Variant] has associated [com.android.build.api.variant.Component]s.
+ * Each `Component` is associated with a single [KotlinCompilation].
  *
- * ### Associating Variants with Compilations with SourceSets
+ * So, we can determine if a [KotlinCompilation] is 'publishable' by checking the associated
+ * `Component` is 'publishable'.
  *
- * So, how can we associate a [KotlinSourceSet] with a [Variant]?
+ * We consider a `Component` as publishable if:
  *
- * Fortunately, Dokka already knows about the [KotlinCompilation]s associated with a specific [KotlinSourceSet].
- *
- * So, for each [KotlinCompilation], find a [Variant] with the same name,
- * i.e. [KotlinCompilation.getName] is the same as [Variant.name].
- *
- * Next, determine if the [Variant] associated with a [KotlinCompilation] is 'publishable' by
- * checking if it _or_ any of its [nestedComponents][Variant.nestedComponents]
- * are 'publishable' (i.e. is an instance of [Variant]).
- * (We can we use [Variant.components] to check both the [Variant] and its `nestedComponents` the same time.)
+ * 1. It is an instance of [Variant] (e.g. it is a [com.android.build.api.variant.LibraryVariant]).
+ * 2. [Variant.buildType] is `release` (i.e. not `debug`, or some custom value).
  *
  * @returns the receiver [SetProperty] of [AndroidVariantInfo]s.
  */
 internal fun SetProperty<AndroidVariantInfo>.collectFrom(
     androidComponents: AndroidComponentsExtension<*, *, *>,
 ): SetProperty<AndroidVariantInfo> {
-    androidComponents.onVariants { variant ->
-        val hasPublishedComponent =
-            variant.components.any { component ->
-                // a Variant is a subtype of a Component that is shared with consumers,
-                // so Dokka should consider it 'publishable'
-                component is Variant
-            }
+    androidComponents.selector()
 
-        add(
-            AndroidVariantInfo(
-                name = variant.name,
-                hasPublishedComponent = hasPublishedComponent,
-                compileClasspath = variant.compileClasspath,
-            )
-        )
+    androidComponents.onVariants { variant ->
+        variant.components
+            .filterIsInstance<Variant>()
+            .forEach { component ->
+                add(
+                    AndroidVariantInfo(
+                        name = component.name,
+                        isPublishable = variant.buildType.equals("release", ignoreCase = true),
+                        compileClasspath = component.compileClasspath,
+                    )
+                )
+            }
     }
 
     return this
