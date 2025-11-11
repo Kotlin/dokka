@@ -111,11 +111,12 @@ internal fun Callable.toUrlString(): String {
 internal fun TypeReference.toUrlString(): String {
     return when (this) {
         is JavaClassReference -> toString()
-        is Nullable -> toString()
+        is Nullable -> "${wrapped.toUrlString()}?"
         is StarProjection -> toString()
-        is TypeConstructor -> toString()
-        is TypeParam -> "TypeParam(bounds=$bounds)"
+        is TypeConstructor -> fullyQualifiedName +
+                (if (params.isNotEmpty()) "[${params.joinToString(",") { it.toUrlString() }}]" else "")
+        is TypeParam -> "TypeParam(bounds=[${bounds.joinToString { it.toUrlString() }}])"
         is RecursiveType -> toString()
-        is Vararg -> toString()
+        is Vararg -> "vararg(${elementType.toUrlString()})"
     }
 }
