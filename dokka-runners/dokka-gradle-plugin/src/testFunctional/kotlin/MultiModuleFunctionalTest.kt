@@ -543,8 +543,8 @@ class MultiModuleFunctionalTest : FunSpec({
                     // the subprojects should have KotlinAdapter applied, but the extension should be unavailable
                     // because the buildscript classpath is inconsistent.
                     // (DGP is applied to the root project, but KGP is not.)
-                    output shouldContain "Dokka Gradle Plugin could not load KotlinBasePlugin in project project ':subproject-hello', but plugin org.jetbrains.kotlin.jvm is applied"
-                    output shouldContain "Dokka Gradle Plugin could not load KotlinBasePlugin in project project ':subproject-goodbye', but plugin org.jetbrains.kotlin.jvm is applied"
+                    output shouldContain "Dokka Gradle Plugin could not load KotlinBasePlugin in project ':subproject-hello', but plugin org.jetbrains.kotlin.jvm is applied"
+                    output shouldContain "Dokka Gradle Plugin could not load KotlinBasePlugin in project ':subproject-goodbye', but plugin org.jetbrains.kotlin.jvm is applied"
                 }
         }
     }

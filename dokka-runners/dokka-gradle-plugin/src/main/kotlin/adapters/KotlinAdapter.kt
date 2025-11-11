@@ -219,7 +219,7 @@ abstract class KotlinAdapter @Inject constructor(
                 when (ex) {
                     is ClassNotFoundException,
                     is NoClassDefFoundError -> {
-                        logger.info("Dokka Gradle Plugin could not load KotlinBasePlugin in project ${project.displayName} - ${ex::class.qualifiedName} ${ex.message}")
+                        logger.info("Dokka Gradle Plugin could not load KotlinBasePlugin in ${project.displayName} - ${ex::class.qualifiedName} ${ex.message}")
                         logWarningIfKgpApplied(
                             project,
                             kotlinBasePluginNotFoundException = ex,
@@ -252,7 +252,7 @@ abstract class KotlinAdapter @Inject constructor(
             PluginId.kgpPlugins.forEach { pluginId ->
                 project.pluginManager.withPlugin(pluginId) {
                     logger.warn(
-                        "Dokka Gradle Plugin could not load KotlinBasePlugin in project ${project.displayName}, but plugin $id is applied",
+                        "Dokka Gradle Plugin could not load KotlinBasePlugin in ${project.displayName}, but plugin $id is applied",
                         kotlinBasePluginNotFoundException,
                     )
                 }
