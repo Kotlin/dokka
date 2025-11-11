@@ -12,14 +12,14 @@ import kotlinx.serialization.Serializable
 public data class KdThrows(
     public val classId: KdClassifierId,
     override val documentation: KdDocumentation? = null
-) : KdDocumented()
+) : KdDocumented
 
 // return type + @return tag
 @Serializable
 public data class KdReturns(
     public val type: KdType,
     override val documentation: KdDocumentation? = null
-) : KdDocumented()
+) : KdDocumented
 
 // generics
 @Serializable
@@ -29,11 +29,11 @@ public data class KdTypeParameter(
     public val variance: KdVariance? = null,
     public val isReified: Boolean = false,
     override val documentation: KdDocumentation? = null
-) : KdDocumented()
+) : KdDocumented
 
 // parameter = receiver, context, value
 @Serializable
-public sealed class KdParameter : KdDocumented() {
+public sealed class KdParameter : KdDocumented {
     public abstract val name: String?
     public abstract val type: KdType
 }

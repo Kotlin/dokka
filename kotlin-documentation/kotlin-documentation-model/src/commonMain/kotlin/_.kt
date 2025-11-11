@@ -119,22 +119,22 @@ Workflow:
 
 private fun test() {
     KdFragment(
-        documentation = KdDocumentation(listOf(KdDocumentationElement.Text("Module docs"))),
+        documentation = KdDocumentation(listOf(KdDocumentationNode.Text("Module docs"))),
         packages = listOf(
             KdPackage(
                 id = KdPackageId("org.example.test"),
-                documentation = KdDocumentation(listOf(KdDocumentationElement.Text("Package docs"))),
+                documentation = KdDocumentation(listOf(KdDocumentationNode.Text("Package docs"))),
                 classifiers = listOf(
                     KdClass(
                         id = KdClassifierId("org.example.test", "TestClass"),
                         classKind = KdClassKind.CLASS,
-                        documentation = KdDocumentation(listOf(KdDocumentationElement.Text("Class docs"))),
+                        documentation = KdDocumentation(listOf(KdDocumentationNode.Text("Class docs"))),
                         callables = listOf(
                             KdVariable(
                                 id = KdCallableId("org.example.test", "TestClass", "test", null),
                                 variableKind = KdVariableKind.PROPERTY,
                                 returns = KdReturns(KdClassifierType(KdClassifierId("kotlin", "String"))),
-                                documentation = KdDocumentation(listOf(KdDocumentationElement.Text("Property docs")))
+                                documentation = KdDocumentation(listOf(KdDocumentationNode.Text("Property docs")))
                             )
                         )
                     )
@@ -143,3 +143,10 @@ private fun test() {
         )
     )
 }
+
+// class : org.example/ClassA - id
+// sources.jar: org/example | ClassA.kt - filepath (+ line number)
+// github: github.com/whyoleg/example | module-name/src/commonMain/kotlin/org/example | ClassA.kt - URL (+ line number)
+// external: klibs.io/whyoleg/example/org.example/ClassA
+
+// module(XXX) -> fragment(commonMain) -> package(org.example) -> file(Hell.kt) -> class -> declaration

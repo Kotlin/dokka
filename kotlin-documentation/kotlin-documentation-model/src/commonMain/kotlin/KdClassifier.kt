@@ -7,62 +7,51 @@ package org.jetbrains.kotlin.documentation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-// TODO: check Kotlin spec - it gives a good idea on how to generalize the models!!!
-
 @Serializable
-public sealed class KdClassifier : KdDeclaration() {
-    abstract override val id: KdClassifierId
+public sealed class KdClassifier : KdDeclaration()
 
-    public abstract val typeParameters: List<KdTypeParameter>
-}
+// TODO: enum is one more case? or we could represent entries as `static` variables? valueOf is `static` function, entries is `static` variable
 
 @SerialName("class")
 @Serializable
 public data class KdClass(
-    override val id: KdClassifierId,
-
+    override val name: String,
+    // TODO: check Kotlin spec - it gives a good idea on how to generalize the models!!!
+    // TODO: decide how to represent this
     // TODO: classKind and flags (data, value, inner, companion) interactions
-    public val classKind: KdClassKind,
+    val classKind: KdClassKind,
 
-    override val typeParameters: List<KdTypeParameter> = emptyList(),
+    val isCompanion: Boolean = false,
+    val isData: Boolean = false,
+    val isValue: Boolean = false,
+    val isInner: Boolean = false,
 
-    public val superTypes: List<KdType> = emptyList(),
-    public val classifiers: List<KdClassifier> = emptyList(),
-    public val callables: List<KdCallable> = emptyList(),
-    public val isExternal: Boolean = false, // TODO?
-
-    public val isCompanion: Boolean = false,
-    public val isData: Boolean = false,
-    public val isValue: Boolean = false,
-    public val isInner: Boolean = false,
-
+    val superTypes: List<KdType> = emptyList(),
+    val declarations: List<KdDeclaration> = emptyList(),
     override val sourceLanguage: KdSourceLanguage = KdSourceLanguage.KOTLIN,
     override val visibility: KdVisibility = KdVisibility.PUBLIC,
     override val modality: KdModality = KdModality.FINAL,
     override val actuality: KdActuality? = null,
-
-    override val documentation: KdDocumentation? = null,
-    override val documentationTags: List<KdDocumentationTag> = emptyList(),
+    override val isExternal: Boolean = false,
     override val annotations: List<KdAnnotation> = emptyList(),
+    override val typeParameters: List<KdTypeParameter> = emptyList(),
+    override val documentation: KdDocumentation? = null,
 ) : KdClassifier()
 
 @SerialName("typealias")
 @Serializable
 public data class KdTypealias(
-    override val id: KdClassifierId,
-
-    public val underlyingType: KdType,
-
-    override val typeParameters: List<KdTypeParameter> = emptyList(),
-
+    override val name: String,
+    val underlyingType: KdType,
+    // optionals
     override val visibility: KdVisibility = KdVisibility.PUBLIC,
     override val actuality: KdActuality? = null,
-
-    override val documentation: KdDocumentation? = null,
-    override val documentationTags: List<KdDocumentationTag> = emptyList(),
     override val annotations: List<KdAnnotation> = emptyList(),
+    override val typeParameters: List<KdTypeParameter> = emptyList(),
+    override val documentation: KdDocumentation? = null,
 ) : KdClassifier() {
     // TODO: is it true? :)
     override val sourceLanguage: KdSourceLanguage get() = KdSourceLanguage.KOTLIN
     override val modality: KdModality get() = KdModality.FINAL
+    override val isExternal: Boolean get() = false
 }

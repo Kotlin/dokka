@@ -7,83 +7,85 @@ package org.jetbrains.kotlin.documentation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-public sealed class KdDocumented {
-    public abstract val documentation: KdDocumentation?
+public sealed interface KdDocumented {
+    public val documentation: KdDocumentation?
 }
 
+// TODO: we could just inline this into `KdDocumented`, having `documentationNodes`
 @Serializable
 public data class KdDocumentation(
-    public val elements: List<KdDocumentationElement>
+    public val elements: List<KdDocumentationNode>
 )
 
 // parsed markdown representation: text, links, etc
 @Serializable
-public sealed class KdDocumentationElement {
+public sealed class KdDocumentationNode {
     @SerialName("text")
     @Serializable
-    public data class Text(public val value: String) : KdDocumentationElement()
+    public data class Text(public val value: String) : KdDocumentationNode()
 
     @SerialName("code")
     @Serializable
     public data class Code(
         public val lines: List<String>,
         public val language: String? = null
-    ) : KdDocumentationElement()
+    ) : KdDocumentationNode()
+
+    // TODO: link wrapper, e.g. [hello **from**][String]
+    @Serializable
+    public sealed class Link : KdDocumentationNode()
 
     @SerialName("parameter-link")
     @Serializable
-    public data class ParameterLink(public val parameterName: String /* this -> receiver */) : KdDocumentationElement()
+    public data class ParameterLink(public val name: String /* this -> receiver */) : Link()
 
     @SerialName("type-parameter-link")
     @Serializable
-    public data class TypeParameterLink(public val typeParameterName: String) : KdDocumentationElement()
+    public data class TypeParameterLink(public val name: String) : Link()
 
     @SerialName("reference-link")
     @Serializable
-    public data class ReferenceLink(public val elementId: KdElementId) : KdDocumentationElement()
-
-    // TODO: multi-reference, when we have ambiguity
-    @SerialName("ambiguity-reference-link")
-    @Serializable
-    public data class AmbiguityReferenceLink(public val elementIds: List<KdElementId>) : KdDocumentationElement()
+    public data class ReferenceLink(val elementIds: List<KdElementId>) : KdDocumentationNode()
 
     @SerialName("external-link")
     @Serializable
-    public data class ExternalLink(public val url: String) : KdDocumentationElement()
+    public data class ExternalLink(public val url: String) : KdDocumentationNode()
 
     @SerialName("paragraph")
     @Serializable
-    public data class Paragraph(public val elements: List<KdDocumentationElement>) : KdDocumentationElement()
+    public data class Paragraph(public val children: List<KdDocumentationNode>) : KdDocumentationNode()
+
+    // -------------------------
+
+    // tags:
+    // - ref + optional docs (@param, @throws)
+    // - docs (@return, @since, @author)
+    // - @see - TBD - multiple syntaxes
+    // - ref (@sample)
+
+    // KDoc tags (add JavaDoc tags)
+    // AUTHOR - PLAIN TAG
+    // SINCE - PLAIN TAG
+    // SEE - REFERENCE TAG (TBD)
+
+    // those tags will not map to `Tag` at all
+
+    // RETURN - PLAIN TAG -> transforms into docs for return value
+    // THROWS/EXCEPTION - REFERENCE TAG -> transforms into docs for throw
+    // RECEIVER - PLAIN TAG -> transforms into docs for receiver
+    // PARAM - REFERENCE TAG -> transforms into docs for parameter
+    // CONSTRUCTOR - CONTEXT TAG -> transforms into docs for constructor
+    // PROPERTY - CONTEXT TAG -> transforms into docs for property
+    // SAMPLE - SPECIAL TAG -> TODO
+    // SUPPRESS - SPECIAL TAG -> skips declaration
+
+    // TODO: may be reference should also sometimes allow external links
+    // TODO: may be another name
+    @Serializable
+    public data class Tag(
+        val name: String,
+        val reference: KdElementId? = null, // TODO: what type should be here?
+        val children: List<KdDocumentationNode> = emptyList(),
+    ) : KdDocumentationNode()
+
 }
-
-// tags:
-// - ref + optional docs (@param, @throws)
-// - docs (@return, @since, @author)
-// - @see - TBD - multiple syntaxes
-// - ref (@sample)
-
-// KDoc tags (add JavaDoc tags)
-// AUTHOR - PLAIN TAG
-// SINCE - PLAIN TAG
-// SEE - REFERENCE TAG (TBD)
-
-// those tags will not map to `KdTag` at all
-
-// RETURN - PLAIN TAG -> transforms into docs for return value
-// THROWS/EXCEPTION - REFERENCE TAG -> transforms into docs for throw
-// RECEIVER - PLAIN TAG -> transforms into docs for receiver
-// PARAM - REFERENCE TAG -> transforms into docs for parameter
-// CONSTRUCTOR - CONTEXT TAG -> transforms into docs for constructor
-// PROPERTY - CONTEXT TAG -> transforms into docs for property
-// SAMPLE - SPECIAL TAG -> TODO
-// SUPPRESS - SPECIAL TAG -> skips declaration
-
-// TODO: may be reference should also sometimes allow external links
-// TODO: may be another name
-@Serializable
-public data class KdDocumentationTag(
-    public val name: String,
-    public val reference: KdElementId? = null, // TODO: what type should be here?
-    override val documentation: KdDocumentation? = null,
-    // public val isCustom: Boolean?
-) : KdDocumented()
