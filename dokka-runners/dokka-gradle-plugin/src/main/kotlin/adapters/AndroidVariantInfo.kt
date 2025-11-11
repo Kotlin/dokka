@@ -7,7 +7,6 @@ package org.jetbrains.dokka.gradle.adapters
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.Variant
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.SetProperty
 import org.jetbrains.dokka.gradle.internal.findExtensionLenient
@@ -20,12 +19,12 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
  * @param[name] [Variant.name].
  * @param[hasPublishedComponent] `true` if any component of the variant is 'published',
  * i.e. it is an instance of [Variant].
+ * @param[compileClasspath] The value of [Variant.compileClasspath].
  */
 internal data class AndroidVariantInfo(
     val name: String,
     val hasPublishedComponent: Boolean,
     val compileClasspath: FileCollection,
-    val compileConfiguration: Configuration,
 )
 
 
@@ -98,7 +97,6 @@ internal fun SetProperty<AndroidVariantInfo>.collectFrom(
                 name = variant.name,
                 hasPublishedComponent = hasPublishedComponent,
                 compileClasspath = variant.compileClasspath,
-                compileConfiguration = variant.compileConfiguration,
             )
         )
     }
