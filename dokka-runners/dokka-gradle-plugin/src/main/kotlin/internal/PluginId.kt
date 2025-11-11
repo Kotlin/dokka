@@ -9,10 +9,10 @@ package org.jetbrains.dokka.gradle.internal
 @Suppress("ConstPropertyName")
 internal object PluginId {
 
-    const val KotlinAndroid = "org.jetbrains.kotlin.android"
-    const val KotlinJs = "org.jetbrains.kotlin.js"
-    const val KotlinJvm = "org.jetbrains.kotlin.jvm"
-    const val KotlinMultiplatform = "org.jetbrains.kotlin.multiplatform"
+    private const val KotlinAndroid = "org.jetbrains.kotlin.android"
+    private const val KotlinJs = "org.jetbrains.kotlin.js"
+    private const val KotlinJvm = "org.jetbrains.kotlin.jvm"
+    private const val KotlinMultiplatform = "org.jetbrains.kotlin.multiplatform"
     val kgpPlugins: Set<String> = setOf(
         KotlinAndroid,
         KotlinJs,
@@ -20,11 +20,11 @@ internal object PluginId {
         KotlinMultiplatform,
     )
 
-    const val AndroidBase = "com.android.base"
-    const val AndroidApplication = "com.android.application"
-    const val AndroidLibrary = "com.android.library"
-    const val AndroidTest = "com.android.test"
-    const val AndroidDynamicFeature = "com.android.dynamic-feature"
+    private const val AndroidBase = "com.android.base"
+    private const val AndroidApplication = "com.android.application"
+    private const val AndroidLibrary = "com.android.library"
+    private const val AndroidTest = "com.android.test"
+    private const val AndroidDynamicFeature = "com.android.dynamic-feature"
     val androidPlugins: Set<String> = setOf(
         AndroidBase,
         AndroidApplication,

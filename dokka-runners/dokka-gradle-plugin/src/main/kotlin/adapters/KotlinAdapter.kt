@@ -345,12 +345,10 @@ private class KotlinCompilationDetailsBuilder(
     ): Provider<Set<AndroidVariantInfo>> {
         val androidVariants = objects.setProperty(AndroidVariantInfo::class)
 
-        project.pluginManager.apply {
-            withPlugin(PluginId.AndroidBase) { collectAndroidVariants(project, androidVariants) }
-            withPlugin(PluginId.AndroidApplication) { collectAndroidVariants(project, androidVariants) }
-            withPlugin(PluginId.AndroidLibrary) { collectAndroidVariants(project, androidVariants) }
-            withPlugin(PluginId.AndroidDynamicFeature) { collectAndroidVariants(project, androidVariants) }
-            withPlugin(PluginId.AndroidTest) { collectAndroidVariants(project, androidVariants) }
+        PluginId.androidPlugins.forEach { pluginId ->
+            project.pluginManager.withPlugin(pluginId) {
+                collectAndroidVariants(project, androidVariants)
+            }
         }
 
         return androidVariants
