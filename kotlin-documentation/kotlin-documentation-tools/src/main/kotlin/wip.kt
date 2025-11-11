@@ -2,7 +2,7 @@
  * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.kotlin.documentation.analyzer
+package org.jetbrains.kotlin.documentation.tools
 
 import org.jetbrains.kotlin.documentation.KdFragment
 import java.nio.file.Path

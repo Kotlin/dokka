@@ -11,5 +11,5 @@ kotlin {
 }
 
 dependencies {
-    api(projects.kotlinDocumentationModel)
+    api(projects.kotlinDocumentation.kotlinDocumentationModel)
 }
