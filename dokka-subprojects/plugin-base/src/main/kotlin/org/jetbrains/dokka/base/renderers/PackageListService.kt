@@ -51,7 +51,7 @@ public class PackageListService(
                     ?: run { context.logger.error("Cannot resolve path for ${node.name}!"); null }
 
                 if (dri != DRI.topLevel && locationProvider.expectedLocationForDri(dri) != nodeLocation) {
-                    nonStandardLocations[dri.toLocationString()] = "$nodeLocation.${format.linkExtension}"
+                    nonStandardLocations[dri.toUrlString()] = "$nodeLocation.${format.linkExtension}"
                 }
             }
 
@@ -89,26 +89,26 @@ public class PackageListService(
     }
 }
 
-internal fun DRI.toLocationString(): String {
+internal fun DRI.toUrlString(): String {
     return "${packageName.orEmpty()}/" +
             "${classNames.orEmpty()}/" +
             "${callable?.name.orEmpty()}/" +
-            "${callable?.toLocationString().orEmpty()}/" +
+            "${callable?.toUrlString().orEmpty()}/" +
             "$target/" +
             extra.orEmpty()
 }
 
-internal fun Callable.toLocationString(): String {
-    val contextParameters = @OptIn(ExperimentalDokkaApi::class) contextParameters.joinToString("#") { it.toLocationString() }
-    val receiver = receiver?.toLocationString().orEmpty()
-    val params = params.joinToString("#") { it.toLocationString() }
+internal fun Callable.toUrlString(): String {
+    val contextParameters = @OptIn(ExperimentalDokkaApi::class) contextParameters.joinToString("#") { it.toUrlString() }
+    val receiver = receiver?.toUrlString().orEmpty()
+    val params = params.joinToString("#") { it.toUrlString() }
     return when {
         contextParameters.isNotEmpty() -> "${contextParameters}#${receiver}#${params}"
         else -> "${receiver}#${params}"
     }
 }
 
-internal fun TypeReference.toLocationString(): String {
+internal fun TypeReference.toUrlString(): String {
     return when (this) {
         is JavaClassReference -> toString()
         is Nullable -> toString()

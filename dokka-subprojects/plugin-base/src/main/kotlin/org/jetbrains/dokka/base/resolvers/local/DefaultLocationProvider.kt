@@ -5,6 +5,7 @@
 package org.jetbrains.dokka.base.resolvers.local
 
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.renderers.toUrlString
 import org.jetbrains.dokka.base.resolvers.external.DefaultExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.external.Dokka010ExternalLocationProvider
 import org.jetbrains.dokka.base.resolvers.external.ExternalLocationProvider
@@ -64,7 +65,7 @@ public abstract class DefaultLocationProvider(
 
     protected open fun getExternalLocation(dri: DRI, sourceSets: Set<DisplaySourceSet>): String? =
         packagesIndex[dri.packageName]?.resolve(dri)
-            ?: locationsIndex[dri.toString()]?.resolve(dri)
+            ?: locationsIndex[dri.toUrlString()]?.resolve(dri)
             ?: externalLocationProviders.values.mapNotNull { it?.resolve(dri) }.firstOrNull()
 
     private object ExternalLocationProviderOrdering : Comparator<ExternalLocationProvider> {
