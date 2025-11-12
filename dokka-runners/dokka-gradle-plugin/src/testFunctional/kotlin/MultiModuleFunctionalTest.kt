@@ -520,14 +520,17 @@ class MultiModuleFunctionalTest : FunSpec({
 
         test("expect warning regarding KotlinProjectExtension") {
             project.runner
-                .addArguments("clean")
+                .addArguments(
+                    "clean",
+                    "--stacktrace",
+                )
                 .forwardOutput()
                 .build {
                     // the root project doesn't have the KGP applied, so KotlinProjectExtension shouldn't be applied
-                    output shouldNotContain "KotlinAdapter failed to get KotlinProjectExtension in :\n"
+                    output shouldNotContain "Dokka Gradle plugin failed to get extension kotlin org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension in :\n"
 
-                    output shouldContain "KotlinAdapter failed to get KotlinProjectExtension in :subproject-hello\n"
-                    output shouldContain "KotlinAdapter failed to get KotlinProjectExtension in :subproject-goodbye\n"
+                    output shouldContain "Dokka Gradle plugin failed to get extension kotlin org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension in :subproject-hello\n"
+                    output shouldContain "Dokka Gradle plugin failed to get extension kotlin org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension in :subproject-goodbye\n"
                 }
         }
     }
