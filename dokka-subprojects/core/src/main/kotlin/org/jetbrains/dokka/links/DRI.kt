@@ -22,7 +22,7 @@ public data class DRI(
     val extra: String? = null
 ) {
     override fun toString(): String =
-        "${packageName.orEmpty()}/${classNames.orEmpty()}/${callable?.name.orEmpty()}/${callable?.signature()
+        "${packageName.orEmpty()}/${classNames.orEmpty()}/${callable?.name.orEmpty() + if(callable?.isProperty == true) "=" else ""}/${callable?.signature()
             .orEmpty()}/$target/${extra.orEmpty()}"
 
     public companion object {
