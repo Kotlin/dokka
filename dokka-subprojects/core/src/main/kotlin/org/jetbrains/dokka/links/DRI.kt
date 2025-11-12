@@ -91,6 +91,10 @@ public data class Callable(
     val contextParameters: List<TypeReference> = emptyList(),
     val isProperty: Boolean = false
 ) {
+    init {
+        if(isProperty) require(params.isEmpty())
+    }
+
     @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
     public constructor(
         name: String,
