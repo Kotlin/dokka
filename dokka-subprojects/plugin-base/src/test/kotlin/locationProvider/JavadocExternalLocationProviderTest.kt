@@ -120,4 +120,25 @@ class JavadocExternalLocationProviderTest : BaseAbstractTest() {
             locationProvider.resolve(dri)
         )
     }
+
+    @Test
+    fun `#3502 link to Java function with type parameters`() {
+        val locationProvider = getTestLocationProvider()
+        val dri = DRI(
+            packageName = "java.util",
+            classNames = "Arrays",
+            callable = Callable(
+                name = "asList",
+                params = listOf(
+                    Nullable(Vararg(TypeParam(name = "T", bounds = listOf(TypeConstructor("kotlin.Any", emptyList())))))
+                ),
+            ),
+            target = PointingToDeclaration
+        )
+
+        assertEquals(
+            "https://docs.oracle.com/javase/8/docs/api/java/util/Arrays.html#asList-T...-",
+            locationProvider.resolve(dri)
+        )
+    }
 }
