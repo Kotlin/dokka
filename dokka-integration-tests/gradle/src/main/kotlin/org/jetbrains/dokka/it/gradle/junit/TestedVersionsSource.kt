@@ -108,8 +108,9 @@ fun interface TestedVersionsSource<T : TestedVersions> {
          */
         private val allAgpVersions: List<SemVer> = listOf(
             "7.4.2",
-            "8.11.1",
-            "8.12.0",
+            "8.11.2",
+            "8.12.3",
+            "8.13.0",
             "9.0.0-alpha14",
         ).map { SemVer(it) }
 
