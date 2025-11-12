@@ -23,8 +23,10 @@ import kotlin.io.path.readText
 /**
  * Integration test for the `it-multiplatform-android-jvm` project.
  */
-@TestsAndroid
 @TestsDGPv2
+@TestsAndroid(
+    maxAgpVersion = "9.0.0",
+)
 @WithGradleProperties(GradlePropertiesProvider.Android::class)
 class MultiplatformAndroidJvmProjectIT {
 

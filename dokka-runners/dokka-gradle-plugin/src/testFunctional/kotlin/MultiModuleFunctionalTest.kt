@@ -518,19 +518,33 @@ class MultiModuleFunctionalTest : FunSpec({
             }
         }
 
-        test("expect warning regarding KotlinProjectExtension") {
+        test("expect KotlinAdapter not applied to root project") {
             project.runner
                 .addArguments(
                     "clean",
                     "--stacktrace",
+                    "--info",
                 )
-                .forwardOutput()
                 .build {
-                    // the root project doesn't have the KGP applied, so KotlinProjectExtension shouldn't be applied
-                    output shouldNotContain "Dokka Gradle plugin failed to get extension kotlin org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension in :\n"
+                    // the root project doesn't have KGP applied, so KotlinAdapter shouldn't be applied
+                    output shouldContain "Dokka Gradle Plugin could not load KotlinBasePlugin in root project 'kpe-warning'"
+                    output shouldNotContain "Applying KotlinAdapter to :\n"
+                }
+        }
 
-                    output shouldContain "Dokka Gradle plugin failed to get extension kotlin org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension in :subproject-hello\n"
-                    output shouldContain "Dokka Gradle plugin failed to get extension kotlin org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension in :subproject-goodbye\n"
+        test("expect KotlinAdapter applied to subprojects, with KotlinProjectExtension warnings") {
+            project.runner
+                .addArguments(
+                    "clean",
+                    "--stacktrace",
+                    "--warn",
+                )
+                .build {
+                    // the subprojects should have KotlinAdapter applied, but the extension should be unavailable
+                    // because the buildscript classpath is inconsistent.
+                    // (DGP is applied to the root project, but KGP is not.)
+                    output shouldContain "Dokka Gradle Plugin could not load KotlinBasePlugin in project ':subproject-hello', but plugin org.jetbrains.kotlin.jvm is applied"
+                    output shouldContain "Dokka Gradle Plugin could not load KotlinBasePlugin in project ':subproject-goodbye', but plugin org.jetbrains.kotlin.jvm is applied"
                 }
         }
     }

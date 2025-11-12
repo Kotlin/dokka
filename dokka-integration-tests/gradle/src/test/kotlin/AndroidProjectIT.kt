@@ -22,7 +22,9 @@ import kotlin.io.path.readText
 /**
  * Integration test for the `it-android` project.
  */
-@TestsAndroid
+@TestsAndroid(
+    maxAgpVersion = "9.0.0",
+)
 @TestsDGPv2
 @WithGradleProperties(GradlePropertiesProvider.Android::class)
 class AndroidProjectIT {
