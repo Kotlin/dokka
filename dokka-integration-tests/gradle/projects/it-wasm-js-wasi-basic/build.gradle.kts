@@ -16,7 +16,8 @@ kotlin {
         val wasmJsMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-wasm-js:1.7.2-wasm3")
-                implementation("org.jetbrains.kotlinx:atomicfu-wasm-js:0.22.0-wasm2")            }
+                implementation("org.jetbrains.kotlinx:atomicfu-wasm-js:0.22.0-wasm2")
+            }
         }
     }
     wasmWasi()

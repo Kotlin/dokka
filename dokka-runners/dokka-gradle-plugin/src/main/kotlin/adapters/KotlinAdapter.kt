@@ -163,8 +163,10 @@ abstract class KotlinAdapter @Inject constructor(
 
     private fun determineClasspath(
         details: KotlinSourceSetDetails
-    ): Provider<FileCollection> {
-        return details.primaryCompilations.map { compilations: List<KotlinCompilationDetails> ->
+    ): FileCollection {
+        val aggregatedClasspath = objects.fileCollection()
+
+        val directClasspath = details.primaryCompilations.map { compilations: List<KotlinCompilationDetails> ->
             val classpath = objects.fileCollection()
 
             if (compilations.isNotEmpty()) {
@@ -177,6 +179,24 @@ abstract class KotlinAdapter @Inject constructor(
                     .from(details.sourceDirectoriesOfDependents)
             }
         }
+        aggregatedClasspath.from(directClasspath)
+
+//        val combinedClasspath = details.allCompilations.map { compilations: List<KotlinCompilationDetails> ->
+//            val classpath = objects.fileCollection()
+//
+//            if (compilations.none { it.isMetadata }) {
+//                logger.info("[$dkaName] No metadata compilation found for ${details.name}. The classpath of all compilations will also be used.")
+//                classpath.from(compilations.map { it.compilationClasspath })
+//                compilations.fold(classpath) { acc, compilation ->
+//                    acc.from(compilation.compilationClasspath)
+//                }
+//            }
+//
+//            classpath
+//        }
+//        aggregatedClasspath.from(combinedClasspath)
+
+        return aggregatedClasspath
     }
 
     @InternalDokkaGradlePluginApi
