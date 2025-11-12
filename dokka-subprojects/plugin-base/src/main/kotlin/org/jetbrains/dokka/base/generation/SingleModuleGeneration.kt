@@ -21,6 +21,9 @@ import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.transformers.sources.AsyncSourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.parallelMap
 import org.jetbrains.dokka.utilities.report
+import org.jetbrains.kotlin.documentation.KdModule
+import org.jetbrains.kotlin.documentation.encodeToJson
+import org.jetbrains.kotlin.documentation.encodeToProtoBuf
 
 public class SingleModuleGeneration(private val context: DokkaContext) : Generation {
 
@@ -42,6 +45,8 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
         report("Transforming documentation model after merging")
         val transformedDocumentation = transformDocumentationModelAfterMerge(transformedDocumentationAfterMerge)
 
+        saveKdModule(transformedDocumentation.toKdModule())
+
         // Step 2: Generate pages & transform them (change internally)
         report("Creating pages")
         val pages = createPages(transformedDocumentation)
@@ -62,6 +67,15 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
     }
 
     override val generationName: String = "documentation for ${context.configuration.moduleName}"
+
+    private fun saveKdModule(module: KdModule) {
+        with(context.configuration.outputDir.resolve("kdp")) {
+            println("KDP: $absolutePath")
+            resolve("${module.name}.json").writeText(module.encodeToJson(prettyPrint = false))
+            resolve("${module.name}-pretty.json").writeText(module.encodeToJson(prettyPrint = true))
+            resolve("${module.name}.pb").writeBytes(module.encodeToProtoBuf())
+        }
+    }
 
     /**
      * Implementation note: it runs in a separated single thread due to existing support of coroutines (see #2936)
