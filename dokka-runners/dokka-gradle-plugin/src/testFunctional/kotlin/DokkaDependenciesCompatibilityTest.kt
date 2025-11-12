@@ -4,12 +4,16 @@
 package org.jetbrains.dokka.gradle
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.string.shouldNotBeBlank
 import org.jetbrains.dokka.gradle.internal.DokkaConstants.DOKKA_VERSION
 import org.jetbrains.dokka.gradle.utils.*
 
-
-class AttributeHackTest : FunSpec({
-    context("verify that DGP does not interfere with JAR Configurations") {
+/**
+ * Test Dokka creates Configurations that do not interfere with
+ * the dependency resolution of other JVM plugins.
+ */
+class DokkaDependenciesCompatibilityTest : FunSpec({
+    context("verify that DGP does not interfere with resolving JAR Configurations") {
 
         val project = initProject()
 
@@ -23,7 +27,19 @@ class AttributeHackTest : FunSpec({
             .forwardOutput()
             .build {
                 test("resolving JARs from a Dokka-enabled project should not contain Dokka plugin JARs") {
-                    output.shouldNotContainAnyOf(
+
+                    val fileCoords = output
+                        .substringAfter("--- fileCoords ---", "")
+                        .substringBefore("--- fileCoords ---", "")
+
+                    fileCoords.shouldNotBeBlank()
+
+                    fileCoords.shouldContainAll(
+                        "project :subproject-with-dokka",
+                        "org.jetbrains.kotlin:kotlin-stdlib",
+                    )
+
+                    fileCoords.shouldNotContainAnyOf(
                         "org.jetbrains.dokka",
                         "all-modules-page-plugin",
                     )
@@ -105,7 +121,9 @@ private fun initProject(
                 |  }
                 |  inputs.files(jarFilesResolver).withPropertyName("jarFilesResolver")
                 |  doLast {
+                |    println("--- fileCoords ---")
                 |    println(fileCoords.get().joinToString("\n"))
+                |    println("--- fileCoords ---")
                 |  }
                 |}
                 |

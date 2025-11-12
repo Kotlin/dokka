@@ -39,6 +39,7 @@ interface DokkaAttribute {
     }
 
     @InternalDokkaGradlePluginApi
+    @Suppress("ConstPropertyName")
     companion object {
         /**
          * Describes the type of generated output that Dokka generates.
@@ -65,5 +66,15 @@ interface DokkaAttribute {
          */
         val DokkaClasspathAttribute: Attribute<String> =
             Attribute("org.jetbrains.dokka.classpath")
+
+        /**
+         * The [org.gradle.api.attributes.Usage] attribute for Dokka JARs.
+         *
+         * We are not using [org.gradle.api.attributes.Usage.JAVA_RUNTIME] because this would create
+         * two outgoing variants exposing JARs and potentially confuse consumers.
+         *
+         * See https://github.com/adamko-dev/dokkatoo/issues/165
+         */
+        const val DokkaJavaRuntimeUsage = "dokka-java-runtime"
     }
 }
