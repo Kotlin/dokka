@@ -7,6 +7,28 @@ package org.jetbrains.kotlin.documentation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+// java variable = Represents a field, enum constant, method or constructor parameter.
+// java executable = Represents a method, constructor.
+// java type = Represents a class or interface program element (including record, enum, etc)
+
+//public interface  xxx
+
+public enum class XXX(
+    private val s: String // member
+) {
+    S(""); // static
+
+    // member (property)
+    public val sss: String = "sss"
+
+    // member
+    public fun compute(): String = s
+
+    public companion object {
+        // static-ish
+        public fun sss(): String = "sss"
+    }
+}
 // java field, kotlin property (including synthetic one), enum_entry, function, constructor
 
 @Serializable
@@ -44,11 +66,10 @@ public data class KdConstructor(
 }
 
 // TODO: how to handle overrides?
-// data class
 @SerialName("function")
 @Serializable
 public data class KdFunction(
-    override val name: String,
+    override val name: String, // TODO: what is the name for constructors? `<init>` or ``(empty-string) or class-name?
     override val returns: KdReturns,
     // optionals
     val isSuspend: Boolean = false,
@@ -71,7 +92,10 @@ public data class KdFunction(
     override val documentation: KdDocumentation? = null,
 ) : KdCallable()
 
-// TODO: probably we need to have `getter/setter` here to be able to correctly generate javadoc from this
+// TODO: should it be just property?
+// getter and setter could have different visibility, so we should have them? they could also have annotations
+// we can't really document getter or setter explicitly
+// java synthetic property can have field + get/set. Kotlin with EBH also can have different field type?
 @SerialName("variable")
 @Serializable
 public data class KdVariable(

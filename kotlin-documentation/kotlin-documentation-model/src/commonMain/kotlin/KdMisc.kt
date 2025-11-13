@@ -8,11 +8,13 @@ public enum class KdVisibility {
     PUBLIC, PROTECTED, INTERNAL, PRIVATE,
 
     // java specific visibilities
+    // should we prefix them with `JAVA_*`
     PACKAGE_PROTECTED, PACKAGE_PRIVATE
 }
 
 public enum class KdModality {
     FINAL, SEALED, OPEN, ABSTRACT;
+    // non-sealed in java?
 }
 
 public enum class KdSourceLanguage {
@@ -33,6 +35,8 @@ public enum class KdActuality {
 
 public enum class KdClassKind {
     CLASS, ENUM_CLASS, ANNOTATION_CLASS, OBJECT, INTERFACE,
+
+    JAVA_RECORD // ???
 }
 
 public enum class KdVariableKind {
