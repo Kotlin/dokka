@@ -623,12 +623,12 @@ public open class HtmlRenderer(
         div("platform-tags $cssClasses") {
             sourceSets.sortedBy { it.name }.forEach {
                 div("platform-tag") {
-                    when (it.platform.key) {
-                        "common" -> classes = classes + "common-like"
-                        "native" -> classes = classes + "native-like"
-                        "jvm" -> classes = classes + "jvm-like"
-                        "js" -> classes = classes + "js-like"
-                        "wasm" -> classes = classes + "wasm-like"
+                    classes += when (it.platform) {
+                        Platform.common -> "common-like"
+                        Platform.native -> "native-like"
+                        Platform.jvm -> "jvm-like"
+                        Platform.js -> "js-like"
+                        Platform.wasm -> "wasm-like"
                     }
                     text(it.name)
                 }
