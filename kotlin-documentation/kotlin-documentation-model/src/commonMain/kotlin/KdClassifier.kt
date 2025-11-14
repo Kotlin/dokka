@@ -12,6 +12,18 @@ public sealed class KdClassifier : KdDeclaration()
 
 // TODO: enum is one more case? or we could represent entries as `static` variables? valueOf is `static` function, entries is `static` variable
 
+// class can have `declarations` inside, typealias - just typealias
+// all class kinds can have declarations inside
+// class, interface, object
+// enum class
+// annotation class
+// data class, data object
+// value class, value object,
+// companion object
+// record (java)
+
+
+// inner class, // separate thing, only for classes
 @SerialName("class")
 @Serializable
 public data class KdClass(
@@ -24,8 +36,8 @@ public data class KdClass(
     val isCompanion: Boolean = false,
     val isData: Boolean = false,
     val isValue: Boolean = false,
-    val isInner: Boolean = false,
 
+    val isInner: Boolean = false,
     val superTypes: List<KdType> = emptyList(),
     val declarations: List<KdDeclaration> = emptyList(),
     override val sourceLanguage: KdSourceLanguage = KdSourceLanguage.KOTLIN,

@@ -39,13 +39,28 @@ public data class KdCallableId(
     public val classifierId: KdClassifierId? get() = classNames?.let { KdClassifierId(packageName, it) }
 }
 
+// represents: constructor (no name), function, property, enum_entry
+@Serializable
+public data class KdPropertyId(
+    override val packageName: String,
+    public val classNames: String?, // if null -> top-level
+    public val callableName: String?, // if null -> constructor
+) : KdDeclarationId() {
+    public val classifierId: KdClassifierId? get() = classNames?.let { KdClassifierId(packageName, it) }
+}
+
+@Serializable
+public data class KdFunctionId(
+    override val packageName: String,
+    public val classNames: String?, // if null -> top-level
+    public val callableName: String?, // if null -> constructor
+    public val parametersHash: String // if null -> no parameters? -> variable
+) : KdDeclarationId() {
+    public val classifierId: KdClassifierId? get() = classNames?.let { KdClassifierId(packageName, it) }
+}
+
 @Serializable
 public data class KdClassifierId(
     override val packageName: String,
     public val classNames: String, // it could be A.B.C for nested class
 ) : KdDeclarationId()
-
-@Serializable
-public sealed class KdElement : KdDocumented() {
-    public abstract val id: KdElementId
-}
