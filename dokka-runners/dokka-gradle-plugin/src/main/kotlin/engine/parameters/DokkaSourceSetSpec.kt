@@ -445,6 +445,28 @@ constructor(
     //endregion
 
     companion object {
+        // only lower case keys based on source-set names
+        @Suppress("SpellCheckingInspection")
+        private val sourceSetNameReplacements = mapOf(
+            "jvm" to "JVM",
+            "js" to "JS",
+            "android" to "Android JVM",
+            "androidJvm" to "Android JVM",
+
+            "ios" to "iOS",
+            "watchos" to "watchOS",
+            "macos" to "macOS",
+            "tvos" to "tvOS",
+
+            "androidNative" to "Android Native",
+
+            "wasmjs" to "Wasm/JS",
+            "wasmwasi" to "Wasm/WASI",
+        )
+
+        private fun formatDefaultSourceSetName(name: String): String {
+            return sourceSetNameReplacements[name.toLowerCase()] ?: name.capitalize()
+        }
 
         /**
          * A factory for creating [DokkaSourceSetSpec].
@@ -462,11 +484,12 @@ constructor(
                     analysisPlatform.convention(KotlinPlatform.DEFAULT)
                     displayName.convention(
                         analysisPlatform.map { platform ->
-                            if (name.equals("main", ignoreCase = true)) {
-                                platform.displayName
-                            } else {
-                                name.removeSuffix("Main")
-                            }
+                            formatDefaultSourceSetName(
+                                when {
+                                    name.equals("main", ignoreCase = true) -> platform.displayName
+                                    else -> name.removeSuffix("Main")
+                                }
+                            )
                         }
                     )
                 }
