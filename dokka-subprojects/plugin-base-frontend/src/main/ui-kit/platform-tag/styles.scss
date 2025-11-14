@@ -38,8 +38,6 @@
 
   cursor: pointer;
 
-  text-transform: capitalize;
-
   border: 0 none;
 
   border-radius: var(--size-s1);
@@ -70,15 +68,6 @@ button.platform-tag {
 
 .platform-selector-option {
   padding-left: 44px;
-}
-
-.platform-tag.js-like,
-.platform-selector-option.js-like,
-.platform-tag.jvm-like,
-.platform-selector-option.jvm-like,
-.platform-tag.wasm-like,
-.platform-selector-option.wasm-like {
-  text-transform: uppercase;
 }
 
 .filter-section .platform-tag[data-active] {
