@@ -397,7 +397,8 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                     contextParameters = listOf(
                         org.jetbrains.dokka.links.TypeConstructor("kotlin.String", emptyList()),
                         org.jetbrains.dokka.links.TypeConstructor("kotlin.Int", emptyList())
-                    )
+                    ),
+                    isProperty = true
                 )
                 documentation.values.single().children.single().text() equals "Some doc\n"
                 contextParameters counts 2

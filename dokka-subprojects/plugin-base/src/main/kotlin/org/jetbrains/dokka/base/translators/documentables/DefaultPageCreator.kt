@@ -118,7 +118,8 @@ public open class DefaultPageCreator(
                     props.mergeClashingDocumentable().map(::pageForProperties)
         else
             classlikes.renameClashingDocumentable().map(::pageForClasslike) +
-                    (functions + props).renameClashingDocumentable().mapNotNull(::pageForMember)
+                    functions.renameClashingDocumentable().map(::pageForFunction)
+                    props.renameClashingDocumentable().mapNotNull(::pageForProperty)
 
         return ClasslikePageNode(
             documentables.first().nameAfterClash(), contentForClasslikesAndEntries(documentables), dri, documentables,
@@ -159,7 +160,8 @@ public open class DefaultPageCreator(
                             entries.mergeClashingDocumentable().map(::pageForEnumEntries)
                 else
                     (nestedClasslikes + typealiases).renameClashingDocumentable().map(::pageForClasslike) +
-                            (functions + props).renameClashingDocumentable().mapNotNull(::pageForMember) +
+                            functions.renameClashingDocumentable().map(::pageForFunction)  +
+                            props.renameClashingDocumentable().mapNotNull(::pageForProperty)  +
                             entries.renameClashingDocumentable().map(::pageForEnumEntry)
 
 
@@ -205,12 +207,6 @@ public open class DefaultPageCreator(
             }
         }
         return MemberPageNode(fs.first().nameAfterClash(), contentForMembers(fs), dri, fs)
-    }
-
-    private fun pageForMember(d: Documentable): MemberPageNode? = when (d) {
-        is DProperty -> pageForProperty(d)
-        is DFunction -> pageForFunction(d)
-        else -> throw IllegalStateException()
     }
 
     public open fun pageForProperty(p: DProperty): MemberPageNode? =
