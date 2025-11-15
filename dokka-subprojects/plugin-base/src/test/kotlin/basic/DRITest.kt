@@ -539,13 +539,12 @@ class DRITest : BaseAbstractTest() {
             documentablesMergingStage = { module ->
                 val propDRI = module.dfs { it.name == "prop" }?.dri
 
-
                 assertEquals(
                     DRI("test", null, Callable("prop", null, emptyList(), isProperty = true)),
                     propDRI
                 )
                 assertEquals(
-                    "test//prop=/#/PointingToDeclaration/",
+                    "test//prop/#=/PointingToDeclaration/",
                     propDRI.toString()
                 )
             }

@@ -22,7 +22,7 @@ public data class DRI(
     val extra: String? = null
 ) {
     override fun toString(): String =
-        "${packageName.orEmpty()}/${classNames.orEmpty()}/${callable?.name.orEmpty() + if(callable?.isProperty == true) "=" else ""}/${callable?.signature()
+        "${packageName.orEmpty()}/${classNames.orEmpty()}/${callable?.name.orEmpty()}/${callable?.signature()
             .orEmpty()}/$target/${extra.orEmpty()}"
 
     public companion object {
@@ -125,17 +125,22 @@ public data class Callable(
         contextParameters: List<TypeReference>
     ): Callable = Callable(name, receiver, params, contextParameters)
 
-    public fun signature(): String {
+    public fun signature(): String = buildString {
         /**
          * Compatibility with [signature] without context parameters must be preserved,
          * as package-list (e.g. `DefaultExternalLocationProvider` in the base plugin) and unit tests
          * rely on `dri.toString`
          */
-        val contextParameters = @OptIn(ExperimentalDokkaApi::class) contextParameters
-        return if (contextParameters.isNotEmpty())
-            "${contextParameters.joinToString("#")}#${receiver?.toString().orEmpty()}#${params.joinToString("#")}"
-        else
-            "${receiver?.toString().orEmpty()}#${params.joinToString("#")}"
+        @OptIn(ExperimentalDokkaApi::class)
+        if (contextParameters.isNotEmpty()) {
+            contextParameters.joinTo(this, separator = "#", postfix = "#")
+        }
+        append(receiver?.toString().orEmpty()).append("#")
+        if (isProperty) {
+            append("=") // `params` are replaced with `=`
+        } else {
+            params.joinTo(this, separator = "#")
+        }
     }
 
     public companion object
