@@ -142,7 +142,7 @@ public data class TypeParam(
     @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
     public fun copy(
         bounds: List<TypeReference>
-    ): TypeParam = copy(bounds = bounds, name = "")
+    ): TypeParam = copy(bounds = bounds, name = name)
 }
 
 

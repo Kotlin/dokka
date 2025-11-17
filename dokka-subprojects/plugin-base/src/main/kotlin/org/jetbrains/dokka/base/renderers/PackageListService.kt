@@ -4,22 +4,12 @@
 
 package org.jetbrains.dokka.base.renderers
 
-import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.resolvers.shared.LinkFormat
 import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.DOKKA_PARAM_PREFIX
 import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.MODULE_DELIMITER
 import org.jetbrains.dokka.base.resolvers.shared.PackageList.Companion.SINGLE_MODULE_NAME
-import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.JavaClassReference
-import org.jetbrains.dokka.links.Nullable
-import org.jetbrains.dokka.links.RecursiveType
-import org.jetbrains.dokka.links.StarProjection
-import org.jetbrains.dokka.links.TypeConstructor
-import org.jetbrains.dokka.links.TypeParam
-import org.jetbrains.dokka.links.TypeReference
-import org.jetbrains.dokka.links.Vararg
 import org.jetbrains.dokka.pages.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -51,7 +41,7 @@ public class PackageListService(
                     ?: run { context.logger.error("Cannot resolve path for ${node.name}!"); null }
 
                 if (dri != DRI.topLevel && locationProvider.expectedLocationForDri(dri) != nodeLocation) {
-                    nonStandardLocations[dri.toUrlString()] = "$nodeLocation.${format.linkExtension}"
+                    nonStandardLocations[dri.toString()] = "$nodeLocation.${format.linkExtension}"
                 }
             }
 
@@ -86,37 +76,5 @@ public class PackageListService(
                         .takeIf { packages.isNotEmpty() }
             }.joinTo(this, separator = "\n", postfix = "\n")
         }
-    }
-}
-
-internal fun DRI.toUrlString(): String {
-    return "${packageName.orEmpty()}/" +
-            "${classNames.orEmpty()}/" +
-            "${callable?.name.orEmpty()}/" +
-            "${callable?.toUrlString().orEmpty()}/" +
-            "$target/" +
-            extra.orEmpty()
-}
-
-internal fun Callable.toUrlString(): String {
-    val contextParameters = @OptIn(ExperimentalDokkaApi::class) contextParameters.joinToString("#") { it.toUrlString() }
-    val receiver = receiver?.toUrlString().orEmpty()
-    val params = params.joinToString("#") { it.toUrlString() }
-    return when {
-        contextParameters.isNotEmpty() -> "${contextParameters}#${receiver}#${params}"
-        else -> "${receiver}#${params}"
-    }
-}
-
-internal fun TypeReference.toUrlString(): String {
-    return when (this) {
-        is JavaClassReference -> toString()
-        is Nullable -> "${wrapped.toUrlString()}?"
-        is StarProjection -> toString()
-        is TypeConstructor -> fullyQualifiedName +
-                (if (params.isNotEmpty()) "[${params.joinToString(",") { it.toUrlString() }}]" else "")
-        is TypeParam -> "TypeParam(bounds=[${bounds.joinToString { it.toUrlString() }}])"
-        is RecursiveType -> toString()
-        is Vararg -> "vararg(${elementType.toUrlString()})"
     }
 }

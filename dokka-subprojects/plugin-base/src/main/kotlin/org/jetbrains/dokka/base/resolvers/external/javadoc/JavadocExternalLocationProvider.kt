@@ -62,6 +62,7 @@ public open class JavadocExternalLocationProvider(
             is JavaClassReference -> name
             is Nullable -> wrapped.toJavadocURL() // just ignore
             is StarProjection -> "?"
+
             is TypeConstructor -> fullyQualifiedName
             is TypeParam -> name
             is RecursiveType -> "^".repeat(rank + 1)

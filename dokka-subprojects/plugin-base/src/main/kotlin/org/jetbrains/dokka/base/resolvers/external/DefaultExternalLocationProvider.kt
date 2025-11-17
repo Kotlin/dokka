@@ -4,7 +4,6 @@
 
 package org.jetbrains.dokka.base.resolvers.external
 
-import org.jetbrains.dokka.base.renderers.toUrlString
 import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProvider.Companion.identifierToFilename
 import org.jetbrains.dokka.base.resolvers.shared.ExternalDocumentation
 import org.jetbrains.dokka.links.DRI
@@ -18,7 +17,7 @@ public open class DefaultExternalLocationProvider(
     public val docURL: String = externalDocumentation.documentationURL.toString().removeSuffix("/") + "/"
 
     override fun resolve(dri: DRI): String? {
-        externalDocumentation.packageList.locations[dri.toUrlString()]?.let { path -> return "$docURL$path" }
+        externalDocumentation.packageList.locations[dri.toString()]?.let { path -> return "$docURL$path" }
 
         if (dri.packageName !in externalDocumentation.packageList.packages)
             return null
