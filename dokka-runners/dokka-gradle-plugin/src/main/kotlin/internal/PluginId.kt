@@ -25,13 +25,11 @@ internal object PluginId {
     private const val AndroidLibrary = "com.android.library"
     private const val AndroidTest = "com.android.test"
     private const val AndroidDynamicFeature = "com.android.dynamic-feature"
-    private const val AndroidKmpLibrary = "com.android.kotlin.multiplatform.library"
     val androidPlugins: Set<String> = setOf(
         AndroidBase,
         AndroidApplication,
         AndroidLibrary,
         AndroidTest,
         AndroidDynamicFeature,
-        AndroidKmpLibrary,
     )
 }
