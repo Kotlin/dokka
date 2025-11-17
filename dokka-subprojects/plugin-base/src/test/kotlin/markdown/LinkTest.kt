@@ -1068,7 +1068,7 @@ class LinkTest : BaseAbstractTest() {
                         "String.length" to DRI(
                             "kotlin",
                             "String",
-                            Callable(name = "length", receiver = null, params = emptyList())
+                            Callable(name = "length", receiver = null, params = emptyList(), isProperty = true)
                         )
                     ),
                     module.getAllLinkDRIFrom("usage")

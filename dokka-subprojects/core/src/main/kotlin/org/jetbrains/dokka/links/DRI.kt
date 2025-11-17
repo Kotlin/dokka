@@ -92,7 +92,10 @@ public data class Callable(
     val isProperty: Boolean = false
 ) {
     init {
-        if(isProperty) require(params.isEmpty())
+        if (isProperty) require(
+            params.isEmpty(),
+            { "Callable $name is property, but has the following parameters: $params" })
+
     }
 
     @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
@@ -125,22 +128,17 @@ public data class Callable(
         contextParameters: List<TypeReference>
     ): Callable = Callable(name, receiver, params, contextParameters)
 
-    public fun signature(): String = buildString {
+    public fun signature(): String {
         /**
          * Compatibility with [signature] without context parameters must be preserved,
          * as package-list (e.g. `DefaultExternalLocationProvider` in the base plugin) and unit tests
          * rely on `dri.toString`
          */
-        @OptIn(ExperimentalDokkaApi::class)
-        if (contextParameters.isNotEmpty()) {
-            contextParameters.joinTo(this, separator = "#", postfix = "#")
-        }
-        append(receiver?.toString().orEmpty()).append("#")
-        if (isProperty) {
-            append("=") // `params` are replaced with `=`
-        } else {
-            params.joinTo(this, separator = "#")
-        }
+        val contextParameters = @OptIn(ExperimentalDokkaApi::class) contextParameters
+        return if (contextParameters.isNotEmpty())
+            "${contextParameters.joinToString("#")}#${receiver?.toString().orEmpty()}#${params.joinToString("#")}"
+        else
+            "${receiver?.toString().orEmpty()}#${params.joinToString("#")}"
     }
 
     public companion object

@@ -544,7 +544,7 @@ class DRITest : BaseAbstractTest() {
                     propDRI
                 )
                 assertEquals(
-                    "test//prop/#=/PointingToDeclaration/",
+                    "test//prop/#/PointingToDeclaration/",
                     propDRI.toString()
                 )
             }
