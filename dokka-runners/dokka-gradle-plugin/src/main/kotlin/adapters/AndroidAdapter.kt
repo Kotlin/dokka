@@ -139,6 +139,7 @@ private interface AndroidExtensionWrapper {
                  * Need to double-wrap with [Provider] because AGP will only
                  * compute the boot classpath after the compilation options have been finalized.
                  * Otherwise, AGP throws `IllegalStateException: targetCompatibility is not yet finalized`.
+                 * https://issuetracker.google.com/issues/461382865
                  */
                 private val bootClasspath: Provider<Provider<List<RegularFile>>> =
                     providers.provider {
