@@ -1,11 +1,5 @@
 [//]: # (title: Markdown)
-
-> The Markdown output formats are still in Alpha, so you may find bugs and experience migration issues when using them.
-> **You use them at your own risk.**
->
-> Experimental formats like Markdown and Jekyll are not supported by default in Dokka 2.0.0. 
-> Workarounds for enabling these formats will be added soon.
-{style="warning"}
+<primary-label ref="alpha"/>
 
 Dokka is able to generate documentation in [GitHub Flavored](#gfm) and [Jekyll](#jekyll) compatible Markdown.
 
@@ -23,18 +17,69 @@ The GFM output format generates documentation in [GitHub Flavored Markdown](http
 <tabs group="build-script">
 <tab title="Gradle" group-key="kotlin">
 
-The [Gradle plugin for Dokka](dokka-gradle.md) comes with the GFM output format included. You can use the following tasks with it:
+The GFM format is implemented as a Dokka plugin, 
+but to properly integrate it with the [Dokka Gradle Plugin](dokka-gradle.md).
+You need to create a Dokka Format Gradle plugin:
 
-| **Task**              | **Description**                                                                                                                                                                                                                         |
-|-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `dokkaGfm`            | Generates GFM documentation for a single project.                                                                                                                                                                                       |
-| `dokkaGfmMultiModule` | A [`MultiModule`](dokka-gradle.md#multi-project-builds) task created only for parent projects in multi-project builds. It generates documentation for subprojects and collects all outputs in a single place with a common table of contents. |
-| `dokkaGfmCollector`   | A [`Collector`](dokka-gradle.md#collector-tasks) task created only for parent projects in multi-project builds. It calls `dokkaGfm` for every subproject and merges all outputs into a single virtual project.                                |
+```kotlin
+@OptIn(InternalDokkaGradlePluginApi::class)
+abstract class DokkaMarkdownPlugin : DokkaFormatPlugin(formatName = "markdown") {
+    override fun DokkaFormatPlugin.DokkaFormatPluginContext.configure() {
+        project.dependencies {
+            // Sets up current project generation
+            dokkaPlugin(dokka("gfm-plugin"))
+
+            // Sets up multimodule generation
+            formatDependencies.dokkaPublicationPluginClasspathApiOnly.dependencies.addLater(
+                dokka("gfm-template-processing-plugin")
+            )
+        }
+    }
+}
+```
+
+It's possible to declare the Dokka Format Gradle plugin directly in the build script, 
+as a separate file in build-logic, or inside a convention plugin.
+
+After you declared the Dokka Format Gradle plugin, 
+apply it in every place where the Dokka plugin is applied, including the project with aggregation 
+(such as the root project).
+
+If you are using a convention plugin, you can add it like this:
+
+```kotlin
+plugins {
+    id("org.jetbrains.dokka")
+}
+
+// Declares Markdown Gradle plugin
+@OptIn(InternalDokkaGradlePluginApi::class)
+abstract class DokkaMarkdownPlugin : DokkaFormatPlugin(formatName = "markdown") {
+    override fun DokkaFormatPlugin.DokkaFormatPluginContext.configure() {
+        project.dependencies {
+            // Sets up current project generation
+            dokkaPlugin(dokka("gfm-plugin"))
+
+            // Sets up multimodule generation
+            formatDependencies.dokkaPublicationPluginClasspathApiOnly.dependencies.addLater(
+                dokka("gfm-template-processing-plugin")
+            )
+        }
+    }
+}
+// Applies the plugin
+apply<DokkaMarkdownPlugin>()
+```
+
+Once you applied the plugin, you can run the following tasks:
+* `dokkaGenerateMarkdown` to generate documentation only in Markdown format. 
+* `dokkaGenerate` to generate documentation in [all available formats based on the applied plugins](dokka-gradle.md#configure-documentation-output-format).
 
 </tab>
 <tab title="Maven" group-key="groovy">
 
-Since GFM format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to apply it as a plugin
+Since the GFM format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), 
+you need to apply it as a plugin
 dependency:
 
 ```xml
@@ -61,7 +106,7 @@ For more information, see the Maven plugin documentation for [Other output forma
 </tab>
 <tab title="CLI" group-key="cli">
 
-Since GFM format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to 
+Since the GFM format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to 
 [download the JAR file](https://repo1.maven.org/maven2/org/jetbrains/dokka/gfm-plugin/%dokkaVersion%/gfm-plugin-%dokkaVersion%.jar)
 and pass it to `pluginsClasspath`.
 
@@ -92,8 +137,6 @@ For more information, see the CLI runner's documentation for [Other output forma
 </tab>
 </tabs>
 
-You can find the source code [on GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-gfm).
-
 ## Jekyll
 
 The Jekyll output format generates documentation in [Jekyll](https://jekyllrb.com/) compatible Markdown.
@@ -101,18 +144,46 @@ The Jekyll output format generates documentation in [Jekyll](https://jekyllrb.co
 <tabs group="build-script">
 <tab title="Gradle" group-key="kotlin">
 
-The [Gradle plugin for Dokka](dokka-gradle.md) comes with the Jekyll output format included. You can use the following tasks with it:
+The [Gradle plugin for Dokka](dokka-gradle.md) comes with the Jekyll output format included. 
 
-| **Task**                 | **Description**                                                                                                                                                                                                                         |
-|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `dokkaJekyll`            | Generates Jekyll documentation for a single project.                                                                                                                                                                                    |
-| `dokkaJekyllMultiModule` | A [`MultiModule`](dokka-gradle.md#multi-project-builds) task created only for parent projects in multi-project builds. It generates documentation for subprojects and collects all outputs in a single place with a common table of contents. |
-| `dokkaJekyllCollector`   | A [`Collector`](dokka-gradle.md#collector-tasks) task created only for parent projects in multi-project builds. It calls `dokkaJekyll` for every subproject and merges all outputs into a single virtual project.                             |
+Similar to [GFM](#gfm), you need to
+declare the Dokka Format Gradle plugin directly in the build script, 
+as a separate file in build-logic, or inside a convention plugin.
+Then, apply it in every place where the Dokka plugin is applied:
+
+```kotlin
+plugins {
+    id("org.jetbrains.dokka")
+}
+
+// Declares Markdown Gradle plugin
+@OptIn(InternalDokkaGradlePluginApi::class)
+abstract class DokkaMarkdownPlugin : DokkaFormatPlugin(formatName = "markdown") {
+    override fun DokkaFormatPlugin.DokkaFormatPluginContext.configure() {
+        project.dependencies {
+            // Sets up current project generation
+            dokkaPlugin(dokka("jekyll-plugin"))
+
+            // Sets up multimodule generation
+            formatDependencies.dokkaPublicationPluginClasspathApiOnly.dependencies.addLater(
+                dokka("jekyll-template-processing-plugin")
+            )
+        }
+    }
+}
+// Applies the plugin
+apply<DokkaMarkdownPlugin>()
+```
+
+Once you applied the plugin, you can run the following tasks:
+* `dokkaGenerateMarkdown` to generate documentation only in Markdown format.
+* `dokkaGenerate` to generate documentation in [all available formats based on the applied plugins](dokka-gradle.md#configure-documentation-output-format).
 
 </tab>
 <tab title="Maven" group-key="groovy">
 
-Since Jekyll format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to apply it as a plugin
+Since the Jekyll format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), 
+you need to apply it as a plugin
 dependency:
 
 ```xml
@@ -139,7 +210,7 @@ For more information, see the Maven plugin's documentation for [Other output for
 </tab>
 <tab title="CLI" group-key="cli">
 
-Since Jekyll format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to 
+Since the Jekyll format is implemented as a [Dokka plugin](dokka-plugins.md#apply-dokka-plugins), you need to 
 [download the JAR file](https://repo1.maven.org/maven2/org/jetbrains/dokka/jekyll-plugin/%dokkaVersion%/jekyll-plugin-%dokkaVersion%.jar).
 This format is also based on [GFM](#gfm) format, so you need to provide it as a dependency as well. Both JARs need to be passed to 
 `pluginsClasspath`:

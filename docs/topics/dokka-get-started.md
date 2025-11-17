@@ -5,18 +5,9 @@ Below you can find simple instructions to help you get started with Dokka.
 <tabs group="build-script">
 <tab title="Gradle Kotlin DSL" group-key="kotlin">
 
-> These instructions reflect Dokka Gradle plugin v1 configuration and tasks. Starting from Dokka 2.0.0, several configuration options, Gradle tasks, and steps to generate your documentation have been updated, including:
->
-> * [Adjust configuration options](dokka-migration.md#adjust-configuration-options)
-> * [Work with multi-module projects](dokka-migration.md#share-dokka-configuration-across-modules)
-> * [Generate documentation with the updated tasks](dokka-migration.md#generate-documentation-with-the-updated-task)
-> * [Specify an output directory](dokka-migration.md#output-directory)
->
-> For more details and the full list of changes in Dokka Gradle Plugin v2, see the [Migration guide](dokka-migration.md).
->
-{style="note"}
+**Apply the Gradle Dokka plugin** 
 
-Apply the Gradle plugin for Dokka in the root build script of your project:
+Apply the Dokka Gradle plugin (DGP) in the root build script of your project:
 
 ```kotlin
 plugins {
@@ -24,21 +15,34 @@ plugins {
 }
 ```
 
-When documenting [multi-project](https://docs.gradle.org/current/userguide/multi_project_builds.html) builds, you need 
-to apply the Gradle plugin within subprojects as well:
+**Document multi-module projects**
 
-```kotlin
-subprojects {
-    apply(plugin = "org.jetbrains.dokka")
-}
+When documenting [multi-module projects (multi-project builds)](https://docs.gradle.org/current/userguide/multi_project_builds.html),
+you don't need to apply the plugin to every module or subproject you want to document. Instead, share Dokka configuration across modules 
+by using one of the following approaches:
+
+* Convention plugin
+* Direct configuration in each module if you’re not using convention plugins
+
+For more information about sharing Dokka configuration in multi-module projects, 
+see [Multi-project configuration](dokka-gradle.md#multi-project-configuration).
+
+**Generate documentation**
+
+To generate documentation, run the following Gradle task:
+
+```Bash
+./gradlew :dokkaGenerate
 ```
 
-To generate documentation, run the following Gradle tasks:
+This task works for both single and multi-module projects. 
+You can use different tasks to generate output in [HTML](dokka-html.md), 
+[Javadoc](dokka-javadoc.md) or both [HTML and Javadoc](dokka-gradle.md#configure-documentation-output-format).
 
-* `dokkaHtml` for single-project builds
-* `dokkaHtmlMultiModule` for multi-project builds
+**Set output directory** 
 
-By default, the output directory is set to `/build/dokka/html` and `/build/dokka/htmlMultiModule`.
+By default, the output directory is set to `/build/dokka/html` for both multi-module and single-module projects, 
+but you can [configure it](dokka-gradle.md#general-configuration).
 
 To learn more about using Dokka with Gradle, see [Gradle](dokka-gradle.md).
 
@@ -69,7 +73,9 @@ To generate documentation, run the following Gradle tasks:
 
 By default, the output directory is set to `/build/dokka/html` and `/build/dokka/htmlMultiModule`.
 
-To learn more about using Dokka with Gradle, see [Gradle](dokka-gradle.md).
+> To learn more about using Dokka with Gradle, see [Gradle](dokka-gradle.md).
+>
+{style="tip"}
 
 </tab>
 <tab title="Maven" group-key="mvn">
