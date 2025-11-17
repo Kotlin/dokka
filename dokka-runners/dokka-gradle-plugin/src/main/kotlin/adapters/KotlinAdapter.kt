@@ -429,24 +429,29 @@ private class KotlinCompilationDetailsBuilder(
     ): Provider<FileCollection> {
         return project.configurations
             .named(compilation.compileDependencyConfigurationName)
-            .map {
-                it.incoming
+            .map { compileDependencies ->
+                compileDependencies.incoming
                     .artifactView {
-                        // Android publishes many variants, which can cause Gradle to get confused,
-                        // so specify that we need a JAR and resolve leniently
-                        if (compilation.target.platformType == androidJvm) {
-                            attributes { artifactType(artifactType) }
+                        when (compilation.target.platformType) {
+                            androidJvm -> {
+                                // Android publishes many variants, which can cause Gradle to get confused,
+                                // so specify that we need a JAR and resolve leniently
+                                attributes { artifactType(artifactType) }
 
-                            // Setting lenient=true is not ideal, because it might hide problems.
-                            // Unfortunately, Gradle has no chill and dependency resolution errors
-                            // will cause Dokka tasks to completely fail, even if the dependencies aren't necessary.
-                            // (There's a chance that the dependencies aren't even used in the project!)
-                            // So, resolve leniently to at least permit generating _something_,
-                            // even if the generated output might be incomplete and missing some classes.
-                            lenient(true)
+                                // Setting lenient=true is not ideal, because it might hide problems.
+                                // Unfortunately, Gradle has no chill and dependency resolution errors
+                                // will cause Dokka tasks to completely fail, even if the dependencies aren't necessary.
+                                // (There's a chance that the dependencies aren't even used in the project!)
+                                // So, resolve leniently to at least permit generating _something_,
+                                // even if the generated output might be incomplete and missing some classes.
+                                lenient(true)
+                            }
+
+                            else -> {
+                                // 'Regular' Kotlin compilations have non-JAR files (e.g. Kotlin/Native klibs),
+                                // so don't add attributes
+                            }
                         }
-                        // 'Regular' Kotlin compilations have non-JAR files (e.g. Kotlin/Native klibs),
-                        // so don't add attributes for non-Android projects.
                     }
                     .artifacts
                     .artifactFiles
