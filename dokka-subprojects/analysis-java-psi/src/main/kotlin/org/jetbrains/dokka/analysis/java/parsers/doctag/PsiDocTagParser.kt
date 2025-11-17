@@ -6,6 +6,7 @@ package org.jetbrains.dokka.analysis.java.parsers.doctag
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.javadoc.PsiDocTag
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.java.parsers.CommentResolutionContext
 import org.jetbrains.dokka.model.doc.*
 
@@ -17,23 +18,26 @@ internal class PsiDocTagParser(
 ) {
     fun parse(
         psiElements: Iterable<PsiElement>,
-        commentResolutionContext: CommentResolutionContext
-    ): List<DocTag> = parse(asParagraph = false, psiElements, commentResolutionContext)
+        commentResolutionContext: CommentResolutionContext,
+        sourceSet: DokkaSourceSet
+    ): List<DocTag> = parse(asParagraph = false, psiElements, commentResolutionContext, sourceSet)
 
     fun parseAsParagraph(
         psiElements: Iterable<PsiElement>,
-        commentResolutionContext: CommentResolutionContext
-    ): List<DocTag> = parse(asParagraph = true, psiElements, commentResolutionContext)
+        commentResolutionContext: CommentResolutionContext,
+        sourceSet: DokkaSourceSet
+    ): List<DocTag> = parse(asParagraph = true, psiElements, commentResolutionContext, sourceSet)
 
     private fun parse(
         asParagraph: Boolean,
         psiElements: Iterable<PsiElement>,
-        commentResolutionContext: CommentResolutionContext
+        commentResolutionContext: CommentResolutionContext,
+        sourceSet: DokkaSourceSet
     ): List<DocTag> {
         val docTagParserContext = DocTagParserContext()
 
         val psiToHtmlConverter = PsiElementToHtmlConverter(inheritDocTagResolver)
-        val elementsHtml = psiToHtmlConverter.convert(psiElements, docTagParserContext, commentResolutionContext)
+        val elementsHtml = psiToHtmlConverter.convert(psiElements, docTagParserContext, commentResolutionContext, sourceSet)
             ?: return emptyList()
 
         val htmlToDocTagConverter = HtmlToDocTagConverter(docTagParserContext)

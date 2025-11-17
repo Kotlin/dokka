@@ -12,6 +12,7 @@ import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.javadoc.PsiDocToken
 import com.intellij.psi.javadoc.PsiInlineDocTag
 import com.intellij.psi.javadoc.PsiSnippetDocTag
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.java.doccomment.DocumentationContent
 import org.jetbrains.dokka.analysis.java.JavadocTag
 import org.jetbrains.dokka.analysis.java.doccomment.PsiDocumentationContent
@@ -49,33 +50,34 @@ internal class PsiElementToHtmlConverter(
     fun convert(
         psiElements: Iterable<PsiElement>,
         docTagParserContext: DocTagParserContext,
-        commentResolutionContext: CommentResolutionContext
+        commentResolutionContext: CommentResolutionContext,
+        sourceSet: DokkaSourceSet
     ): String? {
         return WithContext(docTagParserContext, commentResolutionContext)
-            .convert(psiElements)
+            .convert(psiElements, sourceSet)
     }
 
     private inner class WithContext(
         private val docTagParserContext: DocTagParserContext,
         private val commentResolutionContext: CommentResolutionContext
     ) {
-        fun convert(psiElements: Iterable<PsiElement>): String? {
+        fun convert(psiElements: Iterable<PsiElement>, sourceSet: DokkaSourceSet): String? {
             val parsingResult =
                 psiElements.fold(HtmlParsingResult(commentResolutionContext.tag)) { resultAccumulator, psiElement ->
-                    resultAccumulator + parseHtml(psiElement, resultAccumulator.newState)
+                    resultAccumulator + parseHtml(psiElement, resultAccumulator.newState, sourceSet)
                 }
             return parsingResult.parsedLine?.trim()
         }
 
-        private fun parseHtml(psiElement: PsiElement, state: HtmlParserState): HtmlParsingResult =
+        private fun parseHtml(psiElement: PsiElement, state: HtmlParserState, sourceSet: DokkaSourceSet): HtmlParsingResult =
             when (psiElement) {
                 is PsiReference -> psiElement.children.fold(HtmlParsingResult(state)) { acc, e ->
-                    acc + parseHtml(e, acc.newState)
+                    acc + parseHtml(e, acc.newState, sourceSet)
                 }
-                else -> parseHtmlOfSimpleElement(psiElement, state)
+                else -> parseHtmlOfSimpleElement(psiElement, state, sourceSet)
             }
 
-        private fun parseHtmlOfSimpleElement(psiElement: PsiElement, state: HtmlParserState): HtmlParsingResult {
+        private fun parseHtmlOfSimpleElement(psiElement: PsiElement, state: HtmlParserState, sourceSet: DokkaSourceSet): HtmlParsingResult {
             val text = psiElement.text
 
             val openPre = state.openPreTags + preOpeningTagRegex.findAll(text).count()
@@ -83,7 +85,7 @@ internal class PsiElementToHtmlConverter(
             val isInsidePre = openPre > closedPre
 
             val parsed = when (psiElement) {
-                is PsiInlineDocTag -> psiElement.toHtml(state.currentJavadocTag)
+                is PsiInlineDocTag -> psiElement.toHtml(state.currentJavadocTag, sourceSet)
                 is PsiDocParamRef -> psiElement.toDocumentationLinkString()
                 is PsiDocTagValue, is LeafPsiElement -> {
                     psiElement.stringifyElementAsText(isInsidePre, state.previousElement)
@@ -107,7 +109,7 @@ internal class PsiElementToHtmlConverter(
          * Use the {@link #getComponentAt(int, int) getComponentAt} method.
          * ```
          */
-        private fun PsiInlineDocTag.toHtml(javadocTag: JavadocTag?): String? =
+        private fun PsiInlineDocTag.toHtml(javadocTag: JavadocTag?, sourceSet: DokkaSourceSet): String? =
             when (this.name) {
                 "link", "linkplain" -> this.referenceElement()
                     ?.toDocumentationLinkString(this.dataElements.filterIsInstance<PsiDocToken>().joinToString(" ") {
@@ -120,7 +122,7 @@ internal class PsiElementToHtmlConverter(
                 "inheritDoc" -> {
                     val inheritDocContent = inheritDocTagResolver.resolveContent(commentResolutionContext)
                     val html = inheritDocContent?.fold(HtmlParsingResult(javadocTag)) { result, content ->
-                            result + content.toInheritDocHtml(result.newState, docTagParserContext)
+                            result + content.toInheritDocHtml(result.newState, docTagParserContext, sourceSet)
                         }?.parsedLine.orEmpty()
                     html
                 }
@@ -137,11 +139,12 @@ internal class PsiElementToHtmlConverter(
 
         private fun DocumentationContent.toInheritDocHtml(
             parserState: HtmlParserState,
-            docTagParserContext: DocTagParserContext
+            docTagParserContext: DocTagParserContext,
+            sourceSet: DokkaSourceSet
         ): HtmlParsingResult {
             // TODO [beresnev] comment
             return if (this is PsiDocumentationContent) {
-                parseHtml(this.psiElement, parserState)
+                parseHtml(this.psiElement, parserState, sourceSet)
             } else {
                 HtmlParsingResult(parserState, inheritDocTagResolver.convertToHtml(this, docTagParserContext))
             }

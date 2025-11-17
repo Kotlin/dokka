@@ -8,6 +8,7 @@ package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.*
 import com.intellij.psi.util.PsiLiteralUtil
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
@@ -913,7 +914,7 @@ internal class DokkaSymbolVisitor(
             // a primary (implicit default) constructor  can be generated, so we need KDoc from @constructor tag
             getGeneratedKDocDocumentationFrom(symbol) ?: if(symbol is KaConstructorSymbol) getKDocDocumentationFrom(symbol, logger) else null
         else
-            getKDocDocumentationFrom(symbol, logger) ?: javadocParser?.let { getJavaDocDocumentationFrom(symbol, it) }
+            getKDocDocumentationFrom(symbol, logger) ?: javadocParser?.let { getJavaDocDocumentationFrom(symbol, it, sourceSet) }
 
     private fun KaSession.isObvious(functionSymbol: KaFunctionSymbol, inheritedFrom: DRI?): Boolean {
         return functionSymbol.origin == KaSymbolOrigin.SOURCE_MEMBER_GENERATED && !hasGeneratedKDocDocumentation(functionSymbol) ||

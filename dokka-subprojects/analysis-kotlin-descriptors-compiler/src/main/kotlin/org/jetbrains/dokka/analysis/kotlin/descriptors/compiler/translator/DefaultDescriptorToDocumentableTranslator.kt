@@ -1115,7 +1115,7 @@ private class DokkaDescriptorVisitor(
         return allDescriptors
             .mapNotNull { it.findPsi() as? PsiNamedElement }
             .firstOrNull()
-            ?.let { parseDocumentation(it) }
+            ?.let { parseDocumentation(it, sourceSet) }
     }
 
     private suspend fun ClassDescriptor.companion(dri: DRIWithPlatformInfo): DObject? = companionObjectDescriptor?.let {
