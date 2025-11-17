@@ -1,7 +1,6 @@
 [//]: # (title: HTML)
 
-HTML is Dokka's default and recommended output format. It is currently in Beta and approaching the Stable release.
-
+HTML is Dokka's default and recommended output format. 
 You can see an example of the output by browsing documentation
 for [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/).
 
@@ -10,14 +9,9 @@ for [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/).
 HTML as an output format is supported by all runners. To generate HTML documentation, follow these steps depending on 
 your build tool or runner:
 
-* For [Gradle](dokka-gradle.md#generate-documentation), run `dokkaHtml` or `dokkaHtmlMultiModule` tasks.
-
-  > These instructions reflect Dokka Gradle plugin v1 configuration and tasks. Starting from Dokka 2.0.0, [the Gradle tasks to generate documentation changed](dokka-migration.md#generate-documentation-with-the-updated-task).
-  >
-  > For more details and the full list of changes in Dokka Gradle Plugin v2, see the [Migration guide](dokka-migration.md).
-  >
-  {style="note"}
-
+* For [Gradle](dokka-gradle.md#generate-documentation), run the following tasks: 
+  * `dokkaGeneratePublicationHtml` to generate documentation only in HTML format. 
+  * `dokkaGenerate` to generate documentation in [all available formats based on the applied plugins](dokka-gradle.md#configure-documentation-output-format).
 * For [Maven](dokka-maven.md#generate-documentation), run the `dokka:dokka` goal.
 * For [CLI runner](dokka-cli.md#generate-documentation), run with HTML dependencies set.
 
@@ -32,59 +26,23 @@ your build tool or runner:
 
 ## Configuration
 
-HTML format is Dokka's base format, so it is configurable through `DokkaBase` and `DokkaBaseConfiguration`
-classes:
+HTML format is Dokka's base format, and you can include configuration options:
 
 <tabs group="build-script">
 <tab title="Kotlin" group-key="kotlin">
 
-Via type-safe Kotlin DSL:
-
 ```kotlin
-import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.gradle.DokkaTask
-import org.jetbrains.dokka.base.DokkaBaseConfiguration
+// build.gradle.kts
 
-buildscript {
-    dependencies {
-        classpath("org.jetbrains.dokka:dokka-base:%dokkaVersion%")
+dokka {
+    pluginsConfiguration.html {
+        customAssets.from("logo.png")
+        customStyleSheets.from("styles.css")
+        footerMessage.set("(c) Your Company")
+        separateInheritedMembers.set(false)
+        templatesDir.set(file("dokka/templates"))
+        mergeImplicitExpectActualDeclarations.set(false)
     }
-}
-
-tasks.withType<DokkaTask>().configureEach {
-    pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
-        customAssets = listOf(file("my-image.png"))
-        customStyleSheets = listOf(file("my-styles.css"))
-        footerMessage = "(c) 2022 MyOrg"
-        separateInheritedMembers = false
-        templatesDir = file("dokka/templates")
-        mergeImplicitExpectActualDeclarations = false
-    }
-}
-```
-
-Via JSON:
-
-```kotlin
-import org.jetbrains.dokka.gradle.DokkaTask
-
-tasks.withType<DokkaTask>().configureEach {
-    val dokkaBaseConfiguration = """
-    {
-      "customAssets": ["${file("assets/my-image.png")}"],
-      "customStyleSheets": ["${file("assets/my-styles.css")}"],
-      "footerMessage": "(c) 2022 MyOrg",
-      "separateInheritedMembers": false,
-      "templatesDir": "${file("dokka/templates")}",
-      "mergeImplicitExpectActualDeclarations": false
-    }
-    """
-    pluginsMapConfiguration.set(
-        mapOf(
-            // fully qualified plugin name to json configuration
-            "org.jetbrains.dokka.base.DokkaBase" to dokkaBaseConfiguration
-        )
-    )
 }
 ```
 
@@ -173,7 +131,7 @@ Via [JSON configuration](dokka-cli.md#run-with-json-configuration):
 
 ### Configuration options
 
-The table below contains all of the possible configuration options and their purpose.
+The table below contains all the possible configuration options and their purpose:
 
 | **Option**                              | **Description**                                                                                                                                                                                                                                                                               |
 |-----------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -213,8 +171,16 @@ You can provide your own images to be bundled with documentation by using the `c
 
 These files are copied to the `<output>/images` directory.
 
+You can use the `customAssets` property with collections of
+files 
+[(`FileCollection`)](https://docs.gradle.org/8.10/userguide/lazy_configuration.html#working_with_files_in_lazy_properties):
+
+```kotlin
+customAssets.from("example.png", "example2.png")
+```
+
 It's possible to override Dokka's images and icons by providing files with the same name. The most
-useful and relevant one being `logo-icon.svg`, which is the image that's used in the header. The rest is mostly icons.
+useful and relevant one is `logo-icon.svg`, which is the image used in the header. The rest is mostly icons.
 
 You can find all images used by Dokka on 
 [GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-base/src/main/resources/dokka/images).
@@ -252,7 +218,8 @@ Dokka uses the following templates:
 | `includes/page_metadata.ftl`       | Metadata used within `<head>` container.                                                                              |
 | `includes/source_set_selector.ftl` | [The source set](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) selector in the header. |
 
-The base template is `base.ftl` and it includes all of the remaining listed templates. You can find the source code for all of Dokka's templates
+The base template is `base.ftl` and it includes all the remaining listed templates. 
+You can find the source code for all of Dokka's templates
 [on GitHub](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-base/src/main/resources/dokka/templates).
 
 You can override any template by using the `templatesDir` [configuration option](#configuration). Dokka searches
@@ -272,11 +239,11 @@ The following variables are available inside all templates:
 | `${pathToRoot}`    | The path to root from the current page. It's useful for locating assets and is available only within the `template_cmd` directive.                                                                 |
 
 Variables `projectName` and `pathToRoot` are available only within the `template_cmd` directive as they require more
-context and thus they need to be resolved at later stages by the [MultiModule](dokka-gradle.md#multi-project-builds) task:
+context, and thus they need to be resolved at later stages:
 
 ```html
 <@template_cmd name="projectName">
-   <span>${projectName}</span>
+    <span>${projectName}</span>
 </@template_cmd>
 ```
 
