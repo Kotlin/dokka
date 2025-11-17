@@ -39,6 +39,22 @@ annotation class TestsKotlinMultiplatform
 
 
 /**
+ * JUnit [Tag] indicating the test involves a Kotlin Gradle plugin project.
+ *
+ * @param[minKgpVersion] Inclusive lower-bound for KGP versions.
+ * @param[maxKgpVersion] Exclusive upper-bound for KGP versions.
+ */
+@Tag("KotlinGradlePlugin")
+@Target(FUNCTION, CLASS)
+@MustBeDocumented
+@Inherited
+annotation class TestsKotlinGradlePlugin(
+    val minKgpVersion: String = "",
+    val maxKgpVersion: String = "",
+)
+
+
+/**
  * JUnit [Tag] indicating the test involves an Android project.
  *
  * If a test is annotated with [TestsAndroid] then

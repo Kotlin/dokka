@@ -26,6 +26,7 @@ import kotlin.io.path.readText
     maxAgpVersion = "9.0.0",
 )
 @TestsDGPv2
+@TestsKotlinGradlePlugin
 @WithGradleProperties(GradlePropertiesProvider.Android::class)
 class AndroidProjectIT {
 

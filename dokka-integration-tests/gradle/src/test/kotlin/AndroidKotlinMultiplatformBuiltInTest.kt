@@ -28,6 +28,11 @@ import kotlin.io.path.readText
 @TestsAndroid(
     minAgpVersion = "8.13.0",
 )
+@TestsKotlinGradlePlugin(
+    // com.android.kotlin.multiplatform.library requires KGP 2.0.0+
+    // https://developer.android.com/kotlin/multiplatform/plugin#prerequisites
+    minKgpVersion = "2.0.0",
+)
 @WithGradleProperties(GradlePropertiesProvider.AndroidKotlinBuiltIn::class)
 class AndroidKotlinMultiplatformBuiltInTest {
 

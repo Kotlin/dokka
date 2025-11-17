@@ -85,6 +85,13 @@ class DokkaGradlePluginTestExtension :
         val projectInitializer = ReflectionSupport.newInstance(dgpTest.projectInitializer.java)
         val sourceProjectDir = dgpTest.sourceProjectName
 
+        val testsKotlinGradlePluginAnnotation = context.findClosestAnnotation<TestsKotlinGradlePlugin>()
+        val kgpVersionRange = testsKotlinGradlePluginAnnotation?.run {
+            SemVerRange.from(
+                min = minKgpVersion,
+                max = maxKgpVersion,
+            )
+        }
         val testAndroidAnnotation = context.findClosestAnnotation<TestsAndroid>()
         val testsAndroidComposeAnnotation = context.findClosestAnnotation<TestsAndroidCompose>()
 
@@ -95,6 +102,7 @@ class DokkaGradlePluginTestExtension :
 
         val testedVersionsSource = when {
             testsAndroidComposeAnnotation != null -> TestedVersionsSource.AndroidCompose(
+                kgpVersionRange = kgpVersionRange,
                 agpVersionRange = SemVerRange.from(
                     min = testsAndroidComposeAnnotation.minAgpVersion,
                     max = testsAndroidComposeAnnotation.maxAgpVersion,
@@ -102,13 +110,16 @@ class DokkaGradlePluginTestExtension :
             )
 
             testAndroidAnnotation != null -> TestedVersionsSource.Android(
+                kgpVersionRange = kgpVersionRange,
                 agpVersionRange = SemVerRange.from(
                     min = testAndroidAnnotation.minAgpVersion,
                     max = testAndroidAnnotation.maxAgpVersion,
                 ),
             )
 
-            else -> TestedVersionsSource.Default
+            else -> TestedVersionsSource.Default(
+                kgpVersionRange = kgpVersionRange,
+            )
         }
 
         return testedVersionsSource.get().map { testedVersions ->

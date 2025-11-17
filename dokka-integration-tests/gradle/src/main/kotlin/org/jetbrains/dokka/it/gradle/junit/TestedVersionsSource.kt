@@ -3,7 +3,6 @@
  */
 package org.jetbrains.dokka.it.gradle.junit
 
-import org.jetbrains.dokka.it.gradle.junit.TestedVersionsSource.Default.dokkaVersionOverride
 import org.jetbrains.dokka.it.gradle.utils.SemVer
 import org.jetbrains.dokka.it.gradle.utils.SemVer.Companion.contains
 import org.jetbrains.dokka.it.gradle.utils.SemVerRange
@@ -20,7 +19,9 @@ fun interface TestedVersionsSource<T : TestedVersions> {
     /**
      * Provides [TestedVersions.Default] for a default DGP integration test.
      */
-    object Default : TestedVersionsSource<TestedVersions.Default> {
+    class Default(
+        private val kgpVersionRange: SemVerRange? = null,
+    ) : TestedVersionsSource<TestedVersions.Default> {
 
         private val dokkaVersionOverride: String? by optionalSystemProperty()
         private val dokkaVersion: String by systemProperty { dokkaVersionOverride ?: it }
@@ -43,13 +44,27 @@ fun interface TestedVersionsSource<T : TestedVersions> {
          * with a planned stable release with Kotlin 2.1.
          * When DGPv2 is released as stable, then we will support the last three Kotlin releases.
          */
-        private val allKgpVersions: List<String> = listOf(
+        private val allKgpVersions: List<SemVer> = listOf(
             "1.9.25",
             "2.0.21",
             "2.1.21",
             "2.2.21",
             "2.3.0-Beta2",
-        )
+        ).map { SemVer(it) }
+
+
+        private val matchedKgpVersions: List<SemVer> =
+            if (kgpVersionRange == null) {
+                allKgpVersions
+            } else {
+                allKgpVersions.filter { it in kgpVersionRange }
+            }
+
+        init {
+            require(matchedKgpVersions.isNotEmpty()) {
+                "No KGP versions matched the given range: $kgpVersionRange"
+            }
+        }
 
         /**
          * Gradle versions to test.
@@ -65,13 +80,13 @@ fun interface TestedVersionsSource<T : TestedVersions> {
         private val allVersions: Sequence<TestedVersions.Default> =
             sequence {
                 allDokkaGradlePluginVersions.forEach { dgp ->
-                    allKgpVersions.forEach { kgp ->
+                    matchedKgpVersions.forEach { kgp ->
                         allGradleVersions.forEach { gradle ->
                             yield(
                                 TestedVersions.Default(
                                     dgp = SemVer(dgp),
                                     gradle = SemVer(gradle),
-                                    kgp = SemVer(kgp),
+                                    kgp = kgp,
                                 )
                             )
                         }
@@ -95,6 +110,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
      * The test must be tagged with [TestsAndroid].
      */
     class Android(
+        private val kgpVersionRange: SemVerRange? = null,
         private val agpVersionRange: SemVerRange? = null,
     ) : TestedVersionsSource<TestedVersions.Android> {
 
@@ -129,7 +145,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
 
         private val allVersions: Sequence<TestedVersions.Android> =
             sequence {
-                Default.get().forEach { v ->
+                Default(kgpVersionRange).get().forEach { v ->
                     matchedAgpVersions.forEach { agp ->
                         yield(
                             TestedVersions.Android(
@@ -179,10 +195,14 @@ fun interface TestedVersionsSource<T : TestedVersions> {
      * The test must be tagged with [TestsAndroidCompose].
      */
     class AndroidCompose(
+        kgpVersionRange: SemVerRange? = null,
         agpVersionRange: SemVerRange? = null,
     ) : TestedVersionsSource<TestedVersions.AndroidCompose> {
 
-        private val androidVersions = Android(agpVersionRange)
+        private val androidVersions = Android(
+            kgpVersionRange = kgpVersionRange,
+            agpVersionRange = agpVersionRange,
+        )
 
         /**
          * Versions of the `org.jetbrains.compose` plugins.
