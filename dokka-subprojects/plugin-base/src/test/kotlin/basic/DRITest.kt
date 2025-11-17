@@ -318,7 +318,7 @@ class DRITest : BaseAbstractTest() {
                 val documentable = extensionFunction.documentables.firstOrNull() as DFunction
 
                 assertEquals(
-                    "example//extensionFunction/kotlin.collections.List[TypeParam(bounds=[kotlin.Any?], name=T)]#/PointingToDeclaration/",
+                    "example//extensionFunction/kotlin.collections.List[TypeParam(bounds=[kotlin.Any?])]#/PointingToDeclaration/",
                     extensionFunction.dri.first().toString()
                 )
                 assertEquals(
@@ -344,7 +344,7 @@ class DRITest : BaseAbstractTest() {
                 assertEquals(1, documentable.generics.size)
                 assertEquals("T", documentable.generics.first().name)
                 assertEquals(
-                    "example//extensionFunction/kotlin.collections.List[TypeParam(bounds=[kotlin.Any?], name=T)]#/PointingToGenericParameters(0)/",
+                    "example//extensionFunction/kotlin.collections.List[TypeParam(bounds=[kotlin.Any?])]#/PointingToGenericParameters(0)/",
                     documentable.generics.first().dri.toString()
                 )
 
@@ -367,9 +367,9 @@ class DRITest : BaseAbstractTest() {
             documentablesMergingStage = { module ->
                 val function = module.dfs { it.name == "recursiveBound" }
                 assertEquals(
-                    "example//recursiveBound/#TypeParam(bounds=[kotlin.collections.List[TypeParam(bounds=[kotlin.collections.List[TypeParam(bounds=[kotlin.collections.List[^^]], name=R)]], name=S)]], name=T)" +
-                            "#TypeParam(bounds=[kotlin.collections.List[TypeParam(bounds=[kotlin.collections.List[^]], name=R)]], name=S)" +
-                            "#TypeParam(bounds=[kotlin.collections.List[TypeParam(bounds=[kotlin.collections.List[^]], name=S)]], name=R)/PointingToDeclaration/",
+                    "example//recursiveBound/#TypeParam(bounds=[kotlin.collections.List[TypeParam(bounds=[kotlin.collections.List[TypeParam(bounds=[kotlin.collections.List[^^]])]])]])" +
+                            "#TypeParam(bounds=[kotlin.collections.List[TypeParam(bounds=[kotlin.collections.List[^]])]])" +
+                            "#TypeParam(bounds=[kotlin.collections.List[TypeParam(bounds=[kotlin.collections.List[^]])]])/PointingToDeclaration/",
                     function?.dri?.toString(),
                 )
             }

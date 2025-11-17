@@ -143,6 +143,12 @@ public data class TypeParam(
     public fun copy(
         bounds: List<TypeReference>
     ): TypeParam = copy(bounds = bounds, name = name)
+
+    /**
+     * Custom `toString` with no `name` parameter to keep compatibility of
+     * `DRI.toString` calls used in package-lists and HTML rendering
+     */
+    override fun toString(): String = "TypeParam(bounds=${bounds})"
 }
 
 
