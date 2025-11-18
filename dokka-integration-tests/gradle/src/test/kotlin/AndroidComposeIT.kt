@@ -24,6 +24,7 @@ import kotlin.io.path.readText
  */
 @TestsDGPv2
 @TestsAndroidCompose
+@TestsKotlinJvm
 @WithGradleProperties(GradlePropertiesProvider.Android::class)
 class AndroidComposeIT {
 

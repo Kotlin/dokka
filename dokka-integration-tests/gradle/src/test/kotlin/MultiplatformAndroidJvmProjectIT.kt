@@ -9,13 +9,9 @@ import io.kotest.matchers.paths.shouldBeAFile
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotContain
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
+import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
-import org.jetbrains.dokka.gradle.utils.findFiles
-import org.jetbrains.dokka.gradle.utils.shouldBeADirectoryWithSameContentAs
-import org.jetbrains.dokka.gradle.utils.shouldNotContainAnyOf
-import org.jetbrains.dokka.gradle.utils.sideBySide
-import org.jetbrains.dokka.gradle.utils.toTreeString
 import org.jetbrains.dokka.it.gradle.junit.*
 import kotlin.io.path.name
 import kotlin.io.path.readText
@@ -26,6 +22,7 @@ import kotlin.io.path.readText
 @TestsAndroid
 @TestsDGPv2
 @WithGradleProperties(GradlePropertiesProvider.Android::class)
+@TestsKotlinMultiplatform
 class MultiplatformAndroidJvmProjectIT {
 
     @DokkaGradlePluginTest(sourceProjectName = "it-multiplatform-android-jvm")

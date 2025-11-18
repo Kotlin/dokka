@@ -39,6 +39,16 @@ annotation class TestsKotlinMultiplatform
 
 
 /**
+ * JUnit [Tag] indicating the test involves a Kotlin JVM project.
+ */
+@Tag("KotlinJvm")
+@Target(FUNCTION, CLASS)
+@MustBeDocumented
+@Inherited
+annotation class TestsKotlinJvm
+
+
+/**
  * JUnit [Tag] indicating the test involves an Android project.
  *
  * If a test is annotated with [TestsAndroid] then
