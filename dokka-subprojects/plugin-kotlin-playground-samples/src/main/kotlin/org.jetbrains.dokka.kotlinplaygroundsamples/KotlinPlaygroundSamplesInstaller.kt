@@ -45,9 +45,9 @@ public class KotlinPlaygroundSamplesScriptsInstaller(private val dokkaContext: D
         }
 
     private fun modifyScript(): String {
-        val scriptContent = javaClass.getResource("/dokka/scripts/kotlin-playground-samples.js")
+        val scriptContent = javaClass.getResource("/dokka/${scriptsPages.first()}")
             ?.readText()
-            ?: throw IllegalStateException("Script /dokka/scripts/kotlin-playground-samples.js not found in resources")
+            ?: throw IllegalStateException("Script /dokka/${scriptsPages.first()} not found in resources")
 
         return scriptContent.replace(
             "const kotlinPlaygroundServer = null",
