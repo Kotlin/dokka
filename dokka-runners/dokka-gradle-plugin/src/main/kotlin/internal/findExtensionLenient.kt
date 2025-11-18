@@ -10,7 +10,7 @@ import org.gradle.kotlin.dsl.findByType
 /**
  * Try and get an extension from [Project.getExtensions], or `null` if it's not present.
  *
- * Handles as many errors as possible.
+ * If [T] is not accessible in the current classloader, returns `null`.
  *
  * Logs a warning if the extension is present, but the wrong type
  * (probably caused by an inconsistent buildscript classpath https://github.com/gradle/gradle/issues/27218)
