@@ -39,19 +39,13 @@ annotation class TestsKotlinMultiplatform
 
 
 /**
- * JUnit [Tag] indicating the test involves a Kotlin Gradle plugin project.
- *
- * @param[minKgpVersion] Inclusive lower-bound for KGP versions.
- * @param[maxKgpVersion] Exclusive upper-bound for KGP versions.
+ * JUnit [Tag] indicating the test involves a Kotlin JVM project.
  */
-@Tag("KotlinGradlePlugin")
+@Tag("KotlinJvm")
 @Target(FUNCTION, CLASS)
 @MustBeDocumented
 @Inherited
-annotation class TestsKotlinGradlePlugin(
-    val minKgpVersion: String = "",
-    val maxKgpVersion: String = "",
-)
+annotation class TestsKotlinJvm
 
 
 /**
@@ -68,6 +62,7 @@ annotation class TestsKotlinGradlePlugin(
 @Target(FUNCTION, CLASS)
 @MustBeDocumented
 @Inherited
+@WithGradleProperties(GradlePropertiesProvider.Android::class)
 annotation class TestsAndroid(
     val minAgpVersion: String = "",
     val maxAgpVersion: String = "",
@@ -89,6 +84,7 @@ annotation class TestsAndroid(
 @Target(FUNCTION, CLASS)
 @MustBeDocumented
 @Inherited
+@WithGradleProperties(GradlePropertiesProvider.Android::class)
 annotation class TestsAndroidCompose(
     val minAgpVersion: String = "",
     val maxAgpVersion: String = "",

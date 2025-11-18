@@ -27,7 +27,7 @@ import kotlin.io.path.readText
     maxAgpVersion = "9.0.0",
 )
 @TestsKotlinGradlePlugin
-@WithGradleProperties(GradlePropertiesProvider.Android::class)
+@TestsKotlinJvm
 class AndroidComposeIT {
 
     @DokkaGradlePluginTest(sourceProjectName = "it-android-compose")

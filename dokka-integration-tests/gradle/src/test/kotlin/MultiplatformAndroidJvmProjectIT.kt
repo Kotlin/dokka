@@ -26,6 +26,7 @@ import kotlin.io.path.readText
     maxAgpVersion = "9.0.0",
 )
 @WithGradleProperties(GradlePropertiesProvider.Android::class)
+@TestsKotlinMultiplatform
 class MultiplatformAndroidJvmProjectIT {
 
     @DokkaGradlePluginTest(sourceProjectName = "it-multiplatform-android-jvm")
