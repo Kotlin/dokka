@@ -14,21 +14,23 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 
 public class KotlinPlaygroundSamplesPlugin : DokkaPlugin() {
 
+    private val dokkaBase by lazy { plugin<DokkaBase>() }
+
     public val kotlinPlaygroundSamplesTransformer: Extension<PageTransformer, *, *> by extending {
-        CoreExtensions.pageTransformer providing ::KotlinPlaygroundSamplesTransformer override plugin<DokkaBase>().defaultSamplesTransformer
+        CoreExtensions.pageTransformer providing ::KotlinPlaygroundSamplesTransformer override dokkaBase.defaultSamplesTransformer
     }
 
     public val kotlinPlaygroundSamplesScriptsInstaller: Extension<PageTransformer, *, *> by extending {
-        plugin<DokkaBase>().htmlPreprocessors providing ::KotlinPlaygroundSamplesScriptsInstaller order {
-            after(plugin<DokkaBase>().scriptsInstaller)
-            before(plugin<DokkaBase>().customResourceInstaller)
+        dokkaBase.htmlPreprocessors providing ::KotlinPlaygroundSamplesScriptsInstaller order {
+            after(dokkaBase.scriptsInstaller)
+            before(dokkaBase.customResourceInstaller)
         }
     }
 
     public val kotlinPlaygroundSamplesStylesInstaller: Extension<PageTransformer, *, *> by extending {
-        plugin<DokkaBase>().htmlPreprocessors providing ::KotlinPlaygroundSamplesStylesInstaller order {
-            after(plugin<DokkaBase>().stylesInstaller)
-            before(plugin<DokkaBase>().customResourceInstaller)
+        dokkaBase.htmlPreprocessors providing ::KotlinPlaygroundSamplesStylesInstaller order {
+            after(dokkaBase.stylesInstaller)
+            before(dokkaBase.customResourceInstaller)
         }
     }
 
