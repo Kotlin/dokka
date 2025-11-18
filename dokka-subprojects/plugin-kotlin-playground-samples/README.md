@@ -11,8 +11,8 @@ You can apply the Kotlin Playground Samples plugin the same way as other Dokka p
 <summary>Kotlin</summary>
 
 ```kotlin
-dependencies { 
-    dokkaPlugin("org.jetbrains.dokka:kotlin-playground-samples-plugin")
+dependencies {
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-playground-samples-plugin")
 }
 ```
 </details>
@@ -22,7 +22,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    dokkaPlugin 'org.jetbrains.dokka:kotlin-playground-samples-plugin'
+    dokkaHtmlPlugin 'org.jetbrains.dokka:kotlin-playground-samples-plugin'
 }
 ```
 </details>
