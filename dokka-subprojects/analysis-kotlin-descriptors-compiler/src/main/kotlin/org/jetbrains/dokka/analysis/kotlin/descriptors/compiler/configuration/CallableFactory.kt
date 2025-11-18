@@ -10,12 +10,14 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.JavaClassReference
 import org.jetbrains.dokka.links.TypeReference
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
+import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 
 internal fun Callable.Companion.from(descriptor: CallableDescriptor, name: String? = null) = with(descriptor) {
     Callable(
         name ?: descriptor.name.asString(),
         extensionReceiverParameter?.let { TypeReference.from(it) },
-        valueParameters.mapNotNull { TypeReference.from(it) }
+        valueParameters.mapNotNull { TypeReference.from(it) },
+        isProperty = descriptor is PropertyDescriptor
     )
 }
 
@@ -30,6 +32,7 @@ internal fun Callable.Companion.from(psi: PsiField): Callable {
     return Callable(
         name = psi.name,
         receiver = null,
-        params = emptyList()
+        params = emptyList(),
+        isProperty = true
     )
 }
