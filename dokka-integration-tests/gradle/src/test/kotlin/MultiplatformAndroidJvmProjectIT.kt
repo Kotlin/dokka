@@ -21,7 +21,6 @@ import kotlin.io.path.readText
  */
 @TestsAndroid
 @TestsDGPv2
-@WithGradleProperties(GradlePropertiesProvider.Android::class)
 @TestsKotlinMultiplatform
 class MultiplatformAndroidJvmProjectIT {
 
