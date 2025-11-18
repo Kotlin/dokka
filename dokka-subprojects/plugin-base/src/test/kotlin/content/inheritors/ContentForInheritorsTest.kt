@@ -578,12 +578,12 @@ class ContentForInheritorsTest : BaseAbstractTest() {
                 val targetDRI = DRI(
                     "test",
                     "NamedDomainObjectContainerDelegate",
-                    org.jetbrains.dokka.links.Callable("namer", null, emptyList())
+                    org.jetbrains.dokka.links.Callable("namer", null, emptyList(), isProperty = true)
                 )
                 val fakeDRI = DRI(
                     "test",
                     "NamedDomainObjectContainerScope",
-                    org.jetbrains.dokka.links.Callable("namer", null, emptyList())
+                    org.jetbrains.dokka.links.Callable("namer", null, emptyList(), isProperty = true)
                 )
                 assertNull(
                     module.dfs { it.name == "namer" && (it as? MemberPageNode)?.dri?.singleOrNull() == fakeDRI },
