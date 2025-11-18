@@ -23,20 +23,20 @@ class KotlinPlaygroundSamplesInstallerTest : BaseAbstractTest() {
     val writerPlugin = TestOutputWriterPlugin()
 
     @Test
-    fun `should inject kotlin-playground-samples resources in html files`() {
+    fun `should not inject playground resources when no samples are used`() {
         testInline(
             """
-            |/src/main/kotlin/Sample.kt
+            |/src/main/kotlin/NoSample.kt
             |package com.example
             |
-            |fun sampleFunction() {
-            |    println("This is a sample")
-            |}
-            |
             | /**
-            | * @sample [com.example.sampleFunction]
+            | * A simple class without any samples.
             | */
-            |class Foo
+            |class Bar {
+            |    fun regularFunction() {
+            |        println("No sample here")
+            |    }
+            |}
             """.trimMargin(),
             configuration = configuration,
             pluginOverrides = listOf(writerPlugin)
@@ -47,10 +47,82 @@ class KotlinPlaygroundSamplesInstallerTest : BaseAbstractTest() {
                 val allHtmlFiles = contents
                     .filter { (key, _) -> key.endsWith(".html") && key != "navigation.html" }
 
-                allHtmlFiles.forEach {
-                    assertTrue(it.value.contains(Regex("<link href=\"[./]*styles/kotlin-playground-samples.css\" rel=\"Stylesheet\">")))
-                    assertTrue(it.value.contains(Regex("<script type=\"text/javascript\" src=\"[./]*scripts/kotlin-playground-samples.js\" async=\"async\"></script>")))
+                allHtmlFiles.forEach { (path, content) ->
+                    assertFalse(
+                        content.contains(Regex("<link href=\"[./]*styles/kotlin-playground-samples.css\" rel=\"Stylesheet\">")),
+                        "Page $path should not contain kotlin-playground-samples.css"
+                    )
+                    assertFalse(
+                        content.contains(Regex("<script type=\"text/javascript\" src=\"[./]*scripts/kotlin-playground-samples.js\" async=\"async\"></script>")),
+                        "Page $path should not contain kotlin-playground-samples.js"
+                    )
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `should inject kotlin-playground-samples resources only in html files with samples`() {
+        testInline(
+            """
+            |/src/main/kotlin/Sample.kt
+            |package com.example
+            |
+            |fun sampleFunction() {
+            |    println("This is a sample")
+            |}
+            |
+            | /**
+            | * Class with sample
+            | * @sample [com.example.sampleFunction]
+            | */
+            |class Foo
+            |
+            | /**
+            | * Class without sample
+            | */
+            |class Bar {
+            |    fun regularFunction() {
+            |        println("No sample here")
+            |    }
+            |}
+            """.trimMargin(),
+            configuration = configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val contents = writerPlugin.writer.contents
+
+                val allHtmlFiles = contents
+                    .filter { (key, _) -> key.endsWith(".html") && key != "navigation.html" }
+
+                val pageWithSample = allHtmlFiles.entries.find { (path, _) ->
+                    path.endsWith("-foo/index.html")
+                }
+                assertNotNull(pageWithSample, "Page for Foo class should exist")
+
+                assertTrue(
+                    pageWithSample.value.contains(Regex("<link href=\"[./]*styles/kotlin-playground-samples.css\" rel=\"Stylesheet\">")),
+                    "Page with sample should contain kotlin-playground-samples.css"
+                )
+                assertTrue(
+                    pageWithSample.value.contains(Regex("<script type=\"text/javascript\" src=\"[./]*scripts/kotlin-playground-samples.js\" async=\"async\"></script>")),
+                    "Page with sample should contain kotlin-playground-samples.js"
+                )
+
+                val pageWithoutSample = allHtmlFiles.entries.find { (path, _) ->
+                    path.endsWith("-bar/index.html")
+                }
+                assertNotNull(pageWithoutSample, "Page for Bar class should exist")
+
+                assertFalse(
+                    pageWithoutSample.value.contains(Regex("<link href=\"[./]*styles/kotlin-playground-samples.css\" rel=\"Stylesheet\">")),
+                    "Page without sample should NOT contain kotlin-playground-samples.css"
+                )
+                assertFalse(
+                    pageWithoutSample.value.contains(Regex("<script type=\"text/javascript\" src=\"[./]*scripts/kotlin-playground-samples.js\" async=\"async\"></script>")),
+                    "Page without sample should NOT contain kotlin-playground-samples.js"
+                )
             }
         }
     }
