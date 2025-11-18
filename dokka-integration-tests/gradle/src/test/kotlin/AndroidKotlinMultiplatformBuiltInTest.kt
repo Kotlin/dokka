@@ -25,15 +25,12 @@ import kotlin.io.path.readText
  * Let's test the latest AGP 8.x version and above.
  */
 @TestsDGPv2
-@TestsAndroid(
-    minAgpVersion = "8.13.0",
-)
+@TestsAndroid
 @TestsKotlinGradlePlugin(
     // com.android.kotlin.multiplatform.library requires KGP 2.0.0+
     // https://developer.android.com/kotlin/multiplatform/plugin#prerequisites
     minKgpVersion = "2.0.0",
 )
-@WithGradleProperties(GradlePropertiesProvider.AndroidKotlinBuiltIn::class)
 class AndroidKotlinMultiplatformBuiltInTest {
 
     @DokkaGradlePluginTest(sourceProjectName = "it-android-kotlin-mp-builtin")

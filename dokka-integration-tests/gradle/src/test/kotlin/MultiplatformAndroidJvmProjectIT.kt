@@ -20,12 +20,7 @@ import kotlin.io.path.readText
  * Integration test for the `it-multiplatform-android-jvm` project.
  */
 @TestsDGPv2
-@TestsKotlinMultiplatform
-@TestsKotlinGradlePlugin
-@TestsAndroid(
-    maxAgpVersion = "9.0.0",
-)
-@WithGradleProperties(GradlePropertiesProvider.Android::class)
+@TestsAndroid
 @TestsKotlinMultiplatform
 class MultiplatformAndroidJvmProjectIT {
 

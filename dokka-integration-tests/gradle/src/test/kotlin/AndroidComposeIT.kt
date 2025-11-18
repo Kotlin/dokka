@@ -26,7 +26,6 @@ import kotlin.io.path.readText
 @TestsAndroidCompose(
     maxAgpVersion = "9.0.0",
 )
-@TestsKotlinGradlePlugin
 @TestsKotlinJvm
 class AndroidComposeIT {
 

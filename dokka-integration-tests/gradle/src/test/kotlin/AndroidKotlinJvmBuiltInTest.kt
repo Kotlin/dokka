@@ -21,10 +21,7 @@ import kotlin.io.path.readText
  * Integration test for the `it-android-kotlin-jvm-builtin` project.
  */
 @TestsDGPv2
-@TestsAndroid(
-    minAgpVersion = "9.0.0",
-)
-@WithGradleProperties(GradlePropertiesProvider.AndroidKotlinBuiltIn::class)
+@TestsAndroid
 class AndroidKotlinJvmBuiltInTest {
 
     @DokkaGradlePluginTest(sourceProjectName = "it-android-kotlin-jvm-builtin")
