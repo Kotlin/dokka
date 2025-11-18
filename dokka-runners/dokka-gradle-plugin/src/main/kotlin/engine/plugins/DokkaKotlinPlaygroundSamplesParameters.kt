@@ -53,6 +53,6 @@ constructor(
     companion object {
         const val DOKKA_KOTLIN_PLAYGROUND_SAMPLES_PLUGIN_PARAMETERS_NAME = "kotlinPlaygroundSamples"
         const val DOKKA_KOTLIN_PLAYGROUND_SAMPLES_PLUGIN_FQN =
-            "org.jetbrains.dokka.kotlinplaygroundsamples.KotlinPlaygroundSamplesPlugin"
+            "org.jetbrains.dokka.kotlinPlaygroundSamples.KotlinPlaygroundSamplesPlugin"
     }
 }
