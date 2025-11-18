@@ -2,8 +2,10 @@
  * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.dokka.kotlinplaygroundsamples
+package org.jetbrains.dokka.kotlinPlaygroundSamples
 
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.PluginConfigurationImpl
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import utils.TestOutputWriterPlugin
 import kotlin.test.Test
@@ -166,9 +168,9 @@ class KotlinPlaygroundSamplesInstallerTest : BaseAbstractTest() {
                 }
             }
             pluginsConfigurations.add(
-                org.jetbrains.dokka.PluginConfigurationImpl(
+                PluginConfigurationImpl(
                     KotlinPlaygroundSamplesPlugin.FQN,
-                    org.jetbrains.dokka.DokkaConfiguration.SerializationFormat.JSON,
+                    DokkaConfiguration.SerializationFormat.JSON,
                     "{\"kotlinPlaygroundServer\": \"$kotlinPlaygroundServer\"}"
                 )
             )

@@ -2,7 +2,7 @@
  * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.dokka.kotlinplaygroundsamples
+package org.jetbrains.dokka.kotlinPlaygroundSamples
 
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
@@ -33,7 +33,7 @@ public class KotlinPlaygroundSamplesPlugin : DokkaPlugin() {
     }
 
     public companion object {
-        public const val FQN: String = "org.jetbrains.dokka.kotlinplaygroundsamples.KotlinPlaygroundSamplesPlugin"
+        public const val FQN: String = "org.jetbrains.dokka.kotlinPlaygroundSamples.KotlinPlaygroundSamplesPlugin"
     }
 
     @DokkaPluginApiPreview
