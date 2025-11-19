@@ -51,7 +51,7 @@ public object KotlinSignatureUtils : JvmSignatureUtils {
 
     override fun Annotations.Annotation.isIgnored(): Boolean = this in ignoredAnnotations
 
-    public val PrimitiveJavaType.dri: DRI get() = DRI("kotlin", name.capitalize())
+    public val PrimitiveJavaType.dri: DRI get() = DRI("kotlin", name.replaceFirstChar(Char::uppercase))
 
     public val Bound.driOrNull: DRI?
         get() {

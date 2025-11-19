@@ -511,7 +511,7 @@ internal class DokkaPsiParser(
 
     private fun Set<ExtraModifiers>.toListOfAnnotations() = map {
         if (it !is ExtraModifiers.JavaOnlyModifiers.Static)
-            Annotations.Annotation(DRI("kotlin.jvm", it.name.toLowerCase().capitalize()), emptyMap())
+            Annotations.Annotation(DRI("kotlin.jvm", it.name.lowercase().replaceFirstChar(Char::uppercase)), emptyMap())
         else
             Annotations.Annotation(DRI("kotlin.jvm", "JvmStatic"), emptyMap())
     }

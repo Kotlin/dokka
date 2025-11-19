@@ -158,7 +158,7 @@ public open class HtmlRenderer(
         pageContext: ContentPage,
         childrenCallback: FlowContent.() -> Unit
     ) {
-        val additionalClasses = node.style.joinToString(" ") { it.toString().toLowerCase() }
+        val additionalClasses = node.style.joinToString(" ") { it.toString().lowercase() }
         return when {
             node.hasStyle(ContentStyle.TabbedContent) -> div(additionalClasses) {
                 val contentTabs = createTabs(pageContext)
@@ -700,7 +700,7 @@ public open class HtmlRenderer(
 
 
     override fun FlowContent.buildHeader(level: Int, node: ContentHeader, content: FlowContent.() -> Unit) {
-        val classes = node.style.joinToString { it.toString() }.toLowerCase()
+        val classes = node.style.joinToString { it.toString() }.lowercase()
         when (level) {
             1 -> h1(classes = classes, content)
             2 -> h2(classes = classes, content)
@@ -865,7 +865,7 @@ public open class HtmlRenderer(
             val codeLang = "lang-" + code.language.ifEmpty { "kotlin" }
             val stylesWithBlock = code.style + TextStyle.Block + codeLang
             pre {
-                code(stylesWithBlock.joinToString(" ") { it.toString().toLowerCase() }) {
+                code(stylesWithBlock.joinToString(" ") { it.toString().lowercase() }) {
                     attributes["theme"] = "idea"
                     code.children.forEach { buildContentNode(it, pageContext) }
                 }
@@ -885,7 +885,7 @@ public open class HtmlRenderer(
     ) {
         val codeLang = "lang-" + code.language.ifEmpty { "kotlin" }
         val stylesWithBlock = code.style + codeLang
-        code(stylesWithBlock.joinToString(" ") { it.toString().toLowerCase() }) {
+        code(stylesWithBlock.joinToString(" ") { it.toString().lowercase() }) {
             code.children.forEach { buildContentNode(it, pageContext) }
         }
     }
@@ -932,7 +932,7 @@ public open class HtmlRenderer(
         // Prism.js parser adds Builtin token instead of Annotation
         // for some reason, so we also add it for consistency and correct coloring
         TokenStyle.Annotation -> "annotation builtin"
-        else -> this.toString().toLowerCase()
+        else -> this.toString().lowercase()
     }
 
     override fun render(root: RootPageNode) {

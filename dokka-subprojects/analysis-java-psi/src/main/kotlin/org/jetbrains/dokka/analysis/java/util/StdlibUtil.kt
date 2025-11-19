@@ -26,10 +26,10 @@ internal fun Char.uppercaseChar(): Char = Character.toUpperCase(this)
 internal fun Char.lowercaseChar(): Char = Character.toLowerCase(this)
 
 // TODO [beresnev] remove this copy-paste and use the same method from stdlib instead after updating to 1.5
-internal fun String.lowercase(): String = this.toLowerCase(Locale.ROOT)
+internal fun String.lowercase(): String = lowercase(Locale.ROOT)
 
 // TODO [beresnev] remove this copy-paste and use the same method from stdlib instead after updating to 1.5
-internal fun String.uppercase(): String = this.toUpperCase(Locale.ROOT)
+internal fun String.uppercase(): String = this.uppercase(Locale.ROOT)
 
 // TODO [beresnev] remove this copy-paste and use the same method from stdlib instead after updating to 1.5
 internal fun String.replaceFirstChar(transform: (Char) -> Char): String {

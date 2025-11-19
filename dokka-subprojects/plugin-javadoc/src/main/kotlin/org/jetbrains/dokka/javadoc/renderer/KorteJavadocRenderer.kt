@@ -101,6 +101,7 @@ public class KorteJavadocRenderer(
                 strategy.instructions(this@KorteJavadocRenderer, node)
             )
             RenderingStrategy.DoNothing -> Unit
+            else -> TODO()
         }
         node.children.forEach { renderPage(it, locationProvider.resolve(node, skipExtension = true).toNormalized()) }
     }
