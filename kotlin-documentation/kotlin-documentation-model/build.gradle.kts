@@ -7,10 +7,12 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 plugins {
     kotlin("multiplatform")
     alias(libs.plugins.kotlinxSerialization)
+    id("dokkabuild.publish-base")
 }
 
 kotlin {
     explicitApi()
+    jvmToolchain(8)
 
     jvm()
 
