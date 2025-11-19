@@ -8,6 +8,12 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+public data class KdClassifierId(
+    public val packageName: String,
+    public val classNames: String, // it could be A.B.C for nested class
+)
+
+@Serializable
 public sealed class KdClassifier : KdDeclaration()
 
 // TODO: enum is one more case? or we could represent entries as `static` variables? valueOf is `static` function, entries is `static` variable
@@ -23,6 +29,7 @@ public sealed class KdClassifier : KdDeclaration()
 // record (java)
 
 
+// TODO: split into: KdObject, KdEnumClass, KdAnnotationClass, KdRecord, KdInterface ???
 // inner class, // separate thing, only for classes
 @SerialName("class")
 @Serializable

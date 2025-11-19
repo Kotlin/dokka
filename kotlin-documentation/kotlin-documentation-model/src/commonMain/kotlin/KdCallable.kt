@@ -7,29 +7,17 @@ package org.jetbrains.kotlin.documentation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-// java variable = Represents a field, enum constant, method or constructor parameter.
-// java executable = Represents a method, constructor.
-// java type = Represents a class or interface program element (including record, enum, etc)
-
-//public interface  xxx
-
-public enum class XXX(
-    private val s: String // member
-) {
-    S(""); // static
-
-    // member (property)
-    public val sss: String = "sss"
-
-    // member
-    public fun compute(): String = s
-
-    public companion object {
-        // static-ish
-        public fun sss(): String = "sss"
-    }
-}
 // java field, kotlin property (including synthetic one), enum_entry, function, constructor
+
+// represents: constructor (no name), function, property, enum_entry, java field
+@Serializable
+public data class KdCallableId(
+    public val packageName: String,
+    public val classNames: String?, // if null -> top-level
+    // TODO: how to distinguish between: constructor vs function, property vs function
+    public val callableName: String?, // if null -> constructor, `classNames` should be not null
+    public val isProperty: Boolean // if false -> function - TODO: should we?
+)
 
 @Serializable
 public sealed class KdCallable : KdDeclaration() {
@@ -92,19 +80,20 @@ public data class KdFunction(
     override val documentation: KdDocumentation? = null,
 ) : KdCallable()
 
-// TODO: should it be just property?
 // getter and setter could have different visibility, so we should have them? they could also have annotations
 // we can't really document getter or setter explicitly
 // java synthetic property can have field + get/set. Kotlin with EBH also can have different field type?
-@SerialName("variable")
+// what to do with java field+getField+setField based on visibilities
+@SerialName("property")
 @Serializable
-public data class KdVariable(
+public data class KdProperty(
     override val name: String,
     override val returns: KdReturns,
     val variableKind: KdVariableKind,
     // optionals
-    val isMutable: Boolean = false,
+    val isMutable: Boolean = false, // isVar or isVal
     val constValue: KdConstValue? = null,
+    // TODO: getter and setter? do we need them?
     override val isStatic: Boolean = false,
     override val receiverParameter: KdReceiverParameter? = null,
     override val contextParameters: List<KdContextParameter> = emptyList(),

@@ -42,3 +42,22 @@ public enum class KdClassKind {
 public enum class KdVariableKind {
     PROPERTY, FIELD, ENUM_ENTRY
 }
+
+// all kotlin targets (or platforms/families TBD) - should not be a enum really
+public enum class KdTarget {
+    JVM,
+    JS,
+    WASM_JS,
+    WASM_WASI,
+    MACOS_ARM64,
+    MACOS_X64,
+    IOS_ARM64,
+    IOS_X64,
+    IOS_SIMULATOR_ARM64,
+    LINUX_ARM64,
+    LINUX_X64,
+    MINGW_X64,
+    ANDROID_NATIVE_ARM32,
+    ANDROID_NATIVE_ARM64,
+    // and other targets ...
+}

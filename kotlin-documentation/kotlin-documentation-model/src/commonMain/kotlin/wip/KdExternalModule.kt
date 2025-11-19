@@ -18,25 +18,25 @@ import kotlinx.serialization.Serializable
 // - package-list (single-module)
 // - element-list (multi-module)
 // upper case characters is replaced: `HeyX` -> `-hey-x`
-@Serializable
-public data class KdExternalModule(
-    public val links: List<KdExternalLink>
-)
-
-@Serializable
-public data class KdExternalLink(
-    public val id: KdElementId,
-    public val url: String
-)
-
-private class SomeModule(
-    val sourceLinks: Links, // links declaration -> source location (GH)
-    val webLinks: Links,    // links declaration -> website location
-)
-
-private class Links(
-    val links: List<KdExternalLink> = emptyList()
-)
+//@Serializable
+//public data class KdExternalModule(
+//    public val links: List<KdExternalLink>
+//)
+//
+//@Serializable
+//public data class KdExternalLink(
+//    public val id: KdElementId,
+//    public val url: String
+//)
+//
+//private class SomeModule(
+//    val sourceLinks: Links, // links declaration -> source location (GH)
+//    val webLinks: Links,    // links declaration -> website location
+//)
+//
+//private class Links(
+//    val links: List<KdExternalLink> = emptyList()
+//)
 
 //public interface KdExternalModule {
 ////    public val name: String

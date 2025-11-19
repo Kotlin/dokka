@@ -31,25 +31,18 @@ public sealed class KdDocumentationNode {
         public val language: String? = null
     ) : KdDocumentationNode()
 
-    // TODO: link wrapper, e.g. [hello **from**][String]
     @Serializable
-    public sealed class Link : KdDocumentationNode()
-
-    @SerialName("parameter-link")
-    @Serializable
-    public data class ParameterLink(public val name: String /* this -> receiver */) : Link()
-
-    @SerialName("type-parameter-link")
-    @Serializable
-    public data class TypeParameterLink(public val name: String) : Link()
-
-    @SerialName("reference-link")
-    @Serializable
-    public data class ReferenceLink(val elementIds: List<KdElementId>) : KdDocumentationNode()
+    public data class Link(
+        val label: KdDocumentationNode,
+        val reference: KdLinkReference,
+    ) : KdDocumentationNode()
 
     @SerialName("external-link")
     @Serializable
-    public data class ExternalLink(public val url: String) : KdDocumentationNode()
+    public data class ExternalLink(
+        val label: KdDocumentationNode,
+        val url: String
+    ) : KdDocumentationNode()
 
     @SerialName("paragraph")
     @Serializable
@@ -84,8 +77,30 @@ public sealed class KdDocumentationNode {
     @Serializable
     public data class Tag(
         val name: String,
-        val reference: KdElementId? = null, // TODO: what type should be here?
+        val reference: KdLinkReference? = null, // TODO: what type should be here?
         val children: List<KdDocumentationNode> = emptyList(),
     ) : KdDocumentationNode()
 
+}
+
+// TODO: naming, values
+@Serializable
+public sealed class KdLinkReference {
+    @Serializable
+    public data object This : KdLinkReference()
+
+    @Serializable
+    public data class Parameter(val name: String) : KdLinkReference()
+
+    @Serializable
+    public data class TypeParameter(val name: String) : KdLinkReference()
+
+    @Serializable
+    public data class Package(val packageName: String) : KdLinkReference()
+
+    @Serializable
+    public data class Callable(val callableId: KdCallableId) : KdLinkReference()
+
+    @Serializable
+    public data class Classifier(val classifierId: KdClassifierId) : KdLinkReference()
 }

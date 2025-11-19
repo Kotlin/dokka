@@ -21,10 +21,6 @@ Workflow:
 // - how to link to GH sources?
 
 
-
-
-
-
 // TODO: external links and source information
 
 // declaration <- fragment <- module <- project
@@ -119,19 +115,20 @@ Workflow:
 
 private fun test() {
     KdFragment(
+        name = "common",
         documentation = KdDocumentation(listOf(KdDocumentationNode.Text("Module docs"))),
         packages = listOf(
             KdPackage(
-                id = KdPackageId("org.example.test"),
+                name = "org.example.test",
                 documentation = KdDocumentation(listOf(KdDocumentationNode.Text("Package docs"))),
-                classifiers = listOf(
+                declarations = listOf(
                     KdClass(
-                        id = KdClassifierId("org.example.test", "TestClass"),
+                        name = "TestClass",
                         classKind = KdClassKind.CLASS,
                         documentation = KdDocumentation(listOf(KdDocumentationNode.Text("Class docs"))),
-                        callables = listOf(
-                            KdVariable(
-                                id = KdCallableId("org.example.test", "TestClass", "test", null),
+                        declarations = listOf(
+                            KdProperty(
+                                name = "test",
                                 variableKind = KdVariableKind.PROPERTY,
                                 returns = KdReturns(KdClassifierType(KdClassifierId("kotlin", "String"))),
                                 documentation = KdDocumentation(listOf(KdDocumentationNode.Text("Property docs")))

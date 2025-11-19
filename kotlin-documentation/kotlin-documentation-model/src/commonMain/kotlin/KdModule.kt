@@ -24,11 +24,10 @@ public data class KdModule(
 
 @Serializable
 public data class KdFragment(
-    // TODO: the name is correct only for the current module and not comparable between different modules
+    // TODO: the name is correct only for the current module (dependsOn) and not comparable between different modules
     val name: String,
-    // TODO: decide on this representation, uklibs uses `refines`
-    val dependsOn: List<String> = emptyList(),
-    // TODO: decide if we need information about platform/target here
+    val dependsOn: List<String> = emptyList(), // TODO: what about test & main ?
+    val targets: List<KdTarget> = emptyList(), // all targets supported by this fragment?
     val packages: List<KdPackage> = emptyList(),
     override val documentation: KdDocumentation? = null, // a.k.a module-docs
 ) : KdDocumented
