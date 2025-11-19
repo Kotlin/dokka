@@ -25,7 +25,6 @@ import kotlin.io.path.readText
 @TestsAndroid
 @TestsDGPv2
 @TestsKotlinJvm
-@WithGradleProperties(GradlePropertiesProvider.Android::class)
 class AndroidProjectIT {
 
     @DokkaGradlePluginTest(sourceProjectName = "it-android")

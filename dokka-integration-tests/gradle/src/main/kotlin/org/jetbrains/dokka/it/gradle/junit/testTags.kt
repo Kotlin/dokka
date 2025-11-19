@@ -59,6 +59,7 @@ annotation class TestsKotlinJvm
 @Target(FUNCTION, CLASS)
 @MustBeDocumented
 @Inherited
+@WithGradleProperties(GradlePropertiesProvider.Android::class)
 annotation class TestsAndroid
 
 
@@ -74,4 +75,5 @@ annotation class TestsAndroid
 @Target(FUNCTION, CLASS)
 @MustBeDocumented
 @Inherited
+@WithGradleProperties(GradlePropertiesProvider.Android::class)
 annotation class TestsAndroidCompose
