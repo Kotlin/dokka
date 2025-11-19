@@ -51,10 +51,12 @@ public open class JavadocExternalLocationProvider(
     }
 
     protected open fun anchorPart(callable: Callable): String {
-        return callable.name +
-                "${brackets.first()}" +
-                callable.params.joinToString(separator) { it.toJavadocURL() } +
-                "${brackets.last()}"
+        return if (callable.isProperty)
+            callable.name
+        else
+            callable.name + "${brackets.first()}" +
+                    callable.params.joinToString(separator) { it.toJavadocURL() } +
+                    "${brackets.last()}"
     }
 
     private fun TypeReference.toJavadocURL(): String {
