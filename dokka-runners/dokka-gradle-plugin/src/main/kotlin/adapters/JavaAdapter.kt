@@ -15,6 +15,7 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSet.MAIN_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSet.TEST_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.dokka.gradle.DokkaExtension
@@ -118,16 +119,11 @@ abstract class JavaAdapter @Inject constructor(
     ): Provider<Boolean> {
 
         val projectHasKotlinPlugin = providers.provider {
-            project.pluginManager.hasPlugin(PluginId.KotlinAndroid)
-                    || project.pluginManager.hasPlugin(PluginId.KotlinJs)
-                    || project.pluginManager.hasPlugin(PluginId.KotlinJvm)
-                    || project.pluginManager.hasPlugin(PluginId.KotlinMultiplatform)
+            PluginId.kgpPlugins.any { project.pluginManager.hasPlugin(it) }
         }
 
         val projectHasAndroidPlugin = providers.provider {
-            project.pluginManager.hasPlugin(PluginId.AndroidBase)
-                    || project.pluginManager.hasPlugin(PluginId.AndroidApplication)
-                    || project.pluginManager.hasPlugin(PluginId.AndroidLibrary)
+            PluginId.androidPlugins.any { project.pluginManager.hasPlugin(it) }
         }
 
         return projectHasKotlinPlugin or projectHasAndroidPlugin
@@ -147,5 +143,9 @@ abstract class JavaAdapter @Inject constructor(
         fun SourceSet.isPublished(): Boolean =
             name != TEST_SOURCE_SET_NAME
                     && name.startsWith(MAIN_SOURCE_SET_NAME)
+
+        internal fun applyTo(project: Project) {
+            project.pluginManager.apply(type = JavaAdapter::class)
+        }
     }
 }

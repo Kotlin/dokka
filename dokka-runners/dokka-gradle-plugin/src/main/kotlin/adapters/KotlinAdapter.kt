@@ -5,10 +5,7 @@ package org.jetbrains.dokka.gradle.adapters
 
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.Variant
-import org.gradle.api.Named
-import org.gradle.api.NamedDomainObjectContainer
-import org.gradle.api.Plugin
-import org.gradle.api.Project
+import org.gradle.api.*
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
 import org.gradle.api.logging.Logger
@@ -33,12 +30,9 @@ import org.jetbrains.kotlin.commonizer.stdlib
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
+import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.androidJvm
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataCompilation
@@ -62,17 +56,6 @@ abstract class KotlinAdapter @Inject constructor(
     override fun apply(project: Project) {
         logger.info("Applying $dkaName to ${project.path}")
 
-        project.plugins.withType<DokkaBasePlugin>().configureEach {
-            project.pluginManager.apply {
-                withPlugin(PluginId.KotlinAndroid) { exec(project) }
-                withPlugin(PluginId.KotlinJs) { exec(project) }
-                withPlugin(PluginId.KotlinJvm) { exec(project) }
-                withPlugin(PluginId.KotlinMultiplatform) { exec(project) }
-            }
-        }
-    }
-
-    private fun exec(project: Project) {
         val kotlinExtension = project.findKotlinExtension()
         if (kotlinExtension == null) {
             logger.info("Skipping applying $dkaName in ${project.path} - could not find KotlinProjectExtension")
@@ -210,6 +193,76 @@ abstract class KotlinAdapter @Inject constructor(
             val kgpVersion = getKotlinPluginVersion(logger)
             KotlinToolingVersion(kgpVersion)
         }
+
+        /**
+         * Applies [KotlinAdapter] to the current project when any plugin of type [KotlinBasePlugin]
+         * is applied.
+         *
+         * [KotlinBasePlugin] is the parent type for the Kotlin/JVM, Kotlin/Multiplatform, Kotlin/JS plugins,
+         * as well as AGP's kotlin-built-in plugin.
+         */
+        internal fun applyTo(project: Project) {
+            findKotlinBasePlugins(project)?.all {
+                project.pluginManager.apply(KotlinAdapter::class)
+            }
+        }
+
+        /**
+         * Tries fetching all plugins with type [KotlinBasePlugin],
+         * returning `null` if the class is not available in the current classloader.
+         *
+         * (The class might not be available if the current project is a Java or Android project,
+         * or the buildscripts have an inconsistent classpath https://github.com/gradle/gradle/issues/27218)
+         */
+        private fun findKotlinBasePlugins(project: Project): DomainObjectCollection<KotlinBasePlugin>? {
+            return try {
+                project.plugins.withType<KotlinBasePlugin>()
+            } catch (ex: Throwable) {
+                when (ex) {
+                    is ClassNotFoundException,
+                    is NoClassDefFoundError -> {
+                        logger.info("Dokka Gradle Plugin could not load KotlinBasePlugin in ${project.displayName} - ${ex::class.qualifiedName} ${ex.message}")
+                        logWarningIfKgpApplied(
+                            project,
+                            kotlinBasePluginNotFoundException = ex,
+                        )
+                        null
+                    }
+
+                    else -> throw ex
+                }
+            }
+        }
+
+        /**
+         * Check all plugins to see if they are a subtype of [KotlinBasePlugin].
+         * If any are, log a warning.
+         *
+         * ##### Motivation
+         *
+         * If the buildscript classpath is inconsistent, it might not be possible for DGP
+         * to react to KGP because the [KotlinBasePlugin] class can't be loaded.
+         * If so, DGP will be lenient and not cause errors,
+         * but it must display a prominent warning to help users find the problem.
+         *
+         * @param[kotlinBasePluginNotFoundException] The exception thrown when [KotlinBasePlugin] is not available.
+         */
+        private fun logWarningIfKgpApplied(
+            project: Project,
+            kotlinBasePluginNotFoundException: Throwable,
+        ) {
+            PluginId.kgpPlugins.forEach { pluginId ->
+                project.pluginManager.withPlugin(pluginId) {
+                    logger.warn(
+                        buildString {
+                            appendLine("Dokka Gradle Plugin could not load KotlinBasePlugin in ${project.displayName}, but plugin $id is applied.")
+                            appendLine("Check the buildscript classpath is consistent (all plugins are ")
+                        },
+                        kotlinBasePluginNotFoundException,
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -298,10 +351,10 @@ private class KotlinCompilationDetailsBuilder(
     ): Provider<Set<AndroidVariantInfo>> {
         val androidVariants = objects.setProperty(AndroidVariantInfo::class)
 
-        project.pluginManager.apply {
-            withPlugin(PluginId.AndroidBase) { collectAndroidVariants(project, androidVariants) }
-            withPlugin(PluginId.AndroidApplication) { collectAndroidVariants(project, androidVariants) }
-            withPlugin(PluginId.AndroidLibrary) { collectAndroidVariants(project, androidVariants) }
+        PluginId.androidPlugins.forEach { pluginId ->
+            project.pluginManager.withPlugin(pluginId) {
+                collectAndroidVariants(project, androidVariants)
+            }
         }
 
         return androidVariants
