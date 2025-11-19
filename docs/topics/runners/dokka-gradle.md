@@ -1,16 +1,9 @@
 [//]: # (title: Gradle)
 
-> These instructions reflect Dokka Gradle plugin v1 configuration and tasks. Starting from Dokka 2.0.0, several configuration options, Gradle tasks, and steps to generate your documentation have been updated, including:
->
-> * [Adjust configuration options](dokka-migration.md#adjust-configuration-options)
-> * [Work with multi-module projects](dokka-migration.md#share-dokka-configuration-across-modules)
-> * [Generate documentation with the updated tasks](dokka-migration.md#generate-documentation-with-the-updated-task)
-> * [Specify an output directory](dokka-migration.md#output-directory)
->
-> For more details and the full list of changes in Dokka Gradle Plugin v2, see the [Migration guide](dokka-migration.md).
+> This guide applies to Dokka Gradle Plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
+> If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
 >
 {style="note"}
-
 
 To generate documentation for a Gradle-based project, you can use the 
 [Gradle plugin for Dokka](https://plugins.gradle.org/plugin/org.jetbrains.dokka).
@@ -50,12 +43,11 @@ plugins {
 </tab>
 </tabs>
 
-When documenting multi-module projects (multi-project builds), you don't need to apply the plugin explicitly to every 
-module or subproject you want to document.
+When documenting multi-project builds, you don't need to apply the plugin explicitly to every subproject you want to document.
 Instead, 
-Dokka expects you to share configuration across modules using convention plugins or manual configuration per module.
+Dokka expects you to share configuration across subprojects using convention plugins or manual configuration per subproject.
 For more information, see 
-how to configure [single-module projects](#single-project-configuration) and [multi-module projects](#multi-project-configuration).
+how to configure [single-project](#single-project-configuration) and [multi-project](#multi-project-configuration) builds.
 
 > * Under the hood, 
 > Dokka uses the [Kotlin Gradle plugin](https://kotlinlang.org/docs/gradle-configure-project.html#apply-the-plugin) 
@@ -73,6 +65,13 @@ how to configure [single-module projects](#single-project-configuration) and [mu
 If you are not able to use the plugins DSL, you can apply the plugin using
 [the legacy method](https://docs.gradle.org/current/userguide/plugins.html#sec:old_plugin_application).
 
+## Enable build cache and configuration cache
+
+DGP supports Gradle build cache and configuration cache, improving build performance.
+
+* To enable build cache, follow instructions in the [Gradle build cache documentation](https://docs.gradle.org/current/userguide/build_cache.html#sec:build_cache_enable).
+* To enable configuration cache, follow instructions in the [Gradle configuration cache documentation](https://docs.gradle.org/current/userguide/configuration_cache.html#config_cache:usage:enable ).
+
 ## Generate documentation
 
 The Dokka Gradle plugin comes with [HTML](dokka-html.md) and [Javadoc](dokka-javadoc.md) output formats 
@@ -88,12 +87,12 @@ Use the following Gradle task to generate documentation:
 The key behavior of the `dokkaGenerate` Gradle task is:
 
 * This task generates documentation for both [single](#single-project-configuration)
-  and [multi-module](#multi-project-configuration) projects.
+  and [multi-project](#multi-project-configuration) builds.
 * By default, the documentation output format is HTML. 
   You can also generate Javadoc or both HTML and Javadoc formats
   by [adding the appropriate plugins](#configure-documentation-output-format).
 * The generated documentation is automatically placed in the `build/dokka/html` 
-  directory for both multi-module and single-module projects. 
+  directory for both single and multi-project builds. 
   You can [change the location (`outputDirectory`)](#general-configuration).
 
 ### Configure documentation output format
@@ -113,10 +112,10 @@ or both formats at the same time:
    ```kotlin
    plugins {
        // Generates HTML documentation
-       id("org.jetbrains.dokka") version "2.0.0"
+       id("org.jetbrains.dokka") version "%dokkaVersion%"
 
        // Generates Javadoc documentation
-       id("org.jetbrains.dokka-javadoc") version "2.0.0"
+       id("org.jetbrains.dokka-javadoc") version "%dokkaVersion%"
 
        // Keeping both plugin IDs generates both formats
    }
@@ -141,20 +140,20 @@ or both formats at the same time:
 The Markdown output format (including GFM and Jekyll) is not supported by default, 
 but you can [enable it manually](dokka-markdown.md).
 
-###  Aggregate documentation output in multi-module projects
+###  Aggregate documentation output in multi-project builds
 
-Dokka can aggregate documentation from multiple modules (subprojects) into a single output or publication.
+Dokka can aggregate documentation from multiple subprojects into a single output or publication.
 
-You have to [apply the Dokka plugin](#apply-the-convention-plugin-to-your-modules) to 
-all documentable modules before aggregating the documentation.
+You have to [apply the Dokka plugin](#apply-the-convention-plugin-to-your-subprojects) to 
+all documentable subprojects before aggregating the documentation.
 
-To aggregate documentation from multiple modules, add the `dependencies {}` 
+To aggregate documentation from multiple subprojects, add the `dependencies {}` 
 block in the `build.gradle.kts` file of the root project:
 
 ```kotlin
 dependencies {
-    dokka(project(":some-subproject:"))
-    dokka(project(":another-subproject:"))
+    dokka(project(":childProjectA:"))
+    dokka(project(":childProjectB:"))
 }
 ```
 
@@ -175,22 +174,22 @@ The generated documentation is aggregated as follows:
 
 ![Screenshot for output of dokkaHtmlMultiModule task](dokkaHtmlMultiModule-example.png){width=600}
 
-See our [multi-module project example](https://github.com/Kotlin/dokka/tree/2.0.0/examples/gradle-v2/multimodule-example)
+See our [multi-project example](https://github.com/Kotlin/dokka/tree/2.0.0/examples/gradle-v2/multimodule-example)
 for more details.
 
 #### Directory of aggregated documentation
 
-When DGP aggregates modules, each module has its own subdirectory within the aggregated documentation.
-DGP ensures each module has a unique directory by retaining the full project structure.
+When DGP aggregates subprojects, each subproject has its own subdirectory within the aggregated documentation.
+DGP ensures each subproject has a unique directory by retaining the full project structure.
 
-For example, given a project with an aggregation in `:turbo-lib` and a nested module or subproject `:turbo-lib:maths`, 
+For example, given a project with an aggregation in `:turbo-lib` and a nested subproject `:turbo-lib:maths`, 
 the generated documentation is placed under:
 
 ```text
 turbo-lib/build/dokka/html/turbo-lib/maths/
 ```
 
-You can revert this behavior by manually specifying the module directory. 
+You can revert this behavior by manually specifying the subproject directory. 
 Add the following configuration to the `build.gradle.kts` file of each subproject:
 
 ```kotlin
@@ -201,7 +200,7 @@ plugins {
 }
 
 dokka {
-    // Overrides the module directory
+    // Overrides the subproject directory
     modulePath.set("maths")
 }
 ```
@@ -270,14 +269,14 @@ Depending on the type of project that you have, the way you apply and configure 
 [configuration options](#configuration-options) themselves are the same, regardless of the type of your project.
 
 For simple and flat projects with a single `build.gradle.kts` or `build.gradle` file found in the root of your project,
-see [Single-project configuration (single-module projects)](#single-project-configuration).
+see [Single-project configuration](#single-project-configuration).
 
 For a more complex build with subprojects and multiple nested `build.gradle.kts` or `build.gradle` files,
-see [Multi-project configuration (multi-module projects)](#multi-project-configuration).
+see [Multi-project configuration](#multi-project-configuration).
 
 ### Single-project configuration
 
-Single-module projects or single-project builds usually have only one `build.gradle.kts` 
+Single-project builds usually have only one `build.gradle.kts` 
 or `build.gradle` file in the root of the project.
 They can be either single-platform or multiplatform and typically have the following structure:
 
@@ -403,7 +402,7 @@ For more information, see [Configuration options](#configuration-options).
 
 ### Multi-project configuration
 
-[Multi-module projects or multi-project builds](https://docs.gradle.org/current/userguide/multi_project_builds.html) 
+[Multi-project builds](https://docs.gradle.org/current/userguide/multi_project_builds.html) 
 usually contain several 
 nested `build.gradle.kts` files and have a structure similar to the following:
 
@@ -452,32 +451,32 @@ nested `build.gradle.kts` files and have a structure similar to the following:
 </tab>
 </tabs>
 
-Single and multi-module documentation share the same 
+Single and multi-project documentation share the same 
 [configuration model using the top-level `dokka {}` DSL](#single-project-configuration).
-In multi-module projects, 
-you configure Dokka in the root project and can optionally share settings across subprojects or modules.
+In multi-project builds, 
+you configure Dokka in the root project and can optionally share settings across subprojects.
 
-To share Dokka configuration across modules, you can use either:
+To share Dokka configuration across subprojects, you can use either:
 
-* [Direct configuration in multi-module projects without convention plugins](#direct-configuration-in-multi-module-projects-without-convention-plugins)
-* [Convention plugins](#multi-module-projects-with-convention-plugins)
+* [Direct configuration in multi-project builds requiring convention plugins](#direct-configuration-in-multi-project-builds-requiring-convention-plugins)
+* [Convention plugins](#multi-project-builds-with-convention-plugins)
 
-After sharing Dokka configuration, you can aggregate the documentation from multiple modules into a single output. 
+After sharing Dokka configuration, you can aggregate the documentation from multiple subprojects into a single output. 
 For more information, see
-[Aggregate documentation output in multi-module projects](#aggregate-documentation-output-in-multi-module-projects).
+[Aggregate documentation output in multi-project-builds](#aggregate-documentation-output-in-multi-project-builds).
 
-> For a multi-module project example, see the [Dokka GitHub repository](https://github.com/Kotlin/dokka/tree/master/examples/gradle-v2/multimodule-example).
+> For a multi-project example, see the [Dokka GitHub repository](https://github.com/Kotlin/dokka/tree/master/examples/gradle-v2/multimodule-example).
 >
 {style="tip"}
 
-#### Direct configuration in multi-module projects without convention plugins
+#### Direct configuration in multi-project builds requiring convention plugins
 
-If your project doesn't use convention plugins, you can share Dokka configurations by directly configuring each module.
-This involves manually setting up the shared configuration in each module's `build.gradle.kts` file. 
+If your project doesn't use convention plugins, you can share Dokka configurations by directly configuring each subproject.
+This involves manually setting up the shared configuration in each subproject's `build.gradle.kts` file. 
 While this approach is less centralized,
 it avoids the need for additional setups like convention plugins.
 
-Follow the next steps to configure your multi-module project without convention plugins.
+Follow the next steps to configure your multi-project builds without convention plugins.
 
 ##### Set up the buildSrc directory
 
@@ -526,14 +525,14 @@ After setting up the `buildSrc` directory, set up the Dokka convention plugin:
     }
     ```
 
-   You need to add the shared Dokka [configuration](#configuration-options) common to all modules within the `dokka {}` 
+   You need to add the shared Dokka [configuration](#configuration-options) common to all subprojects within the `dokka {}` 
    block.
    Also, you don't need to specify a Dokka version. 
    The version is already set in the `buildSrc/build.gradle.kts` file.
 
-##### Apply the convention plugin to your modules
+##### Apply the convention plugin to your subprojects
 
-Apply the Dokka convention plugin across your modules (subprojects) by adding it to each module's `build.gradle.kts` 
+Apply the Dokka convention plugin across your subprojects by adding it to each subproject's `build.gradle.kts` 
 file:
 
 ```kotlin
@@ -542,20 +541,20 @@ plugins {
 }
 ```
 
-#### Multi-module projects with convention plugins
+#### Multi-project builds with convention plugins
 
 If you already have convention plugins, 
 create a dedicated Dokka convention plugin following [Gradle's documentation](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:convention_plugins).
 
 Then, follow the steps to [set up the Dokka convention plugin](#set-up-the-dokka-convention-plugin) and
-[apply it across your modules](#apply-the-convention-plugin-to-your-modules).
+[apply it across your subprojects](#apply-the-convention-plugin-to-your-subprojects).
 
 #### Parent project configuration
 
-In multi-module projects, you can configure settings that apply to the entire documentation in the root project.
-This can include defining the output format, output directory, documentation module name, 
-aggregating documentation from all 
-modules, and other [configuration options](#configuration-options):
+In multi-project builds, you can configure settings that apply to the entire documentation in the root project.
+This can include defining the output format, output directory, documentation subproject name, 
+aggregating documentation from all
+subprojects, and other [configuration options](#configuration-options):
 
 ```kotlin
 plugins {
@@ -577,13 +576,13 @@ dokka {
 
 // Aggregates subproject documentation
 dependencies {
-    dokka(project(":subproject-A"))
-    dokka(project(":subproject-B"))
+    dokka(project(":childProjectA"))
+    dokka(project(":childProjectB"))
 }
 ```
 
-Additionally, each module can have its own `dokka {}` block if it needs custom configuration.
-In the following example, the subproject module applies the Dokka plugin, sets a custom module name, 
+Additionally, each subproject can have its own `dokka {}` block if it needs custom configuration.
+In the following example, the subproject applies the Dokka plugin, sets a custom subproject name, 
 and includes additional documentation from its `README.md` file:
 
 ```kotlin
@@ -594,7 +593,7 @@ plugins {
 
 dokka {
     dokkaPublications.html {
-        moduleName.set("Subproject A")
+        moduleName.set("Child Project A")
         includes.from("README.md")
     }
 }
@@ -716,16 +715,16 @@ tasks.withType(DokkaTask.class) {
     <def title="moduleName">
         <p>
            The display name to refer to the project’s documentation. It appears in the table of contents, navigation, 
-           headers, and log messages. In multi-module projects, each module or subproject’s <code>moduleName</code> is 
+           headers, and log messages. In multi-project builds, each subproject <code>moduleName</code> is 
            used as its section title in aggregated documentation.
         </p>
         <p>Default: Gradle project name</p>
     </def>
     <def title="moduleVersion">
         <p>
-            The module version displayed in the generated documentation. 
-            In single-module projects, it is used as the project version.
-            In multi-module projects, each module or subproject’s <code>moduleVersion</code> 
+            The subproject version displayed in the generated documentation. 
+            In single-project builds, it is used as the project version.
+            In multi-project builds, each subproject <code>moduleVersion</code> 
             is used when aggregating documentation. 
         </p>
         <p>Default: Gradle project version</p>
@@ -735,8 +734,8 @@ tasks.withType(DokkaTask.class) {
         <p>This setting applies to all documentation formats (HTML, Javadoc, etc.) generated by the <code>dokkaGenerate</code> task.</p>
         <p>Default: <code>build/dokka/html</code></p>
         <p><b>Output directory for additional files</b></p>
-        <p>You can specify the output directory and include additional files for both single-module and multi-module projects.
-           For multi-module projects,
+        <p>You can specify the output directory and include additional files for both single and multi-project builds.
+           For multi-project builds,
            set the output directory and include additional files (such as <code>README.md</code>) 
            in the configuration of the root project.
         </p>
@@ -793,9 +792,9 @@ tasks.withType(DokkaTask.class) {
      <def title="includes">
         <p>
             A list of Markdown files that contain
-            <a href="dokka-module-and-package-docs.md">module and package documentation</a>.
+            <a href="dokka-module-and-package-docs.md">subproject and package documentation</a>.
         </p>
-        <p>The contents of the specified files are parsed and embedded into documentation as module and package descriptions.</p>
+        <p>The contents of the specified files are parsed and embedded into documentation as subproject and package descriptions.</p>
         <p>
             See <a href="https://github.com/Kotlin/dokka/blob/master/examples/gradle-v2/basic-gradle-example/build.gradle.kts">Dokka gradle example</a>
             for an example of what it looks like and how to use it.
@@ -823,7 +822,7 @@ dokka {
     dokkaSourceSets {
         // Example: Configuration exclusive to the 'linux' source set
         named("linux") {
-            dependsOn("native")
+            dependentSourceSets{named("native")}
             sourceRoots.from(file("linux/src"))
         }
 
@@ -838,10 +837,6 @@ dokka {
             jdkVersion.set(8)
             languageVersion.set("1.7")
             apiVersion.set("1.7")
-            noStdlibLink.set(false)
-            noJdkLink.set(false)
-            noAndroidSdkLink.set(false)
-            platform.set(Platform.DEFAULT)
             sourceRoots.from(file("src"))
             classpath.from(project.files(), file("libs/dependency.jar"))
             samples.from(project.files(), "samples/Basic.kt", "samples/Advanced.kt")
@@ -853,7 +848,7 @@ dokka {
                 // Package options section
             }
             externalDocumentationLinks {
-              // Package options section
+                // External documentation links section
             }
         }
     }
@@ -1007,34 +1002,6 @@ tasks.withType(DokkaTask.class) {
             environment.
         </p>
         <p>By default, it is deduced from <code>languageVersion</code>.</p>
-    </def>
-    <def title="noStdlibLink">
-        <p>
-            Whether to generate external documentation links that lead to the API reference
-            documentation of Kotlin's standard library.
-        </p>
-        <p>Note: Links <b>are</b> generated when <code>noStdLibLink</code> is set to <code>false</code>.</p>
-        <p>Default: <code>false</code></p>
-    </def>
-    <def title="noJdkLink">
-        <p>Whether to generate external documentation links to JDK's Javadocs.</p>
-        <p>The version of JDK Javadocs is determined by the <code>jdkVersion</code> option.</p>
-        <p>Note: Links <b>are</b> generated when <code>noJdkLink</code> is set to <code>false</code>.</p>
-        <p>Default: <code>false</code></p>
-    </def>
-    <def title="noAndroidSdkLink">
-        <anchor name="includes"/>
-        <p>Whether to generate external documentation links to the Android SDK API reference.</p>
-        <p>This is only relevant in Android projects, ignored otherwise.</p>
-        <p>Note: Links <b>are</b> generated when <code>noAndroidSdkLink</code> is set to <code>false</code>.</p>
-        <p>Default: <code>false</code></p>
-    </def>
-    <def title="platform">
-        <p>
-            The platform to be used for setting up code analysis and 
-            <a href="https://kotlinlang.org/docs/kotlin-doc.html#sample-identifier">@sample</a> environment.
-        </p>
-        <p>The default value is deduced from information provided by the Kotlin Gradle plugin.</p>
     </def>
     <def title="sourceRoots">
         <p>
@@ -1394,7 +1361,7 @@ tasks.withType(DokkaTask.class) {
         </p>
         <p>
             Package lists contain information about the documentation and the project itself, 
-            such as module and package names.
+            such as subproject and package names.
         </p>
         <p>This can also be a locally cached file to avoid network calls.</p>
     </def>
@@ -1411,7 +1378,7 @@ Below you can see all possible configuration options applied at the same time:
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 
 plugins {
-    id("org.jetbrains.dokka") version "2.0.0"
+    id("org.jetbrains.dokka") version "%dokkaVersion%"
 }
 
 dokka {
@@ -1425,59 +1392,55 @@ dokka {
         suppressObviousFunctions.set(true)
         includes.from(project.files(), "packages.md", "extra.md")
    }
-}
 
-dokkaSourceSets {
-    // Example: Configuration exclusive to the 'linux' source set
-    named("linux") {
-        dependsOn("native")
-        sourceRoots.from(file("linux/src"))
-    }
-
-    configureEach {
-        suppress.set(false)
-        displayName.set(name)
-        documentedVisibilities.set(setOf(VisibilityModifier.Public)) // OR documentedVisibilities(VisibilityModifier.Public)
-        reportUndocumented.set(false)
-        skipEmptyPackages.set(true)
-        skipDeprecated.set(false)
-        suppressGeneratedFiles.set(true)
-        jdkVersion.set(8)
-        languageVersion.set("1.7")
-        apiVersion.set("1.7")
-        noStdlibLink.set(false)
-        noJdkLink.set(false)
-        noAndroidSdkLink.set(false)
-        platform.set(Platform.DEFAULT)
-        sourceRoots.from(file("src"))
-        classpath.from(project.files(), file("libs/dependency.jar"))
-        samples.from(project.files(), "samples/Basic.kt", "samples/Advanced.kt")
-
-        sourceLink {
-            localDirectory.set(file("src/main/kotlin"))
-            remoteUrl("https://example.com/src")
-            remoteLineSuffix.set("#L")
+    dokkaSourceSets {
+        // Example: Configuration exclusive to the 'linux' source set
+        named("linux") {
+            dependentSourceSets{named("native")}
+            sourceRoots.from(file("linux/src"))
         }
 
-        externalDocumentationLink {
-            url = URL("https://example.com/docs/")
-            packageListUrl = File("/path/to/package-list").toURI().toURL()
-        }
-
-        perPackageOption {
-            matchingRegex.set(".*api.*")
+        configureEach {
             suppress.set(false)
-            skipDeprecated.set(false)
+            displayName.set(name)
+            documentedVisibilities.set(setOf(VisibilityModifier.Public)) // OR documentedVisibilities(VisibilityModifier.Public)
             reportUndocumented.set(false)
-            documentedVisibilities.set(
-                setOf(
-                    VisibilityModifier.Public,
-                    VisibilityModifier.Private,
-                    VisibilityModifier.Protected,
-                    VisibilityModifier.Internal,
-                    VisibilityModifier.Package
+            skipEmptyPackages.set(true)
+            skipDeprecated.set(false)
+            suppressGeneratedFiles.set(true)
+            jdkVersion.set(8)
+            languageVersion.set("1.7")
+            apiVersion.set("1.7")
+            sourceRoots.from(file("src"))
+            classpath.from(project.files(), file("libs/dependency.jar"))
+            samples.from(project.files(), "samples/Basic.kt", "samples/Advanced.kt")
+
+            sourceLink {
+                localDirectory.set(file("src/main/kotlin"))
+                remoteUrl("https://example.com/src")
+                remoteLineSuffix.set("#L")
+            }
+
+            externalDocumentationLinks {
+                url = URL("https://example.com/docs/")
+                packageListUrl = File("/path/to/package-list").toURI().toURL()
+            }
+
+            perPackageOption {
+                matchingRegex.set(".*api.*")
+                suppress.set(false)
+                skipDeprecated.set(false)
+                reportUndocumented.set(false)
+                documentedVisibilities.set(
+                    setOf(
+                        VisibilityModifier.Public,
+                        VisibilityModifier.Private,
+                        VisibilityModifier.Protected,
+                        VisibilityModifier.Internal,
+                        VisibilityModifier.Package
+                    )
                 )
-            )
+            }
         }
     }
 }
@@ -1506,7 +1469,7 @@ tasks.withType(DokkaTask.class) {
 
     dokkaSourceSets {
         named("linux") {
-            dependsOn("native")
+            dependentSourceSets{named("native")}
             sourceRoots.from(file("linux/src"))
         }
         configureEach {
@@ -1556,10 +1519,3 @@ tasks.withType(DokkaTask.class) {
 
 </tab>
 </tabs>
-
-## Enable build cache and configuration cache
-
-DGP supports Gradle build cache and configuration cache, improving build performance.
-
-* To enable build cache, follow instructions in the [Gradle build cache documentation](https://docs.gradle.org/current/userguide/build_cache.html#sec:build_cache_enable).
-* To enable configuration cache, follow instructions in the [Gradle configuration cache documentation](https://docs.gradle.org/current/userguide/configuration_cache.html#config_cache:usage:enable ).

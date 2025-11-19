@@ -1,6 +1,11 @@
 [//]: # (title: Javadoc)
 <primary-label ref="alpha"/>
 
+> This guide applies to Dokka Gradle Plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
+> If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
+>
+{style="note"}
+
 Dokka's Javadoc output format is a lookalike of Java's
 [Javadoc HTML format](https://docs.oracle.com/en/java/javase/19/docs/api/index.html). 
 
@@ -19,12 +24,9 @@ and you can find the source code on [GitHub](https://github.com/Kotlin/dokka/tre
 
 ## Generate Javadoc documentation
 
-> These instructions reflect Dokka Gradle plugin v1 configuration and tasks. Starting from Dokka 2.0.0, [the Gradle tasks to generate documentation changed](dokka-migration.md#select-documentation-output-format).
-> For more details and the full list of changes in Dokka Gradle Plugin v2, see the [Migration guide](dokka-migration.md).
+> The Javadoc format does not support multi-project builds or Kotlin Multiplatform projects.
 >
-> The Javadoc format does not support multiplatform projects.
->
-{style="warning"}
+{style="tip"}
 
 
 <tabs group="build-script">
@@ -35,13 +37,14 @@ You need to apply the corresponding plugin id in the `plugins {}` block of your 
 
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka-javadoc") version "2.0.0"
+    id("org.jetbrains.dokka-javadoc") version "%dokkaVersion%"
 }
 ```
 
 Once you applied the plugin, you can run the following tasks:
-* `dokkaGeneratePublicationJavadoc` to generate documentation only in Javadoc format.
+
 * `dokkaGenerate` to generate documentation in [all available formats based on the applied plugins](dokka-gradle.md#configure-documentation-output-format).
+* `dokkaGeneratePublicationJavadoc` to generate documentation only in Javadoc format.
 
 The `javadoc.jar` file can be generated separately. For more information, see [Building `javadoc.jar`](dokka-gradle.md#build-javadoc-jar).
 

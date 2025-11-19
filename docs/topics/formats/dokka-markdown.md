@@ -1,6 +1,12 @@
 [//]: # (title: Markdown)
 <primary-label ref="alpha"/>
 
+> This guide applies to Dokka Gradle Plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
+> If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
+>
+{style="note"}
+
+
 Dokka is able to generate documentation in [GitHub Flavored](#gfm) and [Jekyll](#jekyll) compatible Markdown.
 
 These formats give you more freedom in terms of hosting documentation as the output can be embedded right into your 
@@ -72,8 +78,8 @@ apply<DokkaMarkdownPlugin>()
 ```
 
 Once you applied the plugin, you can run the following tasks:
-* `dokkaGenerateMarkdown` to generate documentation only in Markdown format. 
 * `dokkaGenerate` to generate documentation in [all available formats based on the applied plugins](dokka-gradle.md#configure-documentation-output-format).
+* `dokkaGenerateMarkdown` to generate documentation only in Markdown format.
 
 </tab>
 <tab title="Maven" group-key="groovy">

@@ -1,8 +1,21 @@
 [//]: # (title: HTML)
 
-HTML is Dokka's default and recommended output format. 
-You can see an example of the output by browsing documentation
-for [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/).
+> This guide applies to Dokka Gradle Plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
+> If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
+>
+{style="note"}
+
+HTML is Dokka's default and recommended output format.
+It provides support for Kotlin Multiplatform, Android, and Java projects. 
+Additionally, you can use the HTML format to document both single and multi-project builds.
+
+For examples of the HTML output format, check the following docs:
+* [kotlinx.coroutines](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/)
+* [Bitmovin](https://cdn.bitmovin.com/player/android/3/docs/index.html)
+* [Hexagon](https://hexagontk.com/stable/api/)
+* [Ktor](https://api.ktor.io/)
+* [OkHttp](https://square.github.io/okhttp/5.x/okhttp/okhttp3/)
+* [Gradle](https://docs.gradle.org/current/kotlin-dsl/index.html)
 
 ## Generate HTML documentation
 
@@ -10,8 +23,12 @@ HTML as an output format is supported by all runners. To generate HTML documenta
 your build tool or runner:
 
 * For [Gradle](dokka-gradle.md#generate-documentation), run the following tasks: 
-  * `dokkaGeneratePublicationHtml` to generate documentation only in HTML format. 
   * `dokkaGenerate` to generate documentation in [all available formats based on the applied plugins](dokka-gradle.md#configure-documentation-output-format).
+      This is the recommended task for most users. When using this task in IntelliJ IDEA, it logs a clickable link to the output.
+  * `dokkaGeneratePublicationHtml` to generate documentation only in HTML format. This task exposes the output directory 
+    as an `@OutputDirectory`. Use this task when you need to consume the generated files in other Gradle tasks, such 
+    as uploading them to a server, moving them into a GitHub Pages directory, or packaging them into a `javadoc.jar`. 
+    This task is intentionally not shown in Gradle task groups because it is not meant for everyday use.
 * For [Maven](dokka-maven.md#generate-documentation), run the `dokka:dokka` goal.
 * For [CLI runner](dokka-cli.md#generate-documentation), run with HTML dependencies set.
 
@@ -206,7 +223,7 @@ You can modify text in the footer by using the `footerMessage` [configuration op
 Dokka provides the ability to modify [FreeMarker](https://freemarker.apache.org/) templates used for generating 
 documentation pages.
 
-You can change the header completely, add your own banners/menus/search, load analytics, change body styling and so on.
+You can change the header completely, add your own banners/menus/search, load analytics, change body styling, and so on.
 
 Dokka uses the following templates:
 
@@ -255,4 +272,4 @@ You can also use the following Dokka-defined [directives](https://freemarker.apa
 |-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `<@content/>`   | The main page content.                                                                                                                                                                                                |
 | `<@resources/>` | Resources such as scripts and stylesheets.                                                                                                                                                                            |
-| `<@version/>`   | The module version taken from configuration. If the [versioning plugin](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-versioning) is applied, it is replaced with a version navigator. |
+| `<@version/>`   | The subproject version taken from configuration. If the [versioning plugin](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-versioning) is applied, it is replaced with a version navigator. |
