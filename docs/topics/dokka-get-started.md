@@ -5,6 +5,11 @@ Below you can find simple instructions to help you get started with Dokka.
 <tabs group="build-script">
 <tab title="Gradle Kotlin DSL" group-key="kotlin">
 
+> This guide applies to Dokka Gradle Plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported. 
+> If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
+>
+{style="note"}
+
 **Apply the Gradle Dokka plugin** 
 
 Apply the Dokka Gradle plugin (DGP) in the root build script of your project:
@@ -15,16 +20,16 @@ plugins {
 }
 ```
 
-**Document multi-module projects**
+**Document multi-project builds**
 
-When documenting [multi-module projects (multi-project builds)](https://docs.gradle.org/current/userguide/multi_project_builds.html),
-you don't need to apply the plugin to every module or subproject you want to document. Instead, share Dokka configuration across modules 
+When documenting [multi-project builds](https://docs.gradle.org/current/userguide/multi_project_builds.html),
+you need to apply the plugin to every subproject you want to document. Share Dokka configuration across subprojects 
 by using one of the following approaches:
 
 * Convention plugin
-* Direct configuration in each module if you’re not using convention plugins
+* Direct configuration in each subproject if you’re not using convention plugins
 
-For more information about sharing Dokka configuration in multi-module projects, 
+For more information about sharing Dokka configuration in multi-project builds, 
 see [Multi-project configuration](dokka-gradle.md#multi-project-configuration).
 
 **Generate documentation**
@@ -35,13 +40,13 @@ To generate documentation, run the following Gradle task:
 ./gradlew :dokkaGenerate
 ```
 
-This task works for both single and multi-module projects. 
+This task works for both single and multi-project builds. 
 You can use different tasks to generate output in [HTML](dokka-html.md), 
 [Javadoc](dokka-javadoc.md) or both [HTML and Javadoc](dokka-gradle.md#configure-documentation-output-format).
 
 **Set output directory** 
 
-By default, the output directory is set to `/build/dokka/html` for both multi-module and single-module projects, 
+By default, the output directory is set to `/build/dokka/html` for both multi-project and single-project builds, 
 but you can [configure it](dokka-gradle.md#general-configuration).
 
 To learn more about using Dokka with Gradle, see [Gradle](dokka-gradle.md).

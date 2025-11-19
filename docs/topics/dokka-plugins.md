@@ -1,5 +1,10 @@
 [//]: # (title: Dokka plugins)
 
+> This guide applies to Dokka Gradle Plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
+> If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
+>
+{style="note"}
+
 Dokka was built from the ground up to be easily extensible and highly customizable, which allows the community
 to implement plugins for missing or very specific features that are not provided out of the box.
 
@@ -30,24 +35,21 @@ to your project:
 <tabs group="build-script">
 <tab title="Kotlin" group-key="kotlin">
 
-The way to apply Dokka plugins is unified under the `dokka {}` DSL:
+The way to apply Dokka plugins is:
 
 ```kotlin
 plugins {
-    id("org.jetbrains.dokka") version "2.0.0"
+    id("org.jetbrains.dokka") version "%dokkaVersion%"
 }
 
-dokka {
-    dependencies {
-        dokkaPlugin("org.jetbrains.dokka:mathjax-plugin:2.0.0")
-    }
-
+dependencies {
+    dokkaPlugin("org.jetbrains.dokka:mathjax-plugin")
 }
 ```
 
 > * Built-in plugins (like HTML and Javadoc) are always applied automatically. You only configure them and do not need dependencies for them.
 >
-> * When documenting multi-module projects (multi-project builds), you need to [share Dokka configuration and plugins across modules](dokka-gradle.md#multi-project-configuration).
+> * When documenting multi-module projects (multi-project builds), you need to [share Dokka configuration and plugins across subprojects](dokka-gradle.md#multi-project-configuration).
 > 
 {style="note"}
 
@@ -138,7 +140,7 @@ custom style sheets (`customStyleSheets` option), and a modified footer message 
 <tabs group="build-script">
 <tab title="Kotlin" group-key="kotlin">
 
-To configure Dokka plugins in a type-safe way, use the `pluginsConfiguration{}` block:
+To configure Dokka plugins in a type-safe way, use the `dokka.pluginsConfiguration {}` block:
 
 ```kotlin
 dokka {
@@ -155,7 +157,7 @@ For an example of Dokka plugins configuration, see the
 
 Dokka allows you 
 to extend its functionality 
-by [configuring custom plugins](https://github.com/Kotlin/dokka/blob/ae3840edb4e4afd7b3e3768a5fddfe8ec0e08f31/examples/gradle-v2/custom-dokka-plugin-example/demo-library/build.gradle.kts).
+by [configuring custom plugins](https://github.com/Kotlin/dokka/blob/v2.1.0/examples/gradle-v2/custom-dokka-plugin-example/demo-library/build.gradle.kts).
 Custom plugins enable additional processing or modifications to the documentation generation process.
 
 </tab>
