@@ -6,7 +6,10 @@ package org.jetbrains.dokka.kotlinPlaygroundSamples
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.PluginConfigurationImpl
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.plugability.plugin
+import org.jetbrains.dokka.plugability.query
 import utils.TestOutputWriterPlugin
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -23,6 +26,38 @@ class KotlinPlaygroundSamplesInstallerTest : BaseAbstractTest() {
     }
 
     val writerPlugin = TestOutputWriterPlugin()
+
+    @Test
+    fun `KotlinPlaygroundSamplesScriptsInstaller and KotlinPlaygroundSamplesStylesInstaller are applied`() {
+        testInline(
+            """
+            |/src/main/kotlin/Sample.kt
+            |package com.example
+            |
+            |fun sampleFunction() {
+            |    println("This is a sample")
+            |}
+            |
+            | /**
+            | * @sample [com.example.sampleFunction]
+            | */
+            |class Foo
+            """.trimMargin(),
+            configuration = configuration
+        ) {
+            pluginsSetupStage = { context ->
+                val htmlPreprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
+                assertTrue(
+                    htmlPreprocessors.any { it is KotlinPlaygroundSamplesScriptsInstaller },
+                    "KotlinPlaygroundSamplesScriptsInstaller should be registered on htmlPreprocessors extension point"
+                )
+                assertTrue(
+                    htmlPreprocessors.any { it is KotlinPlaygroundSamplesStylesInstaller },
+                    "KotlinPlaygroundSamplesStylesInstaller should be registered on htmlPreprocessors extension point"
+                )
+            }
+        }
+    }
 
     @Test
     fun `should not inject playground resources when no samples are used`() {
