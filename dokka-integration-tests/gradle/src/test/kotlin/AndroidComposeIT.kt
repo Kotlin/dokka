@@ -23,9 +23,7 @@ import kotlin.io.path.readText
  * Integration test for the `it-android-compose` project.
  */
 @TestsDGPv2
-@TestsAndroidCompose(
-    maxAgpVersion = "9.0.0",
-)
+@TestsAndroidCompose
 @TestsKotlinJvm
 class AndroidComposeIT {
 
