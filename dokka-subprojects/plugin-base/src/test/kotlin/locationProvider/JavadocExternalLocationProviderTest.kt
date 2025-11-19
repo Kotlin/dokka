@@ -141,4 +141,24 @@ class JavadocExternalLocationProviderTest : BaseAbstractTest() {
             locationProvider.resolve(dri)
         )
     }
+
+    @Test
+    fun `#3351 link to Java field`() {
+        val locationProvider = getTestLocationProvider()
+        val dri = DRI(
+            packageName = "java.io",
+            classNames = "Reader",
+            callable = Callable(
+                name = "lock",
+                params = emptyList(),
+                isProperty = true
+            ),
+            target = PointingToDeclaration
+        )
+
+        assertEquals(
+            "https://docs.oracle.com/javase/8/docs/api/java/io/Reader.html#lock",
+            locationProvider.resolve(dri)
+        )
+    }
 }
