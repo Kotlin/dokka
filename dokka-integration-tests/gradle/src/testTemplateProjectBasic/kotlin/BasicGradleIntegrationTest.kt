@@ -139,7 +139,7 @@ class BasicGradleIntegrationTest : AbstractGradleIntegrationTest() {
         val indexFile = File(this, "index.html")
         assertTrue(indexFile.isFile, "Missing index.html")
         assertTrue(
-            """<title>Basic Project 2.1.0-SNAPSHOT API </title>""" in indexFile.readText(),
+            """<title>Basic Project 3.0.0-KDP API </title>""" in indexFile.readText(),
             "Header with version number not present in index.html"
         )
 
