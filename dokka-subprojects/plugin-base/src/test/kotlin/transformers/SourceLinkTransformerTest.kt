@@ -130,7 +130,7 @@ class SourceLinkTransformerTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `each declaration should include exactly one source link in the case #4338 and #4049`() {
+    fun `each declaration should include exactly one source link in the case #4338`() {
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
@@ -155,9 +155,6 @@ class SourceLinkTransformerTest : BaseAbstractTest() {
             |
             |val ff = 0 // #4338
             |fun ff() = 0
-            |
-            |fun overloadWithVararg(novararg: String){}  // #4049
-            |fun overloadWithVararg(vararg elements: String){}
         """.trimMargin(),
             configuration,
             pluginOverrides = listOf(writerPlugin)
@@ -169,11 +166,54 @@ class SourceLinkTransformerTest : BaseAbstractTest() {
                     2,
                     pageFf.getAllSourceElements().size
                 )
+                assertEquals(
+                    listOf("https://github.com/user/repo/tree/master/src/main/kotlin/basic/Deprecated.kt#L4", "https://github.com/user/repo/tree/master/src/main/kotlin/basic/Deprecated.kt#L3"),
+                    pageFf.getAllSourceElements().map { it.select("a[href]").attr("href") }
+                )
+            }
+        }
+    }
 
+    @Test
+    fun `each declaration should include exactly one source link in the case #4049`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    sourceLinks = listOf(
+                        SourceLinkDefinitionImpl(
+                            localDirectory = "src/main/kotlin",
+                            remoteUrl = URL("https://github.com/user/repo/tree/master/src/main/kotlin"),
+                            remoteLineSuffix = "#L"
+                        )
+                    )
+                }
+            }
+        }
+
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+            |/src/main/kotlin/basic/Deprecated.kt
+            |package testpackage
+            |fun overloadWithVararg(novararg: String){}  // #4049
+            |fun overloadWithVararg(vararg elements: String){}
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
                 val pageOverloadWithVararg = writerPlugin.writer.renderedContent("root/testpackage/overload-with-vararg.html")
+                fun Element.getAllSourceElements() = select(".symbol .source-link")
+
                 assertEquals(
                     2,
                     pageOverloadWithVararg.getAllSourceElements().size
+                )
+                assertEquals(
+                    listOf("https://github.com/user/repo/tree/master/src/main/kotlin/basic/Deprecated.kt#L2", "https://github.com/user/repo/tree/master/src/main/kotlin/basic/Deprecated.kt#L3"),
+                    pageOverloadWithVararg.getAllSourceElements().map { it.select("a[href]").attr("href") }
                 )
             }
         }
