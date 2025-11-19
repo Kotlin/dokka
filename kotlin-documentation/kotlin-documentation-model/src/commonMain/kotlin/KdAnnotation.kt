@@ -40,6 +40,7 @@ public sealed class KdAnnotationArgumentValue {
     @Serializable
     public data class Const(public val value: KdConstValue) : KdAnnotationArgumentValue()
 
+    // TODO: should it be classifier + name?
     // TODO: enum-value
     @SerialName("enum")
     @Serializable
@@ -47,7 +48,7 @@ public sealed class KdAnnotationArgumentValue {
 
     @SerialName("class")
     @Serializable
-    public data class Class(public val type: KdType) : KdAnnotationArgumentValue()
+    public data class Class(public val classifierId: KdClassifierId) : KdAnnotationArgumentValue()
 
     @SerialName("annotation")
     @Serializable

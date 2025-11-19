@@ -22,6 +22,17 @@ public data class KdModule(
     override val documentation: KdDocumentation? = null,
 ) : KdDocumented
 
+/**
+ * Why fragment as a container, and not part of the declaration model?
+ * - expect-actual with typealias means `actual` and `expect` can have different models
+ * - expect-actual for classes is not stable yet and it's not clear how will it evolve
+ * - this is more in line how compiler represents declarations (by fragments/source-sets)
+ * - in case of android flavors (or similar) we can generate fragments at once (if needed) and then produce different HTMl outputs just by filtering fragments, and not transforming the whole model
+ * - to not have clashes in case we have same named function/property/class in different source-sets (not expect-actual)
+ * - if we want to still have `targets/dependsOn` information, it still should be stored somewhere once
+ *
+ * Maybe it will be a bad idea in the end :)
+ */
 @Serializable
 public data class KdFragment(
     // TODO: the name is correct only for the current module (dependsOn) and not comparable between different modules
