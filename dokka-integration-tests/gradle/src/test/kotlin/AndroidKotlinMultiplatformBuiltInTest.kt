@@ -15,6 +15,7 @@ import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
 import org.jetbrains.dokka.it.gradle.junit.*
 import org.jetbrains.dokka.it.gradle.junit.TestedVersions
+import org.jetbrains.dokka.it.gradle.utils.SemVer
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import kotlin.io.path.name
 import kotlin.io.path.readText
@@ -33,28 +34,17 @@ class AndroidKotlinMultiplatformBuiltInTest {
         testedVersions: TestedVersions.Android,
     ) {
         assumeTrue(
-            testedVersions.agp.major >= 8,
-            "The com.android.kotlin.multiplatform.library plugin is only available in AGP 8.0.0+ " +
+            testedVersions.agp >= SemVer("8.10.0"),
+            "The com.android.kotlin.multiplatform.library plugin is only available in AGP 8.10.0+ " +
                     "(current AGP ${testedVersions.agp}). " +
                     "See https://developer.android.com/kotlin/multiplatform/plugin#prerequisites",
         )
         assumeTrue(
-            testedVersions.kgp.major >= 2,
+            testedVersions.kgp >= SemVer("2.0.0"),
             "The com.android.kotlin.multiplatform.library requires kotlin-multiplatform 2.0.0+ (current KGP ${testedVersions.kgp})" +
                     "(current KGP ${testedVersions.kgp}). " +
                     "See https://developer.android.com/kotlin/multiplatform/plugin#prerequisites",
         )
-
-        if (testedVersions.agp.major < 9) {
-            // AGP 8 uses KotlinTarget JVM instead of AndroidJVM.
-            // This is an AGP 8 bug - it's fixed in AGP 9.
-            // For AGP <9, workaround the bug by manually enabling the Android documentation link.
-            project.buildGradleKts += """
-            |dokka.dokkaSourceSets.configureEach {
-            |    enableAndroidDocumentationLink.set(true)
-            |}
-            |""".trimMargin()
-        }
 
         project.runner
             .addArguments(
@@ -104,6 +94,8 @@ class AndroidKotlinMultiplatformBuiltInTest {
                     actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedHtml, TestConstants.DokkaHtmlAssetsFiles)
                 }
             }
+
+            assertNoUnknownClassErrorsInHtml(actualHtmlDir)
         }
     }
 }
