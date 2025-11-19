@@ -19,6 +19,8 @@ import org.gradle.kotlin.dsl.*
 import org.jetbrains.dokka.gradle.DokkaBasePlugin
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.adapters.KotlinAdapter.Companion.currentKotlinToolingVersion
+import org.jetbrains.dokka.gradle.adapters.KotlinAdapter.Companion.findKotlinBasePlugins
+import org.jetbrains.dokka.gradle.adapters.KotlinAdapter.Companion.logKgpClassNotFoundWarning
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.engine.parameters.SourceSetIdSpec
@@ -39,6 +41,8 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
 import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
 import java.io.File
+import java.util.Collections.newSetFromMap
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 /**
@@ -221,8 +225,7 @@ abstract class KotlinAdapter @Inject constructor(
                 when (ex) {
                     is ClassNotFoundException,
                     is NoClassDefFoundError -> {
-                        logger.info("Dokka Gradle Plugin could not load KotlinBasePlugin in ${project.displayName} - ${ex::class.qualifiedName} ${ex.message}")
-                        logWarningIfKgpApplied(
+                        logKgpClassNotFoundWarning(
                             project,
                             kotlinBasePluginNotFoundException = ex,
                         )
@@ -238,6 +241,8 @@ abstract class KotlinAdapter @Inject constructor(
          * Check all plugins to see if they are a subtype of [KotlinBasePlugin].
          * If any are, log a warning.
          *
+         * Also, log an info message with the stacktrace of [kotlinBasePluginNotFoundException].
+         *
          * ##### Motivation
          *
          * If the buildscript classpath is inconsistent, it might not be possible for DGP
@@ -247,22 +252,49 @@ abstract class KotlinAdapter @Inject constructor(
          *
          * @param[kotlinBasePluginNotFoundException] The exception thrown when [KotlinBasePlugin] is not available.
          */
-        private fun logWarningIfKgpApplied(
+        private fun logKgpClassNotFoundWarning(
             project: Project,
             kotlinBasePluginNotFoundException: Throwable,
         ) {
+            // hide the stacktrace at `--info` log level, to avoid flooding the log
+            logger.info(
+                "Dokka Gradle Plugin could not load KotlinBasePlugin in ${project.displayName}",
+                kotlinBasePluginNotFoundException,
+            )
             PluginId.kgpPlugins.forEach { pluginId ->
                 project.pluginManager.withPlugin(pluginId) {
-                    logger.warn(
-                        buildString {
-                            appendLine("Dokka Gradle Plugin could not load KotlinBasePlugin in ${project.displayName}, but plugin $id is applied.")
-                            appendLine("Check the buildscript classpath is consistent (all plugins are ")
-                        },
-                        kotlinBasePluginNotFoundException,
-                    )
+                    if (!projectsWithKgpClassNotFoundWarningApplied.add(project.path)) {
+                        logger.warn(
+                            """
+                            |warning: Dokka could not load KotlinBasePlugin in ${project.displayName}, even though plugin $pluginId is applied.
+                            |The most common cause is a Gradle limitation: the plugins applied to subprojects should be consistent.
+                            |Please try the following:
+                            |1. Apply the Dokka and Kotlin plugins to the root project using the `plugins {}` DSL.
+                            |   (If the root project does not need the plugins, use 'apply false')
+                            |2. Remove the Dokka and Kotlin plugins versions in the subprojects.
+                            |For more information see:
+                            | - https://docs.gradle.org/current/userguide/plugins_intermediate.html#sec:plugins_apply
+                            | - https://github.com/gradle/gradle/issues/25616
+                            | - https://github.com/gradle/gradle/issues/35117
+                            |Please report any feedback or problems https://kotl.in/dokka-issues
+                            |""".trimMargin()
+                        )
+                    } else {
+                        logger.lifecycle("project ${project.path} already applied Dokka Gradle Plugin's KotlinBasePlugin warning, skipping")
+                    }
                 }
             }
         }
+
+        /**
+         * Keep track of which projects have been warned by [logKgpClassNotFoundWarning],
+         * otherwise it'll log the same warning multiple times for the same project, which is annoying.
+         *
+         * [logKgpClassNotFoundWarning] will be triggered multiple times because
+         * [findKotlinBasePlugins] reacts to all [KotlinBasePlugin].
+         * A project could have multiple plugins that implement this class.
+         */
+        private val projectsWithKgpClassNotFoundWarningApplied: MutableSet<String> = newSetFromMap(ConcurrentHashMap())
     }
 }
 
