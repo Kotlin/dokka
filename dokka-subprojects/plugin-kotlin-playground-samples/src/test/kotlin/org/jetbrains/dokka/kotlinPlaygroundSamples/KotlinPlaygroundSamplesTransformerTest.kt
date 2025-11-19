@@ -4,16 +4,46 @@
 
 package org.jetbrains.dokka.kotlinPlaygroundSamples
 
+import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.pages.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class KotlinPlaygroundSamplesTransformerTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
         sourceSets {
             sourceSet {
                 sourceRoots = listOf("src/main/kotlin")
+            }
+        }
+    }
+
+    @Test
+    fun `KotlinPlaygroundSamplesTransformer is applied`() {
+        testInline(
+            """
+            |/src/main/kotlin/Sample.kt
+            |package com.example
+            |
+            |fun sampleFunction() {
+            |    println("This is a sample")
+            |}
+            |
+            | /**
+            | * @sample [com.example.sampleFunction]
+            | */
+            |class Foo
+            """.trimMargin(),
+            configuration = configuration
+        ) {
+            pluginsSetupStage = { context ->
+                val pageTransformers = context[CoreExtensions.pageTransformer]
+                assertTrue(
+                    pageTransformers.any { it is KotlinPlaygroundSamplesTransformer },
+                    "KotlinPlaygroundSamplesTransformer should be registered on PageTransformer extension point"
+                )
             }
         }
     }
@@ -278,7 +308,10 @@ class KotlinPlaygroundSamplesTransformerTest : BaseAbstractTest() {
 
                 val kotlinPlaygroundSample = kotlinPlaygroundSamples[0]
                 assertEquals("kotlin", kotlinPlaygroundSample.language)
-                assertEquals(setOf<Style>(ContentStyle.RunnableSample, TextStyle.Monospace), kotlinPlaygroundSample.style)
+                assertEquals(
+                    setOf<Style>(ContentStyle.RunnableSample, TextStyle.Monospace),
+                    kotlinPlaygroundSample.style
+                )
 
                 val child = kotlinPlaygroundSample.children[0]
                 if (child is ContentText) {
