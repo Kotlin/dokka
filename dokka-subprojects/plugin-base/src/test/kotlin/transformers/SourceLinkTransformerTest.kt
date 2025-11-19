@@ -128,4 +128,54 @@ class SourceLinkTransformerTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `each declaration should include exactly one source link in the case #4338 and #4049`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    sourceLinks = listOf(
+                        SourceLinkDefinitionImpl(
+                            localDirectory = "src/main/kotlin",
+                            remoteUrl = URL("https://github.com/user/repo/tree/master/src/main/kotlin"),
+                            remoteLineSuffix = "#L"
+                        )
+                    )
+                }
+            }
+        }
+
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+            |/src/main/kotlin/basic/Deprecated.kt
+            |package testpackage
+            |
+            |val ff = 0 // #4338
+            |fun ff() = 0
+            |
+            |fun overloadWithVararg(novararg: String){}  // #4049
+            |fun overloadWithVararg(vararg elements: String){}
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val pageFf = writerPlugin.writer.renderedContent("root/testpackage/ff.html")
+                fun Element.getAllSourceElements() = select(".symbol .source-link")
+                assertEquals(
+                    2,
+                    pageFf.getAllSourceElements().size
+                )
+
+                val pageOverloadWithVararg = writerPlugin.writer.renderedContent("root/testpackage/overload-with-vararg.html")
+                assertEquals(
+                    2,
+                    pageOverloadWithVararg.getAllSourceElements().size
+                )
+            }
+        }
+    }
 }
