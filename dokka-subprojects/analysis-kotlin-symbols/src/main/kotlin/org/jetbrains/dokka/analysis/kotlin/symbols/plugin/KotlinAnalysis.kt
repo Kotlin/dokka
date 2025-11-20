@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSdkModule
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSourceModule
 import org.jetbrains.kotlin.config.AnalysisFlags
 import org.jetbrains.kotlin.config.ApiVersion
+import org.jetbrains.kotlin.config.LanguageFeature
 import org.jetbrains.kotlin.config.LanguageVersion
 import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
 import org.jetbrains.kotlin.platform.CommonPlatforms
@@ -62,6 +63,9 @@ internal fun getLanguageVersionSettings(
             // special flag for Dokka
             // force to resolve light classes (lazily by default)
             AnalysisFlags.eagerResolveOfLightClasses to true
+        ),
+        specificFeatures = mapOf(
+            LanguageFeature.MultiPlatformProjects to LanguageFeature.State.ENABLED,
         )
     )
 }
@@ -161,8 +165,8 @@ internal fun topologicalSortByDependantSourceSets(
     val result = mutableListOf<DokkaConfiguration.DokkaSourceSet>()
 
     val verticesAssociatedWithState = sourceSets.associateWithTo(mutableMapOf()) { State.UNVISITED }
-    fun dfs(souceSet: DokkaConfiguration.DokkaSourceSet) {
-        when (verticesAssociatedWithState[souceSet]) {
+    fun dfs(sourceSet: DokkaConfiguration.DokkaSourceSet) {
+        when (verticesAssociatedWithState[sourceSet]) {
             State.VISITED -> return
             State.VISITING -> {
                 logger.error("Detected cycle in source set graph")
@@ -171,16 +175,16 @@ internal fun topologicalSortByDependantSourceSets(
 
             else -> {
                 val dependentSourceSets =
-                    souceSet.dependentSourceSets.mapNotNull { dependentSourceSetId ->
+                    sourceSet.dependentSourceSets.mapNotNull { dependentSourceSetId ->
                        sourceSets.find { it.sourceSetID == dependentSourceSetId } ?: run {
                             logger.error("Cannot find source set with id $dependentSourceSetId")
                             null }
 
                     }
-                verticesAssociatedWithState[souceSet] = State.VISITING
+                verticesAssociatedWithState[sourceSet] = State.VISITING
                 dependentSourceSets.forEach(::dfs)
-                verticesAssociatedWithState[souceSet] = State.VISITED
-                result += souceSet
+                verticesAssociatedWithState[sourceSet] = State.VISITED
+                result += sourceSet
             }
         }
     }
