@@ -27,3 +27,13 @@ kotlin {
         }
     }
 }
+
+val agpMajorVersion: Int = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.split('.').first().toInt()
+if (agpMajorVersion < 9) {
+    // AGP 8 uses KotlinTarget JVM instead of AndroidJVM.
+    // This is an AGP 8 bug - it's fixed in AGP 9.
+    // For AGP <9, workaround the bug by manually enabling the Android documentation link.
+    dokka.dokkaSourceSets.configureEach {
+        enableAndroidDocumentationLink.set(true)
+    }
+}

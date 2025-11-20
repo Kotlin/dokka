@@ -14,29 +14,38 @@ import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
 import org.jetbrains.dokka.it.gradle.junit.*
+import org.jetbrains.dokka.it.gradle.junit.TestedVersions
+import org.jetbrains.dokka.it.gradle.utils.SemVer
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import kotlin.io.path.name
 import kotlin.io.path.readText
 
 /**
  * Integration test for the `it-android-kotlin-mp-builtin` project.
- *
- * `com.android.kotlin.multiplatform.library` was added in 8.10.0
- * https://developer.android.com/kotlin/multiplatform/plugin#prerequisites
- * Let's test the latest AGP 8.x version and above.
  */
 @TestsDGPv2
 @TestsAndroid
-@TestsKotlinGradlePlugin(
-    // com.android.kotlin.multiplatform.library requires KGP 2.0.0+
-    // https://developer.android.com/kotlin/multiplatform/plugin#prerequisites
-    minKgpVersion = "2.0.0",
-)
+@TestsKotlinMultiplatform
 class AndroidKotlinMultiplatformBuiltInTest {
 
     @DokkaGradlePluginTest(sourceProjectName = "it-android-kotlin-mp-builtin")
     fun `generate dokka HTML`(
         project: DokkaGradleProjectRunner,
+        testedVersions: TestedVersions.Android,
     ) {
+        assumeTrue(
+            testedVersions.agp >= SemVer("8.10.0"),
+            "The com.android.kotlin.multiplatform.library plugin is only available in AGP 8.10.0+ " +
+                    "(current AGP ${testedVersions.agp}). " +
+                    "See https://developer.android.com/kotlin/multiplatform/plugin#prerequisites",
+        )
+        assumeTrue(
+            testedVersions.kgp >= SemVer("2.0.0"),
+            "The com.android.kotlin.multiplatform.library requires kotlin-multiplatform 2.0.0+ (current KGP ${testedVersions.kgp})" +
+                    "(current KGP ${testedVersions.kgp}). " +
+                    "See https://developer.android.com/kotlin/multiplatform/plugin#prerequisites",
+        )
+
         project.runner
             .addArguments(
                 "clean",
@@ -85,6 +94,8 @@ class AndroidKotlinMultiplatformBuiltInTest {
                     actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedHtml, TestConstants.DokkaHtmlAssetsFiles)
                 }
             }
+
+            assertNoUnknownClassErrorsInHtml(actualHtmlDir)
         }
     }
 }
