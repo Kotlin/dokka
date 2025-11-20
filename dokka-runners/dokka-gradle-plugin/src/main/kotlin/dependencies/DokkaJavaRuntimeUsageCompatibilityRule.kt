@@ -64,7 +64,7 @@ import org.gradle.api.attributes.Usage
  * - Traditional consumers disambiguate the Dokka plugins variants because the
  *   compatibility rule is one way.
  *   If the consumer asks for [Usage.JAVA_RUNTIME],
- *   then [DokkaAttribute.DokkaJavaRuntimeUsage] the rule expresses no opinion.
+ *   then the rule expresses no opinion.
  */
 internal abstract class DokkaJavaRuntimeUsageCompatibilityRule : AttributeCompatibilityRule<Usage> {
     override fun execute(details: CompatibilityCheckDetails<Usage>) {
