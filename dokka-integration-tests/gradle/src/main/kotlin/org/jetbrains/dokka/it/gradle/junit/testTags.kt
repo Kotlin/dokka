@@ -60,7 +60,9 @@ annotation class TestsKotlinJvm
 @MustBeDocumented
 @Inherited
 @WithGradleProperties(GradlePropertiesProvider.Android::class)
-annotation class TestsAndroid
+annotation class TestsAndroid(
+    val kotlinBuiltIn: KotlinBuiltInCompatibility = KotlinBuiltInCompatibility.Incompatible,
+)
 
 
 /**
@@ -69,9 +71,6 @@ annotation class TestsAndroid
  * If a test is annotated with [TestsAndroid] then
  * [DokkaGradlePluginTestExtension] will run the test multiple times,
  * and provide a [DokkaGradleProjectRunner] using [TestedVersions.AndroidCompose].
- *
- * @param[minAgpVersion] Inclusive lower-bound for AGP versions.
- * @param[maxAgpVersion] Exclusive upper-bound for AGP versions.
  */
 @Tag("Compose")
 @TestsAndroid
@@ -80,6 +79,5 @@ annotation class TestsAndroid
 @Inherited
 @WithGradleProperties(GradlePropertiesProvider.Android::class)
 annotation class TestsAndroidCompose(
-    val minAgpVersion: String = "",
-    val maxAgpVersion: String = "",
+    val kotlinBuiltIn: KotlinBuiltInCompatibility = KotlinBuiltInCompatibility.Incompatible,
 )

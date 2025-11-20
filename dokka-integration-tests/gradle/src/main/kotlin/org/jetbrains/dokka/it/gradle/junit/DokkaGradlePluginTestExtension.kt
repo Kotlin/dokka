@@ -9,7 +9,6 @@ import org.jetbrains.dokka.it.gradle.junit.DokkaGradlePluginTestExtension.Compan
 import org.jetbrains.dokka.it.gradle.junit.TestedVersions.Companion.dashSeparatedId
 import org.jetbrains.dokka.it.gradle.junit.TestedVersions.Companion.displayName
 import org.jetbrains.dokka.it.gradle.utils.SemVer
-import org.jetbrains.dokka.it.gradle.utils.SemVerRange
 import org.jetbrains.dokka.it.gradle.withJetBrainsCachedGradleVersion
 import org.jetbrains.dokka.it.gradle.withReadOnlyDependencyCache
 import org.jetbrains.dokka.it.systemProperty
@@ -85,13 +84,6 @@ class DokkaGradlePluginTestExtension :
         val projectInitializer = ReflectionSupport.newInstance(dgpTest.projectInitializer.java)
         val sourceProjectDir = dgpTest.sourceProjectName
 
-        val testsKotlinGradlePluginAnnotation = context.findClosestAnnotation<TestsKotlinGradlePlugin>()
-        val kgpVersionRange = testsKotlinGradlePluginAnnotation?.run {
-            SemVerRange.from(
-                min = minKgpVersion,
-                max = maxKgpVersion,
-            )
-        }
         val testAndroidAnnotation = context.findClosestAnnotation<TestsAndroid>()
         val testsAndroidComposeAnnotation = context.findClosestAnnotation<TestsAndroidCompose>()
 
@@ -102,24 +94,14 @@ class DokkaGradlePluginTestExtension :
 
         val testedVersionsSource = when {
             testsAndroidComposeAnnotation != null -> TestedVersionsSource.AndroidCompose(
-                kgpVersionRange = kgpVersionRange,
-                agpVersionRange = SemVerRange.from(
-                    min = testsAndroidComposeAnnotation.minAgpVersion,
-                    max = testsAndroidComposeAnnotation.maxAgpVersion,
-                ),
+                kotlinBuiltIn = testsAndroidComposeAnnotation.kotlinBuiltIn,
             )
 
             testAndroidAnnotation != null -> TestedVersionsSource.Android(
-                kgpVersionRange = kgpVersionRange,
-                agpVersionRange = SemVerRange.from(
-                    min = testAndroidAnnotation.minAgpVersion,
-                    max = testAndroidAnnotation.maxAgpVersion,
-                ),
+                kotlinBuiltIn = testAndroidAnnotation.kotlinBuiltIn,
             )
 
-            else -> TestedVersionsSource.Default(
-                kgpVersionRange = kgpVersionRange,
-            )
+            else -> TestedVersionsSource.Default
         }
 
         return testedVersionsSource.get().map { testedVersions ->

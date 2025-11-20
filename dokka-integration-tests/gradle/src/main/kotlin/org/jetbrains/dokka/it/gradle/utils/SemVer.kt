@@ -72,5 +72,8 @@ data class SemVer(
 
         operator fun OpenEndRange<String>.contains(version: SemVer): Boolean =
             version in SemVer(start)..<SemVer(endExclusive)
+
+        fun SemVer.truncateToPatch(): SemVer =
+            SemVer("$major.$minor.$patch")
     }
 }

@@ -3,9 +3,9 @@
  */
 package org.jetbrains.dokka.it.gradle.junit
 
+import org.jetbrains.dokka.it.gradle.junit.TestedVersionsSource.Default.dokkaVersionOverride
 import org.jetbrains.dokka.it.gradle.utils.SemVer
 import org.jetbrains.dokka.it.gradle.utils.SemVer.Companion.contains
-import org.jetbrains.dokka.it.gradle.utils.SemVerRange
 import org.jetbrains.dokka.it.optionalSystemProperty
 import org.jetbrains.dokka.it.systemProperty
 
@@ -19,9 +19,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
     /**
      * Provides [TestedVersions.Default] for a default DGP integration test.
      */
-    class Default(
-        private val kgpVersionRange: SemVerRange? = null,
-    ) : TestedVersionsSource<TestedVersions.Default> {
+    object Default : TestedVersionsSource<TestedVersions.Default> {
 
         private val dokkaVersionOverride: String? by optionalSystemProperty()
         private val dokkaVersion: String by systemProperty { dokkaVersionOverride ?: it }
@@ -49,22 +47,8 @@ fun interface TestedVersionsSource<T : TestedVersions> {
             "2.0.21",
             "2.1.21",
             "2.2.21",
-            "2.3.0-Beta2",
+            "2.3.0-RC",
         ).map { SemVer(it) }
-
-
-        private val matchedKgpVersions: List<SemVer> =
-            if (kgpVersionRange == null) {
-                allKgpVersions
-            } else {
-                allKgpVersions.filter { it in kgpVersionRange }
-            }
-
-        init {
-            require(matchedKgpVersions.isNotEmpty()) {
-                "No KGP versions matched the given range: $kgpVersionRange"
-            }
-        }
 
         /**
          * Gradle versions to test.
@@ -80,7 +64,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
         private val allVersions: Sequence<TestedVersions.Default> =
             sequence {
                 allDokkaGradlePluginVersions.forEach { dgp ->
-                    matchedKgpVersions.forEach { kgp ->
+                    allKgpVersions.forEach { kgp ->
                         allGradleVersions.forEach { gradle ->
                             yield(
                                 TestedVersions.Default(
@@ -110,9 +94,10 @@ fun interface TestedVersionsSource<T : TestedVersions> {
      * The test must be tagged with [TestsAndroid].
      */
     class Android(
-        private val kgpVersionRange: SemVerRange? = null,
-        private val agpVersionRange: SemVerRange? = null,
+        kotlinBuiltIn: KotlinBuiltInCompatibility = KotlinBuiltInCompatibility.Supported,
     ) : TestedVersionsSource<TestedVersions.Android> {
+
+        private val requiredAgpMajorVersionForKotlinBuiltIn = 9
 
         /**
          * All possible Android Gradle Plugin versions that could be tested.
@@ -127,25 +112,30 @@ fun interface TestedVersionsSource<T : TestedVersions> {
             "8.11.2",
             "8.12.3",
             "8.13.0",
-            "9.0.0-alpha14",
+            "9.0.0-beta01",
         ).map { SemVer(it) }
 
         private val matchedAgpVersions: List<SemVer> =
-            if (agpVersionRange == null) {
-                allAgpVersions
-            } else {
-                allAgpVersions.filter { it in agpVersionRange }
+            when (kotlinBuiltIn) {
+                KotlinBuiltInCompatibility.Incompatible ->
+                    allAgpVersions.filter { it.major < requiredAgpMajorVersionForKotlinBuiltIn }
+
+                KotlinBuiltInCompatibility.Required ->
+                    allAgpVersions.filter { it.major >= requiredAgpMajorVersionForKotlinBuiltIn }
+
+                KotlinBuiltInCompatibility.Supported ->
+                    allAgpVersions
             }
 
         init {
             require(matchedAgpVersions.isNotEmpty()) {
-                "No AGP versions matched the given range: $agpVersionRange"
+                "No AGP versions matched (kotlinBuiltIn:$kotlinBuiltIn)"
             }
         }
 
         private val allVersions: Sequence<TestedVersions.Android> =
             sequence {
-                Default(kgpVersionRange).get().forEach { v ->
+                Default.get().forEach { v ->
                     matchedAgpVersions.forEach { agp ->
                         yield(
                             TestedVersions.Android(
@@ -195,14 +185,10 @@ fun interface TestedVersionsSource<T : TestedVersions> {
      * The test must be tagged with [TestsAndroidCompose].
      */
     class AndroidCompose(
-        kgpVersionRange: SemVerRange? = null,
-        agpVersionRange: SemVerRange? = null,
-    ) : TestedVersionsSource<TestedVersions.AndroidCompose> {
+        kotlinBuiltIn: KotlinBuiltInCompatibility = KotlinBuiltInCompatibility.Supported,
+    )  : TestedVersionsSource<TestedVersions.AndroidCompose> {
 
-        private val androidVersions = Android(
-            kgpVersionRange = kgpVersionRange,
-            agpVersionRange = agpVersionRange,
-        )
+        private val androidVersions = Android(kotlinBuiltIn)
 
         /**
          * Versions of the `org.jetbrains.compose` plugins.

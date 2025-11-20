@@ -13,7 +13,11 @@ import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
-import org.jetbrains.dokka.it.gradle.junit.*
+import org.jetbrains.dokka.it.gradle.junit.DokkaGradlePluginTest
+import org.jetbrains.dokka.it.gradle.junit.DokkaGradleProjectRunner
+import org.jetbrains.dokka.it.gradle.junit.KotlinBuiltInCompatibility.Required
+import org.jetbrains.dokka.it.gradle.junit.TestsAndroid
+import org.jetbrains.dokka.it.gradle.junit.TestsDGPv2
 import kotlin.io.path.name
 import kotlin.io.path.readText
 
@@ -21,7 +25,9 @@ import kotlin.io.path.readText
  * Integration test for the `it-android-kotlin-jvm-builtin` project.
  */
 @TestsDGPv2
-@TestsAndroid
+@TestsAndroid(
+    kotlinBuiltIn = Required,
+)
 class AndroidKotlinJvmBuiltInTest {
 
     @DokkaGradlePluginTest(sourceProjectName = "it-android-kotlin-jvm-builtin")

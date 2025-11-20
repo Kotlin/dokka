@@ -17,7 +17,6 @@ import org.jetbrains.dokka.gradle.utils.build
 import org.jetbrains.dokka.it.gradle.junit.DokkaGradlePluginTest
 import org.jetbrains.dokka.it.gradle.junit.DokkaGradleProjectRunner
 import org.jetbrains.dokka.it.gradle.junit.TestsDGPv2
-import org.jetbrains.dokka.it.gradle.junit.TestsKotlinGradlePlugin
 import org.jetbrains.dokka.it.gradle.junit.TestsKotlinMultiplatform
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.name
@@ -26,7 +25,6 @@ import kotlin.io.path.readText
 /**
  * Integration test for the `it-kotlin-multiplatform` project.
  */
-@TestsKotlinGradlePlugin
 @TestsKotlinMultiplatform
 @TestsDGPv2
 class KotlinMultiplatformIT {
