@@ -485,6 +485,7 @@ private fun DocTag.toKdDocumentationNode(): List<KdDocumentationNode> = when (th
         )
     )
 
+    is Text if params["content-type"] == "html" -> listOf(KdDocumentationNode.Html(body))
     is Text, is B, is Strikethrough, is I -> toKdDocumentationText()
 
     // explicitly unsupported

@@ -28,6 +28,10 @@ public sealed class KdDocumentationNode {
         }
     }
 
+    @SerialName("html")
+    @Serializable
+    public data class Html(public val value: String) : KdDocumentationNode()
+
     @SerialName("codeBlock")
     @Serializable
     public data class CodeBlock(
