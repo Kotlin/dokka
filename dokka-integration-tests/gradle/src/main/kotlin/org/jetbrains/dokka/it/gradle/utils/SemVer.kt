@@ -11,10 +11,12 @@ data class SemVer(
 ) : Comparable<SemVer> {
     val major: Int
 
-    val minor: Int
+    //region These fields are private to avoid IJ warnings, feel free to make them public if it's helpful.
+    private val minor: Int
     val patch: Int
     private val prerelease: String?
     private val metadata: String?
+    //endregion
 
     init {
         val match = semverRegex.matchEntire(version) ?: error("Invalid version '$version'")
@@ -72,8 +74,5 @@ data class SemVer(
 
         operator fun OpenEndRange<String>.contains(version: SemVer): Boolean =
             version in SemVer(start)..<SemVer(endExclusive)
-
-        fun SemVer.truncateToPatch(): SemVer =
-            SemVer("$major.$minor.$patch")
     }
 }
