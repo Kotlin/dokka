@@ -19,5 +19,7 @@ internal object PluginIds {
         "com.android.base",
         "com.android.application",
         "com.android.library",
+        "com.android.test",
+        "com.android.dynamic-feature",
     )
 }
