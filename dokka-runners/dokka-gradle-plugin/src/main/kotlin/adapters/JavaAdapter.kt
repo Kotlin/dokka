@@ -46,16 +46,13 @@ abstract class JavaAdapter @Inject constructor(
 
         val dokkaExtension = project.extensions.getByType<DokkaExtension>()
 
-        // wait for the Java plugin to be applied
-        project.plugins.withType<JavaBasePlugin>().configureEach {
-            val java = project.extensions.getByType<JavaPluginExtension>()
-            val sourceSets = project.extensions.getByType<SourceSetContainer>()
+        val java = project.extensions.getByType<JavaPluginExtension>()
+        val sourceSets = project.extensions.getByType<SourceSetContainer>()
 
-            detectJavaToolchainVersion(dokkaExtension, java)
+        detectJavaToolchainVersion(dokkaExtension, java)
 
-            val isConflictingPluginPresent = isConflictingPluginPresent(project)
-            registerDokkaSourceSets(dokkaExtension, sourceSets, isConflictingPluginPresent)
-        }
+        val isConflictingPluginPresent = isConflictingPluginPresent(project)
+        registerDokkaSourceSets(dokkaExtension, sourceSets, isConflictingPluginPresent)
     }
 
     /** Fetch the  toolchain, and use the language version as Dokka's jdkVersion */
@@ -145,7 +142,9 @@ abstract class JavaAdapter @Inject constructor(
                     && name.startsWith(MAIN_SOURCE_SET_NAME)
 
         internal fun applyTo(project: Project) {
-            project.pluginManager.apply(type = JavaAdapter::class)
+            project.plugins.withType<JavaBasePlugin>().all {
+                project.pluginManager.apply(type = JavaAdapter::class)
+            }
         }
     }
 }
