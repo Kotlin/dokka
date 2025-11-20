@@ -11,14 +11,14 @@ import kotlinx.serialization.Serializable
 @Serializable
 public data class KdThrows(
     public val classifierId: KdClassifierId,
-    override val documentation: KdDocumentation? = null
+    override val documentation: List<KdDocumentationNode> = emptyList()
 ) : KdDocumented
 
 // return type + @return tag
 @Serializable
 public data class KdReturns(
     public val type: KdType,
-    override val documentation: KdDocumentation? = null
+    override val documentation: List<KdDocumentationNode> = emptyList()
 ) : KdDocumented
 
 // generics
@@ -28,7 +28,7 @@ public data class KdTypeParameter(
     public val upperBounds: List<KdType>,
     public val variance: KdVariance? = null,
     public val isReified: Boolean = false,
-    override val documentation: KdDocumentation? = null
+    override val documentation: List<KdDocumentationNode> = emptyList()
 ) : KdDocumented
 
 // parameter = receiver, context, value
@@ -42,7 +42,7 @@ public sealed class KdParameter : KdDocumented {
 @Serializable
 public data class KdReceiverParameter(
     override val type: KdType,
-    override val documentation: KdDocumentation? = null
+    override val documentation: List<KdDocumentationNode> = emptyList()
 ) : KdParameter() {
     override val name: String? get() = null
 }
@@ -52,7 +52,7 @@ public data class KdReceiverParameter(
 public data class KdContextParameter(
     override val name: String?,
     override val type: KdType,
-    override val documentation: KdDocumentation? = null
+    override val documentation: List<KdDocumentationNode> = emptyList()
 ) : KdParameter()
 
 @SerialName("value")
@@ -60,7 +60,7 @@ public data class KdContextParameter(
 public data class KdValueParameter(
     override val name: String,
     override val type: KdType,
-    override val documentation: KdDocumentation? = null,
+    override val documentation: List<KdDocumentationNode> = emptyList(),
     public val defaultValue: KdParameterDefaultValue? = null,
     public val isNoinline: Boolean = false,
     public val isCrossinline: Boolean = false,

@@ -7,23 +7,32 @@ package org.jetbrains.dokka.base.generation
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.DRIExtraContainer
+import org.jetbrains.dokka.links.EnumEntryDRIExtra
+import org.jetbrains.dokka.links.PointingToCallableParameters
+import org.jetbrains.dokka.links.PointingToContextParameters
+import org.jetbrains.dokka.links.PointingToDeclaration
+import org.jetbrains.dokka.links.PointingToGenericParameters
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.kotlin.documentation.*
 
 // TODO: sorting
 internal fun DModule.toKdModule(): KdModule {
+
     return KdModule(
         name = name,
         fragments = sourceSets.map { sourceSet ->
+            val docs = documentation[sourceSet]?.children.orEmpty()
+            require(docs.filterNot { it is Description }.isEmpty()) {
+                "Documentation contains wrong nodes: ${docs.filterNot { it is Description }}"
+            }
             KdFragment(
                 name = sourceSet.sourceSetID.sourceSetName, // TODO: name vs displayName
                 dependsOn = sourceSet.dependentSourceSets.map { it.sourceSetName },
-                targets = emptyList(),
-                packages = packages.mapNotNull {
-                    it.toKdPackage(sourceSet)
-                },
-                documentation = null, // based on module.documentation[sourceSet]
+                targets = emptyList(), // TODO: targets/platforms
+                packages = packages.mapNotNull { it.toKdPackage(sourceSet) },
+                documentation = docs.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
             )
         }
     )
@@ -33,13 +42,17 @@ private fun DPackage.toKdPackage(sourceSet: DokkaConfiguration.DokkaSourceSet): 
     // TODO?
     if (!sourceSets.contains(sourceSet)) return null
 
+    val docs = documentation[sourceSet]?.children.orEmpty()
+
+    println(docs)
+
     return KdPackage(
         name = name,
         declarations = functions.mapNotNull { it.toKdFunction(sourceSet) },
 //                properties.map { it.toKdProperty(sourceSet) } +
 //                classlikes.map { it.toKdClassifier(sourceSet) } +
 //                typealiases.map { it.toKdClassifier(sourceSet) },
-        documentation = null,
+        documentation = emptyList(),
     ).takeIf { it.declarations.isNotEmpty() }
 }
 
@@ -55,11 +68,17 @@ private fun DFunction.toKdFunction(
 
     val docs = documentation[sourceSet]?.children.orEmpty()
 
+    require(docs.filterNot {
+        it is Description || it is Return || it is Throws || it is Param || it is Sample // TODO: samples
+    }.isEmpty()) {
+        "Documentation contains wrong nodes: ${docs.filterNot { it is Description }}"
+    }
+
     return KdFunction(
         name = name,
         returns = KdReturns(
             type = type.toKdType(),
-            documentation = docs.firstNotNullOfOrNull { it as? Return }?.root?.toKdDocumentation()
+            documentation = docs.filterIsInstance<Return>().singleOrNullIfEmpty().toKdDocumentation()
         ),
 
         isSuspend = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.Suspend),
@@ -77,7 +96,7 @@ private fun DFunction.toKdFunction(
         throws = docs.filterIsInstance<Throws>().map {
             KdThrows(
                 classifierId = it.exceptionAddress?.toKdClassifierId() ?: TODO(""),
-                documentation = it.root.toKdDocumentation()
+                documentation = it.toKdDocumentation()
             )
         },
         sourceLanguage = KdSourceLanguage.KOTLIN, // TODO: not enought information right now
@@ -86,6 +105,7 @@ private fun DFunction.toKdFunction(
         actuality = kdActuality(sourceSet),
         isExternal = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.External),
         annotations = annotations.mapNotNull(Annotations.Annotation::toKdAnnotation),
+        documentation = docs.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
     )
 }
 
@@ -155,16 +175,28 @@ private fun Annotations.Annotation.toKdAnnotation(
 }
 
 private fun DParameter.toKdReceiverParameter(sourceSet: DokkaConfiguration.DokkaSourceSet): KdReceiverParameter {
+    val docs = documentation[sourceSet]?.children.orEmpty()
+
+    require(docs.filterNot { it is Receiver }.isEmpty()) {
+        "Documentation contains wrong nodes: ${docs.filterNot { it is Receiver }}"
+    }
+
     return KdReceiverParameter(
         type = type.toKdType(),
-        documentation = documentation[sourceSet]?.children?.firstNotNullOfOrNull { it as? Receiver }?.root?.toKdDocumentation()
+        documentation = docs.filterIsInstance<Receiver>().singleOrNullIfEmpty().toKdDocumentation()
     )
 }
 
 private fun DParameter.toKdValueParameter(sourceSet: DokkaConfiguration.DokkaSourceSet): KdValueParameter {
     val extraModifiers = extra[AdditionalModifiers]?.content?.get(sourceSet).orEmpty()
+    val docs = documentation[sourceSet]?.children.orEmpty()
+
+    require(docs.filterNot { it is Param }.isEmpty()) {
+        "Documentation contains wrong nodes: ${docs.filterNot { it is Param }}"
+    }
+
     return KdValueParameter(
-        name = name ?: "UKNOWN_PARAMETER_NAME",
+        name = requireNotNull(name) { "Parameter $this does not have a name" },
         type = type.toKdType(),
         defaultValue = when (val expr = extra[DefaultValue]?.expression?.get(sourceSet)) {
             is IntegerConstant -> expr.value.toString()
@@ -180,20 +212,31 @@ private fun DParameter.toKdValueParameter(sourceSet: DokkaConfiguration.DokkaSou
         isNoinline = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.NoInline),
         isCrossinline = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.CrossInline),
         isVararg = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.VarArg),
-        documentation = null, // TODO: what is the correct way to get docs
+        documentation = docs.filterIsInstance<Param>().singleOrNullIfEmpty().toKdDocumentation(),
     )
 }
 
 private fun DParameter.toKdContextParameter(sourceSet: DokkaConfiguration.DokkaSourceSet): KdContextParameter {
+    val docs = documentation[sourceSet]?.children.orEmpty()
+
+    require(docs.filterNot { it is Param }.isEmpty()) {
+        "Documentation contains wrong nodes: ${docs.filterNot { it is Param }}"
+    }
+
     return KdContextParameter(
         name = name,
         type = type.toKdType(),
-        documentation = null, // TODO: what is the correct way to get docs
+        documentation = docs.filterIsInstance<Param>().singleOrNullIfEmpty().toKdDocumentation(),
     )
 }
 
 private fun DTypeParameter.toKdTypeParameter(sourceSet: DokkaConfiguration.DokkaSourceSet): KdTypeParameter {
     val extraModifiers = extra[AdditionalModifiers]?.content?.get(sourceSet).orEmpty()
+    val docs = documentation[sourceSet]?.children.orEmpty()
+
+    require(docs.filterNot { it is Param }.isEmpty()) {
+        "Documentation contains wrong nodes: ${docs.filterNot { it is Param }}"
+    }
 
     return KdTypeParameter(
         name = name,
@@ -203,7 +246,8 @@ private fun DTypeParameter.toKdTypeParameter(sourceSet: DokkaConfiguration.Dokka
             is Contravariance<*> -> KdVariance.IN
             is Covariance<*> -> KdVariance.OUT
         },
-        isReified = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.Reified)
+        isReified = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.Reified),
+        documentation = docs.filterIsInstance<Param>().singleOrNullIfEmpty().toKdDocumentation(),
     )
 }
 
@@ -295,20 +339,124 @@ private fun Bound.toKdType(nullability: KdNullability = KdNullability.NOT_NULLAB
     // TODO: K2 impl is a bit wrong here
     is UnresolvedBound -> KdUnresolvedType(name, nullability)
 }
+//
+//private inline fun <reified T : TagWrapper> DocumentationNode.toKdDocumentation(
+//
+//): KdDocumentation {
+//    children.filterIsInstance<T>()
+//    return KdDocumentation(children.map { it.toKdDocumentationNode() })
+//}
+
+private fun TagWrapper?.toKdDocumentation(): List<KdDocumentationNode> {
+    if (this == null) return emptyList()
+    val root = requireNotNull(root as? CustomDocTag) { "Only CustomDocTag is supported: $this" }
+    require(root.name == "MARKDOWN_FILE") { "Only MARKDOWN_FILE is supported" }
+    require(root.params.isEmpty()) { "Params are not supported: $root.params in $this" }
+
+    return children.map(DocTag::toKdDocumentationNode)
+}
+
+private fun DocTag.toKdDocumentationNode(): KdDocumentationNode = when (this) {
+    is CustomDocTag -> error("SHOULD NOT HAPPEN!")
+
+    is P -> {
+        require(params.isEmpty()) { "Params are not supported: $params in $this" }
+        KdDocumentationNode.Paragraph(children.map(DocTag::toKdDocumentationNode))
+    }
+
+    is Text -> {
+        require(params.isEmpty()) { "Params are not supported: $params in $this" }
+        require(children.isEmpty()) { "Children are not supported: $children in $this" }
+        KdDocumentationNode.Text(body)
+    }
+
+    is CodeInline -> KdDocumentationNode.CodeInline(
+        text = buildString {
+            children.forEach {
+                when (it) {
+                    is Text -> append(it.body)
+                    else -> error("WTF?")
+                }
+            }
+        },
+        language = params["lang"] ?: "kotlin"
+    )
+
+    is CodeBlock -> KdDocumentationNode.CodeBlock(
+        lines = buildString {
+            children.forEach {
+                when (it) {
+                    is Text -> append(it.body)
+                    is Br -> appendLine()
+                    else -> error("should not happen: $it")
+                }
+            }
+        }.split('\n'),
+        language = params["lang"] ?: "kotlin"
+    )
+
+    is A -> KdDocumentationNode.ExternalLink(
+        label = children.map(DocTag::toKdDocumentationNode),
+        url = params.getValue("href")
+    )
+
+    // bold, strike through...
+
+    is DocumentationLink -> KdDocumentationNode.Link(
+        label = children.map(DocTag::toKdDocumentationNode),
+        reference = dri.toKdLinkReference()
+    )
+
+    else -> KdDocumentationNode.Text("UNKNOWN: $this")
+}
+
+@OptIn(ExperimentalDokkaApi::class)
+private fun DRI.toKdLinkReference(): KdLinkReference {
+    return when (val target = target) {
+        is PointingToCallableParameters -> KdLinkReference.ValueParameter(target.parameterIndex)
+        is PointingToContextParameters -> KdLinkReference.ContextParameter(target.parameterIndex)
+        is PointingToGenericParameters -> KdLinkReference.TypeParameter(target.parameterIndex)
+        PointingToDeclaration -> when (callable) {
+            null if classNames == null -> KdLinkReference.Package(packageName ?: "UNKNOWN_PACKAGE_NAME")
+            null -> KdLinkReference.Classifier(toKdClassifierId())
+            else -> KdLinkReference.Callable(toKdCallableId())
+        }
+    }
+}
 
 // TODO: throw an error here?
 private fun DRI.toKdClassifierId(): KdClassifierId = KdClassifierId(
-    packageName ?: "UNKNOWN_PACKAGE_NAME",
-    classNames ?: "UNKNOWN_CLASS_NAME"
+    packageName = requireNotNull(packageName) { "packageName is null for $this" },
+    classNames = requireNotNull(classNames) { "classNames is null for $this" },
 )
 
-private fun DRI.toKdCallableId(): KdCallableId = KdCallableId(
-    packageName ?: "UNKNOWN_PACKAGE_NAME",
-    classNames ?: "UNKNOWN_CLASS_NAME",
-    callable?.name ?: "UNKNOWN_CALLABLE_NAME",
-//    false // TODO
-)
+private fun DRI.toKdCallableId(): KdCallableId {
+    val packageName = requireNotNull(packageName) { "packageName is null for $this" }
 
-private fun DocTag.toKdDocumentation(): KdDocumentation? {
-    return null
+    // enum entry
+    return if (extra != null && DRIExtraContainer(extra)[EnumEntryDRIExtra] != null) {
+        val pseudoClassNames = requireNotNull(classNames) { "classNames is null for $this" }
+        val classNames = pseudoClassNames.substringBeforeLast('.', "")
+        val callableName = pseudoClassNames.substringAfterLast('.', "")
+        require(classNames.isNotBlank()) { "classNames is blank for $this" }
+        require(callableName.isNotBlank()) { "callableName is blank for $this" }
+
+        KdCallableId(
+            packageName = packageName,
+            classNames = classNames,
+            callableName = callableName
+        )
+    } else {
+        val callable = requireNotNull(callable) { "callable is null for $this" }
+        KdCallableId(
+            packageName = packageName,
+            classNames = classNames,
+            callableName = callable.name
+        )
+    }
+}
+
+private fun <T : Any> List<T>.singleOrNullIfEmpty(): T? = when (size) {
+    0 -> null
+    else -> single()
 }

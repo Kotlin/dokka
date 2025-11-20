@@ -19,7 +19,7 @@ import kotlinx.serialization.Serializable
 public data class KdModule(
     val name: String,
     val fragments: List<KdFragment> = emptyList(),
-    override val documentation: KdDocumentation? = null,
+    override val documentation: List<KdDocumentationNode> = emptyList(),
 ) : KdDocumented
 
 /**
@@ -40,7 +40,7 @@ public data class KdFragment(
     val dependsOn: List<String> = emptyList(), // TODO: what about test & main ?
     val targets: List<KdTarget> = emptyList(), // all targets supported by this fragment?
     val packages: List<KdPackage> = emptyList(),
-    override val documentation: KdDocumentation? = null, // a.k.a module-docs
+    override val documentation: List<KdDocumentationNode> = emptyList(), // a.k.a module-docs
 ) : KdDocumented
 
 // TODO: some other metadata could go here from YAML frontmatter ???
@@ -48,6 +48,6 @@ public data class KdFragment(
 public data class KdPackage(
     val name: String,
     val declarations: List<KdDeclaration> = emptyList(),
-    override val documentation: KdDocumentation? = null,
+    override val documentation: List<KdDocumentationNode> = emptyList(),
 ) : KdDocumented {
 }

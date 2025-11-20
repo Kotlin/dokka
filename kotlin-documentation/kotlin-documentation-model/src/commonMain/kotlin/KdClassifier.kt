@@ -74,7 +74,7 @@ public data class KdClass(
     override val isExternal: Boolean = false,
     override val annotations: List<KdAnnotation> = emptyList(),
     override val typeParameters: List<KdTypeParameter> = emptyList(),
-    override val documentation: KdDocumentation? = null,
+    override val documentation: List<KdDocumentationNode> = emptyList(),
 ) : KdClassifier()
 
 @SerialName("typealias")
@@ -87,7 +87,7 @@ public data class KdTypealias(
     override val actuality: KdActuality? = null,
     override val annotations: List<KdAnnotation> = emptyList(),
     override val typeParameters: List<KdTypeParameter> = emptyList(),
-    override val documentation: KdDocumentation? = null,
+    override val documentation: List<KdDocumentationNode> = emptyList(),
 ) : KdClassifier() {
     // TODO: is it true? :)
     override val sourceLanguage: KdSourceLanguage get() = KdSourceLanguage.KOTLIN

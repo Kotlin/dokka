@@ -64,7 +64,7 @@ public data class KdConstructor(
     override val modality: KdModality = KdModality.FINAL,
     override val actuality: KdActuality? = null,
     override val isExternal: Boolean = false,
-    override val documentation: KdDocumentation?,
+    override val documentation: List<KdDocumentationNode>,
     override val annotations: List<KdAnnotation> = emptyList(),
 ) : KdCallable() {
     override val isStatic: Boolean get() = false
@@ -97,7 +97,7 @@ public data class KdFunction(
     override val isExternal: Boolean = false,
     override val annotations: List<KdAnnotation> = emptyList(),
     override val typeParameters: List<KdTypeParameter> = emptyList(),
-    override val documentation: KdDocumentation? = null,
+    override val documentation: List<KdDocumentationNode> = emptyList(),
 ) : KdCallable()
 
 // getter and setter could have different visibility, so we should have them? they could also have annotations
@@ -125,7 +125,7 @@ public data class KdProperty(
     override val isExternal: Boolean = false,
     override val annotations: List<KdAnnotation> = emptyList(),
     override val typeParameters: List<KdTypeParameter> = emptyList(),
-    override val documentation: KdDocumentation? = null,
+    override val documentation: List<KdDocumentationNode> = emptyList(),
 ) : KdCallable() {
     override val valueParameters: List<KdValueParameter> get() = emptyList()
 }

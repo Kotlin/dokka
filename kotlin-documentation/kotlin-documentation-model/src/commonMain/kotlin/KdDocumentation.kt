@@ -8,39 +8,45 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 public sealed interface KdDocumented {
-    public val documentation: KdDocumentation?
+    public val documentation: List<KdDocumentationNode>
 }
-
-// TODO: we could just inline this into `KdDocumented`, having `documentationNodes`
-@Serializable
-public data class KdDocumentation(
-    public val elements: List<KdDocumentationNode>
-)
 
 // parsed markdown representation: text, links, etc
 @Serializable
 public sealed class KdDocumentationNode {
     @SerialName("text")
     @Serializable
-    public data class Text(public val value: String) : KdDocumentationNode()
+    public data class Text(
+        // TODO: should we split in lines?
+        //  or each text is one line?
+        public val value: String
+    ) : KdDocumentationNode()
 
-    @SerialName("code")
+    @SerialName("codeBlock")
     @Serializable
-    public data class Code(
+    public data class CodeBlock(
         public val lines: List<String>,
         public val language: String? = null
     ) : KdDocumentationNode()
 
+    @SerialName("codeInline")
+    @Serializable
+    public data class CodeInline(
+        public val text: String,
+        public val language: String? = null
+    ) : KdDocumentationNode()
+
+    @SerialName("link")
     @Serializable
     public data class Link(
-        val label: KdDocumentationNode,
+        val label: List<KdDocumentationNode>,
         val reference: KdLinkReference,
     ) : KdDocumentationNode()
 
     @SerialName("externalLink")
     @Serializable
     public data class ExternalLink(
-        val label: KdDocumentationNode,
+        val label: List<KdDocumentationNode>,
         val url: String
     ) : KdDocumentationNode()
 
@@ -74,6 +80,7 @@ public sealed class KdDocumentationNode {
 
     // TODO: may be reference should also sometimes allow external links
     // TODO: may be another name
+    @SerialName("tag")
     @Serializable
     public data class Tag(
         val name: String,
@@ -86,21 +93,31 @@ public sealed class KdDocumentationNode {
 // TODO: naming, values
 @Serializable
 public sealed class KdLinkReference {
+    @SerialName("receiver")
     @Serializable
-    public data object This : KdLinkReference()
+    public data object Receiver : KdLinkReference()
 
+    @SerialName("valueParameter")
     @Serializable
-    public data class Parameter(val name: String) : KdLinkReference()
+    public data class ValueParameter(val index: Int) : KdLinkReference()
 
+    @SerialName("contextParameter")
     @Serializable
-    public data class TypeParameter(val name: String) : KdLinkReference()
+    public data class ContextParameter(val index: Int) : KdLinkReference()
 
+    @SerialName("typeParameter")
+    @Serializable
+    public data class TypeParameter(val index: Int) : KdLinkReference()
+
+    @SerialName("package")
     @Serializable
     public data class Package(val packageName: String) : KdLinkReference()
 
+    @SerialName("callable")
     @Serializable
     public data class Callable(val callableId: KdCallableId) : KdLinkReference()
 
+    @SerialName("classifier")
     @Serializable
     public data class Classifier(val classifierId: KdClassifierId) : KdLinkReference()
 }

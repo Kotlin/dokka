@@ -116,22 +116,22 @@ Workflow:
 private fun test() {
     KdFragment(
         name = "common",
-        documentation = KdDocumentation(listOf(KdDocumentationNode.Text("Module docs"))),
+        documentation = listOf(KdDocumentationNode.Text("Module docs")),
         packages = listOf(
             KdPackage(
                 name = "org.example.test",
-                documentation = KdDocumentation(listOf(KdDocumentationNode.Text("Package docs"))),
+                documentation = listOf(KdDocumentationNode.Text("Package docs")),
                 declarations = listOf(
                     KdClass(
                         name = "TestClass",
                         classKind = KdClassKind.CLASS,
-                        documentation = KdDocumentation(listOf(KdDocumentationNode.Text("Class docs"))),
+                        documentation = listOf(KdDocumentationNode.Text("Class docs")),
                         declarations = listOf(
                             KdProperty(
                                 name = "test",
                                 variableKind = KdVariableKind.PROPERTY,
                                 returns = KdReturns(KdClassifierType(KdClassifierId("kotlin", "String"))),
-                                documentation = KdDocumentation(listOf(KdDocumentationNode.Text("Property docs")))
+                                documentation = listOf(KdDocumentationNode.Text("Property docs"))
                             )
                         )
                     )
