@@ -31,6 +31,13 @@ public enum class KdActuality {
     ACTUAL, EXPECT
 }
 
+public enum class KdNullability {
+    NULLABLE,
+    NOT_NULLABLE,
+    DEFINITELY_NOT_NULLABLE,
+    FLEXIBLE // e.g. platform types
+}
+
 // TODO: kind vs separate class vs flags - take a look on kotlin spec
 
 public enum class KdClassKind {

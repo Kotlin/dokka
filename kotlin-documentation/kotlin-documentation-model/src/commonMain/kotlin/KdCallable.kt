@@ -4,20 +4,40 @@
 
 package org.jetbrains.kotlin.documentation
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 // java field, kotlin property (including synthetic one), enum_entry, function, constructor
 
 // represents: constructor (no name), function, property, enum_entry, java field
-@Serializable
+@Serializable(KdCallableIdSerializer::class)
 public data class KdCallableId(
     public val packageName: String,
     public val classNames: String?, // if null -> top-level
     // TODO: how to distinguish between: constructor vs function, property vs function
     public val callableName: String?, // if null -> constructor, `classNames` should be not null
-    public val isProperty: Boolean // if false -> function - TODO: should we?
+//    public val isProperty: Boolean // if false -> function - TODO: should we?
 )
+
+internal object KdCallableIdSerializer : KSerializer<KdCallableId> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("KdCallableId", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: KdCallableId) {
+        encoder.encodeString(value.packageName + "/" + value.classNames.orEmpty() + "/" + value.callableName.orEmpty())
+    }
+
+    override fun deserialize(decoder: Decoder): KdCallableId {
+        val parts = decoder.decodeString().split('/')
+        require(parts.size == 3) { "ClassifierId should be a pair of package and class names" }
+        return KdCallableId(parts[0], parts[1], parts[2])
+    }
+}
 
 @Serializable
 public sealed class KdCallable : KdDeclaration() {

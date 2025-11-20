@@ -37,7 +37,7 @@ public sealed class KdDocumentationNode {
         val reference: KdLinkReference,
     ) : KdDocumentationNode()
 
-    @SerialName("external-link")
+    @SerialName("externalLink")
     @Serializable
     public data class ExternalLink(
         val label: KdDocumentationNode,

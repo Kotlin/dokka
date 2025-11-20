@@ -4,14 +4,34 @@
 
 package org.jetbrains.kotlin.documentation
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
-@Serializable
+@Serializable(KdClassifierIdSerializer::class)
 public data class KdClassifierId(
     public val packageName: String,
     public val classNames: String, // it could be A.B.C for nested class
 )
+
+internal object KdClassifierIdSerializer : KSerializer<KdClassifierId> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("KdClassifierId", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: KdClassifierId) {
+        encoder.encodeString(value.packageName + "/" + value.classNames)
+    }
+
+    override fun deserialize(decoder: Decoder): KdClassifierId {
+        val parts = decoder.decodeString().split('/')
+        require(parts.size == 2) { "ClassifierId should be a pair of package and class names" }
+        return KdClassifierId(parts[0], parts[1])
+    }
+}
 
 @Serializable
 public sealed class KdClassifier : KdDeclaration()

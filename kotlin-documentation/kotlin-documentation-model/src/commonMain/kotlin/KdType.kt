@@ -4,38 +4,60 @@
 
 package org.jetbrains.kotlin.documentation
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+// TODO: where to add annotations to types?
 // TODO: how those are represented???
 @Serializable
 public sealed class KdType {
-    // TODO: null if unknown (String!) :)
-    public abstract val isNullable: Boolean?
-
-
-//    public abstract val isDefinitelyNullable: Boolean
-//    public abstract val isDefinitelyNotNullable: Boolean
+    public abstract val nullability: KdNullability
 }
 
+@SerialName("classifier")
 @Serializable
 public data class KdClassifierType(
-    public val classifierId: KdClassifierId,
-    public val typeArguments: List<KdTypeArgument> = emptyList(),
-    override val isNullable: Boolean? = null // TODO :)
+    val classifierId: KdClassifierId,
+    val typeArguments: List<KdTypeProjection> = emptyList(),
+    override val nullability: KdNullability = KdNullability.NOT_NULLABLE
 ) : KdType()
 
+@SerialName("functional")
 @Serializable
 public data class KdFunctionalType(
-    public val returnType: KdType,
-    public val receiverType: KdType? = null,
-    public val valueParameterTypes: List<KdType> = emptyList(),
-    public val contextParameterTypes: List<KdType> = emptyList(),
-    public val isSuspend: Boolean = false,
-    override val isNullable: Boolean? = null,
+    val returnType: KdTypeProjection,
+    val receiverType: KdTypeProjection? = null,
+    val valueParameterTypes: List<KdTypeProjection> = emptyList(),
+    val contextParameterTypes: List<KdTypeProjection> = emptyList(),
+    val isSuspend: Boolean = false,
+    override val nullability: KdNullability = KdNullability.NOT_NULLABLE
+) : KdType()
+
+@SerialName("typeParameter")
+@Serializable
+public data class KdTypeParameterType(
+    val name: String,
+    override val nullability: KdNullability = KdNullability.NOT_NULLABLE
+) : KdType()
+
+@SerialName("dynamic")
+@Serializable
+public data object KdDynamicType : KdType() {
+    override val nullability: KdNullability = KdNullability.NOT_NULLABLE
+}
+
+// TODO: KaFlexibleType is not really mapped to any Dokka things, but into `TypeAliased`
+
+// TODO: drop it later?
+@SerialName("unresolved")
+@Serializable
+public data class KdUnresolvedType(
+    val message: String,
+    override val nullability: KdNullability = KdNullability.NOT_NULLABLE
 ) : KdType()
 
 @Serializable
-public data class KdTypeArgument(
+public data class KdTypeProjection(
     val type: KdType? = null, // if null -> star
     val variance: KdVariance? = null
 )

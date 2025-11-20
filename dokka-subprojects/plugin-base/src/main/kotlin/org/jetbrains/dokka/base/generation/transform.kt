@@ -19,10 +19,8 @@ internal fun DModule.toKdModule(): KdModule {
             KdFragment(
                 name = sourceSet.sourceSetID.sourceSetName, // TODO: name vs displayName
                 dependsOn = sourceSet.dependentSourceSets.map { it.sourceSetName },
-                targets = listOf(
-                    KdTarget.JVM // TODO based on platform for now
-                ),
-                packages = packages.map {
+                targets = emptyList(),
+                packages = packages.mapNotNull {
                     it.toKdPackage(sourceSet)
                 },
                 documentation = null, // based on module.documentation[sourceSet]
@@ -31,21 +29,26 @@ internal fun DModule.toKdModule(): KdModule {
     )
 }
 
-private fun DPackage.toKdPackage(sourceSet: DokkaConfiguration.DokkaSourceSet): KdPackage {
+private fun DPackage.toKdPackage(sourceSet: DokkaConfiguration.DokkaSourceSet): KdPackage? {
+    // TODO?
+    if (!sourceSets.contains(sourceSet)) return null
+
     return KdPackage(
         name = name,
-        declarations = functions.map { it.toKdFunction(sourceSet) },
+        declarations = functions.mapNotNull { it.toKdFunction(sourceSet) },
 //                properties.map { it.toKdProperty(sourceSet) } +
 //                classlikes.map { it.toKdClassifier(sourceSet) } +
 //                typealiases.map { it.toKdClassifier(sourceSet) },
         documentation = null,
-    )
+    ).takeIf { it.declarations.isNotEmpty() }
 }
 
 @OptIn(ExperimentalDokkaApi::class)
 private fun DFunction.toKdFunction(
     sourceSet: DokkaConfiguration.DokkaSourceSet,
-): KdFunction {
+): KdFunction? {
+    if (!sourceSets.contains(sourceSet)) return null
+
     val extraModifiers = extra[AdditionalModifiers]?.content?.get(sourceSet).orEmpty()
     // TODO: ignore file level annotations?
     val annotations = extra[Annotations]?.directAnnotations?.get(sourceSet).orEmpty()
@@ -69,6 +72,7 @@ private fun DFunction.toKdFunction(
         receiverParameter = receiver?.toKdReceiverParameter(sourceSet),
         valueParameters = parameters.map { it.toKdValueParameter(sourceSet) },
         contextParameters = contextParameters.map { it.toKdContextParameter(sourceSet) },
+        typeParameters = generics.map { it.toKdTypeParameter(sourceSet) },
 
         throws = docs.filterIsInstance<Throws>().map {
             KdThrows(
@@ -77,52 +81,41 @@ private fun DFunction.toKdFunction(
             )
         },
         sourceLanguage = KdSourceLanguage.KOTLIN, // TODO: not enought information right now
-        visibility = visibility[sourceSet]!!.toKdVisibility(),
-        modality = modifier[sourceSet]!!.toKdModality(),
+        visibility = kdVisibility(sourceSet),
+        modality = kdModality(sourceSet),
         actuality = kdActuality(sourceSet),
         isExternal = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.External),
-        annotations = annotations.mapNotNull(Annotations.Annotation::toKdAnnotation)
-//        typeParameters = typeParameters.map { it.toKdTypeParameter() }
+        annotations = annotations.mapNotNull(Annotations.Annotation::toKdAnnotation),
     )
 }
 
-private fun Bound.toKdType(): KdType {
-    return when (this) {
-        is DefinitelyNonNullable -> TODO()
-        Dynamic -> TODO()
-        is JavaObject -> TODO()
-        is Nullable -> TODO()
-        is PrimitiveJavaType -> TODO()
-        is TypeAliased -> TODO()
-        is FunctionalTypeConstructor -> TODO()
-        is GenericTypeConstructor -> TODO()
-        is TypeParameter -> TODO()
-        is UnresolvedBound -> TODO()
-        Void -> TODO()
+private fun WithVisibility.kdVisibility(sourceSet: DokkaConfiguration.DokkaSourceSet): KdVisibility {
+    return when (visibility[sourceSet]) {
+        JavaVisibility.Default -> KdVisibility.PACKAGE_PRIVATE
+        JavaVisibility.Private -> KdVisibility.PRIVATE
+        JavaVisibility.Protected -> KdVisibility.PACKAGE_PROTECTED
+        JavaVisibility.Public -> KdVisibility.PUBLIC
+
+        KotlinVisibility.Internal -> KdVisibility.INTERNAL
+        KotlinVisibility.Private -> KdVisibility.PRIVATE
+        KotlinVisibility.Protected -> KdVisibility.PROTECTED
+        KotlinVisibility.Public -> KdVisibility.PUBLIC
+        null -> KdVisibility.PUBLIC // safe default?
     }
 }
 
-private fun Visibility.toKdVisibility(): KdVisibility = when (this) {
-    JavaVisibility.Default -> KdVisibility.PACKAGE_PRIVATE
-    JavaVisibility.Private -> KdVisibility.PRIVATE
-    JavaVisibility.Protected -> KdVisibility.PACKAGE_PROTECTED
-    JavaVisibility.Public -> KdVisibility.PUBLIC
-
-    KotlinVisibility.Internal -> KdVisibility.INTERNAL
-    KotlinVisibility.Private -> KdVisibility.PRIVATE
-    KotlinVisibility.Protected -> KdVisibility.PROTECTED
-    KotlinVisibility.Public -> KdVisibility.PUBLIC
-}
-
-private fun Modifier.toKdModality(): KdModality = when (this) {
-    JavaModifier.Abstract -> KdModality.ABSTRACT
-    JavaModifier.Empty -> KdModality.OPEN
-    JavaModifier.Final -> KdModality.FINAL
-    KotlinModifier.Abstract -> KdModality.ABSTRACT
-    KotlinModifier.Empty -> KdModality.FINAL
-    KotlinModifier.Final -> KdModality.FINAL
-    KotlinModifier.Open -> KdModality.OPEN
-    KotlinModifier.Sealed -> KdModality.SEALED
+private fun WithAbstraction.kdModality(sourceSet: DokkaConfiguration.DokkaSourceSet): KdModality {
+    return when (modifier[sourceSet]) {
+        JavaModifier.Abstract -> KdModality.ABSTRACT
+        JavaModifier.Empty -> KdModality.OPEN
+        JavaModifier.Final -> KdModality.FINAL
+        KotlinModifier.Abstract -> KdModality.ABSTRACT
+        KotlinModifier.Empty -> KdModality.FINAL
+        KotlinModifier.Final -> KdModality.FINAL
+        KotlinModifier.Open -> KdModality.OPEN
+        KotlinModifier.Sealed -> KdModality.SEALED
+        null -> KdModality.FINAL // safe default?
+    }
 }
 
 private fun <T> T.kdActuality(
@@ -133,8 +126,21 @@ private fun <T> T.kdActuality(
     else -> KdActuality.ACTUAL
 }
 
-private fun Annotations.Annotation.toKdAnnotation(): KdAnnotation? {
+private fun Annotations.Annotation.toKdAnnotation(
+    mustBeDocumented: Boolean = this.mustBeDocumented,
+): KdAnnotation? {
     if (!mustBeDocumented) return null
+
+    fun AnnotationParameterValue.toKdAnnotationArgumentValue(): KdAnnotationArgumentValue {
+        return when (this) {
+            is AnnotationValue -> KdAnnotationArgumentValue.Annotation(annotation.toKdAnnotation(mustBeDocumented = true)!!)
+            is ArrayValue -> KdAnnotationArgumentValue.Array(value.map { it.toKdAnnotationArgumentValue() })
+            is ClassValue -> KdAnnotationArgumentValue.Class(classDRI.toKdClassifierId())
+            is EnumValue -> KdAnnotationArgumentValue.Enum(enumDri.toKdCallableId())
+            // TODO
+            is LiteralValue -> KdAnnotationArgumentValue.Const(KdConstValue(text()))
+        }
+    }
 
     return KdAnnotation(
         classifierId = dri.toKdClassifierId(),
@@ -142,16 +148,7 @@ private fun Annotations.Annotation.toKdAnnotation(): KdAnnotation? {
         arguments = params.map { (key, value) ->
             KdAnnotationArgument(
                 name = key,
-                value = when (value) {
-                    is AnnotationValue -> TODO()
-                    is ArrayValue -> TODO()
-                    is ClassValue -> KdAnnotationArgumentValue.Class(value.classDRI.toKdClassifierId())
-                    is EnumValue -> KdAnnotationArgumentValue.Enum(value.enumDri.toKdCallableId())
-                    // TODO
-                    is LiteralValue -> KdAnnotationArgumentValue.Const(
-                        KdConstValue(value.text())
-                    )
-                }
+                value = value.toKdAnnotationArgumentValue()
             )
         }
     )
@@ -195,6 +192,110 @@ private fun DParameter.toKdContextParameter(sourceSet: DokkaConfiguration.DokkaS
     )
 }
 
+private fun DTypeParameter.toKdTypeParameter(sourceSet: DokkaConfiguration.DokkaSourceSet): KdTypeParameter {
+    val extraModifiers = extra[AdditionalModifiers]?.content?.get(sourceSet).orEmpty()
+
+    return KdTypeParameter(
+        name = name,
+        upperBounds = bounds.map { it.toKdType() },
+        variance = when (variantTypeParameter) {
+            is Invariance<*> -> null
+            is Contravariance<*> -> KdVariance.IN
+            is Covariance<*> -> KdVariance.OUT
+        },
+        isReified = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.Reified)
+    )
+}
+
+private fun Projection.toKdTypeArgument(): KdTypeProjection {
+    return when (this) {
+        is Star -> KdTypeProjection(null, null)
+        is Variance<*> -> KdTypeProjection(
+            type = inner.toKdType(),
+            variance = when (this) {
+                is Invariance<*> -> null
+                is Contravariance<*> -> KdVariance.IN
+                is Covariance<*> -> KdVariance.OUT
+            }
+        )
+
+        is Bound -> TODO("should not happen?: $this")
+    }
+}
+
+@OptIn(ExperimentalDokkaApi::class)
+private fun Bound.toKdType(nullability: KdNullability = KdNullability.NOT_NULLABLE): KdType = when (this) {
+    is GenericTypeConstructor -> {
+        KdClassifierType(
+            classifierId = dri.toKdClassifierId(),
+            typeArguments = projections.map { it.toKdTypeArgument() },
+            nullability = nullability
+        )
+    }
+
+    is FunctionalTypeConstructor -> {
+        // projections contain in the order:
+        // - context parameters
+        val contextParameterTypes = projections.subList(0, contextParametersCount).map(Projection::toKdTypeArgument)
+        // - receiver
+        val receiverType = if (isExtensionFunction) {
+            projections[contextParametersCount].toKdTypeArgument()
+        } else null
+        // - value parameters
+        val valueParameterTypes = projections.subList(
+            contextParametersCount + (if (isExtensionFunction) 1 else 0),
+            projections.size - 1 // excluding last
+        ).map(Projection::toKdTypeArgument)
+        // - return type
+        val returnType = projections.last().toKdTypeArgument()
+
+        KdFunctionalType(
+            returnType = returnType,
+            receiverType = receiverType,
+            valueParameterTypes = valueParameterTypes,
+            contextParameterTypes = contextParameterTypes,
+            isSuspend = isSuspendable,
+            nullability = nullability
+        )
+    }
+
+    is TypeParameter -> {
+        KdTypeParameterType(
+            name = name,
+            nullability = nullability
+        )
+    }
+
+    Dynamic -> KdDynamicType
+
+    // TODO: create constants for java types?
+    Void -> KdClassifierType(
+        classifierId = KdClassifierId("kotlin", "Unit"),
+        typeArguments = emptyList(),
+        nullability = nullability
+    )
+
+    is JavaObject -> KdClassifierType(
+        classifierId = KdClassifierId("kotlin", "Any"),
+        typeArguments = emptyList(),
+        nullability = nullability
+    )
+
+    is PrimitiveJavaType -> KdClassifierType(
+        // TODO: recheck conversion
+        classifierId = KdClassifierId("kotlin", name.replaceFirstChar(Char::uppercase)),
+        typeArguments = emptyList(),
+        nullability = nullability
+    )
+
+    is DefinitelyNonNullable -> inner.toKdType(KdNullability.DEFINITELY_NOT_NULLABLE)
+    is Nullable -> inner.toKdType(KdNullability.NULLABLE)
+
+    is TypeAliased -> KdUnresolvedType("TypeAliased: $this", nullability)
+    // TODO: K2 impl is a bit wrong here
+    is UnresolvedBound -> KdUnresolvedType(name, nullability)
+}
+
 // TODO: throw an error here?
 private fun DRI.toKdClassifierId(): KdClassifierId = KdClassifierId(
     packageName ?: "UNKNOWN_PACKAGE_NAME",
@@ -205,78 +306,9 @@ private fun DRI.toKdCallableId(): KdCallableId = KdCallableId(
     packageName ?: "UNKNOWN_PACKAGE_NAME",
     classNames ?: "UNKNOWN_CLASS_NAME",
     callable?.name ?: "UNKNOWN_CALLABLE_NAME",
-    false // TODO
+//    false // TODO
 )
 
-private fun DocTag.toKdDocumentation(): KdDocumentation = when (this) {
-    is A -> TODO()
-    is B -> TODO()
-    is Big -> TODO()
-    is BlockQuote -> TODO()
-    Br -> TODO()
-    is Caption -> TODO()
-    is Cite -> TODO()
-    is CodeBlock -> TODO()
-    is CodeInline -> TODO()
-    is CustomDocTag -> TODO()
-    is Dd -> TODO()
-    is Dfn -> TODO()
-    is Dir -> TODO()
-    is Div -> TODO()
-    is Dl -> TODO()
-    is DocumentationLink -> TODO()
-    is Dt -> TODO()
-    is Em -> TODO()
-    is Font -> TODO()
-    is Footer -> TODO()
-    is Frame -> TODO()
-    is FrameSet -> TODO()
-    is H1 -> TODO()
-    is H2 -> TODO()
-    is H3 -> TODO()
-    is H4 -> TODO()
-    is H5 -> TODO()
-    is H6 -> TODO()
-    is Head -> TODO()
-    is Header -> TODO()
-    HorizontalRule -> TODO()
-    is Html -> TODO()
-    is I -> TODO()
-    is IFrame -> TODO()
-    is Img -> TODO()
-    is Index -> TODO()
-    is Input -> TODO()
-    is Li -> TODO()
-    is Link -> TODO()
-    is Listing -> TODO()
-    is Main -> TODO()
-    is Menu -> TODO()
-    is Meta -> TODO()
-    is Nav -> TODO()
-    is NoFrames -> TODO()
-    is NoScript -> TODO()
-    is Ol -> TODO()
-    is P -> TODO()
-    is Pre -> TODO()
-    is Script -> TODO()
-    is Section -> TODO()
-    is Small -> TODO()
-    is Span -> TODO()
-    is Strikethrough -> TODO()
-    is Strong -> TODO()
-    is Sub -> TODO()
-    is Sup -> TODO()
-    is TBody -> TODO()
-    is TFoot -> TODO()
-    is THead -> TODO()
-    is Table -> TODO()
-    is Td -> TODO()
-    is Text -> TODO()
-    is Th -> TODO()
-    is Title -> TODO()
-    is Tr -> TODO()
-    is Tt -> TODO()
-    is U -> TODO()
-    is Ul -> TODO()
-    is Var -> TODO()
+private fun DocTag.toKdDocumentation(): KdDocumentation? {
+    return null
 }
