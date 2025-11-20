@@ -10,6 +10,7 @@ import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.driOrNull
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToContextParameters
+import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.DProperty
 import org.jetbrains.dokka.model.dfs
@@ -17,6 +18,7 @@ import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.MemberPageNode
 import org.junit.jupiter.api.Nested
+import translators.findClasslike
 import utils.OnlySymbols
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -669,7 +671,7 @@ class ExpectActualsTest : BaseAbstractTest() {
                 with(first.contextParameters.single()) {
                     assertEquals(DRI("kotlin", "Int"), type.driOrNull)
                     assertEquals("_", name)
-                    assertEquals(0, (dri.target as? PointingToContextParameters)?.parameterIndex )
+                    assertEquals(0, (dri.target as? PointingToContextParameters)?.parameterIndex)
                     assertEquals(
                         setOf("common", "jvm", "native"), this.sourceSets.map { it.sourceSetID.sourceSetName }.toSet()
                     )
@@ -683,7 +685,7 @@ class ExpectActualsTest : BaseAbstractTest() {
                 with(second.contextParameters.single()) {
                     assertEquals(DRI("kotlin", "String"), type.driOrNull)
                     assertEquals("_", name)
-                    assertEquals(0, (dri.target as? PointingToContextParameters)?.parameterIndex )
+                    assertEquals(0, (dri.target as? PointingToContextParameters)?.parameterIndex)
                     assertEquals(
                         setOf("common", "jvm", "native"), this.sourceSets.map { it.sourceSetID.sourceSetName }.toSet()
                     )
@@ -720,7 +722,7 @@ class ExpectActualsTest : BaseAbstractTest() {
                 assertEquals("i", property.name)
                 with(property.contextParameters.single()) {
                     assertEquals(DRI("kotlin", "String"), type.driOrNull)
-                    assertEquals(0, (dri.target as? PointingToContextParameters)?.parameterIndex )
+                    assertEquals(0, (dri.target as? PointingToContextParameters)?.parameterIndex)
                     assertEquals("_", name)
                     assertEquals(
                         setOf("common", "jvm", "native"), this.sourceSets.map { it.sourceSetID.sourceSetName }.toSet()
@@ -729,6 +731,58 @@ class ExpectActualsTest : BaseAbstractTest() {
                 assertEquals(
                     setOf("common", "jvm", "native"), property.sourceSets.map { it.sourceSetID.sourceSetName }.toSet()
                 )
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols("New KDoc resolve")
+    @OptIn(ExperimentalDokkaApi::class)
+    fun `kdoc on expect-actual`() {
+        testInline(
+            """
+        /src/common/test.kt
+        /**
+         * @constructor Common Description
+         */
+        expect class A() {
+            /**
+             * Common Description
+             */
+            fun foo()
+            
+            /**
+             * Common Description
+             */
+            fun bar()
+        }
+        
+        /src/jvm/test.kt
+        actual class A actual constructor() {
+            actual fun foo() {}
+            
+            /**
+             * Platform Description
+             */
+            actual fun bar() {}
+        }
+        """.trimMargin(),
+            multiplatformConfiguration
+        ) {
+            documentablesTransformationStage = { module ->
+                val a = module.findClasslike("", "A") as DClass
+                val constructor = a.constructors.single()
+                val foo = a.functions.first { it.name == "foo" }
+                val bar = a.functions.first { it.name == "bar" }
+
+                assertEquals(2, constructor.documentation.size)
+                assertEquals(1, constructor.documentation.values.toSet().size)
+
+                assertEquals(2, foo.documentation.size)
+                assertEquals(1, foo.documentation.values.toSet().size)
+
+                assertEquals(2, bar.documentation.size)
+                assertEquals(2, bar.documentation.values.toSet().size)
             }
         }
     }
