@@ -22,7 +22,7 @@ import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
-import org.jetbrains.dokka.gradle.internal.PluginId
+import org.jetbrains.dokka.gradle.internal.PluginIds
 import org.jetbrains.dokka.gradle.internal.or
 import org.jetbrains.dokka.gradle.internal.uppercaseFirstChar
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
@@ -116,11 +116,11 @@ abstract class JavaAdapter @Inject constructor(
     ): Provider<Boolean> {
 
         val projectHasKotlinPlugin = providers.provider {
-            PluginId.kgpPlugins.any { project.pluginManager.hasPlugin(it) }
+            PluginIds.kotlin.any { project.pluginManager.hasPlugin(it) }
         }
 
         val projectHasAndroidPlugin = providers.provider {
-            PluginId.androidPlugins.any { project.pluginManager.hasPlugin(it) }
+            PluginIds.android.any { project.pluginManager.hasPlugin(it) }
         }
 
         return projectHasKotlinPlugin or projectHasAndroidPlugin

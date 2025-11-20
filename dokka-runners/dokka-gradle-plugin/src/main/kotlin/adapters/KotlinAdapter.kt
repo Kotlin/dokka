@@ -276,7 +276,7 @@ abstract class KotlinAdapter @Inject constructor(
                 }
             }
 
-            PluginId.kgpPlugins.forEach { pluginId ->
+            PluginIds.kotlin.forEach { pluginId ->
                 project.pluginManager.withPlugin(pluginId) {
                     if (checkIfAlreadyWarned()) return@withPlugin
                     logger.warn(
@@ -385,7 +385,7 @@ private class KotlinCompilationDetailsBuilder(
     ): Provider<Set<AndroidVariantInfo>> {
         val androidVariants = objects.setProperty(AndroidVariantInfo::class)
 
-        PluginId.androidPlugins.forEach { pluginId ->
+        PluginIds.android.forEach { pluginId ->
             project.pluginManager.withPlugin(pluginId) {
                 collectAndroidVariants(project, androidVariants)
             }

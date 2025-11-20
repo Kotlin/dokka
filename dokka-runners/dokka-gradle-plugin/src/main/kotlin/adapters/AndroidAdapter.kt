@@ -23,7 +23,7 @@ import org.jetbrains.dokka.gradle.DokkaBasePlugin
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
-import org.jetbrains.dokka.gradle.internal.PluginId
+import org.jetbrains.dokka.gradle.internal.PluginIds
 import org.jetbrains.dokka.gradle.internal.artifactType
 import java.io.File
 import javax.inject.Inject
@@ -77,7 +77,7 @@ abstract class AndroidAdapter @Inject constructor(
          */
         internal fun applyTo(project: Project) {
             project.plugins.withType<DokkaBasePlugin>().all {
-                PluginId.androidPlugins.forEach { pluginId ->
+                PluginIds.android.forEach { pluginId ->
                     project.pluginManager.withPlugin(pluginId) {
                         project.pluginManager.apply(AndroidAdapter::class)
                     }
