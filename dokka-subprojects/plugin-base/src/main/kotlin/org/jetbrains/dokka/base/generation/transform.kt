@@ -39,21 +39,26 @@ internal fun DModule.toKdModule(): KdModule {
 }
 
 private fun DPackage.toKdPackage(sourceSet: DokkaConfiguration.DokkaSourceSet): KdPackage? {
-    // TODO?
     if (!sourceSets.contains(sourceSet)) return null
 
     val docs = documentation[sourceSet]?.children.orEmpty()
 
-    println(docs)
+    require(docs.filterNot { it is Description }.isEmpty()) {
+        "Documentation contains wrong nodes: ${docs.filterNot { it is Description }}"
+    }
 
-    return KdPackage(
-        name = name,
-        declarations = functions.mapNotNull { it.toKdFunction(sourceSet) },
+    val declarations = functions.mapNotNull { it.toKdFunction(sourceSet) }
 //                properties.map { it.toKdProperty(sourceSet) } +
 //                classlikes.map { it.toKdClassifier(sourceSet) } +
 //                typealiases.map { it.toKdClassifier(sourceSet) },
-        documentation = emptyList(),
-    ).takeIf { it.declarations.isNotEmpty() }
+
+    if (declarations.isEmpty()) return null
+
+    return KdPackage(
+        name = name,
+        declarations = declarations,
+        documentation = docs.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
+    )
 }
 
 @OptIn(ExperimentalDokkaApi::class)
@@ -69,7 +74,7 @@ private fun DFunction.toKdFunction(
     val docs = documentation[sourceSet]?.children.orEmpty()
 
     require(docs.filterNot {
-        it is Description || it is Return || it is Throws || it is Param || it is Sample // TODO: samples
+        it is Description || it is Return || it is Throws || it is Param || it is Sample // TODO: support samples
     }.isEmpty()) {
         "Documentation contains wrong nodes: ${docs.filterNot { it is Description }}"
     }
@@ -95,7 +100,8 @@ private fun DFunction.toKdFunction(
 
         throws = docs.filterIsInstance<Throws>().map {
             KdThrows(
-                classifierId = it.exceptionAddress?.toKdClassifierId() ?: TODO(""),
+                // null means unresolved type - TBD what to do here
+                classifierId = it.exceptionAddress?.toKdClassifierId() ?: error("should not happen: $it"),
                 documentation = it.toKdDocumentation()
             )
         },
@@ -263,7 +269,7 @@ private fun Projection.toKdTypeArgument(): KdTypeProjection {
             }
         )
 
-        is Bound -> TODO("should not happen?: $this")
+        is Bound -> error("should not happen: $this")
     }
 }
 
@@ -335,17 +341,10 @@ private fun Bound.toKdType(nullability: KdNullability = KdNullability.NOT_NULLAB
     is DefinitelyNonNullable -> inner.toKdType(KdNullability.DEFINITELY_NOT_NULLABLE)
     is Nullable -> inner.toKdType(KdNullability.NULLABLE)
 
+    // TODO: K2 impl is a bit strange here for typeAliased
     is TypeAliased -> KdUnresolvedType("TypeAliased: $this", nullability)
-    // TODO: K2 impl is a bit wrong here
     is UnresolvedBound -> KdUnresolvedType(name, nullability)
 }
-//
-//private inline fun <reified T : TagWrapper> DocumentationNode.toKdDocumentation(
-//
-//): KdDocumentation {
-//    children.filterIsInstance<T>()
-//    return KdDocumentation(children.map { it.toKdDocumentationNode() })
-//}
 
 private fun TagWrapper?.toKdDocumentation(): List<KdDocumentationNode> {
     if (this == null) return emptyList()
@@ -353,61 +352,144 @@ private fun TagWrapper?.toKdDocumentation(): List<KdDocumentationNode> {
     require(root.name == "MARKDOWN_FILE") { "Only MARKDOWN_FILE is supported" }
     require(root.params.isEmpty()) { "Params are not supported: $root.params in $this" }
 
-    return children.map(DocTag::toKdDocumentationNode)
+    return children.flatMap(DocTag::toKdDocumentationNode)
 }
 
-private fun DocTag.toKdDocumentationNode(): KdDocumentationNode = when (this) {
-    is CustomDocTag -> error("SHOULD NOT HAPPEN!")
-
-    is P -> {
-        require(params.isEmpty()) { "Params are not supported: $params in $this" }
-        KdDocumentationNode.Paragraph(children.map(DocTag::toKdDocumentationNode))
-    }
-
+private fun DocTag.toKdDocumentationText(
+    styles: Set<KdDocumentationNode.Text.Style> = emptySet()
+): List<KdDocumentationNode> = when (this) {
     is Text -> {
         require(params.isEmpty()) { "Params are not supported: $params in $this" }
         require(children.isEmpty()) { "Children are not supported: $children in $this" }
-        KdDocumentationNode.Text(body)
+        listOf(KdDocumentationNode.Text(body, styles))
     }
 
-    is CodeInline -> KdDocumentationNode.CodeInline(
-        text = buildString {
-            children.forEach {
-                when (it) {
-                    is Text -> append(it.body)
-                    else -> error("WTF?")
+    is B -> children.flatMap {
+        it.toKdDocumentationText(styles + KdDocumentationNode.Text.Style.Strong)
+    }
+
+    is Strikethrough -> children.flatMap {
+        it.toKdDocumentationText(styles + KdDocumentationNode.Text.Style.Strikethrough)
+    }
+
+    is I -> children.flatMap {
+        it.toKdDocumentationText(styles + KdDocumentationNode.Text.Style.Italic)
+    }
+
+    else -> error("should not happen")
+}
+
+/**
+ * Based on [org.jetbrains.dokka.base.transformers.pages.comments.DocTagToContentConverter]
+ */
+private fun DocTag.toKdDocumentationNode(): List<KdDocumentationNode> = when (this) {
+    is CustomDocTag -> error("SHOULD NOT HAPPEN!")
+
+    // containers
+    is P, is Li -> {
+        require(params.isEmpty()) { "Params are not supported: $params in $this" }
+        listOf(KdDocumentationNode.Paragraph(children.flatMap(DocTag::toKdDocumentationNode)))
+    }
+
+    is H1 -> {
+        require(params.isEmpty()) { "Params are not supported: $params in $this" }
+        listOf(KdDocumentationNode.Header(1, children.flatMap(DocTag::toKdDocumentationNode)))
+    }
+
+    is H2 -> {
+        require(params.isEmpty()) { "Params are not supported: $params in $this" }
+        listOf(KdDocumentationNode.Header(2, children.flatMap(DocTag::toKdDocumentationNode)))
+    }
+
+    is H3 -> {
+        require(params.isEmpty()) { "Params are not supported: $params in $this" }
+        listOf(KdDocumentationNode.Header(3, children.flatMap(DocTag::toKdDocumentationNode)))
+    }
+
+    is H4 -> {
+        require(params.isEmpty()) { "Params are not supported: $params in $this" }
+        listOf(KdDocumentationNode.Header(4, children.flatMap(DocTag::toKdDocumentationNode)))
+    }
+
+    is H5 -> {
+        require(params.isEmpty()) { "Params are not supported: $params in $this" }
+        listOf(KdDocumentationNode.Header(5, children.flatMap(DocTag::toKdDocumentationNode)))
+    }
+
+    is H6 -> {
+        require(params.isEmpty()) { "Params are not supported: $params in $this" }
+        listOf(KdDocumentationNode.Header(6, children.flatMap(DocTag::toKdDocumentationNode)))
+    }
+
+    // lists
+
+    // TODO: `li` creates an additional nesting... is it ok?
+    is Ul -> {
+        require(params.isEmpty()) { "Params are not supported: $params in $this" }
+        listOf(KdDocumentationNode.BulletList(children.flatMap(DocTag::toKdDocumentationNode)))
+    }
+
+    is Ol -> listOf(
+        KdDocumentationNode.OrderedList(
+            startIndex = params["start"]?.toInt() ?: 1,
+            items = children.flatMap(DocTag::toKdDocumentationNode)
+        )
+    )
+
+    is Br -> error("should not happen")
+
+    // code
+
+    is CodeInline -> listOf(
+        KdDocumentationNode.CodeInline(
+            text = buildString {
+                children.forEach {
+                    when (it) {
+                        is Text -> append(it.body)
+                        else -> error("WTF?")
+                    }
                 }
-            }
-        },
-        language = params["lang"] ?: "kotlin"
+            },
+            language = params["lang"] ?: "kotlin"
+        )
     )
 
-    is CodeBlock -> KdDocumentationNode.CodeBlock(
-        lines = buildString {
-            children.forEach {
-                when (it) {
-                    is Text -> append(it.body)
-                    is Br -> appendLine()
-                    else -> error("should not happen: $it")
+    is Pre, is CodeBlock -> listOf(
+        KdDocumentationNode.CodeBlock(
+            lines = buildString {
+                children.forEach {
+                    when (it) {
+                        is Text -> append(it.body)
+                        is Br -> appendLine()
+                        else -> error("should not happen: $it")
+                    }
                 }
-            }
-        }.split('\n'),
-        language = params["lang"] ?: "kotlin"
+            }.split('\n'),
+            language = params["lang"] ?: "kotlin"
+        )
     )
 
-    is A -> KdDocumentationNode.ExternalLink(
-        label = children.map(DocTag::toKdDocumentationNode),
-        url = params.getValue("href")
+    // links
+
+    is A -> listOf(
+        KdDocumentationNode.ExternalLink(
+            label = children.flatMap(DocTag::toKdDocumentationNode),
+            url = params.getValue("href")
+        )
     )
 
-    // bold, strike through...
-
-    is DocumentationLink -> KdDocumentationNode.Link(
-        label = children.map(DocTag::toKdDocumentationNode),
-        reference = dri.toKdLinkReference()
+    is DocumentationLink -> listOf(
+        KdDocumentationNode.Link(
+            label = children.flatMap(DocTag::toKdDocumentationNode),
+            reference = dri.toKdLinkReference()
+        )
     )
 
-    else -> KdDocumentationNode.Text("UNKNOWN: $this")
+    is Text, is B, is Strikethrough, is I -> toKdDocumentationText()
+
+    // explicitly unsupported
+    is Dl, is Dt, is Dd -> listOf(KdDocumentationNode.Text("UNKNOWN: $this"))
+    else -> listOf(KdDocumentationNode.Text("UNKNOWN: $this"))
 }
 
 @OptIn(ExperimentalDokkaApi::class)
@@ -424,7 +506,6 @@ private fun DRI.toKdLinkReference(): KdLinkReference {
     }
 }
 
-// TODO: throw an error here?
 private fun DRI.toKdClassifierId(): KdClassifierId = KdClassifierId(
     packageName = requireNotNull(packageName) { "packageName is null for $this" },
     classNames = requireNotNull(classNames) { "classNames is null for $this" },

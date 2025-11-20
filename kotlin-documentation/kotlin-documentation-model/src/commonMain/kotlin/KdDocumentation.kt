@@ -11,6 +11,7 @@ public sealed interface KdDocumented {
     public val documentation: List<KdDocumentationNode>
 }
 
+// similar to Dokka's `ContentNode`
 // parsed markdown representation: text, links, etc
 @Serializable
 public sealed class KdDocumentationNode {
@@ -19,8 +20,13 @@ public sealed class KdDocumentationNode {
     public data class Text(
         // TODO: should we split in lines?
         //  or each text is one line?
-        public val value: String
-    ) : KdDocumentationNode()
+        public val value: String,
+        public val styles: Set<Style> = emptySet()
+    ) : KdDocumentationNode() {
+        public enum class Style {
+            Italic, Strong, Strikethrough
+        }
+    }
 
     @SerialName("codeBlock")
     @Serializable
@@ -53,6 +59,35 @@ public sealed class KdDocumentationNode {
     @SerialName("paragraph")
     @Serializable
     public data class Paragraph(public val children: List<KdDocumentationNode>) : KdDocumentationNode()
+
+    @SerialName("header")
+    @Serializable
+    public data class Header(
+        public val level: Int,
+        public val children: List<KdDocumentationNode>
+    ) : KdDocumentationNode()
+
+    @SerialName("bulletList")
+    @Serializable
+    public data class BulletList(public val items: List</*Paragraph*/ KdDocumentationNode>) : KdDocumentationNode()
+
+    @SerialName("orderedList")
+    @Serializable
+    public data class OrderedList(
+        public val startIndex: Int,
+        public val items: List</*Paragraph*/ KdDocumentationNode>
+    ) : KdDocumentationNode()
+
+    // TODO: somehow support this
+    @SerialName("descriptionList")
+    @Serializable
+    public data class DescriptionList(public val items: List<Item>) : KdDocumentationNode() {
+        @Serializable
+        public data class Item(
+            public val term: List<KdDocumentationNode>,
+            public val description: List<KdDocumentationNode>
+        )
+    }
 
     // -------------------------
 
