@@ -148,7 +148,7 @@ private interface AndroidExtensionWrapper {
                             .bootClasspath
                     }
 
-                /** Fetch all configuration names used by all variants. */
+                /** Fetch all compilation-classpath files used by all variants. */
                 override fun variantsCompileClasspath(): FileCollection {
                     val collector = objects.fileCollection()
                     androidVariants.get().forEach { variant ->
