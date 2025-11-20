@@ -10,6 +10,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logger
@@ -25,6 +26,7 @@ import org.jetbrains.dokka.gradle.dependencies.BaseDependencyManager
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaClasspathAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaFormatAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaModuleComponentAttribute
+import org.jetbrains.dokka.gradle.dependencies.DokkaJavaRuntimeUsageCompatibilityRule
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
@@ -152,6 +154,10 @@ constructor(
             attribute(DokkaFormatAttribute)
             attribute(DokkaModuleComponentAttribute)
             attribute(DokkaClasspathAttribute)
+
+            attribute(USAGE_ATTRIBUTE) {
+                compatibilityRules.add(DokkaJavaRuntimeUsageCompatibilityRule::class)
+            }
         }
     }
 
