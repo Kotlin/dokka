@@ -34,10 +34,6 @@ public class KotlinPlaygroundSamplesPlugin : DokkaPlugin() {
         }
     }
 
-    public companion object {
-        public const val FQN: String = "org.jetbrains.dokka.kotlinPlaygroundSamples.KotlinPlaygroundSamplesPlugin"
-    }
-
     @DokkaPluginApiPreview
     override fun pluginApiPreviewAcknowledgement(): PluginApiPreviewAcknowledgement = PluginApiPreviewAcknowledgement
 }

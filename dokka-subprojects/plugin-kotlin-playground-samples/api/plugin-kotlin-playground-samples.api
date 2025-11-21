@@ -21,15 +21,10 @@ public final class org/jetbrains/dokka/kotlinPlaygroundSamples/KotlinPlaygroundS
 }
 
 public final class org/jetbrains/dokka/kotlinPlaygroundSamples/KotlinPlaygroundSamplesPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
-	public static final field Companion Lorg/jetbrains/dokka/kotlinPlaygroundSamples/KotlinPlaygroundSamplesPlugin$Companion;
-	public static final field FQN Ljava/lang/String;
 	public fun <init> ()V
 	public final fun getKotlinPlaygroundSamplesScriptsInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getKotlinPlaygroundSamplesStylesInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getKotlinPlaygroundSamplesTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
-}
-
-public final class org/jetbrains/dokka/kotlinPlaygroundSamples/KotlinPlaygroundSamplesPlugin$Companion {
 }
 
 public final class org/jetbrains/dokka/kotlinPlaygroundSamples/KotlinPlaygroundSamplesScriptsInstaller : org/jetbrains/dokka/transformers/pages/PageTransformer {

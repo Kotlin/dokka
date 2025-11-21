@@ -70,7 +70,7 @@ class KotlinPlaygroundSamplesConfigurationTest : BaseAbstractTest() {
             }
             pluginsConfigurations.add(
                 PluginConfigurationImpl(
-                    KotlinPlaygroundSamplesPlugin.FQN,
+                    KotlinPlaygroundSamplesPlugin::class.qualifiedName!!,
                     DokkaConfiguration.SerializationFormat.JSON,
                     "{\"kotlinPlaygroundScript\": \"customKotlinPlaygroundScript.js\"}"
                 )
