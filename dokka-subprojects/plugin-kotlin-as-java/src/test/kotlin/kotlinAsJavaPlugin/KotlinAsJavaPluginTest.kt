@@ -549,13 +549,13 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                 functionRows.assertCount(4)
 
                 functionRows.first { it.dci.toString().contains("getPropertyWithInheritedKDoc") }
-                    .assertGetter("getPropertyWithInheritedKDoc", "Property with kdoc from parent", false)
+                    .assertGetter("getPropertyWithInheritedKDoc", "Property with kdoc from parent")
 
                 functionRows.first { it.dci.toString().contains("setPropertyWithInheritedKDoc") }
                     .assertSetter("setPropertyWithInheritedKDoc", "Property with kdoc from parent")
 
                 functionRows.first { it.dci.toString().contains("getPropertyWithOwnKDoc") }
-                    .assertGetter("getPropertyWithOwnKDoc", "Property with own kdoc", false)
+                    .assertGetter("getPropertyWithOwnKDoc", "Property with own kdoc")
 
                 functionRows.first { it.dci.toString().contains("setPropertyWithOwnKDoc") }
                     .assertSetter("setPropertyWithOwnKDoc", "Property with own kdoc")
@@ -587,22 +587,18 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                 functionRows.first().assertGetter(
                     "getExtensionPropertyWithKDoc",
                     "Property with own kdoc",
-                    true
                 )
             }
         }
     }
 
-    private fun ContentNode.assertGetter(name: String, docs: String, isFinal: Boolean) = assertNode {
+    private fun ContentNode.assertGetter(name: String, docs: String) = assertNode {
         link { +name }
 
         divergentGroup {
             divergentInstance {
                 group3 {
-                    +"public "
-                    if (isFinal) {
-                        +"final "
-                    }
+                    +"public final "
                     group { link { +"Integer" } }
                     link { +name }
                     +"()"
@@ -620,12 +616,14 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         divergentGroup {
             divergentInstance {
                 group3 {
-                    +"public void"
+                    +"public final "
+                    group { link { +"Unit" } }
                     link { +name }
                     +"("
                     group2 {
                         groupedLink { +"Integer" }
-                        +"value"
+                        // ignore the parameter name
+                        skipAllNotMatching()
                     }
                     +")"
                 }
