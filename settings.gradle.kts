@@ -9,7 +9,6 @@ pluginManagement {
     includeBuild("build-settings-logic")
 
     repositories {
-        maven(file("/Users/Azat.Abdullin/IdeaProjects/kotlin/mytest/repo"))
         mavenCentral {
             setUrl("https://cache-redirector.jetbrains.com/maven-central")
             name = "MavenCentral-JBCache"
@@ -23,7 +22,6 @@ pluginManagement {
 dependencyResolutionManagement {
     @Suppress("UnstableApiUsage")
     repositories {
-        maven(file("/Users/Azat.Abdullin/IdeaProjects/kotlin/mytest/repo"))
         mavenCentral {
             setUrl("https://cache-redirector.jetbrains.com/maven-central")
             name = "MavenCentral-JBCache"

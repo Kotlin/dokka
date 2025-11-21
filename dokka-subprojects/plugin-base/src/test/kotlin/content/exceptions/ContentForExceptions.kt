@@ -163,7 +163,7 @@ class ContentForExceptions : BaseAbstractTest() {
     }
 
     @Test
-    fun `multiplatofrm class with throws`() {
+    fun `multiplatform class with throws`() {
         testInline(
             """
                 |/src/commonMain/kotlin/pageMerger/Test.kt
@@ -257,7 +257,100 @@ class ContentForExceptions : BaseAbstractTest() {
     }
 
     @Test
-    fun `multiplatofrm class with throws in few platforms`() {
+    @OnlySymbols("K2 inherits KDoc from expect")
+    fun `multiplatform class with throws in few platforms K2`() {
+        testInline(
+            """
+                |/src/commonMain/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |/**
+                |* @throws CommonException
+                |*/
+                |expect open class Parent
+                |
+                |/src/jvmMain/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |/**
+                |* @throws JvmException
+                |*/
+                |actual open class Parent
+                |
+                |/src/linuxX64Main/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |actual open class Parent
+                |
+            """.trimMargin(),
+            mppTestConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("pageMerger", "Parent")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"Parent" }
+                        platformHinted {
+                            group {
+                                +"expect open class "
+                                link {
+                                    +"Parent"
+                                }
+                            }
+                            group {
+                                +"actual open class "
+                                link {
+                                    +"Parent"
+                                }
+                            }
+                            group {
+                                +"actual open class "
+                                link {
+                                    +"Parent"
+                                }
+                            }
+                            header(4) { +"Throws" }
+                            table {
+                                group {
+                                    group {
+                                        +"CommonException"
+                                    }
+                                    check {
+                                        sourceSets.assertSourceSet("common")
+                                    }
+                                }
+                                group {
+                                    group {
+                                        +"CommonException"
+                                    }
+                                    check {
+                                        sourceSets.assertSourceSet("linuxX64")
+                                    }
+                                }
+                                group {
+                                    group {
+                                        +"JvmException"
+                                    }
+                                    check {
+                                        sourceSets.assertSourceSet("jvm")
+                                    }
+                                }
+                                check {
+                                    assertEquals(3, sourceSets.size)
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+
+    @Test
+    @OnlyDescriptors("K2 inherits KDoc from expect")
+    fun `multiplatform class with throws in few platforms K1`() {
         testInline(
             """
                 |/src/commonMain/kotlin/pageMerger/Test.kt
