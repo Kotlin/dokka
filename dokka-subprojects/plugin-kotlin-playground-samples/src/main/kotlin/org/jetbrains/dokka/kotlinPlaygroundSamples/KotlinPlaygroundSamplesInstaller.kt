@@ -9,7 +9,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.configuration
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
-public class KotlinPlaygroundSamplesScriptsInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
+internal class KotlinPlaygroundSamplesScriptsInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
 
     private val kotlinPlaygroundServer =
         configuration<KotlinPlaygroundSamplesPlugin, KotlinPlaygroundSamplesConfiguration>(dokkaContext)?.kotlinPlaygroundServer
@@ -58,7 +58,7 @@ public class KotlinPlaygroundSamplesScriptsInstaller(private val dokkaContext: D
     }
 }
 
-public class KotlinPlaygroundSamplesStylesInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
+internal class KotlinPlaygroundSamplesStylesInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
     private val stylesPages = listOf(
         "styles/kotlin-playground-samples.css"
     )

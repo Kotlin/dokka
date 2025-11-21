@@ -27,19 +27,3 @@ public final class org/jetbrains/dokka/kotlinPlaygroundSamples/KotlinPlaygroundS
 	public final fun getKotlinPlaygroundSamplesTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
 }
 
-public final class org/jetbrains/dokka/kotlinPlaygroundSamples/KotlinPlaygroundSamplesScriptsInstaller : org/jetbrains/dokka/transformers/pages/PageTransformer {
-	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
-}
-
-public final class org/jetbrains/dokka/kotlinPlaygroundSamples/KotlinPlaygroundSamplesStylesInstaller : org/jetbrains/dokka/transformers/pages/PageTransformer {
-	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
-}
-
-public final class org/jetbrains/dokka/kotlinPlaygroundSamples/KotlinPlaygroundSamplesTransformer : org/jetbrains/dokka/transformers/pages/PageTransformer {
-	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
-	public final fun getContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
-	public fun invoke (Lorg/jetbrains/dokka/pages/RootPageNode;)Lorg/jetbrains/dokka/pages/RootPageNode;
-}
-

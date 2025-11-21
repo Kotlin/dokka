@@ -21,7 +21,7 @@ import org.jetbrains.dokka.transformers.pages.PageTransformer
 /**
  * Replaces DefaultSamplesTransformer, adds runnable samples functionality with Kotlin Playground.
  */
-public class KotlinPlaygroundSamplesTransformer(public val context: DokkaContext) : PageTransformer {
+internal class KotlinPlaygroundSamplesTransformer(val context: DokkaContext) : PageTransformer {
 
     private val sampleAnalysisEnvironment: SampleAnalysisEnvironmentCreator =
         context.plugin<KotlinAnalysisPlugin>().querySingle { sampleAnalysisEnvironmentCreator }
