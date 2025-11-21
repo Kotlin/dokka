@@ -65,10 +65,10 @@ private fun DPackage.toKdPackage(
     if (!sourceSets.contains(sourceSet)) return null
 
     val declarations = buildList {
-        classlikes.mapNotNullTo(this) { it.toKdClass(sourceSet) }
-        typealiases.mapNotNullTo(this) { it.toKdTypealias(sourceSet) }
         functions.mapNotNullTo(this) { it.toKdFunction(sourceSet) }
         //properties.mapNotNullTo(this) { it.toKdProperty(sourceSet) }
+        classlikes.mapNotNullTo(this) { it.toKdClass(sourceSet) }
+        typealiases.mapNotNullTo(this) { it.toKdTypealias(sourceSet) }
     }
 
     if (declarations.isEmpty()) return null
@@ -88,10 +88,8 @@ private fun DFunction.toKdFunction(
 ): KdFunction? {
     if (!sourceSets.contains(sourceSet)) return null
 
-    val extraModifiers = extra[AdditionalModifiers]?.content?.get(sourceSet).orEmpty()
-    // TODO: ignore file level annotations?
-    val annotations = extra[Annotations]?.directAnnotations?.get(sourceSet).orEmpty()
-
+    val extraModifiers = extraModifiers(sourceSet)
+    val annotations = directAnnotations(sourceSet)
     val tagWrappers = tagWrappers(sourceSet) {
         it is Description || it is Return || it is Throws || it is Param || it is Sample // TODO: support samples
     }
@@ -133,12 +131,51 @@ private fun DFunction.toKdFunction(
 }
 
 @OptIn(ExperimentalDokkaApi::class)
+private fun DFunction.toKdConstructor(
+    sourceSet: DokkaConfiguration.DokkaSourceSet,
+): KdConstructor? {
+    if (!sourceSets.contains(sourceSet)) return null
+
+    val extraModifiers = extraModifiers(sourceSet)
+    val annotations = directAnnotations(sourceSet)
+    val tagWrappers = tagWrappers(sourceSet) {
+        it is Description || it is Return || it is Throws || it is Param || it is Sample // TODO: support samples
+    }
+
+    return KdConstructor(
+        name = name,
+        returns = KdReturns(
+            type = type.toKdType(),
+            documentation = tagWrappers.filterIsInstance<Return>().singleOrNullIfEmpty().toKdDocumentation()
+        ),
+
+        isPrimary = extra[PrimaryConstructorExtra] != null,
+        valueParameters = parameters.map { it.toKdValueParameter(sourceSet) },
+
+        throws = tagWrappers.filterIsInstance<Throws>().map {
+            KdThrows(
+                // null means unresolved type - TBD what to do here
+                classifierId = it.exceptionAddress?.toKdClassifierId() ?: error("should not happen: $it"),
+                documentation = it.toKdDocumentation()
+            )
+        },
+        sourceLanguage = KdSourceLanguage.KOTLIN, // TODO: not enought information right now
+        visibility = kdVisibility(sourceSet),
+        modality = kdModality(sourceSet),
+        actuality = kdActuality(sourceSet),
+        isExternal = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.External),
+        annotations = annotations.mapNotNull(Annotations.Annotation::toKdAnnotation),
+        documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
+    )
+}
+
+@OptIn(ExperimentalDokkaApi::class)
 private fun DClasslike.toKdClass(
     sourceSet: DokkaConfiguration.DokkaSourceSet,
 ): KdClass? {
     if (!sourceSets.contains(sourceSet)) return null
 
-    val extraModifiers = additionalModifiers(sourceSet)
+    val extraModifiers = extraModifiers(sourceSet)
     val annotations = directAnnotations(sourceSet)
 
     val tagWrappers = tagWrappers(sourceSet) {
@@ -166,10 +203,11 @@ private fun DClasslike.toKdClass(
             else -> emptyList()
         },
         declarations = buildList {
-            classlikes.mapNotNullTo(this) { it.toKdClass(sourceSet) }
-            if (this is WithTypealiases) typealiases.mapNotNullTo(this) { it.toKdTypealias(sourceSet) }
+            if (this@toKdClass is WithConstructors) constructors.mapNotNullTo(this) { it.toKdConstructor(sourceSet) }
             functions.mapNotNullTo(this) { it.toKdFunction(sourceSet) }
             //properties.mapNotNullTo(this) { it.toKdProperty(sourceSet) }
+            classlikes.mapNotNullTo(this) { it.toKdClass(sourceSet) }
+            if (this@toKdClass is WithTypealiases) typealiases.mapNotNullTo(this) { it.toKdTypealias(sourceSet) }
         },
         typeParameters = when (this) {
             is WithGenerics -> generics.map { it.toKdTypeParameter(sourceSet) }
@@ -214,7 +252,7 @@ internal fun <T : Any> List<T>.singleOrNullIfEmpty(): T? = when (size) {
     else -> single()
 }
 
-private fun Documentable.additionalModifiers(
+internal fun Documentable.extraModifiers(
     sourceSet: DokkaConfiguration.DokkaSourceSet
 ): Set<ExtraModifiers> {
     @Suppress("UNCHECKED_CAST")
@@ -223,7 +261,7 @@ private fun Documentable.additionalModifiers(
 }
 
 // TODO: ignore file level annotations?
-private fun Documentable.directAnnotations(
+internal fun Documentable.directAnnotations(
     sourceSet: DokkaConfiguration.DokkaSourceSet
 ): List<Annotations.Annotation> {
     @Suppress("UNCHECKED_CAST")
