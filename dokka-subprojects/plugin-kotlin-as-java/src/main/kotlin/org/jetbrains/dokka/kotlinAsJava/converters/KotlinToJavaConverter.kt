@@ -313,7 +313,12 @@ public class KotlinToJavaConverter(
     internal fun DClass.functionsInJava(): List<DFunction> =
         properties
             .filter { !it.isJvmField && !it.hasJvmSynthetic() }
-            .flatMap { property -> property.javaAccessors(isTopLevel = false) }
+            .flatMap { property ->
+                listOfNotNull(
+                    property.getter?.copy(documentation = property.documentation.forJavaAccessors()),
+                    property.setter?.copy(documentation = property.documentation.forJavaAccessors()),
+                )
+            }
             .plus(functions)
             .plus(companion.staticFunctionsForJava())
             .filterNot { it.hasJvmSynthetic() }
