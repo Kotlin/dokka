@@ -265,9 +265,15 @@ constructor(
      *
      * Will be concatenated with generated files if [suppressGeneratedFiles] is set to `false`.
      */
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:Internal
     abstract val suppressedFiles: ConfigurableFileCollection
+
+    /**
+     * We don't care about the content of those [suppressedFiles] as we use those only as paths to filter sources.
+     */
+    @get:Input
+    internal val suppressedFilesInput: List<String>
+        get() = suppressedFiles.map { it.path }.sorted()
 
     /**
      * Whether to document/analyze generated files.
