@@ -107,7 +107,7 @@ class DokkaSourceSetSpecTest : FunSpec({
             dss.suppressGeneratedFiles.orNull shouldBe true
         }
         test("suppressedFiles") {
-            dss.suppressedFiles.shouldBeEmpty()
+            dss.suppressedFiles.toList() shouldBe listOf(project.file("build/generated"))
         }
     }
 
