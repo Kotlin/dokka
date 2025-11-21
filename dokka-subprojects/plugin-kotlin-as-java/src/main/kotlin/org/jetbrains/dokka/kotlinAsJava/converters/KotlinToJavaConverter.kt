@@ -16,6 +16,10 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
+import org.jetbrains.dokka.model.doc.Description
+import org.jetbrains.dokka.model.doc.DocumentationNode
+import org.jetbrains.dokka.model.doc.Property
+import org.jetbrains.dokka.model.doc.TagWrapper
 
 public val jvmNameProvider: JvmNameProvider = JvmNameProvider()
 internal const val OBJECT_INSTANCE_NAME = "INSTANCE"
@@ -158,6 +162,7 @@ public class KotlinToJavaConverter(
                     modifier = javaModifierFromSetter(),
                     visibility = visibility.mapValues { JavaVisibility.Public },
                     type = getter.type.asJava(),
+                    documentation = documentation.forJavaAccessors(),
                     extra = if (isTopLevel) getter.extra +
                             getter.extra.mergeAdditionalModifiers(
                                 sourceSets.associateWith {
@@ -188,6 +193,7 @@ public class KotlinToJavaConverter(
                     modifier = javaModifierFromSetter(),
                     visibility = visibility.mapValues { JavaVisibility.Public },
                     type = Void,
+                    documentation = documentation.forJavaAccessors(),
                     extra = if (isTopLevel) setter.extra + setter.extra.mergeAdditionalModifiers(
                         sourceSets.associateWith {
                             setOf(ExtraModifiers.JavaOnlyModifiers.Static)
@@ -307,7 +313,7 @@ public class KotlinToJavaConverter(
     internal fun DClass.functionsInJava(): List<DFunction> =
         properties
             .filter { !it.isJvmField && !it.hasJvmSynthetic() }
-            .flatMap { property -> listOfNotNull(property.getter, property.setter) }
+            .flatMap { property -> property.javaAccessors(isTopLevel = false) }
             .plus(functions)
             .plus(companion.staticFunctionsForJava())
             .filterNot { it.hasJvmSynthetic() }
@@ -505,5 +511,20 @@ public class KotlinToJavaConverter(
 
     private fun DRI.possiblyAsJava(): DRI {
         return kotlinToJavaMapper.findAsJava(this) ?: this
+    }
+
+    /**
+     * Unwrap the documentation for property accessors from the [Property] wrapper if its present.
+     * Otherwise, documentation will not be rendered
+     */
+    private fun SourceSetDependent<DocumentationNode>.forJavaAccessors(): SourceSetDependent<DocumentationNode> =
+        mapValues { it.value.forJavaAccessors() }
+
+    private fun DocumentationNode.forJavaAccessors(): DocumentationNode =
+        DocumentationNode(children.map { it.forJavaAccessors() })
+
+    private fun TagWrapper.forJavaAccessors(): TagWrapper = when (this) {
+        is Property -> Description(root)
+        else -> this
     }
 }

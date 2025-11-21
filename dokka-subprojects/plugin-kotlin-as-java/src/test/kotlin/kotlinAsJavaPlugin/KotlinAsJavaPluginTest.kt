@@ -8,6 +8,7 @@ import matchers.content.*
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.jdk
+import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.GenericTypeConstructor
@@ -23,16 +24,27 @@ import utils.match
 import kotlin.test.*
 
 class KotlinAsJavaPluginTest : BaseAbstractTest() {
+    val defaultConfiguration = dokkaConfiguration {
+        sourceSets {
+            sourceSet {
+                sourceRoots = listOf("src/")
+            }
+        }
+    }
+    val stdlibConfiguration = dokkaConfiguration {
+        sourceSets {
+            sourceSet {
+                sourceRoots = listOf("src/")
+                externalDocumentationLinks = listOf(
+                    DokkaConfiguration.ExternalDocumentationLink.jdk(8),
+                    stdlibExternalDocumentationLink
+                )
+            }
+        }
+    }
 
     @Test
     fun `top-level functions should be generated`() {
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                }
-            }
-        }
         testInline(
             """
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
@@ -47,7 +59,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             |fun <T : Char> testF4(t: T) = listOf(t)
             |val testV = 1
         """.trimMargin(),
-            configuration,
+            defaultConfiguration,
             cleanupOutput = true
         ) {
             pagesGenerationStage = { root ->
@@ -68,13 +80,6 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
 
     @Test
     fun topLevelWithClassTest() {
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                }
-            }
-        }
         testInline(
             """
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
@@ -88,19 +93,19 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             |fun testF(i: Int) = i
             |val testV = 1
         """.trimMargin(),
-            configuration,
+            defaultConfiguration,
             cleanupOutput = true
         ) {
             pagesGenerationStage = { root ->
                 val contentList = root.children
                     .flatMap { it.children<ContentPage>() }
 
-                contentList.find {it.name == "Test"}.apply {
+                contentList.find { it.name == "Test" }.apply {
                     assertNotNull(this)
                     content.findTableWithKind(ContentKind.Functions).children.assertCount(2)
                     content.findTableWithKind(ContentKind.Properties).children.assertCount(1)
                 }
-                contentList.find {it.name == "TestKt"}.apply {
+                contentList.find { it.name == "TestKt" }.apply {
                     assertNotNull(this)
                     content.findTableWithKind(ContentKind.Functions).children.assertCount(2)
                     content.findTableWithKind(ContentKind.Properties).children.assertCount(1)
@@ -111,13 +116,6 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
 
     @Test
     fun kotlinAndJavaTest() {
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                }
-            }
-        }
         testInline(
             """
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
@@ -131,7 +129,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             |   public int testF(int i) { return i; }
             |}
         """.trimMargin(),
-            configuration,
+            defaultConfiguration,
             cleanupOutput = true
         ) {
             pagesGenerationStage = { root ->
@@ -164,14 +162,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `public kotlin properties should have a getter with same visibilities`(){
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                }
-            }
-        }
+    fun `public kotlin properties should have a getter with same visibilities`() {
         testInline(
             """
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
@@ -181,11 +172,12 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             |   public val publicProperty: String = ""
             |}
         """.trimMargin(),
-            configuration,
+            defaultConfiguration,
             cleanupOutput = true
         ) {
             pagesTransformationStage = { rootPageNode ->
-                val propertyGetter = rootPageNode.dfs { it is MemberPageNode && it.name == "getPublicProperty" } as? MemberPageNode
+                val propertyGetter =
+                    rootPageNode.dfs { it is MemberPageNode && it.name == "getPublicProperty" } as? MemberPageNode
                 assertNotNull(propertyGetter)
                 propertyGetter.content.assertNode {
                     group {
@@ -217,14 +209,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `java properties should keep its modifiers`(){
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                }
-            }
-        }
+    fun `java properties should keep its modifiers`() {
         testInline(
             """
             |/src/main/kotlin/kotlinAsJavaPlugin/TestJ.java
@@ -234,7 +219,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             |   public Int publicProperty = 1;
             |}
         """.trimMargin(),
-            configuration,
+            defaultConfiguration,
             cleanupOutput = true
         ) {
             pagesGenerationStage = { root ->
@@ -242,7 +227,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                 assertNotNull(testClass)
                 (testClass.content as ContentGroup).children.last().children.last().assertNode {
                     group {
-                        header(2){
+                        header(2) {
                             +"Properties"
                         }
                         table {
@@ -273,14 +258,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `koltin interfaces and classes should be split to extends and implements`(){
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                }
-            }
-        }
+    fun `koltin interfaces and classes should be split to extends and implements`() {
         testInline(
             """
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
@@ -290,7 +268,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             |interface B
             |class C : A(), B
         """.trimMargin(),
-            configuration,
+            defaultConfiguration,
             cleanupOutput = true
         ) {
             pagesGenerationStage = { root ->
@@ -334,14 +312,6 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     @Test
     fun `typealias`() {
         val writerPlugin = TestOutputWriterPlugin()
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                    externalDocumentationLinks = listOf(DokkaConfiguration.ExternalDocumentationLink.jdk(8))
-                }
-            }
-        }
         testInline(
             """
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
@@ -352,16 +322,17 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             |    fun someFun(xd: XD): Int = 1
             |}
         """.trimMargin(),
-            configuration,
+            stdlibConfiguration,
             pluginOverrides = listOf(writerPlugin),
             cleanupOutput = true
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature().match(
-                    "public final ", A("Integer"), A("someFun"), "(", Parameters(
-                        Parameter(A("Integer"), "xd")
-                    ), ")", ignoreSpanWithTokenStyle = true
-                )
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature()
+                    .match(
+                        "public final ", A("Integer"), A("someFun"), "(", Parameters(
+                            Parameter(A("Integer"), "xd")
+                        ), ")", ignoreSpanWithTokenStyle = true
+                    )
             }
         }
     }
@@ -369,18 +340,6 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     @Test
     fun `typealias with generic`() {
         val writerPlugin = TestOutputWriterPlugin()
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                    externalDocumentationLinks = listOf(
-                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
-                        stdlibExternalDocumentationLink
-                    )
-                    classpath = listOfNotNull(jvmStdlibPath)
-                }
-            }
-        }
         testInline(
             """
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
@@ -392,16 +351,17 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             |    fun someFun(xd: XD<Int, String>) = 1
             |}
         """.trimMargin(),
-            configuration,
+            stdlibConfiguration,
             pluginOverrides = listOf(writerPlugin),
             cleanupOutput = true
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature().match(
-                    "public final ", A("Integer"), A("someFun"), "(", Parameters(
-                        Parameter(A("Map"), "<", A("String"), ", ", A("Integer"), "> xd"),
-                    ), ")", ignoreSpanWithTokenStyle = true
-                )
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature()
+                    .match(
+                        "public final ", A("Integer"), A("someFun"), "(", Parameters(
+                            Parameter(A("Map"), "<", A("String"), ", ", A("Integer"), "> xd"),
+                        ), ")", ignoreSpanWithTokenStyle = true
+                    )
             }
         }
     }
@@ -409,17 +369,6 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     @Test
     fun `const in top level`() {
         val writerPlugin = TestOutputWriterPlugin()
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                    externalDocumentationLinks = listOf(
-                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
-                        stdlibExternalDocumentationLink
-                    )
-                }
-            }
-        }
         testInline(
             """
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
@@ -427,7 +376,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             |
             |const val FIRST = "String"
         """.trimMargin(),
-            configuration,
+            stdlibConfiguration,
             pluginOverrides = listOf(writerPlugin),
             cleanupOutput = true
         ) {
@@ -440,17 +389,6 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     @Test
     fun `function in top level`() {
         val writerPlugin = TestOutputWriterPlugin()
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                    externalDocumentationLinks = listOf(
-                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
-                        stdlibExternalDocumentationLink
-                    )
-                }
-            }
-        }
         testInline(
             """
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
@@ -458,16 +396,17 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             |
             |fun sample(a: Int) = ""
         """.trimMargin(),
-            configuration,
+            stdlibConfiguration,
             pluginOverrides = listOf(writerPlugin),
             cleanupOutput = true
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test-kt/sample.html").firstSignature().match(
-                    "public final static ", A("String"), A("sample"), "(", Parameters(
-                        Parameter(A("Integer"), "a"),
-                    ), ")", ignoreSpanWithTokenStyle = true
-                )
+                writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test-kt/sample.html").firstSignature()
+                    .match(
+                        "public final static ", A("String"), A("sample"), "(", Parameters(
+                            Parameter(A("Integer"), "a"),
+                        ), ")", ignoreSpanWithTokenStyle = true
+                    )
             }
         }
     }
@@ -475,17 +414,6 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     @Test
     fun `should render primary kotlin constructor as a java constructor`() {
         val writerPlugin = TestOutputWriterPlugin()
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                    externalDocumentationLinks = listOf(
-                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
-                        stdlibExternalDocumentationLink
-                    )
-                }
-            }
-        }
         testInline(
             """
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
@@ -493,7 +421,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             |
             |class Test(val xd: Int)
         """.trimMargin(),
-            configuration,
+            stdlibConfiguration,
             pluginOverrides = listOf(writerPlugin),
             cleanupOutput = true
         ) {
@@ -503,7 +431,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                     .map { it.content }.single().mainContents
 
                 val text = content.single { it is ContentHeader }.children
-                        .single() as ContentText
+                    .single() as ContentText
 
                 assertEquals("Constructors", text.text)
             }
@@ -526,17 +454,6 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     @Test
     fun `Java primitive annotations work`() {
         val writerPlugin = TestOutputWriterPlugin()
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                    externalDocumentationLinks = listOf(
-                        DokkaConfiguration.ExternalDocumentationLink.jdk(8),
-                        stdlibExternalDocumentationLink
-                    )
-                }
-            }
-        }
         testInline(
             """
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
@@ -546,7 +463,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             |annotation class Hello()
             |fun bar(): @Hello() Int
         """.trimMargin(),
-            configuration,
+            stdlibConfiguration,
             pluginOverrides = listOf(writerPlugin),
             cleanupOutput = true
         ) {
@@ -566,7 +483,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `Java function should keep its access modifier`(){
+    fun `Java function should keep its access modifier`() {
         val className = "Test"
         val accessModifier = "public"
         val methodName = "method"
@@ -582,19 +499,11 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             |}
             """.trimMargin()
 
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                }
-            }
-        }
-
         val writerPlugin = TestOutputWriterPlugin()
 
         testInline(
             testClassQuery,
-            configuration,
+            defaultConfiguration,
             pluginOverrides = listOf(writerPlugin),
             cleanupOutput = true
         ) {
@@ -610,9 +519,93 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `documentation on property getter`() {
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            |/**
+            | * @property propertyWithInheritedKDoc Property with kdoc from parent
+            | */
+            |class CrossLinksSource {
+            |    val propertyWithInheritedKDoc: Int = 0
+            |    
+            |    /**
+            |     * Property with own kdoc
+            |     */
+            |    val propertyWithOwnKDoc: Int = 0
+            |}
+        """.trimMargin(),
+            defaultConfiguration,
+            cleanupOutput = true
+        ) {
+            pagesGenerationStage = { root ->
+                val content =
+                    (root.children.single().children.first { it.name == "CrossLinksSource" } as ContentPage).content
+
+                val functionRows = content.findTableWithKind(kind = ContentKind.Functions).children
+                functionRows.assertCount(2)
+
+                val propertyWithInheritedKDocGetter = functionRows.first {
+                    it.dci.kind == ContentKind.Functions &&
+                            it.dci.dri.first() == DRI(
+                        "kotlinAsJavaPlugin",
+                        "CrossLinksSource",
+                        Callable("getPropertyWithInheritedKDoc", null, emptyList())
+                    )
+                }
+                propertyWithInheritedKDocGetter.assertNode {
+                    link { +"getPropertyWithInheritedKDoc" }
+
+                    divergentGroup {
+                        divergentInstance {
+                            group3 {
+                                +"public final "
+                                group { link { +"Integer" } }
+                                link { +"getPropertyWithInheritedKDoc" }
+                                +"()"
+                            }
+                            group4 {
+                                +"Property with kdoc from parent"
+                            }
+                        }
+                    }
+                }
+
+                val propertyWithOwnKDocGetter = functionRows.first {
+                    it.dci.kind == ContentKind.Functions &&
+                            it.dci.dri.first() == DRI(
+                        "kotlinAsJavaPlugin",
+                        "CrossLinksSource",
+                        Callable("getPropertyWithOwnKDoc", null, emptyList())
+                    )
+                }
+                propertyWithOwnKDocGetter.assertNode {
+                    link { +"getPropertyWithOwnKDoc" }
+
+                    divergentGroup {
+                        divergentInstance {
+                            group3 {
+                                +"public final "
+                                group { link { +"Integer" } }
+                                link { +"getPropertyWithOwnKDoc" }
+                                +"()"
+                            }
+                            group4 {
+                                +"Property with own kdoc"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 private val ContentNode.mainContents: List<ContentNode>
     get() = (this as ContentGroup).children
-    .filterIsInstance<ContentGroup>()
-    .single { it.dci.kind == ContentKind.Main }.children[0].let { it.children[0] }.children
+        .filterIsInstance<ContentGroup>()
+        .single { it.dci.kind == ContentKind.Main }.children[0].let { it.children[0] }.children
