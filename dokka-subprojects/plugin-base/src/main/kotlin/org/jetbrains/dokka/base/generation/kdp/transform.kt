@@ -2,7 +2,7 @@
  * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.dokka.base.generation
+package org.jetbrains.dokka.base.generation.kdp
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.ExperimentalDokkaApi
@@ -16,9 +16,41 @@ import org.jetbrains.dokka.links.PointingToGenericParameters
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.kotlin.documentation.*
+import java.io.File
+import kotlin.time.measureTimedValue
+
+internal fun saveModule(
+    dModule: DModule,
+    outputDirectory: File
+) {
+    val kdModule = dModule.toKdModule()
+
+    with(outputDirectory.resolve("kdp")) {
+        mkdirs()
+        println("KDP: $absolutePath")
+        fun runIt(block: () -> Unit) {
+            val (result, duration) = measureTimedValue { runCatching { block() } }
+            result.fold(
+                onSuccess = {
+                    println("Done in $duration")
+                },
+                onFailure = {
+                    println("Failed in $duration")
+                    it.printStackTrace()
+                }
+            )
+        }
+
+        runIt { resolve("${kdModule.name}.json").writeText(kdModule.encodeToJson(prettyPrint = false)) }
+        runIt { resolve("${kdModule.name}-pretty.json").writeText(kdModule.encodeToJson(prettyPrint = true)) }
+        runIt { resolve("${kdModule.name}.cbor").writeBytes(kdModule.encodeToCbor()) }
+//            runIt { resolve("${kdModule.name}.schema").writeText(protoSchema()) }
+//            runIt { resolve("${kdModule.name}.pb").writeBytes(kdModule.encodeToProtoBuf()) }
+    }
+}
 
 // TODO: sorting
-internal fun DModule.toKdModule(): KdModule = KdModule(
+private fun DModule.toKdModule(): KdModule = KdModule(
     name = name,
     fragments = sourceSets.map { sourceSet ->
         val tagWrappers = tagWrappers(sourceSet) { it is Description }

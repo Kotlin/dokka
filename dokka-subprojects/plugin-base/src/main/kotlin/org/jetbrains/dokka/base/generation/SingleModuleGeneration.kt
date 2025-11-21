@@ -10,6 +10,7 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.Timer
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.generation.kdp.saveModule
 import org.jetbrains.dokka.base.resolvers.shared.PackageList
 import org.jetbrains.dokka.generation.Generation
 import org.jetbrains.dokka.generation.exitGenerationGracefully
@@ -21,13 +22,6 @@ import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.transformers.sources.AsyncSourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.parallelMap
 import org.jetbrains.dokka.utilities.report
-import org.jetbrains.kotlin.documentation.KdModule
-import org.jetbrains.kotlin.documentation.encodeToCbor
-import org.jetbrains.kotlin.documentation.encodeToJson
-import org.jetbrains.kotlin.documentation.encodeToProtoBuf
-import org.jetbrains.kotlin.documentation.protoSchema
-import kotlin.time.measureTime
-import kotlin.time.measureTimedValue
 
 public class SingleModuleGeneration(private val context: DokkaContext) : Generation {
 
@@ -49,7 +43,7 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
         report("Transforming documentation model after merging")
         val transformedDocumentation = transformDocumentationModelAfterMerge(transformedDocumentationAfterMerge)
 
-        saveKdModule(transformedDocumentation.toKdModule())
+        saveModule(transformedDocumentation, context.configuration.outputDir)
 
         // Step 2: Generate pages & transform them (change internally)
         report("Creating pages")
@@ -71,31 +65,6 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
     }
 
     override val generationName: String = "documentation for ${context.configuration.moduleName}"
-
-    private fun saveKdModule(module: KdModule) {
-        with(context.configuration.outputDir.resolve("kdp")) {
-            mkdirs()
-            println("KDP: $absolutePath")
-            fun runIt(block: () -> Unit) {
-                val (result, duration) = measureTimedValue { runCatching { block() } }
-                result.fold(
-                    onSuccess = {
-                        println("Done in $duration")
-                    },
-                    onFailure = {
-                        println("Failed in $duration")
-                        it.printStackTrace()
-                    }
-                )
-            }
-
-            runIt { resolve("${module.name}.json").writeText(module.encodeToJson(prettyPrint = false)) }
-            runIt { resolve("${module.name}-pretty.json").writeText(module.encodeToJson(prettyPrint = true)) }
-            runIt { resolve("${module.name}.cbor").writeBytes(module.encodeToCbor()) }
-//            runIt { resolve("${module.name}.schema").writeText(protoSchema()) }
-//            runIt { resolve("${module.name}.pb").writeBytes(module.encodeToProtoBuf()) }
-        }
-    }
 
     /**
      * Implementation note: it runs in a separated single thread due to existing support of coroutines (see #2936)
