@@ -8,7 +8,6 @@ import matchers.content.*
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.jdk
-import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.GenericTypeConstructor
@@ -521,7 +520,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `documentation on property getter`() {
+    fun `documentation on property getters and setters`() {
         testInline(
             """
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
@@ -531,74 +530,107 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
             | * @property propertyWithInheritedKDoc Property with kdoc from parent
             | */
             |class CrossLinksSource {
-            |    val propertyWithInheritedKDoc: Int = 0
+            |    var propertyWithInheritedKDoc: Int = 0
             |    
             |    /**
             |     * Property with own kdoc
             |     */
-            |    val propertyWithOwnKDoc: Int = 0
+            |    var propertyWithOwnKDoc: Int = 0
             |}
         """.trimMargin(),
             defaultConfiguration,
             cleanupOutput = true
         ) {
             pagesGenerationStage = { root ->
-                val content =
-                    (root.children.single().children.first { it.name == "CrossLinksSource" } as ContentPage).content
+                val content = (root.children.single().children
+                    .first { it.name == "CrossLinksSource" } as ContentPage).content
 
                 val functionRows = content.findTableWithKind(kind = ContentKind.Functions).children
-                functionRows.assertCount(2)
+                functionRows.assertCount(4)
 
-                val propertyWithInheritedKDocGetter = functionRows.first {
-                    it.dci.kind == ContentKind.Functions &&
-                            it.dci.dri.first() == DRI(
-                        "kotlinAsJavaPlugin",
-                        "CrossLinksSource",
-                        Callable("getPropertyWithInheritedKDoc", null, emptyList())
-                    )
-                }
-                propertyWithInheritedKDocGetter.assertNode {
-                    link { +"getPropertyWithInheritedKDoc" }
+                functionRows.first { it.dci.toString().contains("getPropertyWithInheritedKDoc") }
+                    .assertGetter("getPropertyWithInheritedKDoc", "Property with kdoc from parent", false)
 
-                    divergentGroup {
-                        divergentInstance {
-                            group3 {
-                                +"public final "
-                                group { link { +"Integer" } }
-                                link { +"getPropertyWithInheritedKDoc" }
-                                +"()"
-                            }
-                            group4 {
-                                +"Property with kdoc from parent"
-                            }
-                        }
+                functionRows.first { it.dci.toString().contains("setPropertyWithInheritedKDoc") }
+                    .assertSetter("setPropertyWithInheritedKDoc", "Property with kdoc from parent")
+
+                functionRows.first { it.dci.toString().contains("getPropertyWithOwnKDoc") }
+                    .assertGetter("getPropertyWithOwnKDoc", "Property with own kdoc", false)
+
+                functionRows.first { it.dci.toString().contains("setPropertyWithOwnKDoc") }
+                    .assertSetter("setPropertyWithOwnKDoc", "Property with own kdoc")
+            }
+        }
+    }
+
+    @Test
+    fun `documentation on extension property getter`() {
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            |/**
+            | * Property with own kdoc
+            | */
+            |val String.extensionPropertyWithKDoc: Int get() = 0
+        """.trimMargin(),
+            defaultConfiguration,
+            cleanupOutput = true
+        ) {
+            pagesGenerationStage = { root ->
+                val content =
+                    (root.children.single().children.first { it.name == "TestKt" } as ContentPage).content
+
+                val functionRows = content.findTableWithKind(kind = ContentKind.Functions).children
+                functionRows.assertCount(1)
+                functionRows.first().assertGetter(
+                    "getExtensionPropertyWithKDoc",
+                    "Property with own kdoc",
+                    true
+                )
+            }
+        }
+    }
+
+    private fun ContentNode.assertGetter(name: String, docs: String, isFinal: Boolean) = assertNode {
+        link { +name }
+
+        divergentGroup {
+            divergentInstance {
+                group3 {
+                    +"public "
+                    if (isFinal) {
+                        +"final "
                     }
+                    group { link { +"Integer" } }
+                    link { +name }
+                    +"()"
                 }
-
-                val propertyWithOwnKDocGetter = functionRows.first {
-                    it.dci.kind == ContentKind.Functions &&
-                            it.dci.dri.first() == DRI(
-                        "kotlinAsJavaPlugin",
-                        "CrossLinksSource",
-                        Callable("getPropertyWithOwnKDoc", null, emptyList())
-                    )
+                group4 {
+                    +docs
                 }
-                propertyWithOwnKDocGetter.assertNode {
-                    link { +"getPropertyWithOwnKDoc" }
+            }
+        }
+    }
 
-                    divergentGroup {
-                        divergentInstance {
-                            group3 {
-                                +"public final "
-                                group { link { +"Integer" } }
-                                link { +"getPropertyWithOwnKDoc" }
-                                +"()"
-                            }
-                            group4 {
-                                +"Property with own kdoc"
-                            }
-                        }
+    private fun ContentNode.assertSetter(name: String, docs: String) = assertNode {
+        link { +name }
+
+        divergentGroup {
+            divergentInstance {
+                group3 {
+                    +"public void"
+                    link { +name }
+                    +"("
+                    group2 {
+                        groupedLink { +"Integer" }
+                        +"value"
                     }
+                    +")"
+                }
+                group4 {
+                    +docs
                 }
             }
         }
