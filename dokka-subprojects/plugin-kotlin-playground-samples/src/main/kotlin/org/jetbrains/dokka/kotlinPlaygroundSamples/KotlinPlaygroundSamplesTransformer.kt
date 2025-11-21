@@ -31,6 +31,11 @@ internal class KotlinPlaygroundSamplesTransformer(val context: DokkaContext) : P
     private val kotlinPlaygroundScript = config?.kotlinPlaygroundScript
         ?: KotlinPlaygroundSamplesConfiguration.defaultKotlinPlaygroundScript
 
+    private val kotlinPlaygroundSamplesResources = listOf(
+        "scripts/kotlin-playground-samples.js",
+        "styles/kotlin-playground-samples.css"
+    )
+
     override fun invoke(input: RootPageNode): RootPageNode {
         return sampleAnalysisEnvironment.use {
             input.transformContentPagesTree { page ->
@@ -49,7 +54,7 @@ internal class KotlinPlaygroundSamplesTransformer(val context: DokkaContext) : P
 
                 page.modified(
                     content = newContent,
-                    embeddedResources = page.embeddedResources + kotlinPlaygroundScript
+                    embeddedResources = page.embeddedResources + kotlinPlaygroundScript + kotlinPlaygroundSamplesResources
                 )
             }
         }
