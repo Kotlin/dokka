@@ -7,6 +7,7 @@ import dokkabuild.overridePublicationArtifactId
 plugins {
     id("dokkabuild.kotlin-jvm")
     id("dokkabuild.publish-jvm")
+    id("dokkabuild.test-k2")
 }
 
 overridePublicationArtifactId("kotlin-playground-samples-plugin")
@@ -20,5 +21,6 @@ dependencies {
     testImplementation(libs.kotlin.test)
     testImplementation(projects.dokkaSubprojects.dokkaTestApi)
     testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)
-    testImplementation(projects.dokkaSubprojects.analysisKotlinSymbols)
+    symbolsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
+    descriptorsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
 }
