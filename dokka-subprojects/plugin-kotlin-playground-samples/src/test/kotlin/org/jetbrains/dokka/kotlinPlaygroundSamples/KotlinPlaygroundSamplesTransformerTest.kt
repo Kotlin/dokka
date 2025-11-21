@@ -49,6 +49,47 @@ class KotlinPlaygroundSamplesTransformerTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `page should contain correct embedded resources`() {
+        testInline(
+            """
+            |/src/main/kotlin/Sample.kt
+            |package com.example
+            |
+            |fun sampleFunction() {
+            |    println("This is a sample")
+            |}
+            |
+            | /**
+            | * @sample [com.example.sampleFunction]
+            | */
+            |class Foo
+            """.trimMargin(),
+            configuration = configuration
+        ) {
+            pagesTransformationStage = { root ->
+                val contentPages = root.children.filterIsInstance<ContentPage>()
+
+                val defaultKotlinPlaygroundScriptIncluded = contentPages.all {
+                    KotlinPlaygroundSamplesConfiguration.defaultKotlinPlaygroundScript in it.embeddedResources
+                }
+                assertTrue(defaultKotlinPlaygroundScriptIncluded, "Default Kotlin Playground script should be included")
+
+                val kotlinPlaygroundSamplesScriptIncluded = contentPages.all {
+                    "scripts/kotlin-playground-samples.js" in it.embeddedResources
+                }
+
+                assertTrue(kotlinPlaygroundSamplesScriptIncluded, "Kotlin Playground Samples script should be included")
+
+                val kotlinPlaygroundSamplesStyleIncluded = contentPages.all {
+                    "styles/kotlin-playground-samples.css" in it.embeddedResources
+                }
+
+                assertTrue(kotlinPlaygroundSamplesStyleIncluded, "Kotlin Playground Samples style should be included")
+            }
+        }
+    }
+
+    @Test
     fun `1 sample test`() {
         testInline(
             """

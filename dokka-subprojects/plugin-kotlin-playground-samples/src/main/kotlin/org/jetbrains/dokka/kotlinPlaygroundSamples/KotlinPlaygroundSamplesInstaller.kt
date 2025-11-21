@@ -36,14 +36,6 @@ internal class KotlinPlaygroundSamplesScriptsInstaller(private val dokkaContext:
                     })
                 }
             }
-        }.transformContentPagesTree {
-            if (it.containsRunnableSample()) {
-                it.modified(
-                    embeddedResources = it.embeddedResources + scriptsPages
-                )
-            } else {
-                it
-            }
         }
 
     private fun modifyScript(): String {
@@ -67,42 +59,8 @@ internal class KotlinPlaygroundSamplesStylesInstaller(private val dokkaContext: 
         input.let { root ->
             if (dokkaContext.configuration.delayTemplateSubstitution) root
             else root.modified(children = input.children + stylesPages.toRenderSpecificResourcePage())
-        }.transformContentPagesTree {
-            if (it.containsRunnableSample()) {
-                it.modified(
-                    embeddedResources = it.embeddedResources + stylesPages
-                )
-            } else {
-                it
-            }
         }
 }
 
 private fun List<String>.toRenderSpecificResourcePage(): List<RendererSpecificResourcePage> =
     map { RendererSpecificResourcePage(it, emptyList(), RenderingStrategy.Copy("/dokka/$it")) }
-
-private fun ContentPage.containsRunnableSample(): Boolean {
-    fun ContentNode.hasRunnableSample(): Boolean {
-        val bool = when (this) {
-            is ContentCodeBlock -> style.contains(ContentStyle.RunnableSample)
-            is ContentGroup -> children.any { it.hasRunnableSample() }
-            is ContentHeader -> children.any { it.hasRunnableSample() }
-            is ContentList -> children.any { it.hasRunnableSample() }
-            is ContentTable -> children.any { it.hasRunnableSample() }
-            is ContentDivergentGroup -> children.any { it.hasRunnableSample() }
-            is ContentDivergentInstance -> before?.hasRunnableSample() == true ||
-                    divergent.hasRunnableSample() ||
-                    after?.hasRunnableSample() == true
-
-            is PlatformHintedContent -> inner.hasRunnableSample()
-            is ContentDRILink -> children.any { it.hasRunnableSample() }
-            is ContentResolvedLink -> children.any { it.hasRunnableSample() }
-            is ContentEmbeddedResource -> children.any { it.hasRunnableSample() }
-            is ContentCodeInline -> children.any { it.hasRunnableSample() }
-            else -> false
-        }
-        return bool
-    }
-
-    return content.hasRunnableSample()
-}
