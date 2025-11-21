@@ -619,13 +619,13 @@ public open class DefaultPageCreator(
 
     protected open fun contentForMember(d: Documentable): ContentGroup = contentForMembers(listOf(d))
 
-    protected open fun contentForMembers(doumentables: List<Documentable>): ContentGroup =
-        contentBuilder.contentFor(doumentables.dri, doumentables.sourceSets) {
+    protected open fun contentForMembers(documentables: List<Documentable>): ContentGroup =
+        contentBuilder.contentFor(documentables.dri, documentables.sourceSets) {
             group(kind = ContentKind.Cover) {
-                cover(doumentables.first().name.orEmpty())
+                cover(documentables.first().name.orEmpty())
             }
             divergentGroup(ContentDivergentGroup.GroupID("member")) {
-                doumentables.forEach { d ->
+                documentables.forEach { d ->
                     instance(setOf(d.dri), d.sourceSets) {
                         divergent {
                             +buildSignature(d)
