@@ -43,7 +43,8 @@ public sealed class KdDocumentationNode {
     @Serializable
     public data class CodeInline(
         public val text: String,
-        public val language: String? = null
+        public val language: String? = null,
+        public val styles: Set<Text.Style> = emptySet()
     ) : KdDocumentationNode()
 
     @SerialName("link")
@@ -51,13 +52,15 @@ public sealed class KdDocumentationNode {
     public data class Link(
         val label: List<KdDocumentationNode>,
         val reference: KdLinkReference,
+        val styles: Set<Text.Style> = emptySet()
     ) : KdDocumentationNode()
 
     @SerialName("externalLink")
     @Serializable
     public data class ExternalLink(
         val label: List<KdDocumentationNode>,
-        val url: String
+        val url: String,
+        val styles: Set<Text.Style> = emptySet()
     ) : KdDocumentationNode()
 
     @SerialName("paragraph")
