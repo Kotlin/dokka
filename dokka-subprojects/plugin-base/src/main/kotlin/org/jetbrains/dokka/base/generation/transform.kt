@@ -18,34 +18,26 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.kotlin.documentation.*
 
 // TODO: sorting
-internal fun DModule.toKdModule(): KdModule {
+internal fun DModule.toKdModule(): KdModule = KdModule(
+    name = name,
+    fragments = sourceSets.map { sourceSet ->
+        val tagWrappers = tagWrappers(sourceSet) { it is Description }
+        KdFragment(
+            name = sourceSet.sourceSetID.sourceSetName, // TODO: name vs displayName
+            dependsOn = sourceSet.dependentSourceSets.map { it.sourceSetName },
+            targets = emptyList(), // TODO: targets/platforms
+            packages = packages.mapNotNull { it.toKdPackage(sourceSet) },
+            documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
+        )
+    }
+)
 
-    return KdModule(
-        name = name,
-        fragments = sourceSets.map { sourceSet ->
-            val docs = documentation[sourceSet]?.children.orEmpty()
-            require(docs.filterNot { it is Description }.isEmpty()) {
-                "Documentation contains wrong nodes: ${docs.filterNot { it is Description }}"
-            }
-            KdFragment(
-                name = sourceSet.sourceSetID.sourceSetName, // TODO: name vs displayName
-                dependsOn = sourceSet.dependentSourceSets.map { it.sourceSetName },
-                targets = emptyList(), // TODO: targets/platforms
-                packages = packages.mapNotNull { it.toKdPackage(sourceSet) },
-                documentation = docs.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
-            )
-        }
-    )
-}
-
-private fun DPackage.toKdPackage(sourceSet: DokkaConfiguration.DokkaSourceSet): KdPackage? {
+private fun DPackage.toKdPackage(
+    sourceSet: DokkaConfiguration.DokkaSourceSet
+): KdPackage? {
     if (!sourceSets.contains(sourceSet)) return null
 
-    val docs = documentation[sourceSet]?.children.orEmpty()
-
-    require(docs.filterNot { it is Description }.isEmpty()) {
-        "Documentation contains wrong nodes: ${docs.filterNot { it is Description }}"
-    }
+    val tagWrappers = tagWrappers(sourceSet) { it is Description }
 
     val declarations = functions.mapNotNull { it.toKdFunction(sourceSet) }
 //                properties.map { it.toKdProperty(sourceSet) } +
@@ -57,7 +49,7 @@ private fun DPackage.toKdPackage(sourceSet: DokkaConfiguration.DokkaSourceSet): 
     return KdPackage(
         name = name,
         declarations = declarations,
-        documentation = docs.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
+        documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
     )
 }
 
@@ -71,19 +63,15 @@ private fun DFunction.toKdFunction(
     // TODO: ignore file level annotations?
     val annotations = extra[Annotations]?.directAnnotations?.get(sourceSet).orEmpty()
 
-    val docs = documentation[sourceSet]?.children.orEmpty()
-
-    require(docs.filterNot {
+    val tagWrappers = tagWrappers(sourceSet) {
         it is Description || it is Return || it is Throws || it is Param || it is Sample // TODO: support samples
-    }.isEmpty()) {
-        "Documentation contains wrong nodes: ${docs.filterNot { it is Description }}"
     }
 
     return KdFunction(
         name = name,
         returns = KdReturns(
             type = type.toKdType(),
-            documentation = docs.filterIsInstance<Return>().singleOrNullIfEmpty().toKdDocumentation()
+            documentation = tagWrappers.filterIsInstance<Return>().singleOrNullIfEmpty().toKdDocumentation()
         ),
 
         isSuspend = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.Suspend),
@@ -98,7 +86,7 @@ private fun DFunction.toKdFunction(
         contextParameters = contextParameters.map { it.toKdContextParameter(sourceSet) },
         typeParameters = generics.map { it.toKdTypeParameter(sourceSet) },
 
-        throws = docs.filterIsInstance<Throws>().map {
+        throws = tagWrappers.filterIsInstance<Throws>().map {
             KdThrows(
                 // null means unresolved type - TBD what to do here
                 classifierId = it.exceptionAddress?.toKdClassifierId() ?: error("should not happen: $it"),
@@ -111,7 +99,7 @@ private fun DFunction.toKdFunction(
         actuality = kdActuality(sourceSet),
         isExternal = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.External),
         annotations = annotations.mapNotNull(Annotations.Annotation::toKdAnnotation),
-        documentation = docs.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
+        documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
     )
 }
 
@@ -181,25 +169,16 @@ private fun Annotations.Annotation.toKdAnnotation(
 }
 
 private fun DParameter.toKdReceiverParameter(sourceSet: DokkaConfiguration.DokkaSourceSet): KdReceiverParameter {
-    val docs = documentation[sourceSet]?.children.orEmpty()
-
-    require(docs.filterNot { it is Receiver }.isEmpty()) {
-        "Documentation contains wrong nodes: ${docs.filterNot { it is Receiver }}"
-    }
-
+    val tagWrappers = tagWrappers(sourceSet) { it is Receiver }
     return KdReceiverParameter(
         type = type.toKdType(),
-        documentation = docs.filterIsInstance<Receiver>().singleOrNullIfEmpty().toKdDocumentation()
+        documentation = tagWrappers.filterIsInstance<Receiver>().singleOrNullIfEmpty().toKdDocumentation()
     )
 }
 
 private fun DParameter.toKdValueParameter(sourceSet: DokkaConfiguration.DokkaSourceSet): KdValueParameter {
     val extraModifiers = extra[AdditionalModifiers]?.content?.get(sourceSet).orEmpty()
-    val docs = documentation[sourceSet]?.children.orEmpty()
-
-    require(docs.filterNot { it is Param }.isEmpty()) {
-        "Documentation contains wrong nodes: ${docs.filterNot { it is Param }}"
-    }
+    val tagWrappers = tagWrappers(sourceSet) { it is Param }
 
     return KdValueParameter(
         name = requireNotNull(name) { "Parameter $this does not have a name" },
@@ -218,31 +197,23 @@ private fun DParameter.toKdValueParameter(sourceSet: DokkaConfiguration.DokkaSou
         isNoinline = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.NoInline),
         isCrossinline = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.CrossInline),
         isVararg = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.VarArg),
-        documentation = docs.filterIsInstance<Param>().singleOrNullIfEmpty().toKdDocumentation(),
+        documentation = tagWrappers.filterIsInstance<Param>().singleOrNullIfEmpty().toKdDocumentation(),
     )
 }
 
 private fun DParameter.toKdContextParameter(sourceSet: DokkaConfiguration.DokkaSourceSet): KdContextParameter {
-    val docs = documentation[sourceSet]?.children.orEmpty()
-
-    require(docs.filterNot { it is Param }.isEmpty()) {
-        "Documentation contains wrong nodes: ${docs.filterNot { it is Param }}"
-    }
+    val tagWrappers = tagWrappers(sourceSet) { it is Param }
 
     return KdContextParameter(
         name = name,
         type = type.toKdType(),
-        documentation = docs.filterIsInstance<Param>().singleOrNullIfEmpty().toKdDocumentation(),
+        documentation = tagWrappers.filterIsInstance<Param>().singleOrNullIfEmpty().toKdDocumentation(),
     )
 }
 
 private fun DTypeParameter.toKdTypeParameter(sourceSet: DokkaConfiguration.DokkaSourceSet): KdTypeParameter {
     val extraModifiers = extra[AdditionalModifiers]?.content?.get(sourceSet).orEmpty()
-    val docs = documentation[sourceSet]?.children.orEmpty()
-
-    require(docs.filterNot { it is Param }.isEmpty()) {
-        "Documentation contains wrong nodes: ${docs.filterNot { it is Param }}"
-    }
+    val tagWrappers = tagWrappers(sourceSet) { it is Param }
 
     return KdTypeParameter(
         name = name,
@@ -253,7 +224,7 @@ private fun DTypeParameter.toKdTypeParameter(sourceSet: DokkaConfiguration.Dokka
             is Covariance<*> -> KdVariance.OUT
         },
         isReified = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.Reified),
-        documentation = docs.filterIsInstance<Param>().singleOrNullIfEmpty().toKdDocumentation(),
+        documentation = tagWrappers.filterIsInstance<Param>().singleOrNullIfEmpty().toKdDocumentation(),
     )
 }
 
@@ -344,6 +315,16 @@ private fun Bound.toKdType(nullability: KdNullability = KdNullability.NOT_NULLAB
     // TODO: K2 impl is a bit strange here for typeAliased
     is TypeAliased -> KdUnresolvedType("TypeAliased: $this", nullability)
     is UnresolvedBound -> KdUnresolvedType(name, nullability)
+}
+
+private fun Documentable.tagWrappers(
+    sourceSet: DokkaConfiguration.DokkaSourceSet,
+    requirement: (TagWrapper) -> Boolean
+): List<TagWrapper> {
+    val docs = documentation[sourceSet]?.children.orEmpty()
+    val filtered = docs.filterNot(requirement)
+    require(filtered.isEmpty()) { "Documentation contains wrong nodes: $filtered" }
+    return docs
 }
 
 private fun TagWrapper?.toKdDocumentation(): List<KdDocumentationNode> {
