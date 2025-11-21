@@ -204,7 +204,7 @@ class KotlinPlaygroundSamplesInstallerTest : BaseAbstractTest() {
             }
             pluginsConfigurations.add(
                 PluginConfigurationImpl(
-                    KotlinPlaygroundSamplesPlugin.FQN,
+                    KotlinPlaygroundSamplesPlugin::class.qualifiedName!!,
                     DokkaConfiguration.SerializationFormat.JSON,
                     "{\"kotlinPlaygroundServer\": \"$kotlinPlaygroundServer\"}"
                 )
