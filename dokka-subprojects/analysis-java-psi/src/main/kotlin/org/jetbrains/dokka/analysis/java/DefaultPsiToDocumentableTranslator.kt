@@ -37,7 +37,7 @@ internal class DefaultPsiToDocumentableTranslator : AsyncSourceToDocumentableTra
             val localFileSystem = VirtualFileManager.getInstance().getFileSystem("file")
 
             val psiFiles = sourceRoots.parallelMap { sourceRoot ->
-                sourceRoot.absoluteFile.walkTopDown().mapNotNull {
+                sourceRoot.absoluteFile.walkTopDown().filter { !it.path.contains("/snippet-files") }.mapNotNull {
                     localFileSystem.findFileByPath(it.path)?.let { vFile ->
                         PsiManager.getInstance(project).findFile(vFile) as? PsiJavaFile
                     }
