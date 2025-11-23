@@ -8,6 +8,7 @@ import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiAnnotation
+import com.intellij.psi.PsiFile
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.InternalDokkaApi
@@ -36,6 +37,11 @@ public interface SourceRootsExtractor {
 }
 
 @InternalDokkaApi
+public interface SamplePsiFilesProvider {
+    public fun getSamplePsiFiles(sourceSet: DokkaSourceSet, context: DokkaContext) : Set<PsiFile>
+}
+
+@InternalDokkaApi
 public interface BreakingAbstractionKotlinLightMethodChecker {
     // TODO [beresnev] not even sure it's needed, but left for compatibility and to preserve behaviour
     public fun isLightAnnotation(annotation: PsiAnnotation): Boolean
@@ -50,6 +56,9 @@ public class JavaAnalysisPlugin : DokkaPlugin() {
 
     // single
     public val sourceRootsExtractor: ExtensionPoint<SourceRootsExtractor> by extensionPoint()
+
+    // single
+    public val samplePsiFilesProvider: ExtensionPoint<SamplePsiFilesProvider> by extensionPoint()
 
     // multiple
     public val docCommentCreators: ExtensionPoint<DocCommentCreator> by extensionPoint()

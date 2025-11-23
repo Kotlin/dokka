@@ -39,6 +39,16 @@ public class SymbolsAnalysisPlugin : DokkaPlugin() {
         }
     }
 
+    internal val sampleKotlinAnalysis by extensionPoint<KotlinAnalysis>()
+
+    internal val defaultSamplesKotlinAnalysis by extending {
+        sampleKotlinAnalysis providing { ctx ->
+            SamplesKotlinAnalysis(
+                sourceSets = ctx.configuration.sourceSets,
+                context = ctx
+            )
+        }
+    }
 
     internal val disposeKotlinAnalysisPostAction by extending {
         CoreExtensions.postActions providing { context ->
@@ -72,6 +82,10 @@ public class SymbolsAnalysisPlugin : DokkaPlugin() {
 
     internal val sourceRootsExtractor by extending {
         javaAnalysisPlugin.sourceRootsExtractor providing { KotlinAnalysisSourceRootsExtractor() }
+    }
+
+    internal val samplePsiFilesProvider by extending {
+        javaAnalysisPlugin.samplePsiFilesProvider providing { KotlinAnalysisSamplePsiFilesProvider() }
     }
 
     internal val kotlinDocCommentCreator by extending {
