@@ -34,5 +34,11 @@ kotlin {
 }
 
 dokka {
-    // Dokka can be configured here
+    dokkaSourceSets.configureEach {
+        externalDocumentationLinks {
+            register("kotlinx.coroutines") {
+                url("https://kotlinlang.org/api/kotlinx.coroutines/")
+            }
+        }
+    }
 }
