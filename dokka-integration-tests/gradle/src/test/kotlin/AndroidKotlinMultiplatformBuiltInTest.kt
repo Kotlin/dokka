@@ -34,6 +34,10 @@ class AndroidKotlinMultiplatformBuiltInTest {
         testedVersions: TestedVersions.Android,
     ) {
         assumeTrue(
+            testedVersions.agp.major < 9,
+            "TODO Support AGP with kotlin-built-in https://github.com/Kotlin/dokka/pull/4295"
+        )
+        assumeTrue(
             testedVersions.agp >= SemVer("8.10.0"),
             "The com.android.kotlin.multiplatform.library plugin is only available in AGP 8.10.0+ " +
                     "(current AGP ${testedVersions.agp}). " +
