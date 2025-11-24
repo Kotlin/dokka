@@ -6,6 +6,7 @@ package org.jetbrains.dokka.base.generation.kdp
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.kotlin.documentation.KdActuality
 import org.jetbrains.kotlin.documentation.KdModality
 import org.jetbrains.kotlin.documentation.KdVisibility
@@ -45,4 +46,27 @@ internal fun <T> T.kdActuality(
     !isExpectActual -> null
     expectPresentInSet == sourceSet -> KdActuality.EXPECT
     else -> KdActuality.ACTUAL
+}
+
+
+internal fun <T : Any> List<T>.singleOrNullIfEmpty(): T? = when (size) {
+    0 -> null
+    else -> single()
+}
+
+internal fun Documentable.extraModifiers(
+    sourceSet: DokkaConfiguration.DokkaSourceSet
+): Set<ExtraModifiers> {
+    @Suppress("UNCHECKED_CAST")
+    this as WithExtraProperties<out Documentable>
+    return extra[AdditionalModifiers]?.content?.get(sourceSet).orEmpty()
+}
+
+// TODO: ignore file level annotations?
+internal fun Documentable.directAnnotations(
+    sourceSet: DokkaConfiguration.DokkaSourceSet
+): List<Annotations.Annotation> {
+    @Suppress("UNCHECKED_CAST")
+    this as WithExtraProperties<out Documentable>
+    return extra[Annotations]?.directAnnotations?.get(sourceSet).orEmpty()
 }

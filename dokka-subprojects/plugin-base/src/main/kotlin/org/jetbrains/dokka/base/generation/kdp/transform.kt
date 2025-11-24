@@ -8,9 +8,7 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
-import org.jetbrains.dokka.model.properties.WithExtraProperties
 import org.jetbrains.kotlin.documentation.*
-import org.jetbrains.kotlin.documentation.KdClassKind
 import java.io.File
 import kotlin.time.measureTimedValue
 
@@ -18,29 +16,25 @@ internal fun saveModule(
     dModule: DModule,
     outputDirectory: File
 ) {
-    val kdModule = dModule.toKdModule()
+    fun <T> measured(tag: String, block: () -> T): Result<T> {
+        val (result, duration) = measureTimedValue { runCatching { block() } }
+        result.onSuccess { println("$tag: $duration") }
+        result.onFailure {
+            println("[FAILED] $tag: $duration")
+            it.printStackTrace()
+        }
+        return result
+    }
+
+    val kdModule = measured("transform") { dModule.toKdModule() }.getOrThrow()
 
     with(outputDirectory.resolve("kdp")) {
         mkdirs()
-        println("KDP: $absolutePath")
-        fun runIt(block: () -> Unit) {
-            val (result, duration) = measureTimedValue { runCatching { block() } }
-            result.fold(
-                onSuccess = {
-                    println("Done in $duration")
-                },
-                onFailure = {
-                    println("Failed in $duration")
-                    it.printStackTrace()
-                }
-            )
-        }
-
-        runIt { resolve("${kdModule.name}.json").writeText(kdModule.encodeToJson(prettyPrint = false)) }
-        runIt { resolve("${kdModule.name}-pretty.json").writeText(kdModule.encodeToJson(prettyPrint = true)) }
-        runIt { resolve("${kdModule.name}.cbor").writeBytes(kdModule.encodeToCbor()) }
-//            runIt { resolve("${kdModule.name}.schema").writeText(protoSchema()) }
-//            runIt { resolve("${kdModule.name}.pb").writeBytes(kdModule.encodeToProtoBuf()) }
+        measured("json") { resolve("${kdModule.name}.json").writeText(kdModule.encodeToJson(prettyPrint = false)) }
+        measured("pretty-json") { resolve("${kdModule.name}-pretty.json").writeText(kdModule.encodeToJson(prettyPrint = true)) }
+        measured("cbor") { resolve("${kdModule.name}.cbor").writeBytes(kdModule.encodeToCbor()) }
+//        measured("pb-schema") { resolve("${kdModule.name}.schema").writeText(protoSchema()) }
+//        measured("pb") { resolve("${kdModule.name}.pb").writeBytes(kdModule.encodeToProtoBuf()) }
     }
 }
 
@@ -91,7 +85,7 @@ private fun DProperty.toKdVariable(
     val extraModifiers = extraModifiers(sourceSet)
     val annotations = directAnnotations(sourceSet)
     val tagWrappers = tagWrappers(sourceSet) {
-        it is Description || it is Return || it is Throws || it is Param || it is Sample // TODO: support samples
+        it is Description || it is Param || it is Receiver || it is Return || it is Throws || it is Sample || it is See
     }
 
     return KdVariable(
@@ -100,7 +94,7 @@ private fun DProperty.toKdVariable(
             type = type.toKdType(),
             documentation = tagWrappers.filterIsInstance<Return>().singleOrNullIfEmpty().toKdDocumentation()
         ),
-        variableKind = KdVariableKind.PROPERTY,
+        variableKind = KdVariableKind.PROPERTY, // TODO: java fields?
 
         isMutable = extra[IsVar] != null || setter != null,
         // TODO: same as in annotations
@@ -140,9 +134,9 @@ private fun DEnumEntry.toKdVariable(
 
     return KdVariable(
         name = name,
-        // TODO: what type?
+        // TODO: recheck type
         returns = KdReturns(
-            type = type.toKdType(),
+            type = KdClassifierType(enum.dri.toKdClassifierId()),
             documentation = tagWrappers.filterIsInstance<Return>().singleOrNullIfEmpty().toKdDocumentation()
         ),
         variableKind = KdVariableKind.ENUM_ENTRY,
@@ -181,7 +175,7 @@ private fun DFunction.toKdFunction(
     val extraModifiers = extraModifiers(sourceSet)
     val annotations = directAnnotations(sourceSet)
     val tagWrappers = tagWrappers(sourceSet) {
-        it is Description || it is Return || it is Throws || it is Param || it is Sample // TODO: support samples
+        it is Description || it is Param || it is Receiver || it is Return || it is Throws || it is Sample || it is See
     }
 
     return KdFunction(
@@ -206,7 +200,10 @@ private fun DFunction.toKdFunction(
         throws = tagWrappers.filterIsInstance<Throws>().map {
             KdThrows(
                 // null means unresolved type - TBD what to do here
-                classifierId = it.exceptionAddress?.toKdClassifierId() ?: error("should not happen: $it"),
+                classifierId = it.exceptionAddress?.toKdClassifierId() ?: KdClassifierId(
+                    packageName = "UNKNOWN",
+                    classNames = it.name
+                ),
                 documentation = it.toKdDocumentation()
             )
         },
@@ -229,7 +226,7 @@ private fun DFunction.toKdConstructor(
     val extraModifiers = extraModifiers(sourceSet)
     val annotations = directAnnotations(sourceSet)
     val tagWrappers = tagWrappers(sourceSet) {
-        it is Description || it is Return || it is Throws || it is Param || it is Sample // TODO: support samples
+        it is Description || it is Return || it is Throws || it is Param || it is Sample || it is See // TODO: support samples
     }
 
     return KdConstructor(
@@ -269,7 +266,7 @@ private fun DClasslike.toKdClass(
     val annotations = directAnnotations(sourceSet)
 
     val tagWrappers = tagWrappers(sourceSet) {
-        it is Description || it is Param || it is Sample
+        it is Description || it is Param || it is Sample || it is See
     }
 
     return KdClass(
@@ -296,7 +293,7 @@ private fun DClasslike.toKdClass(
             if (this@toKdClass is WithConstructors) constructors.mapNotNullTo(this) { it.toKdConstructor(sourceSet) }
             functions.mapNotNullTo(this) { it.toKdFunction(sourceSet) }
             properties.mapNotNullTo(this) { it.toKdVariable(sourceSet) }
-            if (this@toKdClass is DEnum) entries.mapNotNullTo(this) { it }
+            if (this@toKdClass is DEnum) entries.mapNotNullTo(this) { it.toKdVariable(sourceSet, this@toKdClass) }
             classlikes.mapNotNullTo(this) { it.toKdClass(sourceSet) }
             if (this@toKdClass is WithTypealiases) typealiases.mapNotNullTo(this) { it.toKdTypealias(sourceSet) }
         },
@@ -325,7 +322,9 @@ private fun DTypeAlias.toKdTypealias(
     if (!sourceSets.contains(sourceSet)) return null
 
     val annotations = directAnnotations(sourceSet)
-    val tagWrappers = tagWrappers(sourceSet) { it is Description }
+    val tagWrappers = tagWrappers(sourceSet) {
+        it is Description || it is See
+    }
 
     return KdTypealias(
         name = name,
@@ -338,24 +337,4 @@ private fun DTypeAlias.toKdTypealias(
     )
 }
 
-internal fun <T : Any> List<T>.singleOrNullIfEmpty(): T? = when (size) {
-    0 -> null
-    else -> single()
-}
-
-internal fun Documentable.extraModifiers(
-    sourceSet: DokkaConfiguration.DokkaSourceSet
-): Set<ExtraModifiers> {
-    @Suppress("UNCHECKED_CAST")
-    this as WithExtraProperties<out Documentable>
-    return extra[AdditionalModifiers]?.content?.get(sourceSet).orEmpty()
-}
-
-// TODO: ignore file level annotations?
-internal fun Documentable.directAnnotations(
-    sourceSet: DokkaConfiguration.DokkaSourceSet
-): List<Annotations.Annotation> {
-    @Suppress("UNCHECKED_CAST")
-    this as WithExtraProperties<out Documentable>
-    return extra[Annotations]?.directAnnotations?.get(sourceSet).orEmpty()
-}
+// TODO: support see tag

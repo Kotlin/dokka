@@ -13,7 +13,7 @@ internal fun Bound.toKdType(nullability: KdNullability = KdNullability.NOT_NULLA
     is GenericTypeConstructor -> {
         KdClassifierType(
             classifierId = dri.toKdClassifierId(),
-            typeArguments = projections.map { it.toKdTypeArgument() },
+            typeArguments = projections.map(Projection::toKdTypeArgument),
             nullability = nullability
         )
     }

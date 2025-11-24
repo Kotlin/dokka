@@ -67,11 +67,22 @@ public sealed class KdDocumentationNode {
     @Serializable
     public data class Paragraph(public val children: List<KdDocumentationNode>) : KdDocumentationNode()
 
+    @SerialName("blockQuote")
+    @Serializable
+    public data class BlockQuote(public val children: List<KdDocumentationNode>) : KdDocumentationNode()
+
     @SerialName("header")
     @Serializable
     public data class Header(
         public val level: Int,
         public val children: List<KdDocumentationNode>
+    ) : KdDocumentationNode()
+
+    @SerialName("table")
+    @Serializable
+    public data class Table(
+        public val headers: List</*Paragraph*/ KdDocumentationNode>?,
+        public val rows: List<List</*Paragraph*/ KdDocumentationNode>>
     ) : KdDocumentationNode()
 
     @SerialName("bulletList")

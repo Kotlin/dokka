@@ -67,6 +67,7 @@ internal fun DTypeParameter.toKdTypeParameter(sourceSet: DokkaConfiguration.Dokk
     )
 }
 
+// TODO: recheck what is correct here for parameter - it should be enough to check `Description`?!!!
 private fun Documentable.parameterDocumentation(sourceSet: DokkaConfiguration.DokkaSourceSet): List<KdDocumentationNode> {
     val tagWrappers = tagWrappers(sourceSet) { it is Description || it is Param }
     return (

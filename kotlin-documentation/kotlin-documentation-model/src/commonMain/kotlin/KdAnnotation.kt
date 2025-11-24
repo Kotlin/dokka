@@ -7,6 +7,10 @@ package org.jetbrains.kotlin.documentation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+public sealed interface KdAnnotated {
+    public val annotations: List<KdAnnotation>
+}
+
 // we should have access only to `MustBeDocumented` annotations
 @Serializable
 public data class KdAnnotation(

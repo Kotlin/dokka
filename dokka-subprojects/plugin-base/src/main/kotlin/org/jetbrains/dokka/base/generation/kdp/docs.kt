@@ -23,6 +23,7 @@ internal fun Documentable.tagWrappers(
 }
 
 internal fun TagWrapper?.toKdDocumentation(): List<KdDocumentationNode> {
+//    return emptyList()
     if (this == null) return emptyList()
     val root = requireNotNull(root as? CustomDocTag) { "Only CustomDocTag is supported: $this" }
     require(root.name == "MARKDOWN_FILE") { "Only MARKDOWN_FILE is supported" }
@@ -38,9 +39,14 @@ private fun DocTag.toKdDocumentationNode(): List<KdDocumentationNode> = when (th
     is CustomDocTag -> error("SHOULD NOT HAPPEN!")
 
     // containers
-    is P, is Li -> {
+    is P, is Li, is Td -> {
         require(params.isEmpty()) { "Params are not supported: $params in $this" }
         listOf(KdDocumentationNode.Paragraph(children.flatMap(DocTag::toKdDocumentationNode)))
+    }
+
+    is BlockQuote -> {
+        require(params.isEmpty()) { "Params are not supported: $params in $this" }
+        listOf(KdDocumentationNode.BlockQuote(children.flatMap(DocTag::toKdDocumentationNode)))
     }
 
     is H1 -> {
@@ -89,6 +95,28 @@ private fun DocTag.toKdDocumentationNode(): List<KdDocumentationNode> = when (th
     )
 
     is Br -> error("should not happen")
+
+    // TODO: RECHECK THIS!!!
+    is Table -> {
+        require(params.isEmpty()) { "Params are not supported: $params in $this" }
+        require(children.all { it is Th || it is Tr }) {
+            "Children are not supported: ${children.map { it::class.simpleName }.distinct()}"
+        }
+        listOf(
+            KdDocumentationNode.Table(
+                headers = children.filterIsInstance<Th>().singleOrNullIfEmpty()?.children?.map {
+                    require(it is Td)
+                    KdDocumentationNode.Paragraph(it.children.flatMap { it.toKdDocumentationNode() })
+                },
+                rows = children.filterIsInstance<Tr>().map {
+                    it.children.map {
+                        require(it is Td)
+                        KdDocumentationNode.Paragraph(it.children.flatMap { it.toKdDocumentationNode() })
+                    }
+                }
+            )
+        )
+    }
 
     // code
 
