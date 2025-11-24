@@ -167,18 +167,33 @@ abstract class KotlinAdapter @Inject constructor(
     private fun determineClasspath(
         details: KotlinSourceSetDetails
     ): Provider<FileCollection> {
-        return details.primaryCompilations.map { compilations: List<KotlinCompilationDetails> ->
+        return details.primaryCompilations.zip(details.allCompilations) { primaryCompilations, allCompilations ->
             val classpath = objects.fileCollection()
 
-            if (compilations.isNotEmpty()) {
-                compilations.fold(classpath) { acc, compilation ->
+            if (primaryCompilations.isNotEmpty()) {
+                primaryCompilations.fold(classpath) { acc, compilation ->
                     acc.from(compilation.compilationClasspath)
                 }
             } else {
                 classpath
                     .from(details.sourceDirectories)
                     .from(details.sourceDirectoriesOfDependents)
+
+                // This KotlinSourceSet has no primary compilations, therefore it must be an intermediate source set
+                // e.g. mingwMain or webMain.
+                // If there are no metadata compilations then we must include the classpaths of the actual targets,
+                // otherwise Dokka will be unable to analyse dependencies used in this intermediate source set.
+                // See KT-80551, https://github.com/Kotlin/dokka/issues/4116
+                if (allCompilations.none { it.isMetadata }) {
+                    logger.info("[$dkaName] No metadata compilation found for ${details.name}. The classpath of all compilations will also be used.")
+                    classpath.from(allCompilations.map { it.compilationClasspath })
+                    allCompilations.fold(classpath) { acc, compilation ->
+                        acc.from(compilation.compilationClasspath)
+                    }
+                }
             }
+
+            classpath
         }
     }
 
