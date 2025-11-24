@@ -32,7 +32,8 @@ internal fun saveModule(
         mkdirs()
         measured("json") { resolve("${kdModule.name}.json").writeText(kdModule.encodeToJson(prettyPrint = false)) }
         measured("pretty-json") { resolve("${kdModule.name}-pretty.json").writeText(kdModule.encodeToJson(prettyPrint = true)) }
-        measured("cbor") { resolve("${kdModule.name}.cbor").writeBytes(kdModule.encodeToCbor()) }
+        // json is small enough when zipped
+//        measured("cbor") { resolve("${kdModule.name}.cbor").writeBytes(kdModule.encodeToCbor()) }
 //        measured("pb-schema") { resolve("${kdModule.name}.schema").writeText(protoSchema()) }
 //        measured("pb") { resolve("${kdModule.name}.pb").writeBytes(kdModule.encodeToProtoBuf()) }
     }

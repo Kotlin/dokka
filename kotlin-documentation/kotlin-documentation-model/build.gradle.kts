@@ -17,7 +17,7 @@ kotlin {
     jvm()
 
     @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
+    js {
         browser()
         nodejs()
     }
@@ -25,10 +25,10 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.9.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.9.0")
+            implementation(project.dependencies.platform(libs.kotlinxSerialization.bom))
+            implementation(libs.kotlinxSerialization.json)
+            implementation(libs.kotlinxSerialization.cbor)
+            implementation(libs.kotlinxSerialization.protobuf)
         }
     }
 }
