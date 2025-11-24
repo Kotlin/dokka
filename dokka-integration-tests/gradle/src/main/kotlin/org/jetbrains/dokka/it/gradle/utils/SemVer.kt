@@ -33,6 +33,7 @@ data class SemVer(
             this.major != other.major -> this.major.compareTo(other.major)
             this.minor != other.minor -> this.minor.compareTo(other.minor)
             this.patch != other.patch -> this.patch.compareTo(other.patch)
+
             this.prerelease != other.prerelease -> {
                 when {
                     this.prerelease == null -> 1
