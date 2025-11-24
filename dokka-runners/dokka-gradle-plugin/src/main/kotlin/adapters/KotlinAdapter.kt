@@ -3,6 +3,8 @@
  */
 package org.jetbrains.dokka.gradle.adapters
 
+import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.Variant
 import org.gradle.api.*
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
@@ -17,6 +19,7 @@ import org.gradle.kotlin.dsl.*
 import org.jetbrains.dokka.gradle.DokkaBasePlugin
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.adapters.KotlinAdapter.Companion.currentKotlinToolingVersion
+import org.jetbrains.dokka.gradle.adapters.KotlinAdapter.Companion.logKgpClassNotFoundWarning
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.engine.parameters.SourceSetIdSpec
@@ -219,8 +222,7 @@ abstract class KotlinAdapter @Inject constructor(
                 when (ex) {
                     is ClassNotFoundException,
                     is NoClassDefFoundError -> {
-                        logger.info("Dokka Gradle Plugin could not load KotlinBasePlugin in ${project.displayName} - ${ex::class.qualifiedName} ${ex.message}")
-                        logWarningIfKgpApplied(
+                        logKgpClassNotFoundWarning(
                             project,
                             kotlinBasePluginNotFoundException = ex,
                         )
@@ -236,6 +238,8 @@ abstract class KotlinAdapter @Inject constructor(
          * Check all plugins to see if they are a subtype of [KotlinBasePlugin].
          * If any are, log a warning.
          *
+         * Also, log an info message with the stacktrace of [kotlinBasePluginNotFoundException].
+         *
          * ##### Motivation
          *
          * If the buildscript classpath is inconsistent, it might not be possible for DGP
@@ -245,15 +249,50 @@ abstract class KotlinAdapter @Inject constructor(
          *
          * @param[kotlinBasePluginNotFoundException] The exception thrown when [KotlinBasePlugin] is not available.
          */
-        private fun logWarningIfKgpApplied(
+        private fun logKgpClassNotFoundWarning(
             project: Project,
             kotlinBasePluginNotFoundException: Throwable,
         ) {
-            PluginId.kgpPlugins.forEach { pluginId ->
+            // hide the stacktrace at `--info` log level, to avoid flooding the log
+            logger.info(
+                "Dokka Gradle Plugin could not load KotlinBasePlugin in ${project.displayName}",
+                kotlinBasePluginNotFoundException,
+            )
+
+            /**
+             * Keep track of which projects have been warned by [logKgpClassNotFoundWarning],
+             * otherwise it'll log the same warning multiple times for the same project, which is annoying.
+             *
+             * The warning can be logged multiple times if a project has both
+             * `org.jetbrains.dokka` and `org.jetbrains.dokka-javadoc` applied.
+             */
+            fun checkIfAlreadyWarned(): Boolean {
+                val key = "DOKKA INTERNAL - projectsWithKgpClassNotFoundWarningApplied"
+                if (project.extra.has(key)) {
+                    return true
+                } else {
+                    project.extra.set(key, true)
+                    return false
+                }
+            }
+
+            PluginIds.kotlin.forEach { pluginId ->
                 project.pluginManager.withPlugin(pluginId) {
+                    if (checkIfAlreadyWarned()) return@withPlugin
                     logger.warn(
-                        "Dokka Gradle Plugin could not load KotlinBasePlugin in ${project.displayName}, but plugin $id is applied",
-                        kotlinBasePluginNotFoundException,
+                        """
+                        |warning: Dokka could not load KotlinBasePlugin in ${project.displayName}, even though plugin $pluginId is applied.
+                        |The most common cause is a Gradle limitation: the plugins applied to subprojects should be consistent.
+                        |Please try the following:
+                        |1. Apply the Dokka and Kotlin plugins to the root project using the `plugins {}` DSL.
+                        |   (If the root project does not need the plugins, use 'apply false')
+                        |2. Remove the Dokka and Kotlin plugins versions in the subprojects.
+                        |For more information see:
+                        | - https://docs.gradle.org/current/userguide/plugins_intermediate.html#sec:plugins_apply
+                        | - https://github.com/gradle/gradle/issues/25616
+                        | - https://github.com/gradle/gradle/issues/35117
+                        |Please report any feedback or problems https://kotl.in/dokka-issues
+                        |""".trimMargin()
                     )
                 }
             }
@@ -345,7 +384,7 @@ private class KotlinCompilationDetailsBuilder(
     ): Provider<Set<AndroidVariantInfo>> {
         val androidVariants = objects.setProperty(AndroidVariantInfo::class)
 
-        PluginId.androidPlugins.forEach { pluginId ->
+        PluginIds.android.forEach { pluginId ->
             project.pluginManager.withPlugin(pluginId) {
                 collectAndroidVariants(project, androidVariants)
             }

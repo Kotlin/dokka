@@ -13,6 +13,7 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
+import org.gradle.kotlin.dsl.apply
 import org.gradle.api.provider.SetProperty
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.getByType
@@ -21,7 +22,8 @@ import org.jetbrains.dokka.gradle.DokkaBasePlugin
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
-import org.jetbrains.dokka.gradle.internal.PluginId
+import org.jetbrains.dokka.gradle.internal.PluginIds
+import org.jetbrains.dokka.gradle.internal.artifactType
 import java.io.File
 import javax.inject.Inject
 
@@ -73,7 +75,7 @@ abstract class AndroidAdapter @Inject constructor(
          * Apply [AndroidAdapter] a single time to [project], regardless of how many AGP plugins are applied.
          */
         internal fun applyTo(project: Project) {
-            PluginId.androidPlugins.forEach { pluginId ->
+            PluginIds.android.forEach { pluginId ->
                 project.pluginManager.withPlugin(pluginId) {
                     project.pluginManager.apply(AndroidAdapter::class)
                 }

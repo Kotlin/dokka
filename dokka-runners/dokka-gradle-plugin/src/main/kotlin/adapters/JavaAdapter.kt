@@ -22,7 +22,7 @@ import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
-import org.jetbrains.dokka.gradle.internal.PluginId
+import org.jetbrains.dokka.gradle.internal.PluginIds
 import org.jetbrains.dokka.gradle.internal.or
 import org.jetbrains.dokka.gradle.internal.uppercaseFirstChar
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
@@ -46,16 +46,13 @@ abstract class JavaAdapter @Inject constructor(
 
         val dokkaExtension = project.extensions.getByType<DokkaExtension>()
 
-        // wait for the Java plugin to be applied
-        project.plugins.withType<JavaBasePlugin>().configureEach {
-            val java = project.extensions.getByType<JavaPluginExtension>()
-            val sourceSets = project.extensions.getByType<SourceSetContainer>()
+        val java = project.extensions.getByType<JavaPluginExtension>()
+        val sourceSets = project.extensions.getByType<SourceSetContainer>()
 
-            detectJavaToolchainVersion(dokkaExtension, java)
+        detectJavaToolchainVersion(dokkaExtension, java)
 
-            val isConflictingPluginPresent = isConflictingPluginPresent(project)
-            registerDokkaSourceSets(dokkaExtension, sourceSets, isConflictingPluginPresent)
-        }
+        val isConflictingPluginPresent = isConflictingPluginPresent(project)
+        registerDokkaSourceSets(dokkaExtension, sourceSets, isConflictingPluginPresent)
     }
 
     /** Fetch the  toolchain, and use the language version as Dokka's jdkVersion */
@@ -119,11 +116,11 @@ abstract class JavaAdapter @Inject constructor(
     ): Provider<Boolean> {
 
         val projectHasKotlinPlugin = providers.provider {
-            PluginId.kgpPlugins.any { project.pluginManager.hasPlugin(it) }
+            PluginIds.kotlin.any { project.pluginManager.hasPlugin(it) }
         }
 
         val projectHasAndroidPlugin = providers.provider {
-            PluginId.androidPlugins.any { project.pluginManager.hasPlugin(it) }
+            PluginIds.android.any { project.pluginManager.hasPlugin(it) }
         }
 
         return projectHasKotlinPlugin or projectHasAndroidPlugin
@@ -145,7 +142,9 @@ abstract class JavaAdapter @Inject constructor(
                     && name.startsWith(MAIN_SOURCE_SET_NAME)
 
         internal fun applyTo(project: Project) {
-            project.pluginManager.apply(type = JavaAdapter::class)
+            project.plugins.withType<JavaBasePlugin>().all {
+                project.pluginManager.apply(type = JavaAdapter::class)
+            }
         }
     }
 }
