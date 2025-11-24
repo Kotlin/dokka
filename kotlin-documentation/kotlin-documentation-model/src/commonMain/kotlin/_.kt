@@ -127,7 +127,7 @@ private fun test() {
                         classKind = KdClassKind.CLASS,
                         documentation = listOf(KdDocumentationNode.Text("Class docs")),
                         declarations = listOf(
-                            KdProperty(
+                            KdVariable(
                                 name = "test",
                                 variableKind = KdVariableKind.PROPERTY,
                                 returns = KdReturns(KdClassifierType(KdClassifierId("kotlin", "String"))),

@@ -66,7 +66,7 @@ private fun DPackage.toKdPackage(
 
     val declarations = buildList {
         functions.mapNotNullTo(this) { it.toKdFunction(sourceSet) }
-        //properties.mapNotNullTo(this) { it.toKdProperty(sourceSet) }
+        properties.mapNotNullTo(this) { it.toKdVariable(sourceSet) }
         classlikes.mapNotNullTo(this) { it.toKdClass(sourceSet) }
         typealiases.mapNotNullTo(this) { it.toKdTypealias(sourceSet) }
     }
@@ -78,6 +78,96 @@ private fun DPackage.toKdPackage(
     return KdPackage(
         name = name,
         declarations = declarations,
+        documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
+    )
+}
+
+@OptIn(ExperimentalDokkaApi::class)
+private fun DProperty.toKdVariable(
+    sourceSet: DokkaConfiguration.DokkaSourceSet,
+): KdVariable? {
+    if (!sourceSets.contains(sourceSet)) return null
+
+    val extraModifiers = extraModifiers(sourceSet)
+    val annotations = directAnnotations(sourceSet)
+    val tagWrappers = tagWrappers(sourceSet) {
+        it is Description || it is Return || it is Throws || it is Param || it is Sample // TODO: support samples
+    }
+
+    return KdVariable(
+        name = name,
+        returns = KdReturns(
+            type = type.toKdType(),
+            documentation = tagWrappers.filterIsInstance<Return>().singleOrNullIfEmpty().toKdDocumentation()
+        ),
+        variableKind = KdVariableKind.PROPERTY,
+
+        isMutable = extra[IsVar] != null || setter != null,
+        // TODO: same as in annotations
+        constValue = extra[DefaultValue]?.expression?.get(sourceSet)?.toString()?.let(::KdConstValue),
+        isStatic = extraModifiers.contains(ExtraModifiers.JavaOnlyModifiers.Static), // TODO? is it enough?
+
+        receiverParameter = receiver?.toKdReceiverParameter(sourceSet),
+        contextParameters = contextParameters.map { it.toKdContextParameter(sourceSet) },
+        typeParameters = generics.map { it.toKdTypeParameter(sourceSet) },
+
+        throws = tagWrappers.filterIsInstance<Throws>().map {
+            KdThrows(
+                // null means unresolved type - TBD what to do here
+                classifierId = it.exceptionAddress?.toKdClassifierId() ?: error("should not happen: $it"),
+                documentation = it.toKdDocumentation()
+            )
+        },
+        sourceLanguage = KdSourceLanguage.KOTLIN, // TODO: not enought information right now
+        visibility = kdVisibility(sourceSet),
+        modality = kdModality(sourceSet),
+        actuality = kdActuality(sourceSet),
+        isExternal = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.External),
+        annotations = annotations.mapNotNull(Annotations.Annotation::toKdAnnotation),
+        documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
+    )
+}
+
+@OptIn(ExperimentalDokkaApi::class)
+private fun DEnumEntry.toKdVariable(
+    sourceSet: DokkaConfiguration.DokkaSourceSet,
+    enum: DEnum
+): KdVariable? {
+    if (!sourceSets.contains(sourceSet)) return null
+
+    val annotations = directAnnotations(sourceSet)
+    val tagWrappers = tagWrappers(sourceSet) { it is Description }
+
+    return KdVariable(
+        name = name,
+        // TODO: what type?
+        returns = KdReturns(
+            type = type.toKdType(),
+            documentation = tagWrappers.filterIsInstance<Return>().singleOrNullIfEmpty().toKdDocumentation()
+        ),
+        variableKind = KdVariableKind.ENUM_ENTRY,
+
+        isMutable = false,
+        constValue = null,
+        isStatic = true,
+
+        receiverParameter = null,
+        contextParameters = emptyList(),
+        typeParameters = emptyList(),
+
+        throws = tagWrappers.filterIsInstance<Throws>().map {
+            KdThrows(
+                // null means unresolved type - TBD what to do here
+                classifierId = it.exceptionAddress?.toKdClassifierId() ?: error("should not happen: $it"),
+                documentation = it.toKdDocumentation()
+            )
+        },
+        sourceLanguage = KdSourceLanguage.KOTLIN, // TODO: not enought information right now
+        visibility = enum.kdVisibility(sourceSet),
+        modality = KdModality.FINAL,
+        actuality = enum.kdActuality(sourceSet),
+        isExternal = false,
+        annotations = annotations.mapNotNull(Annotations.Annotation::toKdAnnotation),
         documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
     )
 }
@@ -205,7 +295,8 @@ private fun DClasslike.toKdClass(
         declarations = buildList {
             if (this@toKdClass is WithConstructors) constructors.mapNotNullTo(this) { it.toKdConstructor(sourceSet) }
             functions.mapNotNullTo(this) { it.toKdFunction(sourceSet) }
-            //properties.mapNotNullTo(this) { it.toKdProperty(sourceSet) }
+            properties.mapNotNullTo(this) { it.toKdVariable(sourceSet) }
+            if (this@toKdClass is DEnum) entries.mapNotNullTo(this) { it }
             classlikes.mapNotNullTo(this) { it.toKdClass(sourceSet) }
             if (this@toKdClass is WithTypealiases) typealiases.mapNotNullTo(this) { it.toKdTypealias(sourceSet) }
         },

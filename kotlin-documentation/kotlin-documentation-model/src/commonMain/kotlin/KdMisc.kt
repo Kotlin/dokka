@@ -46,8 +46,12 @@ public enum class KdClassKind {
     JAVA_RECORD // ???
 }
 
+public enum class KdFunctionKind {
+    PRIMARY_CONSTRUCTOR, CONSTRUCTOR, FUNCTION
+}
+
 public enum class KdVariableKind {
-    PROPERTY, FIELD, ENUM_ENTRY
+    PROPERTY, FIELD/*JVM?*/, ENUM_ENTRY
 }
 
 // all kotlin targets (or platforms/families TBD) - should not be a enum really

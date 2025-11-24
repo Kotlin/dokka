@@ -45,7 +45,6 @@ public sealed class KdCallable : KdDeclaration() {
 
     public abstract val isStatic: Boolean // do nothing until static KEEP?
     public abstract val receiverParameter: KdReceiverParameter?
-    public abstract val valueParameters: List<KdValueParameter>
     public abstract val contextParameters: List<KdContextParameter>
     public abstract val throws: List<KdThrows>
 }
@@ -57,7 +56,7 @@ public data class KdConstructor(
     override val returns: KdReturns, // TODO is it fine?
     // optionals
     val isPrimary: Boolean = false,
-    override val valueParameters: List<KdValueParameter> = emptyList(),
+    val valueParameters: List<KdValueParameter> = emptyList(),
     override val throws: List<KdThrows> = emptyList(),
     override val sourceLanguage: KdSourceLanguage = KdSourceLanguage.KOTLIN,
     override val visibility: KdVisibility = KdVisibility.PUBLIC,
@@ -87,7 +86,7 @@ public data class KdFunction(
     val isTailRec: Boolean = false,
     override val isStatic: Boolean = false,
     override val receiverParameter: KdReceiverParameter? = null,
-    override val valueParameters: List<KdValueParameter> = emptyList(),
+    val valueParameters: List<KdValueParameter> = emptyList(),
     override val contextParameters: List<KdContextParameter> = emptyList(),
     override val throws: List<KdThrows> = emptyList(),
     override val sourceLanguage: KdSourceLanguage = KdSourceLanguage.KOTLIN,
@@ -104,9 +103,9 @@ public data class KdFunction(
 // we can't really document getter or setter explicitly
 // java synthetic property can have field + get/set. Kotlin with EBH also can have different field type?
 // what to do with java field+getField+setField based on visibilities
-@SerialName("property")
+@SerialName("variable")
 @Serializable
-public data class KdProperty(
+public data class KdVariable(
     override val name: String,
     override val returns: KdReturns,
     val variableKind: KdVariableKind,
@@ -126,6 +125,4 @@ public data class KdProperty(
     override val annotations: List<KdAnnotation> = emptyList(),
     override val typeParameters: List<KdTypeParameter> = emptyList(),
     override val documentation: List<KdDocumentationNode> = emptyList(),
-) : KdCallable() {
-    override val valueParameters: List<KdValueParameter> get() = emptyList()
-}
+) : KdCallable()
