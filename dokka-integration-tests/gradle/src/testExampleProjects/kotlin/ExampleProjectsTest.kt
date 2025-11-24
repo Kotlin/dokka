@@ -244,6 +244,20 @@ class ExampleProjectsTest {
         }
     }
 
+    @ParameterizedTest
+    @ArgumentsSource(TestCaseProvider::class)
+    fun `test project assemble`(testCase: TestCase) {
+        assumeTrue(testCase.isEnabled)
+
+        testCase.project.runner
+            .addArguments(
+                "assemble",
+                "--stacktrace",
+            )
+            .build {
+                output shouldContain "BUILD SUCCESSFUL"
+            }
+    }
 
     @ParameterizedTest
     @ArgumentsSource(TestCaseProvider::class)
