@@ -60,7 +60,9 @@ annotation class TestsKotlinJvm
 @MustBeDocumented
 @Inherited
 @WithGradleProperties(GradlePropertiesProvider.Android::class)
-annotation class TestsAndroid
+annotation class TestsAndroid(
+    val kotlinBuiltIn: KotlinBuiltInCompatibility = KotlinBuiltInCompatibility.Supported,
+)
 
 
 /**
@@ -76,4 +78,6 @@ annotation class TestsAndroid
 @MustBeDocumented
 @Inherited
 @WithGradleProperties(GradlePropertiesProvider.Android::class)
-annotation class TestsAndroidCompose
+annotation class TestsAndroidCompose(
+    val kotlinBuiltIn: KotlinBuiltInCompatibility = KotlinBuiltInCompatibility.Supported,
+)
