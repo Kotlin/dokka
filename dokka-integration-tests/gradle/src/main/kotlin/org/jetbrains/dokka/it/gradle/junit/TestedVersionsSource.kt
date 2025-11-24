@@ -42,13 +42,13 @@ fun interface TestedVersionsSource<T : TestedVersions> {
          * with a planned stable release with Kotlin 2.1.
          * When DGPv2 is released as stable, then we will support the last three Kotlin releases.
          */
-        private val allKgpVersions: List<SemVer> = listOf(
+        private val allKgpVersions: List<String> = listOf(
             "1.9.25",
             "2.0.21",
             "2.1.21",
             "2.2.21",
             "2.3.0-RC",
-        ).map { SemVer(it) }
+        )
 
         /**
          * Gradle versions to test.
@@ -70,7 +70,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
                                 TestedVersions.Default(
                                     dgp = SemVer(dgp),
                                     gradle = SemVer(gradle),
-                                    kgp = kgp,
+                                    kgp = SemVer(kgp),
                                 )
                             )
                         }
