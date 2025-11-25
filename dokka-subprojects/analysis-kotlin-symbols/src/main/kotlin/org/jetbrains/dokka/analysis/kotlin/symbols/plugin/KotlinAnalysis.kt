@@ -67,9 +67,9 @@ internal fun getLanguageVersionSettings(
             // force to resolve light classes (lazily by default)
             AnalysisFlags.eagerResolveOfLightClasses to true,
         ),
-        specificFeatures = hashMapOf(
-            LanguageFeature.MultiPlatformProjects to if (isMultiplatformProject) LanguageFeature.State.ENABLED else LanguageFeature.State.DISABLED
-        )
+        specificFeatures = listOfNotNull(
+            if (isMultiplatformProject) LanguageFeature.MultiPlatformProjects to LanguageFeature.State.ENABLED else null
+        ).toMap()
     )
 }
 
@@ -80,7 +80,7 @@ internal fun createAnalysisSession(
     isSampleProject: Boolean = false
 ): KotlinAnalysis {
     val sourcesModule = mutableMapOf<DokkaConfiguration.DokkaSourceSet, KaSourceModule>()
-    val isMultiplatformProject = sourceSets.mapTo(mutableSetOf()) { it.analysisPlatform }.size > 1
+    val isMultiplatformProject = sourceSets.any { it.analysisPlatform != Platform.jvm }
 
     val analysisSession = buildStandaloneAnalysisAPISession(
         projectDisposable = projectDisposable,
