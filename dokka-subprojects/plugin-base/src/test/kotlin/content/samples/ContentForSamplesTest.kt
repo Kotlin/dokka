@@ -115,7 +115,7 @@ class ContentForSamplesTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("K2 inherits KDoc from expect")
+    @OnlySymbols("#4245: K2 inherits KDoc from expect")
     fun `multiplatform class with samples in few platforms K2`() {
         testInline(
             """
@@ -210,7 +210,7 @@ class ContentForSamplesTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlyDescriptors("K2 inherits KDoc from expect")
+    @OnlyDescriptors("#4245: K2 inherits KDoc from expect")
     fun `multiplatform class with samples in few platforms K1`() {
         testInline(
             """

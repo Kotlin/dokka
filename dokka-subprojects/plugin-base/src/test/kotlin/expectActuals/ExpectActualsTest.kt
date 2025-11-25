@@ -22,6 +22,7 @@ import translators.findClasslike
 import utils.OnlySymbols
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 
@@ -736,8 +737,7 @@ class ExpectActualsTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("New KDoc resolve")
-    @OptIn(ExperimentalDokkaApi::class)
+    @OnlySymbols("#4245: New KDoc resolve for symbols")
     fun `kdoc on expect-actual`() {
         testInline(
             """
@@ -775,14 +775,37 @@ class ExpectActualsTest : BaseAbstractTest() {
                 val foo = a.functions.first { it.name == "foo" }
                 val bar = a.functions.first { it.name == "bar" }
 
+                val common = multiplatformConfiguration.sourceSets.first { it.displayName == "common" }
+                val jvm = multiplatformConfiguration.sourceSets.first { it.displayName == "jvm" }
+
                 assertEquals(2, constructor.documentation.size)
-                assertEquals(1, constructor.documentation.values.toSet().size)
+                assertEquals(constructor.documentation[common], constructor.documentation[jvm])
+                constructor.documentation.values.forEach {
+                    assertEquals(
+                        "DocumentationNode(children=[Description(root=CustomDocTag(children=[P(children=[Text(body=Common Description, children=[], params={})], params={})], params={}, name=MARKDOWN_FILE))])",
+                        it.toString()
+                    )
+                }
 
                 assertEquals(2, foo.documentation.size)
-                assertEquals(1, foo.documentation.values.toSet().size)
+                assertEquals(foo.documentation[common], foo.documentation[jvm])
+                foo.documentation.values.forEach {
+                    assertEquals(
+                        "DocumentationNode(children=[Description(root=CustomDocTag(children=[P(children=[Text(body=Common Description, children=[], params={})], params={})], params={}, name=MARKDOWN_FILE))])",
+                        it.toString()
+                    )
+                }
 
                 assertEquals(2, bar.documentation.size)
-                assertEquals(2, bar.documentation.values.toSet().size)
+                assertNotEquals(bar.documentation[common], bar.documentation[jvm])
+                assertEquals(
+                    "DocumentationNode(children=[Description(root=CustomDocTag(children=[P(children=[Text(body=Common Description, children=[], params={})], params={})], params={}, name=MARKDOWN_FILE))])",
+                    bar.documentation[common].toString()
+                )
+                assertEquals(
+                    "DocumentationNode(children=[Description(root=CustomDocTag(children=[P(children=[Text(body=Platform Description, children=[], params={})], params={})], params={}, name=MARKDOWN_FILE))])",
+                    bar.documentation[jvm].toString()
+                )
             }
         }
     }

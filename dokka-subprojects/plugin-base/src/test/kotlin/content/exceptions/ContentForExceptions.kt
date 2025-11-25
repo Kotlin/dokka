@@ -349,7 +349,7 @@ class ContentForExceptions : BaseAbstractTest() {
 
 
     @Test
-    @OnlyDescriptors("K2 inherits KDoc from expect")
+    @OnlyDescriptors("#4245: K2 inherits KDoc from expect")
     fun `multiplatform class with throws in few platforms K1`() {
         testInline(
             """
