@@ -28,6 +28,8 @@ internal fun saveModule(
 
     val kdModule = measured("transform") { dModule.toKdModule() }.getOrThrow()
 
+    measured("coverage") { kdModule.calculateCoverage() }.getOrThrow()
+
     with(outputDirectory.resolve("kdp")) {
         mkdirs()
         measured("json") { resolve("${kdModule.name}.json").writeText(kdModule.encodeToJson(prettyPrint = false)) }
