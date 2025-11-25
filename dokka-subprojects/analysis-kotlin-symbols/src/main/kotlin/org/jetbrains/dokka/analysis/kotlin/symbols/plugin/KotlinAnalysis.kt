@@ -51,21 +51,24 @@ private fun getJdkHomeFromSystemProperty(logger: DokkaLogger): File? {
 
 internal fun getLanguageVersionSettings(
     languageVersionString: String?,
-    apiVersionString: String?
+    apiVersionString: String?,
+    isMultiplatformProject: Boolean,
 ): LanguageVersionSettingsImpl {
-    val languageVersion = LanguageVersion.fromVersionString(languageVersionString) ?: LanguageVersion.LATEST_STABLE
-    val apiVersion =
-        apiVersionString?.let { ApiVersion.parse(it) } ?: ApiVersion.createByLanguageVersion(languageVersion)
+    val languageVersion = LanguageVersion.fromVersionString(languageVersionString)
+        ?: LanguageVersion.LATEST_STABLE
+    val apiVersion = apiVersionString?.let { ApiVersion.parse(it) }
+        ?: ApiVersion.createByLanguageVersion(languageVersion)
     return LanguageVersionSettingsImpl(
         languageVersion = languageVersion,
-        apiVersion = apiVersion, analysisFlags = hashMapOf(
+        apiVersion = apiVersion,
+        analysisFlags = hashMapOf(
             AnalysisFlags.allowKotlinPackage to InternalConfiguration.allowKotlinPackage,
             // special flag for Dokka
             // force to resolve light classes (lazily by default)
-            AnalysisFlags.eagerResolveOfLightClasses to true
+            AnalysisFlags.eagerResolveOfLightClasses to true,
         ),
-        specificFeatures = mapOf(
-            LanguageFeature.MultiPlatformProjects to LanguageFeature.State.ENABLED,
+        specificFeatures = hashMapOf(
+            LanguageFeature.MultiPlatformProjects to if (isMultiplatformProject) LanguageFeature.State.ENABLED else LanguageFeature.State.DISABLED
         )
     )
 }
@@ -77,6 +80,7 @@ internal fun createAnalysisSession(
     isSampleProject: Boolean = false
 ): KotlinAnalysis {
     val sourcesModule = mutableMapOf<DokkaConfiguration.DokkaSourceSet, KaSourceModule>()
+    val isMultiplatformProject = sourceSets.mapTo(mutableSetOf()) { it.analysisPlatform }.size > 1
 
     val analysisSession = buildStandaloneAnalysisAPISession(
         projectDisposable = projectDisposable,
@@ -120,8 +124,11 @@ internal fun createAnalysisSession(
             for (sourceSet in sortedSourceSets) {
                 val targetPlatform = sourceSet.analysisPlatform.toTargetPlatform()
                 val sourceModule = buildKtSourceModule {
-                    languageVersionSettings =
-                        getLanguageVersionSettings(sourceSet.languageVersion, sourceSet.apiVersion)
+                    languageVersionSettings = getLanguageVersionSettings(
+                        languageVersionString = sourceSet.languageVersion,
+                        apiVersionString = sourceSet.apiVersion,
+                        isMultiplatformProject = isMultiplatformProject,
+                    )
                     platform = targetPlatform
                     moduleName = "<module ${sourceSet.displayName}>"
 
@@ -176,9 +183,10 @@ internal fun topologicalSortByDependantSourceSets(
             else -> {
                 val dependentSourceSets =
                     sourceSet.dependentSourceSets.mapNotNull { dependentSourceSetId ->
-                       sourceSets.find { it.sourceSetID == dependentSourceSetId } ?: run {
+                        sourceSets.find { it.sourceSetID == dependentSourceSetId } ?: run {
                             logger.error("Cannot find source set with id $dependentSourceSetId")
-                            null }
+                            null
+                        }
 
                     }
                 verticesAssociatedWithState[sourceSet] = State.VISITING
