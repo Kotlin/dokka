@@ -75,6 +75,19 @@ public fun ContentMatcherBuilder<*>.group(block: ContentMatcherBuilder<ContentGr
     composite(block)
 }
 
+public fun ContentMatcherBuilder<*>.group2(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) {
+    group { group(block) }
+}
+
+public fun ContentMatcherBuilder<*>.group3(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) {
+    group { group2(block) }
+}
+
+public fun ContentMatcherBuilder<*>.group4(block: ContentMatcherBuilder<ContentGroup>.() -> Unit) {
+    group { group3(block) }
+}
+
+
 public fun ContentMatcherBuilder<*>.tabbedGroup(
     block: ContentMatcherBuilder<ContentGroup>.() -> Unit
 ) {
@@ -111,6 +124,10 @@ public fun ContentMatcherBuilder<*>.p(block: ContentMatcherBuilder<ContentGroup>
 
 public fun ContentMatcherBuilder<*>.link(block: ContentMatcherBuilder<ContentLink>.() -> Unit) {
     composite(block)
+}
+
+public fun ContentMatcherBuilder<*>.groupedLink(block: ContentMatcherBuilder<ContentLink>.() -> Unit) {
+    group { link(block) }
 }
 
 public fun ContentMatcherBuilder<*>.table(block: ContentMatcherBuilder<ContentTable>.() -> Unit) {
