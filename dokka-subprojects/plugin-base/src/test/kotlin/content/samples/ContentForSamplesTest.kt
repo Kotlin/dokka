@@ -8,6 +8,8 @@ import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.base.transformers.pages.KOTLIN_PLAYGROUND_SCRIPT
 import org.jetbrains.dokka.model.DisplaySourceSet
+import utils.OnlyDescriptors
+import utils.OnlySymbols
 import utils.TestOutputWriterPlugin
 import utils.assertContains
 import utils.classSignature
@@ -113,7 +115,103 @@ class ContentForSamplesTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `multiplatofrm class with samples in few platforms`() {
+    @OnlySymbols("#4245: K2 inherits KDoc from expect")
+    fun `multiplatform class with samples in few platforms K2`() {
+        testInline(
+            """
+                |/src/commonMain/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |/**
+                |* @sample [test.sampleForClassDescription]
+                |*/
+                |expect open class Parent
+                |
+                |/src/jvmMain/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |/**
+                |* @sample unresolved
+                |*/
+                |actual open class Parent
+                |
+                |/src/linuxX64Main/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |actual open class Parent
+                |
+            """.trimMargin(),
+            mppTestConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("pageMerger", "Parent")
+                assertContains(page.embeddedResources, KOTLIN_PLAYGROUND_SCRIPT)
+                page.content.assertNode {
+                    group {
+                        header(1) { +"Parent" }
+                        platformHinted {
+                            group {
+                                +"expect open class "
+                                link {
+                                    +"Parent"
+                                }
+                            }
+                            group {
+                                +"actual open class "
+                                link {
+                                    +"Parent"
+                                }
+                            }
+                            group {
+                                +"actual open class "
+                                link {
+                                    +"Parent"
+                                }
+                            }
+                            header(4) { +"Samples" }
+                            group {
+                                codeBlock {
+                                    +"""|
+                                    |fun main() { 
+                                    |   //sampleStart 
+                                    |   print("Hello") 
+                                    |   //sampleEnd
+                                    |}""".trimMargin()
+                                }
+                                check {
+                                    sourceSets.assertSourceSet("common")
+                                }
+                            }
+                            group {
+                                codeBlock {
+                                    +"""|
+                                    |fun main() { 
+                                    |   //sampleStart 
+                                    |   print("Hello") 
+                                    |   //sampleEnd
+                                    |}""".trimMargin()
+                                }
+                                check {
+                                    sourceSets.assertSourceSet("linuxX64")
+                                }
+                            }
+                            group {
+                                +"unresolved"
+                                check {
+                                    sourceSets.assertSourceSet("jvm")
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+    @Test
+    @OnlyDescriptors("#4245: K2 inherits KDoc from expect")
+    fun `multiplatform class with samples in few platforms K1`() {
         testInline(
             """
                 |/src/commonMain/kotlin/pageMerger/Test.kt
