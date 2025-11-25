@@ -115,7 +115,7 @@ sealed interface TestedVersions : Comparable<TestedVersions> {
                 .sorted()
                 .joinToString(", ")
 
-        private fun TestedVersions.toMap(): Map<String, SemVer> =
+        fun TestedVersions.toMap(): Map<String, SemVer> =
             buildMap {
                 put(::dgp.name, dgp)
                 put(::gradle.name, gradle)
