@@ -257,7 +257,7 @@ class ContentForExceptions : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("K2 inherits KDoc from expect")
+    @OnlySymbols("#4245: K2 inherits KDoc from expect")
     fun `multiplatform class with throws in few platforms K2`() {
         testInline(
             """
