@@ -72,7 +72,38 @@ public data class KdConstructor(
     override val contextParameters: List<KdContextParameter> get() = emptyList()
 }
 
-// TODO: how to handle overrides?
+/*
+// common
+expect abstract class A {
+  fun accepts(b: B)
+}
+expect class B
+
+class CommonImpl: A {
+  override fun accepts(b: B)
+}
+
+// jvm
+actual typealias A = PlatformA
+actual typealias B = String
+class JvmImpl: A {
+  override fun accepts(b: B)
+}
+// native
+actual abstract class A {
+  actual fun accepts(b: B)
+}
+actual class B
+class NativeImpl: A {
+  override fun accepts(b: B)
+}
+
+what should be the relations in this case + when it's about libraries
+ */
+
+// TODO: how to handle override relations and expect/actual relations
+//  for this, there should be some specific references
+//  because `overload` resolution is rather complex concept
 @SerialName("function")
 @Serializable
 public data class KdFunction(

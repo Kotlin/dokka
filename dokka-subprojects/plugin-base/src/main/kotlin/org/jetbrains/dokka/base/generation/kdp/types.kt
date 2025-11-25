@@ -77,7 +77,7 @@ internal fun Bound.toKdType(nullability: KdNullability = KdNullability.NOT_NULLA
     is Nullable -> inner.toKdType(KdNullability.NULLABLE)
 
     // TODO: K2 impl is a bit strange here for typeAliased
-    is TypeAliased -> KdUnresolvedType("TypeAliased: $this", nullability)
+    is TypeAliased -> typeAlias.toKdType(nullability)
     is UnresolvedBound -> KdUnresolvedType(name, nullability)
 }
 
