@@ -208,6 +208,15 @@ constructor(
             sourceSetScope.convention(sourceSetScopeConvention)
 
             suppressGeneratedFiles.convention(true)
+            suppressedFiles.from(
+                suppressGeneratedFiles.map { suppressGenerated ->
+                    if (suppressGenerated) {
+                        layout.buildDirectory.dir("generated")
+                    } else {
+                        objects.fileCollection()
+                    }
+                }
+            )
 
             sourceLinks.configureEach {
                 localDirectory.convention(layout.projectDirectory)
