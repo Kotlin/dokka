@@ -4,7 +4,7 @@ $dokka.location:a.b.c////PointingToDeclaration/it-kotlin-multiplatform/a.b.c/in
 $dokka.location:a.b.c//AndroidNativeFn/#a.b.c.CommonMainCls#a.b.c.NativeMainCls#a.b.c.AndroidNativeMainCls/PointingToDeclaration/it-kotlin-multiplatform/a.b.c/-android-native-fn.html
 $dokka.location:a.b.c//commpnMainFn/#a.b.c.CommonMainCls/PointingToDeclaration/it-kotlin-multiplatform/a.b.c/commpn-main-fn.html
 $dokka.location:a.b.c//iosMainFn/#a.b.c.CommonMainCls#a.b.c.NativeMainCls#a.b.c.IosMainCls/PointingToDeclaration/it-kotlin-multiplatform/a.b.c/ios-main-fn.html
-$dokka.location:a.b.c//iosX64MainFn/#a.b.c.CommonMainCls#a.b.c.NativeMainCls#a.b.c.IosMainCls/PointingToDeclaration/it-kotlin-multiplatform/a.b.c/[ios-x64]ios-x64-main-fn.html
+$dokka.location:a.b.c//iosX64MainFn/#a.b.c.CommonMainCls#a.b.c.NativeMainCls#a.b.c.IosMainCls/PointingToDeclaration/it-kotlin-multiplatform/a.b.c/[-ios-x64]ios-x64-main-fn.html
 $dokka.location:a.b.c//jvmMainFn/#a.b.c.CommonMainCls#a.b.c.JvmMainCls/PointingToDeclaration/it-kotlin-multiplatform/a.b.c/jvm-main-fn.html
 $dokka.location:a.b.c//letsUseIt/#cnames.structs.DIR/PointingToDeclaration/it-kotlin-multiplatform/a.b.c/lets-use-it.html
 $dokka.location:a.b.c//linuxArm64Fn/#a.b.c.CommonMainCls#a.b.c.NativeMainCls#a.b.c.LinuxMainCls/PointingToDeclaration/it-kotlin-multiplatform/a.b.c/linux-arm64-fn.html
