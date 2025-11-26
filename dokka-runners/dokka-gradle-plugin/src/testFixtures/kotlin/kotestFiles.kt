@@ -6,6 +6,12 @@ package org.jetbrains.dokka.gradle.utils
 import com.github.difflib.DiffUtils
 import com.github.difflib.UnifiedDiffUtils
 import io.kotest.assertions.fail
+import io.kotest.matchers.MatcherResult
+import io.kotest.matchers.neverNullMatcher
+import io.kotest.matchers.paths.shouldBeAFile
+import io.kotest.matchers.paths.shouldExist
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldNot
 import java.io.IOException
 import java.io.OutputStream
 import java.nio.file.Path
@@ -178,3 +184,44 @@ class NullOutputStream : OutputStream() {
         // do nothing
     }
 }
+
+
+/**
+ * Assert the given [Path] does not contain the given [text].
+ */
+fun Path.shouldContainText(
+    text: String,
+    ignoreCase: Boolean = false,
+) {
+    this.shouldExist()
+    this.shouldBeAFile()
+    this should containText(text, ignoreCase)
+}
+
+/**
+ * Assert the given [Path] does not contain the given [text].
+ */
+fun Path.shouldNotContainText(
+    text: String,
+    ignoreCase: Boolean = false,
+) {
+    this.shouldExist()
+    this.shouldBeAFile()
+    this shouldNot containText(text, ignoreCase)
+}
+
+private fun containText(
+    text: String,
+    ignoreCase: Boolean = false,
+) =
+    neverNullMatcher<Path> { value ->
+        MatcherResult(
+            value.useLines { lines ->
+                lines.any { line ->
+                    line.contains(text, ignoreCase = ignoreCase)
+                }
+            },
+            { "$value should include '$text'" + if (ignoreCase) " (ignoring case)" else "" },
+            { "$value should not include '$text'" + if (ignoreCase) " (ignoring case)" else "" },
+        )
+    }
