@@ -187,7 +187,7 @@ class NullOutputStream : OutputStream() {
 
 
 /**
- * Assert the given [Path] does not contain the given [text].
+ * Assert the given [Path] contains the given [text].
  */
 fun Path.shouldContainText(
     text: String,
