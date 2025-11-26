@@ -36,7 +36,7 @@ class DokkaSourceSetSpecTest : FunSpec({
             dss.dependentSourceSets.shouldBeEmpty()
         }
         test("displayName") {
-            dss.displayName.orNull shouldBe "foo"
+            dss.displayName.orNull shouldBe "Foo"
         }
         test("documentedVisibilities") {
             dss.documentedVisibilities.orNull.shouldContainExactlyInAnyOrder(Public)
@@ -124,11 +124,26 @@ class DokkaSourceSetSpecTest : FunSpec({
                 add(TestCase("main", platform, platform.displayName))
                 add(TestCase("Main", platform, platform.displayName))
 
-                add(TestCase("commonMain", platform, "common"))
-                add(TestCase("jvmMain", platform, "jvm"))
+                add(TestCase("commonMain", platform, "Common"))
+                add(TestCase("nativeMain", platform, "Native"))
+
+                add(TestCase("jsMain", platform, "JS"))
+                add(TestCase("jvmMain", platform, "JVM"))
+                add(TestCase("androidMain", platform, "Android JVM"))
+                add(TestCase("androidNativeMain", platform, "Android Native"))
+
+                add(TestCase("iosMain", platform, "iOS"))
+                add(TestCase("watchosMain", platform, "watchOS"))
+                add(TestCase("macosMain", platform, "macOS"))
+                add(TestCase("tvosMain", platform, "tvOS"))
+
+                add(TestCase("wasmMain", platform, "Wasm"))
+                add(TestCase("wasmJsMain", platform, "Wasm/JS"))
+                add(TestCase("wasmWasiMain", platform, "Wasm/WASI"))
+
                 add(TestCase("FooMain", platform, "Foo"))
 
-                add(TestCase("foo", platform, "foo"))
+                add(TestCase("foo", platform, "Foo"))
                 add(TestCase("Domain", platform, "Domain"))
                 add(TestCase("CustomMainActor", platform, "CustomMainActor"))
             }
