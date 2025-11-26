@@ -187,9 +187,6 @@ abstract class KotlinAdapter @Inject constructor(
                 if (allCompilations.none { it.isMetadata }) {
                     logger.info("[$dkaName] No metadata compilation found for ${details.name}. The classpath of all compilations will also be used.")
                     classpath.from(allCompilations.map { it.compilationClasspath })
-                    allCompilations.fold(classpath) { acc, compilation ->
-                        acc.from(compilation.compilationClasspath)
-                    }
                 }
             }
 
