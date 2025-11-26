@@ -8,9 +8,6 @@ import com.github.difflib.UnifiedDiffUtils
 import io.kotest.assertions.fail
 import io.kotest.matchers.MatcherResult
 import io.kotest.matchers.neverNullMatcher
-import io.kotest.matchers.paths.shouldBeAFile
-import io.kotest.matchers.paths.shouldExist
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldNot
 import java.io.IOException
 import java.io.OutputStream
@@ -185,43 +182,25 @@ class NullOutputStream : OutputStream() {
     }
 }
 
-
 /**
- * Assert the given [Path] contains the given [text].
+ * Assert the given [Path] does not contain lines that match the given predicate.
+ *
+ * The file must be an existing, regular file.
  */
-fun Path.shouldContainText(
-    text: String,
-    ignoreCase: Boolean = false,
+fun Path.shouldNotContainLine(
+    predicate: (line: String) -> Boolean,
 ) {
-    this.shouldExist()
-    this.shouldBeAFile()
-    this should containText(text, ignoreCase)
+    this shouldNot containLine(predicate)
 }
 
-/**
- * Assert the given [Path] does not contain the given [text].
- */
-fun Path.shouldNotContainText(
-    text: String,
-    ignoreCase: Boolean = false,
-) {
-    this.shouldExist()
-    this.shouldBeAFile()
-    this shouldNot containText(text, ignoreCase)
-}
-
-private fun containText(
-    text: String,
-    ignoreCase: Boolean = false,
+private fun containLine(
+    predicate: (line: String) -> Boolean,
 ) =
     neverNullMatcher<Path> { value ->
+        val matchedLines = value.useLines { lines -> lines.filter(predicate).joinToString("\n") { "- $it" } }
         MatcherResult(
-            value.useLines { lines ->
-                lines.any { line ->
-                    line.contains(text, ignoreCase = ignoreCase)
-                }
-            },
-            { "$value should include '$text'" + if (ignoreCase) " (ignoring case)" else "" },
-            { "$value should not include '$text'" + if (ignoreCase) " (ignoring case)" else "" },
+            matchedLines.isNotEmpty(),
+            { "$value contained lines that matched the given predicate." },
+            { "$value contained lines that did not match:\n${matchedLines}" },
         )
     }

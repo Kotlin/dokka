@@ -5,10 +5,12 @@ package org.jetbrains.dokka.gradle
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.inspectors.shouldForAll
-import io.kotest.inspectors.shouldForNone
-import io.kotest.matchers.paths.shouldBeAFile
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.sequences.shouldNotBeEmpty
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldBeEmpty
 import io.kotest.matchers.string.shouldContain
+import org.jetbrains.dokka.DokkaConfigurationImpl
 import org.jetbrains.dokka.gradle.internal.DokkaConstants
 import org.jetbrains.dokka.gradle.utils.*
 import kotlin.io.path.*
@@ -34,17 +36,14 @@ class KmpSharedWasmTest : FunSpec({
                 }
 
                 test("expect no 'unknown class' message in HTML files") {
-                    val htmlFiles = project.projectDir
-                        .resolve("build/dokka/html")
-                        .walk()
-                        .filter { it.isRegularFile() && it.extension == "html" }
+                    val htmlFiles = project.findFiles { it.isRegularFile() && it.extension == "html" }
 
                     htmlFiles.shouldNotBeEmpty()
 
                     htmlFiles.forEach { htmlFile ->
-                        htmlFile.relativeTo(project.projectDir).apply {
-                            shouldNotContainText("Error class: unknown class")
-                            shouldNotContainText("ERROR CLASS: Symbol not found")
+                        htmlFile.shouldNotContainLine { line ->
+                            line.contains("Error class: unknown class", ignoreCase = true) ||
+                                    line.contains("ERROR CLASS: Symbol not found", ignoreCase = true)
                         }
                     }
                 }
@@ -53,13 +52,48 @@ class KmpSharedWasmTest : FunSpec({
                     project
                         .findFiles { it.name == "dokka-worker.log" }
                         .shouldForAll { dokkaWorkerLog ->
-                            dokkaWorkerLog.shouldBeAFile()
                             dokkaWorkerLog.useLines { lines ->
-                                lines.shouldForNone { line ->
-                                    line.startsWith("[ERROR]") || line.startsWith("[WARN]")
-                                }
+                                lines
+                                    .filter { it.startsWith("[ERROR]") || it.startsWith("[WARN]") }
+                                    .joinToString("\n")
+                                    .shouldBeEmpty()
                             }
                         }
+                }
+
+                context("check dokka configuration") {
+                    val dokkaConfig =
+                        DokkaConfigurationImpl(
+                            project.file("build/tmp/dokkaGeneratePublicationHtml/dokka-configuration.json")
+                                .readText()
+                        )
+
+                    val dokkaSourceSets = dokkaConfig.sourceSets.associateBy { it.displayName }
+
+                    val wasmDss = dokkaSourceSets["wasm"].shouldNotBeNull()
+
+                    val wasmJsDss = dokkaSourceSets["wasmJs"].shouldNotBeNull()
+                    val wasmWasiDss = dokkaSourceSets["wasmWasi"].shouldNotBeNull()
+
+                    test("expect wasm has classpath aggregated from wasmJs and wasmWasi") {
+
+                        val actualClasspath = wasmDss.classpath
+                            .filter { it.isFile }
+                            .distinct()
+                            .sorted()
+                            .joinToString("\n")
+
+                        val expectedClasspathFiles = buildList {
+                            addAll(wasmJsDss.classpath)
+                            addAll(wasmWasiDss.classpath)
+                        }
+                            .filter { it.isFile }
+                            .distinct()
+                            .sorted()
+                            .joinToString("\n")
+
+                        actualClasspath shouldBe expectedClasspathFiles
+                    }
                 }
             }
     }
@@ -95,6 +129,13 @@ private fun initKmpSharedWasmProject(
             |    }
             |  }
             |}
+            |
+            |tasks.dokkaGeneratePublicationHtml {
+            |  // force re-run, to make sure dokka-configuration.json is generated
+            |  // (dokka-configuration.json isn't cached, so it won't be available if the task is loaded from cache.) 
+            |  outputs.upToDateWhen { false }
+            |}
+            |
             |""".trimMargin()
 
 
@@ -102,6 +143,7 @@ private fun initKmpSharedWasmProject(
             createKotlinFile(
                 "IOException.kt",
                 """
+                |// copied from https://github.com/Kotlin/kotlinx-io/blob/0.8.2/core/common/src/-CommonPlatform.kt
                 |/**
                 | * Signals about a general issue occurred during I/O operation.
                 | */
@@ -114,9 +156,11 @@ private fun initKmpSharedWasmProject(
                 |""".trimMargin()
             )
 
+            @Suppress("KDocUnresolvedReference")
             createKotlinFile(
                 "RawSink.kt",
                 """
+                |// copied from https://github.com/Kotlin/kotlinx-io/blob/0.8.2/core/common/src/RawSink.kt
                 |/**
                 | * Receives a stream of bytes. RawSink is a base interface for `kotlinx-io` data receivers.
                 | *
@@ -166,9 +210,14 @@ private fun initKmpSharedWasmProject(
                 |""".trimMargin()
             )
 
+            // misc types, just here to make sure there are no warnings in about types in the kdoc
             createKotlinFile(
-                "Buffer.kt", """
+                "misc.kt", """
                 |interface Buffer
+                |
+                |interface Sink
+                |
+                |fun buffered() = TODO()
                 |""".trimMargin()
             )
         }
