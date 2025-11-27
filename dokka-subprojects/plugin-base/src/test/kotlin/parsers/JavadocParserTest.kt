@@ -386,6 +386,9 @@ class JavadocParserTest : BaseAbstractTest() {
             | * <h1>A header</h1>
             | * <h2>A second level header</h2>
             | * <h3>A third level header</h3>
+            | * <h4>A fourth level header</h4>
+            | * <h5>A fifth level header</h5>
+            | * <h6>A sixth level header</h6>
             | */
             | public class Test  {}
             """.trimIndent()
@@ -413,6 +416,21 @@ class JavadocParserTest : BaseAbstractTest() {
                         H3(
                             listOf(
                                 Text("A third level header")
+                            )
+                        ),
+                        H4(
+                            listOf(
+                                Text("A fourth level header")
+                            )
+                        ),
+                        H5(
+                            listOf(
+                                Text("A fifth level header")
+                            )
+                        ),
+                        H6(
+                            listOf(
+                                Text("A sixth level header")
                             )
                         )
                     ),
