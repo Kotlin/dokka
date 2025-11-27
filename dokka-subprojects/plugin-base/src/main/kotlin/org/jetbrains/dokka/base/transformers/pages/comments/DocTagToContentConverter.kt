@@ -98,6 +98,7 @@ public open class DocTagToContentConverter : CommentsToContentConverter {
             is Br -> buildNewLine()
             is B -> buildChildren(docTag, setOf(TextStyle.Bold))
             is Strong -> buildChildren(docTag, setOf(TextStyle.Strong))
+            is Em -> buildChildren(docTag, setOf(TextStyle.Emphasis))
             is I -> buildChildren(docTag, setOf(TextStyle.Italic))
             is P -> listOf(
                 ContentGroup(

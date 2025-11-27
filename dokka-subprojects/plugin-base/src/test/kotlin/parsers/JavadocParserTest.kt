@@ -457,13 +457,13 @@ class JavadocParserTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `u tag is handled properly`() {
+    fun `u and em tags is handled properly`() {
         val source = """
             |/src/main/kotlin/test/Test.java
             |package example
             |
             | /**
-            | * An example of using u tag: <u>underlined</u>
+            | * An example of using u and em tags: <u>underlined</u> <em>emphasis</em>
             | */
             | public class Test  {}
             """.trimIndent()
@@ -479,8 +479,9 @@ class JavadocParserTest : BaseAbstractTest() {
                     listOf(
                         P(
                             children = listOf(
-                                Text("An example of using u tag: "),
+                                Text("An example of using u and em tags: "),
                                 U(children = listOf(Text("underlined"))),
+                                Em(children = listOf(Text("emphasis")))
                             )
                         ),
                     ),

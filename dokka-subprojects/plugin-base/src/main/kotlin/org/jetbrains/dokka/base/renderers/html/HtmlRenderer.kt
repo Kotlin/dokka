@@ -921,6 +921,7 @@ public open class HtmlRenderer(
             TextStyle.Italic -> i { body() }
             TextStyle.Strikethrough -> strike { body() }
             TextStyle.Strong -> strong { body() }
+            TextStyle.Emphasis -> em { body() }
             TextStyle.Var -> htmlVar { body() }
             TextStyle.Underlined -> underline { body() }
             is TokenStyle -> span("token ${styleToApply.prismJsClass()}") { body() }
