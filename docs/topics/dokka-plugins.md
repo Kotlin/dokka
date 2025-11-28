@@ -1,6 +1,6 @@
 [//]: # (title: Dokka plugins)
 
-> This guide applies to Dokka Gradle Plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
+> This guide applies to Dokka Gradle plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
 > If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
 >
 {style="note"}
@@ -56,25 +56,18 @@ dependencies {
 </tab>
 <tab title="Groovy" group-key="groovy">
 
-The Gradle plugin for Dokka creates convenient dependency configurations that allow you to apply Dokka plugins universally or
-for a specific output format only.
-
 ```groovy
+plugins {
+    id 'org.jetbrains.dokka' version '%dokkaVersion%'
+}
+
 dependencies {
-    // Is applied universally
-    dokkaPlugin 'org.jetbrains.dokka:mathjax-plugin:%dokkaVersion%'
-
-    // Is applied for the single-module dokkaHtml task only
-    dokkaHtmlPlugin 'org.jetbrains.dokka:kotlin-as-java-plugin:%dokkaVersion%'
-
-    // Is applied for HTML format in multi-project builds
-    dokkaHtmlPartialPlugin 'org.jetbrains.dokka:kotlin-as-java-plugin:%dokkaVersion%'
+    dokkaPlugin 'org.jetbrains.dokka:mathjax-plugin'
 }
 ```
 
 > When documenting [multi-project](dokka-gradle.md#multi-project-configuration) builds, 
-> you need to apply Dokka plugins within
-> subprojects as well as in their parent project.
+> you need to [share Dokka configuration across subprojects](dokka-gradle.md#multi-project-configuration).
 >
 {style="note"}
 
@@ -164,20 +157,14 @@ Custom plugins enable additional processing or modifications to the documentatio
 <tab title="Groovy" group-key="groovy">
 
 ```groovy
-import org.jetbrains.dokka.gradle.DokkaTask
-
-tasks.withType(DokkaTask.class) {
-    String dokkaBaseConfiguration = """
-    {
-      "customAssets": ["${file("assets/my-image.png")}"],
-      "customStyleSheets": ["${file("assets/my-styles.css")}"],
-      "footerMessage": "(c) 2022 MyOrg"
+dokka {
+    pluginsConfiguration {
+        html {
+            customAssets.from("logo.png")
+            customStyleSheets.from("styles.css")
+            footerMessage.set("(c) Your Company")
+        }
     }
-    """
-    pluginsMapConfiguration.set(
-            // fully qualified plugin name to json configuration
-            ["org.jetbrains.dokka.base.DokkaBase": dokkaBaseConfiguration]
-    )
 }
 ```
 
@@ -251,6 +238,8 @@ Here are some notable Dokka plugins that you might find useful:
 | [MermaidJS HTML plugin](https://github.com/glureau/dokka-mermaid)                                                                  | Renders [MermaidJS](https://mermaid-js.github.io/mermaid/#/) diagrams and visualizations found in KDocs      |
 | [Mathjax HTML plugin](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-mathjax)                        | Pretty prints mathematics found in KDocs                                                                     |
 | [Kotlin as Java plugin](https://github.com/Kotlin/dokka/tree/%dokkaVersion%/dokka-subprojects/plugin-kotlin-as-java)               | Renders Kotlin signatures as seen from Java's perspective                                                    |
+| [GFM plugin](https://github.com/Kotlin/dokka/tree/master/dokka-subprojects/plugin-gfm)                                                                                                                     | Adds the ability to generate documentation in GitHub Flavoured Markdown format                               |
+| [Jekyll plugin](https://github.com/Kotlin/dokka/tree/master/dokka-subprojects/plugin-jekyll)                                                                                                                                                                                                           | Adds the ability to generate documentation in Jekyll Flavoured Markdown format                               |
 
 If you are a Dokka plugin author and would like to add your plugin to this list, get in touch with maintainers
 via [Slack](dokka-introduction.md#community) or [GitHub](https://github.com/Kotlin/dokka/).

@@ -1,7 +1,7 @@
 [//]: # (title: Javadoc)
 <primary-label ref="alpha"/>
 
-> This guide applies to Dokka Gradle Plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
+> This guide applies to Dokka Gradle plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
 > If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
 >
 {style="note"}

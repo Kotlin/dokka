@@ -38,7 +38,7 @@ Ensure that your project meets the minimum version requirements:
 >
 {style="note"}
 
-Update the Dokka version to 2.0.0 in the `plugins {}` block of your project’s `build.gradle.kts` file:
+Update the Dokka version to %dokkaVersion% in the `plugins {}` block of your project’s `build.gradle.kts` file:
 
 ```kotlin
 plugins {
@@ -132,7 +132,7 @@ Configuration in DGP v2:
 The syntax of `build.gradle.kts` files differs from regular `.kt` files (such as those used for custom Gradle plugins) because Gradle's Kotlin DSL uses type-safe accessors.
 
 <tabs group="dokka-configuration">
-<tab title="Gradle configuration file" group-key="gradle">
+<tab title="Gradle configuration" group-key="gradle">
 
 ```kotlin
 // build.gradle.kts
@@ -160,7 +160,7 @@ dokka {
 ```
 
 </tab>
-<tab title="Kotlin file" group-key="kotlin">
+<tab title="Kotlin custom plugin" group-key="kotlin">
 
 ```kotlin
 // CustomPlugin.kt
@@ -266,7 +266,7 @@ Configuration in DGP v2:
 The syntax of `build.gradle.kts` files differs from regular `.kt` files (such as those used for custom Gradle plugins) because Gradle's Kotlin DSL uses type-safe accessors.
 
 <tabs group="dokka-configuration">
-<tab title="Gradle configuration file" group-key="gradle">
+<tab title="Gradle configuration" group-key="gradle">
 
 ```kotlin
 // build.gradle.kts
@@ -283,7 +283,7 @@ dokka {
 ```
 
 </tab>
-<tab title="Kotlin file" group-key="kotlin">
+<tab title="Kotlin custom plugin" group-key="kotlin">
 
 ```kotlin
 // CustomPlugin.kt
@@ -441,7 +441,7 @@ Configuration in DGP v2:
 The syntax of `build.gradle.kts` files differs from regular `.kt` files (such as those used for custom Gradle plugins) because Gradle's Kotlin DSL uses type-safe accessors.
 
 <tabs group="dokka-configuration">
-<tab title="Gradle configuration file" group-key="gradle">
+<tab title="Gradle configuration" group-key="gradle">
 
 ```kotlin
 // build.gradle.kts
@@ -455,7 +455,7 @@ dokka {
 ```
 
 </tab>
-<tab title="Kotlin file" group-key="kotlin">
+<tab title="Kotlin custom plugin" group-key="kotlin">
 
 ```kotlin
 // CustomPlugin.kt
@@ -575,7 +575,7 @@ by creating a convention plugin in the `buildSrc` directory, and then applying t
     }
     
     dependencies {
-        implementation("org.jetbrains.dokka:dokka-gradle-plugin:2.0.0")
+        implementation("org.jetbrains.dokka:dokka-gradle-plugin:%dokkaVersion%")
     }   
     ```
 
@@ -723,7 +723,7 @@ to generate output in HTML, Javadoc or both HTML and Javadoc. For more informati
 > You may find bugs and experience migration issues when using it. Successful integration with tools that accept Javadoc
 > as input is not guaranteed. Use it at your own risk.
 >
-{style="note"}
+{style="warning"}
 
 The default output format for DGP v2 is HTML. However, you can choose to generate the API documentation in HTML, Javadoc, 
 or both formats at the same time:

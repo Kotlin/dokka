@@ -1,6 +1,6 @@
 [//]: # (title: HTML)
 
-> This guide applies to Dokka Gradle Plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
+> This guide applies to Dokka Gradle plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
 > If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
 >
 {style="note"}
@@ -67,23 +67,19 @@ dokka {
 <tab title="Groovy" group-key="groovy">
 
 ```groovy
-import org.jetbrains.dokka.gradle.DokkaTask
+// build.gradle
 
-tasks.withType(DokkaTask.class) {
-    String dokkaBaseConfiguration = """
-    {
-      "customAssets": ["${file("assets/my-image.png")}"],
-      "customStyleSheets": ["${file("assets/my-styles.css")}"],
-      "footerMessage": "(c) 2022 MyOrg"
-      "separateInheritedMembers": false,
-      "templatesDir": "${file("dokka/templates")}",
-      "mergeImplicitExpectActualDeclarations": false
+dokka {
+    pluginsConfiguration {
+        html {
+            customAssets.from("logo.png")
+            customStyleSheets.from("styles.css")
+            footerMessage.set("(c) Your Company")
+            separateInheritedMembers.set(false)
+            templatesDir.set(file("dokka/templates"))
+            mergeImplicitExpectActualDeclarations.set(false)
+        }
     }
-    """
-    pluginsMapConfiguration.set(
-            // fully qualified plugin name to json configuration
-            ["org.jetbrains.dokka.base.DokkaBase": dokkaBaseConfiguration]
-    )
 }
 ```
 
