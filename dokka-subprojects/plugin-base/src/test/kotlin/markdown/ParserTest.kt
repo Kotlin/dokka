@@ -82,9 +82,9 @@ class ParserTest : KDocTest() {
                                     Text("This is "),
                                     Strong(listOf(Text("simple"))),
                                     Text(" test of "),
-                                    I(listOf(Text("string"))),
+                                    Em(listOf(Text("string"))),
                                     Text(" Next "),
-                                    Strong(listOf(I(listOf(Text("line")))))
+                                    Strong(listOf(Em(listOf(Text("line")))))
                                 )
                             )
                         ), name = MARKDOWN_ELEMENT_FILE_NAME
@@ -197,7 +197,7 @@ class ParserTest : KDocTest() {
             listOf(
                 Description(
                     CustomDocTag(
-                        listOf(P(listOf(I(listOf(Text("text")))))),
+                        listOf(P(listOf(Em(listOf(Text("text")))))),
                         name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
@@ -229,7 +229,7 @@ class ParserTest : KDocTest() {
             listOf(
                 Description(
                     CustomDocTag(
-                        listOf(P(listOf(I(listOf(Text("text")))))),
+                        listOf(P(listOf(Em(listOf(Text("text")))))),
                         name = MARKDOWN_ELEMENT_FILE_NAME
                     )
                 )
@@ -239,7 +239,7 @@ class ParserTest : KDocTest() {
     }
 
     @Test
-    fun `Stars as italic bounds`() {
+    fun `Stars as emphasis bounds`() {
         val kdoc = "The abstract syntax tree node for a multiplying expression.  A multiplying\n" +
                 "expression is a binary expression where the operator is a multiplying operator\n" +
                 "such as \"*\", \"/\", or \"mod\".  A simple example would be \"5*x\"."
@@ -255,7 +255,7 @@ class ParserTest : KDocTest() {
                                                 "expression is a binary expression where the operator is a multiplying operator " +
                                                 "such as \""
                                     ),
-                                    I(listOf(Text("\", \"/\", or \"mod\".  A simple example would be \"5"))),
+                                    Em(listOf(Text("\", \"/\", or \"mod\".  A simple example would be \"5"))),
                                     Text("x\".")
                                 )
                             )
@@ -1425,8 +1425,8 @@ class ParserTest : KDocTest() {
     }
 
     @Test
-    fun `Strong + italic + link`() {
-        val kdoc = "It's very easy to make some words **strong** and other words *italic* with Markdown.\n" +
+    fun `Strong + emphasis + link`() {
+        val kdoc = "It's very easy to make some words **strong** and other words *emphasis* with Markdown.\n" +
                 "You can even [link to Google!](http://google.com)"
         val expectedDocumentationNode = DocumentationNode(
             listOf(
@@ -1438,7 +1438,7 @@ class ParserTest : KDocTest() {
                                     Text("It's very easy to make some words "),
                                     Strong(listOf(Text("strong"))),
                                     Text(" and other words "),
-                                    I(listOf(Text("italic"))),
+                                    Em(listOf(Text("emphasis"))),
                                     Text(" with Markdown. You can even "),
                                     A(listOf(Text("link to Google!")), mapOf("href" to "http://google.com"))
                                 )
