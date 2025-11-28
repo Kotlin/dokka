@@ -35,7 +35,7 @@ internal object DocTagsFromIElementFactory {
             MarkdownElementTypes.ATX_4                  -> H4(children, params)
             MarkdownElementTypes.ATX_5                  -> H5(children, params)
             MarkdownElementTypes.ATX_6                  -> H6(children, params)
-            MarkdownElementTypes.EMPH                   -> I(children, params)
+            MarkdownElementTypes.EMPH                   -> Em(children, params)
             MarkdownElementTypes.IMAGE                  -> Img(children, params)
             MarkdownElementTypes.LIST_ITEM              -> Li(children, params)
             MarkdownElementTypes.ORDERED_LIST           -> Ol(children, params)
