@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "es2018",
+    "lib": ["es2018"],
+    "outDir": "./dist/server",
+    "types": ["node"]
+  },
+  "include": [
+    "src/server/**/*.ts",
+    "src/server/**/*.tsx",
+    "src/shared/**/*.ts",
+    "src/shared/**/*.tsx"
+  ]
+}
