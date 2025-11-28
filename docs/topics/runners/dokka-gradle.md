@@ -624,7 +624,7 @@ Here is an example of the general Dokka Gradle plugin configuration. Use the top
 
 In DGP, `dokkaPublications` is the central way to declare Dokka publication configurations. 
 The default publications
-are [`html`](dokka-html.md), [`javadoc`](dokka-javadoc.md), and [`gfm`](https://github.com/Kotlin/dokka/blob/8e5c63d035ef44a269b8c43430f43f5c8eebfb63/dokka-subprojects/plugin-gfm/README.md).
+are [`html`](dokka-html.md) and [`javadoc`](dokka-javadoc.md).
 
 The syntax of `build.gradle.kts` files differs from regular `.kt` 
 files (such as those used for custom Gradle plugins) because Gradle's Kotlin DSL uses type-safe accessors:

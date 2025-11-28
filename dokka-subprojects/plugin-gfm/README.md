@@ -7,11 +7,7 @@ The GFM plugin adds the ability to generate documentation in in [GitHub Flavored
 It supports both multi-project builds and multiplatform projects.
 
 This format gives you more freedom in terms of hosting documentation as the output can be embedded right into your
-documentation website. 
-For example, see [OkHttp's API reference](https://square.github.io/okhttp/5.x/okhttp/okhttp3/)
-pages.
-
-The GFM plugin is shipped together with the Dokka Gradle plugin.
+documentation website.
 
 ## Gradle
 
