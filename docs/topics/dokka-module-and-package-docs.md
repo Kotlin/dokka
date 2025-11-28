@@ -1,4 +1,4 @@
-[//]: # (title: Subproject documentation)
+[//]: # (title: Module documentation)
 
 Documentation for a subproject as a whole, as well as packages in that subproject, can be provided as separate Markdown files.
 

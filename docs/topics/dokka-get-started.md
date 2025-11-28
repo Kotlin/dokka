@@ -5,7 +5,7 @@ Below you can find simple instructions to help you get started with Dokka.
 <tabs group="build-script">
 <tab title="Gradle Kotlin DSL" group-key="kotlin">
 
-> This guide applies to Dokka Gradle Plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported. 
+> This guide applies to Dokka Gradle plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported. 
 > If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
 >
 {style="note"}
@@ -63,20 +63,19 @@ plugins {
 ```
 
 When documenting [multi-project](https://docs.gradle.org/current/userguide/multi_project_builds.html) builds, you need
-to apply the Gradle plugin within subprojects as well:
+to [share Gradle configuration across subprojects](dokka-gradle.md#multi-project-configuration).
 
-```groovy
-subprojects {
-    apply plugin: 'org.jetbrains.dokka'
-}
+To generate documentation, run the following Gradle task:
+
+```Bash
+./gradlew :dokkaGenerate
 ```
 
-To generate documentation, run the following Gradle tasks:
+This task works for both single and multi-project builds.
+You can use different tasks to generate output in [HTML](dokka-html.md),
+[Javadoc](dokka-javadoc.md) or both [HTML and Javadoc](dokka-gradle.md#configure-documentation-output-format).
 
-* `dokkaHtml` for single-project builds
-* `dokkaHtmlMultiModule` for multi-project builds
-
-By default, the output directory is set to `/build/dokka/html` and `/build/dokka/htmlMultiModule`.
+By default, the output directory is set to `build/dokka/html`.
 
 > To learn more about using Dokka with Gradle, see [Gradle](dokka-gradle.md).
 >

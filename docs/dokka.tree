@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE instance-profile SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
-<instance-profile id="dokka" name="dokka" start-page="dokka-gradle-troubleshooting-md.md">
+<instance-profile id="dokka" name="dokka" start-page="dokka-introduction.md">
 	<snippet id="dokka">
 		<toc-element topic="dokka-introduction.md"/>
 		<toc-element topic="dokka-get-started.md"/>
@@ -13,7 +13,6 @@
 		</toc-element>
 		<toc-element toc-title="Output formats">
 			<toc-element topic="dokka-html.md"/>
-			<toc-element topic="dokka-markdown.md"/>
 			<toc-element topic="dokka-javadoc.md"/>
 		</toc-element>
 		<toc-element topic="dokka-plugins.md"/>
