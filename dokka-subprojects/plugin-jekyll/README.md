@@ -7,8 +7,6 @@ The Jekyll plugin adds the ability to generate documentation in [Jekyll Flavoure
 It supports both
 multi-project builds and multiplatform projects.
 
-The Jekyll plugin is shipped together with the Dokka Gradle plugin.
-
 **This plugin is at its early stages**, so you may experience issues and encounter bugs. Feel free to
 [report](https://github.com/Kotlin/dokka/issues/new/choose) any errors you see.
 
