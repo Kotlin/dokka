@@ -475,7 +475,7 @@ class JavadocParserTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `u and em tags is handled properly`() {
+    fun `u and em tags are handled properly`() {
         val source = """
             |/src/main/kotlin/test/Test.java
             |package example
