@@ -2475,7 +2475,6 @@ a {
   font: var(--font-text-s);
   padding: 10px 12px;
   position: relative;
-  text-transform: capitalize;
 }
 
 .platform-tags .platform-tag {
@@ -2502,10 +2501,6 @@ button.platform-tag:focus-visible {
 
 .platform-selector-option {
   padding-left: 44px;
-}
-
-.platform-selector-option.js-like, .platform-selector-option.jvm-like, .platform-selector-option.wasm-like, .platform-tag.js-like, .platform-tag.jvm-like, .platform-tag.wasm-like {
-  text-transform: uppercase;
 }
 
 .filter-section .platform-tag[data-active] {

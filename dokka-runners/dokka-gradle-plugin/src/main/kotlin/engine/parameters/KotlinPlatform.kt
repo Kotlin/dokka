@@ -18,12 +18,12 @@ import org.jetbrains.dokka.Platform
 enum class KotlinPlatform(
     internal val displayName: String
 ) {
-    AndroidJVM("androidJvm"),
-    Common("common"),
-    JS("js"),
-    JVM("jvm"),
-    Native("native"),
-    Wasm("wasm"),
+    AndroidJVM("Android JVM"),
+    Common("Common"),
+    JS("JS"),
+    JVM("JVM"),
+    Native("Native"),
+    Wasm("Wasm"),
     ;
 
     companion object {
