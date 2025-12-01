@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 plugins {
-    kotlin("jvm") version "2.3.0-RC-299"
+    kotlin("jvm") version "2.3.0-RC2-323"
     id("org.jetbrains.dokka") version "2.1.0"
     `maven-publish`
     signing
