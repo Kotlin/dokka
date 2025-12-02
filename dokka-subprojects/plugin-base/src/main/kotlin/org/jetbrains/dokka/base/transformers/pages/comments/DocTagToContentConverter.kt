@@ -263,6 +263,7 @@ public open class DocTagToContentConverter : CommentsToContentConverter {
             )
             is Var -> buildChildren(docTag, setOf(TextStyle.Var))
             is U -> buildChildren(docTag, setOf(TextStyle.Underlined))
+            is Mark -> buildChildren(docTag, setOf(TextStyle.Highlight))
 
             else -> buildChildren(docTag)
         }
