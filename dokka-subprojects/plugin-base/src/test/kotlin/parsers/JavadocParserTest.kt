@@ -441,73 +441,22 @@ class JavadocParserTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `var tag is handled properly`() {
-        val source = """
-            |/src/main/kotlin/test/Test.java
-            |package example
-            |
-            | /**
-            | * An example of using var tag: <var>variable</var>
-            | */
-            | public class Test  {}
-            """.trimIndent()
-        testInline(
-            source,
-            configuration,
-        ) {
-            documentablesCreationStage = { modules ->
-                val docs = modules.first().packages.first().classlikes.single().documentation.values.first()
-                val root = docs.children.first().root
-
-                kotlin.test.assertEquals(
-                    listOf(
-                        P(
-                            children = listOf(
-                                Text("An example of using var tag: "),
-                                Var(children = listOf(Text("variable"))),
-                            )
-                        ),
-                    ),
-                    root.children
-                )
-            }
-        }
-    }
+    fun `b tag is handled properly`() = testHtmlTag("b", ::B)
 
     @Test
-    fun `u and em tags are handled properly`() {
-        val source = """
-            |/src/main/kotlin/test/Test.java
-            |package example
-            |
-            | /**
-            | * An example of using u and em tags: <u>underlined</u> <em>emphasis</em>
-            | */
-            | public class Test  {}
-            """.trimIndent()
-        testInline(
-            source,
-            configuration,
-        ) {
-            documentablesCreationStage = { modules ->
-                val docs = modules.first().packages.first().classlikes.single().documentation.values.first()
-                val root = docs.children.first().root
+    fun `strong tag is handled properly`() = testHtmlTag("strong", ::Strong)
 
-                assertEquals(
-                    listOf(
-                        P(
-                            children = listOf(
-                                Text("An example of using u and em tags: "),
-                                U(children = listOf(Text("underlined"))),
-                                Em(children = listOf(Text("emphasis")))
-                            )
-                        ),
-                    ),
-                    root.children
-                )
-            }
-        }
-    }
+    @Test
+    fun `em tag is handled properly`() = testHtmlTag("em", ::Em)
+
+    @Test
+    fun `i tag is handled properly`() = testHtmlTag("i", ::I)
+
+    @Test
+    fun `var tag is handled properly`() = testHtmlTag("var", ::Var)
+
+    @Test
+    fun `u tag is handled properly`() = testHtmlTag("u", ::U)
 
     @Test
     fun `mark tag is handled properly`() {
@@ -649,6 +598,42 @@ class JavadocParserTest : BaseAbstractTest() {
                         Text(body = "Java's tag with wrong case {@liTeRal @}Entity public class User {}"),
                     ),
                     root.children.first().children
+                )
+            }
+        }
+    }
+
+    private fun testHtmlTag(
+        tagName: String,
+        expectedDocTag: (List<DocTag>) -> DocTag
+    ) {
+        val source = """
+            |/src/main/kotlin/test/Test.java
+            |package example
+            |
+            | /**
+            | * An example of using $tagName tag: <$tagName>some text</$tagName>
+            | */
+            | public class Test  {}
+            """.trimIndent()
+        testInline(
+            source,
+            configuration,
+        ) {
+            documentablesCreationStage = { modules ->
+                val docs = modules.first().packages.first().classlikes.single().documentation.values.first()
+                val root = docs.children.first().root
+
+                assertEquals(
+                    listOf(
+                        P(
+                            children = listOf(
+                                Text("An example of using $tagName tag: "),
+                                expectedDocTag(listOf(Text("some text"))),
+                            )
+                        ),
+                    ),
+                    root.children
                 )
             }
         }
