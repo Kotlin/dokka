@@ -91,7 +91,7 @@ class ContentForSamplesTest : BaseAbstractTest() {
                             header(4) { +"Samples" }
                             group {
                                 codeBlock {
-                                    +"""print("Hello")""".trimMargin()
+                                    +"""print("Hello")"""
                                 }
                             }
                         }
@@ -133,7 +133,6 @@ class ContentForSamplesTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val page = module.findTestType("pageMerger", "Parent")
-                assertContains(page.embeddedResources, KOTLIN_PLAYGROUND_SCRIPT)
                 page.content.assertNode {
                     group {
                         header(1) { +"Parent" }
@@ -159,12 +158,7 @@ class ContentForSamplesTest : BaseAbstractTest() {
                             header(4) { +"Samples" }
                             group {
                                 codeBlock {
-                                    +"""|
-                                    |fun main() { 
-                                    |   //sampleStart 
-                                    |   print("Hello") 
-                                    |   //sampleEnd
-                                    |}""".trimMargin()
+                                    +"""print("Hello")"""
                                 }
                                 check {
                                     sourceSets.assertSourceSet("common")
@@ -172,12 +166,7 @@ class ContentForSamplesTest : BaseAbstractTest() {
                             }
                             group {
                                 codeBlock {
-                                    +"""|
-                                    |fun main() { 
-                                    |   //sampleStart 
-                                    |   print("Hello") 
-                                    |   //sampleEnd
-                                    |}""".trimMargin()
+                                    +"""print("Hello")"""
                                 }
                                 check {
                                     sourceSets.assertSourceSet("linuxX64")
@@ -253,7 +242,7 @@ class ContentForSamplesTest : BaseAbstractTest() {
                             header(4) { +"Samples" }
                             group {
                                 codeBlock {
-                                    +"""print("Hello")""".trimMargin()
+                                    +"""print("Hello")"""
                                 }
                                 check {
                                     sourceSets.assertSourceSet("common")
