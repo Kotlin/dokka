@@ -391,9 +391,9 @@ public enum class TokenStyle : Style {
 }
 
 public enum class TextStyle : Style {
-    Bold, Italic, Strong, Emphasis, Strikethrough, Paragraph,
+    Bold, Italic, Strong, Strikethrough, Paragraph,
     Block, Span, Monospace, Indented, Cover, UnderCoverText, BreakableAfter, Breakable, InlineComment, Quotation,
-    FloatingRight, Var, Underlined, Highlight
+    FloatingRight, Var, Underlined, Highlight, Emphasis
 }
 
 public enum class ContentStyle : Style {
