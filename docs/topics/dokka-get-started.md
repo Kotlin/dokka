@@ -54,6 +54,13 @@ To learn more about using Dokka with Gradle, see [Gradle](dokka-gradle.md).
 </tab>
 <tab title="Gradle Groovy DSL" group-key="groovy">
 
+> This guide applies to Dokka Gradle plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
+> If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
+>
+{style="note"}
+
+**Apply the Gradle Dokka plugin**
+
 Apply the Gradle plugin for Dokka in the root build script of your project:
 
 ```groovy
@@ -62,8 +69,19 @@ plugins {
 }
 ```
 
-When documenting [multi-project](https://docs.gradle.org/current/userguide/multi_project_builds.html) builds, you need
-to [share Gradle configuration across subprojects](dokka-gradle.md#multi-project-configuration).
+**Document multi-project builds**
+
+When documenting [multi-project builds](https://docs.gradle.org/current/userguide/multi_project_builds.html),
+you need to apply the plugin to every subproject you want to document. Share Dokka configuration across subprojects
+by using one of the following approaches:
+
+* Convention plugin
+* Direct configuration in each subproject if you’re not using convention plugins
+
+For more information about sharing Dokka configuration in multi-project builds,
+see [Multi-project configuration](dokka-gradle.md#multi-project-configuration).
+
+**Generate documentation**
 
 To generate documentation, run the following Gradle task:
 
@@ -75,11 +93,12 @@ This task works for both single and multi-project builds.
 You can use different tasks to generate output in [HTML](dokka-html.md),
 [Javadoc](dokka-javadoc.md) or both [HTML and Javadoc](dokka-gradle.md#configure-documentation-output-format).
 
-By default, the output directory is set to `build/dokka/html`.
+**Set output directory**
 
-> To learn more about using Dokka with Gradle, see [Gradle](dokka-gradle.md).
->
-{style="tip"}
+By default, the output directory is set to `/build/dokka/html` for both multi-project and single-project builds,
+but you can [configure it](dokka-gradle.md#general-configuration).
+
+To learn more about using Dokka with Gradle, see [Gradle](dokka-gradle.md).
 
 </tab>
 <tab title="Maven" group-key="mvn">
