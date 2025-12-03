@@ -757,6 +757,9 @@ Here is a list of the plugin `id` and Gradle task that correspond to each format
 > 
 {style="tip"}
 
+If you're using IntelliJ IDEA, you may see the `dokkaGenerateHtml` Gradle task.
+This task is simply an alias of `dokkaGeneratePublicationHtml`. Both tasks perform exactly the same operation.
+
 ### Address deprecations and removals
 
 * **Output format support:** DGP v2 only supports HTML and Javadoc output. Experimental formats like Markdown and Jekyll are no longer supported.

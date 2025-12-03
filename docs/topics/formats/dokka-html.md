@@ -29,6 +29,12 @@ your build tool or runner:
     as an `@OutputDirectory`. Use this task when you need to consume the generated files in other Gradle tasks, such 
     as uploading them to a server, moving them into a GitHub Pages directory, or packaging them into a `javadoc.jar`. 
     This task is intentionally not shown in Gradle task groups because it is not meant for everyday use.
+
+    > If you're using IntelliJ IDEA, you may see the `dokkaGenerateHtml` Gradle task.
+    > This task is simply an alias of `dokkaGeneratePublicationHtml`. Both tasks perform exactly the same operation.
+    >
+    {style="tip"}
+
 * For [Maven](dokka-maven.md#generate-documentation), run the `dokka:dokka` goal.
 * For [CLI runner](dokka-cli.md#generate-documentation), run with HTML dependencies set.
 

@@ -43,9 +43,8 @@ plugins {
 </tab>
 </tabs>
 
-When documenting multi-project builds, you don't need to apply the plugin explicitly to every subproject you want to document.
-Instead, 
-Dokka expects you to share configuration across subprojects using convention plugins or manual configuration per subproject.
+When documenting multi-project builds, you need to apply the plugin explicitly to every subproject you want to document.
+You can configure Dokka directly in each subproject or share Dokka configuration across subprojects using a convention plugin.
 For more information, see 
 how to configure [single-project](#single-project-configuration) and [multi-project](#multi-project-configuration) builds.
 
@@ -129,12 +128,15 @@ or both formats at the same time:
    | Plugin `id` | `id("org.jetbrains.dokka")`               | `id("org.jetbrains.dokka-javadoc")`          | Use both HTML and Javadoc plugins |
    | Gradle task | `./gradlew :dokkaGeneratePublicationHtml` | `./gradlew :dokkaGeneratePublicationJavadoc` | `./gradlew :dokkaGenerate`        |
 
-    > The `dokkaGenerate` task generates documentation in all available formats based on the applied plugins.
+    > * The `dokkaGenerate` task generates documentation in all available formats based on the applied plugins.
     > If both the HTML and Javadoc plugins are applied, 
     > you can choose to generate only HTML by running the `dokkaGeneratePublicationHtml` task,
     > or only Javadoc by running the `dokkaGeneratePublicationJavadoc` task.
-    >
+    > 
     {style="tip"}
+
+If you're using IntelliJ IDEA, you may see the `dokkaGenerateHtml` Gradle task.
+This task is simply an alias of `dokkaGeneratePublicationHtml`. Both tasks perform exactly the same operation.
 
 ###  Aggregate documentation output in multi-project builds
 
