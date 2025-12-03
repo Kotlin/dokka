@@ -6,13 +6,13 @@
 		<toc-element topic="dokka-get-started.md"/>
 		<toc-element toc-title="Run Dokka">
 			<toc-element topic="dokka-gradle.md"/>
+			<toc-element topic="dokka-gradle-troubleshooting-md.md"/>
 			<toc-element topic="dokka-migration.md"/>
 			<toc-element topic="dokka-maven.md"/>
 			<toc-element topic="dokka-cli.md"/>
 		</toc-element>
 		<toc-element toc-title="Output formats">
 			<toc-element topic="dokka-html.md"/>
-			<toc-element topic="dokka-markdown.md"/>
 			<toc-element topic="dokka-javadoc.md"/>
 		</toc-element>
 		<toc-element topic="dokka-plugins.md"/>
