@@ -14,9 +14,7 @@ internal class KotlinPlaygroundSamplesScriptsInstaller(private val dokkaContext:
     private val kotlinPlaygroundServer =
         configuration<KotlinPlaygroundSamplesPlugin, KotlinPlaygroundSamplesConfiguration>(dokkaContext)?.kotlinPlaygroundServer
 
-    private val scriptsPages = listOf(
-        "scripts/kotlin-playground-samples.js"
-    )
+    private val scriptsPages = "scripts/kotlin-playground-samples.js"
 
     override fun invoke(input: RootPageNode): RootPageNode =
         input.let { root ->
@@ -27,21 +25,22 @@ internal class KotlinPlaygroundSamplesScriptsInstaller(private val dokkaContext:
                 } else {
                     val modifiedScript = modifyScript()
 
-                    root.modified(children = input.children + scriptsPages.map {
-                        RendererSpecificResourcePage(
-                            it,
-                            emptyList(),
-                            RenderingStrategy.Write(modifiedScript)
-                        )
-                    })
+                    root.modified(
+                        children = input.children +
+                                RendererSpecificResourcePage(
+                                    scriptsPages,
+                                    emptyList(),
+                                    RenderingStrategy.Write(modifiedScript)
+                                )
+                    )
                 }
             }
         }
 
     private fun modifyScript(): String {
-        val scriptContent = javaClass.getResource("/dokka/${scriptsPages.first()}")
+        val scriptContent = javaClass.getResource("/dokka/$scriptsPages")
             ?.readText()
-            ?: throw IllegalStateException("Script /dokka/${scriptsPages.first()} not found in resources")
+            ?: throw IllegalStateException("Script /dokka/$scriptsPages not found in resources")
 
         return scriptContent.replace(
             "const kotlinPlaygroundServer = null",
@@ -51,9 +50,7 @@ internal class KotlinPlaygroundSamplesScriptsInstaller(private val dokkaContext:
 }
 
 internal class KotlinPlaygroundSamplesStylesInstaller(private val dokkaContext: DokkaContext) : PageTransformer {
-    private val stylesPages = listOf(
-        "styles/kotlin-playground-samples.css"
-    )
+    private val stylesPages = "styles/kotlin-playground-samples.css"
 
     override fun invoke(input: RootPageNode): RootPageNode =
         input.let { root ->
@@ -62,5 +59,4 @@ internal class KotlinPlaygroundSamplesStylesInstaller(private val dokkaContext: 
         }
 }
 
-private fun List<String>.toRenderSpecificResourcePage(): List<RendererSpecificResourcePage> =
-    map { RendererSpecificResourcePage(it, emptyList(), RenderingStrategy.Copy("/dokka/$it")) }
+private fun String.toRenderSpecificResourcePage() = RendererSpecificResourcePage(this, emptyList(), RenderingStrategy.Copy("/dokka/$this"))
