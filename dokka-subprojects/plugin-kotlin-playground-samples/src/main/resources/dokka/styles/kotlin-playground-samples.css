@@ -1,0 +1,12 @@
+/*
+ * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+div.runnablesample {
+    height: fit-content;
+}
+
+/* Hide copy button for runnable samples, overlap with Kotlin Playground run button */
+.sample-container pre[runnable-code-sample] ~ .copy-tooltip {
+    display: none !important;
+}
