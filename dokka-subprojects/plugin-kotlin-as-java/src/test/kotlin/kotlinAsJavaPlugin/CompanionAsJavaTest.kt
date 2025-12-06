@@ -225,6 +225,35 @@ class CompanionAsJavaTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `companion object with only jvmStatic property should not be rendered`() {
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |import kotlin.properties.Delegates
+            |
+            |class MyClass {
+            |    companion object $COMPANION_NAME {
+            |       @JvmStatic var delegatedProp: String by Delegates.notNull<String>()
+            |    }
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val parentClass = module.findClass("MyClass")
+
+                val getter = parentClass.findFunction("getDelegatedProp")
+                assertNotNull(getter, "Parent class should contains the companion jvmStatic getter")
+                assertIsStatic(getter)
+                val setter = parentClass.findFunction("setDelegatedProp")
+                assertNotNull(setter, "Parent class should contains the companion jvmStatic setter")
+                assertCompanionNotRendered(parentClass)
+            }
+        }
+    }
+
+    @Test
     fun `companion object with nested classes is rendered`() {
         testInline(
             """
