@@ -9,11 +9,13 @@ import com.intellij.psi.javadoc.PsiDocTag
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.java.parsers.CommentResolutionContext
 import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.plugability.DokkaContext
 
 /**
  * Parses [PsiElement] of [PsiDocTag] into Dokka's [DocTag]
  */
 internal class PsiDocTagParser(
+    private val context: DokkaContext,
     private val inheritDocTagResolver: InheritDocTagResolver
 ) {
     fun parse(
@@ -36,8 +38,9 @@ internal class PsiDocTagParser(
     ): List<DocTag> {
         val docTagParserContext = DocTagParserContext()
 
-        val psiToHtmlConverter = PsiElementToHtmlConverter(inheritDocTagResolver)
-        val elementsHtml = psiToHtmlConverter.convert(psiElements, docTagParserContext, commentResolutionContext, sourceSet)
+        val psiToHtmlConverter = PsiElementToHtmlConverter(inheritDocTagResolver, sourceSet, context)
+
+        val elementsHtml = psiToHtmlConverter.convert(psiElements, docTagParserContext, commentResolutionContext)
             ?: return emptyList()
 
         val htmlToDocTagConverter = HtmlToDocTagConverter(docTagParserContext)

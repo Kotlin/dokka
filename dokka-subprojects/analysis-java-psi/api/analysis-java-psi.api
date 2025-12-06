@@ -37,6 +37,7 @@ public final class org/jetbrains/dokka/analysis/java/JavaAnalysisPlugin : org/je
 	public final fun getInheritDocTagContentProviders ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getKotlinLightMethodChecker ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getProjectProvider ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getSamplePsiFilesProvider ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getSourceRootsExtractor ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 }
 
@@ -62,6 +63,10 @@ public abstract interface class org/jetbrains/dokka/analysis/java/ProjectProvide
 
 public final class org/jetbrains/dokka/analysis/java/ReturnJavadocTag : org/jetbrains/dokka/analysis/java/JavadocTag {
 	public static final field INSTANCE Lorg/jetbrains/dokka/analysis/java/ReturnJavadocTag;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/java/SamplePsiFilesProvider {
+	public abstract fun getSamplePsiFiles (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Ljava/util/Set;
 }
 
 public final class org/jetbrains/dokka/analysis/java/SeeJavadocTag : org/jetbrains/dokka/analysis/java/JavadocTag {
@@ -141,6 +146,10 @@ public final class org/jetbrains/dokka/analysis/java/parsers/doctag/DocTagParser
 public abstract interface class org/jetbrains/dokka/analysis/java/parsers/doctag/InheritDocTagContentProvider {
 	public abstract fun canConvert (Lorg/jetbrains/dokka/analysis/java/doccomment/DocumentationContent;)Z
 	public abstract fun convertToHtml (Lorg/jetbrains/dokka/analysis/java/doccomment/DocumentationContent;Lorg/jetbrains/dokka/analysis/java/parsers/doctag/DocTagParserContext;)Ljava/lang/String;
+}
+
+public abstract interface class org/jetbrains/dokka/analysis/java/parsers/doctag/SnippetToHtmlConverter {
+	public abstract fun convertSnippet (Lcom/intellij/psi/javadoc/PsiSnippetDocTag;)Ljava/lang/String;
 }
 
 public final class org/jetbrains/dokka/analysis/java/util/PsiDocumentableSource : org/jetbrains/dokka/model/DocumentableSource {
