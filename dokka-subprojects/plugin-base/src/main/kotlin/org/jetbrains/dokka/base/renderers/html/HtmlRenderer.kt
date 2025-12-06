@@ -870,12 +870,7 @@ public open class HtmlRenderer(
                     code.children.forEach { buildContentNode(it, pageContext) }
                 }
             }
-            /*
-            Disable copy button on samples as:
-             - it is useless
-             - it overflows with playground's run button
-             */
-            if (!code.style.contains(ContentStyle.RunnableSample)) copyButton()
+            copyButton()
         }
     }
 

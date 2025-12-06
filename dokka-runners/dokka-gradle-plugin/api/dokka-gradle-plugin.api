@@ -369,6 +369,18 @@ public abstract class org/jetbrains/dokka/gradle/engine/plugins/DokkaHtmlPluginP
 public final class org/jetbrains/dokka/gradle/engine/plugins/DokkaHtmlPluginParameters$Companion {
 }
 
+public abstract class org/jetbrains/dokka/gradle/engine/plugins/DokkaKotlinPlaygroundSamplesParameters : org/jetbrains/dokka/gradle/engine/plugins/DokkaPluginParametersBaseSpec {
+	public static final field Companion Lorg/jetbrains/dokka/gradle/engine/plugins/DokkaKotlinPlaygroundSamplesParameters$Companion;
+	public static final field DOKKA_KOTLIN_PLAYGROUND_SAMPLES_PLUGIN_FQN Ljava/lang/String;
+	public static final field DOKKA_KOTLIN_PLAYGROUND_SAMPLES_PLUGIN_PARAMETERS_NAME Ljava/lang/String;
+	public abstract fun getKotlinPlaygroundScript ()Lorg/gradle/api/provider/Property;
+	public abstract fun getKotlinPlaygroundServer ()Lorg/gradle/api/provider/Property;
+	public fun jsonEncode ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/gradle/engine/plugins/DokkaKotlinPlaygroundSamplesParameters$Companion {
+}
+
 public abstract class org/jetbrains/dokka/gradle/engine/plugins/DokkaPluginParametersBaseSpec : java/io/Serializable, org/gradle/api/Named {
 	public fun getName ()Ljava/lang/String;
 	public fun getPluginFqn ()Ljava/lang/String;

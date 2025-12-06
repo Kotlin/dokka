@@ -230,7 +230,7 @@ internal fun PageContentBuilder.DocumentableContentBuilder.samplesSectionContent
         group(
             sourceSets = setOf(sourceSet),
             kind = ContentKind.Sample,
-            styles = setOf(TextStyle.Monospace, ContentStyle.RunnableSample),
+            styles = setOf(TextStyle.Monospace),
         ) {
             samples.filter { it.value.isEmpty() || sourceSet in it.value }
                 .forEach { text(text = it.key, sourceSets = setOf(sourceSet)) }

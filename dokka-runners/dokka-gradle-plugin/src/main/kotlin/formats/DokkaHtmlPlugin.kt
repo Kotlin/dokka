@@ -13,6 +13,8 @@ import org.gradle.kotlin.dsl.registerBinding
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters.Companion.DOKKA_HTML_PARAMETERS_NAME
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaKotlinPlaygroundSamplesParameters
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaKotlinPlaygroundSamplesParameters.Companion.DOKKA_KOTLIN_PLAYGROUND_SAMPLES_PLUGIN_PARAMETERS_NAME
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters.Companion.DOKKA_VERSIONING_PLUGIN_PARAMETERS_NAME
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
@@ -37,6 +39,7 @@ constructor(
     override fun DokkaFormatPluginContext.configure() {
         registerDokkaBasePluginConfiguration()
         registerDokkaVersioningPlugin()
+        registerDokkaKotlinPlaygroundSamplesPlugin()
         configureHtmlUrlLogging()
         configureModuleAggregation()
     }
@@ -64,6 +67,17 @@ constructor(
                 olderVersionsDirName.convention("older")
                 renderVersionsNavigationOnAllPages.convention(true)
             }
+        }
+    }
+
+    /** Register Dokka Kotlin Playground Samples Plugin */
+    private fun DokkaFormatPluginContext.registerDokkaKotlinPlaygroundSamplesPlugin() {
+        with(dokkaExtension.pluginsConfiguration) {
+            registerBinding(
+                DokkaKotlinPlaygroundSamplesParameters::class,
+                DokkaKotlinPlaygroundSamplesParameters::class
+            )
+            register<DokkaKotlinPlaygroundSamplesParameters>(DOKKA_KOTLIN_PLAYGROUND_SAMPLES_PLUGIN_PARAMETERS_NAME)
         }
     }
 
