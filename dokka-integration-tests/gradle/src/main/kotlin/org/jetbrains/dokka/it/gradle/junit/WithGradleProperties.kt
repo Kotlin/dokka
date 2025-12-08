@@ -36,6 +36,7 @@ fun interface GradlePropertiesProvider {
 
     object Android : GradlePropertiesProvider {
         override fun get(): Map<String, String> = buildMap {
+            putAll(Default.get())
             put("android.useAndroidX", "true")
         }
     }
