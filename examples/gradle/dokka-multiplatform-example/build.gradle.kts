@@ -8,7 +8,7 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.dokka.Platform
 
 plugins {
-    kotlin("multiplatform") version "2.3.0-RC2-323"
+    kotlin("multiplatform") version "2.3.0-RC3-345"
     id("org.jetbrains.dokka") version "2.1.0"
 }
 
