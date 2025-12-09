@@ -465,15 +465,17 @@ nested `build.gradle.kts` files and have a structure similar to the following:
 
 Single and multi-project documentation share the same 
 [configuration model using the top-level `dokka {}` DSL](#single-project-configuration).
-In multi-project builds, 
-you configure Dokka in the root project and can optionally share settings across subprojects.
 
-To share Dokka configuration across subprojects, you can use either:
+There are two ways of configuring Dokka in multi-project builds:
 
-* [Direct configuration in multi-project builds requiring convention plugins](#direct-configuration-in-multi-project-builds-requiring-convention-plugins)
-* [Convention plugins](#multi-project-builds-with-convention-plugins)
+* **[Shared configuration via a convention plugin](#shared-configuration-via-a-convention-plugin) (preferred)**: defining a convention plugin and applying it to all subprojects.
+  This centralizes your Dokka settings.
 
-After sharing Dokka configuration, you can aggregate the documentation from multiple subprojects into a single output. 
+* **[Manual configuration](#manual-configuration)**: applying the Dokka plugin and repeating the same `dokka {}` block
+  in each subproject. 
+  You don't need convention plugins.
+
+After configuring your subprojects, you can aggregate the documentation from multiple subprojects into a single output. 
 For more information, see
 [Aggregate documentation output in multi-project-builds](#aggregate-documentation-output-in-multi-project-builds).
 
@@ -481,14 +483,9 @@ For more information, see
 >
 {style="tip"}
 
-#### Direct configuration in multi-project builds requiring convention plugins
+#### Shared configuration via a convention plugin
 
-If your project doesn't use convention plugins, you can share Dokka configurations by directly configuring each subproject.
-This involves manually setting up the shared configuration in each subproject's `build.gradle.kts` file. 
-While this approach is less centralized,
-it avoids the need for additional setups like convention plugins.
-
-Follow the next steps to configure your multi-project builds without convention plugins.
+Follow the next steps to set up a convention plugin and apply it to your subprojects.
 
 ##### Set up the buildSrc directory
 
@@ -553,13 +550,22 @@ plugins {
 }
 ```
 
-#### Multi-project builds with convention plugins
+#### Manual configuration
 
-If you already have convention plugins, 
-create a dedicated Dokka convention plugin following [Gradle's documentation](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:convention_plugins).
+If your project doesn't use convention plugins, you can reuse the same Dokka configuration pattern by manually 
+copying the same `dokka {} block` into each subproject:
 
-Then, follow the steps to [set up the Dokka convention plugin](#set-up-the-dokka-convention-plugin) and
-[apply it across your subprojects](#apply-the-convention-plugin-to-your-subprojects).
+1. Apply the Dokka plugin in every subproject's `build.gradle.kts` file:
+
+   ```kotlin
+   plugins {
+       id("org.jetbrains.dokka") version "%dokkaVersion%"
+   }
+   ```
+
+2. Declare the shared configuration in each subproject's `dokka {}` block. Because there's no convention plugin centralizing 
+   the configuration, you duplicate any configuration you want across subprojects. For more information,
+   see [configuration options](#configuration-options).
 
 #### Parent project configuration
 
