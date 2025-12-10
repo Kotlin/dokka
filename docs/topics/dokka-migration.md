@@ -92,7 +92,7 @@ After updating the Dokka Gradle plugin to v2, follow the migration steps applica
 
 ### Adjust configuration options
 
-DGP v2 introduces some changes in the [Gradle configuration options](dokka-gradle.md#configuration-options). In the `build.gradle.kts` file, adjust the configuration 
+DGP v2 introduces some changes in the [Gradle configuration options](dokka-gradle-configuration-options.md). In the `build.gradle.kts` file, adjust the configuration 
 options according to your project setup.
 
 #### Top-level DSL configuration in DGP v2

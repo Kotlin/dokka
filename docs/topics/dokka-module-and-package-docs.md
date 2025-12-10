@@ -54,7 +54,7 @@ To pass these files to Dokka, you need to use the relevant **includes** option f
 <tabs group="build-script">
 <tab title="Gradle" group-key="gradle">
 
-Use the `includes` option in [General configuration](dokka-gradle.md#general-configuration).
+Use the `includes` option in [General configuration](dokka-gradle-configuration-options.md).
 
 </tab>
 
