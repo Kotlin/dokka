@@ -33,7 +33,7 @@ Let's have a look at how you can apply the [mathjax plugin](https://github.com/K
 to your project:
 
 <tabs group="build-script">
-<tab title="Kotlin" group-key="kotlin">
+<tab title="Gradle Kotlin DSL" group-key="kotlin">
 
 The way to apply Dokka plugins is:
 
@@ -54,7 +54,7 @@ dependencies {
 {style="note"}
 
 </tab>
-<tab title="Groovy" group-key="groovy">
+<tab title="Gradle Groovy DSL" group-key="groovy">
 
 ```groovy
 plugins {
@@ -131,7 +131,7 @@ Let's have a look at how you can configure the built-in HTML plugin by adding a 
 custom style sheets (`customStyleSheets` option), and a modified footer message (`footerMessage` option):
 
 <tabs group="build-script">
-<tab title="Kotlin" group-key="kotlin">
+<tab title="Gradle Kotlin DSL" group-key="kotlin">
 
 To configure Dokka plugins in a type-safe way, use the `dokka.pluginsConfiguration {}` block:
 
@@ -154,7 +154,7 @@ by [configuring custom plugins](https://github.com/Kotlin/dokka/blob/v2.1.0/exam
 Custom plugins enable additional processing or modifications to the documentation generation process.
 
 </tab>
-<tab title="Groovy" group-key="groovy">
+<tab title="Gradle Groovy DSL" group-key="groovy">
 
 ```groovy
 dokka {

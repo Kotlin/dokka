@@ -36,20 +36,30 @@ see [Multi-project configuration](dokka-gradle.md#multi-project-configuration).
 
 To generate documentation, run the following Gradle task:
 
-```Bash
+```bash
 ./gradlew :dokkaGenerate
 ```
 
-This task works for both single and multi-project builds. 
-You can use different tasks to generate output in [HTML](dokka-html.md), 
+This task works for both single and multi-project builds.
+
+Run the `dokkaGenerate` task from the aggregating project by prefixing the task with its project path. For example:
+
+```bash
+./gradlew :dokkaGenerate
+
+// OR
+
+./gradlew :aggregatingProject:dokkaGenerate
+```
+
+Avoid running `./gradlew dokkaGenerate` without a project path (`:`),
+as Gradle tries to run all `dokkaGenerate` tasks across the entire build, which may trigger unnecessary work.
+
+You can use different tasks to generate output in [HTML](dokka-html.md),
 [Javadoc](dokka-javadoc.md) or both [HTML and Javadoc](dokka-gradle.md#configure-documentation-output-format).
 
-**Set output directory** 
-
-By default, the output directory is set to `/build/dokka/html` for both multi-project and single-project builds, 
-but you can [configure it](dokka-gradle.md#general-configuration).
-
-To learn more about using Dokka with Gradle, see [Gradle](dokka-gradle.md).
+> To learn more about using Dokka with Gradle, see [Gradle](dokka-gradle.md).
+{style="tip"}
 
 </tab>
 <tab title="Gradle Groovy DSL" group-key="groovy">
@@ -85,20 +95,30 @@ see [Multi-project configuration](dokka-gradle.md#multi-project-configuration).
 
 To generate documentation, run the following Gradle task:
 
-```Bash
+```bash
 ./gradlew :dokkaGenerate
 ```
 
 This task works for both single and multi-project builds.
+
+Run the `dokkaGenerate` task from the aggregating project by prefixing the task with its project path. For example:
+
+```bash
+./gradlew :dokkaGenerate
+
+// OR
+
+./gradlew :aggregatingProject:dokkaGenerate
+```
+
+Avoid running `./gradlew dokkaGenerate` without a project path (`:`), 
+as Gradle tries to run all `dokkaGenerate` tasks across the entire build, which may trigger unnecessary work.
+
 You can use different tasks to generate output in [HTML](dokka-html.md),
 [Javadoc](dokka-javadoc.md) or both [HTML and Javadoc](dokka-gradle.md#configure-documentation-output-format).
 
-**Set output directory**
-
-By default, the output directory is set to `/build/dokka/html` for both multi-project and single-project builds,
-but you can [configure it](dokka-gradle.md#general-configuration).
-
-To learn more about using Dokka with Gradle, see [Gradle](dokka-gradle.md).
+> To learn more about using Dokka with Gradle, see [Gradle](dokka-gradle.md).
+{style="tip"}
 
 </tab>
 <tab title="Maven" group-key="mvn">

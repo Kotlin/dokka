@@ -1,5 +1,11 @@
 [//]: # (title: Migrate to Dokka Gradle plugin v2)
 
+> This page is only relevant if you are using DGPv1 and want to migrate to DGPv2. Starting from Dokka 2.1.0, DGP v2 is enabled by default.
+> If you are using Dokka 2.1.0 or later,
+> you can skip this page and go directly to the [Dokka Gradle docs](dokka-gradle.md).
+>
+{style="note"}
+
 The Dokka Gradle plugin (DGP) is a tool for generating comprehensive API documentation for Kotlin projects built with Gradle.
 
 DGP seamlessly processes both Kotlin's KDoc comments and Java's Javadoc comments to extract information and create 
@@ -31,12 +37,6 @@ Ensure that your project meets the minimum version requirements:
 | [Kotlin Gradle plugin](https://kotlinlang.org/docs/gradle-configure-project.html) | 1.9 or higher |
 
 ### Enable DGP v2
-
-> Starting from Dokka 2.1.0, DGP v2 is enabled by default.
-> If you are using or updating to Dokka 2.1.0 or later,
-> you can skip this step and go directly to [Migrate your project](#migrate-your-project).
->
-{style="note"}
 
 Update the Dokka version to %dokkaVersion% in the `plugins {}` block of your project’s `build.gradle.kts` file:
 
@@ -132,7 +132,7 @@ Configuration in DGP v2:
 The syntax of `build.gradle.kts` files differs from regular `.kt` files (such as those used for custom Gradle plugins) because Gradle's Kotlin DSL uses type-safe accessors.
 
 <tabs group="dokka-configuration">
-<tab title="Gradle configuration" group-key="gradle">
+<tab title="Gradle Kotlin DSL" group-key="kotlin">
 
 ```kotlin
 // build.gradle.kts
@@ -160,7 +160,7 @@ dokka {
 ```
 
 </tab>
-<tab title="Kotlin custom plugin" group-key="kotlin">
+<tab title="Kotlin custom plugin" group-key="kotlin custom">
 
 ```kotlin
 // CustomPlugin.kt
@@ -266,7 +266,7 @@ Configuration in DGP v2:
 The syntax of `build.gradle.kts` files differs from regular `.kt` files (such as those used for custom Gradle plugins) because Gradle's Kotlin DSL uses type-safe accessors.
 
 <tabs group="dokka-configuration">
-<tab title="Gradle configuration" group-key="gradle">
+<tab title="Gradle Kotlin DSL" group-key="kotlin">
 
 ```kotlin
 // build.gradle.kts
@@ -283,7 +283,7 @@ dokka {
 ```
 
 </tab>
-<tab title="Kotlin custom plugin" group-key="kotlin">
+<tab title="Kotlin custom plugin" group-key="kotlin custom">
 
 ```kotlin
 // CustomPlugin.kt
@@ -441,7 +441,7 @@ Configuration in DGP v2:
 The syntax of `build.gradle.kts` files differs from regular `.kt` files (such as those used for custom Gradle plugins) because Gradle's Kotlin DSL uses type-safe accessors.
 
 <tabs group="dokka-configuration">
-<tab title="Gradle configuration" group-key="gradle">
+<tab title="Gradle Kotlin DSL" group-key="kotlin">
 
 ```kotlin
 // build.gradle.kts
@@ -455,7 +455,7 @@ dokka {
 ```
 
 </tab>
-<tab title="Kotlin custom plugin" group-key="kotlin">
+<tab title="Kotlin custom plugin" group-key="kotlin custom">
 
 ```kotlin
 // CustomPlugin.kt

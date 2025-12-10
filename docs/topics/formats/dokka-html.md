@@ -52,7 +52,7 @@ your build tool or runner:
 HTML format is Dokka's base format, and you can include configuration options:
 
 <tabs group="build-script">
-<tab title="Kotlin" group-key="kotlin">
+<tab title="Gradle Kotlin DSL" group-key="kotlin">
 
 ```kotlin
 // build.gradle.kts
@@ -70,7 +70,7 @@ dokka {
 ```
 
 </tab>
-<tab title="Groovy" group-key="groovy">
+<tab title="Gradle Groovy DSL" group-key="groovy">
 
 ```groovy
 // build.gradle

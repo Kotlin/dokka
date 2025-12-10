@@ -1,5 +1,12 @@
 [//]: # (title: Dokka Gradle troubleshooting)
 
+This page describes common issues you may encounter when generating documentation with Dokka in a Gradle build.
+
+If your issue is not listed here, report any feedback or problems in our [issue tracker](https://kotl.in/dokka-issues) 
+or chat with the Dokka community in the official [Kotlin Slack](https://kotlinlang.slack.com/). Get a Slack invite [here](https://kotl.in/slack).
+
+## Memory issues
+
 In large projects, Dokka can consume a significant amount of memory to generate documentation.
 This can exceed Gradle’s memory limits, especially when processing large volumes of data.
 

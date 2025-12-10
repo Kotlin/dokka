@@ -30,7 +30,7 @@ and you can find the source code on [GitHub](https://github.com/Kotlin/dokka/tre
 
 
 <tabs group="build-script">
-<tab title="Gradle" group-key="kotlin">
+<tab title="Gradle Kotlin DSL" group-key="kotlin">
 
 The [Gradle plugin for Dokka](dokka-gradle.md) comes with the Javadoc output format included. 
 You need to apply the corresponding plugin id in the `plugins {}` block of your project's `build.gradle.kts` file:
