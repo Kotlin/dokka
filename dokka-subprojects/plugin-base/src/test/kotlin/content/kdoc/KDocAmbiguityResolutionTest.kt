@@ -26,8 +26,8 @@ import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.model.firstChildOfType
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ContentDRILink
-import org.jetbrains.dokka.pages.ContentGroup
 import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.pages.MemberPageNode
 import utils.OnlySymbols
 import utils.findTestType
 import kotlin.test.Test
@@ -553,6 +553,128 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
                             }
                         }
                         skipAllNotMatching()
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `#3632 KDoc reference to extension`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |open class A
+            |class B : A()
+            |
+            |fun B.foo() {}
+            |fun A.foo() {}
+            |
+            |/**
+            | * [foo]
+            | */
+            |fun A.bar() {}
+            |}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val extensionPage = module.findTestType("test", "bar") {
+                    it.dri.toString() == "[test//bar/test.A#/PointingToDeclaration/]"
+                }
+                extensionPage.content.assertNode {
+                    group {
+                        header(1) { +"bar" }
+                    }
+
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"fun "
+                                groupedLink { +"A" }
+                                +"."
+                                link { +"bar" }
+                                +"()"
+                            }
+                            group4 {
+                                link {
+                                    check {
+                                        assertEquals(
+                                            DRI(
+                                                "test", null,
+                                                Callable(
+                                                    "foo",
+                                                    TypeConstructor("test.B", emptyList()),
+                                                    emptyList()
+                                                )
+                                            ),
+                                            (this as ContentDRILink).address
+                                        )
+                                    }
+                                    +"foo"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `#3632 KDoc reference to member in extension`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |class A {
+            |    val a = 0
+            |}
+            |
+            |class B {
+            |    val a = 0
+            |    
+            |    /**
+            |     * [a]
+            |     */
+            |    fun A.foo() {}
+            |}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val extensionPage = module.findTestType("test", "B")
+                    .firstChildOfType<MemberPageNode> {
+                        it.dri.toString() == "[test/B/foo/test.A#/PointingToDeclaration/]"
+                    }
+                extensionPage.content.assertNode {
+                    group {
+                        header(1) { +"foo" }
+                    }
+
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"fun "
+                                groupedLink { +"A" }
+                                +"."
+                                link { +"foo" }
+                                +"()"
+                            }
+                            group4 {
+                                link {
+                                    check {
+                                        assertEquals(
+                                            DRI(
+                                                "test", "A",
+                                                Callable("a", null, emptyList(), isProperty = true)
+                                            ),
+                                            (this as ContentDRILink).address
+                                        )
+                                    }
+                                    +"a"
+                                }
+                            }
+                        }
                     }
                 }
             }
