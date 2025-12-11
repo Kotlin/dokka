@@ -35,15 +35,23 @@ dokka {
         suppressInheritedMembers.set(false)
         offlineMode.set(false)
         suppressObviousFunctions.set(true)
-        includes.from(project.files(), "packages.md", "extra.md")
-
+        includes.from("packages.md", "extra.md")
+        
         // Output directory for additional files
         // Use this block when you want to change the output directory and include extra files
         outputDirectory.set(rootDir.resolve("docs/api/0.x"))
-        includes.from(project.layout.projectDirectory.file("README.md"))
+        
+        // Use fileTree to add multiple files
+        includes.from(
+            fileTree("docs") {
+                include("**/*.md")
+            }
+        )
     }
 }
 ```
+
+For more information about working with files, see the [Gradle docs](https://docs.gradle.org/current/userguide/working_with_files.html#sec:file_trees).
 
 </tab>
 <tab title="Kotlin custom plugin" group-key="kotlin custom">
@@ -71,7 +79,7 @@ abstract class CustomPlugin : Plugin<Project> {
                 publication.suppressInheritedMembers.set(true)
                 publication.offlineMode.set(false)
                 publication.suppressObviousFunctions.set(true)
-                publication.includes.from(project.files(), "packages.md", "extra.md")
+                publication.includes.from("packages.md", "extra.md")
 
                 // Output directory for additional files
                 // Use this block when you want to change the output directory and include extra files
@@ -247,8 +255,8 @@ dokka {
             languageVersion.set("1.7")
             apiVersion.set("1.7")
             sourceRoots.from(file("src"))
-            classpath.from(project.files(), file("libs/dependency.jar"))
-            samples.from(project.files(), "samples/Basic.kt", "samples/Advanced.kt")
+            classpath.from(file("libs/dependency.jar"))
+            samples.from("samples/Basic.kt", "samples/Advanced.kt")
            
             sourceLink {
                 // Source link section
@@ -294,8 +302,8 @@ dokka {
             languageVersion.set("1.7")
             apiVersion.set("1.7")
             sourceRoots.from(file("src"))
-            classpath.from(files(), file("libs/dependency.jar"))
-            samples.from(files(), "samples/Basic.kt", "samples/Advanced.kt")
+            classpath.from(file("libs/dependency.jar"))
+            samples.from("samples/Basic.kt", "samples/Advanced.kt")
 
             sourceLink {
                 // Source link section
@@ -728,7 +736,7 @@ dokka {
         suppressInheritedMembers.set(false)
         offlineMode.set(false)
         suppressObviousFunctions.set(true)
-        includes.from(project.files(), "packages.md", "extra.md")
+        includes.from("packages.md", "extra.md")
    }
 
     dokkaSourceSets {
@@ -750,8 +758,8 @@ dokka {
             languageVersion.set("1.7")
             apiVersion.set("1.7")
             sourceRoots.from(file("src"))
-            classpath.from(project.files(), file("libs/dependency.jar"))
-            samples.from(project.files(), "samples/Basic.kt", "samples/Advanced.kt")
+            classpath.from(file("libs/dependency.jar"))
+            samples.from("samples/Basic.kt", "samples/Advanced.kt")
 
             sourceLink {
                 localDirectory.set(file("src/main/kotlin"))
@@ -804,7 +812,7 @@ dokka {
             suppressInheritedMembers.set(false)
             offlineMode.set(false)
             suppressObviousFunctions.set(true)
-            includes.from(files(), "packages.md", "extra.md")
+            includes.from("packages.md", "extra.md")
         }
     }
 
@@ -827,8 +835,8 @@ dokka {
             languageVersion.set("1.7")
             apiVersion.set("1.7")
             sourceRoots.from(file("src"))
-            classpath.from(files(), file("libs/dependency.jar"))
-            samples.from(files(), "samples/Basic.kt", "samples/Advanced.kt")
+            classpath.from(file("libs/dependency.jar"))
+            samples.from("samples/Basic.kt", "samples/Advanced.kt")
 
             sourceLink {
                 localDirectory.set(file("src/main/kotlin"))
