@@ -17,6 +17,7 @@ import matchers.content.header
 import matchers.content.link
 import matchers.content.platformHinted
 import matchers.content.skipAllNotMatching
+import matchers.content.table
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
@@ -25,6 +26,7 @@ import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.model.firstChildOfType
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ContentDRILink
+import org.jetbrains.dokka.pages.ContentGroup
 import org.jetbrains.dokka.pages.ContentPage
 import utils.OnlySymbols
 import utils.findTestType
@@ -484,6 +486,74 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
                         }
                     }
                     skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `#3604 KDoc reference to class from constructor`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |class A {
+            |/**
+            | * [A]
+            | */
+            |constructor(val a: Int)
+            |}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val classPage = module.findTestType("test", "A") {
+                    it.dri.toString() == "[test/A///PointingToDeclaration/]"
+                }
+                classPage.content.assertNode {
+                    group {
+                        header(1) { +"A" }
+
+                        platformHinted {
+                            group {
+                                +"class "
+                                link { +"A" }
+                            }
+                        }
+                    }
+
+                    group {
+                        group2 {
+                            header(2) { +"Constructors" }
+
+                            table {
+                                group {
+                                    link { +"A" }
+                                    platformHinted {
+                                        group {
+                                            +"constructor("
+                                            group2 {
+                                                +"a: "
+                                                groupedLink { +"Int" }
+                                            }
+                                            +")"
+                                        }
+                                        group3 {
+                                            link {
+                                                check {
+                                                    assertEquals(
+                                                        DRI("test", "A"),
+                                                        (this as ContentDRILink).address
+                                                    )
+                                                }
+                                                +"A"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        skipAllNotMatching()
+                    }
                 }
             }
         }
