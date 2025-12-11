@@ -79,6 +79,9 @@ internal fun createAnalysisSession(
     projectDisposable: Disposable = Disposer.newDisposable("StandaloneAnalysisAPISession.project"),
     isSampleProject: Boolean = false
 ): KotlinAnalysis {
+    // Enable experimental KDoc resolution in Kotlin Analysis API (K2)
+    System.setProperty("kotlin.analysis.experimentalKDocResolution", "true")
+
     val sourcesModule = mutableMapOf<DokkaConfiguration.DokkaSourceSet, KaSourceModule>()
     val isMultiplatformProject = sourceSets.any { it.analysisPlatform != Platform.jvm }
 

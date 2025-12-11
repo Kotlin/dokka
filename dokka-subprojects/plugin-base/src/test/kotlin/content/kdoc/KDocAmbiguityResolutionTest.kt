@@ -20,15 +20,18 @@ import matchers.content.skipAllNotMatching
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.PointingToCallableParameters
 import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.model.firstChildOfType
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.ContentPage
+import utils.OnlySymbols
 import utils.findTestType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@OnlySymbols("New KDoc resolution")
 class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     private val testConfiguration = dokkaConfiguration {
         sourceSets {
@@ -396,6 +399,87 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
                                     +"B"
                                 }
                                 +" leads to the inner class"
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `#3179 KDoc link to property and parameter`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |/**
+            | * Link to param [a]
+            | *
+            | * Link to property [A.a]
+            | */
+            |class A(val a: Int)
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val classPage = module.findTestType("test", "A") {
+                    it.dri.toString() == "[test/A///PointingToDeclaration/]"
+                }
+                classPage.content.assertNode {
+                    group {
+                        header(1) { +"A" }
+
+                        platformHinted {
+                            group {
+                                +"class "
+                                link { +"A" }
+                                +"("
+                                group2 {
+                                    +"val a: "
+                                    groupedLink { +"Int" }
+                                }
+                                +")"
+                            }
+
+                            group3 {
+                                group {
+                                    +"Link to param "
+                                    link {
+                                        check {
+                                            assertEquals(
+                                                DRI(
+                                                    "test", "A",
+                                                    Callable(
+                                                        "",
+                                                        null,
+                                                        listOf(
+                                                            TypeConstructor("kotlin.Int", emptyList()),
+                                                        )
+                                                    ),
+                                                    PointingToCallableParameters(0)
+                                                ),
+                                                (this as ContentDRILink).address
+                                            )
+                                        }
+                                        +"a"
+                                    }
+                                }
+                                group {
+                                    +"Link to property "
+                                    link {
+                                        check {
+                                            assertEquals(
+                                                DRI(
+                                                    "test", "A",
+                                                    Callable("a", null, emptyList(), isProperty = true)
+                                                ),
+                                                (this as ContentDRILink).address
+                                            )
+                                        }
+                                        +"A.a"
+                                    }
+                                }
                             }
                         }
                     }
