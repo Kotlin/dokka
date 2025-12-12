@@ -680,4 +680,58 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `#4327 KDoc reference to properties named the same as constructor parameters`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |class A(a: Int) {
+            |    val a = 0
+            |
+            |   /**
+            |    * [a]
+            |    */
+            |   fun foo() {}
+            |}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val extensionPage = module.findTestType("test", "A")
+                    .firstChildOfType<MemberPageNode> {
+                        it.dri.toString() == "[test/A/foo/#/PointingToDeclaration/]"
+                    }
+                extensionPage.content.assertNode {
+                    group {
+                        header(1) { +"foo" }
+                    }
+
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"fun "
+                                link { +"foo" }
+                                +"()"
+                            }
+                            group4 {
+                                link {
+                                    check {
+                                        assertEquals(
+                                            DRI(
+                                                "test", "A",
+                                                Callable("a", null, emptyList(), isProperty = true)
+                                            ),
+                                            (this as ContentDRILink).address
+                                        )
+                                    }
+                                    +"a"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
