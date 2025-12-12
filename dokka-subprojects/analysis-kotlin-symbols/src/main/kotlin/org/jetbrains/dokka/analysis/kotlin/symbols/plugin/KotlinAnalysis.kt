@@ -4,6 +4,7 @@
 
 package org.jetbrains.dokka.analysis.kotlin.symbols.plugin
 
+import com.intellij.diagnostic.LoadingState
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.util.Disposer
 import org.jetbrains.dokka.DokkaConfiguration
@@ -79,8 +80,7 @@ internal fun createAnalysisSession(
     projectDisposable: Disposable = Disposer.newDisposable("StandaloneAnalysisAPISession.project"),
     isSampleProject: Boolean = false
 ): KotlinAnalysis {
-    // Enable experimental KDoc resolution in Kotlin Analysis API (K2)
-    System.setProperty("kotlin.analysis.experimentalKDocResolution", "true")
+    enableExperimentalKDocResolution()
 
     val sourcesModule = mutableMapOf<DokkaConfiguration.DokkaSourceSet, KaSourceModule>()
     val isMultiplatformProject = sourceSets.any { it.analysisPlatform != Platform.jvm }
@@ -197,4 +197,10 @@ internal fun topologicalSortByDependantSourceSets(
     }
     sourceSets.forEach(::dfs)
     return result
+}
+
+private fun enableExperimentalKDocResolution() {
+    // Enable experimental KDoc resolution in Kotlin Analysis API (K2)
+    LoadingState.setCurrentState(LoadingState.COMPONENTS_LOADED)
+    System.setProperty("kotlin.analysis.experimentalKDocResolution", "true")
 }
