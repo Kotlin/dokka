@@ -21,7 +21,6 @@ import matchers.content.table
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.PointingToCallableParameters
 import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.model.firstChildOfType
 import org.jetbrains.dokka.pages.ClasslikePageNode
@@ -33,7 +32,7 @@ import utils.findTestType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OnlySymbols("New KDoc resolution")
+@OnlySymbols("KEEP #389: New KDoc resolution")
 class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     private val testConfiguration = dokkaConfiguration {
         sourceSets {

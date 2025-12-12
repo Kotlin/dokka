@@ -532,7 +532,8 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `fully qualified link should lead to package`() {
+    @OnlyDescriptors("KEEP #389: New KDoc resolution")
+    fun `fully qualified link should lead to package K1`() {
         // for the test case, there is the only one link candidate in K1 and K2
         testInline(
             """
@@ -610,6 +611,90 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("KEEP #389: New KDoc resolution")
+    fun `fully qualified link should lead to package K2`() {
+        // for the test case, there is the only one link candidate in K1 and K2
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |
+            |/**
+            | * refs to the function [example.fn] and the property [example.x]
+            | */
+            |val x = 0
+            |
+            |/**
+            | * refs to the function [example.fn] and the property [example.x]
+            | */
+            |fun fn(p: Int){}
+            |
+            |/src/main/kotlin/Testing2.kt
+            |package example.fn
+            |
+            |fun fn(p: Int){}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val propDocs =
+                    module.packages.flatMap { it.properties }.first { it.name == "x" }.documentation.values.first()
+
+                val fnDocs =
+                    module.packages.first { it.name == "example" }.functions.first { it.name == "fn" }.documentation.values.first()
+
+                val expected = Description(
+                    root = CustomDocTag(
+                        children = listOf(
+                            P(
+                                children = listOf(
+                                    Text("refs to the function "),
+                                    DocumentationLink(
+                                        dri = DRI(
+                                            packageName = "example",
+                                            classNames = null,
+                                            callable = Callable(
+                                                "fn",
+                                                params = listOf(TypeConstructor("kotlin.Int", emptyList()))
+                                            ),
+                                            target = PointingToDeclaration,
+                                        ),
+                                        children = listOf(
+                                            Text("example.fn")
+                                        ),
+                                        params = mapOf("href" to "[example.fn]")
+                                    ),
+                                    Text(" and the property "),
+                                    DocumentationLink(
+                                        dri = DRI(
+                                            packageName = "example",
+                                            classNames = null,
+                                            target = PointingToDeclaration,
+                                            callable = Callable(
+                                                "x",
+                                                params = emptyList(),
+                                                isProperty = true
+                                            )
+                                        ),
+                                        children = listOf(
+                                            Text("example.x")
+                                        ),
+                                        params = mapOf("href" to "[example.x]")
+                                    )
+                                )
+                            )
+                        ),
+                        name = "MARKDOWN_FILE"
+                    )
+                )
+                assertEquals(expected, propDocs.children.first())
+                assertEquals(expected, fnDocs.children.first())
+            }
+        }
+    }
+
+
+    @Test
     fun `short link should lead to class rather than package`() {
         testInline(
             """
@@ -659,6 +744,7 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlyDescriptors("KEEP #389: New KDoc resolution")
     fun `short link should lead to package rather than function`() {
         testInline(
             """
@@ -689,6 +775,60 @@ class LinkTest : BaseAbstractTest() {
                                         dri = DRI(
                                             packageName = "example",
                                             classNames = null,
+                                            target = PointingToDeclaration,
+                                        ),
+                                        children = listOf(
+                                            Text("example")
+                                        ),
+                                        params = mapOf("href" to "[example]")
+                                    ),
+                                )
+                            )
+                        ),
+                        name = "MARKDOWN_FILE"
+                    )
+                )
+                assertEquals(expected, propDocs.children.first())
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols("KEEP #389: New KDoc resolution")
+    fun `short link should lead to package rather than function K2`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |
+            |/**
+            | * refs to the function [example]
+            | */
+            |val x = 0
+            |
+            |fun example() {}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val propDocs =
+                    module.packages.flatMap { it.properties }.first { it.name == "x" }.documentation.values.first()
+
+
+                val expected = Description(
+                    root = CustomDocTag(
+                        children = listOf(
+                            P(
+                                children = listOf(
+                                    Text("refs to the function "),
+                                    DocumentationLink(
+                                        dri = DRI(
+                                            packageName = "example",
+                                            classNames = null,
+                                            callable = Callable(
+                                                "example",
+                                                params = emptyList()
+                                            ),
                                             target = PointingToDeclaration,
                                         ),
                                         children = listOf(
