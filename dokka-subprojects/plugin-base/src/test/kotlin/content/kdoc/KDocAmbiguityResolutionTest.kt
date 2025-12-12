@@ -411,13 +411,13 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `#3179 KDoc link to property and parameter`() {
+    fun `#3179 KDoc link to property`() {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
             |package test
             |/**
-            | * Link to param [a]
+            | * Link to property [a]
             | *
             | * Link to property [A.a]
             | */
@@ -446,20 +446,13 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
 
                             group3 {
                                 group {
-                                    +"Link to param "
+                                    +"Link to property "
                                     link {
                                         check {
                                             assertEquals(
                                                 DRI(
                                                     "test", "A",
-                                                    Callable(
-                                                        "",
-                                                        null,
-                                                        listOf(
-                                                            TypeConstructor("kotlin.Int", emptyList()),
-                                                        )
-                                                    ),
-                                                    PointingToCallableParameters(0)
+                                                    Callable("a", null, emptyList(), isProperty = true)
                                                 ),
                                                 (this as ContentDRILink).address
                                             )
@@ -490,6 +483,56 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `#3179 KDoc link to parameter`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            |/**
+            | * @param a link to parameter
+            | */
+            |class A(val a: Int)
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val classPage = module.findTestType("test", "A") {
+                    it.dri.toString() == "[test/A///PointingToDeclaration/]"
+                }
+                classPage.content.assertNode {
+                    group {
+                        header(1) { +"A" }
+
+                        platformHinted {
+                            group {
+                                +"class "
+                                link { +"A" }
+                                +"("
+                                group2 {
+                                    +"val a: "
+                                    groupedLink { +"Int" }
+                                }
+                                +")"
+                            }
+
+                            header(4) { +"Parameters" }
+                            table {
+                                group {
+                                    +"a"
+                                    group2 {
+                                        +"link to parameter"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+
 
     @Test
     fun `#3604 KDoc reference to class from constructor`() {
