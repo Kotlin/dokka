@@ -189,7 +189,8 @@ class JavadocParserTest : BaseAbstractTest() {
                             listOf(
                                 Text(body = "@"),
                                 Text(body = "Entity\npublic class User {}\n")
-                            )
+                            ),
+                            params = mapOf("lang" to "java")
                         )
                     ),
                     root.children

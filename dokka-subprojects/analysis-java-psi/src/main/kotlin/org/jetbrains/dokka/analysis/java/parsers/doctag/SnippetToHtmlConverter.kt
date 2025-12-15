@@ -81,8 +81,7 @@ internal class DefaultSnippetToHtmlConverter(
 
         val attributeList = value.attributeList
 
-        // TODO add lang attribute to pre tag
-        //The latter, lang, identifies the language of the code snippet, adding a CSS class language-<value of lang> to the <code> tag of the output.
+        val lang = attributeList.getAttribute(PsiSnippetAttribute.LANG_ATTRIBUTE)?.value?.value
 
         val inlineSnippet = value.body?.content
 
@@ -151,7 +150,7 @@ internal class DefaultSnippetToHtmlConverter(
             parsedSnippet = SNIPPET_NOT_RESOLVED
         }
 
-        return "<pre>$parsedSnippet</pre>"
+        return "<pre${if (lang != null) " lang=\"$lang\"" else ""}>$parsedSnippet</pre>"
     }
 
     /**
