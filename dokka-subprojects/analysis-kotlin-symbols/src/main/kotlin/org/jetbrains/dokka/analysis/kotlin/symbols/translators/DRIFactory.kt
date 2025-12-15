@@ -4,6 +4,7 @@
 
 package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
+import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.links.*
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaSession
@@ -94,6 +95,15 @@ internal fun KaSession.getDRIFromValueParameter(symbol: KaValueParameterSymbol):
     return funDRI.copy(target = PointingToCallableParameters(index))
 }
 
+@OptIn(KaExperimentalApi::class)
+internal fun KaSession.getDRIFromContextParameter(symbol: KaContextParameterSymbol): DRI {
+    val function = (symbol.containingSymbol as? KaFunctionSymbol)
+        ?: throw IllegalStateException("Containing symbol is null for type parameter")
+    val index = function.contextParameters.indexOfFirst { it.name == symbol.name }
+    val funDRI = getDRIFromFunction(function)
+    return funDRI.copy(target = @OptIn(ExperimentalDokkaApi::class) PointingToContextParameters(index))
+}
+
 /**
  * @return [DRI] to receiver type
  */
@@ -118,10 +128,13 @@ private fun KaSession.getDRIFromReceiverType(type: KaType): DRI {
 internal fun KaSession.getDRIFromSymbol(symbol: KaSymbol): DRI =
     when (symbol) {
         is KaEnumEntrySymbol -> getDRIFromEnumEntry(symbol)
-        is KaReceiverParameterSymbol -> getDRIFromReceiverParameter(symbol)
+        is KaParameterSymbol -> @OptIn(KaExperimentalApi::class) when (symbol) {
+            is KaReceiverParameterSymbol -> getDRIFromReceiverParameter(symbol)
+            is KaValueParameterSymbol -> getDRIFromValueParameter(symbol)
+            is KaContextParameterSymbol -> getDRIFromContextParameter(symbol)
+        }
         is KaTypeParameterSymbol -> getDRIFromTypeParameter(symbol)
         is KaConstructorSymbol -> getDRIFromConstructor(symbol)
-        is KaValueParameterSymbol -> getDRIFromValueParameter(symbol)
         is KaVariableSymbol -> getDRIFromVariable(symbol)
         is KaFunctionSymbol -> getDRIFromFunction(symbol)
         is KaClassLikeSymbol -> getDRIFromClassLike(symbol)
