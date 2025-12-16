@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Documentation</title>
+    <!-- Webpack will include styles here if you use MiniCssExtractPlugin -->
+    <!-- Or you can also replace this with a placeholder if paths change -->
+</head>
+<body>
+<!-- Kotlin will insert the renderToString result here -->
+<div id="root"><!-- APP_CONTENT_PLACEHOLDER --></div>
+
+<!-- Kotlin should insert the JSON data here -->
+<script>
+  window.__INITIAL_DATA__ = <!-- APP_DATA_PLACEHOLDER -->;
+</script>
+
+<!-- Link to the JS bundle that Webpack builds from src/client/index.tsx -->
+<script src="client.js"></script>
+</body>
+</html>
