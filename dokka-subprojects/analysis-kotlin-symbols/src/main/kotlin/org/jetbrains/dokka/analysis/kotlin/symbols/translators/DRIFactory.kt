@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.analysis.api.types.*
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
+import kotlin.NotImplementedError
 
 internal fun ClassId.createDRI(): DRI = DRI(
     packageName = this.packageFqName.asString(), classNames = this.relativeClassName.asString()
@@ -127,17 +128,30 @@ private fun KaSession.getDRIFromReceiverType(type: KaType): DRI {
 
 internal fun KaSession.getDRIFromSymbol(symbol: KaSymbol): DRI =
     when (symbol) {
-        is KaEnumEntrySymbol -> getDRIFromEnumEntry(symbol)
-        is KaParameterSymbol -> @OptIn(KaExperimentalApi::class) when (symbol) {
+        is KaDeclarationSymbol -> @OptIn(KaExperimentalApi::class) when (symbol) {
+            is KaAnonymousFunctionSymbol -> throw NotImplementedError()
+            is KaConstructorSymbol -> getDRIFromConstructor(symbol)
+            is KaNamedFunctionSymbol -> getDRIFromFunction(symbol)
+            is KaPropertyGetterSymbol -> getDRIFromFunction(symbol)
+            is KaPropertySetterSymbol -> getDRIFromFunction(symbol)
+            is KaSamConstructorSymbol -> throw NotImplementedError()
+            is KaBackingFieldSymbol -> throw NotImplementedError()
+            is KaEnumEntrySymbol -> getDRIFromEnumEntry(symbol)
+            is KaJavaFieldSymbol -> getDRIFromVariable(symbol)
+            is KaLocalVariableSymbol -> throw NotImplementedError()
+            is KaContextParameterSymbol -> getDRIFromContextParameter(symbol)
             is KaReceiverParameterSymbol -> getDRIFromReceiverParameter(symbol)
             is KaValueParameterSymbol -> getDRIFromValueParameter(symbol)
-            is KaContextParameterSymbol -> getDRIFromContextParameter(symbol)
+            is KaKotlinPropertySymbol -> getDRIFromVariable(symbol)
+            is KaSyntheticJavaPropertySymbol -> getDRIFromVariable(symbol)
+            is KaClassInitializerSymbol -> throw NotImplementedError()
+            is KaAnonymousObjectSymbol -> throw NotImplementedError()
+            is KaNamedClassSymbol -> getDRIFromClassLike(symbol)
+            is KaTypeAliasSymbol -> getDRIFromClassLike(symbol)
+            is KaTypeParameterSymbol -> getDRIFromTypeParameter(symbol)
+            is KaDestructuringDeclarationSymbol -> throw NotImplementedError()
+            is KaScriptSymbol -> throw NotImplementedError()
         }
-        is KaTypeParameterSymbol -> getDRIFromTypeParameter(symbol)
-        is KaConstructorSymbol -> getDRIFromConstructor(symbol)
-        is KaVariableSymbol -> getDRIFromVariable(symbol)
-        is KaFunctionSymbol -> getDRIFromFunction(symbol)
-        is KaClassLikeSymbol -> getDRIFromClassLike(symbol)
         is KaPackageSymbol -> getDRIFromPackage(symbol)
         else -> throw IllegalStateException("Unknown symbol while creating DRI $symbol")
     }
