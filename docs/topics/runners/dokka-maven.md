@@ -56,7 +56,7 @@ By default, the Maven plugin for Dokka builds documentation in [HTML](dokka-html
 All other output formats are implemented as [Dokka plugins](dokka-plugins.md). In order to generate documentation in the 
 desired format, you have to add it as a Dokka plugin to the configuration.
 
-For example, to use the experimental [GFM](https://github.com/Kotlin/dokka/blob/8e5c63d035ef44a269b8c43430f43f5c8eebfb63/dokka-subprojects/plugin-gfm/README.md) format, you have to add `gfm-plugin` artifact:
+For example, to use the experimental [GFM](https://github.com/Kotlin/dokka/tree/master/dokka-subprojects/plugin-gfm#readme) format, you have to add `gfm-plugin` artifact:
 
 ```xml
 <plugin>

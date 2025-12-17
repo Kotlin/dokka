@@ -1,7 +1,7 @@
 [//]: # (title: Dokka plugins)
 
-> This guide applies to Dokka Gradle plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
-> If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
+> This guide applies to Dokka Gradle plugin (DGP) v2 mode. The DGP v1 mode is no longer supported.
+> To upgrade from v1 to v2 mode, follow the [Migration guide](dokka-migration.md).
 >
 {style="note"}
 
@@ -19,7 +19,7 @@ If you want to learn how to create Dokka plugins, see
 ## Apply Dokka plugins
 
 Dokka plugins are published as separate artifacts, so to apply a Dokka plugin, you only need to add it as a dependency. 
-From there, the plugin extends Dokka by itself—no further action is needed.
+From there, the plugin extends Dokka by itself – no further action is needed.
 
 > Plugins that use the same extension points or work in a similar way can interfere with each other.
 > This may lead to visual bugs, general undefined behavior or even failed builds. However, it should not lead to 
@@ -35,8 +35,6 @@ to your project:
 <tabs group="build-script">
 <tab title="Gradle Kotlin DSL" group-key="kotlin">
 
-The way to apply Dokka plugins is:
-
 ```kotlin
 plugins {
     id("org.jetbrains.dokka") version "%dokkaVersion%"
@@ -47,7 +45,7 @@ dependencies {
 }
 ```
 
-> * Built-in plugins (like HTML and Javadoc) are always applied automatically. You only configure them and do not need dependencies for them.
+> * Built-in plugins (like HTML and Javadoc) are always applied automatically. You only configure them and do not need to declare dependencies on them.
 >
 > * When documenting multi-module projects (multi-project builds), you need to [share Dokka configuration and plugins across subprojects](dokka-gradle.md#multi-project-configuration).
 > 
@@ -149,9 +147,8 @@ For an example of Dokka plugins configuration, see the
 [Dokka's versioning plugin](https://github.com/Kotlin/dokka/tree/master/examples/gradle-v2/versioning-multimodule-example).
 
 Dokka allows you 
-to extend its functionality 
-by [configuring custom plugins](https://github.com/Kotlin/dokka/blob/v2.1.0/examples/gradle-v2/custom-dokka-plugin-example/demo-library/build.gradle.kts).
-Custom plugins enable additional processing or modifications to the documentation generation process.
+to extend its functionality
+and modify the documentation generation process by [configuring custom plugins](https://github.com/Kotlin/dokka/blob/v2.1.0/examples/gradle-v2/custom-dokka-plugin-example/demo-library/build.gradle.kts).
 
 </tab>
 <tab title="Gradle Groovy DSL" group-key="groovy">

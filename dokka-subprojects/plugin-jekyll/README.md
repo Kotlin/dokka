@@ -1,11 +1,11 @@
 # Jekyll plugin
 
-> This content applies to Dokka Gradle plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
-> If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
+> The following applies to Dokka Gradle plugin (DGP) v2 mode. The DGP v1 mode is no longer supported.
+> To upgrade from v1 to v2 mode, follow the [Migration guide](dokka-migration.md).
 
 The Jekyll plugin adds the ability to generate documentation in [Jekyll Flavoured Markdown](https://jekyllrb.com/) format. 
 It supports both
-multi-project builds and multiplatform projects.
+multi-project builds and Kotlin Multiplatform projects.
 
 **This plugin is at its early stages**, so you may experience issues and encounter bugs. Feel free to
 [report](https://github.com/Kotlin/dokka/issues/new/choose) any errors you see.
@@ -29,10 +29,10 @@ plugins {
 abstract class DokkaMarkdownPlugin : DokkaFormatPlugin(formatName = "markdown") {
     override fun DokkaFormatPlugin.DokkaFormatPluginContext.configure() {
         project.dependencies {
-            // Sets up current project generation
+            // Sets up generation for the current project
             dokkaPlugin(dokka("jekyll-plugin"))
 
-            // Sets up multimodule generation
+            // Sets up Multi-project generation
             formatDependencies.dokkaPublicationPluginClasspathApiOnly.dependencies.addLater(
                 dokka("jekyll-template-processing-plugin")
             )
@@ -70,7 +70,7 @@ dependency:
 </plugin>
 ```
 
-After configuring this, running the `dokka:dokka` goal to produce the documentation.
+After configuring this, run the `dokka:dokka` goal to produce documentation in Jekyll format.
 
 For more information, see the Maven plugin's documentation for [Other output formats](dokka-maven.md#other-output-formats).
 You can find the Jekyll plugin on
@@ -91,7 +91,7 @@ java -jar dokka-cli-%dokkaVersion%.jar \
      ...
 ```
 
-Via [JSON configuration](dokka-cli.md#run-with-json-configuration):
+Or via [JSON configuration](dokka-cli.md#run-with-json-configuration):
 
 ```json
 {

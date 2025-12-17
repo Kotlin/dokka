@@ -1,22 +1,25 @@
 [//]: # (title: Dokka Gradle configuration options)
 
-Dokka has many configuration options to tailor your and your reader's experience.
+Dokka has many configuration options to customize your and your reader's experience.
 
-Below are some examples and detailed descriptions for each configuration section. You can also find an example
+Below are detailed descriptions for each configuration section and some examples. 
+You can also find an example
 with [all configuration options](#complete-configuration) applied.
 
-See [Configuration examples](dokka-gradle.md#configuration-examples) for more details on where to apply configuration blocks and how.
+For more details on applying configuration blocks for single-project and multi-project builds,
+see [Configuration examples](dokka-gradle.md#configuration-examples).
 
 ### General configuration
 
-Here is an example of the general Dokka Gradle plugin configuration. Use the top-level `dokka {}` DSL configuration.
+Here is an example of the general Dokka Gradle plugin configuration: 
 
-In DGP, `dokkaPublications` is the central way to declare Dokka publication configurations.
-The default publications
+* Use the top-level `dokka {}` DSL configuration.
+* In DGP, you declare Dokka publication configurations in the `dokkaPublications{}` block.
+* The default publications
 are [`html`](dokka-html.md) and [`javadoc`](dokka-javadoc.md).
 
-The syntax of `build.gradle.kts` files differs from regular `.kt`
-files (such as those used for custom Gradle plugins) because Gradle's Kotlin DSL uses type-safe accessors:
+* The syntax of `build.gradle.kts` files differs from regular `.kt`
+files (such as those used for Kotlin custom plugins) because Gradle's Kotlin DSL uses type-safe accessors.
 
 <tabs group="build-script">
 <tab title="Gradle Kotlin DSL" group-key="kotlin">
@@ -30,16 +33,22 @@ dokka {
     dokkaPublications.html {
         moduleName.set(project.name)
         moduleVersion.set(project.version.toString())
+        // Standard output directory for HTML documentation
         outputDirectory.set(layout.buildDirectory.dir("dokka/html"))
         failOnWarning.set(false)
         suppressInheritedMembers.set(false)
-        offlineMode.set(false)
         suppressObviousFunctions.set(true)
+        offlineMode.set(false)
         includes.from("packages.md", "extra.md")
         
         // Output directory for additional files
-        // Use this block when you want to change the output directory and include extra files
+        // Use this block instead of the standard when you 
+        // want to change the output directory and include extra files
         outputDirectory.set(rootDir.resolve("docs/api/0.x"))
+
+        // Use this block instead of the standard when you want to include 
+        // specific files (such as README.md) from the project root
+        includes.from(rootDir.resolve("README.md"))
         
         // Use fileTree to add multiple files
         includes.from(
@@ -112,12 +121,13 @@ dokka {
             // Core Dokka options
             failOnWarning.set(false)
             suppressInheritedMembers.set(false)
-            offlineMode.set(false)
             suppressObviousFunctions.set(true)
+            offlineMode.set(false)
             includes.from(files("packages.md", "extra.md"))
 
             // Output directory for additional files
-            // Use this block when you want to change the output directory and include extra files
+            // Use this block when you want to change the output 
+            // directory and include extra files
             outputDirectory.set(file("$rootDir/docs/api/0.x"))
             includes.from(layout.projectDirectory.file("README.md"))
         }
@@ -131,8 +141,8 @@ dokka {
 <deflist collapsible="true">
     <def title="moduleName">
         <p>
-           The display name to refer to the project’s documentation. It appears in the table of contents, navigation, 
-           headers, and log messages. In multi-project builds, each subproject <code>moduleName</code> is 
+           The display name for the project’s documentation. It appears in the table of contents, navigation, 
+           headers, and log messages. In multi-project builds, each subproject's <code>moduleName</code> is 
            used as its section title in aggregated documentation.
         </p>
         <p>Default: Gradle project name</p>
@@ -141,7 +151,7 @@ dokka {
         <p>
             The subproject version displayed in the generated documentation. 
             In single-project builds, it is used as the project version.
-            In multi-project builds, each subproject <code>moduleVersion</code> 
+            In multi-project builds, each subproject's <code>moduleVersion</code> 
             is used when aggregating documentation. 
         </p>
         <p>Default: Gradle project version</p>
@@ -168,26 +178,12 @@ dokka {
     <def title="suppressInheritedMembers">
         <p>Whether to suppress inherited members that aren't explicitly overridden in a given class.</p>
         <p>
-            Note: This can suppress functions such as <code>equals</code> / <code>hashCode</code> / <code>toString</code>, 
-            but cannot suppress synthetic functions such as <code>dataClass.componentN</code> and 
+            Note: 
+            This suppresses functions such as <code>equals</code> / <code>hashCode</code> / <code>toString</code>, 
+            but does not suppress synthetic functions such as <code>dataClass.componentN</code> and 
             <code>dataClass.copy</code>. Use <code>suppressObviousFunctions</code>
             for that.
         </p>
-        <p>Default: <code>false</code></p>
-    </def>
-    <def title="offlineMode">
-        <p>Whether to resolve remote files/links over your network.</p>
-        <p>
-            This includes package-lists used for generating external documentation links. 
-            For example, to make classes from the standard library clickable. 
-        </p>
-        <p>
-            Setting this to <code>true</code> can significantly speed up build times in certain cases,
-            but can also worsen documentation quality and user experience. For example, by
-            not resolving class/member links from your dependencies, including the standard library.
-        </p>
-        <p>Note: You can cache fetched files locally and provide them to Dokka as local paths. See 
-           the <code><a href="#external-documentation-links-configuration">externalDocumentationLinks</a></code> section.</p>
         <p>Default: <code>false</code></p>
     </def>
     <def title="suppressObviousFunctions">
@@ -206,6 +202,21 @@ dokka {
             </list>
         <p>Default: <code>true</code></p>
     </def>
+    <def title="offlineMode">
+        <p>Whether to resolve remote files and links over your network.</p>
+        <p>
+            This includes package-lists used for generating links to external documentation.. 
+            For example, this allows to make classes from the standard library clickable in your documentation. 
+        </p>
+        <p>
+            Setting this to <code>true</code> can significantly speed up build times in certain cases,
+            but can also worsen user experience. For example, by
+            not resolving class and member links from your dependencies, including the standard library.
+        </p>
+        <p>Note: You can cache fetched files locally and provide them to Dokka as local paths. See 
+           the <code><a href="#external-documentation-links-configuration">externalDocumentationLinks</a></code> section.</p>
+        <p>Default: <code>false</code></p>
+    </def>
      <def title="includes">
         <p>
             A list of Markdown files that contain
@@ -213,7 +224,7 @@ dokka {
         </p>
         <p>The contents of the specified files are parsed and embedded into documentation as subproject and package descriptions.</p>
         <p>
-            See <a href="https://github.com/Kotlin/dokka/blob/master/examples/gradle-v2/basic-gradle-example/build.gradle.kts">Dokka gradle example</a>
+            See <a href="https://github.com/Kotlin/dokka/blob/master/examples/gradle-v2/basic-gradle-example/build.gradle.kts">Dokka Gradle example</a>
             for an example of what it looks like and how to use it.
         </p>
     </def>
@@ -330,7 +341,7 @@ dokka {
     <def title="displayName">
         <p>The display name used to refer to this source set.</p>
         <p>
-            The name is used both externally (for example, as source set name visible to documentation readers) and 
+            The name is used both externally (for example, as the source set name visible to documentation readers) and 
             internally (for example, for logging messages of <code>reportUndocumented</code>).
         </p>
         <p>By default, the value is deduced from information provided by the Kotlin Gradle plugin.</p>
@@ -338,15 +349,15 @@ dokka {
     <def title="documentedVisibilities">
         <p>Defines which visibility modifiers Dokka should include in the generated documentation.</p>
         <p>
-            Use them if you want to document <code>Protected</code>/<code>Internal</code>/<code>Private</code> declarations,
+            Use them if you want to document <code>Protected</code>, <code>Internal</code>, and <code>Private</code> declarations,
             as well as if you want to exclude <code>Public</code> declarations and only document internal API.
         </p>
         <p>
             Additionally, you can use Dokka's 
-            <a href="https://github.com/Kotlin/dokka/blob/v2.0.0/dokka-runners/dokka-gradle-plugin/src/main/kotlin/engine/parameters/HasConfigurableVisibilityModifiers.kt#L14-L16"><code>documentedVisibilities()</code> function</a> 
+            <a href="https://github.com/Kotlin/dokka/blob/v2.1.0/dokka-runners/dokka-gradle-plugin/src/main/kotlin/engine/parameters/HasConfigurableVisibilityModifiers.kt"><code>documentedVisibilities()</code> function</a> 
             to add documented visibilities.
         </p>
-        <p>This can be configured on a per-package basis.</p>
+        <p>This can be configured for each individual package.</p>
         <p>Default: <code>VisibilityModifier.Public</code></p>
     </def>
     <def title="reportUndocumented">
@@ -355,7 +366,7 @@ dokka {
             after they have been filtered by <code>documentedVisibilities</code> and other filters.
         </p>
         <p>This setting works well with <code>failOnWarning</code>.</p>
-        <p>This can be configured on a per-package basis.</p>
+        <p>This can be configured for each individual package.</p>
         <p>Default: <code>false</code></p>
     </def>
     <def title="skipEmptyPackages">
@@ -371,11 +382,11 @@ dokka {
     </def>
     <def title="skipDeprecated">
         <p>Whether to document declarations annotated with <code>@Deprecated</code>.</p>
-        <p>This can be configured on a per-package basis.</p>
+        <p>This can be configured for each individual package.</p>
         <p>Default: <code>false</code></p>
     </def>
     <def title="suppressGeneratedFiles">
-        <p>Whether to document/analyze generated files.</p>
+        <p>Whether to document generated files.</p>
         <p>
             Generated files are expected to be present under the <code>{project}/{buildDir}/generated</code> directory.
         </p>
@@ -392,7 +403,7 @@ dokka {
             and this option is set to <code>8</code>, Dokka generates an external documentation link
             to <a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">JDK 8 Javadocs</a> for it.
         </p>
-        <p>Default: JDK 8</p>
+        <p>Default: `8`</p>
     </def>
     <def title="languageVersion">
         <p>
@@ -413,13 +424,13 @@ dokka {
     <def title="sourceRoots">
         <p>
             The source code roots to be analyzed and documented.
-            Acceptable inputs are directories and individual <code>.kt</code> / <code>.java</code> files.
+            Acceptable inputs are directories and individual <code>.kt</code> and <code>.java</code> files.
         </p>
         <p>By default, source roots are deduced from information provided by the Kotlin Gradle plugin.</p>
     </def>
     <def title="classpath">
         <p>The classpath for analysis and interactive samples.</p>
-        <p>This is useful if some types that come from dependencies are not resolved/picked up automatically.</p>
+        <p>This is useful if some types that come from dependencies are not resolved or picked up automatically.</p>
         <p>This option accepts both <code>.jar</code> and <code>.klib</code> files.</p>
         <p>By default, the classpath is deduced from information provided by the Kotlin Gradle plugin.</p>
     </def>
@@ -433,15 +444,13 @@ dokka {
 
 ### Source link configuration
 
-Configure source links
-to allow navigation from the generated documentation to the corresponding source code in a remote repository.
-Use the `dokkaSourceSets.main{}` block for this configuration.
+Configure source links to help readers find the source for each declaration in a remote repository.
+Use the `dokkaSourceSets.main {}` block for this configuration.
 
-The `sourceLinks` configuration block allows you to add a `source` link to each signature
+The `sourceLinks {}` configuration block allows you to add a `source` link to each signature
 that leads to the `remoteUrl` with a specific line number.
 The line number is configurable by setting `remoteLineSuffix`.
 
-This helps readers to find the source code for each declaration.
 
 For an example, see the documentation for the
 [`count()`](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/count.html)
@@ -524,7 +533,8 @@ dokka {
     <def title="remoteUrl">
         <p>
             The URL of the source code hosting service that can be accessed by documentation readers,
-            like GitHub, GitLab, Bitbucket, etc. This URL is used to generate
+            like GitHub, GitLab, Bitbucket, or any hosting service that provides stable URLs for source files. 
+            This URL is used to generate
             source code links of declarations.
         </p>
     </def>
@@ -606,7 +616,7 @@ dokka {
         <p>Default: <code>.*</code></p>
     </def>
     <def title="suppress">
-        <p>Whether this package should be skipped when generating documentation.</p>
+        <p>Whether the package should be skipped when generating documentation.</p>
         <p>Default: <code>false</code></p>
     </def>
     <def title="skipDeprecated">
@@ -626,7 +636,7 @@ dokka {
     <def title="documentedVisibilities">
         <p>Defines which visibility modifiers Dokka should include in the generated documentation.</p>
         <p>
-            Use them if you want to document <code>Protected</code>/<code>Internal</code>/<code>Private</code> 
+            Use them if you want to document <code>Protected</code>, <code>Internal</code>, and <code>Private</code> 
             declarations within this package,
             as well as if you want to exclude <code>Public</code> declarations and only document internal API.
         </p>
@@ -646,10 +656,10 @@ The `externalDocumentationLinks {}`
 block allows the creation of links that lead to the externally hosted documentation of
 your dependencies.
 
-For example, if you are using types from `kotlinx.serialization`, by default they are unclickable in your
+For example, if you are using types from `kotlinx.serialization`, by default they are not clickable in your
 documentation, as if they are unresolved. However, since the API reference documentation for `kotlinx.serialization`
 is built by Dokka and is [published on kotlinlang.org](https://kotlinlang.org/api/kotlinx.serialization/), you can
-configure external documentation links for it. Thus allowing Dokka to generate links for types from the library, making
+configure external documentation links for it. This allows Dokka to generate links for types from the library, making
 them resolve successfully and clickable.
 
 By default, external documentation links for Kotlin standard library, JDK, Android SDK, and AndroidX are configured.
@@ -696,7 +706,7 @@ dokka {
             and link declarations together.
         </p>
         <p>
-            If automatic resolution fails or if you want to use locally cached files instead, 
+            If the automatic resolution fails or if you want to use locally cached files instead, 
             consider setting the <code>packageListUrl</code> option.
         </p>
     </def>
@@ -734,8 +744,8 @@ dokka {
         outputDirectory.set(layout.buildDirectory.dir("dokka/html"))
         failOnWarning.set(false)
         suppressInheritedMembers.set(false)
-        offlineMode.set(false)
         suppressObviousFunctions.set(true)
+        offlineMode.set(false)
         includes.from("packages.md", "extra.md")
    }
 
@@ -810,8 +820,8 @@ dokka {
             outputDirectory.set(layout.buildDirectory.dir("dokka/html"))
             failOnWarning.set(false)
             suppressInheritedMembers.set(false)
-            offlineMode.set(false)
             suppressObviousFunctions.set(true)
+            offlineMode.set(false)
             includes.from("packages.md", "extra.md")
         }
     }

@@ -20,7 +20,7 @@ The Dokka Gradle plugin v2 mode is enabled by default and aligns with Gradle bes
 * Fully supports Gradle [configuration cache](https://docs.gradle.org/current/userguide/configuration_cache.html) and 
   [build cache](https://docs.gradle.org/current/userguide/build_cache.html), which improves performance and simplifies build work.
 
-Read this guide for further information between changes and migration from DGP v1 to v2 modes.
+Read this guide for further information on changes and migration from DGP v1 to v2 modes.
 
 ## Before you start
 

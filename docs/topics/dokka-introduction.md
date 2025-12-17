@@ -6,8 +6,8 @@ Just like Kotlin itself, Dokka supports mixed-language projects. It understands 
 [KDoc comments](https://kotlinlang.org/docs/kotlin-doc.html#kdoc-syntax) and Java's 
 [Javadoc comments](https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html).
 
-Dokka can generate documentation in multiple formats, including its own modern [HTML format](dokka-html.md), Java's [Javadoc HTML](dokka-javadoc.md), and
-[GFM](https://github.com/Kotlin/dokka/blob/8e5c63d035ef44a269b8c43430f43f5c8eebfb63/dokka-subprojects/plugin-gfm/README.md) and 
+Dokka can generate documentation in multiple formats, including its own modern [HTML format](dokka-html.md), Java's [Javadoc HTML](dokka-javadoc.md), as well as
+the [GFM](https://github.com/Kotlin/dokka/blob/8e5c63d035ef44a269b8c43430f43f5c8eebfb63/dokka-subprojects/plugin-gfm/README.md) and 
 [Jekyll](https://github.com/Kotlin/dokka/blob/8e5c63d035ef44a269b8c43430f43f5c8eebfb63/dokka-subprojects/plugin-jekyll/README.md) flavors of Markdown.
 
 Here are some libraries that use Dokka for their API reference documentation:

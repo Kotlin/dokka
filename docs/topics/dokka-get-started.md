@@ -5,8 +5,8 @@ Below you can find simple instructions to help you get started with Dokka.
 <tabs group="build-script">
 <tab title="Gradle Kotlin DSL" group-key="kotlin">
 
-> This guide applies to Dokka Gradle plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported. 
-> If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
+> This guide applies to Dokka Gradle plugin (DGP) v2 mode. The DGP v1 mode is no longer supported. 
+> To upgrade from v1 to v2 mode, follow the [Migration guide](dokka-migration.md).
 >
 {style="note"}
 
@@ -23,7 +23,7 @@ plugins {
 **Document multi-project builds**
 
 When documenting [multi-project builds](https://docs.gradle.org/current/userguide/multi_project_builds.html),
-you need to apply the plugin to every subproject you want to document. Share Dokka configuration across subprojects 
+apply the plugin to every subproject you want to document. Share Dokka configuration across subprojects 
 by using one of the following approaches:
 
 * Convention plugin
@@ -42,7 +42,7 @@ To generate documentation, run the following Gradle task:
 
 This task works for both single and multi-project builds.
 
-Run the `dokkaGenerate` task from the aggregating project by prefixing the task with its project path. For example:
+Run the `dokkaGenerate` task from the aggregating project by prefixing the task with its project path (`:`). For example:
 
 ```bash
 ./gradlew :dokkaGenerate
@@ -52,8 +52,8 @@ Run the `dokkaGenerate` task from the aggregating project by prefixing the task 
 ./gradlew :aggregatingProject:dokkaGenerate
 ```
 
-Avoid running `./gradlew dokkaGenerate` without a project path (`:`),
-as Gradle tries to run all `dokkaGenerate` tasks across the entire build, which may trigger unnecessary work.
+Avoid running `./gradlew dokkaGenerate` instead of `./gradlew: dokkaGenerate` or `./gradlew :aggregatingProject:dokkaGenerate`.
+Without a project path (`:`) prefixing the task, Gradle tries to run all `dokkaGenerate` tasks across the entire build, which may trigger unnecessary work.
 
 You can use different tasks to generate output in [HTML](dokka-html.md),
 [Javadoc](dokka-javadoc.md) or both [HTML and Javadoc](dokka-gradle.md#configure-documentation-output-format).
@@ -64,8 +64,8 @@ You can use different tasks to generate output in [HTML](dokka-html.md),
 </tab>
 <tab title="Gradle Groovy DSL" group-key="groovy">
 
-> This guide applies to Dokka Gradle plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
-> If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
+> This guide applies to Dokka Gradle plugin (DGP) v2 mode. The DGP v1 mode is no longer supported.
+> To upgrade from v1 to v2 mode, follow the [Migration guide](dokka-migration.md).
 >
 {style="note"}
 
@@ -111,8 +111,8 @@ Run the `dokkaGenerate` task from the aggregating project by prefixing the task 
 ./gradlew :aggregatingProject:dokkaGenerate
 ```
 
-Avoid running `./gradlew dokkaGenerate` without a project path (`:`), 
-as Gradle tries to run all `dokkaGenerate` tasks across the entire build, which may trigger unnecessary work.
+Avoid running `./gradlew dokkaGenerate` instead of `./gradlew: dokkaGenerate` or `./gradlew :aggregatingProject:dokkaGenerate`.
+Without a project path (`:`) prefixing the task, Gradle tries to run all `dokkaGenerate` tasks across the entire build, which may trigger unnecessary work.
 
 You can use different tasks to generate output in [HTML](dokka-html.md),
 [Javadoc](dokka-javadoc.md) or both [HTML and Javadoc](dokka-gradle.md#configure-documentation-output-format).

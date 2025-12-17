@@ -1,7 +1,7 @@
 [//]: # (title: HTML)
 
-> This guide applies to Dokka Gradle plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
-> If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
+> This guide applies to Dokka Gradle plugin (DGP) v2 mode. The DGP v1 mode is no longer supported.
+> To upgrade from v1 to v2 mode, follow the [Migration guide](dokka-migration.md).
 >
 {style="note"}
 
@@ -28,7 +28,7 @@ your build tool or runner:
   * `dokkaGeneratePublicationHtml` to generate documentation only in HTML format. This task exposes the output directory 
     as an `@OutputDirectory`. Use this task when you need to consume the generated files in other Gradle tasks, such 
     as uploading them to a server, moving them into a GitHub Pages directory, or packaging them into a `javadoc.jar`. 
-    This task is intentionally not shown in Gradle task groups because it is not meant for everyday use.
+    This task is intentionally not listed in Gradle task groups because it is not meant for everyday use.
 
     > If you're using IntelliJ IDEA, you may see the `dokkaGenerateHtml` Gradle task.
     > This task is simply an alias of `dokkaGeneratePublicationHtml`. Both tasks perform exactly the same operation.
@@ -49,7 +49,7 @@ your build tool or runner:
 
 ## Configuration
 
-HTML format is Dokka's base format, and you can include configuration options:
+HTML format is Dokka's base format. You can configure it using the following options:
 
 <tabs group="build-script">
 <tab title="Gradle Kotlin DSL" group-key="kotlin">
@@ -192,7 +192,7 @@ These files are copied to the `<output>/images` directory.
 
 You can use the `customAssets` property with collections of
 files 
-[(`FileCollection`)](https://docs.gradle.org/8.10/userguide/lazy_configuration.html#working_with_files_in_lazy_properties):
+([`FileCollection`](https://docs.gradle.org/8.10/userguide/lazy_configuration.html#working_with_files_in_lazy_properties)):
 
 ```kotlin
 customAssets.from("example.png", "example2.png")

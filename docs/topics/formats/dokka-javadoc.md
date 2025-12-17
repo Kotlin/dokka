@@ -1,8 +1,8 @@
 [//]: # (title: Javadoc)
 <primary-label ref="alpha"/>
 
-> This guide applies to Dokka Gradle plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
-> If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
+> This guide applies to Dokka Gradle plugin (DGP) v2 mode. The DGP v1 mode is no longer supported.
+> To upgrade from v1 to v2 mode, follow the [Migration guide](dokka-migration.md).
 >
 {style="note"}
 
@@ -24,7 +24,7 @@ and you can find the source code on [GitHub](https://github.com/Kotlin/dokka/tre
 
 ## Generate Javadoc documentation
 
-> The Javadoc format does not support multi-project builds or Kotlin Multiplatform projects.
+> Dokka doesn't support the Javadoc format for multi-project builds or Kotlin Multiplatform projects.
 >
 {style="tip"}
 
@@ -33,7 +33,7 @@ and you can find the source code on [GitHub](https://github.com/Kotlin/dokka/tre
 <tab title="Gradle Kotlin DSL" group-key="kotlin">
 
 The [Gradle plugin for Dokka](dokka-gradle.md) comes with the Javadoc output format included. 
-You need to apply the corresponding plugin id in the `plugins {}` block of your project's `build.gradle.kts` file:
+You need to apply the corresponding plugin ID in the `plugins {}` block of your project's `build.gradle.kts` file:
 
 ```kotlin
 plugins {

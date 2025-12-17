@@ -1,28 +1,28 @@
 # GFM plugin
 
-> This content applies to Dokka Gradle plugin (DGP) v2 mode. The previous DGP v1 mode is no longer supported.
-> If you're upgrading from v1 to v2 mode, see the [Migration guide](dokka-migration.md).
+> The following applies to Dokka Gradle plugin (DGP) v2 mode. The DGP v1 mode is no longer supported.
+> To upgrade from v1 to v2 mode, follow the [Migration guide](dokka-migration.md).
 
-The GFM plugin adds the ability to generate documentation in in [GitHub Flavored Markdown](https://github.github.com/gfm/) format. 
-It supports both multi-project builds and multiplatform projects.
+The GFM plugin adds the ability to generate documentation in the [GitHub Flavored Markdown](https://github.github.com/gfm/) format. 
+It supports both multi-project builds and Kotlin Multiplatform projects.
 
-This format gives you more freedom in terms of hosting documentation as the output can be embedded right into your
-documentation website.
+This format gives you more flexibility when hosting documentation, as the output can be embedded directly into GitHub-hosted 
+documentation, such as GitHub Pages or repository README files.
 
 ## Gradle
 
-The GFM format is implemented as a Dokka plugin. To properly integrate it with the [Dokka Gradle plugin](dokka-gradle.md), you need 
-to create a Dokka Format Gradle plugin:
+The GFM format is implemented as a Dokka plugin. To properly integrate it with the [Dokka Gradle plugin](dokka-gradle.md),
+create a Dokka Format Gradle plugin:
 
 ```kotlin
 @OptIn(InternalDokkaGradlePluginApi::class)
 abstract class DokkaMarkdownPlugin : DokkaFormatPlugin(formatName = "markdown") {
     override fun DokkaFormatPlugin.DokkaFormatPluginContext.configure() {
         project.dependencies {
-            // Sets up current project generation
+            // Sets up generation for the current project
             dokkaPlugin(dokka("gfm-plugin"))
 
-            // Sets up multimodule generation
+            // Sets up multi-project generation
             formatDependencies.dokkaPublicationPluginClasspathApiOnly.dependencies.addLater(
                 dokka("gfm-template-processing-plugin")
             )
@@ -53,7 +53,7 @@ abstract class DokkaMarkdownPlugin : DokkaFormatPlugin(formatName = "markdown") 
             // Sets up current project generation
             dokkaPlugin(dokka("gfm-plugin"))
 
-            // Sets up multimodule generation
+            // Sets up multi-project generation
             formatDependencies.dokkaPublicationPluginClasspathApiOnly.dependencies.addLater(
                 dokka("gfm-template-processing-plugin")
             )
@@ -92,7 +92,7 @@ dependency:
 </plugin>
 ```
 
-After configuring this, running the `dokka:dokka` goal produces documentation in GFM format.
+After configuring this, run the `dokka:dokka` goal to produce documentation in GFM format.
 
 For more information, see the Maven plugin documentation for [Other output formats](dokka-maven.md#other-output-formats).
 
@@ -113,7 +113,7 @@ java -jar dokka-cli-%dokkaVersion%.jar \
      ...
 ```
 
-Via [JSON configuration](dokka-cli.md#run-with-json-configuration):
+Or via [JSON configuration](dokka-cli.md#run-with-json-configuration):
 
 ```json
 {
