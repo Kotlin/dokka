@@ -5,7 +5,8 @@
 package org.jetbrains.dokka.it.gradle.junit
 
 /**
- * Indicates whether an Android test project can run with or without Kotlin built-in.
+ * Indicates whether [DokkaGradlePluginTestExtension] will run
+ * an Android test project with or without Kotlin built-in.
  */
 enum class KotlinBuiltInCompatibility {
     /**
