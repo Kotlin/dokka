@@ -15,21 +15,12 @@ class TestedVersionsSourceTest {
 
     @Test
     fun `test default versions`() {
-        val default = TestedVersionsSource.Default
+        val actual = TestedVersionsSource.Default.get().joinAllToString()
 
-        val versions = default.get().joinAllToString()
-
-        versions.shouldBe(
-            """
-            {gradle=7.6.4, kgp=1.9.25}
-            {gradle=8.14.3, kgp=1.9.25}
-            {gradle=7.6.4, kgp=2.0.21}
-            {gradle=8.14.3, kgp=2.0.21}
-            {gradle=9.1.0, kgp=2.1.21}
-            {gradle=9.1.0, kgp=2.2.21}
-            {gradle=9.1.0, kgp=2.3.0-RC}
-            """.trimIndent()
-        )
+        actual shouldBe """
+            gradle: 7.6.4, 8.14.3, 9.1.0
+            kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0-Beta2
+        """.trimIndent()
     }
 
     @ParameterizedTest
@@ -43,36 +34,23 @@ class TestedVersionsSourceTest {
         val expected = when (kotlinBuiltIn) {
             Required ->
                 """
-                {gradle=9.1.0, kgp=2.1.21, agp=9.0.0-beta01}
-                {gradle=9.1.0, kgp=2.2.21, agp=9.0.0-beta01}
-                {gradle=9.1.0, kgp=2.3.0-RC, agp=9.0.0-beta01}
+                agp: 9.0.0-beta01
+                gradle: 9.1.0
+                kgp: 2.1.21, 2.2.21, 2.3.0-Beta2
                 """.trimIndent()
 
             Supported ->
                 """
-                {gradle=7.6.4, kgp=1.9.25, agp=7.4.2}
-                {gradle=8.14.3, kgp=1.9.25, agp=8.11.2}
-                {gradle=8.14.3, kgp=1.9.25, agp=8.12.3}
-                {gradle=8.14.3, kgp=1.9.25, agp=8.13.0}
-                {gradle=7.6.4, kgp=2.0.21, agp=7.4.2}
-                {gradle=8.14.3, kgp=2.0.21, agp=8.11.2}
-                {gradle=8.14.3, kgp=2.0.21, agp=8.12.3}
-                {gradle=8.14.3, kgp=2.0.21, agp=8.13.0}
-                {gradle=9.1.0, kgp=2.1.21, agp=9.0.0-beta01}
-                {gradle=9.1.0, kgp=2.2.21, agp=9.0.0-beta01}
-                {gradle=9.1.0, kgp=2.3.0-RC, agp=9.0.0-beta01}
+                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.0, 9.0.0-beta01
+                gradle: 7.6.4, 8.14.3, 9.1.0
+                kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0-Beta2
                 """.trimIndent()
 
             Incompatible ->
                 """
-                {gradle=7.6.4, kgp=1.9.25, agp=7.4.2}
-                {gradle=8.14.3, kgp=1.9.25, agp=8.11.2}
-                {gradle=8.14.3, kgp=1.9.25, agp=8.12.3}
-                {gradle=8.14.3, kgp=1.9.25, agp=8.13.0}
-                {gradle=7.6.4, kgp=2.0.21, agp=7.4.2}
-                {gradle=8.14.3, kgp=2.0.21, agp=8.11.2}
-                {gradle=8.14.3, kgp=2.0.21, agp=8.12.3}
-                {gradle=8.14.3, kgp=2.0.21, agp=8.13.0}
+                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.0
+                gradle: 7.6.4, 8.14.3
+                kgp: 1.9.25, 2.0.21
                 """.trimIndent()
         }
 
@@ -90,36 +68,26 @@ class TestedVersionsSourceTest {
         val expected = when (kotlinBuiltIn) {
             Required ->
                 """
-                {gradle=9.1.0, kgp=2.1.21, agp=9.0.0-beta01, composeGradlePlugin=1.7.0}
-                {gradle=9.1.0, kgp=2.2.21, agp=9.0.0-beta01, composeGradlePlugin=1.7.0}
-                {gradle=9.1.0, kgp=2.3.0-RC, agp=9.0.0-beta01, composeGradlePlugin=1.7.0}
+                agp: 9.0.0-beta01
+                composeGradlePlugin: 1.7.0
+                gradle: 9.1.0
+                kgp: 2.1.21, 2.2.21, 2.3.0-Beta2
                 """.trimIndent()
 
             Supported ->
                 """
-                {gradle=7.6.4, kgp=1.9.25, agp=7.4.2, composeGradlePlugin=1.7.0}
-                {gradle=8.14.3, kgp=1.9.25, agp=8.11.2, composeGradlePlugin=1.7.0}
-                {gradle=8.14.3, kgp=1.9.25, agp=8.12.3, composeGradlePlugin=1.7.0}
-                {gradle=8.14.3, kgp=1.9.25, agp=8.13.0, composeGradlePlugin=1.7.0}
-                {gradle=7.6.4, kgp=2.0.21, agp=7.4.2, composeGradlePlugin=1.7.0}
-                {gradle=8.14.3, kgp=2.0.21, agp=8.11.2, composeGradlePlugin=1.7.0}
-                {gradle=8.14.3, kgp=2.0.21, agp=8.12.3, composeGradlePlugin=1.7.0}
-                {gradle=8.14.3, kgp=2.0.21, agp=8.13.0, composeGradlePlugin=1.7.0}
-                {gradle=9.1.0, kgp=2.1.21, agp=9.0.0-beta01, composeGradlePlugin=1.7.0}
-                {gradle=9.1.0, kgp=2.2.21, agp=9.0.0-beta01, composeGradlePlugin=1.7.0}
-                {gradle=9.1.0, kgp=2.3.0-RC, agp=9.0.0-beta01, composeGradlePlugin=1.7.0}
+                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.0, 9.0.0-beta01
+                composeGradlePlugin: 1.7.0
+                gradle: 7.6.4, 8.14.3, 9.1.0
+                kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0-Beta2
                 """.trimIndent()
 
             Incompatible ->
                 """
-                {gradle=7.6.4, kgp=1.9.25, agp=7.4.2, composeGradlePlugin=1.7.0}
-                {gradle=8.14.3, kgp=1.9.25, agp=8.11.2, composeGradlePlugin=1.7.0}
-                {gradle=8.14.3, kgp=1.9.25, agp=8.12.3, composeGradlePlugin=1.7.0}
-                {gradle=8.14.3, kgp=1.9.25, agp=8.13.0, composeGradlePlugin=1.7.0}
-                {gradle=7.6.4, kgp=2.0.21, agp=7.4.2, composeGradlePlugin=1.7.0}
-                {gradle=8.14.3, kgp=2.0.21, agp=8.11.2, composeGradlePlugin=1.7.0}
-                {gradle=8.14.3, kgp=2.0.21, agp=8.12.3, composeGradlePlugin=1.7.0}
-                {gradle=8.14.3, kgp=2.0.21, agp=8.13.0, composeGradlePlugin=1.7.0}
+                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.0
+                composeGradlePlugin: 1.7.0
+                gradle: 7.6.4, 8.14.3
+                kgp: 1.9.25, 2.0.21
                 """.trimIndent()
         }
 
@@ -127,12 +95,21 @@ class TestedVersionsSourceTest {
     }
 
     companion object {
-        private fun Sequence<TestedVersions>.joinAllToString(): String =
-            joinToString("\n") { versions ->
-                versions.toMap()
-                    .filterKeys { it != "dgp" }
-                    .toString()
-            }
+        private fun Sequence<TestedVersions>.joinAllToString(
+            // DGP version is set via system prop and changes - see `org.jetbrains.dokka.integration_test.dokkaVersionOverride`.
+            // Ignore it, because the DGP version isn't relevant here.
+            exclude: Set<String> = setOf("dgp")
+        ): String =
+            flatMap { it.toMap().entries }
+                .groupingBy { it.key }
+                .fold(emptySet<String>()) { accumulator, element ->
+                    accumulator + element.value.toString()
+                }
+                .entries
+                .filter { it.key !in exclude }
+                .sortedBy { it.key }
+                .joinToString("\n") { (k, v) ->
+                    "${k}: ${v.joinToString()}"
+                }
     }
-
 }

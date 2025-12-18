@@ -824,7 +824,115 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `multiplatform class with seealso in few platforms`() {
+    @OnlySymbols("#4245: K2 inherits KDoc from expect")
+    fun `multiplatform class with seealso in few platforms K2`() {
+        testInline(
+            """
+                |/src/commonMain/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |/**
+                |* @see Unit
+                |*/
+                |expect open class Parent
+                |
+                |/src/jvmMain/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |val x = 0
+                |/**
+                |* @see x resolved
+                |* @see y unresolved
+                |*/
+                |actual open class Parent
+                |
+                |/src/linuxX64Main/kotlin/pageMerger/Test.kt
+                |package pageMerger
+                |
+                |actual open class Parent
+                |
+            """.trimMargin(),
+            mppTestConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("pageMerger", "Parent")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"Parent" }
+                        platformHinted {
+                            group {
+                                +"expect open class "
+                                link {
+                                    +"Parent"
+                                }
+                            }
+                            group {
+                                +"actual open class "
+                                link {
+                                    +"Parent"
+                                }
+                            }
+                            group {
+                                +"actual open class "
+                                link {
+                                    +"Parent"
+                                }
+                            }
+                            header(4) {
+                                +"See also"
+                                check {
+                                    assertEquals(3, sourceSets.size)
+                                }
+                            }
+                            table {
+                                group {
+                                    link { +"Unit" }
+                                    check {
+                                        sourceSets.assertSourceSet("common")
+                                    }
+                                }
+                                group {
+                                    link { +"Unit" }
+                                    check {
+                                        sourceSets.assertSourceSet("linuxX64")
+                                    }
+                                }
+                                group {
+                                    link { +"Unit" }
+                                    check {
+                                        sourceSets.assertSourceSet("jvm")
+                                    }
+                                }
+                                group {
+                                    link { +"x" }
+                                    group { group { +"resolved" } }
+                                    check {
+                                        sourceSets.assertSourceSet("jvm")
+                                    }
+                                }
+                                group {
+                                    +"y"
+                                    group { group { +"unresolved" } }
+                                    check {
+                                        sourceSets.assertSourceSet("jvm")
+                                    }
+                                }
+
+                                check {
+                                    assertEquals(3, sourceSets.size)
+                                }
+                            }
+                        }
+                    }
+                    skipAllNotMatching()
+                }
+            }
+        }
+    }
+
+    @Test
+    @OnlyDescriptors("#4245: K2 inherits KDoc from expect")
+    fun `multiplatform class with seealso in few platforms K1`() {
         testInline(
             """
                 |/src/commonMain/kotlin/pageMerger/Test.kt

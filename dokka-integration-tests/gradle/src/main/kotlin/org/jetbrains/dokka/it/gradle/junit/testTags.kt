@@ -54,6 +54,9 @@ annotation class TestsKotlinJvm
  * If a test is annotated with [TestsAndroid] then
  * [DokkaGradlePluginTestExtension] will run the test multiple times,
  * and provide a [DokkaGradleProjectRunner] using [TestedVersions.Android].
+ *
+ * [DokkaGradlePluginTestExtension] will use [kotlinBuiltIn]
+ * to filter the AGP versions used to test the project.
  */
 @Tag("Android")
 @Target(FUNCTION, CLASS)
@@ -71,6 +74,9 @@ annotation class TestsAndroid(
  * If a test is annotated with [TestsAndroid] then
  * [DokkaGradlePluginTestExtension] will run the test multiple times,
  * and provide a [DokkaGradleProjectRunner] using [TestedVersions.AndroidCompose].
+ *
+ * [DokkaGradlePluginTestExtension] will use [kotlinBuiltIn]
+ * to filter the AGP versions used to test the project.
  */
 @Tag("Compose")
 @TestsAndroid

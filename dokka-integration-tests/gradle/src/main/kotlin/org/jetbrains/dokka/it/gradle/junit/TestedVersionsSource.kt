@@ -127,12 +127,6 @@ fun interface TestedVersionsSource<T : TestedVersions> {
                     allAgpVersions
             }
 
-        init {
-            require(matchedAgpVersions.isNotEmpty()) {
-                "No AGP versions matched (kotlinBuiltIn:$kotlinBuiltIn)"
-            }
-        }
-
         private val allVersions: Sequence<TestedVersions.Android> =
             sequence {
                 Default.get().forEach { v ->
