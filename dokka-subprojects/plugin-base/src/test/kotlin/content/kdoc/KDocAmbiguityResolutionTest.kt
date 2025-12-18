@@ -29,6 +29,7 @@ import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.MemberPageNode
 import utils.OnlySymbols
 import utils.findTestType
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -534,6 +535,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
 
 
     @Test
+    @Ignore("KT-83152 [Analysis API, KDoc] Make class name links on constructors point to the class")
     fun `#3604 KDoc reference to class from constructor`() {
         testInline(
             """
