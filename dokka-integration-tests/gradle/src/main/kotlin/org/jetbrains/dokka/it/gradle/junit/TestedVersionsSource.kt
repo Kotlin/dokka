@@ -180,7 +180,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
      */
     class AndroidCompose(
         kotlinBuiltIn: KotlinBuiltInCompatibility = KotlinBuiltInCompatibility.Supported,
-    )  : TestedVersionsSource<TestedVersions.AndroidCompose> {
+    ) : TestedVersionsSource<TestedVersions.AndroidCompose> {
 
         private val androidVersions = Android(kotlinBuiltIn)
 

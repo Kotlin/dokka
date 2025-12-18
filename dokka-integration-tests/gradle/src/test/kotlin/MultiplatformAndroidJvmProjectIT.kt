@@ -20,8 +20,8 @@ import kotlin.io.path.readText
 /**
  * Integration test for the `it-multiplatform-android-jvm` project.
  */
-@TestsDGPv2
 @TestsAndroid(kotlinBuiltIn = Incompatible)
+@TestsDGPv2
 @TestsKotlinMultiplatform
 class MultiplatformAndroidJvmProjectIT {
 
