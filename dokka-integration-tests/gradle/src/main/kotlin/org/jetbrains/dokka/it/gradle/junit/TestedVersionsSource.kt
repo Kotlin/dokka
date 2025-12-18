@@ -3,7 +3,6 @@
  */
 package org.jetbrains.dokka.it.gradle.junit
 
-import org.jetbrains.dokka.it.gradle.junit.TestedVersions.Companion.displayName
 import org.jetbrains.dokka.it.gradle.junit.TestedVersionsSource.Default.dokkaVersionOverride
 import org.jetbrains.dokka.it.gradle.utils.SemVer
 import org.jetbrains.dokka.it.gradle.utils.SemVer.Companion.contains
@@ -94,31 +93,50 @@ fun interface TestedVersionsSource<T : TestedVersions> {
      *
      * The test must be tagged with [TestsAndroid].
      */
-    object Android : TestedVersionsSource<TestedVersions.Android> {
+    class Android(
+        kotlinBuiltIn: KotlinBuiltInCompatibility = KotlinBuiltInCompatibility.Supported,
+    ) : TestedVersionsSource<TestedVersions.Android> {
+
+        private val requiredAgpMajorVersionForKotlinBuiltIn = 9
+
         /**
          * All possible Android Gradle Plugin versions that could be tested.
          *
-         * We test the latest v7 and v8 AGP versions.
+         * We test the latest v7, v8, and v9 AGP versions.
          *
          * Note the AGP major version indicates the required major version of Gradle.
          * So, AGP 7.* supports Gradle 7, but will throw an error if used with Gradle 8.
          */
-        private val allAgpVersions: List<String> = listOf(
+        private val allAgpVersions: List<SemVer> = listOf(
             "7.4.2",
-            "8.11.1",
-            "8.12.0",
-        )
+            "8.11.2",
+            "8.12.3",
+            "8.13.0",
+            "9.0.0-beta01",
+        ).map { SemVer(it) }
+
+        private val matchedAgpVersions: List<SemVer> =
+            when (kotlinBuiltIn) {
+                KotlinBuiltInCompatibility.Incompatible ->
+                    allAgpVersions.filter { it.major < requiredAgpMajorVersionForKotlinBuiltIn }
+
+                KotlinBuiltInCompatibility.Required ->
+                    allAgpVersions.filter { it.major >= requiredAgpMajorVersionForKotlinBuiltIn }
+
+                KotlinBuiltInCompatibility.Supported ->
+                    allAgpVersions
+            }
 
         private val allVersions: Sequence<TestedVersions.Android> =
             sequence {
                 Default.get().forEach { v ->
-                    allAgpVersions.forEach { agp ->
+                    matchedAgpVersions.forEach { agp ->
                         yield(
                             TestedVersions.Android(
                                 dgp = v.dgp,
                                 gradle = v.gradle,
                                 kgp = v.kgp,
-                                agp = SemVer(agp),
+                                agp = agp,
                             )
                         )
                     }
@@ -127,30 +145,14 @@ fun interface TestedVersionsSource<T : TestedVersions> {
                 isAgpCompatibleWithGradle(agp = v.agp, gradle = v.gradle)
             }
 
-        /**
-         * All major versions that _must_ be included in the sequence of all versions.
-         *
-         * This check is required because some versions are filtered out.
-         */
-        private val requiredAgpMajorVersions = listOf(7, 8)
-
-        init {
-            val agpMajorVersions = allVersions.map { it.agp.major }
-
-            requiredAgpMajorVersions.forEach { requiredAgpMajor ->
-                require(requiredAgpMajor in agpMajorVersions) {
-                    val versionsList = allVersions.joinToString("\n") { " - ${it.displayName()}" }
-                    "Tested versions missing AGP $requiredAgpMajor. All versions:\n$versionsList"
-                }
-            }
-        }
-
         override fun get(): Sequence<TestedVersions.Android> = allVersions
 
         private fun isAgpCompatibleWithGradle(agp: SemVer, gradle: SemVer): Boolean {
             // AGP/Gradle compatibility definitions:
             // https://developer.android.com/build/releases/gradle-plugin?buildsystem=ndk-build#updating-gradle
             return when (agp.majorAndMinorVersions) {
+                "9.0" -> gradle.major >= 9
+                "8.13" -> gradle in "8.13.0".."9.0.0"
                 "8.12" -> gradle in "8.13.0".."9.0.0"
                 "8.11" -> gradle in "8.13.0".."9.0.0"
                 "8.10" -> gradle in "8.11.1"..<"9.0.0"
@@ -176,7 +178,11 @@ fun interface TestedVersionsSource<T : TestedVersions> {
      *
      * The test must be tagged with [TestsAndroidCompose].
      */
-    object AndroidCompose : TestedVersionsSource<TestedVersions.AndroidCompose> {
+    class AndroidCompose(
+        kotlinBuiltIn: KotlinBuiltInCompatibility = KotlinBuiltInCompatibility.Supported,
+    ) : TestedVersionsSource<TestedVersions.AndroidCompose> {
+
+        private val androidVersions = Android(kotlinBuiltIn)
 
         /**
          * Versions of the `org.jetbrains.compose` plugins.
@@ -187,7 +193,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
         )
 
         override fun get(): Sequence<TestedVersions.AndroidCompose> = sequence {
-            Android.get().forEach { v ->
+            androidVersions.get().forEach { v ->
                 allComposeGradlePluginVersions.forEach { composeGP ->
                     yield(
                         TestedVersions.AndroidCompose(
