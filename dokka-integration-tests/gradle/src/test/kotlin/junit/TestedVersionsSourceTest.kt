@@ -41,14 +41,14 @@ class TestedVersionsSourceTest {
 
             Supported ->
                 """
-                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.0, 9.0.0-beta05
+                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2, 9.0.0-beta05
                 gradle: 7.6.4, 8.14.3, 9.2.1
                 kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0
                 """.trimIndent()
 
             Incompatible ->
                 """
-                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.0
+                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2
                 gradle: 7.6.4, 8.14.3
                 kgp: 1.9.25, 2.0.21
                 """.trimIndent()
@@ -76,7 +76,7 @@ class TestedVersionsSourceTest {
 
             Supported ->
                 """
-                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.0, 9.0.0-beta05
+                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2, 9.0.0-beta05
                 composeGradlePlugin: 1.7.0
                 gradle: 7.6.4, 8.14.3, 9.2.1
                 kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0
@@ -84,7 +84,7 @@ class TestedVersionsSourceTest {
 
             Incompatible ->
                 """
-                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.0
+                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2
                 composeGradlePlugin: 1.7.0
                 gradle: 7.6.4, 8.14.3
                 kgp: 1.9.25, 2.0.21
