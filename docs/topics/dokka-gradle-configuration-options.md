@@ -344,8 +344,8 @@ dokka {
     <def title="documentedVisibilities">
         <p>Defines which visibility modifiers Dokka should include in the generated documentation.</p>
         <p>
-            Use them if you want to document <code>Protected</code>, <code>Internal</code>, and <code>Private</code> declarations,
-            as well as if you want to exclude <code>Public</code> declarations and only document internal API.
+            Use them if you want to document <code>protected</code>, <code>internal</code>, and <code>private</code> declarations,
+            as well as if you want to exclude <code>public</code> declarations and only document internal API.
         </p>
         <p>
             Additionally, you can use Dokka's 
@@ -631,9 +631,9 @@ dokka {
     <def title="documentedVisibilities">
         <p>Defines which visibility modifiers Dokka should include in the generated documentation.</p>
         <p>
-            Use them if you want to document <code>Protected</code>, <code>Internal</code>, and <code>Private</code> 
+            Use them if you want to document <code>protected</code>, <code>internal</code>, and <code>private</code> 
             declarations within this package,
-            as well as if you want to exclude <code>Public</code> declarations and only document internal API.
+            as well as if you want to exclude <code>public</code> declarations and only document internal API.
         </p>
         <p>
             Additionally, you can use Dokka's 
