@@ -49,9 +49,15 @@ abstract class AndroidAdapter @Inject constructor(
                 androidExt.bootClasspath()
             )
 
-            sourceRoots.from(
-                androidExt.sourceDirectories(this@dss.name)
-            )
+            if (currentAgpVersion.startsWith("9.")) {
+                // Lower AGP versions are bugged and return too many src dirs,
+                // which triggers https://github.com/Kotlin/dokka/issues/3701
+                // Also, lower AGP versions return src dirs from KotlinSourceSets.
+                // So only collect source dirs from AGP for 9+
+                sourceRoots.from(
+                    androidExt.sourceDirectories(this@dss.name)
+                )
+            }
 
             classpath.from(
                 analysisPlatform.map { analysisPlatform ->
@@ -83,6 +89,24 @@ abstract class AndroidAdapter @Inject constructor(
                     project.pluginManager.apply(AndroidAdapter::class)
                 }
             }
+        }
+
+        private val currentAgpVersion: String by lazy {
+            // com.android.Version is defined in `com.android.tools:common`,
+            // but AGP7 doesn't declare it as a dependency.
+            // If it's missing, fallback to the deprecated `com.android.builder.model.Version`.
+            // This can be simplified when AGP8 is the minimum supported version.
+
+            try {
+                com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
+            } catch (_: Exception) {
+                null
+            } ?: try {
+                com.android.builder.model.Version.ANDROID_GRADLE_PLUGIN_VERSION
+            } catch (_: Exception) {
+                null
+            }
+            ?: "not-found"
         }
     }
 }
