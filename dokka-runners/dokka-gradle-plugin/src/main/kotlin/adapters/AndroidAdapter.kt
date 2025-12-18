@@ -43,10 +43,14 @@ abstract class AndroidAdapter @Inject constructor(
 
         val androidExt = AndroidExtensionWrapper(project) ?: return
 
-        dokkaExtension.dokkaSourceSets.configureEach {
+        dokkaExtension.dokkaSourceSets.configureEach dss@{
 
             classpath.from(
                 androidExt.bootClasspath()
+            )
+
+            sourceRoots.from(
+                androidExt.sourceDirectories(this@dss.name)
             )
 
             classpath.from(
@@ -55,6 +59,7 @@ abstract class AndroidAdapter @Inject constructor(
                         KotlinPlatform.AndroidJVM ->
                             AndroidClasspathCollector(
                                 androidExt = androidExt,
+                                sourceSetName = this@dss.name,
                                 objects = objects,
                             )
 
@@ -113,12 +118,18 @@ private fun AndroidExtensionWrapper(
  */
 private interface AndroidExtensionWrapper {
 
-    fun variantsCompileClasspath(): FileCollection
+    fun variantsCompileClasspath(
+        sourceSetName: String,
+    ): Provider<FileCollection>
 
     /**
      * Get the `android.jar` for the current project.
      */
     fun bootClasspath(): Provider<List<File>>
+
+    fun sourceDirectories(
+        sourceSetName: String
+    ): Provider<FileCollection>
 
     companion object {
 
@@ -146,12 +157,18 @@ private interface AndroidExtensionWrapper {
                     }
 
                 /** Fetch all compilation-classpath files used by all variants. */
-                override fun variantsCompileClasspath(): FileCollection {
-                    val collector = objects.fileCollection()
-                    androidVariants.get().forEach { variant ->
-                        collector.from(variant.compileClasspath)
+                override fun variantsCompileClasspath(
+                    sourceSetName: String,
+                ): Provider<FileCollection> {
+                    return androidVariants.map { androidVariants ->
+                        val collector = objects.fileCollection()
+                        androidVariants
+                            .filter { it.name == sourceSetName }
+                            .forEach { variant ->
+                                collector.from(variant.compileClasspath)
+                            }
+                        collector
                     }
-                    return collector
                 }
 
                 override fun bootClasspath(): Provider<List<File>> {
@@ -159,6 +176,25 @@ private interface AndroidExtensionWrapper {
                         bootClasspath.map { contents ->
                             contents.map(RegularFile::getAsFile)
                         }
+                    }
+                }
+
+                override fun sourceDirectories(
+                    sourceSetName: String,
+                ): Provider<FileCollection> {
+                    return androidVariants.map { androidVariants ->
+                        val allSources = objects.fileCollection()
+                        androidVariants
+                            .filter { it.name == sourceSetName }
+                            .forEach { variant ->
+                                variant.kotlinSources?.let {
+                                    allSources.from(it)
+                                }
+                                variant.javaSources?.let {
+                                    allSources.from(it)
+                                }
+                            }
+                        allSources
                     }
                 }
             }
@@ -180,12 +216,13 @@ private interface AndroidExtensionWrapper {
 private object AndroidClasspathCollector {
 
     operator fun invoke(
+        sourceSetName: String,
         androidExt: AndroidExtensionWrapper,
         objects: ObjectFactory,
     ): FileCollection {
         val compilationClasspath = objects.fileCollection()
 
-        compilationClasspath.from({ androidExt.variantsCompileClasspath() })
+        compilationClasspath.from({ androidExt.variantsCompileClasspath(sourceSetName) })
 
         return compilationClasspath
     }

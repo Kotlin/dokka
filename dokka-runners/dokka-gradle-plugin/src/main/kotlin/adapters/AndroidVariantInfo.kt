@@ -7,7 +7,9 @@ package org.jetbrains.dokka.gradle.adapters
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.Variant
 import org.gradle.api.Project
+import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.jetbrains.dokka.gradle.internal.findExtensionLenient
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
@@ -19,11 +21,15 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
  * @param[isPublishable] `true` if any component of the variant is 'published',
  * i.e. it is an instance of [Variant].
  * @param[compileClasspath] The value of [Variant.compileClasspath].
+ * @param[kotlinSources] Kotlin source directories [com.android.build.api.variant.Sources.kotlin].
+ * @param[javaSources] Java source directories [com.android.build.api.variant.Sources.java].
  */
 internal data class AndroidVariantInfo(
     val name: String,
     val isPublishable: Boolean,
     val compileClasspath: FileCollection,
+    val kotlinSources: Provider<out Collection<Directory>>?,
+    val javaSources: Provider<out Collection<Directory>>?,
 )
 
 
@@ -92,6 +98,8 @@ internal fun SetProperty<AndroidVariantInfo>.collectFrom(
                         name = component.name,
                         isPublishable = variant.buildType.equals("release", ignoreCase = true),
                         compileClasspath = component.compileClasspath,
+                        kotlinSources = component.sources.kotlin?.all,
+                        javaSources = component.sources.java?.all,
                     )
                 )
             }
