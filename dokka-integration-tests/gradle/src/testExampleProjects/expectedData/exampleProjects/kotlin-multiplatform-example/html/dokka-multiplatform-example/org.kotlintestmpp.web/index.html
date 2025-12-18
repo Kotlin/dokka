@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
-    <title>js</title>
+    <title>org.kotlintestmpp.web</title>
     <link href="../../images/logo-icon.svg" rel="icon" type="image/svg">
         <script>var pathToRoot = "../../";</script>
     <script>document.documentElement.classList.replace("no-js", "js");</script>
@@ -48,6 +48,10 @@
         <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
                 <button class="platform-tag platform-selector js-like" data-active="" aria-pressed="true"
                         data-filter=":/jsMain">js</button>
+                <button class="platform-tag platform-selector wasm-like" data-active="" aria-pressed="true"
+                        data-filter=":/wasmJsMain">wasmJs</button>
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true"
+                        data-filter=":/webMain">web</button>
             <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
                 <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
                         data-role="dropdown-toggle"
@@ -68,6 +72,22 @@
                                        data-filter=":/jsMain"/>
                                 <span class="checkbox--icon"></span>
                                 js
+                            </label>
+                        </li>
+                        <li role="option" class="dropdown--option platform-selector-option wasm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":/wasmJsMain"
+                                       data-filter=":/wasmJsMain"/>
+                                <span class="checkbox--icon"></span>
+                                wasmJs
+                            </label>
+                        </li>
+                        <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":/webMain"
+                                       data-filter=":/webMain"/>
+                                <span class="checkbox--icon"></span>
+                                web
                             </label>
                         </li>
                 </ul>
@@ -103,14 +123,37 @@
         </nav>
         <div id="resizer" class="resizer" data-item-type="BAR"></div>
         <div id="main" data-item-type="SECTION" role="main">
-<div class="main-content" data-page-type="member" id="content" pageIds="dokka-multiplatform-example::org.kotlintestmpp//js/#/PointingToDeclaration//-649084563">
-  <div class="breadcrumbs"><a href="../../index.html">dokka-multiplatform-example</a><span class="delimiter">/</span><a href="index.html">org.kotlintestmpp</a><span class="delimiter">/</span><span class="current">js</span></div>
+<div class="main-content" data-page-type="package" id="content" pageIds="dokka-multiplatform-example::org.kotlintestmpp.web////PointingToDeclaration//1328637064">
+  <div class="breadcrumbs"><a href="../../index.html">dokka-multiplatform-example</a><span class="delimiter">/</span><span class="current">org.kotlintestmpp.web</span></div>
   <div class="cover ">
-    <h1 class="cover"><span><span>js</span></span></h1>
+    <h1 class="cover"><span><span>Package-level</span></span> <span><span>declarations</span></span></h1>
   </div>
-  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/jsMain" data-filterable-set=":/jsMain" data-active="" data-toggle=":/jsMain">js</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":/jsMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="js.html"><span class="token function">js</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><p class="paragraph">Function declared in JS source set</p></div>  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="TYPE">Types</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="TYPE">
+        <h2 class="tableheader">Types</h2>
+        <div class="table"><a data-name="115392247%2FClasslikes%2F1328637064" anchor-label="WebService" id="115392247%2FClasslikes%2F1328637064" data-filterable-set=":/webMain,:/jsMain,:/wasmJsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/webMain,:/jsMain,:/wasmJsMain" data-filterable-set=":/webMain,:/jsMain,:/wasmJsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-web-service/index.html"><span>Web</span><wbr></wbr><span><span>Service</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="115392247%2FClasslikes%2F1328637064"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/jsMain" data-filterable-set=":/jsMain" data-active="" data-toggle=":/jsMain">js</button><button class="platform-bookmark" data-filterable-current=":/wasmJsMain" data-filterable-set=":/wasmJsMain" data-toggle=":/wasmJsMain">wasmJs</button><button class="platform-bookmark" data-filterable-current=":/webMain" data-filterable-set=":/webMain" data-toggle=":/webMain">web</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-web-service/index.html">WebService</a> : <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-auto-closeable/index.html">AutoCloseable</a></div><div class="brief "><p class="paragraph">JS implementation of <a href="-web-service/index.html">WebService</a>.</p></div></div><div class="content sourceset-dependent-content" data-togglable=":/wasmJsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">open </span><span class="token keyword">class </span><a href="-web-service/index.html">WebService</a> : <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-auto-closeable/index.html">AutoCloseable</a></div><div class="brief "><p class="paragraph">WasmJS implementation of <a href="-web-service/index.html">WebService</a>.</p></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":/webMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">class </span><a href="-web-service/index.html">WebService</a> : <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-auto-closeable/index.html">AutoCloseable</a></div><div class="brief "><p class="paragraph">Specification of a <code class="lang-kotlin">WebService</code>, defined in <code class="lang-kotlin">webMain</code>.</p></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
     <div class="footer">
         <div class="footer--container">
