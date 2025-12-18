@@ -45,10 +45,6 @@ dokka {
         // Use this block instead of the standard when you 
         // want to change the output directory and include extra files
         outputDirectory.set(rootDir.resolve("docs/api/0.x"))
-
-        // Use this block instead of the standard when you want to include 
-        // specific files (such as README.md) from the project root
-        includes.from(rootDir.resolve("README.md"))
         
         // Use fileTree to add multiple files
         includes.from(
@@ -91,9 +87,9 @@ abstract class CustomPlugin : Plugin<Project> {
                 publication.includes.from("packages.md", "extra.md")
 
                 // Output directory for additional files
-                // Use this block when you want to change the output directory and include extra files
+                // Use this instead of the standard block when you 
+                // want to change the output directory and include extra files
                 html.outputDirectory.set(project.rootDir.resolve("docs/api/0.x"))
-                html.includes.from(project.layout.projectDirectory.file("README.md"))
             }
         }
     }
@@ -126,10 +122,9 @@ dokka {
             includes.from(files("packages.md", "extra.md"))
 
             // Output directory for additional files
-            // Use this block when you want to change the output 
-            // directory and include extra files
+            // Use this block instead of the standard when you want to 
+            // change the output directory and include extra files
             outputDirectory.set(file("$rootDir/docs/api/0.x"))
-            includes.from(layout.projectDirectory.file("README.md"))
         }
     }
 }
@@ -163,8 +158,7 @@ dokka {
         <p><b>Output directory for additional files</b></p>
         <p>You can specify the output directory and include additional files for both single and multi-project builds.
            For multi-project builds,
-           set the output directory and include additional files (such as <code>README.md</code>) 
-           in the configuration of the root project.
+           set the output directory and include additional files in the configuration of the root project.
         </p>
     </def>
     <def title="failOnWarning">
@@ -179,7 +173,7 @@ dokka {
         <p>Whether to suppress inherited members that aren't explicitly overridden in a given class.</p>
         <p>
             Note: 
-            This suppresses functions such as <code>equals</code> / <code>hashCode</code> / <code>toString</code>, 
+            This suppresses functions such as <code>equals</code>, <code>hashCode</code>, and <code>toString</code>, 
             but does not suppress synthetic functions such as <code>dataClass.componentN</code> and 
             <code>dataClass.copy</code>. Use <code>suppressObviousFunctions</code>
             for that.
@@ -220,7 +214,8 @@ dokka {
      <def title="includes">
         <p>
             A list of Markdown files that contain
-            <a href="dokka-module-and-package-docs.md">subproject and package documentation</a>.
+            <a href="dokka-module-and-package-docs.md">subproject and package documentation</a>. The Markdown files must
+            match the <a href="dokka-module-and-package-docs.md#file-format">required format</a>.
         </p>
         <p>The contents of the specified files are parsed and embedded into documentation as subproject and package descriptions.</p>
         <p>

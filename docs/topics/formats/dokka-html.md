@@ -22,7 +22,7 @@ For examples of the HTML output format, check the following docs:
 HTML as an output format is supported by all runners. To generate HTML documentation, follow these steps depending on 
 your build tool or runner:
 
-* For [Gradle](dokka-gradle.md#generate-documentation), run the following tasks: 
+* For [Gradle](dokka-gradle.md#generate-documentation), you can run the following tasks: 
   * `dokkaGenerate` to generate documentation in [all available formats based on the applied plugins](dokka-gradle.md#configure-documentation-output-format).
       This is the recommended task for most users. When using this task in IntelliJ IDEA, it logs a clickable link to the output.
   * `dokkaGeneratePublicationHtml` to generate documentation only in HTML format. This task exposes the output directory 

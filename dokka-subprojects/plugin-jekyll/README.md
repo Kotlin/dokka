@@ -3,7 +3,7 @@
 > The following applies to Dokka Gradle plugin (DGP) v2 mode. The DGP v1 mode is no longer supported.
 > To upgrade from v1 to v2 mode, follow the [Migration guide](dokka-migration.md).
 
-The Jekyll plugin adds the ability to generate documentation in [Jekyll Flavoured Markdown](https://jekyllrb.com/) format. 
+The Jekyll plugin adds the ability to generate documentation in [Jekyll](https://jekyllrb.com/) Flavoured Markdown format. 
 It supports both
 multi-project builds and Kotlin Multiplatform projects.
 

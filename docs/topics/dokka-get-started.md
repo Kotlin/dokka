@@ -111,7 +111,7 @@ Run the `dokkaGenerate` task from the aggregating project by prefixing the task 
 ./gradlew :aggregatingProject:dokkaGenerate
 ```
 
-Avoid running `./gradlew dokkaGenerate` instead of `./gradlew: dokkaGenerate` or `./gradlew :aggregatingProject:dokkaGenerate`.
+Avoid running `./gradlew dokkaGenerate` instead of `./gradlew :dokkaGenerate` or `./gradlew :aggregatingProject:dokkaGenerate`.
 Without a project path (`:`) prefixing the task, Gradle tries to run all `dokkaGenerate` tasks across the entire build, which may trigger unnecessary work.
 
 You can use different tasks to generate output in [HTML](dokka-html.md),
