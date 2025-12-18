@@ -15,6 +15,7 @@ import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
 import org.jetbrains.dokka.it.gradle.junit.*
+import org.jetbrains.dokka.it.gradle.junit.KotlinBuiltInCompatibility.Incompatible
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.name
 import kotlin.io.path.readText
@@ -22,7 +23,7 @@ import kotlin.io.path.readText
 /**
  * Integration test for the `it-android` project.
  */
-@TestsAndroid
+@TestsAndroid(kotlinBuiltIn = Incompatible)
 @TestsDGPv2
 @TestsKotlinJvm
 class AndroidProjectIT {
