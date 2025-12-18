@@ -4,6 +4,7 @@
 
 package org.jetbrains.dokka.analysis.kotlin.symbols.plugin
 
+import com.intellij.diagnostic.LoadingState
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.util.Disposer
 import org.jetbrains.dokka.DokkaConfiguration
@@ -200,13 +201,7 @@ internal fun topologicalSortByDependantSourceSets(
 
 private fun enableExperimentalKDocResolution() {
     // Enable experimental KDoc resolution in Kotlin Analysis API (K2)
-    runCatching {
-        Class.forName("com.intellij.diagnostic.LoadingState").let { klass ->
-            klass.getMethod("setCurrentState", klass).invoke(
-                null,
-                klass.getMethod("valueOf", String::class.java).invoke(null, "COMPONENTS_LOADED")
-            )
-        }
-    }
+    @Suppress("UnstableApiUsage")
+    LoadingState.setCurrentState(LoadingState.COMPONENTS_LOADED)
     System.setProperty("kotlin.analysis.experimentalKDocResolution", "true")
 }
