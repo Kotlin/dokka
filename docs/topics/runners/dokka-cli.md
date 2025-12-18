@@ -112,7 +112,7 @@ By default, the `dokka-base` artifact contains the [HTML](dokka-html.md) output 
 All other output formats are implemented as [Dokka plugins](dokka-plugins.md). In order to use them, you have to put them
 on the plugins classpath.
 
-For example, if you want to generate documentation in the experimental [GFM](dokka-markdown.md#gfm) output format, you need to download and
+For example, if you want to generate documentation in the experimental [GFM](https://github.com/Kotlin/dokka/blob/8e5c63d035ef44a269b8c43430f43f5c8eebfb63/dokka-subprojects/plugin-gfm/README.md) output format, you need to download and
 pass gfm-plugin's JAR ([download](https://repo1.maven.org/maven2/org/jetbrains/dokka/gfm-plugin/%dokkaVersion%/gfm-plugin-%dokkaVersion%.jar))
 into the `pluginsClasspath` configuration option.
 
@@ -140,7 +140,7 @@ Via JSON configuration:
 
 With the GFM plugin passed to `pluginsClasspath`, the CLI runner generates documentation in the GFM output format.
 
-For more information, see [Markdown](dokka-markdown.md) and [Javadoc](dokka-javadoc.md#generate-javadoc-documentation) pages.
+For more information, see [GFM](https://github.com/Kotlin/dokka/blob/8e5c63d035ef44a269b8c43430f43f5c8eebfb63/dokka-subprojects/plugin-gfm/README.md) and [Javadoc](dokka-javadoc.md#generate-javadoc-documentation) pages.
 
 ## Command line options
 

@@ -1,14 +1,17 @@
 [//]: # (title: Migrate to Dokka Gradle plugin v2)
 
+> This page is only relevant if you are using DGPv1 and want to migrate to DGPv2. Starting from Dokka 2.1.0, DGP v2 is enabled by default.
+> If you are using Dokka 2.1.0 or later,
+> you can skip this page and go directly to the [Dokka Gradle docs](dokka-gradle.md).
+>
+{style="note"}
+
 The Dokka Gradle plugin (DGP) is a tool for generating comprehensive API documentation for Kotlin projects built with Gradle.
 
 DGP seamlessly processes both Kotlin's KDoc comments and Java's Javadoc comments to extract information and create 
 structured documentation in [HTML or Javadoc](#select-documentation-output-format) format.
 
-Starting with Dokka 2.0.0, you can try the Dokka Gradle plugin v2, the new version of DGP. With Dokka 2.0.0, you can use
-the Dokka Gradle plugin either in v1 or v2 modes.
-
-DGP v2 introduces significant improvements to DGP, aligning more closely with Gradle best practices:
+The Dokka Gradle plugin v2 mode is enabled by default and aligns with Gradle best practices:
 
 * Adopts Gradle types, which leads to better performance.
 * Uses an intuitive top-level DSL configuration instead of a low-level task-based setup, which simplifies the build scripts and their readability.
@@ -16,6 +19,8 @@ DGP v2 introduces significant improvements to DGP, aligning more closely with Gr
 * Uses a type-safe plugin configuration, which improves the reliability and maintainability of your build scripts.
 * Fully supports Gradle [configuration cache](https://docs.gradle.org/current/userguide/configuration_cache.html) and 
   [build cache](https://docs.gradle.org/current/userguide/build_cache.html), which improves performance and simplifies build work.
+
+Read this guide for further information on changes and migration from DGP v1 to v2 modes.
 
 ## Before you start
 
@@ -33,18 +38,12 @@ Ensure that your project meets the minimum version requirements:
 
 ### Enable DGP v2
 
-> Starting from Dokka 2.1.0, DGP v2 is enabled by default.
-> If you are using or updating to Dokka 2.1.0 or later,
-> you can skip this step and go directly to [Migrate your project](#migrate-your-project).
->
-{style="note"}
-
-Update the Dokka version to 2.0.0 in the `plugins {}` block of your project’s `build.gradle.kts` file:
+Update the Dokka version to %dokkaVersion% in the `plugins {}` block of your project’s `build.gradle.kts` file:
 
 ```kotlin
 plugins {
     kotlin("jvm") version "2.1.10"
-    id("org.jetbrains.dokka") version "2.0.0"
+    id("org.jetbrains.dokka") version "%dokkaVersion%"
 }
 ```
 
@@ -93,7 +92,7 @@ After updating the Dokka Gradle plugin to v2, follow the migration steps applica
 
 ### Adjust configuration options
 
-DGP v2 introduces some changes in the [Gradle configuration options](dokka-gradle.md#configuration-options). In the `build.gradle.kts` file, adjust the configuration 
+DGP v2 introduces some changes in the [Gradle configuration options](dokka-gradle-configuration-options.md). In the `build.gradle.kts` file, adjust the configuration 
 options according to your project setup.
 
 #### Top-level DSL configuration in DGP v2
@@ -133,7 +132,7 @@ Configuration in DGP v2:
 The syntax of `build.gradle.kts` files differs from regular `.kt` files (such as those used for custom Gradle plugins) because Gradle's Kotlin DSL uses type-safe accessors.
 
 <tabs group="dokka-configuration">
-<tab title="Gradle configuration file" group-key="gradle">
+<tab title="Gradle Kotlin DSL" group-key="kotlin">
 
 ```kotlin
 // build.gradle.kts
@@ -161,7 +160,7 @@ dokka {
 ```
 
 </tab>
-<tab title="Kotlin file" group-key="kotlin">
+<tab title="Kotlin custom plugin" group-key="kotlin custom">
 
 ```kotlin
 // CustomPlugin.kt
@@ -267,7 +266,7 @@ Configuration in DGP v2:
 The syntax of `build.gradle.kts` files differs from regular `.kt` files (such as those used for custom Gradle plugins) because Gradle's Kotlin DSL uses type-safe accessors.
 
 <tabs group="dokka-configuration">
-<tab title="Gradle configuration file" group-key="gradle">
+<tab title="Gradle Kotlin DSL" group-key="kotlin">
 
 ```kotlin
 // build.gradle.kts
@@ -284,7 +283,7 @@ dokka {
 ```
 
 </tab>
-<tab title="Kotlin file" group-key="kotlin">
+<tab title="Kotlin custom plugin" group-key="kotlin custom">
 
 ```kotlin
 // CustomPlugin.kt
@@ -442,7 +441,7 @@ Configuration in DGP v2:
 The syntax of `build.gradle.kts` files differs from regular `.kt` files (such as those used for custom Gradle plugins) because Gradle's Kotlin DSL uses type-safe accessors.
 
 <tabs group="dokka-configuration">
-<tab title="Gradle configuration file" group-key="gradle">
+<tab title="Gradle Kotlin DSL" group-key="kotlin">
 
 ```kotlin
 // build.gradle.kts
@@ -456,7 +455,7 @@ dokka {
 ```
 
 </tab>
-<tab title="Kotlin file" group-key="kotlin">
+<tab title="Kotlin custom plugin" group-key="kotlin custom">
 
 ```kotlin
 // CustomPlugin.kt
@@ -526,15 +525,15 @@ For an example of the DGP v2 configuration, see the
 DGP v2 allows you to extend its functionality by [configuring custom plugins](https://github.com/Kotlin/dokka/blob/ae3840edb4e4afd7b3e3768a5fddfe8ec0e08f31/examples/gradle-v2/custom-dokka-plugin-example/demo-library/build.gradle.kts).
 Custom plugins enable additional processing or modifications to the documentation generation process.
 
-### Share Dokka configuration across modules
+### Share Dokka configuration across subprojects
 
-DPG v2 moves away from using `subprojects {}` or `allprojects {}` to share configuration across modules. In future Gradle versions, 
+DPG v2 moves away from using `subprojects {}` or `allprojects {}` to share configuration across subprojects. In future Gradle versions, 
 using these approaches will [lead to errors](https://docs.gradle.org/current/userguide/isolated_projects.html).
 
 Follow the steps below to properly share Dokka configuration in multi-module projects [with existing convention plugins](#multi-module-projects-with-convention-plugins)
 or [without convention plugins](#multi-module-projects-without-convention-plugins).
 
-After sharing the Dokka configuration, you can aggregate the documentation from multiple modules into a single output. For more information, see
+After sharing the Dokka configuration, you can aggregate the documentation from multiple subprojects into a single output. For more information, see
 [Update documentation aggregation in multi-module projects](#update-documentation-aggregation-in-multi-module-projects).
 
 > For a multi-module project example, see the [Dokka GitHub repository](https://github.com/Kotlin/dokka/tree/master/examples/gradle-v2/multimodule-example).
@@ -543,12 +542,12 @@ After sharing the Dokka configuration, you can aggregate the documentation from 
 
 #### Multi-module projects without convention plugins
 
-If your project doesn't use convention plugins, you can still share Dokka configurations by directly configuring each module. 
-This involves manually setting up the shared configuration in each module's `build.gradle.kts` file. While this approach is less centralized, 
+If your project doesn't use convention plugins, you can still share Dokka configurations by directly configuring each subproject. 
+This involves manually setting up the shared configuration in each subproject's `build.gradle.kts` file. While this approach is less centralized, 
 it avoids the need for additional setups like convention plugins.
 
 Otherwise, if your project uses convention plugins, you can also share the Dokka configuration in multi-module projects 
-by creating a convention plugin in the `buildSrc` directory, and then applying the plugin to your modules (subprojects).
+by creating a convention plugin in the `buildSrc` directory, and then applying the plugin to your subprojects.
 
 ##### Set up the buildSrc directory
 
@@ -576,7 +575,7 @@ by creating a convention plugin in the `buildSrc` directory, and then applying t
     }
     
     dependencies {
-        implementation("org.jetbrains.dokka:dokka-gradle-plugin:2.0.0")
+        implementation("org.jetbrains.dokka:dokka-gradle-plugin:%dokkaVersion%")
     }   
     ```
 
@@ -600,9 +599,9 @@ After setting up the `buildSrc` directory:
    You need to add the shared Dokka [configuration](#adjust-configuration-options) common to all subprojects within the `dokka {}` block.
    Also, you don't need to specify a Dokka version. The version is already set in the `buildSrc/build.gradle.kts` file.
 
-##### Apply the convention plugin to your modules
+##### Apply the convention plugin to your subprojects
 
-Apply the Dokka convention plugin across your modules (subprojects) by adding it to each subproject's `build.gradle.kts` file:
+Apply the Dokka convention plugin across your subprojects by adding it to each subproject's `build.gradle.kts` file:
 
 ```kotlin
 plugins {
@@ -615,13 +614,13 @@ plugins {
 If you already have convention plugins, create a dedicated Dokka convention plugin following [Gradle's documentation](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:convention_plugins).
 
 Then, follow the steps to [set up the Dokka convention plugin](#set-up-the-dokka-convention-plugin) and 
-[apply it across your modules](#apply-the-convention-plugin-to-your-modules).
+[apply it across your subprojects](#apply-the-convention-plugin-to-your-subprojects).
 
 ### Update documentation aggregation in multi-module projects
 
-Dokka can aggregate the documentation from multiple modules (subprojects) into a single output or publication.
+Dokka can aggregate the documentation from multiple subprojects into a single output or publication.
 
-As [explained](#apply-the-convention-plugin-to-your-modules), apply the Dokka plugin to all documentable subprojects before aggregating the documentation.
+As [explained](#apply-the-convention-plugin-to-your-subprojects), apply the Dokka plugin to all documentable subprojects before aggregating the documentation.
 
 Aggregation in DGP v2 uses the `dependencies {}` block instead of tasks and can be added in any `build.gradle.kts` file. 
 
@@ -647,7 +646,7 @@ dependencies {
 
 ### Change directory of aggregated documentation
 
-When DGP aggregates modules, each subproject has its own subdirectory within the aggregated documentation.
+When DGP aggregates subprojects, each subproject has its own subdirectory within the aggregated documentation.
 
 In DGP v2, the aggregation mechanism has been updated to better align with Gradle conventions. 
 DGP v2 now preserves the full subproject directory to prevent conflicts when aggregating 
@@ -677,7 +676,7 @@ may become outdated, potentially causing `404` errors.
 
 #### Revert to the DGP v1 directory behavior
 
-If your project depends on the directory structure used in DGP v1, you can revert this behavior by manually specifying the module directory.
+If your project depends on the directory structure used in DGP v1, you can revert this behavior by manually specifying the subproject directory.
 Add the following configuration to the `build.gradle.kts` file of each subproject:
 
 ```kotlin
@@ -688,7 +687,7 @@ plugins {
 }
 
 dokka {
-    // Overrides the module directory to match the V1 structure
+    // Overrides the subproject directory to match the V1 structure
     modulePath.set("maths")
 }
 ```
@@ -724,7 +723,7 @@ to generate output in HTML, Javadoc or both HTML and Javadoc. For more informati
 > You may find bugs and experience migration issues when using it. Successful integration with tools that accept Javadoc
 > as input is not guaranteed. Use it at your own risk.
 >
-{style="note"}
+{style="warning"}
 
 The default output format for DGP v2 is HTML. However, you can choose to generate the API documentation in HTML, Javadoc, 
 or both formats at the same time:
@@ -734,10 +733,10 @@ or both formats at the same time:
    ```kotlin
    plugins {
        // Generates HTML documentation
-       id("org.jetbrains.dokka") version "2.0.0"
+       id("org.jetbrains.dokka") version "%dokkaVersion%"
 
        // Generates Javadoc documentation
-       id("org.jetbrains.dokka-javadoc") version "2.0.0"
+       id("org.jetbrains.dokka-javadoc") version "%dokkaVersion%"
 
        // Keeping both plugin IDs generates both formats
    }
@@ -757,6 +756,9 @@ Here is a list of the plugin `id` and Gradle task that correspond to each format
 > or only Javadoc by running the `dokkaGeneratePublicationJavadoc` task.
 > 
 {style="tip"}
+
+If you're using IntelliJ IDEA, you may see the `dokkaGenerateHtml` Gradle task.
+This task is simply an alias of `dokkaGeneratePublicationHtml`. Both tasks perform exactly the same operation.
 
 ### Address deprecations and removals
 
@@ -785,73 +787,6 @@ DGP v2 now supports Gradle build cache and configuration cache, improving build 
 
 * To enable build cache, follow instructions in the [Gradle build cache documentation](https://docs.gradle.org/current/userguide/build_cache.html#sec:build_cache_enable).
 * To enable configuration cache, follow instructions in the [Gradle configuration cache documentation](https://docs.gradle.org/current/userguide/configuration_cache.html#config_cache:usage:enable ).
-
-## Troubleshooting
-
-In large projects, Dokka can consume a significant amount of memory to generate documentation.
-This can exceed Gradle’s memory limits, especially when processing large volumes of data.
-
-When Dokka generation runs out of memory, the build fails, and Gradle can throw exceptions like `java.lang.OutOfMemoryError: Metaspace`.
-
-Active efforts are underway to improve Dokka's performance, although some limitations stem from Gradle.
-
-If you encounter memory issues, try these workarounds:
-
-* [Increasing heap space](#increase-heap-space)
-* [Running Dokka within the Gradle process](#run-dokka-within-the-gradle-process)
-
-### Increase heap space
-
-One way to resolve memory issues is to increase the amount of Java heap memory for the Dokka generator process. 
-In the `build.gradle.kts` file, adjust the 
-following configuration option:
-
-```kotlin
-    dokka {
-        // Dokka generates a new process managed by Gradle
-        dokkaGeneratorIsolation = ProcessIsolation {
-            // Configures heap size
-            maxHeapSize = "4g"
-        }
-    }
-```
-
-In this example, the maximum heap size is set to 4 GB (`"4g"`). Adjust and test the value to find the optimal setting for your build.
-
-If you find that Dokka requires a considerably expanded heap size, for example, significantly higher than Gradle's own memory usage, 
-[create an issue on Dokka's GitHub repository](https://kotl.in/dokka-issues).
-
-> You have to apply this configuration to each subproject. It is recommended that you configure Dokka in a convention 
-> plugin applied to all subprojects.
->
-{style="note"}
-
-### Run Dokka within the Gradle process
-
-When both the Gradle build and Dokka generation require a lot of memory, they may run as separate processes, 
-consuming significant memory on a single machine.
-
-To optimize memory usage, you can run Dokka within the same Gradle process instead of as a separate process. This 
-allows you to configure the memory for Gradle once instead of allocating it separately for each process.
-
-To run Dokka within the same Gradle process, adjust the following configuration option in the `build.gradle.kts` file:
-
-```kotlin
-    dokka {
-        // Runs Dokka in the current Gradle process
-        dokkaGeneratorIsolation = ClassLoaderIsolation()
-    }
-```
-
-As with [increasing heap space](#increase-heap-space), test this configuration to confirm it works well for your project.
-
-For more details on configuring Gradle's JVM memory, see the [Gradle documentation](https://docs.gradle.org/current/userguide/config_gradle.html#sec:configuring_jvm_memory).
-
-> Changing the Java options for Gradle launches a new Gradle daemon, which may stay alive for a long time. You can [manually stop any other Gradle processes](https://docs.gradle.org/current/userguide/gradle_daemon.html#sec:stopping_an_existing_daemon).
-> 
-> Additionally, Gradle issues with the `ClassLoaderIsolation()` configuration may [cause memory leaks](https://github.com/gradle/gradle/issues/18313). 
->
-{style="note"}
 
 ## What's next
 
