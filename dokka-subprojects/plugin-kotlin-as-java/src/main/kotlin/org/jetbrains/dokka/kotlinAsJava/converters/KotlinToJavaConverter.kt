@@ -158,7 +158,6 @@ public class KotlinToJavaConverter(
                     modifier = javaModifierFromSetter(),
                     visibility = visibility.mapValues { JavaVisibility.Public },
                     type = getter.type.asJava(),
-                    documentation = documentation,
                     extra = if (isTopLevel) getter.extra +
                             getter.extra.mergeAdditionalModifiers(
                                 sourceSets.associateWith {
@@ -189,7 +188,6 @@ public class KotlinToJavaConverter(
                     modifier = javaModifierFromSetter(),
                     visibility = visibility.mapValues { JavaVisibility.Public },
                     type = Void,
-                    documentation = documentation,
                     extra = if (isTopLevel) setter.extra + setter.extra.mergeAdditionalModifiers(
                         sourceSets.associateWith {
                             setOf(ExtraModifiers.JavaOnlyModifiers.Static)
@@ -309,7 +307,7 @@ public class KotlinToJavaConverter(
     internal fun DClass.functionsInJava(): List<DFunction> =
         properties
             .filter { !it.isJvmField && !it.hasJvmSynthetic() }
-            .flatMap { property -> listOfNotNull( property.getter, property.setter) }
+            .flatMap { property -> listOfNotNull(property.getter, property.setter) }
             .plus(functions)
             .plus(companion.staticFunctionsForJava())
             .filterNot { it.hasJvmSynthetic() }
