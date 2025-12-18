@@ -21,6 +21,10 @@ public final class matchers/content/ContentMatchersDslKt {
 	public static final fun divergentGroup (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
 	public static final fun divergentInstance (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
 	public static final fun group (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
+	public static final fun group2 (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
+	public static final fun group3 (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
+	public static final fun group4 (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
+	public static final fun groupedLink (Lmatchers/content/ContentMatcherBuilder;Lkotlin/jvm/functions/Function1;)V
 	public static final fun hasExactText (Lmatchers/content/ContentMatcherBuilder;Ljava/lang/String;)V
 	public static final fun header (Lmatchers/content/ContentMatcherBuilder;Ljava/lang/Integer;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun header$default (Lmatchers/content/ContentMatcherBuilder;Ljava/lang/Integer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V

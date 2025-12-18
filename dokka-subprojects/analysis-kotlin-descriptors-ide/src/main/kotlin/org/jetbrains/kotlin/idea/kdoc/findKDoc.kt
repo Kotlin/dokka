@@ -128,6 +128,11 @@ private fun KtElement.lookupInheritedKDoc(descriptorToPsi: DescriptorToPsi): KDo
             }
         }
     }
+    // KDoc for property accessors is inherited from its property declaration
+    if (this is KtPropertyAccessor) {
+        val containingProperty = parent as? KtProperty
+        containingProperty?.findKDoc()?.let { return it }
+    }
     return null
 }
 
