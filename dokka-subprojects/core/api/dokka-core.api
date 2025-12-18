@@ -4812,13 +4812,13 @@ public final class org/jetbrains/dokka/utilities/ParallelCollectionOperationsKt 
 }
 
 public abstract interface class org/jetbrains/dokka/utilities/SelfRepresentingSingletonSet : java/util/Set, kotlin/jvm/internal/markers/KMappedMarker {
-	public synthetic fun contains (Ljava/lang/Object;)Z
+	public fun contains (Ljava/lang/Object;)Z
 	public fun contains (Lorg/jetbrains/dokka/utilities/SelfRepresentingSingletonSet;)Z
 	public fun containsAll (Ljava/util/Collection;)Z
 	public fun getSize ()I
 	public fun isEmpty ()Z
 	public fun iterator ()Ljava/util/Iterator;
-	public synthetic fun size ()I
+	public fun size ()I
 }
 
 public final class org/jetbrains/dokka/utilities/SelfRepresentingSingletonSet$DefaultImpls {
