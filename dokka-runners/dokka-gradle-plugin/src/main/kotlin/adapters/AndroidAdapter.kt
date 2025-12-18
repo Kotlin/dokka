@@ -50,10 +50,12 @@ abstract class AndroidAdapter @Inject constructor(
             )
 
             if (currentAgpVersion.startsWith("9.")) {
-                // Lower AGP versions are bugged and return too many src dirs,
+                // Lower AGP versions are bugged and return too many src dirs
+                // https://issuetracker.google.com/issues/461736989
                 // which triggers https://github.com/Kotlin/dokka/issues/3701
-                // Also, lower AGP versions return src dirs from KotlinSourceSets.
-                // So only collect source dirs from AGP for 9+
+                //
+                // So only collect source dirs from AGP for 9+.
+                // For lower AGP versions DGP can collect src dirs from KotlinSourceSets.
                 sourceRoots.from(
                     androidExt.sourceDirectories(this@dss.name)
                 )
