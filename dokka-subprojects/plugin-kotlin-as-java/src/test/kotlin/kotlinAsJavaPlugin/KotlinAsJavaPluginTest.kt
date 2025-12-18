@@ -564,6 +564,54 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `documentation on properties with custom property accessors`() {
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
+            |package kotlinAsJavaPlugin
+            |
+            |/**
+            | * @property propertyWithInheritedKDoc Property with kdoc from parent
+            | */
+            |class CrossLinksSource {
+            |    var propertyWithInheritedKDoc: Int 
+            |            get() = 0 
+            |            set(value) {}
+            |    
+            |    /**
+            |     * Property with own kdoc
+            |     */
+            |    var propertyWithOwnKDoc: Int 
+            |            get() = 0 
+            |            set(value) {}
+            |}
+        """.trimMargin(),
+            defaultConfiguration,
+            cleanupOutput = true
+        ) {
+            pagesGenerationStage = { root ->
+                val content = (root.children.single().children
+                    .first { it.name == "CrossLinksSource" } as ContentPage).content
+
+                val functionRows = content.findTableWithKind(kind = ContentKind.Functions).children
+                functionRows.assertCount(4)
+
+                functionRows.first { it.dci.toString().contains("getPropertyWithInheritedKDoc") }
+                    .assertGetter("getPropertyWithInheritedKDoc", "Property with kdoc from parent")
+
+                functionRows.first { it.dci.toString().contains("setPropertyWithInheritedKDoc") }
+                    .assertSetter("setPropertyWithInheritedKDoc", "Property with kdoc from parent")
+
+                functionRows.first { it.dci.toString().contains("getPropertyWithOwnKDoc") }
+                    .assertGetter("getPropertyWithOwnKDoc", "Property with own kdoc")
+
+                functionRows.first { it.dci.toString().contains("setPropertyWithOwnKDoc") }
+                    .assertSetter("setPropertyWithOwnKDoc", "Property with own kdoc")
+            }
+        }
+    }
+
+    @Test
     fun `documentation on extension property getter`() {
         testInline(
             """
