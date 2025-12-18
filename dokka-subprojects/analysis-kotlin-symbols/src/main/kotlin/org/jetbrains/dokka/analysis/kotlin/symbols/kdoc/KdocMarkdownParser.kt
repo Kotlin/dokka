@@ -6,8 +6,11 @@ package org.jetbrains.dokka.analysis.kotlin.symbols.kdoc
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiRecursiveElementVisitor
+import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.analysis.markdown.jb.MarkdownParser
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.PointingToContextParameters
+import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Suppress
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
@@ -16,6 +19,7 @@ import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.psi.psiUtil.checkDecompiledText
 
+@OptIn(ExperimentalDokkaApi::class)
 internal fun parseFromKDocTag(
     kDocTag: KDocTag?,
     externalDri: (KDocLink) -> DRI?,
@@ -61,10 +65,22 @@ internal fun parseFromKDocTag(
                             pointedLink(tag)
                         )
                     }
-                    KDocKnownTag.PARAM -> Param(
-                        parseStringToDocNode(tag.getContent(), externalDRIProvider),
-                        tag.getSubjectName().orEmpty()
-                    )
+                    KDocKnownTag.PARAM -> {
+                        val link = pointedLink(tag)
+                        when (link?.target) {
+                            is PointingToContextParameters -> ContextParameter(
+                                parseStringToDocNode(tag.getContent(), externalDRIProvider),
+                                tag.getSubjectName().orEmpty()
+                            )
+                            is PointingToDeclaration if tag.getSubjectName() == "this" -> Receiver(
+                                parseStringToDocNode(tag.getContent(), externalDRIProvider)
+                            )
+                            else -> Param(
+                                parseStringToDocNode(tag.getContent(), externalDRIProvider),
+                                tag.getSubjectName().orEmpty()
+                            )
+                        }
+                    }
                     KDocKnownTag.RECEIVER -> Receiver(parseStringToDocNode(tag.getContent(), externalDRIProvider))
                     KDocKnownTag.RETURN -> Return(parseStringToDocNode(tag.getContent(), externalDRIProvider))
                     KDocKnownTag.SEE -> {

@@ -9,7 +9,6 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.base.transformers.pages.tags.CustomTagContentProvider
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.model.WithScope
@@ -116,6 +115,36 @@ internal fun PageContentBuilder.DocumentableContentBuilder.paramsSectionContent(
     val availableSourceSets = params.availableSourceSets()
     tableSectionContentBlock(
         blockName = "Parameters",
+        kind = ContentKind.Parameters,
+        sourceSets = availableSourceSets
+    ) {
+        availableSourceSets.forEach { sourceSet ->
+            val possibleFallbacks = availableSourceSets.getPossibleFallback(sourceSet)
+            params.mapNotNull { (_, param) ->
+                (param[sourceSet] ?: param.fallback(possibleFallbacks))?.let {
+                    row(sourceSets = setOf(sourceSet), kind = ContentKind.Parameters) {
+                        text(
+                            it.name,
+                            kind = ContentKind.Parameters,
+                            styles = mainStyles + setOf(ContentStyle.RowTitle, TextStyle.Underlined)
+                        )
+                        if (it.isNotEmpty()) {
+                            comment(it.root)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+internal fun PageContentBuilder.DocumentableContentBuilder.contextParamsSectionContent(tags: GroupedTags) {
+    val params = tags.withTypeNamed<ContextParameter>()
+    if (params.isEmpty()) return
+
+    val availableSourceSets = params.availableSourceSets()
+    tableSectionContentBlock(
+        blockName = "Context Parameters",
         kind = ContentKind.Parameters,
         sourceSets = availableSourceSets
     ) {

@@ -1542,6 +1542,266 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    @OnlySymbols("#4065 - context parameters")
+    fun `context parameter in param tag`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            | /**
+            |  * @param scope context parameter
+            |  * @param arg parameter
+            |  */
+            |context(scope: String)
+            |fun foo(arg: Int) {}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("test", "foo")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"foo" }
+                    }
+
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"context("
+                                group2 {
+                                    +"scope: "
+                                    groupedLink { +"String" }
+                                }
+                                +")"
+                                br()
+                                +"fun "
+                                link { +"foo" }
+                                +"("
+                                group2 {
+                                    +"arg: "
+                                    groupedLink { +"Int" }
+                                }
+                                +")"
+                            }
+
+                            group {
+                                header(4) { +"Context Parameters" }
+                                table {
+                                    group {
+                                        +"scope"
+                                        group2 { +"context parameter" }
+                                    }
+                                }
+                                header(4) { +"Parameters" }
+                                table {
+                                    group {
+                                        +"arg"
+                                        group2 { +"parameter" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols("#4065 - context parameters")
+    fun `context parameter in param tag with brackets`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            | /**
+            |  * @param[scope] context parameter
+            |  * @param[arg] parameter
+            |  */
+            |context(scope: String)
+            |fun foo(arg: Int) {}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("test", "foo")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"foo" }
+                    }
+
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"context("
+                                group2 {
+                                    +"scope: "
+                                    groupedLink { +"String" }
+                                }
+                                +")"
+                                br()
+                                +"fun "
+                                link { +"foo" }
+                                +"("
+                                group2 {
+                                    +"arg: "
+                                    groupedLink { +"Int" }
+                                }
+                                +")"
+                            }
+
+                            group {
+                                header(4) { +"Context Parameters" }
+                                table {
+                                    group {
+                                        +"scope"
+                                        group2 { +"context parameter" }
+                                    }
+                                }
+                                header(4) { +"Parameters" }
+                                table {
+                                    group {
+                                        +"arg"
+                                        group2 { +"parameter" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols("#4065 - context parameters")
+    fun `context receiver in param tag`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            | /**
+            |  * @param this receiver
+            |  * @param arg parameter
+            |  */
+            |context(scope: String)
+            |fun Int.foo(arg: Int) {}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("test", "foo")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"foo" }
+                    }
+
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"context("
+                                group2 {
+                                    +"scope: "
+                                    groupedLink { +"String" }
+                                }
+                                +")"
+                                br()
+                                +"fun "
+                                groupedLink { +"Int" }
+                                +"."
+                                link { +"foo" }
+                                +"("
+                                group2 {
+                                    +"arg: "
+                                    groupedLink { +"Int" }
+                                }
+                                +")"
+                            }
+
+                            group {
+                                group {
+                                    header(4) { +"Receiver" }
+                                    group2 { +"receiver" }
+                                }
+
+                                header(4) { +"Parameters" }
+                                table {
+                                    group {
+                                        +"arg"
+                                        group2 { +"parameter" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols("#4065 - context parameters")
+    fun `context receiver in param tag with brackets`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            | /**
+            |  * @param[this] receiver
+            |  * @param[arg] parameter
+            |  */
+            |context(scope: String)
+            |fun Int.foo(arg: Int) {}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("test", "foo")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"foo" }
+                    }
+
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"context("
+                                group2 {
+                                    +"scope: "
+                                    groupedLink { +"String" }
+                                }
+                                +")"
+                                br()
+                                +"fun "
+                                groupedLink { +"Int" }
+                                +"."
+                                link { +"foo" }
+                                +"("
+                                group2 {
+                                    +"arg: "
+                                    groupedLink { +"Int" }
+                                }
+                                +")"
+                            }
+
+                            group {
+                                group {
+                                    header(4) { +"Receiver" }
+                                    group2 { +"receiver" }
+                                }
+
+                                header(4) { +"Parameters" }
+                                table {
+                                    group {
+                                        +"arg"
+                                        group2 { +"parameter" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun DocumentationNode.paramsDescription(): String =
         children.firstIsInstanceOrNull<Param>()?.root?.children?.first()?.children?.firstIsInstanceOrNull<Text>()?.body.orEmpty()
 

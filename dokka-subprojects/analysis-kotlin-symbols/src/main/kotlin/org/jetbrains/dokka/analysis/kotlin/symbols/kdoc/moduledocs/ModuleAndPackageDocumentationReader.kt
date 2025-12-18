@@ -12,6 +12,7 @@ import org.jetbrains.dokka.model.DPackage
 import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Deprecated
+import org.jetbrains.dokka.model.doc.Suppress
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
@@ -105,9 +106,10 @@ private class ContextModuleAndPackageDocumentationReader(
                     is Since -> acc.copy(newRoot)
                     is Return -> acc.copy(newRoot)
                     is Receiver -> acc.copy(newRoot)
+                    is ContextParameter -> acc.copy(newRoot)
                     is Constructor -> acc.copy(newRoot)
                     is Deprecated -> acc.copy(newRoot)
-                    is org.jetbrains.dokka.model.doc.Suppress -> acc.copy(newRoot)
+                    is Suppress -> acc.copy(newRoot)
                 }
             }
         }

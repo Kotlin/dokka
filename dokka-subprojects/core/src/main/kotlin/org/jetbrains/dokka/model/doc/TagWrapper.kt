@@ -26,6 +26,7 @@ public data class See(override val root: DocTag, override val name: String, val 
 public data class Param(override val root: DocTag, override val name: String) : NamedTagWrapper()
 public data class Return(override val root: DocTag) : TagWrapper()
 public data class Receiver(override val root: DocTag) : TagWrapper()
+public data class ContextParameter(override val root: DocTag, override val name: String) : NamedTagWrapper()
 public data class Constructor(override val root: DocTag) : TagWrapper()
 //TODO this naming is confusing since kotlin has Throws annotation
 public data class Throws(override val root: DocTag, override val name: String, val exceptionAddress: DRI?) : NamedTagWrapper()
