@@ -156,7 +156,7 @@ abstract class KotlinAdapter @Inject constructor(
                     }
                 logger.info(
                     "[$projectPath] Dokka could not determine KotlinPlatform for ${details.name} from targets ${compilations.map { it.target }}. " +
-                            "Dokka will assume this is a ${defaultPlatform} source set. " +
+                             "Dokka will assume this is a $defaultPlatform source set. " +
                             "(All platforms: $allPlatforms)"
                 )
                 defaultPlatform
@@ -529,7 +529,7 @@ private class KotlinCompilationDetailsBuilder(
                 )
             }
         } else {
-            return providers.provider { objects.fileCollection() }
+            providers.provider { objects.fileCollection() }
         }
     }
 
