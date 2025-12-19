@@ -29,6 +29,7 @@ import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.MemberPageNode
 import utils.OnlySymbols
 import utils.findTestType
+import utils.withExperimentalKDocResolution
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -46,7 +47,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `#3451 ambiguous link to the class`() {
+    fun `#3451 ambiguous link to the class`() = withExperimentalKDocResolution {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -120,7 +121,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `#3451 ambiguous link to function and property`() {
+    fun `#3451 ambiguous link to function and property`() = withExperimentalKDocResolution {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -212,7 +213,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `#3451 ambiguous link with factory functions`() {
+    fun `#3451 ambiguous link with factory functions`() = withExperimentalKDocResolution {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -359,7 +360,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `#3451 ambiguous link to inner class`() {
+    fun `#3451 ambiguous link to inner class`() = withExperimentalKDocResolution {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -411,7 +412,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `#3179 KDoc link to property`() {
+    fun `#3179 KDoc link to property`() = withExperimentalKDocResolution {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -485,7 +486,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `#3179 KDoc link to parameter`() {
+    fun `#3179 KDoc link to parameter`() = withExperimentalKDocResolution {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -536,7 +537,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
 
     @Test
     @Ignore("KT-83152 [Analysis API, KDoc] Make class name links on constructors point to the class")
-    fun `#3604 KDoc reference to class from constructor`() {
+    fun `#3604 KDoc reference to class from constructor`() = withExperimentalKDocResolution {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -604,7 +605,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `#3632 KDoc reference to extension`() {
+    fun `#3632 KDoc reference to extension`() = withExperimentalKDocResolution {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -666,7 +667,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `#3632 KDoc reference to member in extension`() {
+    fun `#3632 KDoc reference to member in extension`() = withExperimentalKDocResolution {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -726,7 +727,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `#4327 KDoc reference to properties named the same as constructor parameters`() {
+    fun `#4327 KDoc reference to properties named the same as constructor parameters`() = withExperimentalKDocResolution {
         testInline(
             """
             |/src/main/kotlin/test/source.kt

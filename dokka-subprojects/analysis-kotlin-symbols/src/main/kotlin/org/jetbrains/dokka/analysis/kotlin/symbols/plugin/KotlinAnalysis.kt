@@ -28,10 +28,6 @@ import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
 import org.jetbrains.kotlin.platform.konan.NativePlatforms
 import org.jetbrains.kotlin.platform.wasm.WasmPlatforms
 import java.io.File
-import java.io.IOException
-import java.nio.file.*
-import java.nio.file.attribute.BasicFileAttributes
-import kotlin.io.path.extension
 
 internal fun Platform.toTargetPlatform() = when (this) {
     Platform.wasm -> WasmPlatforms.unspecifiedWasmPlatform
@@ -80,7 +76,9 @@ internal fun createAnalysisSession(
     projectDisposable: Disposable = Disposer.newDisposable("StandaloneAnalysisAPISession.project"),
     isSampleProject: Boolean = false
 ): KotlinAnalysis {
-    enableExperimentalKDocResolution()
+    if (InternalConfiguration.experimentalKDocResolutionEnabled) {
+        enableExperimentalKDocResolution()
+    }
 
     val sourcesModule = mutableMapOf<DokkaConfiguration.DokkaSourceSet, KaSourceModule>()
     val isMultiplatformProject = sourceSets.any { it.analysisPlatform != Platform.jvm }
