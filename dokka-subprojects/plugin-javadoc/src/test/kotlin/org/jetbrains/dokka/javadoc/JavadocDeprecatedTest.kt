@@ -60,16 +60,12 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
         }
     }
 
-    @Tag("onlyDescriptors") // https://github.com/Kotlin/dokka/issues/3266 - `describeConstable` is in deprecated page on Java 17
+    @Tag("onlySymbols") // https://github.com/Kotlin/dokka/issues/3266 - `describeConstable` is in deprecated page on Java 17
     @Test
     fun `finds correct number of deprecated methods`() {
         testDeprecatedPageTemplateMaps { templateMap ->
-            //We are checking whether we will have an additional function for enum classes
-            fun hasAdditionalFunction() =
-                AnnotationTarget.ANNOTATION_CLASS::class.java.methods.any { it.name == "describeConstable" }
-
             val map = templateMap.section("Methods")
-            assertEquals(if (hasAdditionalFunction()) 5 else 4, map.elements().size)
+            assertEquals(4, map.elements().size)
         }
     }
 
