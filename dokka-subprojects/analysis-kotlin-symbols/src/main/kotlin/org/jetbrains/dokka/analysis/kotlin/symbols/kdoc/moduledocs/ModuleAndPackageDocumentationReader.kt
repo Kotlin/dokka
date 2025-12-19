@@ -106,7 +106,6 @@ private class ContextModuleAndPackageDocumentationReader(
                     is Since -> acc.copy(newRoot)
                     is Return -> acc.copy(newRoot)
                     is Receiver -> acc.copy(newRoot)
-                    is ContextParameter -> acc.copy(newRoot)
                     is Constructor -> acc.copy(newRoot)
                     is Deprecated -> acc.copy(newRoot)
                     is Suppress -> acc.copy(newRoot)

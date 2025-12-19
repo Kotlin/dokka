@@ -1671,6 +1671,201 @@ class ContentForParamsTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    @OnlySymbols("#4065 - context parameters")
+    fun `type parameter in param tag`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            | /**
+            |  * @param T type parameter
+            |  * @param arg parameter
+            |  */
+            |fun <T> foo(arg: Int) {}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("test", "foo")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"foo" }
+                    }
+
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"fun <"
+                                group3 { link { +"T" } }
+                                +"> "
+                                link { +"foo" }
+                                +"("
+                                group2 {
+                                    +"arg: "
+                                    groupedLink { +"Int" }
+                                }
+                                +")"
+                            }
+
+                            group {
+                                header(4) { +"Parameters" }
+                                table {
+                                    group {
+                                        +"arg"
+                                        group2 { +"parameter" }
+                                    }
+                                }
+                                header(4) { +"Type Parameters" }
+                                table {
+                                    group {
+                                        +"T"
+                                        group2 { +"type parameter" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols("#4065 - context parameters")
+    fun `type parameter in param tag with brackets`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            | /**
+            |  * @param[T] type parameter
+            |  * @param[arg] parameter
+            |  */
+            |fun <T> foo(arg: Int) {}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("test", "foo")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"foo" }
+                    }
+
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"fun <"
+                                group3 { link { +"T" } }
+                                +"> "
+                                link { +"foo" }
+                                +"("
+                                group2 {
+                                    +"arg: "
+                                    groupedLink { +"Int" }
+                                }
+                                +")"
+                            }
+
+                            group {
+                                header(4) { +"Parameters" }
+                                table {
+                                    group {
+                                        +"arg"
+                                        group2 { +"parameter" }
+                                    }
+                                }
+                                header(4) { +"Type Parameters" }
+                                table {
+                                    group {
+                                        +"T"
+                                        group2 { +"type parameter" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    @Test
+    @OnlySymbols("#4065 - context parameters")
+    fun `context parameter and type parameter in param tag`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            | /**
+            |  * @param scope context parameter
+            |  * @param arg parameter
+            |  * @param T type parameter
+            |  */
+            |context(scope: String)
+            |fun <T> foo(arg: Int) {}
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("test", "foo")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"foo" }
+                    }
+
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"context("
+                                group2 {
+                                    +"scope: "
+                                    groupedLink { +"String" }
+                                }
+                                +")"
+                                br()
+                                +"fun <"
+                                group3 { link { +"T" } }
+                                +"> "
+                                link { +"foo" }
+                                +"("
+                                group2 {
+                                    +"arg: "
+                                    groupedLink { +"Int" }
+                                }
+                                +")"
+                            }
+
+                            group {
+                                header(4) { +"Context Parameters" }
+                                table {
+                                    group {
+                                        +"scope"
+                                        group2 { +"context parameter" }
+                                    }
+                                }
+                                header(4) { +"Parameters" }
+                                table {
+                                    group {
+                                        +"arg"
+                                        group2 { +"parameter" }
+                                    }
+                                }
+                                header(4) { +"Type Parameters" }
+                                table {
+                                    group {
+                                        +"T"
+                                        group2 { +"type parameter" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun DocumentationNode.paramsDescription(): String =
         children.firstIsInstanceOrNull<Param>()?.root?.children?.first()?.children?.firstIsInstanceOrNull<Text>()?.body.orEmpty()
 

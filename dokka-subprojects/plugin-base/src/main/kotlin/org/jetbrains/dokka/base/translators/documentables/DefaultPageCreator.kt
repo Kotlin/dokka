@@ -569,7 +569,6 @@ public open class DefaultPageCreator(
             customTagSectionContent(d, sourceSets, customTagContentProviders)
             unnamedTagSectionContent(d, sourceSets) { toHeaderString() }
 
-            contextParamsSectionContent(tags)
             paramsSectionContent(tags)
             seeAlsoSectionContent(tags)
             throwsSectionContent(tags)
