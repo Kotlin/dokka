@@ -6,6 +6,7 @@ package kotlinAsJavaPlugin
 
 import matchers.content.*
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.SourceLinkDefinitionImpl
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.jdk
 import org.jetbrains.dokka.links.DRI
@@ -13,6 +14,7 @@ import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.GenericTypeConstructor
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.*
+import org.jsoup.nodes.Element
 import signatures.Parameter
 import signatures.Parameters
 import signatures.firstSignature
@@ -20,6 +22,7 @@ import signatures.renderedContent
 import utils.A
 import utils.TestOutputWriterPlugin
 import utils.match
+import java.net.URL
 import kotlin.test.*
 
 class KotlinAsJavaPluginTest : BaseAbstractTest() {
@@ -678,6 +681,54 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                 group4 {
                     +docs
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `accessors should have source links`() {
+        fun Element.getSourceLink() = select(".symbol .source-link")
+            .select("a[href]")
+            .attr("href")
+
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    sourceLinks = listOf(
+                        SourceLinkDefinitionImpl(
+                            localDirectory = "src/main/kotlin",
+                            remoteUrl = URL("https://github.com/user/repo/tree/master/src/main/kotlin"),
+                            remoteLineSuffix = "#L"
+                        )
+                    )
+                }
+            }
+        }
+
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            """
+            |/src/main/kotlin/basic/Deprecated.kt
+            |package testpackage
+            |
+            |class DefValue {
+            |    val str: String = "defString"
+            |}
+
+        """.trimMargin(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val page = writerPlugin.writer.renderedContent("root/testpackage/-def-value/get-str.html")
+                val sourceLink = page.getSourceLink()
+
+                assertEquals(
+                    "https://github.com/user/repo/tree/master/src/main/kotlin/basic/Deprecated.kt#L4",
+                    sourceLink
+                )
             }
         }
     }
