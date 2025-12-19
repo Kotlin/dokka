@@ -5,9 +5,13 @@
 package org.jetbrains.dokka.analysis.java.parsers.doctag
 
 import com.intellij.codeInsight.javadoc.JavaDocUtil
+import com.intellij.psi.JavaDocTokenType
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiWhiteSpace
+import com.intellij.psi.javadoc.PsiDocToken
 import com.intellij.psi.javadoc.PsiSnippetAttribute
 import com.intellij.psi.javadoc.PsiSnippetDocTag
+import com.intellij.psi.javadoc.PsiSnippetDocTagBody
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
 import org.jetbrains.dokka.analysis.java.util.from
@@ -83,7 +87,7 @@ internal class DefaultSnippetToHtmlConverter(
 
         val lang = attributeList.getAttribute(PsiSnippetAttribute.LANG_ATTRIBUTE)?.value?.value
 
-        val inlineSnippet = value.body?.content
+        val inlineSnippetLines = value.body?.getSnippetBodyLines()?.takeIf { it.isNotEmpty() }
 
         val externalSnippet = run {
             val fileAttr = attributeList.getAttribute(PsiSnippetAttribute.FILE_ATTRIBUTE)?.value
@@ -107,23 +111,23 @@ internal class DefaultSnippetToHtmlConverter(
         val region = attributeList.getAttribute(PsiSnippetAttribute.REGION_ATTRIBUTE)?.value?.value
 
         var parsedSnippet = when {
-            inlineSnippet != null && externalSnippet != null -> {
-                val parsedInlineSnippet = parseSnippet(inlineSnippet.map { it.text }, snippet)
+            inlineSnippetLines != null && externalSnippet != null -> {
+                val parsedInlineSnippet = parseSnippet(inlineSnippetLines, snippet)
                 val parsedExternalSnippet = parseSnippet(externalSnippet.text.split("\n"), externalSnippet, region)
 
                 if (parsedInlineSnippet != parsedExternalSnippet) {
                     logger.warn("@snippet: inline and external snippets are not the same in the hybrid snippet\ndiff:")
-                    val inlineSnippetLines = parsedInlineSnippet.split("\n")
-                    val externalSnippetLines = parsedExternalSnippet.split("\n")
+                    val parsedInlineSnippetLines = parsedInlineSnippet.split("\n")
+                    val parsedExternalSnippetLines = parsedExternalSnippet.split("\n")
 
-                    val maxLines = maxOf(inlineSnippetLines.size, externalSnippetLines.size)
+                    val maxLines = maxOf(parsedInlineSnippetLines.size, parsedExternalSnippetLines.size)
 
                     for (i in 0 until maxLines) {
-                        val inlineSnippetLine = inlineSnippetLines.getOrNull(i)
-                        val externalSnippetLine = externalSnippetLines.getOrNull(i)
+                        val parsedInlineSnippetLine = parsedInlineSnippetLines.getOrNull(i)
+                        val parsedExternalSnippetLine = parsedExternalSnippetLines.getOrNull(i)
 
-                        if (inlineSnippetLine != externalSnippetLine) {
-                            logger.warn("line ${i + 1}:\ninline: '$inlineSnippetLine'\nexternal: '$externalSnippetLine'")
+                        if (parsedInlineSnippetLine != parsedExternalSnippetLine) {
+                            logger.warn("line ${i + 1}:\ninline: '$parsedInlineSnippetLine'\nexternal: '$parsedExternalSnippetLine'")
                         }
                     }
                 }
@@ -131,8 +135,8 @@ internal class DefaultSnippetToHtmlConverter(
                 parsedInlineSnippet
             }
 
-            inlineSnippet != null -> {
-                parseSnippet(inlineSnippet.map { it.text }, snippet)
+            inlineSnippetLines != null -> {
+                parseSnippet(inlineSnippetLines, snippet)
             }
 
             externalSnippet != null -> {
@@ -383,7 +387,7 @@ internal class DefaultSnippetToHtmlConverter(
     private fun String.clearMarkupSpec() = this.replace(MARKUP_SPEC, "").trimEnd()
 
     private fun String.applyMarkup(markupOperations: List<MarkupOperation>): String =
-        markupOperations.fold(this.htmlEscape() + "\n") { acc, op -> op(acc) }
+        markupOperations.fold(this.htmlEscape()) { acc, op -> op(acc) }
 
     private fun String.clearMarkupSpecAndApplyMarkup(markupOperations: List<MarkupOperation>) =
         this.clearMarkupSpec().applyMarkup(markupOperations)
@@ -408,5 +412,39 @@ internal class DefaultSnippetToHtmlConverter(
         }.toMap()
 
         return markupTagName to attributes
+    }
+
+    // Copied from https://github.com/JetBrains/intellij-community/blob/4a0ea4a70a7d2c1a14318c3d88ca632bcbe27e2f/java/java-impl/src/com/intellij/codeInsight/javadoc/SnippetMarkup.java#L402
+    private fun PsiSnippetDocTagBody.getSnippetBodyLines(): List<String> {
+        val output = mutableListOf<String>()
+        var first = true
+
+        for (element in children) {
+            when (element) {
+                is PsiDocToken -> {
+                    if (element.tokenType == JavaDocTokenType.DOC_COMMENT_DATA) {
+                        output.add(element.text)
+                    }
+                }
+
+                is PsiWhiteSpace -> {
+                    val text = element.text
+
+                    if (text.contains("\n")) {
+                        val idx = output.lastIndex
+
+                        if (idx >= 0 && !output[idx].endsWith("\n")) {
+                            output[idx] = output[idx] + "\n" // append newline to last line
+                        } else if (first) {
+                            first = false
+                        } else {
+                            output.add("\n") // add empty line
+                        }
+                    }
+                }
+            }
+        }
+
+        return output
     }
 }
