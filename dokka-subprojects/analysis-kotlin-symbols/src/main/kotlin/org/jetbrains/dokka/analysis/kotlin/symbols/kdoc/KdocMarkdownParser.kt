@@ -10,7 +10,6 @@ import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.analysis.markdown.jb.MarkdownParser
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToContextParameters
-import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.doc.Suppress
 import org.jetbrains.kotlin.kdoc.parser.KDocKnownTag
@@ -71,9 +70,6 @@ internal fun parseFromKDocTag(
                             is PointingToContextParameters -> ContextParameter(
                                 parseStringToDocNode(tag.getContent(), externalDRIProvider),
                                 tag.getSubjectName().orEmpty()
-                            )
-                            is PointingToDeclaration if tag.getSubjectName() == "this" -> Receiver(
-                                parseStringToDocNode(tag.getContent(), externalDRIProvider)
                             )
                             else -> Param(
                                 parseStringToDocNode(tag.getContent(), externalDRIProvider),
