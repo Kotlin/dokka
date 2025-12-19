@@ -38,7 +38,7 @@ internal class PsiDocTagParser(
     ): List<DocTag> {
         val docTagParserContext = DocTagParserContext()
 
-        val psiToHtmlConverter = PsiElementToHtmlConverter(inheritDocTagResolver, sourceSet, context)
+        val psiToHtmlConverter = PsiElementToHtmlConverter(inheritDocTagResolver, sourceSet, context.logger)
 
         val elementsHtml = psiToHtmlConverter.convert(psiElements, docTagParserContext, commentResolutionContext)
             ?: return emptyList()

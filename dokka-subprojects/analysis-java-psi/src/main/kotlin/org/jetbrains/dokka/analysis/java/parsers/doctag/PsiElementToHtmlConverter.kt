@@ -20,6 +20,7 @@ import org.jetbrains.dokka.analysis.java.parsers.CommentResolutionContext
 import org.jetbrains.dokka.analysis.java.util.*
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.plugability.DokkaContext
+import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.htmlEscape
 
 private const val UNRESOLVED_PSI_ELEMENT = "UNRESOLVED_PSI_ELEMENT"
@@ -45,10 +46,8 @@ private data class HtmlParsingResult(val newState: HtmlParserState, val parsedLi
 internal class PsiElementToHtmlConverter(
     private val inheritDocTagResolver: InheritDocTagResolver,
     private val sourceSet: DokkaSourceSet,
-    private val context: DokkaContext
+    private val logger: DokkaLogger
 ) {
-    private val logger = context.logger
-
     private val preOpeningTagRegex = "<pre(\\s+.*)?>".toRegex()
     private val preClosingTagRegex = "</pre>".toRegex()
 
@@ -67,7 +66,7 @@ internal class PsiElementToHtmlConverter(
     ) {
 
         private val snippetToHtmlConverter by lazy {
-            DefaultSnippetToHtmlConverter(sourceSet, context, docTagParserContext)
+            DefaultSnippetToHtmlConverter(sourceSet, docTagParserContext, logger)
         }
 
         fun convert(psiElements: Iterable<PsiElement>): String? {
@@ -135,7 +134,7 @@ internal class PsiElementToHtmlConverter(
                         }?.parsedLine.orEmpty()
                     html
                 }
-                "snippet" -> snippetToHtmlConverter.convertSnippet(this as PsiSnippetDocTag)
+                "snippet" -> snippetToHtmlConverter.convertSnippet(this as PsiSnippetDocTag) // TODO check this cast
 
                 else -> this.text
             }

@@ -7,20 +7,19 @@ package org.jetbrains.dokka.analysis.java.parsers.doctag
 import com.intellij.codeInsight.javadoc.JavaDocUtil
 import com.intellij.psi.JavaDocTokenType
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.javadoc.PsiDocToken
 import com.intellij.psi.javadoc.PsiSnippetAttribute
 import com.intellij.psi.javadoc.PsiSnippetDocTag
 import com.intellij.psi.javadoc.PsiSnippetDocTagBody
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
 import org.jetbrains.dokka.analysis.java.util.from
 import org.jetbrains.dokka.analysis.java.util.lowercase
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.plugability.DokkaContext
-import org.jetbrains.dokka.plugability.plugin
-import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.htmlEscape
+import java.io.File
 import kotlin.collections.fold
 
 private typealias MarkupOperation = (String) -> String
@@ -33,15 +32,14 @@ public interface SnippetToHtmlConverter {
 
 internal class DefaultSnippetToHtmlConverter(
     private val sourceSet: DokkaConfiguration.DokkaSourceSet,
-    private val context: DokkaContext,
-    private val docTagParserContext: DocTagParserContext
+    private val docTagParserContext: DocTagParserContext,
+    private val logger: DokkaLogger
 ) : SnippetToHtmlConverter {
 
-    private val logger = context.logger
-
     private val sampleFiles by lazy {
-        context.plugin<JavaAnalysisPlugin>().querySingle { samplePsiFilesProvider }
-            .getSamplePsiFiles(sourceSet, context)
+        sourceSet.samples.flatMap {
+            it.walkTopDown().filter { file -> file.isFile }
+        }
     }
 
     private companion object {
@@ -87,23 +85,15 @@ internal class DefaultSnippetToHtmlConverter(
 
         val lang = attributeList.getAttribute(PsiSnippetAttribute.LANG_ATTRIBUTE)?.value?.value
 
-        val inlineSnippetLines = value.body?.getSnippetBodyLines()?.takeIf { it.isNotEmpty() }
+        val inlineSnippetLines = value.body?.lines()?.takeIf { it.isNotEmpty() }
 
-        val externalSnippet = run {
+        val externalSnippetLines = run {
             val fileAttr = attributeList.getAttribute(PsiSnippetAttribute.FILE_ATTRIBUTE)?.value
             val classAttr = attributeList.getAttribute(PsiSnippetAttribute.CLASS_ATTRIBUTE)?.value
 
-            // Try to resolve the snippet file through PSI reference resolution (for files in `snippet-files`)
-            // If that fails, search within sampleFiles (for snippets specified via Javadoc's --snippet-path, in Dokka's case in `sample` configuration option)
             when {
-                fileAttr != null -> fileAttr.reference?.resolve() ?: sampleFiles.singleOrNull {
-                    it.name == fileAttr.value
-                }
-
-                classAttr != null -> classAttr.reference?.resolve() ?: sampleFiles.singleOrNull {
-                    it.name == "${classAttr.value}.java"
-                }
-
+                fileAttr != null -> readExternalSnippetLines(fileAttr, fileAttr.value)
+                classAttr != null -> readExternalSnippetLines(classAttr, "${classAttr.value}.java")
                 else -> null
             }
         }
@@ -111,9 +101,9 @@ internal class DefaultSnippetToHtmlConverter(
         val region = attributeList.getAttribute(PsiSnippetAttribute.REGION_ATTRIBUTE)?.value?.value
 
         var parsedSnippet = when {
-            inlineSnippetLines != null && externalSnippet != null -> {
+            inlineSnippetLines != null && externalSnippetLines != null -> {
                 val parsedInlineSnippet = parseSnippet(inlineSnippetLines, snippet)
-                val parsedExternalSnippet = parseSnippet(externalSnippet.text.split("\n"), externalSnippet, region)
+                val parsedExternalSnippet = parseSnippet(externalSnippetLines, snippet, region)
 
                 if (parsedInlineSnippet != parsedExternalSnippet) {
                     logger.warn("@snippet: inline and external snippets are not the same in the hybrid snippet\ndiff:")
@@ -139,8 +129,8 @@ internal class DefaultSnippetToHtmlConverter(
                 parseSnippet(inlineSnippetLines, snippet)
             }
 
-            externalSnippet != null -> {
-                parseSnippet(externalSnippet.text.split("\n"), externalSnippet, region)
+            externalSnippetLines != null -> {
+                parseSnippet(externalSnippetLines, snippet, region)
             }
 
             else -> {
@@ -384,7 +374,7 @@ internal class DefaultSnippetToHtmlConverter(
         if (element.isNotBlank()) this.add(element)
     }
 
-    private fun String.clearMarkupSpec() = this.replace(MARKUP_SPEC, "").trimEnd()
+    private fun String.clearMarkupSpec() = this.replace(MARKUP_SPEC, "").trimEnd() + "\n"
 
     private fun String.applyMarkup(markupOperations: List<MarkupOperation>): String =
         markupOperations.fold(this.htmlEscape()) { acc, op -> op(acc) }
@@ -415,7 +405,7 @@ internal class DefaultSnippetToHtmlConverter(
     }
 
     // Copied from https://github.com/JetBrains/intellij-community/blob/4a0ea4a70a7d2c1a14318c3d88ca632bcbe27e2f/java/java-impl/src/com/intellij/codeInsight/javadoc/SnippetMarkup.java#L402
-    private fun PsiSnippetDocTagBody.getSnippetBodyLines(): List<String> {
+    private fun PsiSnippetDocTagBody.lines(): List<String> {
         val output = mutableListOf<String>()
         var first = true
 
@@ -447,4 +437,20 @@ internal class DefaultSnippetToHtmlConverter(
 
         return output
     }
+
+    private fun readExternalSnippetLines(attribute: PsiElement, fileName: String): List<String>? {
+        /**
+         * Try to resolve the snippet file through PSI reference resolution (for files in `snippet-files`)
+         * If that fails, search within sampleFiles (for snippets specified via Javadoc's --snippet-path, in Dokka's case in `sample` configuration option)
+         */
+        val psiFile = attribute.reference?.resolve() as? PsiFile
+
+        return if (psiFile != null) {
+            File(psiFile.virtualFile.path).readLinesWithNewlines()
+        } else {
+            sampleFiles.singleOrNull { it.name == fileName }?.readLinesWithNewlines()
+        }
+    }
+
+    private fun File.readLinesWithNewlines() = this.readText().split("\n").map { it + "\n" }
 }
