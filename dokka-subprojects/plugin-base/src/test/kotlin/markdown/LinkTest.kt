@@ -18,6 +18,7 @@ import org.jetbrains.dokka.pages.MemberPageNode
 import utils.OnlyDescriptors
 import utils.OnlySymbols
 import utils.text
+import utils.withExperimentalKDocResolution
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -612,7 +613,7 @@ class LinkTest : BaseAbstractTest() {
 
     @Test
     @OnlySymbols("KEEP #389: New KDoc resolution")
-    fun `fully qualified link should lead to package K2`() {
+    fun `fully qualified link should lead to package K2`() = withExperimentalKDocResolution {
         // for the test case, there is the only one link candidate in K1 and K2
         testInline(
             """
@@ -795,7 +796,7 @@ class LinkTest : BaseAbstractTest() {
 
     @Test
     @OnlySymbols("KEEP #389: New KDoc resolution")
-    fun `short link should lead to package rather than function K2`() {
+    fun `short link should lead to package rather than function K2`() = withExperimentalKDocResolution {
         testInline(
             """
             |/src/main/kotlin/Testing.kt
