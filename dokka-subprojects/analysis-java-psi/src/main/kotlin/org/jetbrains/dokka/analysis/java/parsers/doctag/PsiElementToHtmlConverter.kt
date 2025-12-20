@@ -65,7 +65,7 @@ internal class PsiElementToHtmlConverter(
         private val commentResolutionContext: CommentResolutionContext
     ) {
 
-        private val snippetToHtmlConverter by lazy {
+        private val snippetToHtmlConverter: SnippetToHtmlConverter by lazy {
             DefaultSnippetToHtmlConverter(sourceSet, docTagParserContext, logger)
         }
 
