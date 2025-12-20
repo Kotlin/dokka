@@ -186,8 +186,8 @@ internal class DefaultSnippetToHtmlConverter(
             val markupSpec = markupSpecMatch?.groupValues?.get(2)
 
             if (markupSpec != null || nextLineMarkupTags.isNotEmpty()) {
-                val markupTags =
-                    (markupSpec?.split(Regex("(?=@(?:$ALLOWED_TAGS)\\s)")) ?: emptyList()) + nextLineMarkupTags
+                val markupTags = (nextLineMarkupTags + (markupSpec?.split(Regex("(?=@(?:$ALLOWED_TAGS)\\s)"))
+                    ?: emptyList())).filter { it.isNotBlank() }
 
                 nextLineMarkupTags.clear()
 
