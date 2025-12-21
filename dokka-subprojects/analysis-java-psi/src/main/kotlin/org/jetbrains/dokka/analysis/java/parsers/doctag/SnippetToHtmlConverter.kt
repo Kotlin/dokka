@@ -168,13 +168,12 @@ internal class DefaultSnippetToHtmlConverter(
 
         val result = mutableListOf<String>()
 
-        // Ordered list of snippet regions
         data class Region(
             val regionName: String?, // can be null for anonymous regions
             val operation: MarkupOperation?, // can be null for non-markup tags - `@start` (regionName in this case is specified)
             val isSnippetBodyRegion: Boolean = false // indicates whether this region represents the actual snippet body that is processed
         )
-
+        // Ordered list of snippet regions
         val regions = mutableListOf<Region>()
 
         var nextLineMarkupTags = mutableListOf<String>()
@@ -303,10 +302,10 @@ internal class DefaultSnippetToHtmlConverter(
             }
         }
 
-        fun String.wrapInTag() = "$startTag$this$endTag"
+        val substring = attributes["substring"]?.htmlEscape()
+        val regex = attributes["regex"]?.htmlEscape()?.toRegex()
 
-        val substring = attributes["substring"]
-        val regex = attributes["regex"]?.toRegex()
+        fun String.wrapInTag() = "$startTag$this$endTag"
 
         return { line ->
             var result = line
@@ -321,8 +320,8 @@ internal class DefaultSnippetToHtmlConverter(
     }
 
     private fun createReplaceOperation(attributes: Map<String, String?>): MarkupOperation? {
-        val substring = attributes["substring"]
-        val regex = attributes["regex"]?.toRegex()
+        val substring = attributes["substring"]?.htmlEscape()
+        val regex = attributes["regex"]?.htmlEscape()?.toRegex()
         val replacement = attributes["replacement"]?.htmlEscape() ?: run {
             logger.warn("@snippet: specify `replacement` attribute for @replace markup tag")
             return null
@@ -341,8 +340,8 @@ internal class DefaultSnippetToHtmlConverter(
     }
 
     private fun createLinkOperation(attributes: Map<String, String?>, context: PsiElement): MarkupOperation? {
-        val substring = attributes["substring"]
-        val regex = attributes["regex"]?.toRegex()
+        val substring = attributes["substring"]?.htmlEscape()
+        val regex = attributes["regex"]?.htmlEscape()?.toRegex()
         val target = attributes["target"] ?: run {
             logger.warn("@snippet: specify `target` attribute for @link markup tag")
             return null
