@@ -134,7 +134,7 @@ internal class PsiElementToHtmlConverter(
                         }?.parsedLine.orEmpty()
                     html
                 }
-                "snippet" -> snippetToHtmlConverter.convertSnippet(this as PsiSnippetDocTag) // TODO check this cast
+                "snippet" -> if (this is PsiSnippetDocTag) snippetToHtmlConverter.convertSnippet(this) else this.text
 
                 else -> this.text
             }
