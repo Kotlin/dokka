@@ -11,6 +11,27 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 
+/**
+ * Test helps to verify that [TestedVersionsSource] doesn't accidentally filter out any of the tested versions.
+ * 
+ * ## Updating Expected Test Data
+ * 
+ * When updating Gradle, KGP, AGP versions, tests will fail showing the actual vs. expected version strings.
+ * To update the expected data:
+ * 
+ * 1. Run the failing test to see the actual output in the error message
+ * 2. Verify that the output is expected, keep in mind [KotlinBuiltInCompatibility] configuration
+ * 3. Replace the expected string in the test with an actual output
+ * 5. Re-run the test to verify it passes :)
+ * 
+ * For example, after adding Kotlin 2.4.0 to `allKgpVersions in [TestedVersionsSource.Default],
+ * `test default versions` test will fail showing:
+ * ```
+ * expected: <"... kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0 ...">
+ * but was:  <"... kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0, 2.4.0 ...">
+ * ```
+ * Verify that the values are expected and replace the expected string in the test with an actual output.
+ */
 class TestedVersionsSourceTest {
 
     @Test
