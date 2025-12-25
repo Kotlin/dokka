@@ -685,6 +685,8 @@ class SnippetTest : BaseAbstractTest() {
             | *     String password2 = "secret321";
             | *     String password1 = "secret123";
             | *     // @end region="credentials"
+            | *     
+            | *     System.out.println("Hello World!");  // @replace regex='"(.*)"' replacement='"I said, $1"'
             | * }}
             | */
             | public class Test {}
@@ -706,6 +708,8 @@ class SnippetTest : BaseAbstractTest() {
                                     |
                                     |    String password2 = "***";
                                     |    String password1 = "***";
+                                    |
+                                    |    System.out.println("I said, Hello World!");
                                     |}
                                     """.trimMargin()
                                 )
