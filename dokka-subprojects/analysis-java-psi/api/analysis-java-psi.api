@@ -143,10 +143,6 @@ public abstract interface class org/jetbrains/dokka/analysis/java/parsers/doctag
 	public abstract fun convertToHtml (Lorg/jetbrains/dokka/analysis/java/doccomment/DocumentationContent;Lorg/jetbrains/dokka/analysis/java/parsers/doctag/DocTagParserContext;)Ljava/lang/String;
 }
 
-public abstract interface class org/jetbrains/dokka/analysis/java/parsers/doctag/SnippetToHtmlConverter {
-	public abstract fun convertSnippet (Lcom/intellij/psi/javadoc/PsiSnippetDocTag;)Ljava/lang/String;
-}
-
 public final class org/jetbrains/dokka/analysis/java/util/PsiDocumentableSource : org/jetbrains/dokka/model/DocumentableSource {
 	public fun <init> (Lcom/intellij/psi/PsiNamedElement;)V
 	public fun computeLineNumber ()Ljava/lang/Integer;

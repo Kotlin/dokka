@@ -24,8 +24,8 @@ import kotlin.collections.fold
 
 private typealias MarkupOperation = (String) -> String
 
-public interface SnippetToHtmlConverter {
-    public fun convertSnippet(
+internal interface SnippetToHtmlConverter {
+    fun convertSnippet(
         snippet: PsiSnippetDocTag
     ): String
 }
