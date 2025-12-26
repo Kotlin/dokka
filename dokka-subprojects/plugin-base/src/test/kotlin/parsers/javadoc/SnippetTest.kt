@@ -19,6 +19,8 @@ import org.jetbrains.dokka.model.doc.Text
 import java.nio.file.Paths
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class SnippetTest : BaseAbstractTest() {
     private val testDataDir = getTestDataDir("parsers/javadoc").toAbsolutePath()
@@ -40,6 +42,33 @@ class SnippetTest : BaseAbstractTest() {
                 samples = listOf(
                     Paths.get("$testDataDir/snippets").toString(),
                 )
+            }
+        }
+    }
+
+    @Test
+    fun `files in snippet-files directory are excluded from documentation`() {
+        testInline(
+            """
+            |/src/main/java/example/Visible.java
+            |package example;
+            |public class Visible {}
+            |
+            |/src/main/java/example/snippet-files/Hidden.java
+            |package example;
+            |public class Hidden {}
+            """.trimMargin(),
+            configuration
+        ) {
+            documentablesCreationStage = { modules: List<DModule> ->
+                val classNames = modules
+                    .flatMap { it.packages }
+                    .flatMap { it.classlikes }
+                    .mapNotNull { it.name }
+                    .toSet()
+
+                assertTrue { "Visible" in classNames }
+                assertFalse("Documentation should not be generated for files inside `snippet-files` directory") { "Hidden" in classNames }
             }
         }
     }
