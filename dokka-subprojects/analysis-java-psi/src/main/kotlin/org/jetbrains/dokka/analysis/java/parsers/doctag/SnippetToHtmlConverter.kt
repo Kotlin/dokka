@@ -45,7 +45,7 @@ internal interface SnippetToHtmlConverter {
 internal class DefaultSnippetToHtmlConverter(
     private val sourceSet: DokkaConfiguration.DokkaSourceSet,
     private val docTagParserContext: DocTagParserContext,
-    private val logger: DokkaLogger
+    private val dokkaLogger: DokkaLogger
 ) : SnippetToHtmlConverter {
 
     private val sampleFiles by lazy {
@@ -54,12 +54,32 @@ internal class DefaultSnippetToHtmlConverter(
         }
     }
 
+    private class SnippetLogger(
+        private val logger: DokkaLogger,
+        fileName: String?
+    ) {
+        private val prefix = buildString {
+            append("@snippet")
+            if (!fileName.isNullOrBlank()) {
+                append(" (")
+                append(fileName)
+                append(")")
+            }
+            append(": ")
+        }
+
+        fun warn(message: String) {
+            logger.warn(prefix + message)
+        }
+    }
+
     override fun convertSnippet(
         snippet: PsiSnippetDocTag
     ): String {
+        val logger = SnippetLogger(dokkaLogger, snippet.containingFile?.name)
+
         val value = snippet.valueElement ?: run {
-            logger.error("@snippet: unable to resolve snippet")
-            return "<pre>$SNIPPET_NOT_RESOLVED</pre>"
+            return "<pre>${logAndReturnUnresolvedSnippet(logger)}</pre>"
         }
 
         val attributeList = value.attributeList
@@ -83,46 +103,50 @@ internal class DefaultSnippetToHtmlConverter(
 
         var parsedSnippet = when {
             inlineSnippetLines != null && externalSnippetLines != null -> {
-                val parsedInlineSnippet = parseSnippet(inlineSnippetLines, snippet)
-                val parsedExternalSnippet = parseSnippet(externalSnippetLines, snippet, region)
+                val parsedInlineSnippet = parseSnippet(inlineSnippetLines, snippet, logger)
+                val parsedExternalSnippet = parseSnippet(externalSnippetLines, snippet, logger, region)
 
                 if (parsedInlineSnippet != parsedExternalSnippet) {
-                    logger.warn("@snippet: inline and external snippets are not the same in the hybrid snippet\ndiff:")
-                    val parsedInlineSnippetLines = parsedInlineSnippet.split("\n")
-                    val parsedExternalSnippetLines = parsedExternalSnippet.split("\n")
+                    val parsedInlineSnippetLines = parsedInlineSnippet.lines()
+                    val parsedExternalSnippetLines = parsedExternalSnippet.lines()
 
                     val maxLines = maxOf(parsedInlineSnippetLines.size, parsedExternalSnippetLines.size)
 
-                    for (i in 0 until maxLines) {
-                        val parsedInlineSnippetLine = parsedInlineSnippetLines.getOrNull(i)
-                        val parsedExternalSnippetLine = parsedExternalSnippetLines.getOrNull(i)
+                    val diffMessage = buildString {
+                        appendLine("inline and external snippets are not the same in the hybrid snippet")
+                        appendLine("diff:")
 
-                        if (parsedInlineSnippetLine != parsedExternalSnippetLine) {
-                            logger.warn("line ${i + 1}:\ninline: '$parsedInlineSnippetLine'\nexternal: '$parsedExternalSnippetLine'")
+                        for (i in 0 until maxLines) {
+                            val parsedInlineSnippetLine = parsedInlineSnippetLines.getOrNull(i)
+                            val parsedExternalSnippetLine = parsedExternalSnippetLines.getOrNull(i)
+
+                            if (parsedInlineSnippetLine != parsedExternalSnippetLine) {
+                                appendLine("line ${i + 1}:")
+                                appendLine("inline: '$parsedInlineSnippetLine'")
+                                appendLine("external: '$parsedExternalSnippetLine'")
+                            }
                         }
                     }
+
+                    logger.warn(diffMessage)
                 }
 
                 parsedInlineSnippet
             }
 
             inlineSnippetLines != null -> {
-                parseSnippet(inlineSnippetLines, snippet)
+                parseSnippet(inlineSnippetLines, snippet, logger)
             }
 
             externalSnippetLines != null -> {
-                parseSnippet(externalSnippetLines, snippet, region)
+                parseSnippet(externalSnippetLines, snippet, logger, region)
             }
 
-            else -> {
-                logger.error("@snippet: unable to resolve snippet")
-                SNIPPET_NOT_RESOLVED
-            }
+            else -> logAndReturnUnresolvedSnippet(logger)
         }
 
         if (parsedSnippet.isBlank()) {
-            logger.error("@snippet: unable to resolve snippet")
-            parsedSnippet = SNIPPET_NOT_RESOLVED
+            parsedSnippet = logAndReturnUnresolvedSnippet(logger)
         }
 
         return "<pre${if (lang != null) " lang=\"$lang\"" else ""}>$parsedSnippet</pre>"
@@ -140,6 +164,7 @@ internal class DefaultSnippetToHtmlConverter(
     private fun parseSnippet(
         lines: List<String>,
         context: PsiElement,
+        logger: SnippetLogger,
         externalSnippetRegionName: String? = null
     ): String {
         // externalSnippetRegionName is null in 2 cases:
@@ -179,13 +204,13 @@ internal class DefaultSnippetToHtmlConverter(
                 }
 
                 for (markupTag in markupTags) {
-                    val (tagName, attributes) = markupTag.parseMarkupTag() ?: continue
+                    val (tagName, attributes) = markupTag.parseMarkupTag(logger) ?: continue
 
                     when (tagName) {
                         "start" -> {
                             val regionName = attributes["region"]
                             if (regionName == null) {
-                                logger.warn("@snippet: tag @start without specified region attribute")
+                                logger.warn("@start tag without specified 'region' attribute")
                                 continue
                             }
 
@@ -193,7 +218,7 @@ internal class DefaultSnippetToHtmlConverter(
                                 snippetBodyStarted = true
                                 regions.add(Region(regionName, null, true))
                             } else {
-                                if (regionName == externalSnippetRegionName) logger.warn("@snippet: use unique region names")
+                                if (regionName == externalSnippetRegionName) logger.warn("use unique region names")
 
                                 regions.add(Region(regionName, null))
                             }
@@ -205,7 +230,7 @@ internal class DefaultSnippetToHtmlConverter(
                                 val toRemove = regions.lastOrNull { it.regionName == regionName }
 
                                 if (toRemove == null) {
-                                    logger.warn("@snippet: invalid region \"$regionName\" in @end")
+                                    logger.warn("@end tag references non-existent region '$regionName'")
                                     continue
                                 }
 
@@ -220,7 +245,7 @@ internal class DefaultSnippetToHtmlConverter(
                                 val lastRegion = regions.lastOrNull()
 
                                 if (lastRegion == null) {
-                                    logger.warn("@snippet: `@end` tag without a matching start of the region")
+                                    logger.warn("@end tag without a matching start of the region")
                                     continue
                                 }
 
@@ -236,9 +261,9 @@ internal class DefaultSnippetToHtmlConverter(
 
                         "highlight", "replace", "link" -> {
                             val operation = when (tagName) {
-                                "highlight" -> createHighlightOperation(attributes)
-                                "replace" -> createReplaceOperation(attributes)
-                                "link" -> createLinkOperation(attributes, context)
+                                "highlight" -> createHighlightOperation(attributes, logger)
+                                "replace" -> createReplaceOperation(attributes, logger)
+                                "link" -> createLinkOperation(attributes, context, logger)
                                 else -> null
                             } ?: continue
 
@@ -250,7 +275,7 @@ internal class DefaultSnippetToHtmlConverter(
                         }
 
                         else -> {
-                            logger.warn("@snippet: unrecognized tag @$tagName in markup comment")
+                            logger.warn("unrecognized tag @$tagName in the markup comment")
                         }
                     }
                 }
@@ -266,20 +291,20 @@ internal class DefaultSnippetToHtmlConverter(
         }
 
         if (snippetBodyStarted && externalSnippetRegionName != null) {
-            logger.warn("@snippet: external snippet doesn't contain closing @end tag")
+            logger.warn("external snippet doesn't contain closing @end tag")
         }
 
         return result.joinToString("").trimIndent()
     }
 
-    private fun createHighlightOperation(attributes: Map<String, String?>): MarkupOperation? {
+    private fun createHighlightOperation(attributes: Map<String, String?>, logger: SnippetLogger): MarkupOperation? {
         val type = attributes["type"]?.lowercase()
         val (startTag, endTag) = when (type) {
             "bold", null -> "<b>" to "</b>"
             "italic" -> "<i>" to "</i>"
             "highlighted" -> "<mark>" to "</mark>"
             else -> {
-                logger.warn("@snippet: invalid argument for `@highlight` type $type")
+                logger.warn("unsupported type attribute '$type' in @highlight markup tag. Valid types: 'bold', 'italic', 'highlighted'")
                 return null
             }
         }
@@ -301,11 +326,11 @@ internal class DefaultSnippetToHtmlConverter(
         }
     }
 
-    private fun createReplaceOperation(attributes: Map<String, String?>): MarkupOperation? {
+    private fun createReplaceOperation(attributes: Map<String, String?>, logger: SnippetLogger): MarkupOperation? {
         val substring = attributes["substring"]?.htmlEscape()
         val regex = attributes["regex"]?.htmlEscape()?.toRegex()
         val replacement = attributes["replacement"]?.htmlEscape() ?: run {
-            logger.warn("@snippet: specify `replacement` attribute for @replace markup tag")
+            logger.warn("specify 'replacement' attribute in @replace markup tag")
             return null
         }
 
@@ -321,16 +346,20 @@ internal class DefaultSnippetToHtmlConverter(
         }
     }
 
-    private fun createLinkOperation(attributes: Map<String, String?>, context: PsiElement): MarkupOperation? {
+    private fun createLinkOperation(
+        attributes: Map<String, String?>,
+        context: PsiElement,
+        logger: SnippetLogger
+    ): MarkupOperation? {
         val substring = attributes["substring"]?.htmlEscape()
         val regex = attributes["regex"]?.htmlEscape()?.toRegex()
         val target = attributes["target"] ?: run {
-            logger.warn("@snippet: specify `target` attribute for @link markup tag")
+            logger.warn("specify 'target' attribute in @link markup tag")
             return null
         }
 
         val resolvedTarget = JavaDocUtil.findReferenceTarget(context.manager, target, context) ?: run {
-            logger.warn("@snippet: unresolved target for @link tag")
+            logger.warn("unresolved target '$target' in @link markup tag")
             return null
         }
 
@@ -363,7 +392,7 @@ internal class DefaultSnippetToHtmlConverter(
     private fun String.clearMarkupSpecAndApplyMarkup(markupOperations: List<MarkupOperation>) =
         this.clearMarkupSpec().applyMarkup(markupOperations)
 
-    private fun String.parseMarkupTag(): Pair<String, Map<String, String?>>? {
+    private fun String.parseMarkupTag(logger: SnippetLogger): Pair<String, Map<String, String?>>? {
         val markupTagName = MARKUP_TAG.find(this)?.groupValues?.get(1) ?: return null
 
         val attributes = ATTRIBUTE.findAll(
@@ -373,7 +402,7 @@ internal class DefaultSnippetToHtmlConverter(
         ).mapNotNull { match ->
             val attributeName = match.groupValues[1]
             if (ALLOWED_ATTRS[markupTagName]?.contains(attributeName) != true) {
-                logger.warn("@snippet: invalid attribute $attributeName used in @$markupTagName tag")
+                logger.warn("unsupported attribute '$attributeName' in @$markupTagName markup tag")
                 null
             } else {
                 attributeName to (match.groupValues[4].takeIf { it.isNotBlank() }
@@ -434,6 +463,11 @@ internal class DefaultSnippetToHtmlConverter(
     }
 
     private fun File.readLinesWithNewlines() = this.readLines().map { it + "\n" }
+
+    private fun logAndReturnUnresolvedSnippet(logger: SnippetLogger): String {
+        logger.warn("unable to resolve snippet")
+        return SNIPPET_NOT_RESOLVED
+    }
 
     private companion object {
         private val ALLOWED_ATTRS = mapOf(
