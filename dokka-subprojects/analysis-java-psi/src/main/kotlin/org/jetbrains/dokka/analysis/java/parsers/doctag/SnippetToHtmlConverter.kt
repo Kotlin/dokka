@@ -433,7 +433,7 @@ internal class DefaultSnippetToHtmlConverter(
         }
     }
 
-    private fun File.readLinesWithNewlines() = this.readText().split("\n").map { it + "\n" }
+    private fun File.readLinesWithNewlines() = this.readLines().map { it + "\n" }
 
     private companion object {
         private val ALLOWED_ATTRS = mapOf(
