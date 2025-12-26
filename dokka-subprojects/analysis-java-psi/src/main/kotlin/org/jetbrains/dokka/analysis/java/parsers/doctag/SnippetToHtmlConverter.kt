@@ -54,37 +54,6 @@ internal class DefaultSnippetToHtmlConverter(
         }
     }
 
-    private companion object {
-        private val ALLOWED_ATTRS = mapOf(
-            "start" to setOf("region"),
-            "end" to setOf("region"),
-            "highlight" to setOf("substring", "regex", "region", "type"),
-            "replace" to setOf("substring", "regex", "region", "replacement"),
-            "link" to setOf("substring", "regex", "region", "target", "type")
-        )
-
-        private const val ALLOWED_TAGS = "start|end|highlight|replace|link"
-
-        // group1: comment syntax
-        // group2: entire markup comment, @tag + attributes
-        private val MARKUP_SPEC = Regex("(//|#|rem|REM|')\\s*(@(?:$ALLOWED_TAGS)(?:\\s.+)?)$")
-
-        // group1: tag name only
-        private val MARKUP_TAG = Regex("@($ALLOWED_TAGS)\\s*")
-
-        // name=value
-        // group 1: `name`
-        // group 2: `=value` part
-        // group 3: `value` part
-        // only one of 4-6 groups will be not null
-        // group 4: value inside single quotes
-        // group 5: value inside double quotes
-        // group 6: unquoted value
-        private val ATTRIBUTE = Regex("(\\w+)\\s*(=\\s*('([^']*)'|\"([^\"]*)\"|(\\S*)))?\\s*")
-
-        private const val SNIPPET_NOT_RESOLVED = "// snippet not resolved"
-    }
-
     override fun convertSnippet(
         snippet: PsiSnippetDocTag
     ): String {
@@ -465,4 +434,35 @@ internal class DefaultSnippetToHtmlConverter(
     }
 
     private fun File.readLinesWithNewlines() = this.readText().split("\n").map { it + "\n" }
+
+    private companion object {
+        private val ALLOWED_ATTRS = mapOf(
+            "start" to setOf("region"),
+            "end" to setOf("region"),
+            "highlight" to setOf("substring", "regex", "region", "type"),
+            "replace" to setOf("substring", "regex", "region", "replacement"),
+            "link" to setOf("substring", "regex", "region", "target", "type")
+        )
+
+        private const val ALLOWED_TAGS = "start|end|highlight|replace|link"
+
+        // group1: comment syntax
+        // group2: entire markup comment, @tag + attributes
+        private val MARKUP_SPEC = Regex("(//|#|rem|REM|')\\s*(@(?:$ALLOWED_TAGS)(?:\\s.+)?)$")
+
+        // group1: tag name only
+        private val MARKUP_TAG = Regex("@($ALLOWED_TAGS)\\s*")
+
+        // name=value
+        // group 1: `name`
+        // group 2: `=value` part
+        // group 3: `value` part
+        // only one of 4-6 groups will be not null
+        // group 4: value inside single quotes
+        // group 5: value inside double quotes
+        // group 6: unquoted value
+        private val ATTRIBUTE = Regex("(\\w+)\\s*(=\\s*('([^']*)'|\"([^\"]*)\"|(\\S*)))?\\s*")
+
+        private const val SNIPPET_NOT_RESOLVED = "// snippet not resolved"
+    }
 }
