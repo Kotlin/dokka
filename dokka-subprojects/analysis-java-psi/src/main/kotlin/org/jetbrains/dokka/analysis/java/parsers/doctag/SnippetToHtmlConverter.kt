@@ -24,7 +24,19 @@ import kotlin.collections.fold
 
 private typealias MarkupOperation = (String) -> String
 
+/**
+ * Converts inline JavaDoc `{@snippet ...}` tags into HTML output.
+ *
+ * This converter processes both inline and external snippets, applying markup operations
+ * such as `@highlight`, `@replace`, and `@link`.
+ */
 internal interface SnippetToHtmlConverter {
+    /**
+     * Converts a `PsiSnippetDocTag` into its HTML string representation.
+     *
+     * @param snippet the PSI element representing a `@snippet` JavaDoc tag
+     * @return HTML string with processed snippet content
+     */
     fun convertSnippet(
         snippet: PsiSnippetDocTag
     ): String
@@ -151,6 +163,7 @@ internal class DefaultSnippetToHtmlConverter(
      * Parses markup for inline and external snippets. For external snippets, the snippet body is first extracted from the snippet file.
      *
      * @param lines lines of the snippet body for inline snippets, or of the snippet file for external snippets
+     * @param context the PSI element providing the resolution context for link targets
      * @param externalSnippetRegionName name of the region to extract external snippet body from; null for inline snippets
      *
      * @return parsed snippet with applied markup
