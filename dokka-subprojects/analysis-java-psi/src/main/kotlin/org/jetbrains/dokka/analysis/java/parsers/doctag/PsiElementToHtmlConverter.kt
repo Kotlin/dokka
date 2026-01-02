@@ -4,6 +4,7 @@
 
 package org.jetbrains.dokka.analysis.java.parsers.doctag
 
+import com.intellij.codeInsight.javadoc.JavaDocUtil
 import com.intellij.lexer.JavaDocTokenTypes
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.javadoc.PsiDocParamRef
@@ -12,6 +13,7 @@ import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.javadoc.PsiDocToken
 import com.intellij.psi.javadoc.PsiInlineDocTag
 import com.intellij.psi.javadoc.PsiMarkdownCodeBlock
+import com.intellij.psi.javadoc.PsiMarkdownReferenceLink
 import org.jetbrains.dokka.analysis.java.doccomment.DocumentationContent
 import org.jetbrains.dokka.analysis.java.JavadocTag
 import org.jetbrains.dokka.analysis.java.doccomment.PsiDocumentationContent
@@ -89,6 +91,7 @@ internal class PsiElementToHtmlConverter(
                     psiElement.stringifyElementAsText(isInsidePre, state.previousElement)
                 }
                 is PsiMarkdownCodeBlock -> psiElement.toHtml()
+                is PsiMarkdownReferenceLink -> psiElement.toHtml()
                 else -> null
             }
             val previousElement = if (text.trim() == "") state.previousElement else psiElement
@@ -164,6 +167,22 @@ internal class PsiElementToHtmlConverter(
             } else {
                 "<pre${codeLanguage?.id?.lowercase()?.let { " lang=\"$it\"" } ?: ""}>${codeText.trimIndent()}</pre>"
             }
+
+        // TODO code duplication with PsiElement.toDocumentationLinkString and SnippetToHtmlConverter
+        // TODO add logs after merging PR with snippets
+        private fun PsiMarkdownReferenceLink.toHtml(): String? {
+            // JEP 467 requires reference brackets to be escaped, remove the escape to match the reference
+            val referenceText = linkElement?.text?.replace("\\[", "[")?.replace("\\]", "]") ?: return null
+
+            val context = children.firstOrNull() ?: this
+
+            val resolvedTarget = JavaDocUtil.findReferenceTarget(context.manager, referenceText, context) ?: return null
+
+            val dri = DRI.from(resolvedTarget)
+            val driId = docTagParserContext.store(dri)
+
+            return """<a data-dri="${driId.htmlEscape()}">${(label?.text ?: referenceText).htmlEscape()}</a>"""
+        }
     }
 }
 
