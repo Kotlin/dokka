@@ -11,6 +11,7 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.javadoc.PsiDocToken
 import com.intellij.psi.javadoc.PsiInlineDocTag
+import com.intellij.psi.javadoc.PsiMarkdownCodeBlock
 import org.jetbrains.dokka.analysis.java.doccomment.DocumentationContent
 import org.jetbrains.dokka.analysis.java.JavadocTag
 import org.jetbrains.dokka.analysis.java.doccomment.PsiDocumentationContent
@@ -87,6 +88,7 @@ internal class PsiElementToHtmlConverter(
                 is PsiDocTagValue, is LeafPsiElement -> {
                     psiElement.stringifyElementAsText(isInsidePre, state.previousElement)
                 }
+                is PsiMarkdownCodeBlock -> psiElement.toHtml()
                 else -> null
             }
             val previousElement = if (text.trim() == "") state.previousElement else psiElement
@@ -155,6 +157,13 @@ internal class PsiElementToHtmlConverter(
             // TODO [beresnev] data-dri into a constant
             return """<a data-dri="${driId.htmlEscape()}">${label.ifBlank { defaultLabel().text }}</a>"""
         }
+
+        private fun PsiMarkdownCodeBlock.toHtml() =
+            if (isInline) {
+                "<code data-inline>${codeText}</code>"
+            } else {
+                "<pre${codeLanguage?.id?.lowercase()?.let { " lang=\"$it\"" } ?: ""}>${codeText.trimIndent()}</pre>"
+            }
     }
 }
 
