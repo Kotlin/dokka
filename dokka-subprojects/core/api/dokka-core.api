@@ -3061,9 +3061,9 @@ public final class org/jetbrains/dokka/model/doc/Param : org/jetbrains/dokka/mod
 	public final fun component1 ()Lorg/jetbrains/dokka/model/doc/DocTag;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Lorg/jetbrains/dokka/links/DRI;
-	public final synthetic fun copy (Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/Param;
+	public final synthetic fun copy (Lorg/jetbrains/dokka/model/doc/DocTag;Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/Param;
 	public final fun copy (Lorg/jetbrains/dokka/model/doc/DocTag;Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;)Lorg/jetbrains/dokka/model/doc/Param;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/doc/Param;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/doc/Param;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/doc/Param;Lorg/jetbrains/dokka/model/doc/DocTag;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/doc/Param;
 	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/doc/Param;Lorg/jetbrains/dokka/model/doc/DocTag;Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/doc/Param;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAddress ()Lorg/jetbrains/dokka/links/DRI;
