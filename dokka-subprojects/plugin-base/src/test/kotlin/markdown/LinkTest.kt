@@ -613,7 +613,7 @@ class LinkTest : BaseAbstractTest() {
 
     @Test
     @OnlySymbols("KEEP #389: New KDoc resolution")
-    fun `fully qualified link should lead to package K2`() = withExperimentalKDocResolution {
+    fun `fully qualified link should lead to function`() = withExperimentalKDocResolution {
         // for the test case, there is the only one link candidate in K1 and K2
         testInline(
             """
@@ -796,7 +796,7 @@ class LinkTest : BaseAbstractTest() {
 
     @Test
     @OnlySymbols("KEEP #389: New KDoc resolution")
-    fun `short link should lead to package rather than function K2`() = withExperimentalKDocResolution {
+    fun `short link should lead to function`() = withExperimentalKDocResolution {
         testInline(
             """
             |/src/main/kotlin/Testing.kt

@@ -536,7 +536,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
 
 
     @Test
-    @Ignore("KT-83152 [Analysis API, KDoc] Make class name links on constructors point to the class")
+    @Ignore("#3604: blocked by KT-83152")
     fun `#3604 KDoc reference to class from constructor`() = withExperimentalKDocResolution {
         testInline(
             """
