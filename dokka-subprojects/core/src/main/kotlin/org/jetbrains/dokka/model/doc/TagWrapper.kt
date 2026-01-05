@@ -29,7 +29,7 @@ public data class Param(override val root: DocTag, override val name: String, va
     public constructor(root: DocTag, name: String) : this(root, name, null)
 
     @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
-    public fun copy(name: String = this.name): Param = Param(root, name, address = null)
+    public fun copy(root: DocTag, name: String = this.name): Param = Param(root, name, address = null)
 }
 public data class Return(override val root: DocTag) : TagWrapper()
 public data class Receiver(override val root: DocTag) : TagWrapper()
