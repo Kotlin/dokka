@@ -6,7 +6,6 @@ package org.jetbrains.dokka.analysis.kotlin.symbols.kdoc
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiRecursiveElementVisitor
-import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.analysis.markdown.jb.MarkdownParser
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.doc.*
@@ -17,7 +16,6 @@ import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocTag
 import org.jetbrains.kotlin.psi.psiUtil.checkDecompiledText
 
-@OptIn(ExperimentalDokkaApi::class)
 internal fun parseFromKDocTag(
     kDocTag: KDocTag?,
     externalDri: (KDocLink) -> DRI?,

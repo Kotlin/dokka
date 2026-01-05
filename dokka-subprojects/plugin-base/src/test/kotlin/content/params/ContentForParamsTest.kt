@@ -1673,7 +1673,6 @@ class ContentForParamsTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("#4065 - context parameters")
     fun `type parameter in param tag`() {
         testInline(
             """
@@ -1732,7 +1731,6 @@ class ContentForParamsTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("#4065 - context parameters")
     fun `type parameter in param tag with brackets`() {
         testInline(
             """
