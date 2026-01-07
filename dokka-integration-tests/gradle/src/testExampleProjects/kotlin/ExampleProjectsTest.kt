@@ -132,7 +132,7 @@ class ExampleProjectsTest {
              */
             private fun GradleProjectTest.updateHtmlFooterMessage() {
                 projectDir.walk()
-                    .filter { it.name == "build.gradle.kts" }
+                    .filter { it.name.endsWith(".gradle.kts") }
                     .filter { "id(\"org.jetbrains.dokka\")" in it.readText() }
                     .forEach { buildFile ->
                         buildFile.writeText(
