@@ -96,6 +96,7 @@ class ExampleProjectsTest {
                     sourceProjectDir.copyToRecursively(projectDir, overwrite = true, followLinks = false)
                     updateSettingsRepositories()
                     updateDokkaVersion()
+                    updateHtmlFooterMessage()
                 }
             }
 
@@ -124,6 +125,28 @@ class ExampleProjectsTest {
                     """(\("org\.jetbrains\.dokka:[-\w]+:).+("\))""".toRegex(),
                     """$1${dokkaVersion}$2""",
                 )
+
+            /**
+             * By default, the footer message uses the current year.
+             * Set it to a constant year so the integration tests don't fail every year.
+             */
+            private fun GradleProjectTest.updateHtmlFooterMessage() {
+                projectDir.walk()
+                    .filter { it.name == "build.gradle.kts" }
+                    .filter { "id(\"org.jetbrains.dokka\")" in it.readText() }
+                    .forEach { buildFile ->
+                        buildFile.writeText(
+                            """
+                            ${buildFile.readText()}
+                            
+                            dokka.pluginsConfiguration.withType<org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters>().configureEach {
+                              footerMessage.set("© 2025 Copyright")
+                            }
+                            """.trimIndent()
+
+                        )
+                    }
+            }
         }
     }
 
