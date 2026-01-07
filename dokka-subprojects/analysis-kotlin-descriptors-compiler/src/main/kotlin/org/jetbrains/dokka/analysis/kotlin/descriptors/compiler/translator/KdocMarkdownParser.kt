@@ -56,7 +56,8 @@ internal fun parseFromKDocTag(
                     }
                     KDocKnownTag.PARAM -> Param(
                         parseStringToDocNode(it.getContent()),
-                        it.getSubjectName().orEmpty()
+                        it.getSubjectName().orEmpty(),
+                        pointedLink(it),
                     )
                     KDocKnownTag.RECEIVER -> Receiver(parseStringToDocNode(it.getContent()))
                     KDocKnownTag.RETURN -> Return(parseStringToDocNode(it.getContent()))

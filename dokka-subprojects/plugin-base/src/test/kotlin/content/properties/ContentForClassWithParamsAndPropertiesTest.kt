@@ -6,6 +6,8 @@ package content.properties
 
 import org.jetbrains.dokka.analysis.kotlin.markdown.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.PointingToGenericParameters
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.doc.*
@@ -267,7 +269,8 @@ class ContentForClassWithParamsAndPropertiesTest : BaseAbstractTest() {
             ),
             emptyMap(), MARKDOWN_ELEMENT_FILE_NAME
         ),
-        name = "Key"
+        name = "Key",
+        address = DRI("test", "ItemKeyedDataSource.LoadInitialParams", target = PointingToGenericParameters(0))
     )
 }
 
