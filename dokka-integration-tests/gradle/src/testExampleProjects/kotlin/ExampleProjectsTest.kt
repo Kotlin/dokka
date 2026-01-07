@@ -134,6 +134,7 @@ class ExampleProjectsTest {
                 projectDir.walk()
                     .filter { it.name.endsWith(".gradle.kts") }
                     .filter { "id(\"org.jetbrains.dokka\")" in it.readText() }
+                    .filter { "footerMessage" !in it.readText() }
                     .forEach { buildFile ->
                         buildFile.writeText(
                             """
