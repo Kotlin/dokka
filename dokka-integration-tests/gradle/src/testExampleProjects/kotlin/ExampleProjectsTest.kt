@@ -139,8 +139,11 @@ class ExampleProjectsTest {
                             """
                             ${buildFile.readText()}
                             
-                            dokka.pluginsConfiguration.withType<org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters>().configureEach {
-                              footerMessage.set("© 2025 Copyright")
+                            pluginManager.withPlugin("org.jetbrains.dokka") {
+                              val dokka = extensions.getByType<org.jetbrains.dokka.gradle.DokkaExtension>()
+                              dokka.pluginsConfiguration.withType<org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters>().configureEach {
+                                footerMessage.set("© 2025 Copyright")
+                              }
                             }
                             """.trimIndent()
 
