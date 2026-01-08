@@ -349,5 +349,7 @@ data class ParamAttributes(
     val type: String
 )
 
-fun RootPageNode.findTestType(packageName: String, name: String) =
-    children.single { it.name == packageName }.children.single { it.name == name } as ContentPage
+fun RootPageNode.findTestType(packageName: String, name: String) = findTestType(packageName, name) { true }
+
+fun RootPageNode.findTestType(packageName: String, name: String, predicate: (ContentPage) -> Boolean) =
+    children.single { it.name == packageName }.children.filter { it.name == name }.map { it as ContentPage }.single(predicate)

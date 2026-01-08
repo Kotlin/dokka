@@ -55,8 +55,8 @@ import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.js.resolve.JsPlatformAnalyzerServices
 import org.jetbrains.kotlin.library.KLIB_FILE_EXTENSION
 import org.jetbrains.kotlin.library.KotlinLibrary
+import org.jetbrains.kotlin.library.SingleFileKlibResolveStrategy
 import org.jetbrains.kotlin.library.ToolingSingleFileKlibResolveStrategy
-import org.jetbrains.kotlin.library.resolveSingleFileKlib
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
 import org.jetbrains.kotlin.load.java.structure.impl.classFiles.BinaryJavaClass
 import org.jetbrains.kotlin.name.Name
@@ -75,6 +75,7 @@ import org.jetbrains.kotlin.resolve.jvm.JvmResolverForModuleFactory
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatformAnalyzerServices
 import org.jetbrains.kotlin.resolve.konan.platform.NativePlatformAnalyzerServices
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
+import org.jetbrains.kotlin.util.DummyLogger
 import java.io.File
 import org.jetbrains.kotlin.konan.file.File as KFile
 
@@ -304,10 +305,8 @@ public class AnalysisEnvironment(
                 .filter { it.isDirectory || it.extension == KLIB_FILE_EXTENSION }
                 .forEach { libraryFile ->
                     try {
-                        val kotlinLibrary = resolveSingleFileKlib(
-                            libraryFile = KFile(libraryFile.absolutePath),
-                            strategy = ToolingSingleFileKlibResolveStrategy
-                        )
+                        val kotlinLibrary = ToolingSingleFileKlibResolveStrategy
+                            .resolve(KFile(libraryFile.absolutePath), DummyLogger)
                         if (kLibService.isAnalysisCompatible(kotlinLibrary)) {
                             // exists, is KLIB, has compatible format
                             result.put(
@@ -589,5 +588,3 @@ public class AnalysisEnvironment(
     }
 
 }
-
-

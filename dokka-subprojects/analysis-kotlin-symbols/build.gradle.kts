@@ -2,7 +2,6 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import dokkabuild.overridePublicationArtifactId
 
 plugins {
@@ -61,6 +60,9 @@ dependencies {
 
     // TODO [beresnev] get rid of it
     compileOnly(libs.kotlinx.coroutines.core)
+
+    // to gain access to com.intellij.diagnostic.LoadingState in the compile time
+    compileOnly(libs.intellij.util.base)
 }
 
 tasks.shadowJar {

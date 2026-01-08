@@ -87,7 +87,6 @@ public fun ContentMatcherBuilder<*>.group4(block: ContentMatcherBuilder<ContentG
     group { group3(block) }
 }
 
-
 public fun ContentMatcherBuilder<*>.tabbedGroup(
     block: ContentMatcherBuilder<ContentGroup>.() -> Unit
 ) {
