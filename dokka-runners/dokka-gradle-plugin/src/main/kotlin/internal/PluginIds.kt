@@ -21,5 +21,6 @@ internal object PluginIds {
         "com.android.library",
         "com.android.test",
         "com.android.dynamic-feature",
+        "com.android.kotlin.multiplatform.library",
     )
 }

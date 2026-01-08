@@ -1,1 +1,1 @@
-sourceset_dependencies='{":/androidAndJvmMain":[],":/androidDebug":[":/commonMain"],":/androidMain":[":/androidAndJvmMain",":/commonMain"],":/androidRelease":[":/commonMain"],":/commonMain":[],":/jvmMain":[":/androidAndJvmMain",":/commonMain"]}'
+sourceset_dependencies='{":/androidAndJvmMain":[],":/androidMain":[":/androidAndJvmMain",":/commonMain"],":/androidRelease":[":/commonMain"],":/commonMain":[],":/jvmMain":[":/androidAndJvmMain",":/commonMain"]}'

@@ -3,8 +3,6 @@
  */
 package org.jetbrains.dokka.gradle.adapters
 
-import com.android.build.api.variant.AndroidComponentsExtension
-import com.android.build.api.variant.Variant
 import org.gradle.api.*
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
@@ -154,7 +152,7 @@ abstract class KotlinAdapter @Inject constructor(
                     }
                 logger.info(
                     "[$projectPath] Dokka could not determine KotlinPlatform for ${details.name} from targets ${compilations.map { it.target }}. " +
-                            "Dokka will assume this is a ${defaultPlatform} source set. " +
+                            "Dokka will assume this is a $defaultPlatform source set. " +
                             "(All platforms: $allPlatforms)"
                 )
                 defaultPlatform
@@ -307,7 +305,6 @@ abstract class KotlinAdapter @Inject constructor(
  * The compilation details may come from a multiplatform project ([KotlinMultiplatformExtension])
  * or a single-platform project ([KotlinSingleTargetExtension]).
  */
-@InternalDokkaGradlePluginApi
 private data class KotlinCompilationDetails(
     /** [KotlinCompilation.target] name. */
     val target: String,
@@ -394,6 +391,11 @@ private class KotlinCompilationDetailsBuilder(
         return androidVariants
     }
 
+    private fun collectAndroidVariants(project: Project, androidVariants: SetProperty<AndroidVariantInfo>) {
+        val androidComponents = project.findAndroidComponentsExtension() ?: return
+        androidVariants.collectFrom(androidComponents)
+    }
+
     /** Create a single [KotlinCompilationDetails] for [compilation]. */
     private fun createCompilationDetails(
         compilation: KotlinCompilation<*>,
@@ -464,24 +466,29 @@ private class KotlinCompilationDetailsBuilder(
     ): Provider<FileCollection> {
         return project.configurations
             .named(compilation.compileDependencyConfigurationName)
-            .map {
-                it.incoming
+            .map { compileDependencies ->
+                compileDependencies.incoming
                     .artifactView {
-                        // Android publishes many variants, which can cause Gradle to get confused,
-                        // so specify that we need a JAR and resolve leniently
-                        if (compilation.target.platformType == androidJvm) {
-                            attributes { artifactType(artifactType) }
+                        when (compilation.target.platformType) {
+                            androidJvm -> {
+                                // Android publishes many variants, which can cause Gradle to get confused,
+                                // so specify that we need a JAR and resolve leniently
+                                attributes { artifactType(artifactType) }
 
-                            // Setting lenient=true is not ideal, because it might hide problems.
-                            // Unfortunately, Gradle has no chill and dependency resolution errors
-                            // will cause Dokka tasks to completely fail, even if the dependencies aren't necessary.
-                            // (There's a chance that the dependencies aren't even used in the project!)
-                            // So, resolve leniently to at least permit generating _something_,
-                            // even if the generated output might be incomplete and missing some classes.
-                            lenient(true)
+                                // Setting lenient=true is not ideal, because it might hide problems.
+                                // Unfortunately, Gradle has no chill and dependency resolution errors
+                                // will cause Dokka tasks to completely fail, even if the dependencies aren't necessary.
+                                // (There's a chance that the dependencies aren't even used in the project!)
+                                // So, resolve leniently to at least permit generating _something_,
+                                // even if the generated output might be incomplete and missing some classes.
+                                lenient(true)
+                            }
+
+                            else -> {
+                                // 'Regular' Kotlin compilations have non-JAR files (e.g. Kotlin/Native klibs),
+                                // so don't add attributes
+                            }
                         }
-                        // 'Regular' Kotlin compilations have non-JAR files (e.g. Kotlin/Native klibs),
-                        // so don't add attributes for non-Android projects.
                     }
                     .artifacts
                     .artifactFiles
@@ -548,7 +555,7 @@ private class KotlinCompilationDetailsBuilder(
     ): Provider<Boolean> {
         return androidComponentsInfo.map { components ->
             val compilationComponents = components.filter { it.name == compilation.name }
-            val result = compilationComponents.any { component -> component.hasPublishedComponent }
+            val result = compilationComponents.any { component -> component.isPublishable }
             logger.info {
                 "[KotlinAdapter isJvmAndroidPublished] ${compilation.name} publishable:$result, compilationComponents:$compilationComponents"
             }
@@ -716,84 +723,3 @@ private class KotlinSourceSetDetailsBuilder(
 /** Try and get [KotlinProjectExtension], or `null` if it's not present. */
 private fun Project.findKotlinExtension(): KotlinProjectExtension? =
     findExtensionLenient<KotlinProjectExtension>("kotlin")
-
-
-/** Try and get [AndroidComponentsExtension], or `null` if it's not present. */
-private fun Project.findAndroidComponentExtension(): AndroidComponentsExtension<*, *, *>? =
-    findExtensionLenient<AndroidComponentsExtension<*, *, *>>("androidComponents")
-
-
-/**
- * Store details about a [Variant].
- *
- * @param[name] [Variant.name].
- * @param[hasPublishedComponent] `true` if any component of the variant is 'published',
- * i.e. it is an instance of [Variant].
- */
-private data class AndroidVariantInfo(
-    val name: String,
-    val hasPublishedComponent: Boolean,
-)
-
-/**
- * Collect [AndroidVariantInfo]s of the Android [Variant]s in this Android project.
- *
- * We store the collected data in a custom class to aid with Configuration Cache compatibility.
- *
- * This function must only be called when AGP is applied
- * (otherwise [findAndroidComponentExtension] will return `null`),
- * i.e. inside a `withPlugin(...) {}` block.
- *
- * ## How to determine publishability of AGP Variants
- *
- * There are several Android Gradle plugins.
- * Each AGP has a specific associated [Variant]:
- * - `com.android.application` - [com.android.build.api.variant.ApplicationVariant]
- * - `com.android.library` - [com.android.build.api.variant.DynamicFeatureVariant]
- * - `com.android.test` - [com.android.build.api.variant.LibraryVariant]
- * - `com.android.dynamic-feature` - [com.android.build.api.variant.TestVariant]
- *
- * A [Variant] is 'published' (or otherwise shared with other projects).
- * Note that a [Variant] might have [nestedComponents][Variant.nestedComponents].
- * If any of these [com.android.build.api.variant.Component]s are [Variant]s,
- * then the [Variant] itself should be considered 'publishable'.
- *
- * If a [KotlinSourceSet] has an associated [Variant],
- * it should therefore be documented by Dokka by default.
- *
- * ### Associating Variants with Compilations with SourceSets
- *
- * So, how can we associate a [KotlinSourceSet] with a [Variant]?
- *
- * Fortunately, Dokka already knows about the [KotlinCompilation]s associated with a specific [KotlinSourceSet].
- *
- * So, for each [KotlinCompilation], find a [Variant] with the same name,
- * i.e. [KotlinCompilation.getName] is the same as [Variant.name].
- *
- * Next, determine if the [Variant] associated with a [KotlinCompilation] is 'publishable' by
- * checking if it _or_ any of its [nestedComponents][Variant.nestedComponents]
- * are 'publishable' (i.e. is an instance of [Variant]).
- * (We can we use [Variant.components] to check both the [Variant] and its `nestedComponents` the same time.)
- */
-private fun collectAndroidVariants(
-    project: Project,
-    androidVariants: SetProperty<AndroidVariantInfo>,
-) {
-    val androidComponents = project.findAndroidComponentExtension()
-
-    androidComponents?.onVariants { variant ->
-        val hasPublishedComponent =
-            variant.components.any { component ->
-                // a Variant is a subtype of a Component that is shared with consumers,
-                // so Dokka should consider it 'publishable'
-                component is Variant
-            }
-
-        androidVariants.add(
-            AndroidVariantInfo(
-                name = variant.name,
-                hasPublishedComponent = hasPublishedComponent,
-            )
-        )
-    }
-}

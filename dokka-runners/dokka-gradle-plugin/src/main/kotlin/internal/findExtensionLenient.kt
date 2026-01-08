@@ -5,6 +5,7 @@
 package org.jetbrains.dokka.gradle.internal
 
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.findByType
 
 /**
  * Try and get an extension from [Project.getExtensions], or `null` if it's not present.
@@ -20,12 +21,12 @@ internal inline fun <reified T : Any> Project.findExtensionLenient(
 
     val extensionByName = extensions.findByName(extensionName)
     if (extensionByName == null) {
-        logger.info("Dokka Gradle plugin failed to find extension $extensionName by name ${T::class.java}")
+        logger.info("Dokka Gradle plugin failed to find extension $extensionName by name ${T::class}")
         return null
     }
 
     try {
-        return extensions.findByType(T::class.java)
+        return extensions.findByType(T::class)
     } catch (e: Throwable) {
         when (e) {
             is TypeNotPresentException,

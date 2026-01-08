@@ -8,7 +8,11 @@ android {
     namespace = "org.jetbrains.dokka.it.android"
     defaultConfig {
         minSdkVersion(21)
-        setCompileSdkVersion(29)
+        setCompileSdkVersion(30)
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
