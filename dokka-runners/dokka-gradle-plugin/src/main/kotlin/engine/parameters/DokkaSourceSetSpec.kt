@@ -17,6 +17,7 @@ import org.jetbrains.dokka.gradle.engine.parameters.SourceSetIdSpec.Companion.do
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.adding
 import org.jetbrains.dokka.gradle.internal.domainObjectContainer
+import java.io.File
 import java.io.Serializable
 import javax.inject.Inject
 import kotlin.DeprecationLevel.ERROR
@@ -444,17 +445,16 @@ constructor(
     abstract val noJdkLink: Property<Boolean>
     //endregion
 
-    // this is just for task input tracking, it's not used anywhere
-    @Suppress("unused")
+    // this is just for task input tracking
     @get:InputFiles
     @get:IgnoreEmptyDirectories
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    internal val inputSourceFiles: FileCollection
+    internal val inputSourceFiles: List<File>
         get() = sourceRoots.asFileTree.filter { sourceFile ->
             suppressedFiles.none { suppressedFile ->
                 sourceFile.startsWith(suppressedFile)
             }
-        }
+        }.sorted() // FileTrees have an unstable order (even on the same machine)
 
     companion object {
 
