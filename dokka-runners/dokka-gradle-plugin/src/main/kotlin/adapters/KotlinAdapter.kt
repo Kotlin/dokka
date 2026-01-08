@@ -27,6 +27,7 @@ import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.plugi
 import org.jetbrains.kotlin.commonizer.KonanDistribution
 import org.jetbrains.kotlin.commonizer.platformLibsDir
 import org.jetbrains.kotlin.commonizer.stdlib
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
@@ -128,6 +129,16 @@ abstract class KotlinAdapter @Inject constructor(
             classpath.from(kssClasspath)
             analysisPlatform.convention(kssPlatform)
             dependentSourceSets.addAllLater(details.dependentSourceSetIds)
+
+            suppressedFiles.from(
+                suppressGeneratedFiles.map { suppressGenerated ->
+                    if (suppressGenerated) {
+                        details.generatedSourceDirectories
+                    } else {
+                        objects.fileCollection()
+                    }
+                }
+            )
         }
     }
 
@@ -601,6 +612,7 @@ private abstract class KotlinSourceSetDetails @Inject constructor(
     /** Direct source sets that this source set depends on. */
     abstract val dependentSourceSetIds: SetProperty<SourceSetIdSpec>
     abstract val sourceDirectories: ConfigurableFileCollection
+    abstract val generatedSourceDirectories: ConfigurableFileCollection
 
     /** _All_ source directories from any (recursively) dependant source set. */
     abstract val sourceDirectoriesOfDependents: ConfigurableFileCollection
@@ -686,10 +698,6 @@ private class KotlinSourceSetDetailsBuilder(
         kotlinSourceSet: KotlinSourceSet,
         allKotlinCompilationDetails: ListProperty<KotlinCompilationDetails>,
     ) {
-        val extantSourceDirectories = providers.provider {
-            kotlinSourceSet.kotlin.sourceDirectories.filter { it.exists() }
-        }
-
         val primaryCompilations = allKotlinCompilationDetails.map { allCompilations ->
             allCompilations.filter { compilation ->
                 kotlinSourceSet.name in compilation.primarySourceSetNames
@@ -723,7 +731,7 @@ private class KotlinSourceSetDetailsBuilder(
             .allDependsOnSourceSets()
             .map { allDependsOns ->
                 allDependsOns.fold(objects.fileCollection()) { acc, sourceSet ->
-                    acc.from(sourceSet.kotlin.sourceDirectories)
+                    acc.from(sourceSet.kotlinSources())
                 }
             }
 
@@ -739,7 +747,8 @@ private class KotlinSourceSetDetailsBuilder(
 
         register(kotlinSourceSet.name) {
             this.dependentSourceSetIds.addAll(dependentSourceSetIds)
-            this.sourceDirectories.from(extantSourceDirectories)
+            this.generatedSourceDirectories.from(kotlinSourceSet.generatedKotlinSources())
+            this.sourceDirectories.from(kotlinSourceSet.kotlinSources())
             this.sourceDirectoriesOfDependents.from(sourceDirectoriesOfDependents)
             this.primaryCompilations.addAll(primaryCompilations)
             this.allAssociatedCompilations.addAll(allAssociatedCompilations)
@@ -772,6 +781,38 @@ private class KotlinSourceSetDetailsBuilder(
 
         return providers.provider {
             allDependsOn(queue = dependsOn.toSet())
+        }
+    }
+
+    private fun KotlinSourceSet.kotlinSources(): FileCollection {
+        // `allKotlinSources` was introduced in KGP 2.3.0
+        return if (currentKotlinToolingVersion < KotlinToolingVersion("2.3.0")) {
+            kotlin.sourceDirectories
+        } else {
+            try {
+                @OptIn(ExperimentalKotlinGradlePluginApi::class)
+                allKotlinSources
+            } catch (_: Throwable) {
+                // in case KGP will remove `allKotlinSources` in the future, as it's an experimental API
+                logger.warn { "Failed to get all Kotlin sources (`allKotlinSources`) for source set $name in project ${project.path}" }
+                kotlin.sourceDirectories
+            }
+        }
+    }
+
+    private fun KotlinSourceSet.generatedKotlinSources(): FileCollection {
+        // `generatedKotlin` was introduced in KGP 2.3.0
+        return if (currentKotlinToolingVersion < KotlinToolingVersion("2.3.0")) {
+            objects.fileCollection()
+        } else {
+            try {
+                @OptIn(ExperimentalKotlinGradlePluginApi::class)
+                generatedKotlin.sourceDirectories
+            } catch (_: Throwable) {
+                // in case KGP will remove `generatedKotlin` in the future, as it's an experimental API
+                logger.warn { "Failed to get generated Kotlin sources (`generatedKotlin.sourceDirectories`) for source set $name in project ${project.path}" }
+                objects.fileCollection()
+            }
         }
     }
 }
