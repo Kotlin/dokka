@@ -169,7 +169,7 @@ internal class DokkaSymbolVisitor(
             documentation = getDocumentation(typeAliasSymbol)?.toSourceSetDependent() ?: emptyMap(),
             sourceSets = setOf(sourceSet),
             generics = generics,
-            sources = typeAliasSymbol.getSource(),
+            sources = getSource(typeAliasSymbol),
             extra = PropertyContainer.withAll(
                 getDokkaAnnotationsFrom(typeAliasSymbol)?.toSourceSetDependent()?.toAnnotations(),
                 ancestryInfo.exceptionInSupertypesOrNull(),
@@ -222,7 +222,7 @@ internal class DokkaSymbolVisitor(
                     properties = properties,
                     classlikes = classlikes,
                     typealiases = typeAliases,
-                    sources = namedClassSymbol.getSource(),
+                    sources = getSource(namedClassSymbol),
                     expectPresentInSet = sourceSet.takeIf { isExpect },
                     visibility = namedClassSymbol.getDokkaVisibility().toSourceSetDependent(),
                     supertypes = supertypes,
@@ -246,7 +246,7 @@ internal class DokkaSymbolVisitor(
                 properties = properties,
                 classlikes = classlikes,
                 typealiases = typeAliases,
-                sources = namedClassSymbol.getSource(),
+                sources = getSource(namedClassSymbol),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 visibility = namedClassSymbol.getDokkaVisibility().toSourceSetDependent(),
                 supertypes = supertypes,
@@ -271,7 +271,7 @@ internal class DokkaSymbolVisitor(
                 properties = properties,
                 classlikes = classlikes,
                 typealiases = typeAliases,
-                sources = namedClassSymbol.getSource(), //
+                sources = getSource(namedClassSymbol),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 visibility = namedClassSymbol.getDokkaVisibility().toSourceSetDependent(),
                 supertypes = supertypes,
@@ -303,7 +303,7 @@ internal class DokkaSymbolVisitor(
                 visibility = namedClassSymbol.getDokkaVisibility().toSourceSetDependent(),
                 generics = generics,
                 constructors = constructors,
-                sources = namedClassSymbol.getSource(),
+                sources = getSource(namedClassSymbol),
                 extra = PropertyContainer.withAll(
                     namedClassSymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
                     getDokkaAnnotationsFrom(namedClassSymbol)?.toSourceSetDependent()?.toAnnotations(),
@@ -346,7 +346,7 @@ internal class DokkaSymbolVisitor(
                     properties = properties,
                     classlikes = classlikes,
                     typealiases = typeAliases,
-                    sources = namedClassSymbol.getSource(),
+                    sources = getSource(namedClassSymbol),
                     expectPresentInSet = sourceSet.takeIf { isExpect },
                     visibility = namedClassSymbol.getDokkaVisibility().toSourceSetDependent(),
                     supertypes = supertypes,
@@ -506,7 +506,7 @@ internal class DokkaSymbolVisitor(
                 },
                 contextParameters = @OptIn(KaExperimentalApi::class) propertySymbol.contextParameters
                     .mapIndexed { index, symbol -> visitContextParameter(index, symbol, dri) },
-                sources = propertySymbol.getSource(),
+                sources = getSource(propertySymbol),
                 getter = propertySymbol.getter?.let { visitPropertyAccessor(it, propertySymbol, dri, parent) },
                 setter = propertySymbol.setter?.let { visitPropertyAccessor(it, propertySymbol, dri, parent) },
                 visibility = propertySymbol.visibility.toDokkaVisibility().toSourceSetDependent(),
@@ -552,7 +552,7 @@ internal class DokkaSymbolVisitor(
                         dri
                     )
                 },
-                sources = javaFieldSymbol.getSource(),
+                sources = getSource(javaFieldSymbol),
                 getter = null,
                 setter = null,
                 visibility = javaFieldSymbol.getDokkaVisibility().toSourceSetDependent(),
@@ -623,10 +623,10 @@ internal class DokkaSymbolVisitor(
                 )
             },
             expectPresentInSet = null,
-            sources = propertyAccessorSymbol.getSource(),
+            sources = getSource(propertyAccessorSymbol),
             visibility = propertyAccessorSymbol.visibility.toDokkaVisibility().toSourceSetDependent(),
             generics = generics,
-            documentation = getDocumentation(propertyAccessorSymbol)?.toSourceSetDependent() ?: emptyMap(),
+            documentation = getAccessorSymbolDocumentation(propertyAccessorSymbol)?.toSourceSetDependent() ?: emptyMap(),
             modifier = propertyAccessorSymbol.getDokkaModality().toSourceSetDependent(),
             type = toBoundFrom(propertyAccessorSymbol.returnType),
             sourceSets = setOf(sourceSet),
@@ -679,7 +679,7 @@ internal class DokkaSymbolVisitor(
             parameters = constructorSymbol.valueParameters
                 .mapIndexed { index, symbol -> visitValueParameter(index, symbol, dri) },
             expectPresentInSet = sourceSet.takeIf { isExpect },
-            sources = constructorSymbol.getSource(),
+            sources = getSource(constructorSymbol),
             visibility = constructorSymbol.visibility.toDokkaVisibility().toSourceSetDependent(),
             generics = generics,
             documentation = documentation ?: emptyMap(),
@@ -725,7 +725,7 @@ internal class DokkaSymbolVisitor(
                 contextParameters = @OptIn(KaExperimentalApi::class) functionSymbol.contextParameters
                     .mapIndexed { index, symbol -> visitContextParameter(index, symbol, dri) },
                 expectPresentInSet = sourceSet.takeIf { isExpect },
-                sources = functionSymbol.getSource(),
+                sources = getSource(functionSymbol),
                 visibility = functionSymbol.getDokkaVisibility().toSourceSetDependent(),
                 generics = generics,
                 documentation = getDocumentation(functionSymbol)?.toSourceSetDependent() ?: emptyMap(),
@@ -908,12 +908,29 @@ internal class DokkaSymbolVisitor(
         }
     }
 
+    private fun KaSession.getAccessorSymbolDocumentation(symbol: KaPropertyAccessorSymbol): DocumentationNode? {
+        val documentation = getDocumentation(symbol) ?: return null
+        return documentation.removePropertyTag()
+    }
+
     private fun KaSession.getDocumentation(symbol: KaSymbol) =
         if (symbol.origin == KaSymbolOrigin.SOURCE_MEMBER_GENERATED)
             // a primary (implicit default) constructor  can be generated, so we need KDoc from @constructor tag
             getGeneratedKDocDocumentationFrom(symbol) ?: if(symbol is KaConstructorSymbol) getKDocDocumentationFrom(symbol, logger) else null
         else
             getKDocDocumentationFrom(symbol, logger) ?: javadocParser?.let { getJavaDocDocumentationFrom(symbol, it) }
+
+    /**
+     * Unwrap the documentation for property accessors from the [Property] wrapper if its present.
+     * Otherwise, documentation will not be rendered
+     */
+    private fun DocumentationNode.removePropertyTag(): DocumentationNode =
+        DocumentationNode(children.map { it.removePropertyTag() })
+
+    private fun TagWrapper.removePropertyTag(): TagWrapper = when (this) {
+        is Property -> Description(root)
+        else -> this
+    }
 
     private fun KaSession.isObvious(functionSymbol: KaFunctionSymbol, inheritedFrom: DRI?): Boolean {
         return functionSymbol.origin == KaSymbolOrigin.SOURCE_MEMBER_GENERATED && !hasGeneratedKDocDocumentation(functionSymbol) ||
@@ -926,7 +943,14 @@ internal class DokkaSymbolVisitor(
         else -> false
     }
 
-    private fun KaSymbol.getSource() = KtPsiDocumentableSource(psi).toSourceSetDependent()
+    private fun KaSession.getSource(symbol: KaSymbol): SourceSetDependent<DocumentableSource> {
+        val psi = when(symbol) {
+            // implicit/default accessors have no psi
+            is KaPropertyAccessorSymbol -> symbol.containingSymbol?.psi
+            else -> symbol.psi
+        }
+        return KtPsiDocumentableSource(psi).toSourceSetDependent()
+    }
 
     private fun AncestryNode.exceptionInSupertypesOrNull(): ExceptionInSupertypes? =
         typeConstructorsBeingExceptions().takeIf { it.isNotEmpty() }

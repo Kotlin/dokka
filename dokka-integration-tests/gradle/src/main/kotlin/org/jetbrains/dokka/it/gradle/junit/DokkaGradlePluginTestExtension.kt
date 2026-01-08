@@ -21,7 +21,6 @@ import org.junit.platform.commons.logging.Logger
 import org.junit.platform.commons.logging.LoggerFactory
 import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.AnnotationSupport.findAnnotation
-import org.junit.platform.commons.support.AnnotationSupport.isAnnotated
 import org.junit.platform.commons.support.ReflectionSupport
 import org.opentest4j.TestAbortedException
 import java.nio.file.Files
@@ -85,8 +84,8 @@ class DokkaGradlePluginTestExtension :
         val projectInitializer = ReflectionSupport.newInstance(dgpTest.projectInitializer.java)
         val sourceProjectDir = dgpTest.sourceProjectName
 
-        val isAndroidTest = context.hasOrParentHasAnnotation<TestsAndroid>()
-        val isAndroidComposeTest = context.hasOrParentHasAnnotation<TestsAndroidCompose>()
+        val testAndroidAnnotation = context.findClosestAnnotation<TestsAndroid>()
+        val testsAndroidComposeAnnotation = context.findClosestAnnotation<TestsAndroidCompose>()
 
         val gradleProperties = computeGradleProperties(
             context,
@@ -94,8 +93,14 @@ class DokkaGradlePluginTestExtension :
         )
 
         val testedVersionsSource = when {
-            isAndroidComposeTest -> TestedVersionsSource.AndroidCompose
-            isAndroidTest -> TestedVersionsSource.Android
+            testsAndroidComposeAnnotation != null -> TestedVersionsSource.AndroidCompose(
+                kotlinBuiltIn = testsAndroidComposeAnnotation.kotlinBuiltIn,
+            )
+
+            testAndroidAnnotation != null -> TestedVersionsSource.Android(
+                kotlinBuiltIn = testAndroidAnnotation.kotlinBuiltIn,
+            )
+
             else -> TestedVersionsSource.Default
         }
 
@@ -328,10 +333,12 @@ class DokkaGradlePluginTestExtension :
         internal val templateProjectsDir by systemProperty(::Path)
 
         /**
-         * Check if this [ExtensionContext] or any of its parents is annotated with [T].
+         * Find the annotation of type [T] closest to the current [ExtensionContext].
          */
-        private inline fun <reified T : Annotation> ExtensionContext.hasOrParentHasAnnotation(): Boolean =
+        private inline fun <reified T : Annotation> ExtensionContext.findClosestAnnotation(): T? =
             generateSequence(this) { it.parent.getOrNull() }
-                .any { isAnnotated(it.element, T::class.java) }
+                .firstNotNullOfOrNull {
+                    findAnnotation(it.element, T::class.java).getOrNull()
+                }
     }
 }
