@@ -18,3 +18,5 @@ android {
 dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
 }
+
+dokka.pluginsConfiguration.html.footerMessage.set("© 2025 Copyright")
