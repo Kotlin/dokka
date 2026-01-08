@@ -63,7 +63,7 @@ class TypealiasTest : BaseAbstractTest() {
             | * some text
             | *
             | * @see String
-            | * @throws Unit
+            | * @throws Exception
             | */
             | typealias A = String
             """,
@@ -99,7 +99,7 @@ class TypealiasTest : BaseAbstractTest() {
 
                         header { +"Throws" }
                         table {
-                            group { group { link { +"Unit" } } }
+                            group { group { link { +"Exception" } } }
                         }
                     }
                 }
