@@ -26,3 +26,5 @@ kotlin {
         }
     }
 }
+
+dokka.pluginsConfiguration.html.footerMessage.set("© 2025 Copyright")
