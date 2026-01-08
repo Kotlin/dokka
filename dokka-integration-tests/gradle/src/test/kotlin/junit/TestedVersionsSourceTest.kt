@@ -39,7 +39,7 @@ class TestedVersionsSourceTest {
         val actual = TestedVersionsSource.Default.get().joinAllToString()
 
         actual shouldBe """
-            gradle: 7.6.4, 8.14.3, 9.1.0
+            gradle: 7.6.4, 8.14.3, 9.2.1
             kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0
         """.trimIndent()
     }
@@ -55,21 +55,21 @@ class TestedVersionsSourceTest {
         val expected = when (kotlinBuiltIn) {
             Required ->
                 """
-                agp: 9.0.0-beta01
-                gradle: 9.1.0
+                agp: 9.0.0-rc02
+                gradle: 9.2.1
                 kgp: 2.1.21, 2.2.21, 2.3.0
                 """.trimIndent()
 
             Supported ->
                 """
-                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.0, 9.0.0-beta01
-                gradle: 7.6.4, 8.14.3, 9.1.0
+                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2, 9.0.0-rc02
+                gradle: 7.6.4, 8.14.3, 9.2.1
                 kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0
                 """.trimIndent()
 
             Incompatible ->
                 """
-                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.0
+                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2
                 gradle: 7.6.4, 8.14.3
                 kgp: 1.9.25, 2.0.21
                 """.trimIndent()
@@ -89,23 +89,23 @@ class TestedVersionsSourceTest {
         val expected = when (kotlinBuiltIn) {
             Required ->
                 """
-                agp: 9.0.0-beta01
+                agp: 9.0.0-rc02
                 composeGradlePlugin: 1.7.0
-                gradle: 9.1.0
+                gradle: 9.2.1
                 kgp: 2.1.21, 2.2.21, 2.3.0
                 """.trimIndent()
 
             Supported ->
                 """
-                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.0, 9.0.0-beta01
+                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2, 9.0.0-rc02
                 composeGradlePlugin: 1.7.0
-                gradle: 7.6.4, 8.14.3, 9.1.0
+                gradle: 7.6.4, 8.14.3, 9.2.1
                 kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0
                 """.trimIndent()
 
             Incompatible ->
                 """
-                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.0
+                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2
                 composeGradlePlugin: 1.7.0
                 gradle: 7.6.4, 8.14.3
                 kgp: 1.9.25, 2.0.21
