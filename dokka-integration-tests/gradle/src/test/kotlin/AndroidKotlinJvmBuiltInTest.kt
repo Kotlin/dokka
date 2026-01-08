@@ -82,6 +82,8 @@ class AndroidKotlinJvmBuiltInTest {
                     actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedHtml, TestConstants.DokkaHtmlAssetsFiles)
                 }
             }
+
+            assertNoUnknownClassErrorsInHtml(actualHtmlDir)
         }
     }
 }
