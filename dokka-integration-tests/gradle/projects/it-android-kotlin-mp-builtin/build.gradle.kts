@@ -37,3 +37,5 @@ if (agpMajorVersion < 9) {
         enableAndroidDocumentationLink.set(true)
     }
 }
+
+dokka.pluginsConfiguration.html.footerMessage.set("© 2025 Copyright")
