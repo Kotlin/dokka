@@ -23,6 +23,7 @@ import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.engine.parameters.SourceSetIdSpec
 import org.jetbrains.dokka.gradle.engine.parameters.SourceSetIdSpec.Companion.dokkaSourceSetIdSpec
 import org.jetbrains.dokka.gradle.internal.*
+import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.pluginFeaturesService
 import org.jetbrains.kotlin.commonizer.KonanDistribution
 import org.jetbrains.kotlin.commonizer.platformLibsDir
 import org.jetbrains.kotlin.commonizer.stdlib
@@ -82,6 +83,7 @@ abstract class KotlinAdapter @Inject constructor(
             objects = objects,
             sourceSetScopeDefault = dokkaExtension.sourceSetScopeDefault,
             projectPath = project.path,
+            project = project,
         )
         val sourceSetDetails: NamedDomainObjectContainer<KotlinSourceSetDetails> =
             sourceSetDetailsBuilder.createSourceSetDetails(
@@ -118,7 +120,7 @@ abstract class KotlinAdapter @Inject constructor(
         details: KotlinSourceSetDetails,
     ) {
         val kssPlatform = determineKotlinPlatform(projectPath, details)
-        val kssClasspath = determineClasspath(details)
+        val kssClasspath = determineClasspath(details = details)
 
         register(details.name) dss@{
             suppress.convention(!details.isPublishedSourceSet())
@@ -133,7 +135,7 @@ abstract class KotlinAdapter @Inject constructor(
         projectPath: String,
         details: KotlinSourceSetDetails,
     ): Provider<KotlinPlatform> {
-        return details.allCompilations.map { compilations: List<KotlinCompilationDetails> ->
+        return details.allAssociatedCompilations.map { compilations: List<KotlinCompilationDetails> ->
             val allPlatforms = compilations
                 // Exclude metadata compilations: they are always KotlinPlatform.Common, which isn't relevant here.
                 // Dokka only cares about the compilable KMP targets of a KotlinSourceSet.
@@ -163,21 +165,38 @@ abstract class KotlinAdapter @Inject constructor(
     }
 
     private fun determineClasspath(
-        details: KotlinSourceSetDetails
-    ): Provider<FileCollection> {
-        return details.primaryCompilations.map { compilations: List<KotlinCompilationDetails> ->
-            val classpath = objects.fileCollection()
+        details: KotlinSourceSetDetails,
+    ): FileCollection {
 
-            if (compilations.isNotEmpty()) {
-                compilations.fold(classpath) { acc, compilation ->
-                    acc.from(compilation.compilationClasspath)
+        val primaryClasspath: Provider<FileCollection> =
+            details.allAssociatedCompilations.zip(details.primaryCompilations) { allAssociatedCompilations, primaryCompilations ->
+                val classpath = objects.fileCollection()
+
+                if (primaryCompilations.isNotEmpty()) {
+                    primaryCompilations.forEach { compilation ->
+                        classpath.from(compilation.compilationClasspath)
+                    }
+                } else {
+                    // This source set only no primary compilations. Therefore, it is an intermediate source set.
+                    val singleAssociatedCompilation = allAssociatedCompilations.singleOrNull()
+                    if (singleAssociatedCompilation != null) {
+                        // Handle 'bamboo' source sets.
+                        //
+                        // If an intermediate source set only has a single 'associated compilation',
+                        // then it will be considered as a 'bamboo' source set.
+                        // (For example, windowsMain and mingwMain are intermediate, with only one target: mingwX64Main.)
+                        // The single 'associated compilation' is the actual target compilation,
+                        // and DGP should use its classpath.
+                        classpath.from(singleAssociatedCompilation.compilationClasspath)
+                    }
                 }
-            } else {
+
                 classpath
-                    .from(details.sourceDirectories)
-                    .from(details.sourceDirectoriesOfDependents)
             }
-        }
+
+        return objects.fileCollection()
+            .from(primaryClasspath)
+            .from(details.transformedMetadataDependencies)
     }
 
     @InternalDokkaGradlePluginApi
@@ -523,7 +542,7 @@ private class KotlinCompilationDetailsBuilder(
                 )
             }
         } else {
-            return providers.provider { objects.fileCollection() }
+            providers.provider { objects.fileCollection() }
         }
     }
 
@@ -599,7 +618,14 @@ private abstract class KotlinSourceSetDetails @Inject constructor(
      * For example, the compilation for `commonMain` will also participate in compiling
      * the leaf `linuxX64`, as well as the intermediate compilations of `nativeMain`, `linuxMain`, etc.
      */
-    abstract val allCompilations: ListProperty<KotlinCompilationDetails>
+    abstract val allAssociatedCompilations: ListProperty<KotlinCompilationDetails>
+
+    /**
+     * Workaround for KT-80551.
+     *
+     * See [org.jetbrains.dokka.gradle.adapters.TransformedMetadataDependencyProvider].
+     */
+    abstract val transformedMetadataDependencies: ConfigurableFileCollection
 
     /**
      * Estimate if this Kotlin source set contains 'published' (non-test) sources.
@@ -607,7 +633,7 @@ private abstract class KotlinSourceSetDetails @Inject constructor(
      * @see KotlinCompilationDetails.publishedCompilation
      */
     fun isPublishedSourceSet(): Provider<Boolean> =
-        allCompilations.map { values ->
+        allAssociatedCompilations.map { values ->
             values.any { it.publishedCompilation.get() }
         }
 
@@ -620,11 +646,21 @@ private class KotlinSourceSetDetailsBuilder(
     private val sourceSetScopeDefault: Provider<String>,
     private val objects: ObjectFactory,
     private val providers: ProviderFactory,
-    /** [Project.getPath]. Used for logging. */
+    /** [Project.getPath]. Used for configuration-cache safe logging. */
     private val projectPath: String,
+    private val project: Project,
 ) {
-
     private val logger = Logging.getLogger(KotlinSourceSetDetails::class.java)
+
+    private val transformedMetadataDependencyProvider: TransformedMetadataDependencyProvider? by lazy {
+        if (project.pluginFeaturesService.enableWorkaroundKT80551.get()) {
+            logger.info("$projectPath TransformedMetadataDependencyProvider is enabled")
+            TransformedMetadataDependencyProvider(project)
+        } else {
+            logger.info("$projectPath TransformedMetadataDependencyProvider is disabled")
+            null
+        }
+    }
 
     fun createSourceSetDetails(
         kotlinSourceSets: NamedDomainObjectContainer<KotlinSourceSet>,
@@ -654,13 +690,13 @@ private class KotlinSourceSetDetailsBuilder(
             kotlinSourceSet.kotlin.sourceDirectories.filter { it.exists() }
         }
 
-        val primaryCompilations = allKotlinCompilationDetails.map { primaryCompilations ->
-            primaryCompilations.filter { compilation ->
+        val primaryCompilations = allKotlinCompilationDetails.map { allCompilations ->
+            allCompilations.filter { compilation ->
                 kotlinSourceSet.name in compilation.primarySourceSetNames
             }
         }
 
-        val allCompilations = allKotlinCompilationDetails.map { allCompilations ->
+        val allAssociatedCompilations = allKotlinCompilationDetails.map { allCompilations ->
             allCompilations.filter { compilation ->
                 kotlinSourceSet.name in compilation.allSourceSetNames
             }
@@ -683,20 +719,31 @@ private class KotlinSourceSetDetailsBuilder(
                 }
             }
 
-        val sourceDirectoriesOfDependents = providers.provider {
-            kotlinSourceSet
-                .allDependentSourceSets()
-                .fold(objects.fileCollection()) { acc, sourceSet ->
+        val sourceDirectoriesOfDependents = kotlinSourceSet
+            .allDependsOnSourceSets()
+            .map { allDependsOns ->
+                allDependsOns.fold(objects.fileCollection()) { acc, sourceSet ->
                     acc.from(sourceSet.kotlin.sourceDirectories)
                 }
-        }
+            }
+
+        val transformedMetadataDependencies =
+            allAssociatedCompilations.map { associated ->
+                if (associated.all { it.kotlinPlatform == KotlinPlatform.Wasm }) {
+                    transformedMetadataDependencyProvider?.get(kotlinSourceSet)
+                        ?: objects.fileCollection()
+                } else {
+                    objects.fileCollection()
+                }
+            }
 
         register(kotlinSourceSet.name) {
             this.dependentSourceSetIds.addAll(dependentSourceSetIds)
             this.sourceDirectories.from(extantSourceDirectories)
             this.sourceDirectoriesOfDependents.from(sourceDirectoriesOfDependents)
             this.primaryCompilations.addAll(primaryCompilations)
-            this.allCompilations.addAll(allCompilations)
+            this.allAssociatedCompilations.addAll(allAssociatedCompilations)
+            this.transformedMetadataDependencies.from(transformedMetadataDependencies)
         }
     }
 
@@ -705,17 +752,27 @@ private class KotlinSourceSetDetailsBuilder(
      * Return a list containing _all_ source sets that this source set depends on,
      * searching recursively.
      *
+     * For example, `linuxX64` depends on `linuxMain`, `nativeMain`, and `commonMain`.
+     * [KotlinSourceSet.dependsOn] only returns the direct dependency: `linuxMain`.
+     *
      * @see KotlinSourceSet.dependsOn
      */
-    private tailrec fun KotlinSourceSet.allDependentSourceSets(
-        queue: Set<KotlinSourceSet> = dependsOn.toSet(),
-        allDependents: List<KotlinSourceSet> = emptyList(),
-    ): List<KotlinSourceSet> {
-        val next = queue.firstOrNull() ?: return allDependents
-        return next.allDependentSourceSets(
-            queue = (queue - next) union next.dependsOn,
-            allDependents = allDependents + next,
-        )
+    private fun KotlinSourceSet.allDependsOnSourceSets(): Provider<List<KotlinSourceSet>> {
+
+        tailrec fun allDependsOn(
+            queue: Set<KotlinSourceSet>,
+            allDependents: List<KotlinSourceSet> = emptyList(),
+        ): List<KotlinSourceSet> {
+            val next = queue.firstOrNull() ?: return allDependents
+            return allDependsOn(
+                queue = (queue - next) union next.dependsOn,
+                allDependents = allDependents + next,
+            )
+        }
+
+        return providers.provider {
+            allDependsOn(queue = dependsOn.toSet())
+        }
     }
 }
 

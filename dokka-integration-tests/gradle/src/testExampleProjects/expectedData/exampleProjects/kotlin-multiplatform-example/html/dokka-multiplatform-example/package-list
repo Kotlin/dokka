@@ -9,13 +9,24 @@ $dokka.location:org.kotlintestmpp.coroutines//name/kotlinx.coroutines.CoroutineD
 $dokka.location:org.kotlintestmpp.date////PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.date/index.html
 $dokka.location:org.kotlintestmpp.date//getCurrentDate/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.date/get-current-date.html
 $dokka.location:org.kotlintestmpp.date//getDate/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.date/get-date.html
+$dokka.location:org.kotlintestmpp.web////PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.web/index.html
+$dokka.location:org.kotlintestmpp.web/WebService///PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.web/-web-service/index.html
+$dokka.location:org.kotlintestmpp.web/WebService/WebService/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.web/-web-service/-web-service.html
+$dokka.location:org.kotlintestmpp.web/WebService/close/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.web/-web-service/close.html
+$dokka.location:org.kotlintestmpp.web/WebService/getException/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp.web/-web-service/get-exception.html
 $dokka.location:org.kotlintestmpp////PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/index.html
 $dokka.location:org.kotlintestmpp//js/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/js.html
 $dokka.location:org.kotlintestmpp//jvm/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/jvm.html
-$dokka.location:org.kotlintestmpp//myExtension/kotlin.String#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/[jvm]my-extension.html
+$dokka.location:org.kotlintestmpp//myExtension/kotlin.String#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/[wasm-js]my-extension.html
 $dokka.location:org.kotlintestmpp//printPointerRawValue/#kotlinx.cinterop.CPointer[TypeParam(bounds=[kotlinx.cinterop.CPointed])]/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/print-pointer-raw-value.html
-$dokka.location:org.kotlintestmpp//shared/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/[jvm]shared.html
+$dokka.location:org.kotlintestmpp//shared/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/[wasm-js]shared.html
 $dokka.location:org.kotlintestmpp//startConnectionPipeline/kotlinx.coroutines.CoroutineScope#kotlin.String/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/start-connection-pipeline.html
+$dokka.location:org.kotlintestmpp//wasmJs/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/wasm-js.html
+$dokka.location:org.kotlintestmpp/CustomException///PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/-custom-exception/index.html
+$dokka.location:org.kotlintestmpp/CustomException/CustomException/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/-custom-exception/-custom-exception.html
+$dokka.location:org.kotlintestmpp/CustomException/CustomException/#kotlin.String?#kotlin.Throwable?/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/-custom-exception/-custom-exception.html
+$dokka.location:org.kotlintestmpp/CustomException/CustomException/#kotlin.String?/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/-custom-exception/-custom-exception.html
+$dokka.location:org.kotlintestmpp/CustomException/CustomException/#kotlin.Throwable?/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/-custom-exception/-custom-exception.html
 $dokka.location:org.kotlintestmpp/JavaAnnotation///PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/-java-annotation/index.html
 $dokka.location:org.kotlintestmpp/JavaAnnotation/aliases/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/-java-annotation/aliases.html
 $dokka.location:org.kotlintestmpp/JavaAnnotation/description/#/PointingToDeclaration/dokka-multiplatform-example/org.kotlintestmpp/-java-annotation/description.html
@@ -24,3 +35,4 @@ org.kotlintestmpp
 org.kotlintestmpp.common
 org.kotlintestmpp.coroutines
 org.kotlintestmpp.date
+org.kotlintestmpp.web

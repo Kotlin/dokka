@@ -6,6 +6,9 @@ package org.jetbrains.dokka.gradle.utils
 import com.github.difflib.DiffUtils
 import com.github.difflib.UnifiedDiffUtils
 import io.kotest.assertions.fail
+import io.kotest.matchers.MatcherResult
+import io.kotest.matchers.neverNullMatcher
+import io.kotest.matchers.shouldNot
 import java.io.IOException
 import java.io.OutputStream
 import java.nio.file.Path
@@ -178,3 +181,26 @@ class NullOutputStream : OutputStream() {
         // do nothing
     }
 }
+
+/**
+ * Assert the given [Path] does not contain lines that match the given predicate.
+ *
+ * The file must be an existing, regular file.
+ */
+fun Path.shouldNotContainLine(
+    predicate: (line: String) -> Boolean,
+) {
+    this shouldNot containLine(predicate)
+}
+
+private fun containLine(
+    predicate: (line: String) -> Boolean,
+) =
+    neverNullMatcher<Path> { value ->
+        val matchedLines = value.useLines { lines -> lines.filter(predicate).joinToString("\n") { "- $it" } }
+        MatcherResult(
+            matchedLines.isNotEmpty(),
+            { "$value contained lines that matched the given predicate." },
+            { "$value contained lines that did not match:\n${matchedLines}" },
+        )
+    }
