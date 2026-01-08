@@ -179,11 +179,17 @@ abstract class KotlinAdapter @Inject constructor(
                         classpath.from(compilation.compilationClasspath)
                     }
                 } else {
-                    // handle a 'bamboo' source sets
-                    // (intermediate source set with only one actual target,
-                    // e.g. windowsMain and mingwMain only have one target: mingwX64Main)
-                    allAssociatedCompilations.singleOrNull()?.let { compilation ->
-                        classpath.from(compilation.compilationClasspath)
+                    // This source set only no primary compilations. Therefore, it is an intermediate source set.
+                    val singleAssociatedCompilation = allAssociatedCompilations.singleOrNull()
+                    if (singleAssociatedCompilation != null) {
+                        // Handle 'bamboo' source sets.
+                        //
+                        // If an intermediate source set only has a single 'associated compilation',
+                        // then it will be considered as a 'bamboo' source set.
+                        // (For example, windowsMain and mingwMain are intermediate, with only one target: mingwX64Main.)
+                        // The single 'associated compilation' is the actual target compilation,
+                        // and DGP should use its classpath.
+                        classpath.from(singleAssociatedCompilation.compilationClasspath)
                     }
                 }
 
