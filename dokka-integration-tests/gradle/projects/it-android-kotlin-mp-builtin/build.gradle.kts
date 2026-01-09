@@ -9,6 +9,8 @@ plugins {
 }
 
 kotlin {
+    jvm()
+    js { nodejs() }
     androidLibrary {
         namespace = "com.example.kmpfirstlib"
         compileSdk = 33
