@@ -34,6 +34,7 @@ import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.androidJvm
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeCompilation
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
@@ -466,12 +467,16 @@ private class KotlinCompilationDetailsBuilder(
             kotlinNativeDependencies(compilation)
         )
 
-        if (compilation.target.platformType == androidJvm) {
+        // using `compileDependencyFiles` breaks Android projects
+        // because AGP fills it with files from many Configurations, and Gradle encounters variant resolution errors
+        // this is only happening when `kotlin-android` plugin is used, it's usage is now DEPRECATED
+        // replacement: `com.android.kotlin.multiplatform.library` plugin provided by AGP
+        // this new plugin uses `external` target API and provides correct classpath via `compileDependencyFiles`
+        // so we check for here `KotlinAndroidTarget`, which is created `ONLY` by `kotlin-android` plugin
+        if (compilation.target is KotlinAndroidTarget) {
             compilationClasspath.from(kotlinCompileDependencyFiles(compilation, "jar"))
             compilationClasspath.from(kotlinCompileDependencyFiles(compilation, "android-classes-jar"))
         } else {
-            // using compileDependencyFiles breaks Android projects because AGP
-            // fills it with files from many Configurations, and Gradle encounters variant resolution errors.
             compilationClasspath.from({ compilation.compileDependencyFiles })
         }
 
