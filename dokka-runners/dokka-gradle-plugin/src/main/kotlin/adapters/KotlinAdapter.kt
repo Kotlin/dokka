@@ -687,7 +687,7 @@ private class KotlinSourceSetDetailsBuilder(
         allKotlinCompilationDetails: ListProperty<KotlinCompilationDetails>,
     ) {
         val extantSourceDirectories = providers.provider {
-            kotlinSourceSet.kotlin.sourceDirectories.filter { it.exists() }
+            kotlinSourceSet.kotlin.sourceDirectories
         }
 
         val primaryCompilations = allKotlinCompilationDetails.map { allCompilations ->
