@@ -1,1 +1,1 @@
-sourceset_dependencies='{":/androidMain":[":/commonMain"],":/commonMain":[],":/jsMain":[":/commonMain"],":/jvmMain":[":/commonMain"]}'
+sourceset_dependencies='{":/androidMain":[":/commonMain"],":/commonMain":[],":/jsMain":[":/webMain"],":/jvmMain":[":/commonMain"],":/webMain":[":/commonMain"]}'
