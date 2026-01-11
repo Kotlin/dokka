@@ -18,6 +18,7 @@ dependencies {
     }
     implementation(libs.intellij.util)
     implementation(projects.dokkaSubprojects.analysisMarkdownJb)
+    implementation(libs.jetbrains.markdown)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.jsoup)
 }
