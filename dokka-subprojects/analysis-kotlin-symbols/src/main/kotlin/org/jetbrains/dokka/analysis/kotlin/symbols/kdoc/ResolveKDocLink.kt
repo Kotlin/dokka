@@ -102,27 +102,11 @@ internal fun KaSession.resolveKDocTextLinkToSymbol(link: String): KaSymbol? {
 }
 
 private fun KaSession.createKDocLink(link: String, contextPackageFQN: String?): KDocLink? {
-    /**
-     * Creates a dangling file stored in-memory
-     * A such file belongs to [a separate module][org.jetbrains.kotlin.analysis.api.projectStructure.KaDanglingFileModule]
-     *
-     * Additional information: https://kotlin.github.io/analysis-api/in-memory-file-analysis.html#stand-alone-file-analysis
-     * @see [org.jetbrains.kotlin.analysis.api.projectStructure.KaDanglingFileModule]
-     */
-
     val currentModule: KaSourceModule = useSiteModule as? KaSourceModule
         ?: throw IllegalStateException("Resolving KDoc links can be done only in a source module, not $useSiteModule")
 
-    // To pass context (dependencies) from the current source module to a dangling module,
-    // a random source file is selected as the context file
-    val randomKtSourceFile: KtFile =
-        @OptIn(KaExperimentalApi::class) currentModule.psiRoots.filterIsInstance<KtFile>().firstOrNull()
-            ?: return null
-
-    val psiFactory = KtPsiFactory.contextual(randomKtSourceFile)
-
     // creates dummy.kt file
-    val dummyFileText = if (contextPackageFQN != null && contextPackageFQN.isNotBlank()) """
+    val dummyFileText = if (!contextPackageFQN.isNullOrBlank()) """
     package $contextPackageFQN
     
     /**
@@ -135,7 +119,20 @@ private fun KaSession.createKDocLink(link: String, contextPackageFQN: String?): 
     */
     """
 
-    val dummyFile = psiFactory.createFile(dummyFileText)
+    /**
+     * Creates a dangling file stored in-memory
+     * Such file belongs to [a separate module][org.jetbrains.kotlin.analysis.api.projectStructure.KaDanglingFileModule]
+     *
+     * Additional information: https://kotlin.github.io/analysis-api/in-memory-file-analysis.html#stand-alone-file-analysis
+     */
+    val dummyFile = KtPsiFactory(currentModule.project).createFile(dummyFileText)
+
+    // pass context (dependencies) from the current source module to a dangling module,
+    // by default, the file will have no context,
+    // and so will it will not be possible to resolve declarations from outside the file itself.
+    @OptIn(KaExperimentalApi::class)
+    dummyFile.contextModule = currentModule
+
     val comments = dummyFile.children.filterIsInstance<KDoc>()
     val kDoc = comments.single()
 
