@@ -5,6 +5,9 @@ $dokka.location:it.android/AndroidSpecificClass///PointingToDeclaration/it-andr
 $dokka.location:it.android/AndroidSpecificClass/AndroidSpecificClass/#/PointingToDeclaration/it-android/it.android/-android-specific-class/-android-specific-class.html
 $dokka.location:it.android/AndroidSpecificClass/createView/#android.content.Context/PointingToDeclaration/it-android/it.android/-android-specific-class/create-view.html
 $dokka.location:it.android/AndroidSpecificClass/sparseIntArray/#/PointingToDeclaration/it-android/it.android/-android-specific-class/sparse-int-array.html
+$dokka.location:it.android/CommonClass///PointingToDeclaration/it-android/it.android/-common-class/index.html
+$dokka.location:it.android/CommonClass/CommonClass/#/PointingToDeclaration/it-android/it.android/-common-class/-common-class.html
+$dokka.location:it.android/CommonClass/intArray/#/PointingToDeclaration/it-android/it.android/-common-class/int-array.html
 $dokka.location:it.android/IntegrationTestActivity///PointingToDeclaration/it-android/it.android/-integration-test-activity/index.html
 $dokka.location:it.android/IntegrationTestActivity/IntegrationTestActivity/#/PointingToDeclaration/it-android/it.android/-integration-test-activity/-integration-test-activity.html
 it.android

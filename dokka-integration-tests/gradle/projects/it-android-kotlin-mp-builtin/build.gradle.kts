@@ -9,6 +9,8 @@ plugins {
 }
 
 kotlin {
+    jvm()
+    js { nodejs() }
     androidLibrary {
         namespace = "com.example.kmpfirstlib"
         compileSdk = 33
@@ -23,6 +25,17 @@ kotlin {
         androidMain {
             dependencies {
                 implementation("androidx.appcompat:appcompat:1.1.0")
+            }
+        }
+    }
+
+    // this was introduced in Kotlin 2.2.20, but we also test it with lower versions - needed for HTML comparison
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
+    applyDefaultHierarchyTemplate {
+        common {
+            group("web") {
+                withJs()
+                withWasmJs()
             }
         }
     }
