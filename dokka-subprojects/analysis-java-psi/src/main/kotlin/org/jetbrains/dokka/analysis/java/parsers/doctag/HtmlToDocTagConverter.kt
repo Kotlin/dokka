@@ -59,9 +59,9 @@ internal class HtmlToDocTagConverter(
             "pre" -> {
                 val lang = element.attr("lang").trim().takeIf { it.isNotBlank() } ?: "java"
                 if (children.size == 1) {
-                    when (children.first()) {
-                        is CodeInline -> listOf(CodeBlock(children.first().children, mapOf("lang" to lang)))
-                        is CodeBlock -> listOf(children.first())
+                    when (val child = children.first()) {
+                        is CodeInline -> listOf(CodeBlock(child.children, child.params + ("lang" to lang)))
+                        is CodeBlock -> listOf(child.copy(params = child.params + ("lang" to lang)))
                         else -> listOf(Pre(children = children, params = mapOf("lang" to lang)))
                     }
                 } else {

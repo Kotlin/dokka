@@ -149,7 +149,7 @@ internal class DefaultSnippetToHtmlConverter(
             parsedSnippet = logAndReturnUnresolvedSnippet(logger)
         }
 
-        return "<pre${if (lang != null) " lang=\"$lang\"" else ""}>$parsedSnippet</pre>"
+        return "<pre${if (lang != null) " lang=\"$lang\"" else ""}><code>$parsedSnippet</code></pre>"
     }
 
     /**

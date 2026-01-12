@@ -10,11 +10,11 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.JavaClassReference
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.doc.B
+import org.jetbrains.dokka.model.doc.CodeBlock
 import org.jetbrains.dokka.model.doc.DocumentationLink
 import org.jetbrains.dokka.model.doc.I
 import org.jetbrains.dokka.model.doc.Mark
 import org.jetbrains.dokka.model.doc.P
-import org.jetbrains.dokka.model.doc.Pre
 import org.jetbrains.dokka.model.doc.Text
 import java.nio.file.Paths
 import kotlin.test.Test
@@ -96,7 +96,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(
                     listOf(
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text(
                                     """
@@ -141,7 +141,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(
                     listOf(
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text(
                                     """
@@ -187,7 +187,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(
                     listOf(
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text(
                                     """
@@ -238,7 +238,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(
                     listOf(
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text(
                                     """
@@ -282,7 +282,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(
                     listOf(
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text(
                                     """
@@ -319,7 +319,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(
                     listOf(
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text(
                                     """
@@ -365,7 +365,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(
                     listOf(
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text(
                                     """
@@ -411,7 +411,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(
                     listOf(
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text(
                                     """
@@ -448,7 +448,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(
                     listOf(
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text(
                                     """
@@ -507,7 +507,7 @@ class SnippetTest : BaseAbstractTest() {
                                 Text("Inline properties snippet: ")
                             )
                         ),
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text(
                                     """
@@ -520,7 +520,7 @@ class SnippetTest : BaseAbstractTest() {
                             params = mapOf("lang" to "properties")
                         ),
                         Text(" External snippet from snippet-files: "),
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text(
                                     """
@@ -533,7 +533,7 @@ class SnippetTest : BaseAbstractTest() {
                             params = mapOf("lang" to "properties")
                         ),
                         Text(" External snippet from snippet-path: "),
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text(
                                     """
@@ -593,7 +593,7 @@ class SnippetTest : BaseAbstractTest() {
                                 Text("Inline Kotlin snippet: ")
                             )
                         ),
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text(
                                     """
@@ -606,7 +606,7 @@ class SnippetTest : BaseAbstractTest() {
                             params = mapOf("lang" to "kotlin")
                         ),
                         Text(" External snippet from snippet-files: "),
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text(
                                     """
@@ -620,7 +620,7 @@ class SnippetTest : BaseAbstractTest() {
                             params = mapOf("lang" to "kotlin")
                         ),
                         Text(" External snippet from snippet-path: "),
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text(
                                     """
@@ -672,7 +672,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(
                     listOf(
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text("public class Example {\n    "),
                                 B(children = listOf(Text("public"))),
@@ -727,7 +727,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(
                     listOf(
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text(
                                     """
@@ -790,7 +790,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(
                     listOf(
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 DocumentationLink(
                                     dri = DRI(
@@ -913,7 +913,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(
                     listOf(
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text("String s = \"...\"."),
                                 DocumentationLink(
@@ -974,7 +974,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(
                     listOf(
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text("local.timezone=PST\nlocal.zip="),
                                 B(children = listOf(Text("94123"))),
@@ -1027,7 +1027,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(
                     listOf(
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text("System.out.println(\"Processing:\");\nString password2 = \"***\";\nString "),
                                 B(children = listOf(Text("data"))),
@@ -1076,7 +1076,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(
                     listOf(
-                        Pre(
+                        CodeBlock(
                             children = listOf(
                                 Text("String result = \"processed\";")
                             ),
