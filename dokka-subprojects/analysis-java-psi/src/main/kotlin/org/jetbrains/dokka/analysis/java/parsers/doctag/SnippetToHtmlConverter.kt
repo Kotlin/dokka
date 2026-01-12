@@ -329,10 +329,11 @@ internal class DefaultSnippetToHtmlConverter(
     private fun createReplaceOperation(attributes: Map<String, String?>, logger: SnippetLogger): MarkupOperation? {
         val substring = attributes["substring"]?.htmlEscape()
         val regex = attributes["regex"]?.htmlEscape()?.toRegex()
-        val replacement = attributes["replacement"]?.htmlEscape() ?: run {
+        if (!attributes.containsKey("replacement")) {
             logger.warn("specify 'replacement' attribute in @replace markup tag")
             return null
         }
+        val replacement = attributes["replacement"]?.htmlEscape() ?: ""
 
         return { line ->
             var result = line
