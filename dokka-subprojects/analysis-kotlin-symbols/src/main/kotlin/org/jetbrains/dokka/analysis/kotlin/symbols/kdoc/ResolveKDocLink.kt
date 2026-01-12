@@ -4,6 +4,7 @@
 
 package org.jetbrains.dokka.analysis.kotlin.symbols.kdoc
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.analysis.kotlin.symbols.translators.getDRIFromSymbol
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.utilities.DokkaLogger
@@ -11,24 +12,61 @@ import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.projectStructure.KaSourceModule
+import org.jetbrains.kotlin.analysis.api.projectStructure.contextModule
 import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocLink
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocName
-import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtPsiFactory
+
+/**
+ * Resolves a KDoc link, logging a warning in case of unresolved links.
+ *
+ * For the resolution logic, see [resolveKDocLinkToDRI]
+ */
+internal fun resolveKDocLink(
+    link: KDocLink,
+    location: String?,
+    logger: DokkaLogger,
+    sourceSet: DokkaConfiguration.DokkaSourceSet
+): DRI? {
+    val dri = resolveKDocLinkToDRI(link)
+    if (dri == null) {
+        logUnresolvedLink(link.getLinkText(), location, logger, sourceSet)
+    }
+    return dri
+}
+
+/**
+ * Resolves a KDoc link from text representation, logging a warning in case of unresolved links.
+ *
+ * For the resolution logic, see [resolveKDocTextLinkToDRI]
+ */
+internal fun KaSession.resolveKDocTextLink(
+    link: String,
+    contextPackageFQN: String?,
+    location: String?,
+    logger: DokkaLogger,
+    sourceSet: DokkaConfiguration.DokkaSourceSet
+): DRI? {
+    val dri = resolveKDocTextLinkToDRI(link, contextPackageFQN)
+    if (dri == null) {
+        logUnresolvedLink(link, location, logger, sourceSet)
+    }
+    return dri
+}
 
 /**
  * Util to print a message about unresolved [link]
  */
-internal fun DokkaLogger.logUnresolvedLink(link: String, location: String?) {
-    warn("Couldn't resolve link for $link" + if (location != null) " in $location" else "")
-}
-
-internal inline fun DRI?.ifUnresolved(action: () -> Unit): DRI? = this ?: run {
-    action()
-    null
+private fun logUnresolvedLink(
+    link: String,
+    location: String?,
+    logger: DokkaLogger,
+    sourceSet: DokkaConfiguration.DokkaSourceSet
+) {
+    logger.warn("Couldn't resolve link: [$link]" + (if (location != null) " in $location" else "") + " (${sourceSet.sourceSetID})")
 }
 
 /**
@@ -110,7 +148,7 @@ private fun KaSession.createKDocLink(link: String, contextPackageFQN: String?): 
  *
  * @return [DRI] or null if the [kDocLink] is unresolved
  */
-internal fun resolveKDocLinkToDRI(kDocLink: KDocLink): DRI? {
+private fun resolveKDocLinkToDRI(kDocLink: KDocLink): DRI? {
     /**
      * [kDocLink] can belong to [a dangling module][org.jetbrains.kotlin.analysis.api.projectStructure.KaDanglingFileModule]
      * or [a source module][org.jetbrains.kotlin.analysis.api.projectStructure.KaSourceModule]
