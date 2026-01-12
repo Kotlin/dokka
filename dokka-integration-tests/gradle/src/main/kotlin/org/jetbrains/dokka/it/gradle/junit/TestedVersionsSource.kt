@@ -58,7 +58,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
         private val allGradleVersions: List<String> = listOf(
             "7.6.4",
             "8.14.3",
-            "9.1.0",
+            "9.2.1",
         )
 
         private val allVersions: Sequence<TestedVersions.Default> =
@@ -111,8 +111,8 @@ fun interface TestedVersionsSource<T : TestedVersions> {
             "7.4.2",
             "8.11.2",
             "8.12.3",
-            "8.13.0",
-            "9.0.0-beta01",
+            "8.13.2",
+            "9.0.0-rc02",
         ).map { SemVer(it) }
 
         private val matchedAgpVersions: List<SemVer> =

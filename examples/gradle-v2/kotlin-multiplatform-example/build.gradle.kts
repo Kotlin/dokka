@@ -9,7 +9,12 @@ version = "1.0-SNAPSHOT"
 kotlin {
     jvm()
 
-    js(IR) {
+    js {
+        browser()
+    }
+
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
         browser()
     }
 
@@ -27,12 +32,18 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
             }
         }
     }
 }
 
 dokka {
-    // Dokka can be configured here
+    dokkaSourceSets.configureEach {
+        externalDocumentationLinks {
+            register("kotlinx.coroutines") {
+                url("https://kotlinlang.org/api/kotlinx.coroutines/")
+            }
+        }
+    }
 }

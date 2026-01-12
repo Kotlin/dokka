@@ -3,8 +3,6 @@
  */
 package org.jetbrains.dokka.gradle.adapters
 
-import com.android.build.api.variant.AndroidComponentsExtension
-import com.android.build.api.variant.Variant
 import org.gradle.api.*
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
@@ -25,6 +23,7 @@ import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.engine.parameters.SourceSetIdSpec
 import org.jetbrains.dokka.gradle.engine.parameters.SourceSetIdSpec.Companion.dokkaSourceSetIdSpec
 import org.jetbrains.dokka.gradle.internal.*
+import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.pluginFeaturesService
 import org.jetbrains.kotlin.commonizer.KonanDistribution
 import org.jetbrains.kotlin.commonizer.platformLibsDir
 import org.jetbrains.kotlin.commonizer.stdlib
@@ -35,6 +34,7 @@ import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.androidJvm
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeCompilation
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
@@ -84,6 +84,7 @@ abstract class KotlinAdapter @Inject constructor(
             objects = objects,
             sourceSetScopeDefault = dokkaExtension.sourceSetScopeDefault,
             projectPath = project.path,
+            project = project,
         )
         val sourceSetDetails: NamedDomainObjectContainer<KotlinSourceSetDetails> =
             sourceSetDetailsBuilder.createSourceSetDetails(
@@ -120,7 +121,7 @@ abstract class KotlinAdapter @Inject constructor(
         details: KotlinSourceSetDetails,
     ) {
         val kssPlatform = determineKotlinPlatform(projectPath, details)
-        val kssClasspath = determineClasspath(details)
+        val kssClasspath = determineClasspath(details = details)
 
         register(details.name) dss@{
             suppress.convention(!details.isPublishedSourceSet())
@@ -135,7 +136,7 @@ abstract class KotlinAdapter @Inject constructor(
         projectPath: String,
         details: KotlinSourceSetDetails,
     ): Provider<KotlinPlatform> {
-        return details.allCompilations.map { compilations: List<KotlinCompilationDetails> ->
+        return details.allAssociatedCompilations.map { compilations: List<KotlinCompilationDetails> ->
             val allPlatforms = compilations
                 // Exclude metadata compilations: they are always KotlinPlatform.Common, which isn't relevant here.
                 // Dokka only cares about the compilable KMP targets of a KotlinSourceSet.
@@ -154,7 +155,7 @@ abstract class KotlinAdapter @Inject constructor(
                     }
                 logger.info(
                     "[$projectPath] Dokka could not determine KotlinPlatform for ${details.name} from targets ${compilations.map { it.target }}. " +
-                            "Dokka will assume this is a ${defaultPlatform} source set. " +
+                            "Dokka will assume this is a $defaultPlatform source set. " +
                             "(All platforms: $allPlatforms)"
                 )
                 defaultPlatform
@@ -165,21 +166,38 @@ abstract class KotlinAdapter @Inject constructor(
     }
 
     private fun determineClasspath(
-        details: KotlinSourceSetDetails
-    ): Provider<FileCollection> {
-        return details.primaryCompilations.map { compilations: List<KotlinCompilationDetails> ->
-            val classpath = objects.fileCollection()
+        details: KotlinSourceSetDetails,
+    ): FileCollection {
 
-            if (compilations.isNotEmpty()) {
-                compilations.fold(classpath) { acc, compilation ->
-                    acc.from(compilation.compilationClasspath)
+        val primaryClasspath: Provider<FileCollection> =
+            details.allAssociatedCompilations.zip(details.primaryCompilations) { allAssociatedCompilations, primaryCompilations ->
+                val classpath = objects.fileCollection()
+
+                if (primaryCompilations.isNotEmpty()) {
+                    primaryCompilations.forEach { compilation ->
+                        classpath.from(compilation.compilationClasspath)
+                    }
+                } else {
+                    // This source set only no primary compilations. Therefore, it is an intermediate source set.
+                    val singleAssociatedCompilation = allAssociatedCompilations.singleOrNull()
+                    if (singleAssociatedCompilation != null) {
+                        // Handle 'bamboo' source sets.
+                        //
+                        // If an intermediate source set only has a single 'associated compilation',
+                        // then it will be considered as a 'bamboo' source set.
+                        // (For example, windowsMain and mingwMain are intermediate, with only one target: mingwX64Main.)
+                        // The single 'associated compilation' is the actual target compilation,
+                        // and DGP should use its classpath.
+                        classpath.from(singleAssociatedCompilation.compilationClasspath)
+                    }
                 }
-            } else {
+
                 classpath
-                    .from(details.sourceDirectories)
-                    .from(details.sourceDirectoriesOfDependents)
             }
-        }
+
+        return objects.fileCollection()
+            .from(primaryClasspath)
+            .from(details.transformedMetadataDependencies)
     }
 
     @InternalDokkaGradlePluginApi
@@ -307,7 +325,6 @@ abstract class KotlinAdapter @Inject constructor(
  * The compilation details may come from a multiplatform project ([KotlinMultiplatformExtension])
  * or a single-platform project ([KotlinSingleTargetExtension]).
  */
-@InternalDokkaGradlePluginApi
 private data class KotlinCompilationDetails(
     /** [KotlinCompilation.target] name. */
     val target: String,
@@ -394,6 +411,11 @@ private class KotlinCompilationDetailsBuilder(
         return androidVariants
     }
 
+    private fun collectAndroidVariants(project: Project, androidVariants: SetProperty<AndroidVariantInfo>) {
+        val androidComponents = project.findAndroidComponentsExtension() ?: return
+        androidVariants.collectFrom(androidComponents)
+    }
+
     /** Create a single [KotlinCompilationDetails] for [compilation]. */
     private fun createCompilationDetails(
         compilation: KotlinCompilation<*>,
@@ -445,12 +467,16 @@ private class KotlinCompilationDetailsBuilder(
             kotlinNativeDependencies(compilation)
         )
 
-        if (compilation.target.platformType == androidJvm) {
+        // using `compileDependencyFiles` breaks Android projects
+        // because AGP fills it with files from many Configurations, and Gradle encounters variant resolution errors
+        // this is only happening when `kotlin-android` plugin is used, it's usage is now DEPRECATED
+        // replacement: `com.android.kotlin.multiplatform.library` plugin provided by AGP
+        // this new plugin uses `external` target API and provides correct classpath via `compileDependencyFiles`
+        // so we check for here `KotlinAndroidTarget`, which is created `ONLY` by `kotlin-android` plugin
+        if (compilation.target is KotlinAndroidTarget) {
             compilationClasspath.from(kotlinCompileDependencyFiles(compilation, "jar"))
             compilationClasspath.from(kotlinCompileDependencyFiles(compilation, "android-classes-jar"))
         } else {
-            // using compileDependencyFiles breaks Android projects because AGP
-            // fills it with files from many Configurations, and Gradle encounters variant resolution errors.
             compilationClasspath.from({ compilation.compileDependencyFiles })
         }
 
@@ -464,24 +490,29 @@ private class KotlinCompilationDetailsBuilder(
     ): Provider<FileCollection> {
         return project.configurations
             .named(compilation.compileDependencyConfigurationName)
-            .map {
-                it.incoming
+            .map { compileDependencies ->
+                compileDependencies.incoming
                     .artifactView {
-                        // Android publishes many variants, which can cause Gradle to get confused,
-                        // so specify that we need a JAR and resolve leniently
-                        if (compilation.target.platformType == androidJvm) {
-                            attributes { artifactType(artifactType) }
+                        when (compilation.target.platformType) {
+                            androidJvm -> {
+                                // Android publishes many variants, which can cause Gradle to get confused,
+                                // so specify that we need a JAR and resolve leniently
+                                attributes { artifactType(artifactType) }
 
-                            // Setting lenient=true is not ideal, because it might hide problems.
-                            // Unfortunately, Gradle has no chill and dependency resolution errors
-                            // will cause Dokka tasks to completely fail, even if the dependencies aren't necessary.
-                            // (There's a chance that the dependencies aren't even used in the project!)
-                            // So, resolve leniently to at least permit generating _something_,
-                            // even if the generated output might be incomplete and missing some classes.
-                            lenient(true)
+                                // Setting lenient=true is not ideal, because it might hide problems.
+                                // Unfortunately, Gradle has no chill and dependency resolution errors
+                                // will cause Dokka tasks to completely fail, even if the dependencies aren't necessary.
+                                // (There's a chance that the dependencies aren't even used in the project!)
+                                // So, resolve leniently to at least permit generating _something_,
+                                // even if the generated output might be incomplete and missing some classes.
+                                lenient(true)
+                            }
+
+                            else -> {
+                                // 'Regular' Kotlin compilations have non-JAR files (e.g. Kotlin/Native klibs),
+                                // so don't add attributes
+                            }
                         }
-                        // 'Regular' Kotlin compilations have non-JAR files (e.g. Kotlin/Native klibs),
-                        // so don't add attributes for non-Android projects.
                     }
                     .artifacts
                     .artifactFiles
@@ -516,7 +547,7 @@ private class KotlinCompilationDetailsBuilder(
                 )
             }
         } else {
-            return providers.provider { objects.fileCollection() }
+            providers.provider { objects.fileCollection() }
         }
     }
 
@@ -548,7 +579,7 @@ private class KotlinCompilationDetailsBuilder(
     ): Provider<Boolean> {
         return androidComponentsInfo.map { components ->
             val compilationComponents = components.filter { it.name == compilation.name }
-            val result = compilationComponents.any { component -> component.hasPublishedComponent }
+            val result = compilationComponents.any { component -> component.isPublishable }
             logger.info {
                 "[KotlinAdapter isJvmAndroidPublished] ${compilation.name} publishable:$result, compilationComponents:$compilationComponents"
             }
@@ -592,7 +623,14 @@ private abstract class KotlinSourceSetDetails @Inject constructor(
      * For example, the compilation for `commonMain` will also participate in compiling
      * the leaf `linuxX64`, as well as the intermediate compilations of `nativeMain`, `linuxMain`, etc.
      */
-    abstract val allCompilations: ListProperty<KotlinCompilationDetails>
+    abstract val allAssociatedCompilations: ListProperty<KotlinCompilationDetails>
+
+    /**
+     * Workaround for KT-80551.
+     *
+     * See [org.jetbrains.dokka.gradle.adapters.TransformedMetadataDependencyProvider].
+     */
+    abstract val transformedMetadataDependencies: ConfigurableFileCollection
 
     /**
      * Estimate if this Kotlin source set contains 'published' (non-test) sources.
@@ -600,7 +638,7 @@ private abstract class KotlinSourceSetDetails @Inject constructor(
      * @see KotlinCompilationDetails.publishedCompilation
      */
     fun isPublishedSourceSet(): Provider<Boolean> =
-        allCompilations.map { values ->
+        allAssociatedCompilations.map { values ->
             values.any { it.publishedCompilation.get() }
         }
 
@@ -613,11 +651,21 @@ private class KotlinSourceSetDetailsBuilder(
     private val sourceSetScopeDefault: Provider<String>,
     private val objects: ObjectFactory,
     private val providers: ProviderFactory,
-    /** [Project.getPath]. Used for logging. */
+    /** [Project.getPath]. Used for configuration-cache safe logging. */
     private val projectPath: String,
+    private val project: Project,
 ) {
-
     private val logger = Logging.getLogger(KotlinSourceSetDetails::class.java)
+
+    private val transformedMetadataDependencyProvider: TransformedMetadataDependencyProvider? by lazy {
+        if (project.pluginFeaturesService.enableWorkaroundKT80551.get()) {
+            logger.info("$projectPath TransformedMetadataDependencyProvider is enabled")
+            TransformedMetadataDependencyProvider(project)
+        } else {
+            logger.info("$projectPath TransformedMetadataDependencyProvider is disabled")
+            null
+        }
+    }
 
     fun createSourceSetDetails(
         kotlinSourceSets: NamedDomainObjectContainer<KotlinSourceSet>,
@@ -644,16 +692,16 @@ private class KotlinSourceSetDetailsBuilder(
         allKotlinCompilationDetails: ListProperty<KotlinCompilationDetails>,
     ) {
         val extantSourceDirectories = providers.provider {
-            kotlinSourceSet.kotlin.sourceDirectories.filter { it.exists() }
+            kotlinSourceSet.kotlin.sourceDirectories
         }
 
-        val primaryCompilations = allKotlinCompilationDetails.map { primaryCompilations ->
-            primaryCompilations.filter { compilation ->
+        val primaryCompilations = allKotlinCompilationDetails.map { allCompilations ->
+            allCompilations.filter { compilation ->
                 kotlinSourceSet.name in compilation.primarySourceSetNames
             }
         }
 
-        val allCompilations = allKotlinCompilationDetails.map { allCompilations ->
+        val allAssociatedCompilations = allKotlinCompilationDetails.map { allCompilations ->
             allCompilations.filter { compilation ->
                 kotlinSourceSet.name in compilation.allSourceSetNames
             }
@@ -676,20 +724,31 @@ private class KotlinSourceSetDetailsBuilder(
                 }
             }
 
-        val sourceDirectoriesOfDependents = providers.provider {
-            kotlinSourceSet
-                .allDependentSourceSets()
-                .fold(objects.fileCollection()) { acc, sourceSet ->
+        val sourceDirectoriesOfDependents = kotlinSourceSet
+            .allDependsOnSourceSets()
+            .map { allDependsOns ->
+                allDependsOns.fold(objects.fileCollection()) { acc, sourceSet ->
                     acc.from(sourceSet.kotlin.sourceDirectories)
                 }
-        }
+            }
+
+        val transformedMetadataDependencies =
+            allAssociatedCompilations.map { associated ->
+                if (associated.all { it.kotlinPlatform == KotlinPlatform.Wasm }) {
+                    transformedMetadataDependencyProvider?.get(kotlinSourceSet)
+                        ?: objects.fileCollection()
+                } else {
+                    objects.fileCollection()
+                }
+            }
 
         register(kotlinSourceSet.name) {
             this.dependentSourceSetIds.addAll(dependentSourceSetIds)
             this.sourceDirectories.from(extantSourceDirectories)
             this.sourceDirectoriesOfDependents.from(sourceDirectoriesOfDependents)
             this.primaryCompilations.addAll(primaryCompilations)
-            this.allCompilations.addAll(allCompilations)
+            this.allAssociatedCompilations.addAll(allAssociatedCompilations)
+            this.transformedMetadataDependencies.from(transformedMetadataDependencies)
         }
     }
 
@@ -698,17 +757,27 @@ private class KotlinSourceSetDetailsBuilder(
      * Return a list containing _all_ source sets that this source set depends on,
      * searching recursively.
      *
+     * For example, `linuxX64` depends on `linuxMain`, `nativeMain`, and `commonMain`.
+     * [KotlinSourceSet.dependsOn] only returns the direct dependency: `linuxMain`.
+     *
      * @see KotlinSourceSet.dependsOn
      */
-    private tailrec fun KotlinSourceSet.allDependentSourceSets(
-        queue: Set<KotlinSourceSet> = dependsOn.toSet(),
-        allDependents: List<KotlinSourceSet> = emptyList(),
-    ): List<KotlinSourceSet> {
-        val next = queue.firstOrNull() ?: return allDependents
-        return next.allDependentSourceSets(
-            queue = (queue - next) union next.dependsOn,
-            allDependents = allDependents + next,
-        )
+    private fun KotlinSourceSet.allDependsOnSourceSets(): Provider<List<KotlinSourceSet>> {
+
+        tailrec fun allDependsOn(
+            queue: Set<KotlinSourceSet>,
+            allDependents: List<KotlinSourceSet> = emptyList(),
+        ): List<KotlinSourceSet> {
+            val next = queue.firstOrNull() ?: return allDependents
+            return allDependsOn(
+                queue = (queue - next) union next.dependsOn,
+                allDependents = allDependents + next,
+            )
+        }
+
+        return providers.provider {
+            allDependsOn(queue = dependsOn.toSet())
+        }
     }
 }
 
@@ -716,84 +785,3 @@ private class KotlinSourceSetDetailsBuilder(
 /** Try and get [KotlinProjectExtension], or `null` if it's not present. */
 private fun Project.findKotlinExtension(): KotlinProjectExtension? =
     findExtensionLenient<KotlinProjectExtension>("kotlin")
-
-
-/** Try and get [AndroidComponentsExtension], or `null` if it's not present. */
-private fun Project.findAndroidComponentExtension(): AndroidComponentsExtension<*, *, *>? =
-    findExtensionLenient<AndroidComponentsExtension<*, *, *>>("androidComponents")
-
-
-/**
- * Store details about a [Variant].
- *
- * @param[name] [Variant.name].
- * @param[hasPublishedComponent] `true` if any component of the variant is 'published',
- * i.e. it is an instance of [Variant].
- */
-private data class AndroidVariantInfo(
-    val name: String,
-    val hasPublishedComponent: Boolean,
-)
-
-/**
- * Collect [AndroidVariantInfo]s of the Android [Variant]s in this Android project.
- *
- * We store the collected data in a custom class to aid with Configuration Cache compatibility.
- *
- * This function must only be called when AGP is applied
- * (otherwise [findAndroidComponentExtension] will return `null`),
- * i.e. inside a `withPlugin(...) {}` block.
- *
- * ## How to determine publishability of AGP Variants
- *
- * There are several Android Gradle plugins.
- * Each AGP has a specific associated [Variant]:
- * - `com.android.application` - [com.android.build.api.variant.ApplicationVariant]
- * - `com.android.library` - [com.android.build.api.variant.DynamicFeatureVariant]
- * - `com.android.test` - [com.android.build.api.variant.LibraryVariant]
- * - `com.android.dynamic-feature` - [com.android.build.api.variant.TestVariant]
- *
- * A [Variant] is 'published' (or otherwise shared with other projects).
- * Note that a [Variant] might have [nestedComponents][Variant.nestedComponents].
- * If any of these [com.android.build.api.variant.Component]s are [Variant]s,
- * then the [Variant] itself should be considered 'publishable'.
- *
- * If a [KotlinSourceSet] has an associated [Variant],
- * it should therefore be documented by Dokka by default.
- *
- * ### Associating Variants with Compilations with SourceSets
- *
- * So, how can we associate a [KotlinSourceSet] with a [Variant]?
- *
- * Fortunately, Dokka already knows about the [KotlinCompilation]s associated with a specific [KotlinSourceSet].
- *
- * So, for each [KotlinCompilation], find a [Variant] with the same name,
- * i.e. [KotlinCompilation.getName] is the same as [Variant.name].
- *
- * Next, determine if the [Variant] associated with a [KotlinCompilation] is 'publishable' by
- * checking if it _or_ any of its [nestedComponents][Variant.nestedComponents]
- * are 'publishable' (i.e. is an instance of [Variant]).
- * (We can we use [Variant.components] to check both the [Variant] and its `nestedComponents` the same time.)
- */
-private fun collectAndroidVariants(
-    project: Project,
-    androidVariants: SetProperty<AndroidVariantInfo>,
-) {
-    val androidComponents = project.findAndroidComponentExtension()
-
-    androidComponents?.onVariants { variant ->
-        val hasPublishedComponent =
-            variant.components.any { component ->
-                // a Variant is a subtype of a Component that is shared with consumers,
-                // so Dokka should consider it 'publishable'
-                component is Variant
-            }
-
-        androidVariants.add(
-            AndroidVariantInfo(
-                name = variant.name,
-                hasPublishedComponent = hasPublishedComponent,
-            )
-        )
-    }
-}

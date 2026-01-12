@@ -52,6 +52,10 @@ dependencies {
     compileOnly(libs.gradlePlugin.android)
     compileOnly(libs.gradlePlugin.androidApi)
 
+    compileOnly("com.android.tools:common:30.3.1") {
+        because("Needed for `com.android.Version`, and AGP 7 doesn't have this as a dependency. Remove when min supported AGP is 8+")
+    }
+
     implementation(platform(libs.kotlinxSerialization.bom))
     implementation(libs.kotlinxSerialization.json)
 
