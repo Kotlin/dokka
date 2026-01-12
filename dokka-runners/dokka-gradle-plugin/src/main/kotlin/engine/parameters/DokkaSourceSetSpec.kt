@@ -5,7 +5,6 @@ package org.jetbrains.dokka.gradle.engine.parameters
 
 import org.gradle.api.*
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.FileCollection
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
@@ -454,7 +453,7 @@ constructor(
             suppressedFiles.none { suppressedFile ->
                 sourceFile.startsWith(suppressedFile)
             }
-        }.sorted() // FileTrees have an unstable order (even on the same machine)
+        }.sortedBy { it.invariantSeparatorsPath } // FileTrees have an unstable order (even on the same machine)
 
     companion object {
 
