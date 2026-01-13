@@ -792,9 +792,11 @@ private class KotlinSourceSetDetailsBuilder(
             try {
                 @OptIn(ExperimentalKotlinGradlePluginApi::class)
                 allKotlinSources
-            } catch (_: Throwable) {
+            } catch (cause: Throwable) {
                 // in case KGP will remove `allKotlinSources` in the future, as it's an experimental API
-                logger.warn { "Failed to get all Kotlin sources (`allKotlinSources`) for source set $name in project ${project.path}" }
+                project.logWarningWithStacktraceHint(cause) {
+                    "Failed to get all Kotlin sources (`allKotlinSources`) for source set $name in project ${project.path}"
+                }
                 kotlin.sourceDirectories
             }
         }
@@ -808,9 +810,11 @@ private class KotlinSourceSetDetailsBuilder(
             try {
                 @OptIn(ExperimentalKotlinGradlePluginApi::class)
                 generatedKotlin.sourceDirectories
-            } catch (_: Throwable) {
+            } catch (cause: Throwable) {
                 // in case KGP will remove `generatedKotlin` in the future, as it's an experimental API
-                logger.warn { "Failed to get generated Kotlin sources (`generatedKotlin.sourceDirectories`) for source set $name in project ${project.path}" }
+                project.logWarningWithStacktraceHint(cause) {
+                    "Failed to get generated Kotlin sources (`generatedKotlin.sourceDirectories`) for source set $name in project ${project.path}"
+                }
                 objects.fileCollection()
             }
         }
