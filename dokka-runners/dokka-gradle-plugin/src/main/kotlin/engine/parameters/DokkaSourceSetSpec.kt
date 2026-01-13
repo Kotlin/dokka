@@ -5,6 +5,7 @@ package org.jetbrains.dokka.gradle.engine.parameters
 
 import org.gradle.api.*
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.FileCollection
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
@@ -16,7 +17,6 @@ import org.jetbrains.dokka.gradle.engine.parameters.SourceSetIdSpec.Companion.do
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.adding
 import org.jetbrains.dokka.gradle.internal.domainObjectContainer
-import java.io.File
 import java.io.Serializable
 import javax.inject.Inject
 import kotlin.DeprecationLevel.ERROR
@@ -448,12 +448,12 @@ constructor(
     @get:InputFiles
     @get:IgnoreEmptyDirectories
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    internal val inputSourceFiles: List<File>
+    internal val inputSourceFiles: FileCollection
         get() = sourceRoots.asFileTree.filter { sourceFile ->
             suppressedFiles.none { suppressedFile ->
                 sourceFile.startsWith(suppressedFile)
             }
-        }.sortedBy { it.invariantSeparatorsPath } // FileTrees have an unstable order (even on the same machine)
+        }
 
     companion object {
 

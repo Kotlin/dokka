@@ -4,8 +4,12 @@
 package org.jetbrains.dokka.gradle.engine.parameters
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.test.TestScope
+import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.file.shouldBeAFile
 import io.kotest.matchers.shouldBe
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
@@ -16,6 +20,11 @@ import org.jetbrains.dokka.gradle.DokkaPlugin
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier.Public
 import org.jetbrains.dokka.gradle.utils.create_
 import org.jetbrains.dokka.gradle.utils.enableV2Plugin
+import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.relativeTo
+import kotlin.io.path.writeText
 
 class DokkaSourceSetSpecTest : FunSpec({
 
@@ -147,153 +156,160 @@ class DokkaSourceSetSpecTest : FunSpec({
 
     context("DokkaSourceSetSpec inputSourceFiles ->") {
 
-        test("should contain all files from sourceRoots when no suppression is configured") {
-            val project = createProject()
-            val dss = project.createDokkaSourceSetSpec("foo")
+        val project = createProject()
 
-            val srcDir = project.file("src/main/kotlin").apply { mkdirs() }
-            val file1 = srcDir.resolve("File1.kt").apply { writeText("class File1") }
-            val file2 = srcDir.resolve("File2.kt").apply { writeText("class File2") }
-
-            dss.sourceRoots.from(srcDir)
-
-            dss.inputSourceFiles.shouldContainExactly(file1, file2)
+        val projectDir = project.projectDir.toPath()
+        fun Path.createClass(name: String) {
+            createDirectories()
+            resolve("$name.kt").writeText("class $name")
         }
 
-        test("should exclude manually suppressed files from suppressedFiles") {
-            val project = createProject()
-            val dss = project.createDokkaSourceSetSpec("foo")
+        val mainSourceDir =
+            projectDir.resolve("src/main/kotlin").apply {
+                resolve("com/example").apply {
+                    createClass("MainCls")
+                    resolve("sub").apply {
+                        createClass("Sub1MainCls")
+                        createClass("Sub2MainCls")
+                    }
+                }
+            }
+        val generatedSrcDir =
+            projectDir.resolve("build/generated/kotlin").apply {
+                createClass("BuildGenCls")
+                resolve("sub").apply {
+                    createClass("Sub1BuildGenCls")
+                    createClass("Sub2BuildGenCls")
+                }
+            }
+        val customGeneratedSrcDir =
+            projectDir.resolve("src/customGenerated/kotlin").apply {
+                createClass("CustomGenCls")
+                resolve("sub").apply {
+                    createClass("Sub1CustomGenCls")
+                    createClass("Sub2CustomGenCls")
+                }
+            }
 
-            val srcDir = project.file("src/main/kotlin").apply { mkdirs() }
-            val file1 = srcDir.resolve("File1.kt").apply { writeText("class File1") }
-            val file2 = srcDir.resolve("File2.kt").apply { writeText("class File2") }
-            val file3 = srcDir.resolve("File3.kt").apply { writeText("class File3") }
+        fun TestScope.createDss(): DokkaSourceSetSpec {
+            val dss = project.createDokkaSourceSetSpec(testCase.name.testName)
+            dss.sourceRoots.from(mainSourceDir, generatedSrcDir, customGeneratedSrcDir)
+            return dss
+        }
 
-            dss.sourceRoots.from(srcDir)
-            dss.suppressedFiles.from(file2)
+        fun DokkaSourceSetSpec.inputSourceFilesToRelativePaths(): List<Path> =
+            inputSourceFiles.map { it.toPath().relativeTo(projectDir) }
+
+        test("build/generated should be excluded by default") {
+            val dss = createDss()
+            dss.inputSourceFilesToRelativePaths() shouldContainExactlyInAnyOrder listOf(
+                Path("src/customGenerated/kotlin/CustomGenCls.kt"),
+                Path("src/customGenerated/kotlin/sub/Sub1CustomGenCls.kt"),
+                Path("src/customGenerated/kotlin/sub/Sub2CustomGenCls.kt"),
+                Path("src/main/kotlin/com/example/MainCls.kt"),
+                Path("src/main/kotlin/com/example/sub/Sub1MainCls.kt"),
+                Path("src/main/kotlin/com/example/sub/Sub2MainCls.kt"),
+            )
+        }
+        test("when suppressGeneratedFiles is set to false, expect all source files are included") {
+            val dss = createDss()
             dss.suppressGeneratedFiles.set(false)
-
-            dss.inputSourceFiles.shouldContainExactly(file1, file3)
+            dss.inputSourceFilesToRelativePaths() shouldContainExactlyInAnyOrder listOf(
+                Path("build/generated/kotlin/BuildGenCls.kt"),
+                Path("build/generated/kotlin/sub/Sub1BuildGenCls.kt"),
+                Path("build/generated/kotlin/sub/Sub2BuildGenCls.kt"),
+                Path("src/customGenerated/kotlin/CustomGenCls.kt"),
+                Path("src/customGenerated/kotlin/sub/Sub1CustomGenCls.kt"),
+                Path("src/customGenerated/kotlin/sub/Sub2CustomGenCls.kt"),
+                Path("src/main/kotlin/com/example/MainCls.kt"),
+                Path("src/main/kotlin/com/example/sub/Sub1MainCls.kt"),
+                Path("src/main/kotlin/com/example/sub/Sub2MainCls.kt"),
+            )
         }
-
-        test("should exclude generated files when suppressGeneratedFiles is true") {
-            val project = createProject()
-            val dss = project.createDokkaSourceSetSpec("foo")
-
-            val srcDir = project.file("src/main/kotlin").apply { mkdirs() }
-            val regularFile = srcDir.resolve("Regular.kt").apply { writeText("class Regular") }
-            val generatedDir = project.file("build/generated/source").apply { mkdirs() }
-            generatedDir.resolve("Generated.kt").apply { writeText("class Generated") }
-
-            dss.sourceRoots.from(srcDir, generatedDir)
+        test("input source files should only contain files, not directories") {
+            val dss = createDss()
+            dss.suppressGeneratedFiles.set(false)
+            dss.inputSourceFiles.files.shouldForAll { it.shouldBeAFile() }
+        }
+        test("expect files can be excluded by exact path") {
+            val dss = createDss()
+            dss.suppressGeneratedFiles.set(false)
+            dss.suppressedFiles.from(
+                "build/generated/kotlin/sub/Sub1BuildGenCls.kt",
+                "src/customGenerated/kotlin/sub/Sub1CustomGenCls.kt",
+                "src/main/kotlin/com/example/sub/Sub1MainCls.kt",
+            )
+            dss.inputSourceFilesToRelativePaths() shouldContainExactlyInAnyOrder listOf(
+                Path("build/generated/kotlin/BuildGenCls.kt"),
+                Path("build/generated/kotlin/sub/Sub2BuildGenCls.kt"),
+                Path("src/customGenerated/kotlin/CustomGenCls.kt"),
+                Path("src/customGenerated/kotlin/sub/Sub2CustomGenCls.kt"),
+                Path("src/main/kotlin/com/example/MainCls.kt"),
+                Path("src/main/kotlin/com/example/sub/Sub2MainCls.kt"),
+            )
+        }
+        test("expect files can be excluded by base directories") {
+            val dss = createDss()
+            dss.suppressGeneratedFiles.set(false)
+            dss.suppressedFiles.from(
+                "build/",
+                "src/",
+            )
+            dss.inputSourceFilesToRelativePaths().shouldBeEmpty()
+        }
+        test("expect files can be excluded by sub directories") {
+            val dss = createDss()
+            dss.suppressGeneratedFiles.set(false)
+            dss.suppressedFiles.from(
+                "build/generated/kotlin/sub/",
+                "src/customGenerated/kotlin/sub/",
+                "src/main/kotlin/com/example/sub/",
+            )
+            dss.inputSourceFilesToRelativePaths() shouldContainExactlyInAnyOrder listOf(
+                Path("build/generated/kotlin/BuildGenCls.kt"),
+                Path("src/customGenerated/kotlin/CustomGenCls.kt"),
+                Path("src/main/kotlin/com/example/MainCls.kt"),
+            )
+        }
+        test("expect nested files can be excluded") {
+            val dss = createDss()
+            dss.suppressGeneratedFiles.set(false)
+            dss.suppressedFiles.from(
+                "build/generated/kotlin/sub/",
+                "src/customGenerated/kotlin/sub/",
+                "src/main/kotlin/com/example/sub/",
+            )
+            dss.inputSourceFilesToRelativePaths() shouldContainExactlyInAnyOrder listOf(
+                Path("build/generated/kotlin/BuildGenCls.kt"),
+                Path("src/customGenerated/kotlin/CustomGenCls.kt"),
+                Path("src/main/kotlin/com/example/MainCls.kt"),
+            )
+        }
+        test("expect suppressGeneratedFiles and suppressedFiles (by specific files) exclude all generated and specified files") {
+            val dss = createDss()
             dss.suppressGeneratedFiles.set(true)
-
-            dss.inputSourceFiles.shouldContainExactly(regularFile)
+            dss.suppressedFiles.from(
+                "src/customGenerated/kotlin/sub/Sub1CustomGenCls.kt",
+                "src/customGenerated/kotlin/sub/Sub2CustomGenCls.kt",
+                "src/main/kotlin/com/example/sub/Sub1MainCls.kt",
+                "src/main/kotlin/com/example/sub/Sub2MainCls.kt",
+            )
+            dss.inputSourceFilesToRelativePaths() shouldContainExactlyInAnyOrder listOf(
+                Path("src/customGenerated/kotlin/CustomGenCls.kt"),
+                Path("src/main/kotlin/com/example/MainCls.kt"),
+            )
         }
-
-        test("should include generated files when suppressGeneratedFiles is false") {
-            val project = createProject()
-            val dss = project.createDokkaSourceSetSpec("foo")
-
-            val srcDir = project.file("src/main/kotlin").apply { mkdirs() }
-            val regularFile = srcDir.resolve("Regular.kt").apply { writeText("class Regular") }
-            val generatedDir = project.file("build/generated/source").apply { mkdirs() }
-            val generatedFile = generatedDir.resolve("Generated.kt").apply { writeText("class Generated") }
-
-            dss.sourceRoots.from(srcDir, generatedDir)
-            dss.suppressGeneratedFiles.set(false)
-
-            dss.inputSourceFiles.shouldContainExactly(generatedFile, regularFile)
-        }
-
-        test("should correctly apply both suppressedFiles and suppressGeneratedFiles filters") {
-            val project = createProject()
-            val dss = project.createDokkaSourceSetSpec("foo")
-
-            val srcDir = project.file("src/main/kotlin").apply { mkdirs() }
-            val file1 = srcDir.resolve("File1.kt").apply { writeText("class File1") }
-            val file2 = srcDir.resolve("File2.kt").apply { writeText("class File2") }
-            val generatedDir = project.file("build/generated/source").apply { mkdirs() }
-            generatedDir.resolve("Generated.kt").apply { writeText("class Generated") }
-
-            dss.sourceRoots.from(srcDir, generatedDir)
-            dss.suppressedFiles.from(file2)
+        test("expect suppressGeneratedFiles and suppressedFiles (by directories) exclude all generated and specified files") {
+            val dss = createDss()
             dss.suppressGeneratedFiles.set(true)
-
-            dss.inputSourceFiles.shouldContainExactly(file1)
-        }
-
-        test("should handle multiple source roots correctly") {
-            val project = createProject()
-            val dss = project.createDokkaSourceSetSpec("foo")
-
-            val srcDir1 = project.file("src/main/kotlin").apply { mkdirs() }
-            val file1 = srcDir1.resolve("File1.kt").apply { writeText("class File1") }
-            val srcDir2 = project.file("src/test/kotlin").apply { mkdirs() }
-            val file2 = srcDir2.resolve("File2.kt").apply { writeText("class File2") }
-            val srcDir3 = project.file("src/integration/kotlin").apply { mkdirs() }
-            val file3 = srcDir3.resolve("File3.kt").apply { writeText("class File3") }
-
-            dss.sourceRoots.from(srcDir1, srcDir2, srcDir3)
-            dss.suppressGeneratedFiles.set(false)
-
-            dss.inputSourceFiles.shouldContainExactly(file3, file1, file2)
-        }
-
-        test("should filter files correctly with nested directory structures") {
-            val project = createProject()
-            val dss = project.createDokkaSourceSetSpec("foo")
-
-            val srcDir = project.file("src/main/kotlin").apply { mkdirs() }
-            val packageDir = srcDir.resolve("com/example").apply { mkdirs() }
-            val file1 = packageDir.resolve("File1.kt").apply { writeText("class File1") }
-            val subPackageDir = packageDir.resolve("sub").apply { mkdirs() }
-            val file2 = subPackageDir.resolve("File2.kt").apply { writeText("class File2") }
-            val file3 = subPackageDir.resolve("File3.kt").apply { writeText("class File3") }
-
-            dss.sourceRoots.from(srcDir)
-            dss.suppressedFiles.from(file2)
-            dss.suppressGeneratedFiles.set(false)
-
-            dss.inputSourceFiles.shouldContainExactly(file1, file3)
-        }
-
-        test("should exclude entire suppressed directories") {
-            val project = createProject()
-            val dss = project.createDokkaSourceSetSpec("foo")
-
-            val srcDir = project.file("src/main/kotlin").apply { mkdirs() }
-            val file1 = srcDir.resolve("File1.kt").apply { writeText("class File1") }
-            val suppressedDir = srcDir.resolve("suppressed").apply { mkdirs() }
-            suppressedDir.resolve("File2.kt").apply { writeText("class File2") }
-            suppressedDir.resolve("File3.kt").apply { writeText("class File3") }
-
-            dss.sourceRoots.from(srcDir)
-            dss.suppressedFiles.from(suppressedDir)
-            dss.suppressGeneratedFiles.set(false)
-
-            dss.inputSourceFiles.shouldContainExactly(file1)
-        }
-
-        test("should contain only files from deeply nested directory structures") {
-            val project = createProject()
-            val dss = project.createDokkaSourceSetSpec("foo")
-
-            val srcDir = project.file("src/main/kotlin").apply { mkdirs() }
-            val level1 = srcDir.resolve("com").apply { mkdirs() }
-            val level2 = level1.resolve("example").apply { mkdirs() }
-            val level3 = level2.resolve("domain").apply { mkdirs() }
-            val level4 = level3.resolve("model").apply { mkdirs() }
-            val level5 = level4.resolve("internal").apply { mkdirs() }
-
-            val file1 = level1.resolve("Root.kt").apply { writeText("class Root") }
-            val file2 = level3.resolve("Domain.kt").apply { writeText("class Domain") }
-            val file3 = level5.resolve("Internal.kt").apply { writeText("class Internal") }
-
-            dss.sourceRoots.from(srcDir)
-            dss.suppressGeneratedFiles.set(false)
-
-            dss.inputSourceFiles.shouldContainExactly(file1, file2, file3)
+            dss.suppressedFiles.from(
+                "src/customGenerated/kotlin/",
+            )
+            dss.inputSourceFilesToRelativePaths() shouldContainExactlyInAnyOrder listOf(
+                Path("src/main/kotlin/com/example/MainCls.kt"),
+                Path("src/main/kotlin/com/example/sub/Sub1MainCls.kt"),
+                Path("src/main/kotlin/com/example/sub/Sub2MainCls.kt"),
+            )
         }
     }
 }) {
