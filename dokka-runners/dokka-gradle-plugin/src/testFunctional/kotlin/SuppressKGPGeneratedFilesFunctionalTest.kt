@@ -22,7 +22,6 @@ class SuppressKGPGeneratedFilesFunctionalTest : FunSpec({
             project.runner
                 .addArguments(
                     ":dokkaGeneratePublicationHtml",
-                    "--rerun-tasks",
                     "--stacktrace",
                 )
                 .build {
