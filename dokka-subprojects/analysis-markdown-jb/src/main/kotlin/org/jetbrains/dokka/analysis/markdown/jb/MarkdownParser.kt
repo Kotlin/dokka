@@ -132,21 +132,12 @@ public open class MarkdownParser(
     private fun List<ASTNode>.evaluateChildrenWithDroppedEnclosingTokens(count: Int) =
         drop(count).dropLast(count).evaluateChildren()
 
-    /**
-     * Tracks if we are currently processing elements inside of [MarkdownElementTypes.BLOCK_QUOTE] element.
-     * More info on the specifics and why we need it, in the documentation of [preprocessTextElement]
-     */
-    private var isInsideBlockquote = false
-    private fun blockquotesHandler(node: ASTNode): List<DocTag> {
-        isInsideBlockquote = true
-        val result = DocTagsFromIElementFactory.getInstance(
+    private fun blockquotesHandler(node: ASTNode) =
+        DocTagsFromIElementFactory.getInstance(
             node.type, children = node.children
                 .filterIsInstance<CompositeASTNode>()
                 .evaluateChildren()
         )
-        isInsideBlockquote = false
-        return result
-    }
 
     private fun listsHandler(node: ASTNode): List<DocTag> {
 
@@ -287,12 +278,19 @@ public open class MarkdownParser(
         body = text.substring(node.startOffset, node.endOffset)
     )
 
+    /**
+     * When parsing the following Markdown:
+     * ```text
+     * First line
+     * Second line
+     * ```
+     * Text element will contain: `First line\n Second line`.
+     * But it's still a single paragraph that should be concatenated into a single line.
+     * This is happening because we are merging leaf nodes, see [mergeLeafASTNodes].
+     */
     private fun textHandler(node: ASTNode, keepAllFormatting: Boolean) = DocTagsFromIElementFactory.getInstance(
         MarkdownTokenTypes.TEXT,
-        body = preprocessTextElement(
-            text = text.substring(node.startOffset, node.endOffset),
-            isInsideBlockquotesHandler = isInsideBlockquote
-        ),
+        body = text.substring(node.startOffset, node.endOffset).replace('\n', ' '),
         keepFormatting = keepAllFormatting
     )
 
@@ -440,6 +438,7 @@ public open class MarkdownParser(
             MarkdownTokenTypes.CODE_LINE,
             -> codeLineHandler(node)
             MarkdownTokenTypes.TEXT -> textHandler(node, keepAllFormatting)
+            MarkdownTokenTypes.BLOCK_QUOTE -> emptyList()
             MarkdownElementTypes.MARKDOWN_FILE -> markdownFileHandler(node)
             GFMElementTypes.STRIKETHROUGH -> strikeThroughHandler(node)
             GFMElementTypes.TABLE -> tableHandler(node)
@@ -491,7 +490,8 @@ public open class MarkdownParser(
         MarkdownTokenTypes.HORIZONTAL_RULE,
         MarkdownTokenTypes.HARD_LINE_BREAK,
         MarkdownTokenTypes.HTML_TAG,
-        MarkdownTokenTypes.HTML_BLOCK_CONTENT
+        MarkdownTokenTypes.HTML_BLOCK_CONTENT,
+        MarkdownTokenTypes.BLOCK_QUOTE
     )
 
     private fun ASTNode.isNotLeaf() = this is CompositeASTNode || this.type in notLeafNodes
@@ -554,42 +554,6 @@ public open class MarkdownParser(
             return listOfNotNull(this.packageName, this.classNames, this.callable?.name)
                 .joinToString(separator = ".")
                 .takeIf { it.isNotBlank() }
-        }
-
-        // Note: Regex creation is a complex operation, and so it should be created once
-        private val blockquoteNewLineRegex = Regex("\n>+ ")
-
-        /**
-         * Performs preprocessing of the Markdown text element.
-         *
-         * First replacement: blockquotes' handling, executed if [isInsideBlockquotesHandler] is `true`
-         * Markdown parser,
-         * when handling blockquotes will handle (remove) `>` symbols only for the first line
-         * and will do nothing for further lines.
-         * So we need to do it manually, for example, when parsing the following Markdown:
-         * ```text
-         * > First line
-         * > Second line
-         * ```
-         * Text element will contain: `First line\n> Second line`.
-         *
-         * Second replacement: combining multiple lines into a single paragraph
-         * When parsing the following Markdown:
-         * ```text
-         * First line
-         * Second line
-         * ```
-         * Text element will contain: `First line\n Second line`.
-         * But it's still a single paragraph that should be concatenated into a single one.
-         *
-         * @param isInsideBlockquotesHandler `true` if the text is inside of blockquotes, and so additional blockquotes preprocessing is required.
-         */
-        private fun preprocessTextElement(text: String, isInsideBlockquotesHandler: Boolean): String {
-            // Note: we need to first do blockquote replacement so that the next lines will be concatenated into a single paragraph.
-            return when {
-                isInsideBlockquotesHandler -> text.replace(blockquoteNewLineRegex, "\n")
-                else -> text
-            }.replace('\n', ' ')
         }
     }
 }
