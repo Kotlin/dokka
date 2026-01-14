@@ -1092,6 +1092,38 @@ class SnippetTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    fun `unresolved snippet`() {
+        testInline(
+            """
+            |/src/main/java/example/Test.java
+            |package example;
+            |
+            | /**
+            | * {@snippet}
+            | */
+            | public class Test {}
+            """.trimMargin(),
+            configuration
+        ) {
+            documentablesCreationStage = { modules ->
+                val root = getFirstClassDocRoot(modules)
+
+                assertEquals(
+                    listOf(
+                        CodeBlock(
+                            children = listOf(
+                                Text("// snippet not resolved")
+                            ),
+                            params = mapOf("lang" to "java")
+                        )
+                    ),
+                    root.children
+                )
+            }
+        }
+    }
+
     private fun getFirstClassDocRoot(modules: List<DModule>) =
         modules.first().packages.first().classlikes.single().documentation.values.first().children.first().root
 }

@@ -79,7 +79,7 @@ internal class DefaultSnippetToHtmlConverter(
         val logger = SnippetLogger(dokkaLogger, snippet.containingFile?.name)
 
         val value = snippet.valueElement ?: run {
-            return "<pre>${logAndReturnUnresolvedSnippet(logger)}</pre>"
+            return "<pre><code>${logAndReturnUnresolvedSnippet(logger)}</code></pre>"
         }
 
         val attributeList = value.attributeList
