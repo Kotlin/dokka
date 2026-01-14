@@ -5,6 +5,7 @@ package org.jetbrains.dokka.gradle.engine.parameters
 
 import org.gradle.api.*
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.FileCollection
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
@@ -177,8 +178,7 @@ constructor(
      *
      * By default, source roots are deduced from information provided by the Kotlin Gradle plugin.
      */
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:Internal // tracked by `inputSourceFiles`
     abstract val sourceRoots: ConfigurableFileCollection
 
     /**
@@ -263,11 +263,11 @@ constructor(
      * Directories or individual files that should be suppressed, meaning declarations from them
      * will be not documented.
      *
-     * Will be concatenated with generated files if [suppressGeneratedFiles] is set to `false`.
+     * Will be concatenated with generated files if [suppressGeneratedFiles] is set to `true`.
      */
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:Internal // tracked by `inputSourceFiles`
     abstract val suppressedFiles: ConfigurableFileCollection
+
 
     /**
      * Whether to document/analyze generated files.
@@ -443,6 +443,17 @@ constructor(
     @Suppress("unused")
     abstract val noJdkLink: Property<Boolean>
     //endregion
+
+    // this is just for task input tracking
+    @get:InputFiles
+    @get:IgnoreEmptyDirectories
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    internal val inputSourceFiles: FileCollection
+        get() = sourceRoots.asFileTree.filter { sourceFile ->
+            suppressedFiles.none { suppressedFile ->
+                sourceFile.startsWith(suppressedFile)
+            }
+        }
 
     companion object {
 
