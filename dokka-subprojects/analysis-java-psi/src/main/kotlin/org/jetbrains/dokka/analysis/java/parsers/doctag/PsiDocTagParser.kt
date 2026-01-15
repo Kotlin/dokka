@@ -7,14 +7,24 @@ package org.jetbrains.dokka.analysis.java.parsers.doctag
 import com.intellij.psi.PsiElement
 import com.intellij.psi.javadoc.PsiDocTag
 import org.jetbrains.dokka.analysis.java.parsers.CommentResolutionContext
+import org.jetbrains.dokka.analysis.java.parsers.doctag.markdown.JavaDocMarkdownFlavourDescriptor
+import org.jetbrains.dokka.analysis.markdown.jb.MarkdownToHtmlConverter
 import org.jetbrains.dokka.model.doc.*
 
 /**
  * Parses [PsiElement] of [PsiDocTag] into Dokka's [DocTag]
  */
 internal class PsiDocTagParser(
-    private val inheritDocTagResolver: InheritDocTagResolver
+    inheritDocTagResolver: InheritDocTagResolver
 ) {
+
+    private val psiToHtmlConverter = PsiElementToHtmlConverter(
+        inheritDocTagResolver = inheritDocTagResolver,
+        markdownToHtmlConverterProvider = { markdownToHtmlConverter }
+    )
+
+    private val markdownToHtmlConverter by lazy { MarkdownToHtmlConverter(JavaDocMarkdownFlavourDescriptor()) }
+
     fun parse(
         psiElements: Iterable<PsiElement>,
         commentResolutionContext: CommentResolutionContext
@@ -32,7 +42,6 @@ internal class PsiDocTagParser(
     ): List<DocTag> {
         val docTagParserContext = DocTagParserContext()
 
-        val psiToHtmlConverter = PsiElementToHtmlConverter(inheritDocTagResolver)
         val elementsHtml = psiToHtmlConverter.convert(psiElements, docTagParserContext, commentResolutionContext)
             ?: return emptyList()
 

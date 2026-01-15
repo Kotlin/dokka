@@ -10,6 +10,12 @@ public final class org/jetbrains/dokka/analysis/markdown/jb/MarkdownParser$Compa
 	public final fun fqDeclarationName (Lorg/jetbrains/dokka/links/DRI;)Ljava/lang/String;
 }
 
+public final class org/jetbrains/dokka/analysis/markdown/jb/MarkdownToHtmlConverter {
+	public fun <init> (Lorg/intellij/markdown/flavours/MarkdownFlavourDescriptor;)V
+	public final fun convertMarkdownToHtml (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static synthetic fun convertMarkdownToHtml$default (Lorg/jetbrains/dokka/analysis/markdown/jb/MarkdownToHtmlConverter;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+}
+
 public final class org/jetbrains/dokka/analysis/markdown/jb/ParseUtilsKt {
 	public static final fun parseHtmlEncodedWithNormalisedSpaces (Ljava/lang/String;Z)Ljava/util/List;
 }
