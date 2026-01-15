@@ -1045,7 +1045,7 @@ class SnippetTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `hybrid snippet`() {
+    fun `correct hybrid snippet`() {
         testInline(
             """
             |/src/main/java/example/Test.java
@@ -1088,6 +1088,78 @@ class SnippetTest : BaseAbstractTest() {
 
                 assertEquals(0, logger.warningsCount)
                 assertEquals(0, logger.errorsCount)
+            }
+        }
+    }
+
+    @Test
+    fun `incorrect hybrid snippet`() {
+        testInline(
+            """
+            |/src/main/java/example/Test.java
+            |package example;
+            |
+            | /**
+            | * {@snippet file="HybridSnippet.java" region="example" :
+            | * String first = "first line is the same"
+            | * System.out.println("second line is different")
+            | * System.out.println("third line is the same")
+            | * }
+            | */
+            | public class Test {}
+            |
+            |/src/main/java/example/snippet-files/HybridSnippet.java
+            |package example;
+            |
+            |public class HybridSnippet {
+            |    public void example() {
+            |        // @start region="example"
+            |        String first = "first line is the same"
+            |        String second = "second line is different"
+            |        System.out.println("third line is the same")
+            |        // @end
+            |    }
+            |}
+            """.trimMargin(),
+            configuration
+        ) {
+            documentablesCreationStage = { modules ->
+                val root = getFirstClassDocRoot(modules)
+
+                assertEquals(
+                    listOf(
+                        CodeBlock(
+                            children = listOf(
+                                Text(
+                                    "String first = \"first line is the same\"\n" +
+                                            "System.out.println(\"second line is different\")\n" +
+                                            "System.out.println(\"third line is the same\")"
+                                )
+                            ),
+                            params = mapOf("lang" to "java")
+                        )
+                    ),
+                    root.children,
+                    "inline snippet is returned"
+                )
+
+                assertTrue { logger.warningsCount == 1 }
+
+                val warnMessage = logger.warnMessages.first()
+
+                assertTrue("location of snippet is correct") { warnMessage.contains("Test.java") }
+
+                assertTrue { warnMessage.contains("inline and external snippets are not the same in the hybrid snippet") }
+
+                assertFalse("first line is the same") { warnMessage.contains("String first = &quot;first line is the same&quot;") }
+
+                assertTrue("second line is distinct") {
+                    warnMessage.contains("System.out.println(&quot;second line is different&quot;)")
+                            && warnMessage.contains("String second = &quot;second line is different&quot;")
+                            && warnMessage.contains("line 2")
+                }
+
+                assertFalse("third line is the same") { warnMessage.contains("System.out.println(&quot;third line is the same&quot;)") }
             }
         }
     }
