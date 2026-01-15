@@ -176,7 +176,7 @@ internal class DefaultSnippetToHtmlConverter(
         // Ordered list of snippet regions
         val regions = mutableListOf<Region>()
 
-        var nextLineMarkupTags = mutableListOf<String>()
+        val nextLineMarkupTags = mutableListOf<String>()
 
         main@ for (line in lines) {
             val currentLineOperations = regions.mapNotNull { it.operation }.toMutableList()
@@ -192,7 +192,7 @@ internal class DefaultSnippetToHtmlConverter(
 
                 // If the markup comment ends with `:`, it is treated as though it were an end-of-line comment on the following line
                 if (markupSpec?.endsWith(":") == true) {
-                    nextLineMarkupTags = markupTags.toMutableList()
+                    nextLineMarkupTags.addAll(markupTags)
                     continue
                 }
 
