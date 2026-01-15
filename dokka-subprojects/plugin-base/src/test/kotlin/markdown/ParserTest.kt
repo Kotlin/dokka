@@ -1751,5 +1751,158 @@ class ParserTest : KDocTest() {
         )
         assertEquals(actualDocumentationNode, expectedDocumentationNode)
     }
+
+    @Test
+    fun `Blockquote with formatting should merge text around inline elements`() {
+        val kdoc = """
+        | > text **bold** text
+        | > more text
+        """.trimMargin()
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    P(
+                                        listOf(
+                                            Text("text "),
+                                            B(listOf(Text("bold"))),
+                                            Text(" text more text")
+                                        )
+                                    )
+                                )
+                            )
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test
+    fun `Blockquote with three lines should merge all text`() {
+        val kdoc = """
+        | > line 1
+        | > line 2
+        | > line 3
+        """.trimMargin()
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    P(listOf(Text("line 1 line 2 line 3")))
+                                )
+                            )
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test
+    fun `Blockquote triple nested`() {
+        val kdoc = """
+        | > level 1
+        | >> level 2
+        | >>> level 3
+        """.trimMargin()
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    P(listOf(Text("level 1"))),
+                                    BlockQuote(
+                                        listOf(
+                                            P(listOf(Text("level 2"))),
+                                            BlockQuote(
+                                                listOf(
+                                                    P(listOf(Text("level 3")))
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test
+    fun `Blockquote with code span should not merge across it`() {
+        val kdoc = """
+        | > before `code` after
+        | > more text
+        """.trimMargin()
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    P(
+                                        listOf(
+                                            Text("before "),
+                                            CodeInline(listOf(Text("code"))),
+                                            Text(" after more text")
+                                        )
+                                    )
+                                )
+                            )
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test
+    fun `Blockquote with link should merge text around it`() {
+        val kdoc = """
+        | > before [link](http://example.com) after
+        | > more text
+        """.trimMargin()
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    P(
+                                        listOf(
+                                            Text("before "),
+                                            A(
+                                                listOf(Text("link")),
+                                                mapOf("href" to "http://example.com")
+                                            ),
+                                            Text(" after more text")
+                                        )
+                                    )
+                                )
+                            )
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
 }
 

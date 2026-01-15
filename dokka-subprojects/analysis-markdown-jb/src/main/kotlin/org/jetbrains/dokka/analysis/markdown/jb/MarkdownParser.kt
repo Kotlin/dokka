@@ -455,7 +455,62 @@ public open class MarkdownParser(
         this.filterNot { it.type == MarkdownTokenTypes.WHITE_SPACE || it.type == MarkdownTokenTypes.EOL }
 
     private fun List<ASTNode>.evaluateChildren(keepAllFormatting: Boolean = false): List<DocTag> =
-        this.removeUselessTokens().swapImagesThatShouldBeLinks(keepAllFormatting).mergeLeafASTNodes().flatMap { visitNode(it, keepAllFormatting) }
+        this.removeUselessTokens().swapImagesThatShouldBeLinks(keepAllFormatting).mergeLeafASTNodes().flatMap { visitNode(it, keepAllFormatting) }.mergeAdjacentTextNodes()
+
+    /**
+     * Merges adjacent [Text] nodes into a single [Text] node, but only if they have the same [params].
+     *
+     * This is needed because some tokens (like [MarkdownTokenTypes.BLOCK_QUOTE]) act as separators
+     * during AST processing but produce no output (return `emptyList()`), leaving adjacent [Text]
+     * nodes that should logically be one continuous text.
+     *
+     * Text nodes with different params (e.g., HTML comments with `content-type=html`) are kept separate.
+     *
+     * When merging, if one text ends with a space and the next starts with a space,
+     * the duplicate space at the boundary is removed.
+     */
+    private fun List<DocTag>.mergeAdjacentTextNodes(): List<DocTag> {
+        val result = mutableListOf<DocTag>()
+        var index = 0
+        while (index <= lastIndex) {
+            val current = this[index]
+            if (current !is Text) {
+                result += current
+            } else {
+                val startIndex = index
+                while (canMergeTextWithNext(index)) {
+                    index++
+                }
+                result += mergedTextNode(startIndex, index)
+            }
+            index++
+        }
+        return result
+    }
+
+    private fun List<DocTag>.canMergeTextWithNext(index: Int): Boolean {
+        if (index + 1 > lastIndex) return false
+        val current = this[index]
+        val next = this[index + 1]
+        return current is Text && next is Text && current.params == next.params
+    }
+
+    private fun List<DocTag>.mergedTextNode(startIndex: Int, endIndex: Int): Text {
+        val first = this[startIndex] as Text
+        if (startIndex == endIndex) return first
+
+        val mergedBody = StringBuilder(first.body)
+        for (i in (startIndex + 1)..endIndex) {
+            val next = (this[i] as Text).body
+            // Avoid double space at the merge boundary
+            if (mergedBody.endsWith(' ') && next.startsWith(' ')) {
+                mergedBody.append(next, 1, next.length)
+            } else {
+                mergedBody.append(next)
+            }
+        }
+        return first.copy(body = mergedBody.toString())
+    }
 
     private fun List<ASTNode>.swapImagesThatShouldBeLinks(keepAllFormatting: Boolean): List<ASTNode> =
         if (keepAllFormatting) {
