@@ -101,11 +101,11 @@ internal class DefaultSnippetToHtmlConverter(
 
         val region = attributeList.getAttribute(PsiSnippetAttribute.REGION_ATTRIBUTE)?.value?.value
 
-        var parsedSnippet = when {
-            inlineSnippetLines != null && externalSnippetLines != null -> {
-                val parsedInlineSnippet = parseSnippet(inlineSnippetLines, snippet, logger)
-                val parsedExternalSnippet = parseSnippet(externalSnippetLines, snippet, logger, region)
+        val parsedInlineSnippet = inlineSnippetLines?.let { parseSnippet(it, snippet, logger) }
+        val parsedExternalSnippet = externalSnippetLines?.let { parseSnippet(it, snippet, logger, region) }
 
+        var parsedSnippet = when {
+            parsedInlineSnippet != null && parsedExternalSnippet != null -> {
                 if (parsedInlineSnippet != parsedExternalSnippet) {
                     val parsedInlineSnippetLines = parsedInlineSnippet.lines()
                     val parsedExternalSnippetLines = parsedExternalSnippet.lines()
@@ -133,15 +133,8 @@ internal class DefaultSnippetToHtmlConverter(
 
                 parsedInlineSnippet
             }
-
-            inlineSnippetLines != null -> {
-                parseSnippet(inlineSnippetLines, snippet, logger)
-            }
-
-            externalSnippetLines != null -> {
-                parseSnippet(externalSnippetLines, snippet, logger, region)
-            }
-
+            parsedInlineSnippet != null -> parsedInlineSnippet
+            parsedExternalSnippet != null -> parsedExternalSnippet
             else -> logAndReturnUnresolvedSnippet(logger)
         }
 
