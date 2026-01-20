@@ -4434,6 +4434,7 @@ public final class org/jetbrains/dokka/pages/TextStyle : java/lang/Enum, org/jet
 	public static final field Breakable Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field BreakableAfter Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Cover Lorg/jetbrains/dokka/pages/TextStyle;
+	public static final field Emphasis Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field FloatingRight Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Highlight Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Indented Lorg/jetbrains/dokka/pages/TextStyle;
