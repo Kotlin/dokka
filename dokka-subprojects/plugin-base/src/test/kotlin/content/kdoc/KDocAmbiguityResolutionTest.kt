@@ -30,7 +30,6 @@ import org.jetbrains.dokka.pages.MemberPageNode
 import utils.OnlySymbols
 import utils.findTestType
 import utils.withExperimentalKDocResolution
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -536,7 +535,6 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
 
 
     @Test
-    @Ignore("#3604: blocked by KT-83152")
     fun `#3604 KDoc reference to class from constructor`() = withExperimentalKDocResolution {
         testInline(
             """
