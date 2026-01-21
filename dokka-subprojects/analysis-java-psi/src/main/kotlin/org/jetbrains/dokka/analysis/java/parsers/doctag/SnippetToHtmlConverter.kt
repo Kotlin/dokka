@@ -133,6 +133,7 @@ internal class DefaultSnippetToHtmlConverter(
 
                 parsedInlineSnippet
             }
+
             parsedInlineSnippet != null -> parsedInlineSnippet
             parsedExternalSnippet != null -> parsedExternalSnippet
             else -> logAndReturnUnresolvedSnippet(logger)
@@ -181,11 +182,10 @@ internal class DefaultSnippetToHtmlConverter(
         main@ for (line in lines) {
             val currentLineOperations = regions.mapNotNull { it.operation }.toMutableList()
 
-            val markupSpecMatch = MARKUP_SPEC.find(line)
-            val markupSpec = markupSpecMatch?.groupValues?.get(2)
+            val markupSpec = line.findMarkupSpec()
 
             if (markupSpec != null || nextLineMarkupTags.isNotEmpty()) {
-                val markupTags = (nextLineMarkupTags + (markupSpec?.split(MARKUP_TAG_SPLIT)
+                val markupTags = (nextLineMarkupTags + (markupSpec?.splitMarkupTags()
                     ?: emptyList())).filter { it.isNotBlank() }
 
                 nextLineMarkupTags.clear()
@@ -378,36 +378,6 @@ internal class DefaultSnippetToHtmlConverter(
         if (element.isNotBlank()) this.add(element)
     }
 
-    private fun String.clearMarkupSpec() = this.replace(MARKUP_SPEC, "").trimEnd() + "\n"
-
-    private fun String.applyMarkup(markupOperations: List<MarkupOperation>): String =
-        markupOperations.fold(this.htmlEscape()) { acc, op -> op(acc) }
-
-    private fun String.clearMarkupSpecAndApplyMarkup(markupOperations: List<MarkupOperation>) =
-        this.clearMarkupSpec().applyMarkup(markupOperations)
-
-    private fun String.parseMarkupTag(logger: SnippetLogger): Pair<String, Map<String, String?>>? {
-        val markupTagName = MARKUP_TAG.find(this)?.groupValues?.get(1) ?: return null
-
-        val attributes = ATTRIBUTE.findAll(
-            this.removePrefix(
-                "@$markupTagName"
-            ).trimStart()
-        ).mapNotNull { match ->
-            val attributeName = match.groupValues[1]
-            if (ALLOWED_ATTRS[markupTagName]?.contains(attributeName) != true) {
-                logger.warn("unsupported attribute '$attributeName' in @$markupTagName markup tag")
-                null
-            } else {
-                attributeName to (match.groupValues[4].takeIf { it.isNotBlank() }
-                    ?: match.groupValues[5].takeIf { it.isNotBlank() }
-                    ?: match.groupValues[6].takeIf { it.isNotBlank() })
-            }
-        }.toMap()
-
-        return markupTagName to attributes
-    }
-
     // Copied from https://github.com/JetBrains/intellij-community/blob/4a0ea4a70a7d2c1a14318c3d88ca632bcbe27e2f/java/java-impl/src/com/intellij/codeInsight/javadoc/SnippetMarkup.java#L402
     private fun PsiSnippetDocTagBody.lines(): List<String> {
         val output = mutableListOf<String>()
@@ -461,6 +431,40 @@ internal class DefaultSnippetToHtmlConverter(
     private fun logAndReturnUnresolvedSnippet(logger: SnippetLogger): String {
         logger.warn("unable to resolve snippet")
         return SNIPPET_NOT_RESOLVED
+    }
+
+    private fun String.clearMarkupSpecAndApplyMarkup(markupOperations: List<MarkupOperation>) =
+        this.clearMarkupSpec().applyMarkup(markupOperations)
+
+    private fun String.applyMarkup(markupOperations: List<MarkupOperation>): String =
+        markupOperations.fold(this.htmlEscape()) { acc, op -> op(acc) }
+
+    private fun String.clearMarkupSpec() = this.replace(MARKUP_SPEC, "").trimEnd() + "\n"
+
+    private fun String.findMarkupSpec(): String? = MARKUP_SPEC.find(this)?.groupValues?.get(2)
+
+    private fun String.splitMarkupTags() = this.split(MARKUP_TAG_SPLIT)
+
+    private fun String.parseMarkupTag(logger: SnippetLogger): Pair<String, Map<String, String?>>? {
+        val markupTagName = MARKUP_TAG.find(this)?.groupValues?.get(1) ?: return null
+
+        val attributes = ATTRIBUTE.findAll(
+            this.removePrefix(
+                "@$markupTagName"
+            ).trimStart()
+        ).mapNotNull { match ->
+            val attributeName = match.groupValues[1]
+            if (ALLOWED_ATTRS[markupTagName]?.contains(attributeName) != true) {
+                logger.warn("unsupported attribute '$attributeName' in @$markupTagName markup tag")
+                null
+            } else {
+                attributeName to (match.groupValues[4].takeIf { it.isNotBlank() }
+                    ?: match.groupValues[5].takeIf { it.isNotBlank() }
+                    ?: match.groupValues[6].takeIf { it.isNotBlank() })
+            }
+        }.toMap()
+
+        return markupTagName to attributes
     }
 
     private companion object {
