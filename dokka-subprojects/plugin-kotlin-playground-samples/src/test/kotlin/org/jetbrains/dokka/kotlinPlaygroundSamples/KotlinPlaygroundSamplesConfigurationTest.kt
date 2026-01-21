@@ -7,7 +7,8 @@ package org.jetbrains.dokka.kotlinPlaygroundSamples
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.PluginConfigurationImpl
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import org.jetbrains.dokka.pages.ContentPage
+import org.jetbrains.dokka.pages.ClasslikePageNode
+import org.jetbrains.dokka.pages.MemberPageNode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -51,17 +52,24 @@ class KotlinPlaygroundSamplesConfigurationTest : BaseAbstractTest() {
             configuration = configuration
         ) {
             pagesTransformationStage = { root ->
-                val contentPages = root.children.filterIsInstance<ContentPage>()
-                val defaultScriptIncluded = contentPages.all {
-                    defaultScript in it.embeddedResources
+                val pageNodes = root.children.first().children
+                val classFooResources = (pageNodes[0] as ClasslikePageNode).embeddedResources
+                val sampleFunctionResources = (pageNodes[1] as MemberPageNode).embeddedResources
+
+                assertFalse("Page without sample should not contain kotlin playground script") {
+                    sampleFunctionResources.contains(defaultScript)
                 }
-                assertTrue(defaultScriptIncluded, "Default Kotlin Playground script should be included")
+
+                assertTrue("Page with sample contain default kotlin playground script") {
+                    classFooResources.contains(defaultScript)
+                }
             }
         }
     }
 
     @Test
     fun `should contain custom kotlin playground script`() {
+        val customScript = "customKotlinPlaygroundScript.js"
         val customKotlinPlaygroundScriptConfiguration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
@@ -72,7 +80,7 @@ class KotlinPlaygroundSamplesConfigurationTest : BaseAbstractTest() {
                 PluginConfigurationImpl(
                     KotlinPlaygroundSamplesPlugin::class.qualifiedName!!,
                     DokkaConfiguration.SerializationFormat.JSON,
-                    "{\"kotlinPlaygroundScript\": \"customKotlinPlaygroundScript.js\"}"
+                    "{\"kotlinPlaygroundScript\": \"$customScript\"}"
                 )
             )
         }
@@ -94,20 +102,21 @@ class KotlinPlaygroundSamplesConfigurationTest : BaseAbstractTest() {
             configuration = customKotlinPlaygroundScriptConfiguration
         ) {
             pagesTransformationStage = { root ->
-                val contentPages = root.children.filterIsInstance<ContentPage>()
-                val defaultScriptIncluded = contentPages.all {
-                    defaultScript in it.embeddedResources
+                val pageNodes = root.children.first().children
+                val classFooResources = (pageNodes[0] as ClasslikePageNode).embeddedResources
+                val sampleFunctionResources = (pageNodes[1] as MemberPageNode).embeddedResources
+
+                assertFalse("Page without sample should not contain kotlin playground script") {
+                    sampleFunctionResources.contains(defaultScript) || sampleFunctionResources.contains(customScript)
                 }
 
-                assertFalse(
-                    defaultScriptIncluded,
-                    "When custom kotlin playground script is included, page shouldn't contain default kotlin playground script"
-                )
-
-                val customScriptIncluded = contentPages.all {
-                    "customKotlinPlaygroundScript.js" in it.embeddedResources
+                assertFalse("When custom kotlin playground script is included, page shouldn't contain default kotlin playground script") {
+                    classFooResources.contains(defaultScript)
                 }
-                assertTrue(customScriptIncluded, "Should contain custom kotlin playground script")
+
+                assertTrue("Should contain custom kotlin playground script") {
+                    classFooResources.contains(customScript)
+                }
             }
         }
     }
