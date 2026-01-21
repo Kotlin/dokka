@@ -1731,6 +1731,7 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols
     fun `should warn about unresolved links`() {
         testInline(
             """
