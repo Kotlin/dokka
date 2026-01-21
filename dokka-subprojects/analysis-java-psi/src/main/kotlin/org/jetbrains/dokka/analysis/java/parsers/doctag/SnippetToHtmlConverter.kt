@@ -293,17 +293,17 @@ internal class DefaultSnippetToHtmlConverter(
     private fun createHighlightOperation(attributes: Map<String, String?>, logger: SnippetLogger): MarkupOperation? {
         val type = attributes["type"]?.lowercase()
         val (startTag, endTag) = when (type) {
-            "bold", null -> "<b>" to "</b>"
-            "italic" -> "<i>" to "</i>"
-            "highlighted" -> "<mark>" to "</mark>"
+            "bold", null -> "<b dokka-internal>" to "</b dokka-internal>"
+            "italic" -> "<i dokka-internal>" to "</i dokka-internal>"
+            "highlighted" -> "<mark dokka-internal>" to "</mark dokka-internal>"
             else -> {
                 logger.warn("unsupported type attribute '$type' in @highlight markup tag. Valid types: 'bold', 'italic', 'highlighted'")
                 return null
             }
         }
 
-        val substring = attributes["substring"]?.htmlEscape()
-        val regex = attributes["regex"]?.htmlEscape()?.toRegex()
+        val substring = attributes["substring"]
+        val regex = attributes["regex"]?.toRegex()
 
         fun String.wrapInTag() = "$startTag$this$endTag"
 
@@ -320,13 +320,13 @@ internal class DefaultSnippetToHtmlConverter(
     }
 
     private fun createReplaceOperation(attributes: Map<String, String?>, logger: SnippetLogger): MarkupOperation? {
-        val substring = attributes["substring"]?.htmlEscape()
-        val regex = attributes["regex"]?.htmlEscape()?.toRegex()
+        val substring = attributes["substring"]
+        val regex = attributes["regex"]?.toRegex()
         if (!attributes.containsKey("replacement")) {
             logger.warn("specify 'replacement' attribute in @replace markup tag")
             return null
         }
-        val replacement = attributes["replacement"]?.htmlEscape() ?: ""
+        val replacement = attributes["replacement"] ?: ""
 
         return { line ->
             var result = line
@@ -345,8 +345,8 @@ internal class DefaultSnippetToHtmlConverter(
         context: PsiElement,
         logger: SnippetLogger
     ): MarkupOperation? {
-        val substring = attributes["substring"]?.htmlEscape()
-        val regex = attributes["regex"]?.htmlEscape()?.toRegex()
+        val substring = attributes["substring"]
+        val regex = attributes["regex"]?.toRegex()
         val target = attributes["target"] ?: run {
             logger.warn("specify 'target' attribute in @link markup tag")
             return null
@@ -360,7 +360,8 @@ internal class DefaultSnippetToHtmlConverter(
         val dri = DRI.from(resolvedTarget)
         val driId = docTagParserContext.store(dri)
 
-        fun String.wrapInLink(): String = """<a data-dri="${driId.htmlEscape()}">$this</a>"""
+        fun String.wrapInLink(): String =
+            """<a data-dri="${driId.htmlEscape()}" dokka-internal>$this</a dokka-internal>"""
 
         return { line ->
             var result = line
@@ -437,7 +438,29 @@ internal class DefaultSnippetToHtmlConverter(
         this.clearMarkupSpec().applyMarkup(markupOperations)
 
     private fun String.applyMarkup(markupOperations: List<MarkupOperation>): String =
-        markupOperations.fold(this.htmlEscape()) { acc, op -> op(acc) }
+        markupOperations.fold(this) { acc, op -> op(acc) }.snippetHtmlEscape()
+
+    private fun String.snippetHtmlEscape(): String {
+        val result = StringBuilder()
+        var lastEnd = 0
+
+        INTERNAL_HTML_TAG.findAll(this).forEach { match ->
+            // Escape content before the tag
+            result.append(this.substring(lastEnd, match.range.first).htmlEscape())
+
+            // Clean `dokka-internal` from html tag and add to the result
+            val tag = match.value
+            val cleanedTag = tag.replace(" dokka-internal", "")
+            result.append(cleanedTag)
+
+            lastEnd = match.range.last + 1
+        }
+
+        // Escape remaining content
+        result.append(this.substring(lastEnd).htmlEscape())
+
+        return result.toString()
+    }
 
     private fun String.clearMarkupSpec() = this.replace(MARKUP_SPEC, "").trimEnd() + "\n"
 
@@ -496,6 +519,8 @@ internal class DefaultSnippetToHtmlConverter(
         // group 5: value inside double quotes
         // group 6: unquoted value
         private val ATTRIBUTE = Regex("(\\w+)\\s*(=\\s*('([^']*)'|\"([^\"]*)\"|(\\S*)))?\\s*")
+
+        private val INTERNAL_HTML_TAG = Regex("</?(?:b|i|mark|a)(?:\\s[^>]*?)? dokka-internal>")
 
         private const val SNIPPET_NOT_RESOLVED = "// snippet not resolved"
     }
