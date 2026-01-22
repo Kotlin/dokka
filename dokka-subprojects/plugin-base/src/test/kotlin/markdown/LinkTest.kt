@@ -1747,7 +1747,8 @@ class LinkTest : BaseAbstractTest() {
         ) {
             documentablesMergingStage = { m ->
                 val warn = logger.warnMessages.first()
-                val path = m.sourceSets.first().sourceRoots.first().path
+                val path = m.sourceSets.first().sourceRoots.first().absolutePath
+                    .replace("\\","/") // for Win
 
                 assertEquals(
                     "Couldn't resolve link: [property] in file:///PATH/main/kotlin/Testing.kt:2:3 (root/main)",
