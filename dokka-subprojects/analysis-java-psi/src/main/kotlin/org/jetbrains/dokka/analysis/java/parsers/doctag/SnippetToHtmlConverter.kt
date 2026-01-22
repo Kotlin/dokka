@@ -73,6 +73,15 @@ internal class DefaultSnippetToHtmlConverter(
         }
     }
 
+    private enum class MarkupOperationType(val priority: Int) {
+        REPLACE(0), HIGHLIGHT(1), LINK(2)
+    }
+
+    private data class TypedMarkupOperation(
+        val type: MarkupOperationType,
+        val markupOperation: MarkupOperation
+    )
+
     override fun convertSnippet(
         snippet: PsiSnippetDocTag
     ): String {
@@ -171,7 +180,7 @@ internal class DefaultSnippetToHtmlConverter(
 
         data class Region(
             val regionName: String?, // can be null for anonymous regions
-            val operation: MarkupOperation?, // can be null for non-markup tags - `@start` (regionName in this case is specified)
+            val operation: TypedMarkupOperation?, // can be null for non-markup tags - `@start` (regionName in this case is specified)
             val isSnippetBodyRegion: Boolean = false // indicates whether this region represents the actual snippet body that is processed
         )
         // Ordered list of snippet regions
@@ -252,10 +261,10 @@ internal class DefaultSnippetToHtmlConverter(
                             }
                         }
 
-                        "highlight", "replace", "link" -> {
+                        "replace", "highlight", "link" -> {
                             val operation = when (tagName) {
-                                "highlight" -> createHighlightOperation(attributes, logger)
                                 "replace" -> createReplaceOperation(attributes, logger)
+                                "highlight" -> createHighlightOperation(attributes, logger)
                                 "link" -> createLinkOperation(attributes, context, logger)
                                 else -> null
                             } ?: continue
@@ -290,7 +299,36 @@ internal class DefaultSnippetToHtmlConverter(
         return result.joinToString("").trimIndent()
     }
 
-    private fun createHighlightOperation(attributes: Map<String, String?>, logger: SnippetLogger): MarkupOperation? {
+    private fun createReplaceOperation(
+        attributes: Map<String, String?>,
+        logger: SnippetLogger
+    ): TypedMarkupOperation? {
+        val substring = attributes["substring"]
+        val regex = attributes["regex"]?.toRegex()
+        if (!attributes.containsKey("replacement")) {
+            logger.warn("specify 'replacement' attribute in @replace markup tag")
+            return null
+        }
+        val replacement = attributes["replacement"] ?: ""
+
+        return TypedMarkupOperation(
+            MarkupOperationType.REPLACE
+        ) { line ->
+            var result = line
+
+            if (substring != null) result = result.replace(substring, replacement)
+            if (regex != null) result = result.replace(regex, replacement)
+
+            if (substring == null && regex == null) result = replacement
+
+            result
+        }
+    }
+
+    private fun createHighlightOperation(
+        attributes: Map<String, String?>,
+        logger: SnippetLogger
+    ): TypedMarkupOperation? {
         val type = attributes["type"]?.lowercase()
         val (startTag, endTag) = when (type) {
             "bold", null -> "<b dokka-internal>" to "</b dokka-internal>"
@@ -307,7 +345,9 @@ internal class DefaultSnippetToHtmlConverter(
 
         fun String.wrapInTag() = "$startTag$this$endTag"
 
-        return { line ->
+        return TypedMarkupOperation(
+            MarkupOperationType.HIGHLIGHT
+        ) { line ->
             var result = line
 
             if (substring != null) result = result.replace(substring, substring.wrapInTag())
@@ -319,32 +359,11 @@ internal class DefaultSnippetToHtmlConverter(
         }
     }
 
-    private fun createReplaceOperation(attributes: Map<String, String?>, logger: SnippetLogger): MarkupOperation? {
-        val substring = attributes["substring"]
-        val regex = attributes["regex"]?.toRegex()
-        if (!attributes.containsKey("replacement")) {
-            logger.warn("specify 'replacement' attribute in @replace markup tag")
-            return null
-        }
-        val replacement = attributes["replacement"] ?: ""
-
-        return { line ->
-            var result = line
-
-            if (substring != null) result = result.replace(substring, replacement)
-            if (regex != null) result = result.replace(regex, replacement)
-
-            if (substring == null && regex == null) result = replacement
-
-            result
-        }
-    }
-
     private fun createLinkOperation(
         attributes: Map<String, String?>,
         context: PsiElement,
         logger: SnippetLogger
-    ): MarkupOperation? {
+    ): TypedMarkupOperation? {
         val substring = attributes["substring"]
         val regex = attributes["regex"]?.toRegex()
         val target = attributes["target"] ?: run {
@@ -363,7 +382,9 @@ internal class DefaultSnippetToHtmlConverter(
         fun String.wrapInLink(): String =
             """<a data-dri="${driId.htmlEscape()}" dokka-internal>$this</a dokka-internal>"""
 
-        return { line ->
+        return TypedMarkupOperation(
+            MarkupOperationType.LINK
+        ) { line ->
             var result = line
 
             if (substring != null) result = result.replace(substring, substring.wrapInLink())
@@ -434,11 +455,14 @@ internal class DefaultSnippetToHtmlConverter(
         return SNIPPET_NOT_RESOLVED
     }
 
-    private fun String.clearMarkupSpecAndApplyMarkup(markupOperations: List<MarkupOperation>) =
-        this.clearMarkupSpec().applyMarkup(markupOperations)
+    private fun String.clearMarkupSpecAndApplyMarkup(typedMarkupOperations: List<TypedMarkupOperation>) =
+        this.clearMarkupSpec().applyMarkup(typedMarkupOperations)
 
-    private fun String.applyMarkup(markupOperations: List<MarkupOperation>): String =
-        markupOperations.fold(this) { acc, op -> op(acc) }.snippetHtmlEscape()
+    private fun String.applyMarkup(typedMarkupOperations: List<TypedMarkupOperation>): String = typedMarkupOperations
+        .sortedBy { it.type.priority }
+        .map { it.markupOperation }
+        .fold(this) { acc, op -> op(acc) }
+        .snippetHtmlEscape()
 
     private fun String.snippetHtmlEscape(): String {
         val result = StringBuilder()
