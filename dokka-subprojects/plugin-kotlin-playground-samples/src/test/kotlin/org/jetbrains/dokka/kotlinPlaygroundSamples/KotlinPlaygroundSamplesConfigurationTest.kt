@@ -107,7 +107,11 @@ class KotlinPlaygroundSamplesConfigurationTest : BaseAbstractTest() {
                 val sampleFunctionResources = (pageNodes[1] as MemberPageNode).embeddedResources
 
                 assertFalse("Page without sample should not contain kotlin playground script") {
-                    sampleFunctionResources.contains(defaultScript) || sampleFunctionResources.contains(customScript)
+                    sampleFunctionResources.contains(defaultScript)
+                }
+
+                assertFalse("Page without sample should not contain kotlin playground script") {
+                    sampleFunctionResources.contains(customScript)
                 }
 
                 assertFalse("When custom kotlin playground script is included, page shouldn't contain default kotlin playground script") {
