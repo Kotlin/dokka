@@ -305,6 +305,13 @@ internal class DefaultSnippetToHtmlConverter(
     ): TypedMarkupOperation? {
         val substring = attributes["substring"]
         val regex = attributes["regex"]?.toRegex()
+
+        // parseMarkupTag() picks attribute values from multiple regex groups using `takeIf { it.isNotBlank() }`,
+        // because non-matched groups return empty string, so we treat blank as "not matched".
+        // As a result, for `replacement=""` pair `replacement to null` is returned, hence the empty string value is valid in this case and means just deletion.
+        // So we must distinguish:
+        // - key is missing -> warn (attribute not specified)
+        // - key is present, but the parsed value is null -> use "" (delete)
         if (!attributes.containsKey("replacement")) {
             logger.warn("specify 'replacement' attribute in @replace markup tag")
             return null
@@ -505,6 +512,9 @@ internal class DefaultSnippetToHtmlConverter(
                 logger.warn("unsupported attribute '$attributeName' in @$markupTagName markup tag")
                 null
             } else {
+                // Only one of 4-6 groups will be matched
+                // Check each group sequentially with `takeIf { it.isNotBlank() }`,
+                // because non-matched groups return empty strings - treat blank as "not matched"
                 attributeName to (match.groupValues[4].takeIf { it.isNotBlank() }
                     ?: match.groupValues[5].takeIf { it.isNotBlank() }
                     ?: match.groupValues[6].takeIf { it.isNotBlank() })
@@ -538,7 +548,7 @@ internal class DefaultSnippetToHtmlConverter(
         // group 1: `name`
         // group 2: `=value` part
         // group 3: `value` part
-        // only one of 4-6 groups will be not null
+        // only one of 4-6 groups will be matched
         // group 4: value inside single quotes
         // group 5: value inside double quotes
         // group 6: unquoted value
