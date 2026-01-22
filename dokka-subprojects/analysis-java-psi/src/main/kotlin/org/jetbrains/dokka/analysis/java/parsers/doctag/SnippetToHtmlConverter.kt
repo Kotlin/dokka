@@ -122,7 +122,7 @@ internal class DefaultSnippetToHtmlConverter(
                     val maxLines = maxOf(parsedInlineSnippetLines.size, parsedExternalSnippetLines.size)
 
                     val diffMessage = buildString {
-                        appendLine("inline and external snippets are not the same in the hybrid snippet")
+                        appendLine("inline and external snippets are not the same in the hybrid snippet (after formatting and escaping are applied).")
                         appendLine("diff:")
 
                         for (i in 0 until maxLines) {
@@ -135,7 +135,7 @@ internal class DefaultSnippetToHtmlConverter(
                                 appendLine("external: '$parsedExternalSnippetLine'")
                             }
                         }
-                    }
+                    }.trim()
 
                     logger.warn(diffMessage)
                 }

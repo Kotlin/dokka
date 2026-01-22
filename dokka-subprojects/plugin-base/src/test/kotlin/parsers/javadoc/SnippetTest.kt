@@ -1147,19 +1147,16 @@ class SnippetTest : BaseAbstractTest() {
 
                 val warnMessage = logger.warnMessages.first()
 
-                assertTrue("location of snippet is correct") { warnMessage.contains("Test.java") }
-
-                assertTrue { warnMessage.contains("inline and external snippets are not the same in the hybrid snippet") }
-
-                assertFalse("first line is the same") { warnMessage.contains("String first = &quot;first line is the same&quot;") }
-
-                assertTrue("second line is distinct") {
-                    warnMessage.contains("System.out.println(&quot;second line is different&quot;)")
-                            && warnMessage.contains("String second = &quot;second line is different&quot;")
-                            && warnMessage.contains("line 2")
-                }
-
-                assertFalse("third line is the same") { warnMessage.contains("System.out.println(&quot;third line is the same&quot;)") }
+                assertEquals(
+                    warnMessage,
+                    """
+                        @snippet (Test.java): inline and external snippets are not the same in the hybrid snippet (after formatting and escaping are applied).
+                        diff:
+                        line 2:
+                        inline: 'System.out.println(&quot;second line is different&quot;)'
+                        external: 'String second = &quot;second line is different&quot;'
+                    """.trimIndent()
+                )
             }
         }
     }
