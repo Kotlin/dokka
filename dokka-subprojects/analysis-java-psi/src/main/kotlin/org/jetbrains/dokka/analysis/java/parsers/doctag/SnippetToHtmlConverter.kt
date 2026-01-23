@@ -95,6 +95,7 @@ internal class DefaultSnippetToHtmlConverter(
 
         val lang = attributeList.getAttribute(PsiSnippetAttribute.LANG_ATTRIBUTE)?.value?.value
 
+        // Note: each line from inline/external snippet includes its trailing '\n'
         val inlineSnippetLines = value.body?.lines()?.takeIf { it.isNotEmpty() }
 
         val externalSnippetLines = run {
@@ -158,14 +159,14 @@ internal class DefaultSnippetToHtmlConverter(
     /**
      * Parses markup for inline and external snippets. For external snippets, the snippet body is first extracted from the snippet file.
      *
-     * @param lines lines of the snippet body for inline snippets, or of the snippet file for external snippets
+     * @param linesWithNewlines lines (with newlines) of the snippet body for inline snippets, or of the snippet file for external snippets
      * @param context the PSI element providing the resolution context for link targets
      * @param externalSnippetRegionName name of the region to extract external snippet body from; null for inline snippets
      *
      * @return parsed snippet with applied markup
      */
     private fun parseSnippet(
-        lines: List<String>,
+        linesWithNewlines: List<String>,
         context: PsiElement,
         logger: SnippetLogger,
         externalSnippetRegionName: String? = null
@@ -176,7 +177,7 @@ internal class DefaultSnippetToHtmlConverter(
         // externalSnippetRegionName is not null in external snippets with a specified region, then we need firstly to find start of the snippet body (`@start` with the appropriate region name)
         var snippetBodyStarted = externalSnippetRegionName == null
 
-        val result = mutableListOf<String>()
+        val result = StringBuilder()
 
         data class Region(
             val regionName: String?, // can be null for anonymous regions
@@ -188,7 +189,7 @@ internal class DefaultSnippetToHtmlConverter(
 
         val nextLineMarkupTags = mutableListOf<String>()
 
-        main@ for (line in lines) {
+        main@ for (line in linesWithNewlines) {
             val currentLineOperations = regions.mapNotNull { it.operation }.toMutableList()
 
             val markupSpec = line.findMarkupSpec()
@@ -237,7 +238,7 @@ internal class DefaultSnippetToHtmlConverter(
                                 }
 
                                 if (toRemove.isSnippetBodyRegion) {
-                                    result.addIfNotBlank(line.clearMarkupSpecAndApplyMarkup(currentLineOperations))
+                                    result.appendIfNotBlank(line.clearMarkupSpecAndApplyMarkup(currentLineOperations))
                                     snippetBodyStarted = false
                                     break@main
                                 }
@@ -252,7 +253,7 @@ internal class DefaultSnippetToHtmlConverter(
                                 }
 
                                 if (lastRegion.isSnippetBodyRegion) {
-                                    result.addIfNotBlank(line.clearMarkupSpecAndApplyMarkup(currentLineOperations))
+                                    result.appendIfNotBlank(line.clearMarkupSpecAndApplyMarkup(currentLineOperations))
                                     snippetBodyStarted = false
                                     break@main
                                 } else {
@@ -285,9 +286,9 @@ internal class DefaultSnippetToHtmlConverter(
 
             if (snippetBodyStarted) {
                 if (markupSpec != null) {
-                    result.addIfNotBlank(line.clearMarkupSpecAndApplyMarkup(currentLineOperations))
+                    result.appendIfNotBlank(line.clearMarkupSpecAndApplyMarkup(currentLineOperations))
                 } else {
-                    result.add(line.applyMarkup(currentLineOperations))
+                    result.append(line.applyMarkup(currentLineOperations))
                 }
             }
         }
@@ -296,7 +297,7 @@ internal class DefaultSnippetToHtmlConverter(
             logger.warn("external snippet doesn't contain closing @end tag")
         }
 
-        return result.joinToString("").trimIndent()
+        return result.toString().trimIndent()
     }
 
     private fun createReplaceOperation(
@@ -403,8 +404,8 @@ internal class DefaultSnippetToHtmlConverter(
         }
     }
 
-    private fun MutableList<String>.addIfNotBlank(element: String) {
-        if (element.isNotBlank()) this.add(element)
+    private fun StringBuilder.appendIfNotBlank(element: String) {
+        if (element.isNotBlank()) this.append(element)
     }
 
     // Copied from https://github.com/JetBrains/intellij-community/blob/4a0ea4a70a7d2c1a14318c3d88ca632bcbe27e2f/java/java-impl/src/com/intellij/codeInsight/javadoc/SnippetMarkup.java#L402
