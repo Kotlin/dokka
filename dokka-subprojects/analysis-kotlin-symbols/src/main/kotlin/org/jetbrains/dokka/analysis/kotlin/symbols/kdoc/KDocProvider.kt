@@ -63,7 +63,7 @@ internal fun KaSession.getKDocDocumentationFrom(
 
     parseFromKDocTag(
         kDocTag = kDocContent.primaryTag,
-        externalDri = { resolveKDocLink(it, getLocation(it) ?: kdocLocation, logger, sourceSet) },
+        externalDri = { resolveKDocLink(it, logger, sourceSet) },
         kdocLocation = kdocLocation
     )
 }
