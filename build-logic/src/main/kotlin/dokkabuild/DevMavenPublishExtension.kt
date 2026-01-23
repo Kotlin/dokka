@@ -5,11 +5,9 @@ package dokkabuild
 
 import dokkabuild.utils.systemProperty
 import org.gradle.api.file.FileCollection
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
 import org.gradle.api.tasks.testing.Test
 import org.gradle.process.JavaForkOptions
-import java.io.File
 
 abstract class DevMavenPublishExtension(
     /**
@@ -23,7 +21,7 @@ abstract class DevMavenPublishExtension(
     /**
      * Files suitable for registering as a task input (as in, the files are reproducible-build compatible).
      */
-    private val devMavenRepositoriesInputFiles: Provider<List<File>> =
+    private val devMavenRepositoriesInputFiles: FileCollection =
         devMavenRepositories
             // Convert to a FileTree, which converts directories to all files, so we can filter on specific files.
             .asFileTree
@@ -32,10 +30,6 @@ abstract class DevMavenPublishExtension(
             // The Gradle Module Metadata contains the same information (and more),
             // so the Maven metadata is redundant.
             .matching { exclude("**/maven-metadata*.xml") }
-            // FileTrees have an unstable order (even on the same machine), which means Gradle up-to-date checks fail.
-            // So, manually sort the files so that Gradle can cache the task.
-            .elements
-            .map { files -> files.map { it.asFile }.sorted() }
 
     /**
      * Configures [Test] task to register [devMavenRepositories] as a task input,

@@ -3,26 +3,25 @@
  */
 package org.jetbrains.dokka.gradle.adapters
 
-import com.android.build.gradle.AppExtension
+import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.TestExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.result.ResolvedArtifactResult
 import org.gradle.api.file.FileCollection
+import org.gradle.api.file.RegularFile
 import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
+import org.gradle.api.provider.SetProperty
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.setProperty
+import org.jetbrains.dokka.gradle.DokkaBasePlugin
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.KotlinPlatform
 import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
 import org.jetbrains.dokka.gradle.internal.PluginIds
-import org.jetbrains.dokka.gradle.internal.artifactType
 import java.io.File
 import javax.inject.Inject
 
@@ -30,7 +29,7 @@ import javax.inject.Inject
  * Discovers Android Gradle Plugin specific configuration and uses it to configure Dokka.
  *
  * This is an internal Dokka plugin and should not be used externally.
- * It is not a standalone plugin, it requires [org.jetbrains.dokka.gradle.DokkaBasePlugin] is also applied.
+ * It is not a standalone plugin, it requires [DokkaBasePlugin] is also applied.
  */
 @InternalDokkaGradlePluginApi
 abstract class AndroidAdapter @Inject constructor(
@@ -44,11 +43,23 @@ abstract class AndroidAdapter @Inject constructor(
 
         val androidExt = AndroidExtensionWrapper(project) ?: return
 
-        dokkaExtension.dokkaSourceSets.configureEach {
+        dokkaExtension.dokkaSourceSets.configureEach dss@{
 
             classpath.from(
                 androidExt.bootClasspath()
             )
+
+            if (currentAgpVersion.startsWith("9.")) {
+                // Lower AGP versions are bugged and return too many src dirs
+                // https://issuetracker.google.com/issues/461736989
+                // which triggers https://github.com/Kotlin/dokka/issues/3701
+                //
+                // So only collect source dirs from AGP for 9+.
+                // For lower AGP versions DGP can collect src dirs from KotlinSourceSets.
+                sourceRoots.from(
+                    androidExt.sourceDirectories(this@dss.name)
+                )
+            }
 
             classpath.from(
                 analysisPlatform.map { analysisPlatform ->
@@ -56,6 +67,7 @@ abstract class AndroidAdapter @Inject constructor(
                         KotlinPlatform.AndroidJVM ->
                             AndroidClasspathCollector(
                                 androidExt = androidExt,
+                                sourceSetName = this@dss.name,
                                 objects = objects,
                             )
 
@@ -80,6 +92,24 @@ abstract class AndroidAdapter @Inject constructor(
                 }
             }
         }
+
+        private val currentAgpVersion: String by lazy {
+            // com.android.Version is defined in `com.android.tools:common`,
+            // but AGP7 doesn't declare it as a dependency.
+            // If it's missing, fallback to the deprecated `com.android.builder.model.Version`.
+            // This can be simplified when AGP8 is the minimum supported version.
+
+            try {
+                com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
+            } catch (_: Exception) {
+                null
+            } ?: try {
+                com.android.builder.model.Version.ANDROID_GRADLE_PLUGIN_VERSION
+            } catch (_: Exception) {
+                null
+            }
+            ?: "not-found"
+        }
     }
 }
 
@@ -91,17 +121,20 @@ private val logger = Logging.getLogger(AndroidAdapter::class.java)
 private fun AndroidExtensionWrapper(
     project: Project
 ): AndroidExtensionWrapper? {
-    val androidExt: BaseExtension = try {
-        project.extensions.getByType()
+    try {
+        val androidComponents = project.findAndroidComponentsExtension()
+        if (androidComponents != null) {
+            return AndroidExtensionWrapper.forAndroidComponents(
+                androidComponents = androidComponents,
+                providers = project.providers,
+                objects = project.objects,
+            )
+        }
     } catch (ex: Exception) {
-        logger.warn("${AndroidExtensionWrapper::class} could not get Android Extension for project ${project.path}")
-        return null
+        logger.warn("AndroidExtensionWrapper: could not find AndroidComponentsExtension", ex)
     }
-    return AndroidExtensionWrapper.forBaseExtension(
-        androidExt = androidExt,
-        providers = project.providers,
-        objects = project.objects
-    )
+
+    return null
 }
 
 
@@ -111,57 +144,84 @@ private fun AndroidExtensionWrapper(
  */
 private interface AndroidExtensionWrapper {
 
-    fun variantsCompileClasspath(): FileCollection
+    fun variantsCompileClasspath(
+        sourceSetName: String,
+    ): Provider<FileCollection>
 
+    /**
+     * Get the `android.jar` for the current project.
+     */
     fun bootClasspath(): Provider<List<File>>
+
+    fun sourceDirectories(
+        sourceSetName: String
+    ): Provider<FileCollection>
 
     companion object {
 
-        fun forBaseExtension(
-            androidExt: BaseExtension,
+        fun forAndroidComponents(
+            androidComponents: AndroidComponentsExtension<*, *, *>,
             providers: ProviderFactory,
             objects: ObjectFactory,
         ): AndroidExtensionWrapper {
             return object : AndroidExtensionWrapper {
+                private val androidVariants: SetProperty<AndroidVariantInfo> =
+                    objects.setProperty(AndroidVariantInfo::class)
+                        .collectFrom(androidComponents)
 
-                override fun variantsCompileClasspath(): FileCollection {
-                    val androidComponentsCompileClasspath = objects.fileCollection()
-
-                    val variants = when (androidExt) {
-                        is LibraryExtension -> androidExt.libraryVariants
-                        is AppExtension -> androidExt.applicationVariants
-                        is TestExtension -> androidExt.applicationVariants
-                        else -> {
-                            logger.warn("${AndroidExtensionWrapper::class} found unknown Android Extension $androidExt")
-                            return objects.fileCollection()
-                        }
+                /**
+                 * Need to double-wrap with [Provider] because AGP will only
+                 * compute the boot classpath after the compilation options have been finalized.
+                 * Otherwise, AGP throws `IllegalStateException: targetCompatibility is not yet finalized`.
+                 * https://issuetracker.google.com/issues/461382865
+                 */
+                private val bootClasspath: Provider<Provider<List<RegularFile>>> =
+                    providers.provider {
+                        androidComponents
+                            .sdkComponents
+                            .bootClasspath
                     }
 
-                    fun Configuration.collect(artifactType: String) {
-                        val artifactTypeFiles = incoming
-                            .artifactView {
-                                attributes {
-                                    artifactType(artifactType)
-                                }
-                                lenient(true)
+                /** Fetch all compilation-classpath files used by all variants. */
+                override fun variantsCompileClasspath(
+                    sourceSetName: String,
+                ): Provider<FileCollection> {
+                    return androidVariants.map { androidVariants ->
+                        val collector = objects.fileCollection()
+                        androidVariants
+                            .filter { it.name == sourceSetName }
+                            .forEach { variant ->
+                                collector.from(variant.compileClasspath)
                             }
-                            .artifacts
-                            .resolvedArtifacts
-                            .map { artifacts -> artifacts.map(ResolvedArtifactResult::getFile) }
-
-                        androidComponentsCompileClasspath.from(artifactTypeFiles)
+                        collector
                     }
-
-                    variants.all {
-                        compileConfiguration.collect("jar")
-                        //runtimeConfiguration.collect("jar")
-                    }
-
-                    return androidComponentsCompileClasspath
                 }
 
                 override fun bootClasspath(): Provider<List<File>> {
-                    return providers.provider { androidExt.bootClasspath }
+                    return bootClasspath.flatMap { bootClasspath ->
+                        bootClasspath.map { contents ->
+                            contents.map(RegularFile::getAsFile)
+                        }
+                    }
+                }
+
+                override fun sourceDirectories(
+                    sourceSetName: String,
+                ): Provider<FileCollection> {
+                    return androidVariants.map { androidVariants ->
+                        val allSources = objects.fileCollection()
+                        androidVariants
+                            .filter { it.name == sourceSetName }
+                            .forEach { variant ->
+                                variant.kotlinSources?.let {
+                                    allSources.from(it)
+                                }
+                                variant.javaSources?.let {
+                                    allSources.from(it)
+                                }
+                            }
+                        allSources
+                    }
                 }
             }
         }
@@ -182,12 +242,13 @@ private interface AndroidExtensionWrapper {
 private object AndroidClasspathCollector {
 
     operator fun invoke(
+        sourceSetName: String,
         androidExt: AndroidExtensionWrapper,
         objects: ObjectFactory,
     ): FileCollection {
         val compilationClasspath = objects.fileCollection()
 
-        compilationClasspath.from({ androidExt.variantsCompileClasspath() })
+        compilationClasspath.from({ androidExt.variantsCompileClasspath(sourceSetName) })
 
         return compilationClasspath
     }

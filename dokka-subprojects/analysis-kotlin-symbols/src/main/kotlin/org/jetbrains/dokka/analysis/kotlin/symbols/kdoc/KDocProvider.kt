@@ -14,7 +14,8 @@ import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KaNamedSymbol
-import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.KtDeclaration
+import org.jetbrains.kotlin.psi.KtNonPublicApi
 
 internal fun KaSession.getJavaDocDocumentationFrom(
     symbol: KaSymbol,
@@ -41,24 +42,28 @@ internal fun KaSession.getJavaDocDocumentationFrom(
 }
 
 @OptIn(KaNonPublicApi::class, KtNonPublicApi::class)
-internal fun KaSession.getKDocDocumentationFrom(symbol: KaSymbol, logger: DokkaLogger) = (symbol as? KaDeclarationSymbol)?.findKDoc()?.let { kDocContent ->
-    val ktElement = symbol.psi
-    val kdocLocation = ktElement?.containingFile?.name?.let {
-        val name = when(symbol) {
-            is KaCallableSymbol -> symbol.callableId?.toString()
-            is KaClassSymbol -> symbol.classId?.toString()
-            is KaNamedSymbol -> symbol.name.asString()
-            else -> null
-        }?.replace('/', '.') // replace to be compatible with K1
-
-        if (name != null) "$it/$name"
-        else it
+internal fun KaSession.getKDocDocumentationFrom(
+    symbol: KaSymbol,
+    logger: DokkaLogger,
+    sourceSet: DokkaSourceSet,
+): DocumentationNode? = (symbol as? KaDeclarationSymbol)?.findKDoc()?.let { kDocContent ->
+    val kdocSymbolName = when (symbol) {
+        is KaCallableSymbol -> symbol.callableId?.asSingleFqName()?.asString()
+        is KaClassSymbol -> symbol.classId?.asFqNameString()
+        is KaNamedSymbol -> symbol.name.asString()
+        else -> null
     }
-
+    val kdocFileName = symbol.psi?.containingFile?.name
+    val kdocLocation = when {
+        kdocFileName != null && kdocSymbolName != null -> "$kdocFileName/$kdocSymbolName"
+        kdocFileName != null -> kdocFileName
+        kdocSymbolName != null -> kdocSymbolName
+        else -> null
+    }
 
     parseFromKDocTag(
         kDocTag = kDocContent.primaryTag,
-        externalDri = { link -> resolveKDocLinkToDRI(link).ifUnresolved { logger.logUnresolvedLink(link.getLinkText(), kdocLocation) } },
+        externalDri = { resolveKDocLink(it, kdocLocation, logger, sourceSet) },
         kdocLocation = kdocLocation
     )
 }
