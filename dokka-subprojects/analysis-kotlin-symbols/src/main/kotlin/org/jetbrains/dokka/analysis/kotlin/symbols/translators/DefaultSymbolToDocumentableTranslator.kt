@@ -1004,25 +1004,39 @@ internal class DokkaSymbolVisitor(
         }
     }
 
-    private fun KaDeclarationSymbol.getDokkaModality(): KotlinModifier {
+    private fun KaDeclarationSymbol.getDokkaModality(): Modifier {
         val isInterface = this is KaClassSymbol && classKind == KaClassKind.INTERFACE
-        return if (isInterface) {
-            // only two modalities are possible for interfaces:
-            //  - `SEALED` - when it's declared as `sealed interface`
-            //  - `ABSTRACT` - when it's declared as `interface` or `abstract interface` (`abstract` is redundant but possible here)
-            when (modality) {
-                KaSymbolModality.SEALED -> KotlinModifier.Sealed
-                else -> KotlinModifier.Empty
+        val isJava = origin == KaSymbolOrigin.JAVA_SOURCE || origin == KaSymbolOrigin.JAVA_LIBRARY
+
+        return if (isJava) {
+            if (isInterface) {
+                // Java interface can't have modality modifiers except for "sealed", which is not supported yet in Dokka
+                JavaModifier.Empty
+            } else when (modality) {
+                KaSymbolModality.ABSTRACT -> JavaModifier.Abstract
+                KaSymbolModality.FINAL -> JavaModifier.Final
+                else -> JavaModifier.Empty
             }
         } else {
-            when (modality) {
-                KaSymbolModality.FINAL -> KotlinModifier.Final
-                KaSymbolModality.SEALED -> KotlinModifier.Sealed
-                KaSymbolModality.OPEN -> KotlinModifier.Open
-                KaSymbolModality.ABSTRACT -> KotlinModifier.Abstract
+            if (isInterface) {
+                // only two modalities are possible for interfaces:
+                //  - `SEALED` - when it's declared as `sealed interface`
+                //  - `ABSTRACT` - when it's declared as `interface` or `abstract interface` (`abstract` is redundant but possible here)
+                when (modality) {
+                    KaSymbolModality.SEALED -> KotlinModifier.Sealed
+                    else -> KotlinModifier.Empty
+                }
+            } else {
+                when (modality) {
+                    KaSymbolModality.FINAL -> KotlinModifier.Final
+                    KaSymbolModality.SEALED -> KotlinModifier.Sealed
+                    KaSymbolModality.OPEN -> KotlinModifier.Open
+                    KaSymbolModality.ABSTRACT -> KotlinModifier.Abstract
+                }
             }
         }
     }
+
     private fun KaDeclarationSymbol.getDokkaVisibility() = visibility.toDokkaVisibility()
     private fun KaValueParameterSymbol.additionalExtras() = listOfNotNull(
         ExtraModifiers.KotlinOnlyModifiers.NoInline.takeIf { isNoinline },
