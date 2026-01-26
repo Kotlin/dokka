@@ -122,12 +122,12 @@ public abstract interface class org/jetbrains/dokka/analysis/java/doccomment/Doc
 
 public abstract interface class org/jetbrains/dokka/analysis/java/parsers/DocCommentParser {
 	public abstract fun canParse (Lorg/jetbrains/dokka/analysis/java/doccomment/DocComment;)Z
-	public abstract fun parse (Lorg/jetbrains/dokka/analysis/java/doccomment/DocComment;Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+	public abstract fun parse (Lorg/jetbrains/dokka/analysis/java/doccomment/DocComment;Lcom/intellij/psi/PsiNamedElement;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
 }
 
 public final class org/jetbrains/dokka/analysis/java/parsers/JavadocParser : org/jetbrains/dokka/analysis/java/parsers/JavaDocumentationParser {
 	public fun <init> (Ljava/util/List;Lorg/jetbrains/dokka/analysis/java/doccomment/DocCommentFinder;)V
-	public fun parseDocumentation (Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+	public fun parseDocumentation (Lcom/intellij/psi/PsiNamedElement;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
 }
 
 public final class org/jetbrains/dokka/analysis/java/parsers/doctag/DocTagParserContext {
