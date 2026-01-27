@@ -43,7 +43,7 @@ internal class KotlinPlaygroundSamplesTransformer(val context: DokkaContext) : P
                     it.documentation.entries.flatMap { entry ->
                         entry.value.children.filterIsInstance<Sample>().map { entry.key to it }
                     }
-                } ?: return@transformContentPagesTree page
+                }?.takeIf { it.isNotEmpty() } ?: return@transformContentPagesTree page
 
                 val newContent = samples.fold(page.content) { acc, (sampleSourceSet, sample) ->
                     resolveSample(sampleSourceSet, sample.name)
