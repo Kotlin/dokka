@@ -9,7 +9,7 @@ import com.intellij.psi.javadoc.PsiDocTag
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.java.parsers.CommentResolutionContext
 import org.jetbrains.dokka.analysis.java.parsers.doctag.markdown.JavaDocMarkdownFlavourDescriptor
-import org.jetbrains.dokka.analysis.markdown.jb.MarkdownToHtmlConverter
+import org.jetbrains.dokka.analysis.java.parsers.doctag.markdown.MarkdownToHtmlConverter
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.plugability.DokkaContext
 
