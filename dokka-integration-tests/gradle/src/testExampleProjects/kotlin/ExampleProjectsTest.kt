@@ -96,6 +96,7 @@ class ExampleProjectsTest {
                     sourceProjectDir.copyToRecursively(projectDir, overwrite = true, followLinks = false)
                     updateSettingsRepositories()
                     updateDokkaVersion()
+                    updateHtmlFooterMessage()
                 }
             }
 
@@ -124,6 +125,32 @@ class ExampleProjectsTest {
                     """(\("org\.jetbrains\.dokka:[-\w]+:).+("\))""".toRegex(),
                     """$1${dokkaVersion}$2""",
                 )
+
+            /**
+             * By default, the footer message uses the current year.
+             * Set it to a constant year so the integration tests don't fail every year.
+             */
+            private fun GradleProjectTest.updateHtmlFooterMessage() {
+                projectDir.walk()
+                    .filter { it.name.endsWith(".gradle.kts") }
+                    .filter { "id(\"org.jetbrains.dokka\")" in it.readText() }
+                    .filter { "footerMessage" !in it.readText() }
+                    .forEach { buildFile ->
+                        buildFile.writeText(
+                            """
+                            ${buildFile.readText()}
+                            
+                            pluginManager.withPlugin("org.jetbrains.dokka") {
+                              val dokka = extensions.getByType<org.jetbrains.dokka.gradle.DokkaExtension>()
+                              dokka.pluginsConfiguration.withType<org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters>().configureEach {
+                                footerMessage.set("© 2025 Copyright")
+                              }
+                            }
+                            """.trimIndent()
+
+                        )
+                    }
+            }
         }
     }
 
@@ -244,6 +271,20 @@ class ExampleProjectsTest {
         }
     }
 
+    @ParameterizedTest
+    @ArgumentsSource(TestCaseProvider::class)
+    fun `test project assemble`(testCase: TestCase) {
+        assumeTrue(testCase.isEnabled)
+
+        testCase.project.runner
+            .addArguments(
+                "assemble",
+                "--stacktrace",
+            )
+            .build {
+                output shouldContain "BUILD SUCCESSFUL"
+            }
+    }
 
     @ParameterizedTest
     @ArgumentsSource(TestCaseProvider::class)

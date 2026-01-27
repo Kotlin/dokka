@@ -9,6 +9,8 @@ plugins {
 }
 
 kotlin {
+    jvm()
+    js { nodejs() }
     androidLibrary {
         namespace = "com.example.kmpfirstlib"
         compileSdk = 33
@@ -26,6 +28,17 @@ kotlin {
             }
         }
     }
+
+    // this was introduced in Kotlin 2.2.20, but we also test it with lower versions - needed for HTML comparison
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
+    applyDefaultHierarchyTemplate {
+        common {
+            group("web") {
+                withJs()
+                withWasmJs()
+            }
+        }
+    }
 }
 
 val agpMajorVersion: Int = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.split('.').first().toInt()
@@ -37,3 +50,5 @@ if (agpMajorVersion < 9) {
         enableAndroidDocumentationLink.set(true)
     }
 }
+
+dokka.pluginsConfiguration.html.footerMessage.set("© 2025 Copyright")

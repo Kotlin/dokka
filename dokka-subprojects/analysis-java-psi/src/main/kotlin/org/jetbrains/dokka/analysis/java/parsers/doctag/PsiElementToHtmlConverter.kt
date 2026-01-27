@@ -15,6 +15,8 @@ import com.intellij.psi.javadoc.PsiInlineDocTag
 import com.intellij.psi.javadoc.PsiMarkdownCodeBlock
 import com.intellij.psi.javadoc.PsiMarkdownReferenceLink
 import com.intellij.util.applyIf
+import com.intellij.psi.javadoc.PsiSnippetDocTag
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.java.doccomment.DocumentationContent
 import org.jetbrains.dokka.analysis.java.JavadocTag
 import org.jetbrains.dokka.analysis.java.doccomment.PsiDocumentationContent
@@ -22,6 +24,7 @@ import org.jetbrains.dokka.analysis.java.parsers.CommentResolutionContext
 import org.jetbrains.dokka.analysis.java.util.*
 import org.jetbrains.dokka.analysis.markdown.jb.MarkdownToHtmlConverter
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.htmlEscape
 
 private const val UNRESOLVED_PSI_ELEMENT = "UNRESOLVED_PSI_ELEMENT"
@@ -46,6 +49,8 @@ private data class HtmlParsingResult(val newState: HtmlParserState, val parsedLi
 
 internal class PsiElementToHtmlConverter(
     private val inheritDocTagResolver: InheritDocTagResolver,
+    private val sourceSet: DokkaSourceSet,
+    private val logger: DokkaLogger,
     private val markdownToHtmlConverterProvider: () -> MarkdownToHtmlConverter
 ) {
     private val preOpeningTagRegex = "<pre(\\s+.*)?>".toRegex()
@@ -66,6 +71,10 @@ internal class PsiElementToHtmlConverter(
     ) {
 
         private val isMarkdownDocComment = commentResolutionContext.comment.isMarkdownComment
+
+        private val snippetToHtmlConverter: SnippetToHtmlConverter by lazy {
+            DefaultSnippetToHtmlConverter(sourceSet, docTagParserContext, logger)
+        }
 
         fun convert(psiElements: Iterable<PsiElement>): String? {
             val parsingResult =
@@ -136,6 +145,7 @@ internal class PsiElementToHtmlConverter(
                         }?.parsedLine.orEmpty()
                     html
                 }
+                "snippet" -> if (this is PsiSnippetDocTag) snippetToHtmlConverter.convertSnippet(this) else this.text
 
                 else -> this.text
             }

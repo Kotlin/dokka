@@ -315,7 +315,7 @@ class NestedTypealiasTest : BaseAbstractTest() {
         |     * some text
         |     *
         |     * @see String
-        |     * @throws Unit
+        |     * @throws Exception
         |     */
         |    typealias A = String
         |}
@@ -346,7 +346,7 @@ class NestedTypealiasTest : BaseAbstractTest() {
 
                         header { +"Throws" }
                         table {
-                            group { groupedLink { +"Unit" } }
+                            group { groupedLink { +"Exception" } }
                         }
                     }
                 }
@@ -469,8 +469,8 @@ class NestedTypealiasTest : BaseAbstractTest() {
         |package example
         |
         |interface Foo {
-        |    typealias A = String
-        |    class B
+        |    typealias A = Exception
+        |    class B : Exception()
         |
         |    /**
         |    * Link to [A]. Link to [B].

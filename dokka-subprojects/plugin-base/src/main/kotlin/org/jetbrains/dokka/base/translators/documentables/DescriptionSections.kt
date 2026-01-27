@@ -5,11 +5,13 @@
 package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.base.transformers.pages.tags.CustomTagContentProvider
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.links.PointingToDeclaration
+import org.jetbrains.dokka.links.PointingToContextParameters
+import org.jetbrains.dokka.links.PointingToGenericParameters
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.SourceSetDependent
 import org.jetbrains.dokka.model.WithScope
@@ -113,9 +115,40 @@ internal fun PageContentBuilder.DocumentableContentBuilder.paramsSectionContent(
     val params = tags.withTypeNamed<Param>()
     if (params.isEmpty()) return
 
+    @OptIn(ExperimentalDokkaApi::class)
+    val contextParams = params.mapValues {
+        it.value.filterValues { param -> param.address?.target is PointingToContextParameters }
+    }.filterValues { it.isNotEmpty() }
+    val typeParams = params.mapValues {
+        it.value.filterValues { param -> param.address?.target is PointingToGenericParameters }
+    }.filterValues { it.isNotEmpty() }
+    val otherParams = params - contextParams.keys - typeParams.keys
+
+    paramsSectionContent(
+        sectionName = "Context Parameters",
+        params = contextParams
+    )
+
+    paramsSectionContent(
+        sectionName = "Parameters",
+        params = otherParams
+    )
+
+    paramsSectionContent(
+        sectionName = "Type Parameters",
+        params = typeParams
+    )
+}
+
+internal fun PageContentBuilder.DocumentableContentBuilder.paramsSectionContent(
+    sectionName: String,
+    params: Map<String, SourceSetDependent<Param>>,
+) {
+    if (params.isEmpty()) return
+
     val availableSourceSets = params.availableSourceSets()
     tableSectionContentBlock(
-        blockName = "Parameters",
+        blockName = sectionName,
         kind = ContentKind.Parameters,
         sourceSets = availableSourceSets
     ) {

@@ -118,7 +118,7 @@ public open class DefaultPageCreator(
                     props.mergeClashingDocumentable().map(::pageForProperties)
         else
             classlikes.renameClashingDocumentable().map(::pageForClasslike) +
-                    functions.renameClashingDocumentable().map(::pageForFunction)
+                    functions.renameClashingDocumentable().map(::pageForFunction) +
                     props.renameClashingDocumentable().mapNotNull(::pageForProperty)
 
         return ClasslikePageNode(
@@ -160,8 +160,8 @@ public open class DefaultPageCreator(
                             entries.mergeClashingDocumentable().map(::pageForEnumEntries)
                 else
                     (nestedClasslikes + typealiases).renameClashingDocumentable().map(::pageForClasslike) +
-                            functions.renameClashingDocumentable().map(::pageForFunction)  +
-                            props.renameClashingDocumentable().mapNotNull(::pageForProperty)  +
+                            functions.renameClashingDocumentable().map(::pageForFunction) +
+                            props.renameClashingDocumentable().mapNotNull(::pageForProperty) +
                             entries.renameClashingDocumentable().map(::pageForEnumEntry)
 
 

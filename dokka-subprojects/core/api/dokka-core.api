@@ -3055,12 +3055,18 @@ public final class org/jetbrains/dokka/model/doc/P : org/jetbrains/dokka/model/d
 }
 
 public final class org/jetbrains/dokka/model/doc/Param : org/jetbrains/dokka/model/doc/NamedTagWrapper {
-	public fun <init> (Lorg/jetbrains/dokka/model/doc/DocTag;Ljava/lang/String;)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/model/doc/DocTag;Ljava/lang/String;)V
+	public fun <init> (Lorg/jetbrains/dokka/model/doc/DocTag;Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;)V
+	public synthetic fun <init> (Lorg/jetbrains/dokka/model/doc/DocTag;Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lorg/jetbrains/dokka/model/doc/DocTag;
 	public final fun component2 ()Ljava/lang/String;
-	public final fun copy (Lorg/jetbrains/dokka/model/doc/DocTag;Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/Param;
+	public final fun component3 ()Lorg/jetbrains/dokka/links/DRI;
+	public final synthetic fun copy (Lorg/jetbrains/dokka/model/doc/DocTag;Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/Param;
+	public final fun copy (Lorg/jetbrains/dokka/model/doc/DocTag;Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;)Lorg/jetbrains/dokka/model/doc/Param;
 	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/doc/Param;Lorg/jetbrains/dokka/model/doc/DocTag;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/doc/Param;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/doc/Param;Lorg/jetbrains/dokka/model/doc/DocTag;Ljava/lang/String;Lorg/jetbrains/dokka/links/DRI;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/doc/Param;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAddress ()Lorg/jetbrains/dokka/links/DRI;
 	public fun getName ()Ljava/lang/String;
 	public fun getRoot ()Lorg/jetbrains/dokka/model/doc/DocTag;
 	public fun hashCode ()I
@@ -4428,6 +4434,7 @@ public final class org/jetbrains/dokka/pages/TextStyle : java/lang/Enum, org/jet
 	public static final field Breakable Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field BreakableAfter Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Cover Lorg/jetbrains/dokka/pages/TextStyle;
+	public static final field Emphasis Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field FloatingRight Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Highlight Lorg/jetbrains/dokka/pages/TextStyle;
 	public static final field Indented Lorg/jetbrains/dokka/pages/TextStyle;
