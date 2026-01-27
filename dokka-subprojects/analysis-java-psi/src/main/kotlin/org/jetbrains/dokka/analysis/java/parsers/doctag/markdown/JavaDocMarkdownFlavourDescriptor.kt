@@ -18,11 +18,9 @@ internal class JavaDocMarkdownFlavourDescriptor : GFMFlavourDescriptor(
     override fun createHtmlGeneratingProviders(
         linkMap: LinkMap,
         baseURI: URI?
-    ): MutableMap<IElementType, GeneratingProvider> =
-        super.createHtmlGeneratingProviders(linkMap, baseURI).toMutableMap().apply {
-            // Don't generate a body
-            remove(MarkdownElementTypes.MARKDOWN_FILE)
-        }
+    ): Map<IElementType, GeneratingProvider> =
+        // Don't generate a body
+        super.createHtmlGeneratingProviders(linkMap, baseURI) - MarkdownElementTypes.MARKDOWN_FILE
 
     override val markerProcessorFactory: MarkerProcessorFactory
         get() = JavaDocMarkerProcessorFactory()
