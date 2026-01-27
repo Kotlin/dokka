@@ -23,5 +23,5 @@ internal class JavaDocMarkdownFlavourDescriptor : GFMFlavourDescriptor(
         super.createHtmlGeneratingProviders(linkMap, baseURI) - MarkdownElementTypes.MARKDOWN_FILE
 
     override val markerProcessorFactory: MarkerProcessorFactory
-        get() = JavaDocMarkerProcessorFactory()
+        get() = JavaDocMarkerProcessorFactory
 }

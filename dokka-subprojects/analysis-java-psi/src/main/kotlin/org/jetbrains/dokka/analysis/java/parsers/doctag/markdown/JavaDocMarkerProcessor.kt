@@ -41,7 +41,7 @@ internal class JavaDocMarkerProcessor(productionHolder: ProductionHolder) : Comm
     }
 }
 
-internal class JavaDocMarkerProcessorFactory : MarkerProcessorFactory {
+internal object JavaDocMarkerProcessorFactory : MarkerProcessorFactory {
     override fun createMarkerProcessor(productionHolder: ProductionHolder): MarkerProcessor<*> {
         return JavaDocMarkerProcessor(productionHolder)
     }
