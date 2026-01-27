@@ -18,6 +18,9 @@ import org.jetbrains.dokka.model.doc.Em
 import org.jetbrains.dokka.model.doc.H1
 import org.jetbrains.dokka.model.doc.H2
 import org.jetbrains.dokka.model.doc.H3
+import org.jetbrains.dokka.model.doc.H4
+import org.jetbrains.dokka.model.doc.H5
+import org.jetbrains.dokka.model.doc.H6
 import org.jetbrains.dokka.model.doc.Li
 import org.jetbrains.dokka.model.doc.Ol
 import org.jetbrains.dokka.model.doc.P
@@ -35,7 +38,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class MarkdownTest : BaseAbstractTest() {
+class JavadocMarkdownTest : BaseAbstractTest() {
     private val configuration = dokkaConfiguration {
         sourceSets {
             sourceSet {
@@ -228,7 +231,6 @@ class MarkdownTest : BaseAbstractTest() {
         }
     }
 
-    // TODO update test after the merge of https://github.com/Kotlin/dokka/pull/4392
     @Test
     fun `markdown code block`() {
         testInline(
@@ -284,7 +286,7 @@ class MarkdownTest : BaseAbstractTest() {
                             children = listOf(
                                 Text("val sum: (Int, Int) -> Int = { x: Int, y: Int -> x + y }")
                             ),
-                            params = mapOf("lang" to "java")
+                            params = mapOf("lang" to "kotlin")
                         )
                     ),
                     root.children
@@ -550,10 +552,6 @@ class MarkdownTest : BaseAbstractTest() {
 
     @Test
     fun headings() {
-        // TODO add h4-h6 after the merge of https://github.com/Kotlin/dokka/pull/4375
-        // #### Heading 4
-        // ##### Heading 5
-        // ###### Heading 6
         testInline(
             """
             |/src/main/java/example/Test.java
@@ -562,6 +560,9 @@ class MarkdownTest : BaseAbstractTest() {
             | /// # Heading 1
             | /// ## Heading 2
             | /// ### Heading 3
+            | /// #### Heading 4
+            | /// ##### Heading 5
+            | /// ###### Heading 6
             | ///
             | /// Alternatively, you can use the following syntax for heading 1 and 2:
             | ///
@@ -587,6 +588,15 @@ class MarkdownTest : BaseAbstractTest() {
                         ),
                         H3(
                             children = listOf(Text("Heading 3"))
+                        ),
+                        H4(
+                            children = listOf(Text("Heading 4"))
+                        ),
+                        H5(
+                            children = listOf(Text("Heading 5"))
+                        ),
+                        H6(
+                            children = listOf(Text("Heading 6"))
                         ),
                         P(
                             children = listOf(
