@@ -149,13 +149,20 @@ internal class DokkaSymbolVisitor(
                 .map { visitClassSymbol(it, dri) }
         val typealiases = classifiers.filterIsInstance<KaTypeAliasSymbol>().map { visitTypeAliasSymbol(it, dri) }
 
+        val packageInfo = moduleJavaFiles.singleOrNull { it.name == "package-info.java" }
+        val documentation = packageInfo?.let {
+            javadocParser?.parseDocumentation(it).toSourceSetDependent()
+        }.orEmpty()
+
+        // TODO annotations from `package-info.java`
+
         return DPackage(
             dri = dri,
             functions = functions,
             properties = properties,
             classlikes = classlikes,
             typealiases = typealiases,
-            documentation = emptyMap(),
+            documentation = documentation,
             sourceSets = setOf(sourceSet)
         )
     }
