@@ -6,6 +6,7 @@ package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 
 import com.intellij.psi.PsiJavaFile
+import com.intellij.psi.PsiNamedElement
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.*
 import com.intellij.psi.util.PsiLiteralUtil
 import org.jetbrains.dokka.DokkaConfiguration
@@ -13,6 +14,7 @@ import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
 import org.jetbrains.dokka.analysis.java.parsers.JavadocParser
+import org.jetbrains.dokka.analysis.java.util.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getGeneratedKDocDocumentationFrom
 import org.jetbrains.dokka.analysis.kotlin.symbols.services.KtPsiDocumentableSource
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getJavaDocDocumentationFrom
@@ -954,6 +956,8 @@ internal class DokkaSymbolVisitor(
         else -> this
     }
 
+    private fun KaSymbol.isJavaSource() = origin == KaSymbolOrigin.JAVA_SOURCE || origin == KaSymbolOrigin.JAVA_LIBRARY
+
     private fun KaSession.isObvious(functionSymbol: KaFunctionSymbol, inheritedFrom: DRI?): Boolean {
         return functionSymbol.origin == KaSymbolOrigin.SOURCE_MEMBER_GENERATED && !hasGeneratedKDocDocumentation(functionSymbol) ||
                 inheritedFrom?.isObvious() == true
@@ -971,7 +975,10 @@ internal class DokkaSymbolVisitor(
             is KaPropertyAccessorSymbol -> symbol.containingSymbol?.psi
             else -> symbol.psi
         }
-        return KtPsiDocumentableSource(psi).toSourceSetDependent()
+
+        return if (symbol.isJavaSource())
+            (psi as? PsiNamedElement)?.let { PsiDocumentableSource(it) }?.toSourceSetDependent() ?: emptyMap()
+        else KtPsiDocumentableSource(psi).toSourceSetDependent()
     }
 
     private fun AncestryNode.exceptionInSupertypesOrNull(): ExceptionInSupertypes? =
@@ -1013,9 +1020,8 @@ internal class DokkaSymbolVisitor(
 
     private fun KaDeclarationSymbol.getDokkaModality(): Modifier {
         val isInterface = this is KaClassSymbol && classKind == KaClassKind.INTERFACE
-        val isJava = origin == KaSymbolOrigin.JAVA_SOURCE || origin == KaSymbolOrigin.JAVA_LIBRARY
 
-        return if (isJava) {
+        return if (isJavaSource()) {
             if (isInterface) {
                 // Java interface can't have modality modifiers except for "sealed", which is not supported yet in Dokka
                 JavaModifier.Empty
