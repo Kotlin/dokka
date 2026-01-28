@@ -14,7 +14,6 @@ import com.intellij.psi.javadoc.PsiDocToken
 import com.intellij.psi.javadoc.PsiInlineDocTag
 import com.intellij.psi.javadoc.PsiMarkdownCodeBlock
 import com.intellij.psi.javadoc.PsiMarkdownReferenceLink
-import com.intellij.util.applyIf
 import com.intellij.psi.javadoc.PsiSnippetDocTag
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.java.doccomment.DocumentationContent
@@ -81,8 +80,8 @@ internal class PsiElementToHtmlConverter(
                 psiElements.fold(HtmlParsingResult(commentResolutionContext.tag)) { resultAccumulator, psiElement ->
                     resultAccumulator + parseHtml(psiElement, resultAccumulator.newState)
                 }
-            return parsingResult.parsedLine?.trim()?.applyIf(isMarkdownDocComment) {
-                markdownToHtmlConverterProvider().convertMarkdownToHtml(this.trimIndent())
+            return parsingResult.parsedLine?.trim()?.let {
+                if (isMarkdownDocComment) markdownToHtmlConverterProvider().convertMarkdownToHtml(it.trimIndent()) else it
             }
         }
 
