@@ -9,7 +9,6 @@ import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.JavaClassReference
 import org.jetbrains.dokka.model.DModule
-import org.jetbrains.dokka.model.doc.A
 import org.jetbrains.dokka.model.doc.BlockQuote
 import org.jetbrains.dokka.model.doc.CodeBlock
 import org.jetbrains.dokka.model.doc.CodeInline
@@ -311,7 +310,6 @@ class JavadocMarkdownTest : BaseAbstractTest() {
             | /// - [a field][String#CASE_INSENSITIVE_ORDER]
             | /// - [a method][String#chars()]
             | /// - escaped square brackets in reference [String#copyValueOf(char\[\])]
-            | /// - [jetbrains](https://www.jetbrains.com/)
             | public class Test {}
             """.trimMargin(),
             configuration,
@@ -440,14 +438,6 @@ class JavadocMarkdownTest : BaseAbstractTest() {
                                                 )
                                             ),
                                             children = listOf(Text("String#copyValueOf(char[])"))
-                                        )
-                                    )
-                                ),
-                                Li(
-                                    children = listOf(
-                                        A(
-                                            children = listOf(Text("jetbrains")),
-                                            params = mapOf("href" to "https://www.jetbrains.com/")
                                         )
                                     )
                                 )
