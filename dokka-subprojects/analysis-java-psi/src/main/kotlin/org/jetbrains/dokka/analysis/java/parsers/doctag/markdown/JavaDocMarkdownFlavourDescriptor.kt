@@ -19,7 +19,7 @@ internal class JavaDocMarkdownFlavourDescriptor : GFMFlavourDescriptor(
         linkMap: LinkMap,
         baseURI: URI?
     ): Map<IElementType, GeneratingProvider> =
-        // Don't generate a body
+        // With MarkdownElementTypes.MARKDOWN_FILE the content will be wrapped into `<body>`, which we don't need
         super.createHtmlGeneratingProviders(linkMap, baseURI) - MarkdownElementTypes.MARKDOWN_FILE
 
     override val markerProcessorFactory: MarkerProcessorFactory
