@@ -305,11 +305,11 @@ class JavadocMarkdownTest : BaseAbstractTest() {
             | /// - a package [java.util]
             | /// - a class [String]
             | /// - a field [String#CASE_INSENSITIVE_ORDER]
-            | /// - a method [String#chars()]
+            | /// - a method [String#isEmpty()]
             | /// - [the java.util package][java.util]
             | /// - [a class][String]
             | /// - [a field][String#CASE_INSENSITIVE_ORDER]
-            | /// - [a method][String#chars()]
+            | /// - [a method][String#isEmpty()]
             | /// - escaped square brackets in reference [String#copyValueOf(char\[\])]
             | /// - [jetbrains](https://www.jetbrains.com/)
             | public class Test {}
@@ -367,13 +367,13 @@ class JavadocMarkdownTest : BaseAbstractTest() {
                                         DocumentationLink(
                                             dri = DRI(
                                                 packageName = "java.lang",
-                                                classNames = "CharSequence",
+                                                classNames = "String",
                                                 callable = Callable(
-                                                    name = "chars",
+                                                    name = "isEmpty",
                                                     params = emptyList()
                                                 )
                                             ),
-                                            children = listOf(Text("String#chars()"))
+                                            children = listOf(Text("String#isEmpty()"))
                                         )
                                     )
                                 ),
@@ -417,9 +417,9 @@ class JavadocMarkdownTest : BaseAbstractTest() {
                                         DocumentationLink(
                                             dri = DRI(
                                                 packageName = "java.lang",
-                                                classNames = "CharSequence",
+                                                classNames = "String",
                                                 callable = Callable(
-                                                    name = "chars",
+                                                    name = "isEmpty",
                                                     params = emptyList()
                                                 )
                                             ),
