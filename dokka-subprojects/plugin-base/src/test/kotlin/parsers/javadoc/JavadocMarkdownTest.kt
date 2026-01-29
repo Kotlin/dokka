@@ -949,16 +949,35 @@ class JavadocMarkdownTest : BaseAbstractTest() {
             |package example
             |
             | /// ## Basic Blockquote
-            | /// > This is a blockquote.
+            | /// > Blockquotes are very handy in email to emulate reply text.
+            | /// > This line is part of the same quote.
+            | /// 
+            | /// Quote break.
+            | /// 
+            | /// > Quote
+            | /// 
+            | /// ## Nested Blockquote
+            | /// > text 1
+            | /// > text 2
+            | /// >> text 3
+            | /// >> text 4
             | /// >
-            | /// > It can span multiple lines.
-            | ///
-            | /// ## Nested Blockquotes
-            | /// > This is the first level of quoting.
-            | /// >
-            | /// > > This is nested blockquote.
-            | /// >
-            | /// > Back to the first level.
+            | /// > text 5
+            | /// 
+            | /// Quote break.
+            | /// 
+            | /// > Quote
+            | /// 
+            | /// ## Blockquote Right After Text
+            | /// text
+            | /// > quote
+            | /// 
+            | /// ## Blockquote Right After Text Inside Code Block
+            | /// ```
+            | /// text
+            | /// > quote
+            | /// > quote
+            | /// ```
             | public class Test {}
             """.trimMargin(),
             configuration,
@@ -971,21 +990,46 @@ class JavadocMarkdownTest : BaseAbstractTest() {
                         H2(children = listOf(Text("Basic Blockquote"))),
                         BlockQuote(
                             children = listOf(
-                                P(children = listOf(Text("This is a blockquote."))),
-                                P(children = listOf(Text("It can span multiple lines.")))
+                                P(children = listOf(Text("Blockquotes are very handy in email to emulate reply text. This line is part of the same quote.")))
                             )
                         ),
-                        H2(children = listOf(Text("Nested Blockquotes"))),
+                        P(children = listOf(Text("Quote break."))),
                         BlockQuote(
                             children = listOf(
-                                P(children = listOf(Text("This is the first level of quoting."))),
+                                P(children = listOf(Text("Quote")))
+                            )
+                        ),
+                        H2(children = listOf(Text("Nested Blockquote"))),
+                        BlockQuote(
+                            children = listOf(
+                                P(children = listOf(Text("text 1 text 2"))),
                                 BlockQuote(
                                     children = listOf(
-                                        P(children = listOf(Text("This is nested blockquote.")))
+                                        P(children = listOf(Text("text 3 text 4")))
                                     )
                                 ),
-                                P(children = listOf(Text("Back to the first level.")))
+                                P(children = listOf(Text("text 5")))
                             )
+                        ),
+                        P(children = listOf(Text("Quote break."))),
+                        BlockQuote(
+                            children = listOf(
+                                P(children = listOf(Text("Quote")))
+                            )
+                        ),
+                        H2(children = listOf(Text("Blockquote Right After Text"))),
+                        P(children = listOf(Text("text"))),
+                        BlockQuote(
+                            children = listOf(
+                                P(children = listOf(Text("quote")))
+                            )
+                        ),
+                        H2(children = listOf(Text("Blockquote Right After Text Inside Code Block"))),
+                        CodeBlock(
+                            children = listOf(
+                                Text("text\n> quote\n> quote")
+                            ),
+                            params = mapOf("lang" to "java")
                         )
                     ),
                     root.children
