@@ -941,6 +941,8 @@ internal class DokkaSymbolVisitor(
         if (symbol.origin == KaSymbolOrigin.SOURCE_MEMBER_GENERATED)
             // a primary (implicit default) constructor  can be generated, so we need KDoc from @constructor tag
             getGeneratedKDocDocumentationFrom(symbol) ?: if(symbol is KaConstructorSymbol) getKDocDocumentationFrom(symbol, logger, sourceSet) else null
+        else if (symbol.isJavaSource())
+            javadocParser?.let { getJavaDocDocumentationFrom(symbol, it) }
         else
             getKDocDocumentationFrom(symbol, logger, sourceSet) ?: javadocParser?.let { getJavaDocDocumentationFrom(symbol, it) }
 
