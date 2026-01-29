@@ -4,7 +4,6 @@
 
 package org.jetbrains.dokka.analysis.java.parsers.doctag
 
-import com.intellij.codeInsight.javadoc.JavaDocUtil
 import com.intellij.lexer.JavaDocTokenTypes
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.javadoc.PsiDocParamRef
@@ -104,7 +103,7 @@ internal class PsiElementToHtmlConverter(
                 is PsiInlineDocTag -> psiElement.toHtml(state.currentJavadocTag)
                 is PsiDocParamRef -> psiElement.toDocumentationLinkString()
                 is PsiMarkdownCodeBlock -> psiElement.toHtml()
-                is PsiMarkdownReferenceLink -> psiElement.toHtml()
+                is PsiMarkdownReferenceLink -> psiElement.linkElement?.referenceElementOrSelf()?.toDocumentationLinkString(psiElement.label?.text ?: "")
                 is PsiDocTagValue, is LeafPsiElement -> {
                     psiElement.stringifyElementAsText(isInsidePre || isMarkdownDocComment, state.previousElement)
                 }
@@ -168,14 +167,19 @@ internal class PsiElementToHtmlConverter(
         }
 
         private fun PsiElement.toDocumentationLinkString(label: String = ""): String {
+            val displayLabel = label.ifBlank { defaultLabel().text }
+
             val driId = reference?.resolve()?.takeIf { it !is PsiParameter }?.let {
                 val dri = DRI.from(it)
                 val id = docTagParserContext.store(dri)
                 id
-            } ?: UNRESOLVED_PSI_ELEMENT // TODO [beresnev] log this somewhere maybe?
+            } ?: run {
+                logger.warn("unresolved link to '$displayLabel'")
+                UNRESOLVED_PSI_ELEMENT
+            }
 
             // TODO [beresnev] data-dri into a constant
-            return """<a data-dri="${driId.htmlEscape()}">${label.ifBlank { defaultLabel().text }}</a>"""
+            return """<a data-dri="${driId.htmlEscape()}">$displayLabel</a>"""
         }
 
         private fun PsiMarkdownCodeBlock.toHtml() =
@@ -184,22 +188,6 @@ internal class PsiElementToHtmlConverter(
             } else {
                 "<pre${codeLanguage?.id?.lowercase()?.let { " lang=\"$it\"" } ?: ""}><code>${codeText.trimIndent()}</code></pre>"
             }
-
-        // TODO code duplication with PsiElement.toDocumentationLinkString and SnippetToHtmlConverter
-        // TODO add logs after merging PR with snippets
-        private fun PsiMarkdownReferenceLink.toHtml(): String? {
-            // JEP 467 requires reference brackets to be escaped, remove the escape to match the reference
-            val referenceText = linkElement?.text?.replace("\\[", "[")?.replace("\\]", "]") ?: return null
-
-            val context = children.firstOrNull() ?: this
-
-            val resolvedTarget = JavaDocUtil.findReferenceTarget(context.manager, referenceText, context) ?: return null
-
-            val dri = DRI.from(resolvedTarget)
-            val driId = docTagParserContext.store(dri)
-
-            return """<a data-dri="${driId.htmlEscape()}">${(label?.text ?: referenceText).htmlEscape()}</a>"""
-        }
 
         private fun String.wrapInCodeTag(isDataInline: Boolean = false) =
             if (isMarkdownDocComment) "`$this`" // use ` for Markdown comments, further will be converted to <code> by MarkdownToHtmlConverter
