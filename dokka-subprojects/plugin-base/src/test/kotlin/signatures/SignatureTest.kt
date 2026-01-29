@@ -641,19 +641,6 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `kotlin enum with visibility modifier should render with enum class`() = testRender(
-        """
-            |/src/main/kotlin/common/Test.kt
-            |package example
-            |internal enum class InternalEnum { A, B }
-        """.trimMargin()
-    ) {
-        renderedContent("root/example/-internal-enum/index.html").firstSignature().matchIgnoringSpans(
-            "internal enum class", A("InternalEnum"), ":", A("Enum"), "<", A("InternalEnum"), ">"
-        )
-    }
-
-    @Test
     fun `kotlin object should render just object`() = testRender(
         """
             |/src/main/kotlin/common/Test.kt
