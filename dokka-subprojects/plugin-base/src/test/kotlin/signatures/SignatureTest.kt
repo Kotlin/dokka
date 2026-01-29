@@ -719,7 +719,7 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `java enum should render just enum`() = testRender(
+    fun `java enum should render enum class`() = testRender(
         """
             |/src/example/EnumClass.java
             |package example;
