@@ -7,6 +7,9 @@ package org.jetbrains.dokka.base.signatures
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableLanguage
+import org.jetbrains.dokka.analysis.kotlin.internal.DocumentableSourceLanguageParser
+import org.jetbrains.dokka.analysis.kotlin.internal.InternalKotlinAnalysisPlugin
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.dri
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.driOrNull
@@ -26,12 +29,14 @@ import kotlin.text.Typography.nbsp
 
 public class KotlinSignatureProvider(
     ctcc: CommentsToContentConverter,
-    logger: DokkaLogger
+    logger: DokkaLogger,
+    private val documentableAnalyzer: DocumentableSourceLanguageParser
 ) : SignatureProvider, JvmSignatureUtils by KotlinSignatureUtils {
 
     public constructor(context: DokkaContext) : this(
         context.plugin<DokkaBase>().querySingle { commentsToContentConverter },
         context.logger,
+        context.plugin<InternalKotlinAnalysisPlugin>().querySingle { documentableSourceLanguageParser }
     )
 
     private val contentBuilder = PageContentBuilder(ctcc, this, logger)
@@ -174,7 +179,13 @@ public class KotlinSignatureProvider(
                 }
                 is DEnum -> {
                     processExtraModifiers(c)
-                    keyword("enum class ")
+                    val language = documentableAnalyzer.getLanguage(c, sourceSet)
+                    if (language == DocumentableLanguage.JAVA) {
+                        keyword("enum ")
+                    } else {
+                        // Kotlin or unknown - use Kotlin syntax
+                        keyword("enum class ")
+                    }
                 }
                 is DObject -> {
                     processExtraModifiers(c)

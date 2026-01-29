@@ -628,7 +628,7 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `kotlin enum should render just enum`() = testRender(
+    fun `kotlin enum should render enum class`() = testRender(
         """
             |/src/main/kotlin/common/Test.kt
             |package example
