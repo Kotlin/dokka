@@ -16,6 +16,7 @@ import matchers.content.groupedLink
 import matchers.content.header
 import matchers.content.link
 import matchers.content.platformHinted
+import matchers.content.skipAllNotMatching
 import matchers.content.table
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.dfs
@@ -620,6 +621,40 @@ class NestedTypealiasTest : BaseAbstractTest() {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `#4422 top level typealias to nested typealias`() {
+        testInline(
+            """
+        |/src/common/kotlin/test/test.kt
+        |package test
+        |open class AliasHolder {
+        |    typealias NestedAlias = String
+        |}
+        |typealias AliasToTopLevelClassInsideNested = AliasHolder.NestedAlias
+        """, multiplatformConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.dfs { it.name == "AliasToTopLevelClassInsideNested" } as ClasslikePageNode
+                page.content.assertNode {
+                    group {
+                        header(1) { +"AliasToTopLevelClassInsideNested" }
+
+                        platformHinted {
+                            group2 {
+                                +"typealias "
+                                groupedLink { +"AliasToTopLevelClassInsideNested" }
+                                +" = "
+                                groupedLink { +"AliasHolder.NestedAlias" }
+                            }
+                        }
+                    }
+
+                    skipAllNotMatching()
                 }
             }
         }
