@@ -191,7 +191,7 @@ public open class DocTagToContentConverter : CommentsToContentConverter {
                     val body = docTag.children.filterIsInstance<TBody>().flatMap { it.children }
                     listOf(
                         ContentTable(
-                            header = buildTableRows(head.filterIsInstance<Th>(), CommentTable),
+                            header = buildTableRows(head.filterIsInstance<Tr>(), CommentTable),
                             caption = docTag.children.firstIsInstanceOrNull<Caption>()?.let {
                                 ContentGroup(
                                     buildContent(it, dci, sourceSets),
@@ -210,7 +210,7 @@ public open class DocTagToContentConverter : CommentsToContentConverter {
                 } else {
                     listOf(
                         ContentTable(
-                            header = buildTableRows(docTag.children.filterIsInstance<Th>(), CommentTable),
+                            header = buildTableRows(docTag.children.filterIsInstance<Tr>(), CommentTable),
                             caption = null,
                             buildTableRows(docTag.children.filterIsInstance<Tr>(), CommentTable),
                             dci,
