@@ -8,7 +8,6 @@ package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.*
 import com.intellij.psi.util.PsiLiteralUtil
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
@@ -82,8 +81,8 @@ internal class DokkaSymbolVisitor(
     private val logger: DokkaLogger,
     private val javadocParser: JavadocParser? = null
 ) {
-    private val annotationTranslator = AnnotationTranslator()
-    private val typeTranslator = TypeTranslator(sourceSet, annotationTranslator)
+    private val annotationTranslator = AnnotationTranslator(logger)
+    private val typeTranslator = TypeTranslator(sourceSet, annotationTranslator, logger)
 
     private fun <T> T.toSourceSetDependent() = if (this != null) mapOf(sourceSet to this) else emptyMap()
 
@@ -153,7 +152,7 @@ internal class DokkaSymbolVisitor(
         val name = typeAliasSymbol.name.asString()
         val dri = parent.withClass(name)
 
-        val ancestryInfo = with(typeTranslator) { buildAncestryInformationFrom(typeAliasSymbol.expandedType) }
+        val ancestryInfo = with(typeTranslator) { buildAncestryInformationFrom(typeAliasSymbol.expandedType, Location(typeAliasSymbol)) }
 
         val generics =
             typeAliasSymbol.typeParameters.mapIndexed { index, symbol -> visitVariantTypeParameter(index, symbol, dri) }
@@ -165,7 +164,7 @@ internal class DokkaSymbolVisitor(
                 dri = dri,
                 projections = generics.map { it.variantTypeParameter }), // this property can be removed in DTypeAlias
             expectPresentInSet = null,
-            underlyingType = toBoundFrom(typeAliasSymbol.expandedType).toSourceSetDependent(),
+            underlyingType = toBoundFrom(typeAliasSymbol.expandedType, typeAliasSymbol).toSourceSetDependent(),
             visibility = typeAliasSymbol.getDokkaVisibility().toSourceSetDependent(),
             documentation = getDocumentation(typeAliasSymbol)?.toSourceSetDependent() ?: emptyMap(),
             sourceSets = setOf(sourceSet),
@@ -208,11 +207,10 @@ internal class DokkaSymbolVisitor(
         }
 
         val ancestryInfo =
-            with(typeTranslator) { buildAncestryInformationFrom(namedClassSymbol.defaultType) }
+            with(typeTranslator) { buildAncestryInformationFrom(namedClassSymbol.defaultType, Location(namedClassSymbol)) }
         val supertypes =
-            //(ancestryInfo.interfaces.map{ it.typeConstructor } + listOfNotNull(ancestryInfo.superclass?.typeConstructor))
             namedClassSymbol.superTypes.filterNot { it.isAnyType }
-                .map { with(typeTranslator) { toTypeConstructorWithKindFrom(it) } }
+                .map { with(typeTranslator) { toTypeConstructorWithKindFrom(it, Location(namedClassSymbol)) } }
                 .toSourceSetDependent()
         return@withExceptionCatcher when (namedClassSymbol.classKind) {
             KaClassKind.OBJECT, KaClassKind.COMPANION_OBJECT ->
@@ -513,7 +511,7 @@ internal class DokkaSymbolVisitor(
                 visibility = propertySymbol.visibility.toDokkaVisibility().toSourceSetDependent(),
                 documentation = getDocumentation(propertySymbol)?.toSourceSetDependent() ?: emptyMap(), // TODO
                 modifier = propertySymbol.getDokkaModality().toSourceSetDependent(),
-                type = toBoundFrom(propertySymbol.returnType),
+                type = toBoundFrom(propertySymbol.returnType, propertySymbol),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 sourceSets = setOf(sourceSet),
                 generics = generics,
@@ -559,7 +557,7 @@ internal class DokkaSymbolVisitor(
                 visibility = javaFieldSymbol.getDokkaVisibility().toSourceSetDependent(),
                 documentation = getDocumentation(javaFieldSymbol)?.toSourceSetDependent() ?: emptyMap(), // TODO
                 modifier = javaFieldSymbol.getDokkaModality().toSourceSetDependent(),
-                type = toBoundFrom(javaFieldSymbol.returnType),
+                type = toBoundFrom(javaFieldSymbol.returnType, javaFieldSymbol),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 sourceSets = setOf(sourceSet),
                 generics = emptyList(),
@@ -629,7 +627,7 @@ internal class DokkaSymbolVisitor(
             generics = generics,
             documentation = getAccessorSymbolDocumentation(propertyAccessorSymbol)?.toSourceSetDependent() ?: emptyMap(),
             modifier = propertyAccessorSymbol.getDokkaModality().toSourceSetDependent(),
-            type = toBoundFrom(propertyAccessorSymbol.returnType),
+            type = toBoundFrom(propertyAccessorSymbol.returnType, propertyAccessorSymbol),
             sourceSets = setOf(sourceSet),
             isExpectActual = false,
             extra = PropertyContainer.withAll(
@@ -685,7 +683,7 @@ internal class DokkaSymbolVisitor(
             generics = generics,
             documentation = documentation ?: emptyMap(),
             modifier = KotlinModifier.Empty.toSourceSetDependent(),
-            type = toBoundFrom(constructorSymbol.returnType),
+            type = toBoundFrom(constructorSymbol.returnType, constructorSymbol),
             sourceSets = setOf(sourceSet),
             isExpectActual = (isExpect || isActual),
             extra = PropertyContainer.withAll(
@@ -731,7 +729,7 @@ internal class DokkaSymbolVisitor(
                 generics = generics,
                 documentation = getDocumentation(functionSymbol)?.toSourceSetDependent() ?: emptyMap(),
                 modifier = functionSymbol.getDokkaModality().toSourceSetDependent(),
-                type = toBoundFrom(functionSymbol.returnType),
+                type = toBoundFrom(functionSymbol.returnType, functionSymbol),
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
                 extra = PropertyContainer.withAll(
@@ -749,7 +747,7 @@ internal class DokkaSymbolVisitor(
     ) = DParameter(
         dri = dri.copy(target = PointingToCallableParameters(index)),
         name = valueParameterSymbol.name.asString(),
-        type = toBoundFrom(valueParameterSymbol.returnType),
+        type = toBoundFrom(valueParameterSymbol.returnType, valueParameterSymbol),
         expectPresentInSet = null,
         documentation = getDocumentation(valueParameterSymbol)?.toSourceSetDependent() ?: emptyMap(),
         sourceSets = setOf(sourceSet),
@@ -767,7 +765,7 @@ internal class DokkaSymbolVisitor(
         return DParameter(
             dri = dri.copy(target = @OptIn(ExperimentalDokkaApi::class) PointingToContextParameters(index)),
             name = if(contextParameterSymbol.name == UNDERSCORE_FOR_UNUSED_VAR) "_" else contextParameterSymbol.name.asString(),
-            type = toBoundFrom(contextParameterSymbol.returnType),
+            type = toBoundFrom(contextParameterSymbol.returnType, contextParameterSymbol),
             expectPresentInSet = null,
             documentation = getDocumentation(contextParameterSymbol)?.toSourceSetDependent() ?: emptyMap(),
             sourceSets = setOf(sourceSet),
@@ -782,7 +780,7 @@ internal class DokkaSymbolVisitor(
     ) = DParameter(
         dri = dri.copy(target = PointingToDeclaration),
         name = null,
-        type = toBoundFrom(receiverParameterSymbol.returnType),
+        type = toBoundFrom(receiverParameterSymbol.returnType, receiverParameterSymbol),
         expectPresentInSet = null,
         documentation = getDocumentation(receiverParameterSymbol)?.toSourceSetDependent() ?: emptyMap(),
         sourceSets = setOf(sourceSet),
@@ -817,7 +815,7 @@ internal class DokkaSymbolVisitor(
 
     @OptIn(KaExperimentalApi::class) // due to `KaPropertySymbol.initializer`
     private fun KaPropertySymbol.getDefaultValue(): Expression? =
-        (initializer?.initializerPsi as? KtConstantExpression)?.toDefaultValueExpression() // TODO consider [KaConstantInitializerValue], but should we keep an original format, e.g. 0xff or 0b101?
+        (initializer?.initializerPsi as? KtConstantExpression)?.toDefaultValueExpression() // TODO #4185
 
     private fun KtExpression.toDefaultValueExpression(): Expression? = when (node?.elementType) {
         KtNodeTypes.INTEGER_CONSTANT -> PsiLiteralUtil.parseLong(node?.text)?.let { IntegerConstant(it) }
@@ -845,7 +843,7 @@ internal class DokkaSymbolVisitor(
             ).wrapWithVariance(typeParameterSymbol.variance),
             documentation = getDocumentation(typeParameterSymbol)?.toSourceSetDependent() ?: emptyMap(),
             expectPresentInSet = null,
-            bounds = upperBoundsOrNullableAny.map { toBoundFrom(it) },
+            bounds = upperBoundsOrNullableAny.map { toBoundFrom(it, typeParameterSymbol) },
             sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
                 getDokkaAnnotationsFrom(typeParameterSymbol)?.toSourceSetDependent()?.toAnnotations()
@@ -857,8 +855,8 @@ internal class DokkaSymbolVisitor(
     private fun KaSession.getDokkaAnnotationsFrom(annotated: KaAnnotated): List<Annotations.Annotation>? =
         with(annotationTranslator) { getAllAnnotationsFrom(annotated) }.takeUnless { it.isEmpty() }
 
-    private fun KaSession.toBoundFrom(type: KaType) =
-        with(typeTranslator) { toBoundFrom(type) }
+    private fun KaSession.toBoundFrom(type: KaType, containingSymbol: KaSymbol) =
+        with(typeTranslator) { toBoundFrom(type, Location(containingSymbol)) }
 
     /**
      * `createDRI` returns the DRI of the exact element and potential DRI of an element that is overriding it
