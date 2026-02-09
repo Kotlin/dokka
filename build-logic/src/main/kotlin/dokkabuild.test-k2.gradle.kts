@@ -74,6 +74,22 @@ testing {
                 }
             }
 
+            // Create a new target for running symbols-analysis tests with enabled experimental KDoc resolution (K2).
+            val testSymbolsWithKDocResolutionTarget = targets.register("testSymbolsWithKDocResolution") {
+                testTask.configure {
+                    description = "Runs tests using symbols-analysis and experimental KDoc resolution (K2)" +
+                            " (excluding tags: ${onlyDescriptorTags})"
+                    useJUnitPlatform {
+                        excludeTags.addAll(onlyDescriptorTags)
+                    }
+                    // Analysis dependencies from `symbolsTestImplementation` should precede all other dependencies
+                    // in order  to use the shadowed stdlib from the analysis dependencies
+                    classpath = symbolsTestImplementationResolver.incoming.files + classpath
+
+                    systemProperty("org.jetbrains.dokka.analysis.enableExperimentalKDocResolution", "true")
+                }
+            }
+
             // Run both K1 and K2, when running :test
             // don't run the task itself, as it's just an aggregate for K1/K2 tests.
             // Ideally, we don't really need this `test` target, but it's not possible to remove it.
@@ -82,6 +98,7 @@ testing {
                     onlyIf { false }
                     dependsOn(testDescriptorsTarget.map { it.testTask })
                     dependsOn(testSymbolsTarget.map { it.testTask })
+                    dependsOn(testSymbolsWithKDocResolutionTarget.map { it.testTask })
                 }
             }
         }
