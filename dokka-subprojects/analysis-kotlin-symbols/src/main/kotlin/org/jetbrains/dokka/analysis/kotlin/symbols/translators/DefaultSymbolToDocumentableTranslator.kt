@@ -937,14 +937,14 @@ internal class DokkaSymbolVisitor(
         return documentation.removePropertyTag()
     }
 
-    private fun KaSession.getDocumentation(symbol: KaSymbol) =
-        if (symbol.origin == KaSymbolOrigin.SOURCE_MEMBER_GENERATED)
+    private fun KaSession.getDocumentation(symbol: KaSymbol) = when(symbol.origin) {
+        KaSymbolOrigin.SOURCE_MEMBER_GENERATED -> {
             // a primary (implicit default) constructor  can be generated, so we need KDoc from @constructor tag
             getGeneratedKDocDocumentationFrom(symbol) ?: if(symbol is KaConstructorSymbol) getKDocDocumentationFrom(symbol, logger, sourceSet) else null
-        else if (symbol.isJavaSource())
-            javadocParser?.let { getJavaDocDocumentationFrom(symbol, it) }
-        else
-            getKDocDocumentationFrom(symbol, logger, sourceSet) ?: javadocParser?.let { getJavaDocDocumentationFrom(symbol, it) }
+        }
+        KaSymbolOrigin.JAVA_SOURCE, KaSymbolOrigin.JAVA_LIBRARY -> javadocParser?.let { getJavaDocDocumentationFrom(symbol, it) }
+        else -> getKDocDocumentationFrom(symbol, logger, sourceSet) ?: javadocParser?.let { getJavaDocDocumentationFrom(symbol, it) }
+    }
 
     /**
      * Unwrap the documentation for property accessors from the [Property] wrapper if its present.
