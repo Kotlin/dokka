@@ -41,7 +41,6 @@ import org.jetbrains.kotlin.analysis.api.types.*
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.SpecialNames.UNDERSCORE_FOR_UNUSED_VAR
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
 internal class DefaultSymbolToDocumentableTranslator(context: DokkaContext) : AsyncSourceToDocumentableTranslator {
     private val kotlinAnalysis = context.plugin<SymbolsAnalysisPlugin>().querySingle { kotlinAnalysis }
@@ -93,7 +92,7 @@ internal class DokkaSymbolVisitor(
     private fun <T : KaSymbol> Sequence<T>.filterSymbolsInSourceSet(moduleKtFiles: Set<KtFile>, moduleJavaFiles: Set<PsiJavaFile>): Sequence<T> = filter {
         when (val file = it.psi?.containingFile) {
             is KtFile -> moduleKtFiles.contains(file)
-            is PsiJavaFile -> moduleJavaFiles.contains(file) && InternalConfiguration.enableExperimentalSymbolsJavaAnalysis
+            is PsiJavaFile -> moduleJavaFiles.contains(file)
             else -> false
         }
     }
@@ -103,7 +102,7 @@ internal class DokkaSymbolVisitor(
         val sourceFiles = analysisContext.modulesWithFiles[sourceModule] ?: throw IllegalStateException("No source files for a source module ${sourceModule.name} of source set ${sourceSet.sourceSetID}")
 
         val ktFiles = sourceFiles.filterIsInstance<KtFile>().toSet()
-        val javaFiles = sourceFiles.filterIsInstance<PsiJavaFile>().toSet()
+        val javaFiles = if (InternalConfiguration.enableExperimentalSymbolsJavaAnalysis) sourceFiles.filterIsInstance<PsiJavaFile>().toSet() else emptySet()
 
         val processedPackages: MutableSet<FqName> = mutableSetOf()
         return analyze(sourceModule) {
@@ -119,10 +118,7 @@ internal class DokkaSymbolVisitor(
                     }
                 }
 
-            val packages = ktFiles.collectPackages { it.packageFqName }
-                .applyIf(InternalConfiguration.enableExperimentalSymbolsJavaAnalysis) {
-                    this + javaFiles.collectPackages { FqName(it.packageName) }
-                }
+            val packages = ktFiles.collectPackages { it.packageFqName } + javaFiles.collectPackages { FqName(it.packageName) }
 
             DModule(
                 name = moduleName,
