@@ -80,7 +80,7 @@ testing {
             // Create a new target for running symbols-analysis tests with enabled experimental KDoc resolution (K2).
             val testSymbolsWithKDocResolutionTarget = targets.register("testSymbolsWithKDocResolution") {
                 testTask.configure {
-                    val excludedTags = onlyDescriptorTags + onlySymbolsTags
+                    val excludedTags = onlyDescriptorTags
                     description = "Runs tests using symbols-analysis and experimental KDoc resolution (K2)" +
                             " (excluding tags: ${excludedTags})"
                     useJUnitPlatform {
