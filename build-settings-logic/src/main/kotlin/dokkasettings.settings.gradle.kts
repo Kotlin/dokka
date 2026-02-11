@@ -15,7 +15,7 @@
 plugins {
     id("com.gradle.develocity")
     id("com.gradle.common-custom-user-data-gradle-plugin") apply false
-    id("org.gradle.toolchains.foojay-resolver-convention")
+//    id("org.gradle.toolchains.foojay-resolver-convention")
 }
 
 //region properties

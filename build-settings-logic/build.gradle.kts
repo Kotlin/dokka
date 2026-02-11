@@ -15,7 +15,7 @@ kotlin {
 dependencies {
     implementation(libs.gradlePlugin.gradle.develocity)
     implementation(libs.gradlePlugin.gradle.customUserData)
-    implementation(libs.gradlePlugin.gradle.foojayToolchains)
+//    implementation(libs.gradlePlugin.gradle.foojayToolchains)
 }
 
 
@@ -71,7 +71,7 @@ val checkBuildSettingsLogicPluginConsistency by tasks.registering {
 
             checkVersion("com.gradle.develocity", develocityVersion.get())
             checkVersion("com.gradle.common-custom-user-data-gradle-plugin", customUserDataVersion.get())
-            checkVersion("org.gradle.toolchains.foojay-resolver-convention", foojayToolchainsVersion.get())
+//            checkVersion("org.gradle.toolchains.foojay-resolver-convention", foojayToolchainsVersion.get())
         }
 
         check(result.isEmpty()) {
