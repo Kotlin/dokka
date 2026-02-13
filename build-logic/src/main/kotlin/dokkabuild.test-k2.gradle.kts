@@ -78,7 +78,7 @@ testing {
             }
 
             // Create a new target for running symbols-analysis tests with enabled experimental KDoc resolution (K2).
-            val testSymbolsWithKDocResolutionTarget = targets.register("testSymbolsWithKDocResolution") {
+            val testSymbolsWithNewKDocResolutionTarget = targets.register("testSymbolsWithNewKDocResolution") {
                 testTask.configure {
                     val excludedTags = onlyDescriptorTags
                     description = "Runs tests using symbols-analysis and experimental KDoc resolution (K2)" +
@@ -102,7 +102,7 @@ testing {
                     onlyIf { false }
                     dependsOn(testDescriptorsTarget.map { it.testTask })
                     dependsOn(testSymbolsTarget.map { it.testTask })
-                    dependsOn(testSymbolsWithKDocResolutionTarget.map { it.testTask })
+                    dependsOn(testSymbolsWithNewKDocResolutionTarget.map { it.testTask })
                 }
             }
         }
