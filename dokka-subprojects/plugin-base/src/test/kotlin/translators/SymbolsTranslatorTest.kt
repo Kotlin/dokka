@@ -34,7 +34,7 @@ class SymbolsTranslatorTest : BaseAbstractTest() {
                     .replace("\\","/") // for Win
 
                 assertEquals(
-                    "`UnresolvedSymbol` is unresolved in file:///PATH/Test.kt:1:7",
+                    "`UnresolvedSymbols` is unresolved in file:///PATH/Test.kt:1:7",
                     warn.replace(path, "PATH")
                 )
                 assertEquals(

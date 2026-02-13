@@ -455,6 +455,28 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols
+    fun `fun with unresolved parameter`() {
+        val source = source("fun simpleFun(param: UnresolvedType): Unit")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
+                    "fun ", A("simpleFun"), "(", Parameters(
+                        Parameter("param: UnresolvedType"),
+                    ), ")",
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
     fun `fun with vararg`() {
         val source = source("fun simpleFun(vararg params: Int): Unit")
         val writerPlugin = TestOutputWriterPlugin()
