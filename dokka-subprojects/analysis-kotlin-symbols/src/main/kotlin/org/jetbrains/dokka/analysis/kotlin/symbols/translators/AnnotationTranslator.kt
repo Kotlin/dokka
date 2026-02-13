@@ -84,9 +84,9 @@ internal class AnnotationTranslator(private val logger: DokkaLogger) {
                     val psi = annotation.psi
                     val location = psi?.let { getLocation(it) }
                     val text = psi?.text.orEmpty()
-                    logger.warn("Unknown annotation $text in $location")
+                    logger.warn("Unknown annotation `$text` in $location")
                     logger.debug(
-                        "Unknown annotation $text in ${location}\n" + Thread.currentThread().stackTrace.drop(1)
+                        "Unknown annotation `$text` in ${location}\n" + Thread.currentThread().stackTrace.drop(1)
                             .joinToString("\n")
                     )
                     DRI(packageName = "", classNames = ERROR_CLASS_NAME)
@@ -140,7 +140,7 @@ internal class AnnotationTranslator(private val logger: DokkaLogger) {
                 else -> {
                     val psi = annotationValue.sourcePsi ?: containingAnnotation.psi
                     val location = psi?.let { getLocation(it) }
-                    logger.warn("Unknown annotation value ${psi?.text.orEmpty()} in $location")
+                    logger.warn("Unknown annotation value `${psi?.text.orEmpty()}` in $location")
 
                     ClassValue(
                         type.toString(),
@@ -151,7 +151,7 @@ internal class AnnotationTranslator(private val logger: DokkaLogger) {
             is KaAnnotationValue.UnsupportedValue -> {
                 val psi = annotationValue.sourcePsi ?: containingAnnotation.psi
                 val location = psi?.let { getLocation(it) }
-                logger.warn("Unsupported annotation value ${psi?.text.orEmpty()} in $location")
+                logger.warn("Unsupported annotation value `${psi?.text.orEmpty()}` in $location")
 
                 ClassValue(
                     "<Unsupported Annotation Value>",

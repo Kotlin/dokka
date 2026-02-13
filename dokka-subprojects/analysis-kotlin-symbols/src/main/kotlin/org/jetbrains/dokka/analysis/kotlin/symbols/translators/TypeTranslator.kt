@@ -123,7 +123,7 @@ internal class TypeTranslator(
                 )
             )
             is KaErrorType -> {
-                report(type, location)
+                logErrorType(type, location)
                 @OptIn(KaNonPublicApi::class)
                 UnresolvedBound(type.presentableText ?: type.toString())
             }
@@ -181,7 +181,7 @@ internal class TypeTranslator(
                 is KaTypeAliasSymbol -> toTypeConstructorWithKindFrom(classSymbol.expandedType, location)
             }
         is KaErrorType -> {
-            report(type, location)
+            logErrorType(type, location)
             @OptIn(KaNonPublicApi::class)
             TypeConstructorWithKind(
                 GenericTypeConstructor(
@@ -221,10 +221,10 @@ internal class TypeTranslator(
         KaClassKind.ANONYMOUS_OBJECT -> KotlinClassKindTypes.OBJECT
     }
 
-    private fun KaSession.report(errorType: KaErrorType, location: Location) {
+    private fun KaSession.logErrorType(errorType: KaErrorType, location: Location) {
         @OptIn(KaNonPublicApi::class)
         logger.warn(buildString {
-            append(if (errorType.presentableText != null) "${errorType.presentableText} is unresolved" else errorType.errorMessage)
+            append(if (errorType.presentableText != null) "`${errorType.presentableText}` is unresolved" else errorType.errorMessage)
             append(" in ")
             append(
                 with(location) {

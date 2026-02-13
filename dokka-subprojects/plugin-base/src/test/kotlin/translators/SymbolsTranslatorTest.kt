@@ -20,7 +20,7 @@ class SymbolsTranslatorTest : BaseAbstractTest() {
 
     @Test
     @OnlySymbols
-    fun `method overriding two documented classes picks closest class documentation`() {
+    fun `should warn about unresolved symbol`() {
         testInline(
             """
             |/src/main/kotlin/Test.kt
@@ -34,7 +34,7 @@ class SymbolsTranslatorTest : BaseAbstractTest() {
                     .replace("\\","/") // for Win
 
                 assertEquals(
-                    "UnresolvedSymbols is unresolved in file:///PATH/Test.kt:1:7",
+                    "`UnresolvedSymbol` is unresolved in file:///PATH/Test.kt:1:7",
                     warn.replace(path, "PATH")
                 )
                 assertEquals(
@@ -65,11 +65,11 @@ class SymbolsTranslatorTest : BaseAbstractTest() {
                     .replace("\\","/") // for Win
 
                 assertEquals(
-                    "Unknown annotation @Unresolved(1) in file:///PATH/Test.kt:1:10",
+                    "Unknown annotation `@Unresolved(1)` in file:///PATH/Test.kt:1:10",
                     warns[0].replace(path, "PATH")
                 )
                 assertEquals(
-                    "Unsupported annotation value @Deprecated(asda) in file:///PATH/Test.kt:3:1",
+                    "Unsupported annotation value `@Deprecated(asda)` in file:///PATH/Test.kt:3:1",
                     warns[1].replace(path, "PATH")
                 )
                 assertEquals(
