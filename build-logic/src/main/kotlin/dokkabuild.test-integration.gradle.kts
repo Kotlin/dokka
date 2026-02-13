@@ -38,6 +38,11 @@ tasks.withType<Test>().configureEach {
     val useK2 = dokkaBuild.integrationTestUseK2
     systemProperty.inputProperty("org.jetbrains.dokka.experimental.tryK2", useK2)
         .optional(true)
+
+    val enableExperimentalKDocResolution = dokkaBuild.integrationTestEnableExperimentalKDocResolution
+    systemProperty.inputProperty("org.jetbrains.dokka.analysis.enableExperimentalKDocResolution", enableExperimentalKDocResolution)
+        .optional(true)
+
     useJUnitPlatform {
         if (useK2.get()) excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
     }
