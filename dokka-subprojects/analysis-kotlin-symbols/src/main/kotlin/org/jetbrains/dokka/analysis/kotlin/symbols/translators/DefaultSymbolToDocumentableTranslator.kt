@@ -149,7 +149,7 @@ internal class DokkaSymbolVisitor(
 
         val packageInfo = moduleJavaFiles.singleOrNull { it.name == "package-info.java" }
         val documentation = packageInfo?.let {
-            javadocParser?.parseDocumentation(it).toSourceSetDependent()
+            javadocParser?.parseDocumentation(it, sourceSet).toSourceSetDependent()
         }.orEmpty()
 
         // TODO annotations from `package-info.java`
@@ -938,8 +938,8 @@ internal class DokkaSymbolVisitor(
             // a primary (implicit default) constructor  can be generated, so we need KDoc from @constructor tag
             getGeneratedKDocDocumentationFrom(symbol) ?: if(symbol is KaConstructorSymbol) getKDocDocumentationFrom(symbol, logger, sourceSet) else null
         }
-        KaSymbolOrigin.JAVA_SOURCE, KaSymbolOrigin.JAVA_LIBRARY -> javadocParser?.let { getJavaDocDocumentationFrom(symbol, it) }
-        else -> getKDocDocumentationFrom(symbol, logger, sourceSet) ?: javadocParser?.let { getJavaDocDocumentationFrom(symbol, it) }
+        KaSymbolOrigin.JAVA_SOURCE, KaSymbolOrigin.JAVA_LIBRARY -> javadocParser?.let { getJavaDocDocumentationFrom(symbol, it, sourceSet) }
+        else -> getKDocDocumentationFrom(symbol, logger, sourceSet) ?: javadocParser?.let { getJavaDocDocumentationFrom(symbol, it, sourceSet) }
     }
 
     /**

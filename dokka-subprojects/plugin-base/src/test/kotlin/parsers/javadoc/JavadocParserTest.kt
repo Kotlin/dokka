@@ -2,7 +2,7 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package parsers
+package parsers.javadoc
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.Callable
@@ -186,7 +186,8 @@ class JavadocParserTest : BaseAbstractTest() {
                             listOf(
                                 Text(body = "@"),
                                 Text(body = "Entity\npublic class User {}\n")
-                            )
+                            ),
+                            params = mapOf("lang" to "java")
                         )
                     ),
                     root.children

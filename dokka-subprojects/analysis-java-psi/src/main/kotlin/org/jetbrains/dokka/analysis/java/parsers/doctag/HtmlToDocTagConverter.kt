@@ -56,14 +56,13 @@ internal class HtmlToDocTagConverter(
             "em" -> listOf(Em(children))
             "mark" -> ifChildrenPresent { Mark(children) }
             "code" -> ifChildrenPresent { if(keepFormatting) CodeBlock(children, mapOf("lang" to "java")) else CodeInline(children, mapOf("lang" to "java")) }
-            "pre" -> if(children.size == 1) {
-                when(children.first()) {
-                    is CodeInline -> listOf(CodeBlock(children.first().children, mapOf("lang" to "java")))
-                    is CodeBlock -> listOf(children.first())
-                    else -> listOf(Pre(children))
+            "pre" -> {
+                val lang = element.attr("lang").trim().takeIf { it.isNotBlank() } ?: "java"
+                when (val child = children.singleOrNull()) {
+                    is CodeInline -> listOf(CodeBlock(child.children, child.params + ("lang" to lang)))
+                    is CodeBlock -> listOf(child.copy(params = child.params + ("lang" to lang)))
+                    else -> listOf(Pre(children = children, params = mapOf("lang" to lang)))
                 }
-            } else {
-                listOf(Pre(children))
             }
             "ul" -> ifChildrenPresent { Ul(children) }
             "ol" -> ifChildrenPresent { Ol(children) }
@@ -75,6 +74,7 @@ internal class HtmlToDocTagConverter(
             "table" -> ifChildrenPresent { Table(children) }
             "tr" -> ifChildrenPresent { Tr(children) }
             "td" -> listOf(Td(children))
+            "th" -> ifChildrenPresent { Th(children) }
             "thead" -> listOf(THead(children))
             "tbody" -> listOf(TBody(children))
             "tfoot" -> listOf(TFoot(children))
