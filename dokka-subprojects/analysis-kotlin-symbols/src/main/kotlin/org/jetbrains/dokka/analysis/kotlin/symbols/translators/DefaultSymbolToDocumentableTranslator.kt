@@ -91,8 +91,8 @@ internal class DokkaSymbolVisitor(
 
     private fun <T : KaSymbol> Sequence<T>.filterSymbolsInSourceSet(moduleKtFiles: Set<KtFile>, moduleJavaFiles: Set<PsiJavaFile>): Sequence<T> = filter {
         when (val file = it.psi?.containingFile) {
-            is KtFile -> moduleKtFiles.contains(file)
-            is PsiJavaFile -> moduleJavaFiles.contains(file)
+            is KtFile -> moduleKtFiles.contains(file) && file.containingDirectory?.name != "snippet-files"
+            is PsiJavaFile -> moduleJavaFiles.contains(file) && file.containingDirectory.name != "snippet-files"
             else -> false
         }
     }
