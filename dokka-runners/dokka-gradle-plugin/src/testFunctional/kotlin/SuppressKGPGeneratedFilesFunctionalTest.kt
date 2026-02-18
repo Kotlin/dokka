@@ -60,7 +60,7 @@ private fun createProject(
 ): GradleProjectTest = gradleKtsProjectTest("suppress-kgp-generated-files-$suppressGeneratedFiles") {
     buildGradleKts = """
         |plugins {
-        |    kotlin("jvm") version "2.3.0" // KGP 2.3.0 is the first version that contains `generatedKotlin` API
+        |    kotlin("jvm") version "2.3.21-RC-255" // KGP 2.3.0 is the first version that contains `generatedKotlin` API
         |    id("org.jetbrains.dokka") version "$DOKKA_VERSION"
         |}
         |
