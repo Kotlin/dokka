@@ -75,7 +75,7 @@ internal class TransformedMetadataDependencyProvider(private val project: Projec
             allTransformedLibraries?.map { libs ->
                 logger.debug { "$taskPath allTransformedLibraries ${libs.map { it.name }}" }
                 libs
-            }
+            } as Provider<List<File>>
         }
     }
 
