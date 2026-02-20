@@ -4391,6 +4391,7 @@ public abstract class org/jetbrains/dokka/pages/RootPageNode : org/jetbrains/dok
 	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getForceTopLevelName ()Z
 	public final fun getParentMap ()Ljava/util/Map;
+	public synthetic fun modified (Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/pages/PageNode;
 	public abstract fun modified (Ljava/lang/String;Ljava/util/List;)Lorg/jetbrains/dokka/pages/RootPageNode;
 	public final fun transformContentPagesTree (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/pages/RootPageNode;
 	public final fun transformPageNodeTree (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/pages/RootPageNode;
@@ -4878,6 +4879,7 @@ public final class org/jetbrains/dokka/utilities/UriKt {
 }
 
 public abstract interface class org/jetbrains/dokka/validity/PreGenerationChecker : kotlin/jvm/functions/Function0 {
+	public synthetic fun invoke ()Ljava/lang/Object;
 	public abstract fun invoke ()Lorg/jetbrains/dokka/validity/PreGenerationCheckerOutput;
 }
 
