@@ -37,6 +37,7 @@ public final class org/jetbrains/dokka/analysis/java/JavaAnalysisPlugin : org/je
 	public final fun getInheritDocTagContentProviders ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getKotlinLightMethodChecker ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getProjectProvider ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getPsiToDocumentableTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getSourceRootsExtractor ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 }
 

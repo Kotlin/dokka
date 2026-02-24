@@ -11,6 +11,7 @@ import utils.Span
 import utils.TestOutputWriterPlugin
 import utils.match
 import utils.OnlyDescriptors
+import utils.OnlyJavaPsi
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -236,6 +237,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi
     @Test
     fun `should keep kotlin property with no accessors when java inherits kotlin a var`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -273,6 +275,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi
     @Test
     fun `kotlin property with compute get and set`() {
         val writerPlugin = TestOutputWriterPlugin()
