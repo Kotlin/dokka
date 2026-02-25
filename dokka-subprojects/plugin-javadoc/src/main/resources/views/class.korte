@@ -18,7 +18,7 @@
         <div class="description">
             <ul class="blockList">
                 <li class="blockList">
-                    {% if implementedInterfaces.size != 0 %}
+                    {% if implementedInterfaces.size() != 0 %}
                     <dl>
                         <dt>All Implemented Interfaces:</dt>
                         <dd>
@@ -63,7 +63,7 @@
             <ul class="blockList">
                 <li class="blockList">
                 <!-- ======== NESTED CLASS SUMMARY ======== -->
-                    {% if classlikes.size != 0 %}
+                    {% if classlikes.size() != 0 %}
                     <section role="region">
                         <ul class="blockList">
                             <li class="blockList"><a id="nested.class.summary">
@@ -93,7 +93,7 @@
                     </section>
                     {% endif %}
                     <!-- =========== FIELD SUMMARY =========== -->
-                    {% if properties.size != 0 %}
+                    {% if properties.size() != 0 %}
                     <section role="region">
                         <ul class="blockList">
                             <li class="blockList"><a id="field.summary">
@@ -122,7 +122,7 @@
                     </section>
                     {% endif %}
                     <!-- ======== CONSTRUCTOR SUMMARY ======== -->
-                    {% if constructors.size != 0 %}
+                    {% if constructors.size() != 0 %}
                     <section role="region">
                         <ul class="blockList">
                             <li class="blockList"><a id="constructor.summary">
@@ -154,7 +154,7 @@
                     </section>
                     {% endif %}
                     <!-- =========== ENUM CONSTANT SUMMARY =========== -->
-                    {% if entries.size != 0 %}
+                    {% if entries.size() != 0 %}
                     <section role="region">
                         <ul class="blockList">
                             <li class="blockList"><a id="enum.constant.summary">
@@ -179,7 +179,7 @@
                     </section>
                     {% endif %}
                     <!-- ========== METHOD SUMMARY =========== -->
-                    {% if methods.own.size !=0 || methods.inherited.size != 0 %}
+                    {% if methods.own.size() !=0 || methods.inherited.size() != 0 %}
                     <section role="region">
                         <ul class="blockList">
                             <li class="blockList"><a id="method.summary">
@@ -236,7 +236,7 @@
             <ul class="blockList">
                 <li class="blockList">
                     <!-- ========= CONSTRUCTOR DETAIL ======== -->
-                    {% if constructors.size != 0 %}
+                    {% if constructors.size() != 0 %}
                     <section role="region">
                         <ul class="blockList">
                             <li class="blockList"><a id="constructor.detail">
@@ -250,7 +250,7 @@
                                         <h4>{{ constructor.name }}</h4>
                                         <pre>{{ constructor.name }}({{ constructor.inlineParameters|raw }})</pre>
                                         <div class="block">{{ constructor.description|raw}}</div>
-                                        {% if constructor.parameters.size != 0 && hasAnyDescription(constructor.parameters) %}
+                                        {% if constructor.parameters.size() != 0 && hasAnyDescription(constructor.parameters) %}
                                         <dl>
                                             <dt><span class="paramLabel">Parameters:</span></dt>
                                             {% for parameter in constructor.parameters %}
@@ -268,7 +268,7 @@
                     </section>
                     {% endif %}
                     <!-- ============ METHOD DETAIL ========== -->
-                    {% if methods.own.size != 0 %}
+                    {% if methods.own.size() != 0 %}
                     <section role="region">
                         <ul class="blockList">
                             <li class="blockList"><a id="method.detail">
@@ -291,7 +291,7 @@
 
                                         <dl>
 
-                                        {% if method.parameters.size != 0 && hasAnyDescription(method.parameters) %}
+                                        {% if method.parameters.size() != 0 && hasAnyDescription(method.parameters) %}
                                             <dt><span class="paramLabel">Parameters:</span></dt>
                                             {% for parameter in method.parameters %}
                                             {% if parameter.description != "" %}
