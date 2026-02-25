@@ -516,6 +516,7 @@ public open class DefaultPageCreator(
                     ds.forEach {
                         +buildSignature(it)
                         contentForBrief(it)
+                        contentForCustomTagsBrief(it)
                     }
                 }
             }
@@ -549,6 +550,7 @@ public open class DefaultPageCreator(
                     ds.forEach {
                         +buildSignature(it)
                         contentForBrief(it)
+                        contentForCustomTagsBrief(it)
                     }
                 }
             }
