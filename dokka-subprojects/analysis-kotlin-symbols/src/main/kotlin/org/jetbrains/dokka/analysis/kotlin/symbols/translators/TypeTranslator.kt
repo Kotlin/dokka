@@ -29,10 +29,21 @@ internal class TypeTranslator(
 
     private fun <T> T.toSourceSetDependent() = if (this != null) mapOf(sourceSet to this) else emptyMap()
 
-    private fun KaSession.toProjection(typeProjection: KaTypeProjection): Projection =
+    /**
+     * @param unwrapInvariant when true, invariant type arguments are returned as raw bounds
+     *   (matching PSI translator behavior for Java types) instead of being wrapped in [Invariance].
+     */
+    private fun KaSession.toProjection(typeProjection: KaTypeProjection, unwrapInvariant: Boolean = false): Projection =
         when (typeProjection) {
             is KaStarTypeProjection -> Star
-            is KaTypeArgumentWithVariance -> toBoundFrom(typeProjection.type).wrapWithVariance(typeProjection.variance)
+            is KaTypeArgumentWithVariance -> {
+                val bound = toBoundFrom(typeProjection.type, unwrapInvariant)
+                if (unwrapInvariant && typeProjection.variance == org.jetbrains.kotlin.types.Variance.INVARIANT) {
+                    bound
+                } else {
+                    bound.wrapWithVariance(typeProjection.variance)
+                }
+            }
         }
 
     /**
@@ -66,10 +77,10 @@ internal class TypeTranslator(
             throw IllegalStateException("Expected type alias symbol in type")
     }
 
-    private fun KaSession.toTypeConstructorFrom(classType: KaClassType) =
+    private fun KaSession.toTypeConstructorFrom(classType: KaClassType, unwrapInvariant: Boolean = false) =
         GenericTypeConstructor(
             dri = getDRIFromClassType(classType),
-            projections = classType.typeArguments.map { toProjection(it) },
+            projections = classType.typeArguments.map { toProjection(it, unwrapInvariant || classType.symbol.isJavaSource()) },
             presentableName = classType.getPresentableName(),
             extra = PropertyContainer.withAll(
                 getDokkaAnnotationsFrom(classType)?.toSourceSetDependent()?.toAnnotations()
@@ -88,18 +99,18 @@ internal class TypeTranslator(
         contextParametersCount = @OptIn(KaExperimentalApi::class) functionalType.contextReceivers.size
     )
 
-    fun KaSession.toBoundFrom(type: KaType): Bound {
+    fun KaSession.toBoundFrom(type: KaType, unwrapInvariant: Boolean = false): Bound {
         val abbreviation = type.abbreviation
-        val bound = toBoundFromNoAbbreviation(type)
+        val bound = toBoundFromNoAbbreviation(type, unwrapInvariant)
         return when {
             abbreviation != null -> toBoundFromTypeAliased(abbreviation, bound)
             else -> bound
         }
     }
 
-    fun KaSession.toBoundFromNoAbbreviation(type: KaType): Bound =
+    fun KaSession.toBoundFromNoAbbreviation(type: KaType, unwrapInvariant: Boolean = false): Bound =
         when (type) {
-            is KaUsualClassType -> toTypeConstructorFrom(type)
+            is KaUsualClassType -> toTypeConstructorFrom(type, unwrapInvariant)
             is KaTypeParameterType -> TypeParameter(
                 dri = getDRIFromTypeParameter(type.symbol),
                 name = type.name.asString(),
@@ -113,13 +124,13 @@ internal class TypeTranslator(
             is KaFunctionType -> toFunctionalTypeConstructorFrom(type)
             is KaDynamicType -> Dynamic
             is KaDefinitelyNotNullType -> DefinitelyNonNullable(
-                toBoundFrom(type.original)
+                toBoundFrom(type.original, unwrapInvariant)
             )
 
             // Java platform types are represented as flexible types (e.g. String..String?).
             // For Java source types, unwrap to the lower bound (non-nullable version)
             // to match the behavior of the PSI-based Java translator.
-            is KaFlexibleType -> toBoundFrom(type.lowerBound)
+            is KaFlexibleType -> toBoundFrom(type.lowerBound, unwrapInvariant)
 
             is KaErrorType -> UnresolvedBound(type.toString())
             is KaCapturedType -> throw NotImplementedError()

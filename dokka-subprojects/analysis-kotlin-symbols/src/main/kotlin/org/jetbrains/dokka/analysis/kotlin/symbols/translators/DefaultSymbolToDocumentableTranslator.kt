@@ -580,7 +580,7 @@ internal class DokkaSymbolVisitor(
                 visibility = javaFieldSymbol.getDokkaVisibility(useJavaVisibility).toSourceSetDependent(),
                 documentation = getDocumentation(javaFieldSymbol)?.toSourceSetDependent() ?: emptyMap(), // TODO
                 modifier = javaFieldSymbol.getDokkaModality().toSourceSetDependent(),
-                type = toBoundFrom(javaFieldSymbol.returnType),
+                type = toBoundFrom(javaFieldSymbol.returnType, unwrapInvariant = useJavaVisibility),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 sourceSets = setOf(sourceSet),
                 generics = emptyList(),
@@ -700,7 +700,7 @@ internal class DokkaSymbolVisitor(
                 )
             },
             parameters = constructorSymbol.valueParameters
-                .mapIndexed { index, symbol -> visitValueParameter(index, symbol, dri) },
+                .mapIndexed { index, symbol -> visitValueParameter(index, symbol, dri, useJavaVisibility) },
             expectPresentInSet = sourceSet.takeIf { isExpect },
             sources = getSource(constructorSymbol),
             visibility = constructorSymbol.getDokkaVisibility(useJavaVisibility).toSourceSetDependent(),
@@ -744,7 +744,7 @@ internal class DokkaSymbolVisitor(
                     )
                 },
                 parameters = functionSymbol.valueParameters
-                    .mapIndexed { index, symbol -> visitValueParameter(index, symbol, dri) },
+                    .mapIndexed { index, symbol -> visitValueParameter(index, symbol, dri, useJavaVisibility) },
                 contextParameters = @OptIn(KaExperimentalApi::class) functionSymbol.contextParameters
                     .mapIndexed { index, symbol -> visitContextParameter(index, symbol, dri) },
                 expectPresentInSet = sourceSet.takeIf { isExpect },
@@ -753,7 +753,7 @@ internal class DokkaSymbolVisitor(
                 generics = generics,
                 documentation = getDocumentation(functionSymbol)?.toSourceSetDependent() ?: emptyMap(),
                 modifier = functionSymbol.getDokkaModality().toSourceSetDependent(),
-                type = toBoundFrom(functionSymbol.returnType),
+                type = toBoundFrom(functionSymbol.returnType, unwrapInvariant = useJavaVisibility),
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
                 extra = PropertyContainer.withAll(
@@ -767,11 +767,11 @@ internal class DokkaSymbolVisitor(
         }
 
     private fun KaSession.visitValueParameter(
-        index: Int, valueParameterSymbol: KaValueParameterSymbol, dri: DRI
+        index: Int, valueParameterSymbol: KaValueParameterSymbol, dri: DRI, useJavaTypes: Boolean = false
     ) = DParameter(
         dri = dri.copy(target = PointingToCallableParameters(index)),
         name = valueParameterSymbol.name.asString(),
-        type = toBoundFrom(valueParameterSymbol.returnType),
+        type = toBoundFrom(valueParameterSymbol.returnType, unwrapInvariant = useJavaTypes),
         expectPresentInSet = null,
         documentation = getDocumentation(valueParameterSymbol)?.toSourceSetDependent() ?: emptyMap(),
         sourceSets = setOf(sourceSet),
@@ -879,8 +879,8 @@ internal class DokkaSymbolVisitor(
     private fun KaSession.getDokkaAnnotationsFrom(annotated: KaAnnotated): List<Annotations.Annotation>? =
         with(annotationTranslator) { getAllAnnotationsFrom(annotated) }.takeUnless { it.isEmpty() }
 
-    private fun KaSession.toBoundFrom(type: KaType) =
-        with(typeTranslator) { toBoundFrom(type) }
+    private fun KaSession.toBoundFrom(type: KaType, unwrapInvariant: Boolean = false) =
+        with(typeTranslator) { toBoundFrom(type, unwrapInvariant) }
 
     /**
      * `createDRI` returns the DRI of the exact element and potential DRI of an element that is overriding it
