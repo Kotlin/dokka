@@ -241,7 +241,10 @@ internal class DokkaSymbolVisitor(
             with(typeTranslator) { buildAncestryInformationFrom(namedClassSymbol.defaultType) }
         val supertypes =
             //(ancestryInfo.interfaces.map{ it.typeConstructor } + listOfNotNull(ancestryInfo.superclass?.typeConstructor))
-            namedClassSymbol.superTypes.filterNot { it.isAnyType }
+            namedClassSymbol.superTypes.filterNot {
+                it.isAnyType || (namedClassSymbol.classKind == KaClassKind.ENUM_CLASS && namedClassSymbol.isJavaSource()
+                        && (it as? KaClassType)?.classId?.asFqNameString()?.let { fqn -> fqn == "kotlin.Enum" || fqn == "java.lang.Enum" } == true)
+            }
                 .map { with(typeTranslator) { toTypeConstructorWithKindFrom(it) } }
                 .toSourceSetDependent()
         return@withExceptionCatcher when (namedClassSymbol.classKind) {

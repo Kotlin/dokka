@@ -718,8 +718,6 @@ class SignatureTest : BaseAbstractTest() {
         )
     }
 
-    // TODO: AA-based Java enum signature rendering doesn't produce the "enum" keyword prefix
-    @org.junit.jupiter.api.Disabled("AA Java enum signature rendering differs")
     @OnlyJavaPsi
     @Test
     fun `java enum should render just enum`() = testRender(
