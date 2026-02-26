@@ -93,9 +93,7 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
         }
     }
 
-    // TODO: AA doesn't wrap Java type parameter upper bounds in Nullable like the PSI translator does.
     //  The PSI translator explicitly wraps bounds with Nullable(getBound(classType)).
-    @org.junit.jupiter.api.Disabled("AA type parameter bound nullability differs from PSI")
     @OnlyJavaPsi
     @Test
     fun `function with generic parameter that has annotated bounds`() {

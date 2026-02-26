@@ -234,7 +234,8 @@ internal class DokkaSymbolVisitor(
             visitVariantTypeParameter(
                 index,
                 symbol,
-                dri
+                dri,
+                useJavaTypes = namedClassSymbol.isJavaSource()
             )
         }
 
@@ -744,7 +745,8 @@ internal class DokkaSymbolVisitor(
                     visitVariantTypeParameter(
                         index,
                         symbol,
-                        dri
+                        dri,
+                        useJavaTypes = useJavaVisibility
                     )
                 }
 
@@ -917,7 +919,8 @@ internal class DokkaSymbolVisitor(
     private fun KaSession.visitVariantTypeParameter(
         index: Int,
         typeParameterSymbol: KaTypeParameterSymbol,
-        dri: DRI
+        dri: DRI,
+        useJavaTypes: Boolean = false
     ): DTypeParameter {
         val upperBoundsOrNullableAny =
             typeParameterSymbol.upperBounds.takeIf { it.isNotEmpty() } ?: listOf(this.builtinTypes.nullableAny)
@@ -929,7 +932,11 @@ internal class DokkaSymbolVisitor(
             ).wrapWithVariance(typeParameterSymbol.variance),
             documentation = getDocumentation(typeParameterSymbol)?.toSourceSetDependent() ?: emptyMap(),
             expectPresentInSet = null,
-            bounds = upperBoundsOrNullableAny.map { toBoundFrom(it) },
+            // PSI translator wraps Java type parameter bounds in Nullable
+            bounds = upperBoundsOrNullableAny.map { bound ->
+                val b = toBoundFrom(bound, unwrapInvariant = useJavaTypes)
+                if (useJavaTypes) org.jetbrains.dokka.model.Nullable(b) else b
+            },
             sourceSets = setOf(sourceSet),
             extra = PropertyContainer.withAll(
                 getDokkaAnnotationsFrom(typeParameterSymbol)?.toSourceSetDependent()?.toAnnotations()
