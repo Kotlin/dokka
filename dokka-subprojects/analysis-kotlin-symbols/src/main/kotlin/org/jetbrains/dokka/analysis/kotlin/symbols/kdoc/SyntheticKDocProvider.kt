@@ -20,10 +20,10 @@ internal fun KaSession.hasGeneratedKDocDocumentation(symbol: KaSymbol): Boolean 
 
 internal fun KaSession.isJavaEnumSyntheticMember(symbol: KaSymbol): Boolean {
     if (symbol !is KaNamedFunctionSymbol) return false
+    if (symbol.name != StandardNames.ENUM_VALUES && symbol.name != StandardNames.ENUM_VALUE_OF) return false
     val containingClass = symbol.containingSymbol as? KaClassSymbol ?: return false
     return containingClass.classKind == KaClassKind.ENUM_CLASS
             && containingClass.origin == KaSymbolOrigin.JAVA_SOURCE
-            && (symbol.name == StandardNames.ENUM_VALUES || symbol.name == StandardNames.ENUM_VALUE_OF)
 }
 
 private fun KaSession.getDocumentationTemplatePath(symbol: KaSymbol): String? =

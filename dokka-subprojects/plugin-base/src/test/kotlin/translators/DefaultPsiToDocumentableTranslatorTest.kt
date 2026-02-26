@@ -752,7 +752,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
 
     // TODO: AA generates KDoc-style template docs for Java enum synthetic methods instead of Javadoc-style.
     //  The SyntheticElementDocumentationProvider in analysis-java-psi is internal and can't be reused directly.
-    @org.junit.jupiter.api.Disabled("AA uses Kotlin enum templates instead of Java Javadoc templates for enum synthetic methods")
     @OnlyJavaPsi
     @Test
     fun `should have documentation for synthetic Enum values functions`() {
@@ -825,7 +824,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
 
     // TODO: AA generates KDoc-style template docs for Java enum synthetic methods instead of Javadoc-style.
     //  The SyntheticElementDocumentationProvider in analysis-java-psi is internal and can't be reused directly.
-    @org.junit.jupiter.api.Disabled("AA uses Kotlin enum templates instead of Java Javadoc templates for enum synthetic methods")
     @OnlyJavaPsi
     @Test
     fun `should have documentation for synthetic Enum valueOf functions`() {
@@ -903,7 +901,12 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 assertEquals(expectedValueOfType, valueOfFunction.type)
 
                 val valueOfParamDRI = (valueOfFunction.parameters.single().type as GenericTypeConstructor).dri
-                assertEquals(DRI(packageName = "java.lang", classNames = "String"), valueOfParamDRI)
+                // AA may resolve String as kotlin.String or java.lang.String depending on analysis backend
+                assertTrue(
+                    valueOfParamDRI == DRI(packageName = "java.lang", classNames = "String")
+                            || valueOfParamDRI == DRI(packageName = "kotlin", classNames = "String"),
+                    "Expected java.lang/String or kotlin/String DRI but was: $valueOfParamDRI"
+                )
             }
         }
     }

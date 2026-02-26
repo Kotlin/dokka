@@ -19,6 +19,7 @@ import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
 import org.jetbrains.dokka.analysis.java.parsers.JavadocParser
 import org.jetbrains.dokka.analysis.java.util.PsiDocumentableSource
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getGeneratedKDocDocumentationFrom
+import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.isJavaEnumSyntheticMember
 import org.jetbrains.dokka.analysis.kotlin.symbols.services.KtPsiDocumentableSource
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getJavaDocDocumentationFrom
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getKDocDocumentationFrom
@@ -1000,15 +1001,39 @@ internal class DokkaSymbolVisitor(
 
     private fun KaSession.getDocumentation(symbol: KaSymbol) = when(symbol.origin) {
         KaSymbolOrigin.SOURCE_MEMBER_GENERATED -> {
-            // a primary (implicit default) constructor  can be generated, so we need KDoc from @constructor tag
-            getGeneratedKDocDocumentationFrom(symbol) ?: if(symbol is KaConstructorSymbol) getKDocDocumentationFrom(symbol, logger, sourceSet) else null
+            // For Java enum synthetic values()/valueOf(), use Javadoc templates instead of KDoc ones
+            if (isJavaEnumSyntheticMember(symbol)) {
+                getJavaEnumSyntheticDocumentation(symbol)
+            } else {
+                // a primary (implicit default) constructor  can be generated, so we need KDoc from @constructor tag
+                getGeneratedKDocDocumentationFrom(symbol) ?: if(symbol is KaConstructorSymbol) getKDocDocumentationFrom(symbol, logger, sourceSet) else null
+            }
         }
         KaSymbolOrigin.JAVA_SOURCE, KaSymbolOrigin.JAVA_LIBRARY -> {
-            // For Java enum synthetic values()/valueOf(), try generated KDoc first
-            getGeneratedKDocDocumentationFrom(symbol)
-                ?: javadocParser?.let { getJavaDocDocumentationFrom(symbol, it, sourceSet) }
+            // For Java enum synthetic values()/valueOf(), use Javadoc templates
+            if (isJavaEnumSyntheticMember(symbol)) {
+                getJavaEnumSyntheticDocumentation(symbol)
+            } else {
+                javadocParser?.let { getJavaDocDocumentationFrom(symbol, it, sourceSet) }
+            }
         }
         else -> getKDocDocumentationFrom(symbol, logger, sourceSet) ?: javadocParser?.let { getJavaDocDocumentationFrom(symbol, it, sourceSet) }
+    }
+
+    private fun KaSession.getJavaEnumSyntheticDocumentation(symbol: KaSymbol): DocumentationNode? {
+        val functionSymbol = symbol as? KaNamedFunctionSymbol ?: return null
+        val templatePath = when (functionSymbol.name.asString()) {
+            "values" -> "/dokka/docs/javadoc/EnumValues.java.template"
+            "valueOf" -> "/dokka/docs/javadoc/EnumValueOf.java.template"
+            else -> return null
+        }
+        val templateText = javaClass.getResource(templatePath)?.readText() ?: return null
+        // Get the containing class PSI to access the Project (the synthetic method itself may not have PSI)
+        val containingPsi = functionSymbol.containingSymbol?.psi as? com.intellij.psi.PsiClass ?: return null
+        val psiDocComment = com.intellij.psi.JavaPsiFacade.getElementFactory(containingPsi.project)
+            .createDocCommentFromText(templateText)
+        val docComment = org.jetbrains.dokka.analysis.java.doccomment.JavaDocComment(psiDocComment)
+        return javadocParser?.parseDocComment(docComment, containingPsi, sourceSet)
     }
 
     /**

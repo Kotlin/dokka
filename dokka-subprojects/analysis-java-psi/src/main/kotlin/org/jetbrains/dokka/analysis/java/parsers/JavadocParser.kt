@@ -7,6 +7,7 @@ package org.jetbrains.dokka.analysis.java.parsers
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.InternalDokkaApi
+import org.jetbrains.dokka.analysis.java.doccomment.DocComment
 import org.jetbrains.dokka.analysis.java.doccomment.DocCommentFinder
 import org.jetbrains.dokka.model.doc.DocumentationNode
 
@@ -22,8 +23,12 @@ public class JavadocParser(
 
     override fun parseDocumentation(element: PsiNamedElement, sourceSet: DokkaSourceSet): DocumentationNode {
         val comment = docCommentFinder.findClosestToElement(element) ?: return DocumentationNode(emptyList())
+        return parseDocComment(comment, element, sourceSet)
+    }
+
+    public fun parseDocComment(comment: DocComment, context: PsiNamedElement, sourceSet: DokkaSourceSet): DocumentationNode {
         return docCommentParsers
             .first { it.canParse(comment) }
-            .parse(comment, element, sourceSet)
+            .parse(comment, context, sourceSet)
     }
 }
