@@ -237,8 +237,10 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: AA drops "open" modifier for Kotlin properties inherited by Java classes
-    @org.junit.jupiter.api.Disabled("AA modality for inherited Kotlin properties in Java classes differs")
+    // TODO: PSI renders `var variable` as "open var" from Java's bytecode perspective (accessors are non-final),
+    //  but AA correctly reports modality=FINAL for the Kotlin property (it's not marked open).
+    //  This is a Kotlin-vs-Java semantic discrepancy in how property openness is represented.
+    @org.junit.jupiter.api.Disabled("AA reports Kotlin property modality (FINAL) vs PSI using JVM bytecode modality (open)")
     @OnlyJavaPsi
     @Test
     fun `should keep kotlin property with no accessors when java inherits kotlin a var`() {

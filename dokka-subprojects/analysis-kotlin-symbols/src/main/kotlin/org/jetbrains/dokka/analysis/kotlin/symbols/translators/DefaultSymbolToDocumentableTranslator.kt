@@ -288,7 +288,7 @@ internal class DokkaSymbolVisitor(
                 supertypes = supertypes,
                 generics = generics,
                 documentation = documentation,
-                modifier = namedClassSymbol.getDokkaModality().toSourceSetDependent(),
+                modifier = getDokkaModality(namedClassSymbol).toSourceSetDependent(),
                 companion = companionObject,
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
@@ -314,7 +314,7 @@ internal class DokkaSymbolVisitor(
                 generics = generics,
                 documentation = documentation,
                 companion = companionObject,
-                modifier = namedClassSymbol.getDokkaModality().toSourceSetDependent(),
+                modifier = getDokkaModality(namedClassSymbol).toSourceSetDependent(),
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
                 extra = PropertyContainer.withAll(
@@ -548,7 +548,7 @@ internal class DokkaSymbolVisitor(
                 setter = propertySymbol.setter?.let { visitPropertyAccessor(it, propertySymbol, dri, parent) },
                 visibility = propertySymbol.getDokkaVisibility().toSourceSetDependent(),
                 documentation = getDocumentation(propertySymbol)?.toSourceSetDependent() ?: emptyMap(), // TODO
-                modifier = propertySymbol.getDokkaModality().toSourceSetDependent(),
+                modifier = getDokkaModality(propertySymbol).toSourceSetDependent(),
                 type = toBoundFrom(propertySymbol.returnType),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 sourceSets = setOf(sourceSet),
@@ -595,7 +595,7 @@ internal class DokkaSymbolVisitor(
                 setter = null,
                 visibility = javaFieldSymbol.getDokkaVisibility(useJavaVisibility).toSourceSetDependent(),
                 documentation = getDocumentation(javaFieldSymbol)?.toSourceSetDependent() ?: emptyMap(), // TODO
-                modifier = javaFieldSymbol.getDokkaModality().toSourceSetDependent(),
+                modifier = getDokkaModality(javaFieldSymbol).toSourceSetDependent(),
                 type = toBoundFrom(javaFieldSymbol.returnType, unwrapInvariant = useJavaVisibility),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 sourceSets = setOf(sourceSet),
@@ -665,7 +665,7 @@ internal class DokkaSymbolVisitor(
             visibility = propertyAccessorSymbol.getDokkaVisibility().toSourceSetDependent(),
             generics = generics,
             documentation = getAccessorSymbolDocumentation(propertyAccessorSymbol)?.toSourceSetDependent() ?: emptyMap(),
-            modifier = propertyAccessorSymbol.getDokkaModality().toSourceSetDependent(),
+            modifier = getDokkaModality(propertyAccessorSymbol).toSourceSetDependent(),
             type = toBoundFrom(propertyAccessorSymbol.returnType),
             sourceSets = setOf(sourceSet),
             isExpectActual = false,
@@ -773,7 +773,7 @@ internal class DokkaSymbolVisitor(
                 visibility = functionSymbol.getDokkaVisibility(useJavaVisibility).toSourceSetDependent(),
                 generics = generics,
                 documentation = functionDocumentation?.toSourceSetDependent() ?: emptyMap(),
-                modifier = functionSymbol.getDokkaModality().toSourceSetDependent(),
+                modifier = getDokkaModality(functionSymbol).toSourceSetDependent(),
                 type = toBoundFrom(functionSymbol.returnType, unwrapInvariant = useJavaVisibility),
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
@@ -1117,14 +1117,31 @@ internal class DokkaSymbolVisitor(
         }
     }
 
-    private fun KaDeclarationSymbol.getDokkaModality(): Modifier {
-        val isInterface = this is KaClassSymbol && classKind == KaClassKind.INTERFACE
+    @OptIn(KaExperimentalApi::class)
+    private fun KaSession.getDokkaModality(symbol: KaDeclarationSymbol): Modifier {
+        val isInterface = symbol is KaClassSymbol && symbol.classKind == KaClassKind.INTERFACE
 
-        return if (isJavaSource()) {
+        // For synthetic Java properties wrapping Kotlin properties, use the original Kotlin property's modality.
+        // The synthetic property's modality reflects the JVM perspective (often FINAL),
+        // but Dokka needs the Kotlin perspective (OPEN for non-final properties in open classes).
+        // For synthetic Java properties wrapping Kotlin properties, use the original Kotlin property's modality.
+        // The synthetic property's modality reflects the JVM perspective (often FINAL),
+        // but Dokka needs the Kotlin perspective (OPEN for non-final properties in open classes).
+        if (symbol is KaSyntheticJavaPropertySymbol) {
+            val originalProperty = symbol.javaGetterSymbol.allOverriddenSymbols
+                .filterIsInstance<KaPropertyGetterSymbol>()
+                .firstOrNull { it.origin == KaSymbolOrigin.SOURCE }
+                ?.containingSymbol as? KaPropertySymbol
+            if (originalProperty != null) {
+                return getDokkaModality(originalProperty)
+            }
+        }
+
+        return if (symbol.isJavaSource()) {
             if (isInterface) {
                 // Java interface can't have modality modifiers except for "sealed", which is not supported yet in Dokka
                 JavaModifier.Empty
-            } else when (modality) {
+            } else when (symbol.modality) {
                 KaSymbolModality.ABSTRACT -> JavaModifier.Abstract
                 KaSymbolModality.FINAL -> JavaModifier.Final
                 else -> JavaModifier.Empty
@@ -1134,12 +1151,12 @@ internal class DokkaSymbolVisitor(
                 // only two modalities are possible for interfaces:
                 //  - `SEALED` - when it's declared as `sealed interface`
                 //  - `ABSTRACT` - when it's declared as `interface` or `abstract interface` (`abstract` is redundant but possible here)
-                when (modality) {
+                when (symbol.modality) {
                     KaSymbolModality.SEALED -> KotlinModifier.Sealed
                     else -> KotlinModifier.Empty
                 }
             } else {
-                when (modality) {
+                when (symbol.modality) {
                     KaSymbolModality.FINAL -> KotlinModifier.Final
                     KaSymbolModality.SEALED -> KotlinModifier.Sealed
                     KaSymbolModality.OPEN -> KotlinModifier.Open

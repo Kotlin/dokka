@@ -1093,8 +1093,11 @@ class SnippetTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: AA-based Java analysis produces different snippet resolution for hybrid snippets
-    @org.junit.jupiter.api.Disabled("AA hybrid snippet resolution differs from PSI")
+    // TODO: PSI reference resolution for @snippet file="..." attribute doesn't work in AA context.
+    //  The snippet-files/ directory files are in the AA source module but the PsiJavaCodeReferenceElement
+    //  resolution from the @snippet tag's file attribute returns null, causing the external snippet body
+    //  to be missing. The comparison with inline body is then skipped and no warning is generated.
+    @org.junit.jupiter.api.Disabled("AA PSI reference resolution for @snippet file attribute returns null")
     @OnlyJavaPsi
     @Test
     fun `incorrect hybrid snippet`() {
