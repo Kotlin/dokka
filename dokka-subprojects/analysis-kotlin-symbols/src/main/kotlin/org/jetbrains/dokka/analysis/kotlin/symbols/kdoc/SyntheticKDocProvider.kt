@@ -18,6 +18,14 @@ private const val ENUM_VALUES_TEMPLATE_PATH = "/dokka/docs/kdoc/EnumValues.kt.te
 internal fun KaSession.hasGeneratedKDocDocumentation(symbol: KaSymbol): Boolean =
     getDocumentationTemplatePath(symbol) != null
 
+internal fun KaSession.isJavaEnumSyntheticMember(symbol: KaSymbol): Boolean {
+    if (symbol !is KaNamedFunctionSymbol) return false
+    val containingClass = symbol.containingSymbol as? KaClassSymbol ?: return false
+    return containingClass.classKind == KaClassKind.ENUM_CLASS
+            && containingClass.origin == KaSymbolOrigin.JAVA_SOURCE
+            && (symbol.name == StandardNames.ENUM_VALUES || symbol.name == StandardNames.ENUM_VALUE_OF)
+}
+
 private fun KaSession.getDocumentationTemplatePath(symbol: KaSymbol): String? =
     when (symbol) {
         is KaPropertySymbol -> if (isEnumEntriesProperty(symbol)) ENUM_ENTRIES_TEMPLATE_PATH else null
@@ -32,9 +40,14 @@ private fun KaSession.getDocumentationTemplatePath(symbol: KaSymbol): String? =
         else -> null
     }
 
-private fun KaSession.isEnumSpecialMember(symbol: KaSymbol): Boolean =
-    symbol.origin == KaSymbolOrigin.SOURCE_MEMBER_GENERATED
-            && (symbol.containingSymbol as? KaClassSymbol)?.classKind == KaClassKind.ENUM_CLASS
+private fun KaSession.isEnumSpecialMember(symbol: KaSymbol): Boolean {
+    val containingClass = symbol.containingSymbol as? KaClassSymbol ?: return false
+    if (containingClass.classKind != KaClassKind.ENUM_CLASS) return false
+    // For Kotlin enums, synthetic members have SOURCE_MEMBER_GENERATED origin.
+    // For Java enums, values()/valueOf() come from JAVA_SOURCE but are still compiler-generated.
+    return symbol.origin == KaSymbolOrigin.SOURCE_MEMBER_GENERATED
+            || (symbol.origin == KaSymbolOrigin.JAVA_SOURCE && containingClass.origin == KaSymbolOrigin.JAVA_SOURCE)
+}
 
 private fun KaSession.isEnumEntriesProperty(symbol: KaPropertySymbol): Boolean =
     symbol.name == StandardNames.ENUM_ENTRIES && isEnumSpecialMember(symbol)
