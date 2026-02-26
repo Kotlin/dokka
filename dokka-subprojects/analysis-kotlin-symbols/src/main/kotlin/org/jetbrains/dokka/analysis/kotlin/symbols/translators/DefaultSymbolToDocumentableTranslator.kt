@@ -744,6 +744,8 @@ internal class DokkaSymbolVisitor(
                     )
                 }
 
+            val functionDocumentation = getDocumentation(functionSymbol)
+
             return DFunction(
                 dri = dri,
                 name = functionSymbol.name.asString(),
@@ -755,14 +757,16 @@ internal class DokkaSymbolVisitor(
                     )
                 },
                 parameters = functionSymbol.valueParameters
-                    .mapIndexed { index, symbol -> visitValueParameter(index, symbol, dri, useJavaVisibility) },
+                    .mapIndexed { index, symbol ->
+                        visitValueParameter(index, symbol, dri, useJavaVisibility, functionDocumentation)
+                    },
                 contextParameters = @OptIn(KaExperimentalApi::class) functionSymbol.contextParameters
                     .mapIndexed { index, symbol -> visitContextParameter(index, symbol, dri) },
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 sources = getSource(functionSymbol),
                 visibility = functionSymbol.getDokkaVisibility(useJavaVisibility).toSourceSetDependent(),
                 generics = generics,
-                documentation = getDocumentation(functionSymbol)?.toSourceSetDependent() ?: emptyMap(),
+                documentation = functionDocumentation?.toSourceSetDependent() ?: emptyMap(),
                 modifier = functionSymbol.getDokkaModality().toSourceSetDependent(),
                 type = toBoundFrom(functionSymbol.returnType, unwrapInvariant = useJavaVisibility),
                 sourceSets = setOf(sourceSet),
@@ -782,20 +786,31 @@ internal class DokkaSymbolVisitor(
         }
 
     private fun KaSession.visitValueParameter(
-        index: Int, valueParameterSymbol: KaValueParameterSymbol, dri: DRI, useJavaTypes: Boolean = false
-    ) = DParameter(
-        dri = dri.copy(target = PointingToCallableParameters(index)),
-        name = valueParameterSymbol.name.asString(),
-        type = toBoundFrom(valueParameterSymbol.returnType, unwrapInvariant = useJavaTypes),
-        expectPresentInSet = null,
-        documentation = getDocumentation(valueParameterSymbol)?.toSourceSetDependent() ?: emptyMap(),
-        sourceSets = setOf(sourceSet),
-        extra = PropertyContainer.withAll(
-            valueParameterSymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
-            getDokkaAnnotationsFrom(valueParameterSymbol)?.toSourceSetDependent()?.toAnnotations(),
-            getDefaultValue(valueParameterSymbol, index)?.let { DefaultValue(it.toSourceSetDependent()) }
+        index: Int, valueParameterSymbol: KaValueParameterSymbol, dri: DRI,
+        useJavaTypes: Boolean = false, parentDocumentation: DocumentationNode? = null
+    ): DParameter {
+        val paramName = valueParameterSymbol.name.asString()
+        val paramDoc = if (useJavaTypes && parentDocumentation != null) {
+            // For Java parameters, extract the matching @param tag from the parent function's documentation
+            parentDocumentation.children.firstOrNull { it is Param && it.name == paramName }
+                ?.let { DocumentationNode(listOf(it)) }
+        } else {
+            getDocumentation(valueParameterSymbol)
+        }
+        return DParameter(
+            dri = dri.copy(target = PointingToCallableParameters(index)),
+            name = paramName,
+            type = toBoundFrom(valueParameterSymbol.returnType, unwrapInvariant = useJavaTypes),
+            expectPresentInSet = null,
+            documentation = paramDoc?.toSourceSetDependent() ?: emptyMap(),
+            sourceSets = setOf(sourceSet),
+            extra = PropertyContainer.withAll(
+                valueParameterSymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
+                getDokkaAnnotationsFrom(valueParameterSymbol)?.toSourceSetDependent()?.toAnnotations(),
+                getDefaultValue(valueParameterSymbol, index)?.let { DefaultValue(it.toSourceSetDependent()) }
+            )
         )
-    )
+    }
 
     @OptIn(KaExperimentalApi::class)
     private fun KaSession.visitContextParameter(
