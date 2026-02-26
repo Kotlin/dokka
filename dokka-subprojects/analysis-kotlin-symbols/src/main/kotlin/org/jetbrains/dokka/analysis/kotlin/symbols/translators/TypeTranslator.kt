@@ -116,13 +116,10 @@ internal class TypeTranslator(
                 toBoundFrom(type.original)
             )
 
-            is KaFlexibleType -> TypeAliased(
-                toBoundFrom(type.upperBound),
-                toBoundFrom(type.lowerBound),
-                extra = PropertyContainer.withAll(
-                    getDokkaAnnotationsFrom(type)?.toSourceSetDependent()?.toAnnotations()
-                )
-            )
+            // Java platform types are represented as flexible types (e.g. String..String?).
+            // For Java source types, unwrap to the lower bound (non-nullable version)
+            // to match the behavior of the PSI-based Java translator.
+            is KaFlexibleType -> toBoundFrom(type.lowerBound)
 
             is KaErrorType -> UnresolvedBound(type.toString())
             is KaCapturedType -> throw NotImplementedError()
