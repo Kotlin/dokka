@@ -950,6 +950,7 @@ internal class DokkaSymbolVisitor(
          *      - delegating members
          */
         val isDeclaration = callableSymbol.origin == KaSymbolOrigin.SOURCE || callableSymbol.origin == KaSymbolOrigin.LIBRARY
+                || callableSymbol.origin == KaSymbolOrigin.JAVA_SOURCE || callableSymbol.origin == KaSymbolOrigin.JAVA_LIBRARY
         if (isDeclaration) {
             return DRIWithOverridden(getDRIFromSymbol(callableSymbol), wasOverriddenBy)
 
