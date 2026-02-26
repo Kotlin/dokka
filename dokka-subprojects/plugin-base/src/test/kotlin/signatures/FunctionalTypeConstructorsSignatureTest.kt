@@ -283,14 +283,15 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: NPE in rendering stage - AA-based Java functional type signature rendering needs investigation
-    @org.junit.jupiter.api.Disabled("AA Java functional type rendering produces different page structure")
+    // TODO: AA's KaSyntheticJavaPropertySymbol handles java.util.function.Function fields differently -
+    //  doesn't create synthetic property with functional type signature like PSI does
+    @org.junit.jupiter.api.Disabled("AA synthetic Java property for functional types differs from PSI")
     @OnlyJavaPsi
     @Test
     fun `java with java function`() {
         val source = """
-            |/src/main/kotlin/test/JavaClass.java
-            |package example
+            |/src/example/JavaClass.java
+            |package example;
             |
             |public class JavaClass {
             |    public java.util.function.Function<Integer, String> javaFunction = null;
@@ -312,14 +313,15 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: NPE in rendering stage - AA-based Java functional type signature rendering needs investigation
-    @org.junit.jupiter.api.Disabled("AA Java functional type rendering produces different page structure")
+    // TODO: AA's KaSyntheticJavaPropertySymbol handles kotlin.jvm.functions.Function fields differently -
+    //  doesn't create synthetic property with functional type signature like PSI does
+    @org.junit.jupiter.api.Disabled("AA synthetic Java property for functional types differs from PSI")
     @OnlyJavaPsi
     @Test
     fun `java with kotlin function`() {
         val source = """
-            |/src/main/kotlin/test/JavaClass.java
-            |package example
+            |/src/example/JavaClass.java
+            |package example;
             |
             |public class JavaClass {
             |    public kotlin.jvm.functions.Function1<Integer, String> kotlinFunction = null;

@@ -237,8 +237,8 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: AA's KaSyntheticJavaPropertySymbol has different accessor detection logic than PSI's splitFunctionsAndAccessors
-    @org.junit.jupiter.api.Disabled("AA synthetic Java property detection differs from PSI accessor convention")
+    // TODO: AA drops "open" modifier for Kotlin properties inherited by Java classes
+    @org.junit.jupiter.api.Disabled("AA modality for inherited Kotlin properties in Java classes differs")
     @OnlyJavaPsi
     @Test
     fun `should keep kotlin property with no accessors when java inherits kotlin a var`() {
@@ -277,8 +277,8 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: AA's KaSyntheticJavaPropertySymbol has different accessor detection logic than PSI's splitFunctionsAndAccessors
-    @org.junit.jupiter.api.Disabled("AA synthetic Java property detection differs from PSI accessor convention")
+    // TODO: AA produces 3 signatures (missing one accessor) for Java class inheriting Kotlin computed property
+    @org.junit.jupiter.api.Disabled("AA accessor count for inherited Kotlin computed properties differs from PSI")
     @OnlyJavaPsi
     @Test
     fun `kotlin property with compute get and set`() {
