@@ -1508,8 +1508,6 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: NPE in page rendering - AA-based Java analysis produces different page structure for function parameters
-    @org.junit.jupiter.api.Disabled("AA page rendering for Java function parameters differs")
     @OnlyJavaPsi
     @Test
     fun javaDocCommentWithDocumentedParameters() {
@@ -1532,8 +1530,10 @@ class ContentForParamsTest : BaseAbstractTest() {
         ) {
             pagesTransformationStage = { module ->
                 val sampleFunction = module.dfs {
-                    it is MemberPageNode && it.dri.first()
-                        .toString() == "test/Main/sample/#java.lang.String#java.lang.String/PointingToDeclaration/"
+                    it is MemberPageNode && it.dri.first().let { dri ->
+                        dri.packageName == "test" && dri.classNames == "Main"
+                            && dri.callable?.name == "sample"
+                    }
                 } as MemberPageNode
                 val forJvm = (sampleFunction.documentables.firstOrNull() as DFunction).parameters.mapNotNull {
                     val jvm = it.documentation.keys.first { it.analysisPlatform == Platform.jvm }
