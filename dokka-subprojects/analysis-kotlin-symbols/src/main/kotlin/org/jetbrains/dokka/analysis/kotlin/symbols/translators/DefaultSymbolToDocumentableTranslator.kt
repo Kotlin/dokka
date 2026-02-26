@@ -1123,7 +1123,7 @@ internal class DokkaSymbolVisitor(
             KaSymbolVisibility.PROTECTED -> JavaVisibility.Protected
             KaSymbolVisibility.PRIVATE -> JavaVisibility.Private
             KaSymbolVisibility.PACKAGE_PRIVATE -> JavaVisibility.Default
-            KaSymbolVisibility.PACKAGE_PROTECTED -> JavaVisibility.Default
+            KaSymbolVisibility.PACKAGE_PROTECTED -> JavaVisibility.Protected
             KaSymbolVisibility.INTERNAL -> JavaVisibility.Default
             KaSymbolVisibility.UNKNOWN, KaSymbolVisibility.LOCAL -> JavaVisibility.Public
         }
