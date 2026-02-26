@@ -6,6 +6,7 @@ package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 
 import com.intellij.psi.PsiJavaFile
+import com.intellij.psi.PsiField
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.dokka.analysis.java.util.from
@@ -590,7 +591,7 @@ internal class DokkaSymbolVisitor(
                 extra = PropertyContainer.withAll(
                     javaFieldSymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
                     getDokkaAnnotationsFrom(javaFieldSymbol)?.toSourceSetDependent()?.toAnnotations(),
-                    //javaFieldSymbol.getDefaultValue()?.let { DefaultValue(it.toSourceSetDependent()) },
+                    getJavaFieldDefaultValue(javaFieldSymbol)?.let { DefaultValue(it.toSourceSetDependent()) },
                     inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
                     // non-final java property should be var
                     takeUnless { javaFieldSymbol.isVal }?.let { IsVar }
@@ -846,6 +847,23 @@ internal class DokkaSymbolVisitor(
     @OptIn(KaExperimentalApi::class) // due to `KaPropertySymbol.initializer`
     private fun KaPropertySymbol.getDefaultValue(): Expression? =
         (initializer?.initializerPsi as? KtConstantExpression)?.toDefaultValueExpression() // TODO consider [KaConstantInitializerValue], but should we keep an original format, e.g. 0xff or 0b101?
+
+    private fun getJavaFieldDefaultValue(javaFieldSymbol: KaJavaFieldSymbol): Expression? {
+        val psiField = javaFieldSymbol.psi as? PsiField ?: return null
+        val value = psiField.computeConstantValue() ?: return null
+        return when (value) {
+            is Byte -> IntegerConstant(value.toLong())
+            is Short -> IntegerConstant(value.toLong())
+            is Int -> IntegerConstant(value.toLong())
+            is Long -> IntegerConstant(value)
+            is Float -> FloatConstant(value)
+            is Double -> DoubleConstant(value)
+            is Boolean -> BooleanConstant(value)
+            is String -> StringConstant(value)
+            is Char -> StringConstant(value.toString())
+            else -> null
+        }
+    }
 
     private fun KtExpression.toDefaultValueExpression(): Expression? = when (node?.elementType) {
         KtNodeTypes.INTEGER_CONSTANT -> PsiLiteralUtil.parseLong(node?.text)?.let { IntegerConstant(it) }
