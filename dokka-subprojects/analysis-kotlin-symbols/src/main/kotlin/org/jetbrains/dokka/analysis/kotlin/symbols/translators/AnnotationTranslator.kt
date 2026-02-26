@@ -4,8 +4,7 @@
 
 package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
-import com.intellij.psi.PsiAnnotation
-import com.intellij.psi.PsiJavaFile
+import com.intellij.psi.*
 import org.jetbrains.dokka.analysis.java.util.from
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withEnumEntryExtra
@@ -49,11 +48,78 @@ internal class AnnotationTranslator {
             it.origin == KaSymbolOrigin.JAVA_SOURCE || it.origin == KaSymbolOrigin.JAVA_LIBRARY
                     || it.psi?.containingFile is PsiJavaFile
         } ?: false
+
+        // For Java sources, extract annotations directly from PSI to preserve
+        // original Java annotation classes and argument names/values
+        // (AA maps them to Kotlin equivalents which loses Java-specific params like forRemoval, since)
+        if (isJava) {
+            val psi = (annotated as? KaSymbol)?.psi as? PsiModifierListOwner
+            if (psi != null) {
+                return psi.annotations.mapNotNull { psiAnnotationToDocumentable(it) }
+            }
+        }
+
         val directAnnotations = getDirectAnnotationsFrom(annotated, isJava)
         val backingFieldAnnotations =
             (annotated as? KaPropertySymbol)?.backingFieldSymbol?.let { getDirectAnnotationsFrom(it, isJava) }.orEmpty()
         val fileLevelAnnotations = (annotated as? KaSymbol)?.let { getFileLevelAnnotationsFrom(it) }.orEmpty()
         return directAnnotations + backingFieldAnnotations + fileLevelAnnotations
+    }
+
+    /**
+     * Convert a [PsiAnnotation] to a Dokka [Annotations.Annotation] using the original Java DRI and arguments.
+     */
+    private fun psiAnnotationToDocumentable(psiAnnotation: PsiAnnotation): Annotations.Annotation? {
+        val resolvedClass = psiAnnotation.nameReferenceElement?.resolve() as? PsiClass ?: return null
+        val dri = DRI.from(resolvedClass)
+        val params = psiAnnotation.parameterList.attributes.mapNotNull { attr ->
+            val name = attr.name ?: "value"
+            val value = attr.value?.let { psiAnnotationValueToDocumentable(it) } ?: return@mapNotNull null
+            name to value
+        }.toMap()
+        val mustBeDocumented = resolvedClass.annotations.any { it.hasQualifiedName("java.lang.annotation.Documented") }
+        return Annotations.Annotation(dri = dri, params = params, mustBeDocumented = mustBeDocumented)
+    }
+
+    private fun psiAnnotationValueToDocumentable(value: PsiAnnotationMemberValue): AnnotationParameterValue? {
+        return when (value) {
+            is PsiArrayInitializerMemberValue -> ArrayValue(
+                value.initializers.mapNotNull { psiAnnotationValueToDocumentable(it) }
+            )
+            is PsiAnnotation -> psiAnnotationToDocumentable(value)?.let { AnnotationValue(it) }
+            is PsiReferenceExpression -> {
+                val resolved = value.resolve()
+                if (resolved is PsiField && resolved.containingClass?.isEnum == true) {
+                    // Match PSI translator behavior: resolve the first child reference
+                    // (typically the enum class) rather than the full enum entry
+                    val refElement = (value as PsiElement).children
+                        .filterIsInstance<PsiJavaCodeReferenceElement>().firstOrNull()?.resolve()
+                    val dri = refElement?.let { DRI.from(it) } ?: DRI.from(resolved)
+                    EnumValue(value.text ?: "", dri)
+                } else {
+                    value.text?.let { StringValue(it) }
+                }
+            }
+            is PsiClassObjectAccessExpression -> {
+                val type = value.operand.type
+                if (type is PsiClassType) {
+                    type.resolve()?.let {
+                        ClassValue(it.name ?: "", DRI.from(it))
+                    }
+                } else null
+            }
+            is PsiLiteralExpression -> when (val v = value.value) {
+                is Boolean -> BooleanValue(v)
+                is Int -> IntValue(v)
+                is Long -> LongValue(v)
+                is Float -> FloatValue(v)
+                is Double -> DoubleValue(v)
+                is String -> StringValue(v)
+                is Char -> StringValue(v.toString())
+                else -> value.text?.let { StringValue(it) }
+            }
+            else -> value.text?.let { StringValue(it) }
+        }
     }
 
     private fun KaAnnotation.isNoExistedInKotlinSource() = psi == null
