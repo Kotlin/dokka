@@ -110,7 +110,16 @@ internal class TypeTranslator(
 
     fun KaSession.toBoundFromNoAbbreviation(type: KaType, unwrapInvariant: Boolean = false): Bound =
         when (type) {
-            is KaUsualClassType -> toTypeConstructorFrom(type, unwrapInvariant)
+            is KaUsualClassType -> {
+                // Map java.lang.Object to JavaObject to match PSI translator behavior
+                val classId = type.classId
+                val fqName = classId.asFqNameString()
+                if (fqName == "java.lang.Object" || (unwrapInvariant && fqName == "kotlin.Any")) {
+                    JavaObject()
+                } else {
+                    toTypeConstructorFrom(type, unwrapInvariant)
+                }
+            }
             is KaTypeParameterType -> TypeParameter(
                 dri = getDRIFromTypeParameter(type.symbol),
                 name = type.name.asString(),
