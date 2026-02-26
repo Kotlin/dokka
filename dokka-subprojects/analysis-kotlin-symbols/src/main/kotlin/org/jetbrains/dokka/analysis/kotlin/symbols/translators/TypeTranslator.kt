@@ -111,13 +111,19 @@ internal class TypeTranslator(
     fun KaSession.toBoundFromNoAbbreviation(type: KaType, unwrapInvariant: Boolean = false): Bound =
         when (type) {
             is KaUsualClassType -> {
-                // Map java.lang.Object to JavaObject to match PSI translator behavior
                 val classId = type.classId
                 val fqName = classId.asFqNameString()
-                if (fqName == "java.lang.Object" || (unwrapInvariant && fqName == "kotlin.Any")) {
-                    JavaObject()
-                } else {
-                    toTypeConstructorFrom(type, unwrapInvariant)
+                when {
+                    // Map java.lang.Object / kotlin.Any to JavaObject in Java context
+                    fqName == "java.lang.Object" || (unwrapInvariant && fqName == "kotlin.Any") -> JavaObject()
+                    // Map Kotlin primitive types to PrimitiveJavaType in Java context
+                    unwrapInvariant && kotlinPrimitiveToJava.containsKey(fqName) -> PrimitiveJavaType(kotlinPrimitiveToJava[fqName]!!)
+                    // Map Kotlin primitive array types to Array<PrimitiveJavaType> in Java context
+                    unwrapInvariant && kotlinPrimitiveArrayToJava.containsKey(fqName) -> GenericTypeConstructor(
+                        dri = DRI("kotlin", "Array"),
+                        projections = listOf(PrimitiveJavaType(kotlinPrimitiveArrayToJava[fqName]!!))
+                    )
+                    else -> toTypeConstructorFrom(type, unwrapInvariant)
                 }
             }
             is KaTypeParameterType -> TypeParameter(
@@ -243,4 +249,30 @@ internal class TypeTranslator(
 
     private fun KaSymbol.isJavaSource() =
         origin == KaSymbolOrigin.JAVA_SOURCE || origin == KaSymbolOrigin.JAVA_LIBRARY
+
+    companion object {
+        /** Kotlin primitive types → Java primitive type names */
+        private val kotlinPrimitiveToJava = mapOf(
+            "kotlin.Int" to "int",
+            "kotlin.Long" to "long",
+            "kotlin.Short" to "short",
+            "kotlin.Byte" to "byte",
+            "kotlin.Char" to "char",
+            "kotlin.Boolean" to "boolean",
+            "kotlin.Float" to "float",
+            "kotlin.Double" to "double",
+        )
+
+        /** Kotlin primitive array types → Java primitive type names */
+        private val kotlinPrimitiveArrayToJava = mapOf(
+            "kotlin.IntArray" to "int",
+            "kotlin.LongArray" to "long",
+            "kotlin.ShortArray" to "short",
+            "kotlin.ByteArray" to "byte",
+            "kotlin.CharArray" to "char",
+            "kotlin.BooleanArray" to "boolean",
+            "kotlin.FloatArray" to "float",
+            "kotlin.DoubleArray" to "double",
+        )
+    }
 }

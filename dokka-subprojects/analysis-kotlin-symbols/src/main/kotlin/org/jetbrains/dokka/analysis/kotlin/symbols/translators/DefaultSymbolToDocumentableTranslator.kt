@@ -797,10 +797,21 @@ internal class DokkaSymbolVisitor(
         } else {
             getDocumentation(valueParameterSymbol)
         }
+        // For Java vararg parameters, the type may be the component type;
+        // wrap it in Array to match PSI translator behavior
+        val paramType = toBoundFrom(valueParameterSymbol.returnType, unwrapInvariant = useJavaTypes)
+        val isArrayAlready = paramType is GenericTypeConstructor && paramType.dri.classNames == "Array"
+        val type = if (useJavaTypes && valueParameterSymbol.isVararg && !isArrayAlready) {
+            GenericTypeConstructor(
+                dri = DRI("kotlin", "Array"),
+                projections = listOf(paramType)
+            )
+        } else paramType
+
         return DParameter(
             dri = dri.copy(target = PointingToCallableParameters(index)),
             name = paramName,
-            type = toBoundFrom(valueParameterSymbol.returnType, unwrapInvariant = useJavaTypes),
+            type = type,
             expectPresentInSet = null,
             documentation = paramDoc?.toSourceSetDependent() ?: emptyMap(),
             sourceSets = setOf(sourceSet),
