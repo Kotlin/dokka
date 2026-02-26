@@ -35,13 +35,16 @@ internal class TypeTranslator(
      */
     private fun KaSession.toProjection(typeProjection: KaTypeProjection, unwrapInvariant: Boolean = false): Projection =
         when (typeProjection) {
-            is KaStarTypeProjection -> Star
+            is KaStarTypeProjection -> if (unwrapInvariant) Covariance(JavaObject()) else Star
             is KaTypeArgumentWithVariance -> {
                 val bound = toBoundFrom(typeProjection.type, unwrapInvariant)
                 if (unwrapInvariant && typeProjection.variance == org.jetbrains.kotlin.types.Variance.INVARIANT) {
                     bound
                 } else {
-                    bound.wrapWithVariance(typeProjection.variance)
+                    // In Java context, strip Nullable wrapper from wildcard bounds
+                    // (Java wildcards like ? extends Object don't have nullability)
+                    val effectiveBound = if (unwrapInvariant && bound is Nullable) bound.inner else bound
+                    effectiveBound.wrapWithVariance(typeProjection.variance)
                 }
             }
         }

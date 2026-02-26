@@ -107,12 +107,16 @@ internal class AnnotationTranslator {
                 }
             }
             is PsiClassObjectAccessExpression -> {
-                val type = value.operand.type
-                if (type is PsiClassType) {
-                    type.resolve()?.let {
+                when (val type = value.operand.type) {
+                    is PsiClassType -> type.resolve()?.let {
                         ClassValue(it.name ?: "", DRI.from(it))
                     }
-                } else null
+                    // Array types like String[].class — extract the component type
+                    is PsiArrayType -> (type.componentType as? PsiClassType)?.resolve()?.let {
+                        ClassValue(it.name ?: "", DRI.from(it))
+                    }
+                    else -> null
+                }
             }
             is PsiLiteralExpression -> when (val v = value.value) {
                 is Boolean -> BooleanValue(v)
