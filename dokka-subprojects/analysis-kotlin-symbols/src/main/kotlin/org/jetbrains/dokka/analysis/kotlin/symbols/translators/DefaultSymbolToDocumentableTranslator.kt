@@ -529,7 +529,7 @@ internal class DokkaSymbolVisitor(
                 sources = getSource(propertySymbol),
                 getter = propertySymbol.getter?.let { visitPropertyAccessor(it, propertySymbol, dri, parent) },
                 setter = propertySymbol.setter?.let { visitPropertyAccessor(it, propertySymbol, dri, parent) },
-                visibility = propertySymbol.visibility.toDokkaVisibility().toSourceSetDependent(),
+                visibility = propertySymbol.getDokkaVisibility().toSourceSetDependent(),
                 documentation = getDocumentation(propertySymbol)?.toSourceSetDependent() ?: emptyMap(), // TODO
                 modifier = propertySymbol.getDokkaModality().toSourceSetDependent(),
                 type = toBoundFrom(propertySymbol.returnType),
@@ -644,7 +644,7 @@ internal class DokkaSymbolVisitor(
             },
             expectPresentInSet = null,
             sources = getSource(propertyAccessorSymbol),
-            visibility = propertyAccessorSymbol.visibility.toDokkaVisibility().toSourceSetDependent(),
+            visibility = propertyAccessorSymbol.getDokkaVisibility().toSourceSetDependent(),
             generics = generics,
             documentation = getAccessorSymbolDocumentation(propertyAccessorSymbol)?.toSourceSetDependent() ?: emptyMap(),
             modifier = propertyAccessorSymbol.getDokkaModality().toSourceSetDependent(),
@@ -700,7 +700,7 @@ internal class DokkaSymbolVisitor(
                 .mapIndexed { index, symbol -> visitValueParameter(index, symbol, dri) },
             expectPresentInSet = sourceSet.takeIf { isExpect },
             sources = getSource(constructorSymbol),
-            visibility = constructorSymbol.visibility.toDokkaVisibility().toSourceSetDependent(),
+            visibility = constructorSymbol.getDokkaVisibility().toSourceSetDependent(),
             generics = generics,
             documentation = documentation ?: emptyMap(),
             modifier = KotlinModifier.Empty.toSourceSetDependent(),
@@ -1048,7 +1048,7 @@ internal class DokkaSymbolVisitor(
         }
     }
 
-    private fun KaDeclarationSymbol.getDokkaVisibility() = visibility.toDokkaVisibility()
+    private fun KaDeclarationSymbol.getDokkaVisibility() = visibility.toDokkaVisibility(isJavaSource())
     private fun KaValueParameterSymbol.additionalExtras() = listOfNotNull(
         ExtraModifiers.KotlinOnlyModifiers.NoInline.takeIf { isNoinline },
         ExtraModifiers.KotlinOnlyModifiers.CrossInline.takeIf { isCrossinline },
@@ -1103,13 +1103,25 @@ internal class DokkaSymbolVisitor(
         ExtraModifiers.KotlinOnlyModifiers.Fun.takeIf { isFun },
     ).toSet().takeUnless { it.isEmpty() }
 
-    private fun KaSymbolVisibility.toDokkaVisibility(): Visibility = when (this) {
-        KaSymbolVisibility.PUBLIC -> KotlinVisibility.Public
-        KaSymbolVisibility.PROTECTED -> KotlinVisibility.Protected
-        KaSymbolVisibility.INTERNAL -> KotlinVisibility.Internal
-        KaSymbolVisibility.PRIVATE -> KotlinVisibility.Private
-        KaSymbolVisibility.PACKAGE_PROTECTED -> KotlinVisibility.Protected
-        KaSymbolVisibility.PACKAGE_PRIVATE -> JavaVisibility.Default
-        KaSymbolVisibility.UNKNOWN, KaSymbolVisibility.LOCAL -> KotlinVisibility.Public
+    private fun KaSymbolVisibility.toDokkaVisibility(isJavaSource: Boolean = false): Visibility = if (isJavaSource) {
+        when (this) {
+            KaSymbolVisibility.PUBLIC -> JavaVisibility.Public
+            KaSymbolVisibility.PROTECTED -> JavaVisibility.Protected
+            KaSymbolVisibility.PRIVATE -> JavaVisibility.Private
+            KaSymbolVisibility.PACKAGE_PRIVATE -> JavaVisibility.Default
+            KaSymbolVisibility.PACKAGE_PROTECTED -> JavaVisibility.Default
+            KaSymbolVisibility.INTERNAL -> JavaVisibility.Default
+            KaSymbolVisibility.UNKNOWN, KaSymbolVisibility.LOCAL -> JavaVisibility.Public
+        }
+    } else {
+        when (this) {
+            KaSymbolVisibility.PUBLIC -> KotlinVisibility.Public
+            KaSymbolVisibility.PROTECTED -> KotlinVisibility.Protected
+            KaSymbolVisibility.INTERNAL -> KotlinVisibility.Internal
+            KaSymbolVisibility.PRIVATE -> KotlinVisibility.Private
+            KaSymbolVisibility.PACKAGE_PROTECTED -> KotlinVisibility.Protected
+            KaSymbolVisibility.PACKAGE_PRIVATE -> JavaVisibility.Default
+            KaSymbolVisibility.UNKNOWN, KaSymbolVisibility.LOCAL -> KotlinVisibility.Public
+        }
     }
 }
