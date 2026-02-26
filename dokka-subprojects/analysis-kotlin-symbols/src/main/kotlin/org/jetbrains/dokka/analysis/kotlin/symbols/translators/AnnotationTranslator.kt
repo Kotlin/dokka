@@ -89,15 +89,21 @@ internal class AnnotationTranslator {
             is PsiAnnotation -> psiAnnotationToDocumentable(value)?.let { AnnotationValue(it) }
             is PsiReferenceExpression -> {
                 val resolved = value.resolve()
-                if (resolved is PsiField && resolved.containingClass?.isEnum == true) {
-                    // Match PSI translator behavior: resolve the first child reference
-                    // (typically the enum class) rather than the full enum entry
-                    val refElement = (value as PsiElement).children
-                        .filterIsInstance<PsiJavaCodeReferenceElement>().firstOrNull()?.resolve()
-                    val dri = refElement?.let { DRI.from(it) } ?: DRI.from(resolved)
-                    EnumValue(value.text ?: "", dri)
-                } else {
-                    value.text?.let { StringValue(it) }
+                when {
+                    resolved is PsiField && resolved.containingClass?.isEnum == true -> {
+                        // Match PSI translator behavior: resolve the first child reference
+                        // (typically the enum class) rather than the full enum entry
+                        val refElement = (value as PsiElement).children
+                            .filterIsInstance<PsiJavaCodeReferenceElement>().firstOrNull()?.resolve()
+                        val dri = refElement?.let { DRI.from(it) } ?: DRI.from(resolved)
+                        EnumValue(value.text ?: "", dri)
+                    }
+                    resolved is PsiField -> {
+                        // Static constant field: resolve to its computed constant value
+                        resolved.computeConstantValue()?.toAnnotationLiteralValue()
+                            ?: value.text?.let { StringValue(it) }
+                    }
+                    else -> value.text?.let { StringValue(it) }
                 }
             }
             is PsiClassObjectAccessExpression -> {
@@ -120,6 +126,18 @@ internal class AnnotationTranslator {
             }
             else -> value.text?.let { StringValue(it) }
         }
+    }
+
+    private fun Any.toAnnotationLiteralValue(): AnnotationParameterValue = when (this) {
+        is Byte -> IntValue(this.toInt())
+        is Short -> IntValue(this.toInt())
+        is Int -> IntValue(this)
+        is Long -> LongValue(this)
+        is Boolean -> BooleanValue(this)
+        is Float -> FloatValue(this)
+        is Double -> DoubleValue(this)
+        is Char -> StringValue(this.toString())
+        else -> StringValue(this.toString())
     }
 
     private fun KaAnnotation.isNoExistedInKotlinSource() = psi == null
