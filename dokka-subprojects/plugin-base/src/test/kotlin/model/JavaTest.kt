@@ -6,13 +6,13 @@ package model
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.See
 import org.jetbrains.dokka.model.doc.Text
-import utils.AbstractModelTest
 import utils.OnlyJavaPsi
 import utils.assertContains
 import utils.assertNotNull
@@ -22,7 +22,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @OnlyJavaPsi
-class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
+class JavaTest : BaseAbstractTest() {
     val configuration = dokkaConfiguration {
         sourceSets {
             sourceSet {
@@ -39,10 +39,22 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
         }
     }
 
+    private inline fun <reified T : Documentable> Documentable?.cast(): T =
+        (this as? T) ?: throw AssertionError("${T::class.simpleName} should not be null")
+
+    private operator fun Documentable?.div(name: String): Documentable? =
+        this?.children?.find { it.name == name }
+
+    private infix fun Any?.equals(other: Any?) = assertEquals(other, this)
+    private infix fun <T> Collection<T>?.counts(n: Int) =
+        assertEquals(n, this.orEmpty().size, "Expected $n, got ${this.orEmpty().size}")
+
     @Test
     fun function() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/Test.java
+            |package java;
             |class Test {
             |    /**
             |     * Summary for Function
@@ -51,146 +63,197 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             |     */
             |    public void fn(String name, int value) {}
             |}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "Test").cast<DClass>()) {
-                name equals "Test"
-                children counts 2 // default constructor and function
-                with((this / "fn").cast<DFunction>()) {
-                    name equals "fn"
-                    val params = parameters.map { it.documentation.values.first().children.first() as Param }
-                    params.map { it.firstMemberOfType<Text>().body } equals listOf(
-                        "is String parameter",
-                        "is int parameter"
-                    )
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Test").cast<DClass>()) {
+                    name equals "Test"
+                    children counts 2 // default constructor and function
+                    with((this / "fn").cast<DFunction>()) {
+                        name equals "fn"
+                        val params = parameters.map { it.documentation.values.first().children.first() as Param }
+                        params.map { it.firstMemberOfType<Text>().body } equals listOf(
+                            "is String parameter",
+                            "is int parameter"
+                        )
+                    }
                 }
             }
         }
     }
 
     @Test fun allImplementedInterfacesInJava() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/Highest.java
+            |package java;
             |interface Highest { }
+            |/src/java/Lower.java
+            |package java;
             |interface Lower extends Highest { }
+            |/src/java/Extendable.java
+            |package java;
             |class Extendable { }
+            |/src/java/Tested.java
+            |package java;
             |class Tested extends Extendable implements Lower { }
-        """, configuration = configuration){
-            with((this / "java" / "Tested").cast<DClass>()){
-                extra[ImplementedInterfaces]?.interfaces?.entries?.single()?.value?.map { it.dri.sureClassNames }?.sorted() equals listOf("Highest", "Lower").sorted()
+            """.trimIndent(), configuration
+        ) {
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Tested").cast<DClass>()) {
+                    extra[ImplementedInterfaces]?.interfaces?.entries?.single()?.value?.map { it.dri.sureClassNames }?.sorted() equals listOf("Highest", "Lower").sorted()
+                }
             }
         }
     }
 
     @Test fun allImplementedInterfacesWithGenericsInJava() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/Highest.java
+            |package java;
             |interface Highest<H> { }
+            |/src/java/Lower.java
+            |package java;
             |interface Lower<L> extends Highest<L> { }
+            |/src/java/Extendable.java
+            |package java;
             |class Extendable { }
+            |/src/java/Tested.java
+            |package java;
             |class Tested<T> extends Extendable implements Lower<T> { }
-        """, configuration = configuration){
-            with((this / "java" / "Tested").cast<DClass>()){
-                val implementedInterfaces = extra[ImplementedInterfaces]?.interfaces?.entries?.single()?.value!!
-                implementedInterfaces.map { it.dri.sureClassNames }.sorted() equals listOf("Highest", "Lower").sorted()
-                for (implementedInterface in implementedInterfaces) {
-                    // The type parameter T from Tested should be used for each interface, not the type parameters in
-                    // the interface definitions.
-                    assertEquals((implementedInterface.projections.single() as TypeParameter).name, "T")
+            """.trimIndent(), configuration
+        ) {
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Tested").cast<DClass>()) {
+                    val implementedInterfaces = extra[ImplementedInterfaces]?.interfaces?.entries?.single()?.value!!
+                    implementedInterfaces.map { it.dri.sureClassNames }.sorted() equals listOf("Highest", "Lower").sorted()
+                    for (implementedInterface in implementedInterfaces) {
+                        assertEquals((implementedInterface.projections.single() as TypeParameter).name, "T")
+                    }
                 }
             }
         }
     }
 
     @Test fun multipleClassInheritanceWithInterface() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/Highest.java
+            |package java;
             |interface Highest { }
+            |/src/java/Lower.java
+            |package java;
             |interface Lower extends Highest { }
+            |/src/java/Extendable.java
+            |package java;
             |class Extendable { }
+            |/src/java/Tested.java
+            |package java;
             |class Tested extends Extendable implements Lower { }
-        """, configuration = configuration){
-            with((this / "java" / "Tested").cast<DClass>()) {
-                supertypes.entries.single().value.map { it.typeConstructor.dri.sureClassNames to it.kind }.sortedBy { it.first } equals listOf("Extendable" to JavaClassKindTypes.CLASS, "Lower" to JavaClassKindTypes.INTERFACE)
+            """.trimIndent(), configuration
+        ) {
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Tested").cast<DClass>()) {
+                    supertypes.entries.single().value.map { it.typeConstructor.dri.sureClassNames to it.kind }.sortedBy { it.first } equals listOf("Extendable" to JavaClassKindTypes.CLASS, "Lower" to JavaClassKindTypes.INTERFACE)
+                }
             }
         }
     }
 
     @Test
     fun interfaceWithGeneric() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/Bar.java
+            |package java;
             |interface Bar<T> {}
+            |/src/java/Foo.java
+            |package java;
             |public class Foo implements Bar<String> {}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "Foo").cast<DClass>()) {
-                val interfaceType = supertypes.values.flatten().single()
-                assertEquals(interfaceType.kind, JavaClassKindTypes.INTERFACE)
-                assertEquals(interfaceType.typeConstructor.dri.classNames, "Bar")
-                // The interface type should be Bar<String>, and not use Bar<T> like the interface definition
-                val generic = interfaceType.typeConstructor.projections.single() as GenericTypeConstructor
-                assertEquals(generic.dri.classNames, "String")
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Foo").cast<DClass>()) {
+                    val interfaceType = supertypes.values.flatten().single()
+                    assertEquals(interfaceType.kind, JavaClassKindTypes.INTERFACE)
+                    assertEquals(interfaceType.typeConstructor.dri.classNames, "Bar")
+                    val generic = interfaceType.typeConstructor.projections.single() as GenericTypeConstructor
+                    assertEquals(generic.dri.classNames, "String")
+                }
             }
         }
     }
 
     @Test
     fun superClass() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/Foo.java
+            |package java;
             |public class Foo extends Exception implements Cloneable {}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "Foo").cast<DClass>()) {
-                val sups = listOf("Exception", "Cloneable")
-                assertTrue(
-                    sups.all { s -> supertypes.values.flatten().any { it.typeConstructor.dri.classNames == s } })
-                "Foo must extend ${sups.joinToString(", ")}"
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Foo").cast<DClass>()) {
+                    val sups = listOf("Exception", "Cloneable")
+                    assertTrue(
+                        sups.all { s -> supertypes.values.flatten().any { it.typeConstructor.dri.classNames == s } })
+                    "Foo must extend ${sups.joinToString(", ")}"
+                }
             }
         }
     }
 
     @Test
     fun superclassWithGeneric() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/Bar.java
+            |package java;
             |class Bar<T> {}
+            |/src/java/Foo.java
+            |package java;
             |public class Foo extends Bar<String> {}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "Foo").cast<DClass>()) {
-                val superclassType = supertypes.values.flatten().single()
-                assertEquals(superclassType.kind, JavaClassKindTypes.CLASS)
-                assertEquals(superclassType.typeConstructor.dri.classNames, "Bar")
-                // The superclass type should be Bar<String>, and not use Bar<T> like the class definition
-                val generic = superclassType.typeConstructor.projections.single() as GenericTypeConstructor
-                assertEquals(generic.dri.classNames, "String")
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Foo").cast<DClass>()) {
+                    val superclassType = supertypes.values.flatten().single()
+                    assertEquals(superclassType.kind, JavaClassKindTypes.CLASS)
+                    assertEquals(superclassType.typeConstructor.dri.classNames, "Bar")
+                    val generic = superclassType.typeConstructor.projections.single() as GenericTypeConstructor
+                    assertEquals(generic.dri.classNames, "String")
+                }
             }
         }
     }
 
     @Test
     fun arrayType() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/Test.java
+            |package java;
             |class Test {
             |    public String[] arrayToString(int[] data) {
             |      return null;
             |    }
             |}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "Test").cast<DClass>()) {
-                name equals "Test"
-                children counts 2 // default constructor and function
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Test").cast<DClass>()) {
+                    name equals "Test"
+                    children counts 2 // default constructor and function
 
-                with((this / "arrayToString").cast<DFunction>()) {
-                    name equals "arrayToString"
-                    type.name equals "Array"
-                    with(parameters.firstOrNull().assertNotNull("parameters")) {
-                        name equals "data"
+                    with((this / "arrayToString").cast<DFunction>()) {
+                        name equals "arrayToString"
                         type.name equals "Array"
+                        with(parameters.firstOrNull().assertNotNull("parameters")) {
+                            name equals "data"
+                            type.name equals "Array"
+                        }
                     }
                 }
             }
@@ -199,20 +262,24 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
     @Test
     fun typeParameter() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/Foo.java
+            |package java;
             |class Foo<T extends Comparable<T>> {
             |     public <E> E foo();
             |}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "Foo").cast<DClass>()) {
-                generics counts 1
-                generics[0].dri.classNames equals "Foo"
-                (functions[0].type as? TypeParameter)?.dri?.run {
-                    packageName equals "java"
-                    name equals "Foo"
-                    callable?.name equals "foo"
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Foo").cast<DClass>()) {
+                    generics counts 1
+                    generics[0].dri.classNames equals "Foo"
+                    (functions[0].type as? TypeParameter)?.dri?.run {
+                        packageName equals "java"
+                        name equals "Foo"
+                        callable?.name equals "foo"
+                    }
                 }
             }
         }
@@ -220,30 +287,37 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
     @Test
     fun typeParameterIntoDifferentClasses2596() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/GenericDocument.java
+            |package java;
             |class GenericDocument { }
+            |/src/java/DocumentClassFactory.java
+            |package java;
             |public interface DocumentClassFactory<T> {
             |    String getSchemaName();
             |    GenericDocument toGenericDocument(T document);
             |    T fromGenericDocument(GenericDocument genericDoc);
             |}
-            |
+            |/src/java/DocumentClassFactoryRegistry.java
+            |package java;
             |public final class DocumentClassFactoryRegistry {
             |    public <T> DocumentClassFactory<T> getOrCreateFactory(T documentClass) {
             |        return null;
             |    }
             |}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "DocumentClassFactory").cast<DInterface>()) {
-                generics counts 1
-                generics[0].dri.classNames equals "DocumentClassFactory"
-            }
-            with((this / "java" / "DocumentClassFactoryRegistry").cast<DClass>()) {
-                functions.forEach {
-                    (it.type as GenericTypeConstructor).dri.classNames equals "DocumentClassFactory"
-                    ((it.type as GenericTypeConstructor).projections[0] as TypeParameter).dri.classNames equals "DocumentClassFactoryRegistry"
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "DocumentClassFactory").cast<DInterface>()) {
+                    generics counts 1
+                    generics[0].dri.classNames equals "DocumentClassFactory"
+                }
+                with((module / "java" / "DocumentClassFactoryRegistry").cast<DClass>()) {
+                    functions.forEach {
+                        (it.type as GenericTypeConstructor).dri.classNames equals "DocumentClassFactory"
+                        ((it.type as GenericTypeConstructor).projections[0] as TypeParameter).dri.classNames equals "DocumentClassFactoryRegistry"
+                    }
                 }
             }
         }
@@ -251,24 +325,28 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
     @Test
     fun constructors() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/Test.java
+            |package java;
             |class Test {
             |  public Test() {}
             |
             |  public Test(String s) {}
             |}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "Test").cast<DClass>()) {
-                name equals "Test"
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Test").cast<DClass>()) {
+                    name equals "Test"
 
-                constructors counts 2
-                constructors.forEach { it.name equals "Test" }
-                constructors.find { it.parameters.isEmpty() }.assertNotNull("Test()")
+                    constructors counts 2
+                    constructors.forEach { it.name equals "Test" }
+                    constructors.find { it.parameters.isEmpty() }.assertNotNull("Test()")
 
-                with(constructors.find { it.parameters.isNotEmpty() }.assertNotNull("Test(String)")) {
-                    parameters.firstOrNull()?.type?.name equals "String"
+                    with(constructors.find { it.parameters.isNotEmpty() }.assertNotNull("Test(String)")) {
+                        parameters.firstOrNull()?.type?.name equals "String"
+                    }
                 }
             }
         }
@@ -276,18 +354,22 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
     @Test
     fun innerClass() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/InnerClass.java
+            |package java;
             |class InnerClass {
             |    public class D {}
             |}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "InnerClass").cast<DClass>()) {
-                children counts 2 // default constructor and inner class
-                with((this / "D").cast<DClass>()) {
-                    name equals "D"
-                    children counts 1 // default constructor
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "InnerClass").cast<DClass>()) {
+                    children counts 2 // default constructor and inner class
+                    with((this / "D").cast<DClass>()) {
+                        name equals "D"
+                        children counts 1 // default constructor
+                    }
                 }
             }
         }
@@ -295,22 +377,26 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
     @Test
     fun varargs() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/Foo.java
+            |package java;
             |class Foo {
             |     public void bar(String... x);
             |}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "Foo").cast<DClass>()) {
-                name equals "Foo"
-                children counts 2 // default constructor and function
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Foo").cast<DClass>()) {
+                    name equals "Foo"
+                    children counts 2 // default constructor and function
 
-                with((this / "bar").cast<DFunction>()) {
-                    name equals "bar"
-                    with(parameters.firstOrNull().assertNotNull("parameter")) {
-                        name equals "x"
-                        type.name equals "Array"
+                    with((this / "bar").cast<DFunction>()) {
+                        name equals "bar"
+                        with(parameters.firstOrNull().assertNotNull("parameter")) {
+                            name equals "x"
+                            type.name equals "Array"
+                        }
                     }
                 }
             }
@@ -319,25 +405,29 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
     @Test
     fun fields() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/Test.java
+            |package java;
             |class Test {
             |  public int i;
             |  public static final String s;
             |}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "Test").cast<DClass>()) {
-                children counts 3 // default constructor + 2 props
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Test").cast<DClass>()) {
+                    children counts 3 // default constructor + 2 props
 
-                with((this / "i").cast<DProperty>()) {
-                    getter equals null
-                    setter equals null
-                }
+                    with((this / "i").cast<DProperty>()) {
+                        getter equals null
+                        setter equals null
+                    }
 
-                with((this / "s").cast<DProperty>()) {
-                    getter equals null
-                    setter equals null
+                    with((this / "s").cast<DProperty>()) {
+                        getter equals null
+                        setter equals null
+                    }
                 }
             }
         }
@@ -345,17 +435,21 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
     @Test
     fun staticMethod() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/C.java
+            |package java;
             |class C {
             |  public static void foo() {}
             |}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "C" / "foo").cast<DFunction>()) {
-                with(extra[AdditionalModifiers]!!.content.entries.single().value.assertNotNull("AdditionalModifiers")) {
-                    this counts 1
-                    first() equals ExtraModifiers.JavaOnlyModifiers.Static
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "C" / "foo").cast<DFunction>()) {
+                    with(extra[AdditionalModifiers]!!.content.entries.single().value.assertNotNull("AdditionalModifiers")) {
+                        this counts 1
+                        first() equals ExtraModifiers.JavaOnlyModifiers.Static
+                    }
                 }
             }
         }
@@ -363,20 +457,24 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
     @Test
     fun throwsList() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/C.java
+            |package java;
             |class C {
             |  public void foo() throws java.io.IOException, ArithmeticException {}
             |}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "C" / "foo").cast<DFunction>()) {
-                with(extra[CheckedExceptions]?.exceptions?.entries?.single()?.value.assertNotNull("CheckedExceptions")) {
-                    this counts 2
-                    first().packageName equals "java.io"
-                    first().classNames equals "IOException"
-                    get(1).packageName equals "java.lang"
-                    get(1).classNames equals "ArithmeticException"
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "C" / "foo").cast<DFunction>()) {
+                    with(extra[CheckedExceptions]?.exceptions?.entries?.single()?.value.assertNotNull("CheckedExceptions")) {
+                        this counts 2
+                        first().packageName equals "java.io"
+                        first().classNames equals "IOException"
+                        get(1).packageName equals "java.lang"
+                        get(1).classNames equals "ArithmeticException"
+                    }
                 }
             }
         }
@@ -384,25 +482,29 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
     @Test
     fun annotatedAnnotation() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/Attribute.java
+            |package java;
             |import java.lang.annotation.*;
             |
             |@Target({ElementType.FIELD, ElementType.TYPE, ElementType.METHOD})
             |public @interface Attribute {
             |  String value() default "";
             |}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "Attribute").cast<DAnnotation>()) {
-                with(extra[Annotations]!!.directAnnotations.entries.single().value.assertNotNull("Annotations")) {
-                    with(single()) {
-                        dri.classNames equals "Target"
-                        (params["value"].assertNotNull("value") as ArrayValue).value equals listOf(
-                            EnumValue("ElementType.FIELD", DRI("java.lang.annotation", "ElementType")),
-                            EnumValue("ElementType.TYPE", DRI("java.lang.annotation", "ElementType")),
-                            EnumValue("ElementType.METHOD", DRI("java.lang.annotation", "ElementType"))
-                        )
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Attribute").cast<DAnnotation>()) {
+                    with(extra[Annotations]!!.directAnnotations.entries.single().value.assertNotNull("Annotations")) {
+                        with(single()) {
+                            dri.classNames equals "Target"
+                            (params["value"].assertNotNull("value") as ArrayValue).value equals listOf(
+                                EnumValue("ElementType.FIELD", DRI("java.lang.annotation", "ElementType")),
+                                EnumValue("ElementType.TYPE", DRI("java.lang.annotation", "ElementType")),
+                                EnumValue("ElementType.METHOD", DRI("java.lang.annotation", "ElementType"))
+                            )
+                        }
                     }
                 }
             }
@@ -411,33 +513,41 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
     @Test
     fun javaLangObject() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/Test.java
+            |package java;
             |class Test {
             |  public Object fn() { return null; }
             |}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "Test" / "fn").cast<DFunction>()) {
-                assertTrue(type is JavaObject)
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Test" / "fn").cast<DFunction>()) {
+                    assertTrue(type is JavaObject)
+                }
             }
         }
     }
 
     @Test
     fun enumValues() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/E.java
+            |package java;
             |enum E {
             |  Foo
             |}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "E").cast<DEnum>()) {
-                name equals "E"
-                entries counts 1
-                with((this / "Foo").cast<DEnumEntry>()) {
-                    name equals "Foo"
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "E").cast<DEnum>()) {
+                    name equals "E"
+                    entries counts 1
+                    with((this / "Foo").cast<DEnumEntry>()) {
+                        name equals "Foo"
+                    }
                 }
             }
         }
@@ -445,22 +555,26 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
     @Test
     fun inheritorLinks() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/InheritorLinks.java
+            |package java;
             |public class InheritorLinks {
             |  public static class Foo {}
             |
             |  public static class Bar extends Foo {}
             |}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "InheritorLinks").cast<DClass>()) {
-                val dri = (this / "Bar").assertNotNull("Foo dri").dri
-                with((this / "Foo").cast<DClass>()) {
-                    with(extra[InheritorsInfo].assertNotNull("InheritorsInfo")) {
-                        with(value.values.flatten().distinct()) {
-                            this counts 1
-                            first() equals dri
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "InheritorLinks").cast<DClass>()) {
+                    val dri = (this / "Bar").assertNotNull("Foo dri").dri
+                    with((this / "Foo").cast<DClass>()) {
+                        with(extra[InheritorsInfo].assertNotNull("InheritorsInfo")) {
+                            with(value.values.flatten().distinct()) {
+                                this counts 1
+                                first() equals dri
+                            }
                         }
                     }
                 }
@@ -470,8 +584,10 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
     @Test
     fun `retention should work with static import`() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/JsonClass.java
+            |package java;
             |import java.lang.annotation.Retention;
             |import java.lang.annotation.RetentionPolicy;
             |import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -479,69 +595,75 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
             |@Retention(RUNTIME)
             |public @interface JsonClass {
             |};
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "JsonClass").cast<DAnnotation>()) {
-                val annotation = extra[Annotations]?.directAnnotations?.entries
-                    ?.firstOrNull()?.value //First sourceset
-                    ?.firstOrNull()
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "JsonClass").cast<DAnnotation>()) {
+                    val annotation = extra[Annotations]?.directAnnotations?.entries
+                        ?.firstOrNull()?.value //First sourceset
+                        ?.firstOrNull()
 
-                val expectedDri = DRI("java.lang.annotation", "Retention", null, PointingToDeclaration)
-                val expectedParams = "value" to EnumValue(
-                    "RUNTIME",
-                    DRI(
-                        "java.lang.annotation",
-                        "RetentionPolicy.RUNTIME",
-                        null,
-                        PointingToDeclaration,
-                        DRIExtraContainer().also { it[EnumEntryDRIExtra] = EnumEntryDRIExtra }.encode()
+                    val expectedDri = DRI("java.lang.annotation", "Retention", null, PointingToDeclaration)
+                    val expectedParams = "value" to EnumValue(
+                        "RUNTIME",
+                        DRI(
+                            "java.lang.annotation",
+                            "RetentionPolicy.RUNTIME",
+                            null,
+                            PointingToDeclaration,
+                            DRIExtraContainer().also { it[EnumEntryDRIExtra] = EnumEntryDRIExtra }.encode()
+                        )
                     )
-                )
 
-                assertEquals(expectedDri, annotation?.dri)
-                assertEquals(expectedParams.first, annotation?.params?.entries?.first()?.key)
-                assertEquals(expectedParams.second, annotation?.params?.entries?.first()?.value)
+                    assertEquals(expectedDri, annotation?.dri)
+                    assertEquals(expectedParams.first, annotation?.params?.entries?.first()?.key)
+                    assertEquals(expectedParams.second, annotation?.params?.entries?.first()?.value)
+                }
             }
         }
     }
 
     @Test
     fun variances() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/Foo.java
+            |package java;
             |public class Foo {
             |    public void superBound(java.util.List<? super String> param) {}
             |    public void extendsBound(java.util.List<? extends String> param) {}
             |    public void unbounded(java.util.List<?> param) {}
             |}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "Foo").cast<DClass>()) {
-                val functionNames = functions.map { it.name }
-                assertContains(functionNames, "superBound")
-                assertContains(functionNames, "extendsBound")
-                assertContains(functionNames, "unbounded")
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Foo").cast<DClass>()) {
+                    val functionNames = functions.map { it.name }
+                    assertContains(functionNames, "superBound")
+                    assertContains(functionNames, "extendsBound")
+                    assertContains(functionNames, "unbounded")
 
-                for (function in functions) {
-                    val param = function.parameters.single()
-                    val type = param.type as GenericTypeConstructor
-                    val variance = type.projections.single()
+                    for (function in functions) {
+                        val param = function.parameters.single()
+                        val type = param.type as GenericTypeConstructor
+                        val variance = type.projections.single()
 
-                    when (function.name) {
-                        "superBound" -> {
-                            assertTrue(variance is Contravariance<*>)
-                            val bound = variance.inner
-                            assertEquals((bound as GenericTypeConstructor).dri.classNames, "String")
-                        }
-                        "extendsBound" -> {
-                            assertTrue(variance is Covariance<*>)
-                            val bound = variance.inner
-                            assertEquals((bound as GenericTypeConstructor).dri.classNames, "String")
-                        }
-                        "unbounded" -> {
-                            assertTrue(variance is Covariance<*>)
-                            val bound = variance.inner
-                            assertTrue(bound is JavaObject)
+                        when (function.name) {
+                            "superBound" -> {
+                                assertTrue(variance is Contravariance<*>)
+                                val bound = variance.inner
+                                assertEquals((bound as GenericTypeConstructor).dri.classNames, "String")
+                            }
+                            "extendsBound" -> {
+                                assertTrue(variance is Covariance<*>)
+                                val bound = variance.inner
+                                assertEquals((bound as GenericTypeConstructor).dri.classNames, "String")
+                            }
+                            "unbounded" -> {
+                                assertTrue(variance is Covariance<*>)
+                                val bound = variance.inner
+                                assertTrue(bound is JavaObject)
+                            }
                         }
                     }
                 }
@@ -551,22 +673,26 @@ class JavaTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
     @Test
     fun `should have a link to a package in see doctag`() {
-        inlineModelTest(
+        testInline(
             """
+            |/src/java/Foo.java
+            |package java;
             |/**
             | * @see java
             | */
             |public class Foo {
             |}
-            """, configuration = configuration
+            """.trimIndent(), configuration
         ) {
-            with((this / "java" / "Foo").cast<DClass>()) {
-                val doc = this.documentation.values.single()
-                val expectedDRI = DRI(
-                    packageName = "java", classNames = null,
-                    target = PointingToDeclaration,
-                )
-                assertEquals(expectedDRI, (doc.dfs { it is See } as See).address)
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Foo").cast<DClass>()) {
+                    val doc = this.documentation.values.single()
+                    val expectedDRI = DRI(
+                        packageName = "java", classNames = null,
+                        target = PointingToDeclaration,
+                    )
+                    assertEquals(expectedDRI, (doc.dfs { it is See } as See).address)
+                }
             }
         }
     }
