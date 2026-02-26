@@ -6,7 +6,9 @@ package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 
 import com.intellij.psi.PsiJavaFile
+import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.dokka.analysis.java.util.from
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.*
 import com.intellij.psi.util.PsiLiteralUtil
 import org.jetbrains.dokka.DokkaConfiguration
@@ -762,6 +764,10 @@ internal class DokkaSymbolVisitor(
                     getDokkaAnnotationsFrom(functionSymbol)
                         ?.toSourceSetDependent()?.toAnnotations(),
                     ObviousMember.takeIf { isObvious(functionSymbol, inheritedFrom) },
+                    (functionSymbol.psi as? PsiMethod)?.throwsList
+                        ?.referenceElements?.mapNotNull { it?.resolve()?.let { resolved -> DRI.from(resolved) } }
+                        ?.takeIf { it.isNotEmpty() }
+                        ?.let { CheckedExceptions(it.toSourceSetDependent()) },
                 )
             )
         }
@@ -1099,7 +1105,7 @@ internal class DokkaSymbolVisitor(
             ExtraModifiers.KotlinOnlyModifiers.Inline.takeIf { isInline },
             ExtraModifiers.KotlinOnlyModifiers.Suspend.takeIf { isSuspend },
             ExtraModifiers.KotlinOnlyModifiers.Operator.takeIf { isOperator },
-//ExtraModifiers.JavaOnlyModifiers.Static.takeIf { isJvmStaticInObjectOrClassOrInterface() },
+            ExtraModifiers.JavaOnlyModifiers.Static.takeIf { isStatic },
             ExtraModifiers.KotlinOnlyModifiers.TailRec.takeIf { isTailRec },
             ExtraModifiers.KotlinOnlyModifiers.External.takeIf { isExternal },
             ExtraModifiers.KotlinOnlyModifiers.Override.takeIf {
