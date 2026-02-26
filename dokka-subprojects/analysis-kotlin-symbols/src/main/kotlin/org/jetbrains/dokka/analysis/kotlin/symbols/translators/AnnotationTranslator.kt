@@ -4,6 +4,9 @@
 
 package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
+import com.intellij.psi.PsiAnnotation
+import com.intellij.psi.PsiJavaFile
+import org.jetbrains.dokka.analysis.java.util.from
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.withEnumEntryExtra
 import org.jetbrains.dokka.model.*
@@ -33,8 +36,8 @@ internal class AnnotationTranslator {
             (symbol.psi?.containingFile as? KtFile)?.symbol?.annotations
                 ?.map { toDokkaAnnotation(it) }
 
-    private fun KaSession.getDirectAnnotationsFrom(annotated: KaAnnotated) =
-        annotated.annotations.map { toDokkaAnnotation(it) }
+    private fun KaSession.getDirectAnnotationsFrom(annotated: KaAnnotated, isJavaContext: Boolean = false) =
+        annotated.annotations.map { toDokkaAnnotation(it, isJavaContext) }
 
     /**
      * The examples of annotations from backing field are [JvmField], [JvmSynthetic].
@@ -42,9 +45,13 @@ internal class AnnotationTranslator {
      * @return direct annotations, annotations from backing field and file-level annotations
      */
     fun KaSession.getAllAnnotationsFrom(annotated: KaAnnotated): List<Annotations.Annotation> {
-        val directAnnotations = getDirectAnnotationsFrom(annotated)
+        val isJava = (annotated as? KaSymbol)?.let {
+            it.origin == KaSymbolOrigin.JAVA_SOURCE || it.origin == KaSymbolOrigin.JAVA_LIBRARY
+                    || it.psi?.containingFile is PsiJavaFile
+        } ?: false
+        val directAnnotations = getDirectAnnotationsFrom(annotated, isJava)
         val backingFieldAnnotations =
-            (annotated as? KaPropertySymbol)?.backingFieldSymbol?.let { getDirectAnnotationsFrom(it) }.orEmpty()
+            (annotated as? KaPropertySymbol)?.backingFieldSymbol?.let { getDirectAnnotationsFrom(it, isJava) }.orEmpty()
         val fileLevelAnnotations = (annotated as? KaSymbol)?.let { getFileLevelAnnotationsFrom(it) }.orEmpty()
         return directAnnotations + backingFieldAnnotations + fileLevelAnnotations
     }
@@ -71,10 +78,29 @@ internal class AnnotationTranslator {
         return annotationClass?.let { mustBeDocumentedAnnotation in it.annotations } == true
     }
 
-    private fun KaSession.toDokkaAnnotation(annotation: KaAnnotation) =
-        Annotations.Annotation(
-            dri = annotation.classId?.createDRI()
-                ?: DRI(packageName = "", classNames = ERROR_CLASS_NAME), // classId might be null on a non-existing annotation call,
+    private fun KaSession.toDokkaAnnotation(annotation: KaAnnotation, isJavaContext: Boolean = false): Annotations.Annotation {
+        val classId = annotation.classId
+        var dri = classId?.createDRI()
+            ?: DRI(packageName = "", classNames = ERROR_CLASS_NAME)
+
+        // For Java annotations, reverse-map Kotlin annotation classIds back to their Java originals
+        // (e.g., kotlin/Deprecated → java.lang/Deprecated, kotlin.annotation/Retention → java.lang.annotation/Retention)
+        // Also check the annotation's own PSI: if it's a PsiAnnotation, it's from Java
+        val isJava = isJavaContext || annotation.psi is PsiAnnotation
+        if (isJava && classId != null) {
+            // First try JavaToKotlinClassMap for type-level mappings
+            val javaClassId = org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
+                .mapKotlinToJava(classId.asSingleFqName().toUnsafe())
+            if (javaClassId != null) {
+                dri = javaClassId.createDRI()
+            } else {
+                // Handle annotation-specific mappings that JavaToKotlinClassMap doesn't cover
+                kotlinToJavaAnnotationMap[classId]?.let { dri = it.createDRI() }
+            }
+        }
+
+        return Annotations.Annotation(
+            dri = dri,
             params = annotation.arguments.associate {
                 it.name.asString() to toDokkaAnnotationValue(
                     it.expression
@@ -83,6 +109,7 @@ internal class AnnotationTranslator {
             mustBeDocumented = mustBeDocumented(annotation),
             scope = annotation.useSiteTarget?.toDokkaAnnotationScope() ?: Annotations.AnnotationScope.DIRECT
         )
+    }
 
     @OptIn(ExperimentalUnsignedTypes::class)
     private fun KaSession.toDokkaAnnotationValue(annotationValue: KaAnnotationValue): AnnotationParameterValue =
@@ -142,6 +169,18 @@ internal class AnnotationTranslator {
     companion object {
         val mustBeDocumentedAnnotation = ClassId(StandardNames.ANNOTATION_PACKAGE_FQ_NAME, FqName("MustBeDocumented"), false)
         val parameterNameAnnotation = StandardNames.FqNames.parameterNameClassId
+
+        /**
+         * Kotlin annotations that AA maps from Java annotations.
+         * Used to reverse-map back to the original Java DRI when processing Java sources.
+         */
+        private val kotlinToJavaAnnotationMap: Map<ClassId, ClassId> = mapOf(
+            ClassId.fromString("kotlin/Deprecated") to ClassId.fromString("java/lang/Deprecated"),
+            ClassId.fromString("kotlin/annotation/Retention") to ClassId.fromString("java/lang/annotation/Retention"),
+            ClassId.fromString("kotlin/annotation/Target") to ClassId.fromString("java/lang/annotation/Target"),
+            ClassId.fromString("kotlin/annotation/Repeatable") to ClassId.fromString("java/lang/annotation/Repeatable"),
+            ClassId.fromString("kotlin/annotation/MustBeDocumented") to ClassId.fromString("java/lang/annotation/Documented"),
+        )
 
         /**
          * Functional types can have **generated** [ParameterName] annotation
