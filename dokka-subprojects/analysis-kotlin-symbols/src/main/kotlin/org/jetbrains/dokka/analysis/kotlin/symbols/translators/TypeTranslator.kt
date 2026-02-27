@@ -119,6 +119,8 @@ internal class TypeTranslator(
                 when {
                     // Map java.lang.Object / kotlin.Any to JavaObject in Java context
                     fqName == "java.lang.Object" || (unwrapInvariant && fqName == "kotlin.Any") -> JavaObject()
+                    // Map kotlin.Unit to Void in Java context (Java void methods)
+                    unwrapInvariant && fqName == "kotlin.Unit" -> Void
                     // Map Kotlin primitive types to PrimitiveJavaType in Java context
                     unwrapInvariant && kotlinPrimitiveToJava.containsKey(fqName) -> PrimitiveJavaType(kotlinPrimitiveToJava[fqName]!!)
                     // Map Kotlin primitive array types to Array<PrimitiveJavaType> in Java context
