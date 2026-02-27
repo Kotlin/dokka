@@ -1093,10 +1093,6 @@ class SnippetTest : BaseAbstractTest() {
         }
     }
 
-    //  The snippet-files/ directory files are in the AA source module but the PsiJavaCodeReferenceElement
-    //  or its value may not be parsed the same way, so readExternalSnippetLines is never reached.
-    //  The readExternalSnippetLines fallback to direct filesystem lookup was added but the upstream
-    //  PSI parsing issue prevents it from being called.
     @OnlyJavaPsi
     @Test
     fun `incorrect hybrid snippet`() {
