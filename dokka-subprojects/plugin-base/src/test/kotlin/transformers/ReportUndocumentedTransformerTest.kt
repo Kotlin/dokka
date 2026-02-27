@@ -770,7 +770,6 @@ class ReportUndocumentedTransformerTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `java undocumented inherited method gets reported`() {
         val configuration = dokkaConfiguration {

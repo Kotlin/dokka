@@ -13,7 +13,6 @@ import kotlin.test.assertEquals
 
 internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
 
-    @OnlyJavaPsi
     @Test
     fun `generates correct number of sections`() {
         testDeprecatedPageTemplateMaps { templateMap ->
@@ -22,7 +21,6 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `finds correct number of element for removal`() {
         testDeprecatedPageTemplateMaps { templateMap ->
@@ -31,7 +29,8 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
         }
     }
 
-    // TODO: AA produces different constructor count for deprecated Java classes
+    // AA produces different deprecated constructor count for Java classes
+    @org.jetbrains.dokka.javadoc.utils.OnlyJavaPsi
     @Test
     fun `finds correct number of deprecated constructors`() {
         testDeprecatedPageTemplateMaps { templateMap ->
@@ -73,7 +72,6 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `should be sorted by position`() {
         testDeprecatedPageTemplateMaps { templateMap ->

@@ -21,7 +21,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-@OnlyJavaPsi
 class JavaTest : BaseAbstractTest() {
     val configuration = dokkaConfiguration {
         sourceSets {

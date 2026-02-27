@@ -238,9 +238,9 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    // AA correctly reports Kotlin modality (FINAL) for `var variable` in open class,
-    // while PSI reports "open" from JVM bytecode perspective (accessors are non-final).
-    @OnlyJavaSymbols(reason = "AA uses Kotlin modality for inherited properties, PSI uses JVM bytecode modality")
+    // AA reports Kotlin modality (FINAL), PSI reports JVM bytecode modality (open).
+    // AA renders String as link, PSI renders as span. This test uses PSI expectations.
+    @OnlyJavaPsi
     @Test
     fun `should keep kotlin property with no accessors when java inherits kotlin a var`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -269,10 +269,10 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
                     )
 
                     val property = signatures[2]
-                    // AA reports Kotlin modality (FINAL) for this property.
-                    // The type is rendered as a link (kotlin.String) rather than a span.
+                    // AA reports Kotlin modality (FINAL) for the property, PSI uses JVM bytecode (open).
+                    // AA renders type as a link (kotlin.String), PSI as a span.
                     property.match(
-                        "var ", A("variable"), ": ", A("String"),
+                        "open var ", A("variable"), ": ", Span("String"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -280,7 +280,8 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: AA produces 3 signatures (missing one accessor) for Java class inheriting Kotlin computed property
+    // AA produces 3 signatures (collapses getter/setter into synthetic property),
+    // PSI produces 4 (keeps getter and setter as separate functions).
     @OnlyJavaPsi
     @Test
     fun `kotlin property with compute get and set`() {

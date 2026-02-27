@@ -1093,13 +1093,10 @@ class SnippetTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: PSI reference resolution for @snippet file="..." attribute doesn't work in AA context.
     //  The snippet-files/ directory files are in the AA source module but the PsiJavaCodeReferenceElement
-    // TODO: In AA context, the @snippet tag's PsiSnippetDocTag PSI structure differs — the file attribute
     //  or its value may not be parsed the same way, so readExternalSnippetLines is never reached.
     //  The readExternalSnippetLines fallback to direct filesystem lookup was added but the upstream
     //  PSI parsing issue prevents it from being called.
-    @org.junit.jupiter.api.Disabled("AA PSI parsing of @snippet tag produces different PSI structure")
     @OnlyJavaPsi
     @Test
     fun `incorrect hybrid snippet`() {

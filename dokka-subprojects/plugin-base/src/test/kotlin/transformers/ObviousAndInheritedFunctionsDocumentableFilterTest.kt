@@ -158,7 +158,6 @@ class ObviousAndInheritedFunctionsDocumentableFilterTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @ParameterizedTest
     @MethodSource(value = ["suppressingObviousConfiguration", "suppressingInheritedConfiguration"])
     fun `should suppress toString, equals and hashcode but keep custom ones in Java`(suppressingConfiguration: DokkaConfigurationImpl) {
@@ -223,9 +222,7 @@ class ObviousAndInheritedFunctionsDocumentableFilterTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: AA's combinedMemberScope doesn't include all inherited java.lang.Object methods (notify, notifyAll)
     //  for Java classes. Needs investigation into AA's scope resolution for Java classes.
-    @OnlyJavaPsi
     @ParameterizedTest
     @MethodSource(value = ["nonSuppressingObviousConfiguration", "nonSuppressingInheritedConfiguration"])
     fun `should not suppress toString, equals and hashcode if custom config is provided in Java`(

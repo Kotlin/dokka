@@ -211,8 +211,8 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: AA renders Java property modifiers differently — likely accessor convention issue
-    @OnlyJavaPsi
+    // AA renders Java property modifiers differently in kotlin-as-java context
+    @kotlinAsJavaPlugin.utils.OnlyJavaPsi
     @Test
     fun `java properties should keep its modifiers`() {
         testInline(
@@ -487,7 +487,6 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `Java function should keep its access modifier`() {
         val className = "Test"

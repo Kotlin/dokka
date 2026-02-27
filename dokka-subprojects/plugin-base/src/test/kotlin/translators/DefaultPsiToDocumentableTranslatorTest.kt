@@ -174,7 +174,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `java package-info package annotations`() {
         testInline(
@@ -200,7 +199,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `should add default value to constant properties`() {
         testInline(
@@ -388,8 +386,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
 //        }
 //    }
 
-    // TODO: AA's KaSyntheticJavaPropertySymbol has different accessor detection logic than PSI's splitFunctionsAndAccessors
-    @OnlyJavaPsi
     @Test
     fun `should preserve regular functions that are named like getters, but are not getters`() {
         testInline(
@@ -413,8 +409,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: AA's KaSyntheticJavaPropertySymbol has different accessor detection logic than PSI's splitFunctionsAndAccessors
-    @OnlyJavaPsi
     @Test
     fun `should ignore additional non-accessor setters`() {
         testInline(
@@ -563,8 +557,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: AA's KaSyntheticJavaPropertySymbol has different accessor detection logic than PSI's splitFunctionsAndAccessors
-    @OnlyJavaPsi
     @Test
     fun `should not associate accessors with field because field is public api`() {
         val configuration = dokkaConfiguration {
@@ -694,7 +686,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test // see https://github.com/Kotlin/dokka/issues/2646
     fun `should resolve PsiImmediateClassType as class reference`() {
         testInline(
@@ -747,9 +738,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: AA generates KDoc-style template docs for Java enum synthetic methods instead of Javadoc-style.
     //  The SyntheticElementDocumentationProvider in analysis-java-psi is internal and can't be reused directly.
-    @OnlyJavaPsi
     @Test
     fun `should have documentation for synthetic Enum values functions`() {
         testInline(
@@ -819,9 +808,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: AA generates KDoc-style template docs for Java enum synthetic methods instead of Javadoc-style.
     //  The SyntheticElementDocumentationProvider in analysis-java-psi is internal and can't be reused directly.
-    @OnlyJavaPsi
     @Test
     fun `should have documentation for synthetic Enum valueOf functions`() {
         testInline(
@@ -898,7 +885,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 assertEquals(expectedValueOfType, valueOfFunction.type)
 
                 val valueOfParamDRI = (valueOfFunction.parameters.single().type as GenericTypeConstructor).dri
-                // AA may resolve String as kotlin.String or java.lang.String depending on analysis backend
                 assertTrue(
                     valueOfParamDRI == DRI(packageName = "java.lang", classNames = "String")
                             || valueOfParamDRI == DRI(packageName = "kotlin", classNames = "String"),
@@ -908,7 +894,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `should have public default constructor in public class`() {
         testInline(
@@ -962,7 +947,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `should have private default constructor in private nested class`() {
         val configuration = dokkaConfiguration {
@@ -994,7 +978,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `should not have a default public constructor because have explicit private`() {
         val configuration = dokkaConfiguration {

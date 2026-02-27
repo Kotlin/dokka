@@ -15,7 +15,6 @@ import org.jetbrains.dokka.pages.ContentStyle
 import utils.*
 import kotlin.test.*
 
-@OnlyJavaPsi
 class JavaDeprecatedTest : BaseAbstractTest() {
 
     private val testConfiguration = dokkaConfiguration {

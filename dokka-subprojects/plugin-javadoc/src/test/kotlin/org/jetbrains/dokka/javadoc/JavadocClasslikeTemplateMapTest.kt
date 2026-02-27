@@ -238,8 +238,8 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
         }
     }
 
-    // TODO: AA-based Java analysis produces different template map for documented function parameters
-    @OnlyJavaPsi
+    // AA-based Java analysis produces different template map for documented function parameters
+    @org.jetbrains.dokka.javadoc.utils.OnlyJavaPsi
     @Test
     fun `documented function parameters`(){
         dualTestTemplateMapInline(

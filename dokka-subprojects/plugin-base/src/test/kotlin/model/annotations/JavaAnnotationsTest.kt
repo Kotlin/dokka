@@ -24,7 +24,6 @@ class JavaAnnotationsTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test // see https://github.com/Kotlin/dokka/issues/2350
     fun `should hande array used as annotation param value`() {
         testInline(

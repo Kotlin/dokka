@@ -130,8 +130,6 @@ class PsiSuperFieldsTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: AA's KaSyntheticJavaPropertySymbol has different accessor detection logic than PSI's splitFunctionsAndAccessors
-    @OnlyJavaPsi
     @Test
     fun `java inheriting kotlin with @JvmField should not inherit accessors`() {
         testInline(

@@ -16,7 +16,6 @@ import kotlin.test.assertTrue
 
 class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/java/Test.java", "java") {
 
-    @OnlyJavaPsi
     @Test
     fun `function with deprecated parameter`() {
         inlineModelTest(
@@ -94,7 +93,6 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
     }
 
     //  The PSI translator explicitly wraps bounds with Nullable(getBound(classType)).
-    @OnlyJavaPsi
     @Test
     fun `function with generic parameter that has annotated bounds`() {
         inlineModelTest(
@@ -125,7 +123,6 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `type parameter annotations should be visible even if type declaration has none`() {
         inlineModelTest(
@@ -156,7 +153,6 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `type parameter annotations should not be propagated from resolved type`() {
         inlineModelTest(
