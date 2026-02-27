@@ -6,13 +6,7 @@ package signatures
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import utils.A
-import utils.Span
-import utils.TestOutputWriterPlugin
-import utils.match
-import utils.OnlyDescriptors
-import utils.OnlyJavaPsi
-import utils.OnlyJavaSymbols
+import utils.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

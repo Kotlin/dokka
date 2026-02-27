@@ -9,7 +9,6 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import translators.findClasslike
-import utils.OnlyJavaPsi
 import kotlin.test.*
 
 class JavaAnnotationsTest : BaseAbstractTest() {

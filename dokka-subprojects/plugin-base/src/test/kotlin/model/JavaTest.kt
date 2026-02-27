@@ -13,7 +13,6 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.See
 import org.jetbrains.dokka.model.doc.Text
-import utils.OnlyJavaPsi
 import utils.assertContains
 import utils.assertNotNull
 import utils.name

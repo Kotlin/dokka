@@ -9,7 +9,6 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import testApi.testRunner.dokkaConfiguration
-import utils.OnlyJavaPsi
 import utils.withAllowKotlinPackage
 import kotlin.test.assertEquals
 

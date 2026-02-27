@@ -9,7 +9,6 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.utilities.cast
 import utils.AbstractModelTest
-import utils.OnlyJavaPsi
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
