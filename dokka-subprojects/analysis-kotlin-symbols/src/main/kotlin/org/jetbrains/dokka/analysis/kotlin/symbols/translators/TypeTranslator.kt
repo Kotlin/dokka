@@ -113,6 +113,11 @@ internal class TypeTranslator(
         contextParametersCount = @OptIn(KaExperimentalApi::class) functionalType.contextReceivers.size
     )
 
+    // TODO: the main problem is really with mapped types
+    //  e.g. java.lang.Object and kotlin.Any
+    //  or primitives, or void, etc...
+    //  there are also small other changes, but they are minor
+
     fun KaSession.toBoundFrom(type: KaType, isJavaContext: Boolean = false): Bound {
         val abbreviation = type.abbreviation
         val bound = toBoundFromNoAbbreviation(type, isJavaContext)

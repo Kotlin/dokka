@@ -211,7 +211,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         }
     }
 
-    // AA renders Java property modifiers differently in kotlin-as-java context
+    // AA: modality is `final` for `publicProperty`
     @OnlyJavaPsi
     @Test
     fun `java properties should keep its modifiers`() {

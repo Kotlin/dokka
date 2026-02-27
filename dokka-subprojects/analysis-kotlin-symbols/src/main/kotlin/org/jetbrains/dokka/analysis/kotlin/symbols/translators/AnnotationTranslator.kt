@@ -44,6 +44,11 @@ internal class AnnotationTranslator {
      * @return direct annotations, annotations from backing field and file-level annotations
      */
     fun KaSession.getAllAnnotationsFrom(annotated: KaAnnotated): List<Annotations.Annotation> {
+        // TODO: the main problem (difference) is with mapped annotations
+        //  e.g. java deprecated annotation is mapped to kotlin deprecated
+        //  and the only way to get original java annotation is via fallback to symbol PSI...
+        //  there are 4 such annotations: Target, Retention, Documented, Deprecated
+
         val isJava = (annotated as? KaSymbol)?.let {
             it.origin == KaSymbolOrigin.JAVA_SOURCE || it.origin == KaSymbolOrigin.JAVA_LIBRARY
                     || it.psi?.containingFile is PsiJavaFile
