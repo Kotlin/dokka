@@ -40,6 +40,8 @@ public object DokkaDefaults {
 
     public val pluginsConfiguration: List<PluginConfigurationImpl> = mutableListOf()
 
+    public val suppressedAnnotations: Set<String> = emptySet()
+
     public const val delayTemplateSubstitution: Boolean = false
 
     public val cacheRoot: File? = null
@@ -208,6 +210,7 @@ public interface DokkaConfiguration : Serializable {
         public val noStdlibLink: Boolean
         public val noJdkLink: Boolean
         public val suppressedFiles: Set<File>
+        public val suppressedAnnotations: Set<String>
         public val analysisPlatform: Platform
         public val documentedVisibilities: Set<Visibility>
     }

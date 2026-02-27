@@ -55,6 +55,7 @@ public data class DokkaSourceSetImpl(
     override val noStdlibLink: Boolean = DokkaDefaults.noStdlibLink,
     override val noJdkLink: Boolean = DokkaDefaults.noJdkLink,
     override val suppressedFiles: Set<File> = emptySet(),
+    override val suppressedAnnotations: Set<String> = DokkaDefaults.suppressedAnnotations,
     override val analysisPlatform: Platform = DokkaDefaults.analysisPlatform,
     override val documentedVisibilities: Set<DokkaConfiguration.Visibility> = DokkaDefaults.documentedVisibilities,
 ) : DokkaSourceSet {
