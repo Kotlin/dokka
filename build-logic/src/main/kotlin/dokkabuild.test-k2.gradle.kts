@@ -49,11 +49,12 @@ testing {
             val onlySymbolsTags = listOf("onlySymbols")
             val onlyNewKdocResolutionTags = listOf("onlyNewKDocResolution")
             val onlyJavaPsiTags = listOf("onlyJavaPsi")
+            val onlyJavaSymbolsTags = listOf("onlyJavaSymbols")
 
             // Create a new target for _only_ running test compatible with descriptor-analysis (K1).
             val testDescriptorsTarget = targets.register("testDescriptors") {
                 testTask.configure {
-                    val excludedTags = onlySymbolsTags + onlyNewKdocResolutionTags
+                    val excludedTags = onlySymbolsTags + onlyNewKdocResolutionTags + onlyJavaSymbolsTags
                     description = "Runs tests using descriptors-analysis (K1) (excluding tags: ${excludedTags})"
                     useJUnitPlatform {
                         excludeTags.addAll(excludedTags)
@@ -67,7 +68,7 @@ testing {
             // Create a new target for _only_ running test compatible with symbols-analysis (K2).
             val testSymbolsTarget = targets.register("testSymbols") {
                 testTask.configure {
-                    val excludedTags = onlyDescriptorTags + onlyNewKdocResolutionTags
+                    val excludedTags = onlyDescriptorTags + onlyNewKdocResolutionTags + onlyJavaSymbolsTags
                     description = "Runs tests using symbols-analysis (K2) (excluding tags: ${excludedTags})"
                     useJUnitPlatform {
                         excludeTags.addAll(excludedTags)

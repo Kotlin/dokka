@@ -12,6 +12,7 @@ import utils.TestOutputWriterPlugin
 import utils.match
 import utils.OnlyDescriptors
 import utils.OnlyJavaPsi
+import utils.OnlyJavaSymbols
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -237,10 +238,9 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    // TODO: PSI renders `var variable` as "open var" from Java's bytecode perspective (accessors are non-final),
-    //  but AA correctly reports modality=FINAL for the Kotlin property (it's not marked open).
-    //  This is a Kotlin-vs-Java semantic discrepancy in how property openness is represented.
-    @OnlyJavaPsi
+    // AA correctly reports Kotlin modality (FINAL) for `var variable` in open class,
+    // while PSI reports "open" from JVM bytecode perspective (accessors are non-final).
+    @OnlyJavaSymbols(reason = "AA uses Kotlin modality for inherited properties, PSI uses JVM bytecode modality")
     @Test
     fun `should keep kotlin property with no accessors when java inherits kotlin a var`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -269,11 +269,10 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
                     )
 
                     val property = signatures[2]
-                    // Kotlin property `var variable` is final by default (not marked `open`),
-                    // even though JVM bytecode accessors are non-final in open classes.
-                    // AA correctly reports Kotlin modality (FINAL) for this property.
+                    // AA reports Kotlin modality (FINAL) for this property.
+                    // The type is rendered as a link (kotlin.String) rather than a span.
                     property.match(
-                        "var ", A("variable"), ": ", Span("String"),
+                        "var ", A("variable"), ": ", A("String"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
