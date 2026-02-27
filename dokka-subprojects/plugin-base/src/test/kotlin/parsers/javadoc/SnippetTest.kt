@@ -1093,7 +1093,6 @@ class SnippetTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `incorrect hybrid snippet`() {
         testInline(
@@ -1145,7 +1144,9 @@ class SnippetTest : BaseAbstractTest() {
                     "inline snippet is returned"
                 )
 
-                assertTrue { logger.warningsCount == 1 }
+                // with AA java analysis it's reported twice: once for constructor, once for class
+                // with PSI: just once
+                assertTrue { logger.warningsCount == 1 || logger.warningsCount == 2 }
 
                 val warnMessage = logger.warnMessages.first()
 
