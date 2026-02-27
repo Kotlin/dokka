@@ -486,7 +486,10 @@ internal class DokkaSymbolVisitor(
 
         fun List<KaNamedFunctionSymbol>.filterOutSyntheticJavaPropAccessors() = filterNot { fn ->
             if ((fn.origin == KaSymbolOrigin.JAVA_SOURCE || fn.origin == KaSymbolOrigin.JAVA_LIBRARY) && fn.callableId != null)
-                syntheticJavaProperties.any { fn.callableId == it.javaGetterSymbol.callableId || fn.callableId == it.javaSetterSymbol?.callableId }
+                // Match by PSI identity to avoid removing overloaded methods with the same name but different parameter types
+                syntheticJavaProperties.any { prop ->
+                    fn.psi != null && (fn.psi == prop.javaGetterSymbol.psi || fn.psi == prop.javaSetterSymbol?.psi)
+                }
             else false
         }
 
@@ -569,8 +572,11 @@ internal class DokkaSymbolVisitor(
                 contextParameters = @OptIn(KaExperimentalApi::class) propertySymbol.contextParameters
                     .mapIndexed { index, symbol -> visitContextParameter(index, symbol, dri) },
                 sources = getSource(propertySymbol),
-                getter = propertySymbol.getter?.let { visitPropertyAccessor(it, propertySymbol, dri, parent) },
-                setter = propertySymbol.setter?.let { visitPropertyAccessor(it, propertySymbol, dri, parent) },
+                // @JvmField suppresses getter/setter generation — the property is a plain field
+                getter = propertySymbol.getter?.takeUnless { propertySymbol.isJvmField() }
+                    ?.let { visitPropertyAccessor(it, propertySymbol, dri, parent) },
+                setter = propertySymbol.setter?.takeUnless { propertySymbol.isJvmField() }
+                    ?.let { visitPropertyAccessor(it, propertySymbol, dri, parent) },
                 visibility = propertySymbol.getDokkaVisibility().toSourceSetDependent(),
                 documentation = getDocumentation(propertySymbol)?.toSourceSetDependent() ?: emptyMap(), // TODO
                 modifier = getDokkaModality(propertySymbol).toSourceSetDependent(),
@@ -672,12 +678,15 @@ internal class DokkaSymbolVisitor(
             )
         }
 
+        // For synthetic Java property accessors, use Java type mapping for parameters
+        val isJavaAccessor = propertyAccessorSymbol.origin == KaSymbolOrigin.JAVA_SYNTHETIC_PROPERTY
+
         return DFunction(
             dri = dri,
             name = name,
             isConstructor = false,
             parameters = propertyAccessorSymbol.valueParameters
-                .mapIndexed { index, symbol -> visitValueParameter(index, symbol, dri) },
+                .mapIndexed { index, symbol -> visitValueParameter(index, symbol, dri, useJavaTypes = isJavaAccessor) },
             contextParameters = emptyList(),
             receiver = propertyAccessorSymbol.receiverParameter?.let {
                 visitReceiverParameter(
@@ -691,7 +700,7 @@ internal class DokkaSymbolVisitor(
             generics = generics,
             documentation = getAccessorSymbolDocumentation(propertyAccessorSymbol)?.toSourceSetDependent() ?: emptyMap(),
             modifier = getDokkaModality(propertyAccessorSymbol).toSourceSetDependent(),
-            type = toBoundFrom(propertyAccessorSymbol.returnType),
+            type = toBoundFrom(propertyAccessorSymbol.returnType, unwrapInvariant = isJavaAccessor),
             sourceSets = setOf(sourceSet),
             isExpectActual = false,
             extra = PropertyContainer.withAll(
@@ -1082,6 +1091,12 @@ internal class DokkaSymbolVisitor(
 
     private fun KaSymbol.isJavaSource() = origin == KaSymbolOrigin.JAVA_SOURCE || origin == KaSymbolOrigin.JAVA_LIBRARY
 
+    private fun KaPropertySymbol.isJvmField(): Boolean =
+        annotations.any { it.classId?.asFqNameString() == "kotlin.jvm.JvmField" }
+                || (this as? KaKotlinPropertySymbol)?.backingFieldSymbol?.annotations?.any {
+            it.classId?.asFqNameString() == "kotlin.jvm.JvmField"
+        } == true
+
     /**
      * Validates that a [KaSyntheticJavaPropertySymbol] meets the PSI accessor convention rules.
      * AA's `syntheticJavaPropertiesScope` uses looser matching than PSI's `splitFunctionsAndAccessors`:
@@ -1090,15 +1105,29 @@ internal class DokkaSymbolVisitor(
      * - @JvmField fields should not have synthetic properties
      * - There must be a backing field (not a Kotlin computed property)
      */
-    private fun isValidSyntheticJavaProperty(prop: KaSyntheticJavaPropertySymbol): Boolean {
+    @OptIn(KaExperimentalApi::class)
+    private fun KaSession.isValidSyntheticJavaProperty(prop: KaSyntheticJavaPropertySymbol): Boolean {
+        // Check @JvmField on the underlying Kotlin property (via overridden symbols)
+        val originalKotlinProperty = prop.javaGetterSymbol.allOverriddenSymbols
+            .filterIsInstance<KaPropertyGetterSymbol>()
+            .firstOrNull()?.containingSymbol as? KaPropertySymbol
+        if (originalKotlinProperty != null) {
+            val hasJvmField = originalKotlinProperty.backingFieldSymbol?.annotations?.any {
+                it.classId?.asFqNameString() == "kotlin.jvm.JvmField"
+            } == true || originalKotlinProperty.annotations.any {
+                it.classId?.asFqNameString() == "kotlin.jvm.JvmField"
+            }
+            if (hasJvmField) return false
+        }
+
         val getterPsi = prop.javaGetterSymbol.psi as? PsiMethod ?: return true
         val fieldPsi = getterPsi.containingClass?.fields?.firstOrNull { it.name == prop.name.asString() }
 
-        // If there's no backing field, this is a computed property (Kotlin getter/setter without backing field).
+        // If there's no backing field in PSI, this is a computed property (Kotlin getter/setter without backing field).
         // Don't create synthetic property — keep accessors as regular functions.
         if (fieldPsi == null) return false
 
-        // @JvmField check: if the field has @JvmField, don't create a synthetic property
+        // @JvmField check via PSI: if the field has @JvmField, don't create a synthetic property
         if (fieldPsi.annotations.any {
                 it.qualifiedName == "kotlin.jvm.JvmField" || it.qualifiedName == "JvmField"
             }) return false
