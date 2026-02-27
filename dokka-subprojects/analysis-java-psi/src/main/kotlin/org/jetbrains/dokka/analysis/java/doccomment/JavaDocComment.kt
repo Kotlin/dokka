@@ -14,7 +14,7 @@ import org.jetbrains.dokka.analysis.java.util.hasTag
 import org.jetbrains.dokka.analysis.java.util.resolveToElement
 import org.jetbrains.dokka.utilities.firstIsInstanceOrNull
 
-public class JavaDocComment(public val comment: PsiDocComment) : DocComment {
+internal class JavaDocComment(val comment: PsiDocComment) : DocComment {
     override fun hasTag(tag: JavadocTag): Boolean {
         return when (tag) {
             is ThrowingExceptionJavadocTag -> hasTag(tag)

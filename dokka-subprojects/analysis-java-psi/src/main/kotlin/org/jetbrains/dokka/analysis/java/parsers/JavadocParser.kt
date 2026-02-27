@@ -4,11 +4,12 @@
 
 package org.jetbrains.dokka.analysis.java.parsers
 
+import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.InternalDokkaApi
-import org.jetbrains.dokka.analysis.java.doccomment.DocComment
 import org.jetbrains.dokka.analysis.java.doccomment.DocCommentFinder
+import org.jetbrains.dokka.analysis.java.doccomment.JavaDocComment
 import org.jetbrains.dokka.model.doc.DocumentationNode
 
 internal fun interface JavaDocumentationParser {
@@ -23,12 +24,22 @@ public class JavadocParser(
 
     override fun parseDocumentation(element: PsiNamedElement, sourceSet: DokkaSourceSet): DocumentationNode {
         val comment = docCommentFinder.findClosestToElement(element) ?: return DocumentationNode(emptyList())
-        return parseDocComment(comment, element, sourceSet)
-    }
-
-    public fun parseDocComment(comment: DocComment, context: PsiNamedElement, sourceSet: DokkaSourceSet): DocumentationNode {
         return docCommentParsers
             .first { it.canParse(comment) }
-            .parse(comment, context, sourceSet)
+            .parse(comment, element, sourceSet)
+    }
+
+    /**
+     * Parses raw Javadoc text (e.g. from a template) into a [DocumentationNode].
+     * Creates a [com.intellij.psi.javadoc.PsiDocComment] from the text using the [context]'s project,
+     * wraps it in a [JavaDocComment], and parses it through the doc comment parser pipeline.
+     */
+    public fun parseDocCommentFromText(javadocText: String, context: PsiNamedElement, sourceSet: DokkaSourceSet): DocumentationNode {
+        val psiDocComment = JavaPsiFacade.getElementFactory(context.project)
+            .createDocCommentFromText(javadocText)
+        val docComment = JavaDocComment(psiDocComment)
+        return docCommentParsers
+            .first { it.canParse(docComment) }
+            .parse(docComment, context, sourceSet)
     }
 }

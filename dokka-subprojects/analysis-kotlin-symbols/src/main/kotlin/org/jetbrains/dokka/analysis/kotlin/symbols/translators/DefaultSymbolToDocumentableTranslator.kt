@@ -5,13 +5,11 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 
-import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.dokka.analysis.java.doccomment.JavaDocComment
 import org.jetbrains.dokka.analysis.java.util.from
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.*
 import com.intellij.psi.util.PsiLiteralUtil
@@ -1065,10 +1063,7 @@ internal class DokkaSymbolVisitor(
         val templateText = javaClass.getResource(templatePath)?.readText() ?: return null
         // Get the containing class PSI to access the Project (the synthetic method itself may not have PSI)
         val containingPsi = functionSymbol.containingSymbol?.psi as? PsiClass ?: return null
-        val psiDocComment = JavaPsiFacade.getElementFactory(containingPsi.project)
-            .createDocCommentFromText(templateText)
-        val docComment = JavaDocComment(psiDocComment)
-        return javadocParser?.parseDocComment(docComment, containingPsi, sourceSet)
+        return javadocParser?.parseDocCommentFromText(templateText, containingPsi, sourceSet)
     }
 
     /**
