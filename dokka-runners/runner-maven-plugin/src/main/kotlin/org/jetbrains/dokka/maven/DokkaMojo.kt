@@ -262,6 +262,13 @@ public abstract class AbstractDokkaMojo(
     public var suppressedFiles: List<String> = emptyList()
 
     /**
+     * List of annotation fully qualified names (FQNs) that should be suppressed.
+     * Any declaration annotated with one of these annotations will be excluded from the generated documentation.
+     */
+    @Parameter
+    public var suppressedAnnotations: List<String> = emptyList()
+
+    /**
      * Set of visibility modifiers that should be documented.
      *
      * This can be used if you want to document protected/internal/private declarations,
@@ -407,6 +414,7 @@ public abstract class AbstractDokkaMojo(
             noStdlibLink = noStdlibLink,
             noJdkLink = noJdkLink,
             suppressedFiles = suppressedFiles.map(::File).toSet(),
+            suppressedAnnotations = suppressedAnnotations.toSet(),
             analysisPlatform = if (platform.isNotEmpty()) Platform.fromString(platform) else Platform.DEFAULT,
         ).let {
             it.copy(
