@@ -79,6 +79,12 @@ public class DokkaBase : DokkaPlugin() {
         preMergeDocumentableTransformer providing ::SuppressedByConfigurationDocumentableFilterTransformer
     }
 
+    public val annotationSuppressionFilter: Extension<PreMergeDocumentableTransformer, *, *> by extending {
+        preMergeDocumentableTransformer providing ::AnnotationSuppressionFilter order {
+            after(suppressedDocumentableFilter)
+        }
+    }
+
     public val suppressedBySuppressTagDocumentableFilter: Extension<PreMergeDocumentableTransformer, *, *> by extending {
         preMergeDocumentableTransformer providing ::SuppressTagDocumentableFilter
     }
@@ -110,6 +116,7 @@ public class DokkaBase : DokkaPlugin() {
             after(
                 deprecatedDocumentableFilter,
                 suppressedDocumentableFilter,
+                annotationSuppressionFilter,
                 documentableVisibilityFilter,
                 suppressedBySuppressTagDocumentableFilter,
                 obviousFunctionsVisbilityFilter,
