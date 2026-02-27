@@ -79,21 +79,21 @@ private fun removeNonAccessorsReturning(
     return nonAccessors
 }
 
-internal fun PsiMethod.isAccessorFor(field: PsiField): Boolean {
+public fun PsiMethod.isAccessorFor(field: PsiField): Boolean {
     return (this.isGetterFor(field) || this.isSetterFor(field))
             && !field.getVisibility().isPublicAPI()
             && this.getVisibility().isPublicAPI()
 }
 
-internal fun PsiMethod.isGetterFor(field: PsiField): Boolean {
+public fun PsiMethod.isGetterFor(field: PsiField): Boolean {
     return this.returnType == field.type && !this.hasParameters()
 }
 
-internal fun PsiMethod.isSetterFor(field: PsiField): Boolean {
+public fun PsiMethod.isSetterFor(field: PsiField): Boolean {
     return parameterList.getParameter(0)?.type == field.type && parameterList.getParametersCount() == 1
 }
 
-private fun Visibility.isPublicAPI() = when(this) {
+public fun Visibility.isPublicAPI(): Boolean = when(this) {
     KotlinVisibility.Public,
     KotlinVisibility.Protected,
     JavaVisibility.Public,

@@ -5,10 +5,13 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 
-import com.intellij.psi.PsiJavaFile
+import com.intellij.psi.JavaPsiFacade
+import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiField
+import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.dokka.analysis.java.doccomment.JavaDocComment
 import org.jetbrains.dokka.analysis.java.util.from
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.*
 import com.intellij.psi.util.PsiLiteralUtil
@@ -18,6 +21,10 @@ import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
 import org.jetbrains.dokka.analysis.java.parsers.JavadocParser
 import org.jetbrains.dokka.analysis.java.util.PsiDocumentableSource
+import org.jetbrains.dokka.analysis.java.util.getConstantExpression
+import org.jetbrains.dokka.analysis.java.util.hasJvmFieldAnnotation
+import org.jetbrains.dokka.analysis.java.util.isAccessorFor
+import org.jetbrains.dokka.analysis.java.util.toDriList
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getGeneratedKDocDocumentationFrom
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.isJavaEnumSyntheticMember
 import org.jetbrains.dokka.analysis.kotlin.symbols.services.KtPsiDocumentableSource
@@ -818,8 +825,7 @@ internal class DokkaSymbolVisitor(
                         ?.toSourceSetDependent()?.toAnnotations(),
                     ObviousMember.takeIf { isObvious(functionSymbol, inheritedFrom) },
                     (functionSymbol.psi as? PsiMethod)?.throwsList
-                        ?.referenceElements?.mapNotNull { it?.resolve()?.let { resolved -> DRI.from(resolved) } }
-                        ?.takeIf { it.isNotEmpty() }
+                        ?.toDriList()?.takeIf { it.isNotEmpty() }
                         ?.let { CheckedExceptions(it.toSourceSetDependent()) },
                 )
             )
@@ -924,19 +930,7 @@ internal class DokkaSymbolVisitor(
 
     private fun getJavaFieldDefaultValue(javaFieldSymbol: KaJavaFieldSymbol): Expression? {
         val psiField = javaFieldSymbol.psi as? PsiField ?: return null
-        val value = psiField.computeConstantValue() ?: return null
-        return when (value) {
-            is Byte -> IntegerConstant(value.toLong())
-            is Short -> IntegerConstant(value.toLong())
-            is Int -> IntegerConstant(value.toLong())
-            is Long -> IntegerConstant(value)
-            is Float -> FloatConstant(value)
-            is Double -> DoubleConstant(value)
-            is Boolean -> BooleanConstant(value)
-            is String -> StringConstant(value)
-            is Char -> StringConstant(value.toString())
-            else -> null
-        }
+        return psiField.getConstantExpression()
     }
 
     private fun KtExpression.toDefaultValueExpression(): Expression? = when (node?.elementType) {
@@ -1070,10 +1064,10 @@ internal class DokkaSymbolVisitor(
         }
         val templateText = javaClass.getResource(templatePath)?.readText() ?: return null
         // Get the containing class PSI to access the Project (the synthetic method itself may not have PSI)
-        val containingPsi = functionSymbol.containingSymbol?.psi as? com.intellij.psi.PsiClass ?: return null
-        val psiDocComment = com.intellij.psi.JavaPsiFacade.getElementFactory(containingPsi.project)
+        val containingPsi = functionSymbol.containingSymbol?.psi as? PsiClass ?: return null
+        val psiDocComment = JavaPsiFacade.getElementFactory(containingPsi.project)
             .createDocCommentFromText(templateText)
-        val docComment = org.jetbrains.dokka.analysis.java.doccomment.JavaDocComment(psiDocComment)
+        val docComment = JavaDocComment(psiDocComment)
         return javadocParser?.parseDocComment(docComment, containingPsi, sourceSet)
     }
 
@@ -1122,28 +1116,13 @@ internal class DokkaSymbolVisitor(
 
         val getterPsi = prop.javaGetterSymbol.psi as? PsiMethod ?: return true
         val fieldPsi = getterPsi.containingClass?.fields?.firstOrNull { it.name == prop.name.asString() }
+            ?: return false // no backing field = computed Kotlin property, keep accessors as functions
 
-        // If there's no backing field in PSI, this is a computed property (Kotlin getter/setter without backing field).
-        // Don't create synthetic property — keep accessors as regular functions.
-        if (fieldPsi == null) return false
+        // @JvmField check via PSI
+        if (fieldPsi.hasJvmFieldAnnotation()) return false
 
-        // @JvmField check via PSI: if the field has @JvmField, don't create a synthetic property
-        if (fieldPsi.annotations.any {
-                it.qualifiedName == "kotlin.jvm.JvmField" || it.qualifiedName == "JvmField"
-            }) return false
-
-        // PSI accessor convention: field must NOT be public API for accessor matching.
-        // If the field is public or protected, getters/setters stay as regular functions.
-        val fieldModifiers = fieldPsi.modifierList
-        val fieldIsPublicApi = fieldModifiers != null && (
-                fieldModifiers.hasModifierProperty(com.intellij.psi.PsiModifier.PUBLIC)
-                        || fieldModifiers.hasModifierProperty(com.intellij.psi.PsiModifier.PROTECTED))
-        if (fieldIsPublicApi) return false
-
-        // Getter return type must match field type (exact match) and have no parameters
-        if (getterPsi.returnType != fieldPsi.type || getterPsi.hasParameters()) return false
-
-        return true
+        // Reuse PSI accessor convention: checks field visibility, getter return type match, etc.
+        return getterPsi.isAccessorFor(fieldPsi)
     }
 
     private fun KaSession.isObvious(functionSymbol: KaFunctionSymbol, inheritedFrom: DRI?): Boolean {
@@ -1210,9 +1189,6 @@ internal class DokkaSymbolVisitor(
     private fun KaSession.getDokkaModality(symbol: KaDeclarationSymbol): Modifier {
         val isInterface = symbol is KaClassSymbol && symbol.classKind == KaClassKind.INTERFACE
 
-        // For synthetic Java properties wrapping Kotlin properties, use the original Kotlin property's modality.
-        // The synthetic property's modality reflects the JVM perspective (often FINAL),
-        // but Dokka needs the Kotlin perspective (OPEN for non-final properties in open classes).
         // For synthetic Java properties wrapping Kotlin properties, use the original Kotlin property's modality.
         // The synthetic property's modality reflects the JVM perspective (often FINAL),
         // but Dokka needs the Kotlin perspective (OPEN for non-final properties in open classes).
