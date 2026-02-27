@@ -443,17 +443,28 @@ internal class DefaultSnippetToHtmlConverter(
     }
 
     private fun readExternalSnippetLines(attribute: PsiElement, fileName: String): List<String>? {
-        /**
-         * Try to resolve the snippet file through PSI reference resolution (for files in `snippet-files`)
-         * If that fails, search within sampleFiles (for snippets specified via Javadoc's --snippet-path, in Dokka's case in `sample` configuration option)
-         */
+        // Try to resolve the snippet file through PSI reference resolution (for files in `snippet-files`)
         val psiFile = attribute.reference?.resolve() as? PsiFile
-
-        return if (psiFile != null) {
-            File(psiFile.virtualFile.path).readLinesWithNewlines()
-        } else {
-            sampleFiles.singleOrNull { it.name == fileName }?.readLinesWithNewlines()
+        if (psiFile != null) {
+            return File(psiFile.virtualFile.path).readLinesWithNewlines()
         }
+
+        // PSI reference resolution may fail in AA context: CoreLocalFileSystem.findChild()
+        // only works when directories are explicitly registered (as in KotlinCoreEnvironment),
+        // but AA registers individual files via findFileByNioFile(), so parent directory
+        // children caches are not populated.
+        // Fall back to direct java.io.File lookup in the snippet-files/ subdirectory.
+        val containingVirtualFile = attribute.containingFile?.originalFile?.virtualFile
+        if (containingVirtualFile != null) {
+            val snippetFilesDir = File(containingVirtualFile.parent.path, "snippet-files")
+            val snippetFile = File(snippetFilesDir, fileName)
+            if (snippetFile.exists()) {
+                return snippetFile.readLinesWithNewlines()
+            }
+        }
+
+        // Last resort: search within sampleFiles (for snippets specified via --snippet-path)
+        return sampleFiles.singleOrNull { it.name == fileName }?.readLinesWithNewlines()
     }
 
     private fun File.readLinesWithNewlines() = this.readLines().map { it + "\n" }
