@@ -69,6 +69,7 @@ public final class org/jetbrains/dokka/GlobalArguments : org/jetbrains/dokka/Dok
 	public final fun getGlobalLinks ()Ljava/util/List;
 	public final fun getGlobalPackageOptions ()Ljava/util/List;
 	public final fun getGlobalSrcLink ()Ljava/util/List;
+	public final fun getGlobalSuppressedAnnotations ()Ljava/util/List;
 	public final fun getHelpSourceSet ()Ljava/lang/Object;
 	public fun getIncludes ()Ljava/util/Set;
 	public final fun getJson ()Ljava/lang/String;
