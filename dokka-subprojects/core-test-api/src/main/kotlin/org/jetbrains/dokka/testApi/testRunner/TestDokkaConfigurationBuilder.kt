@@ -42,6 +42,7 @@ public class TestDokkaConfigurationBuilder {
     public var includes: List<File> = emptyList()
     public var suppressInheritedMembers: Boolean = DokkaDefaults.suppressInheritedMembers
     public var delayTemplateSubstitution: Boolean = DokkaDefaults.delayTemplateSubstitution
+    public var suppressedAnnotations: Set<String> = DokkaDefaults.suppressedAnnotations
     private val lazySourceSets = mutableListOf<Lazy<DokkaSourceSetImpl>>()
 
     public fun build(): DokkaConfigurationImpl = DokkaConfigurationImpl(
@@ -61,6 +62,11 @@ public class TestDokkaConfigurationBuilder {
         delayTemplateSubstitution = delayTemplateSubstitution,
         finalizeCoroutines = false
     )
+
+    public fun applyGlobals(globals: GlobalDokkaConfiguration): DokkaConfigurationImpl {
+        val config = build()
+        return config.apply(globals) as DokkaConfigurationImpl
+    }
 
     public fun sourceSets(block: SourceSetsBuilder.() -> Unit) {
         lazySourceSets.addAll(SourceSetsBuilder(moduleName).apply(block))
@@ -111,7 +117,8 @@ public class DokkaSourceSetBuilder(
     public var analysisPlatform: String = "jvm",
     public var perPackageOptions: List<PackageOptionsImpl> = emptyList(),
     public var externalDocumentationLinks: List<ExternalDocumentationLinkImpl> = emptyList(),
-    public var sourceLinks: List<SourceLinkDefinitionImpl> = emptyList()
+    public var sourceLinks: List<SourceLinkDefinitionImpl> = emptyList(),
+    public var suppressedAnnotations: Set<String> = DokkaDefaults.suppressedAnnotations
 ) {
     @Suppress("DEPRECATION")
     public fun build(): DokkaSourceSetImpl {
@@ -137,6 +144,7 @@ public class DokkaSourceSetBuilder(
             noStdlibLink = noStdlibLink,
             noJdkLink = noJdkLink,
             suppressedFiles = suppressedFiles.map(::File).toSet(),
+            suppressedAnnotations = suppressedAnnotations,
             analysisPlatform = Platform.fromString(analysisPlatform)
         )
     }

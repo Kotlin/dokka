@@ -87,8 +87,8 @@ public abstract interface annotation class testApi/testRunner/DokkaConfiguration
 }
 
 public final class testApi/testRunner/DokkaSourceSetBuilder {
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/Set;Ljava/util/List;Ljava/util/List;ZLjava/util/Set;ZZZILjava/lang/String;Ljava/lang/String;ZZLjava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/Set;Ljava/util/List;Ljava/util/List;ZLjava/util/Set;ZZZILjava/lang/String;Ljava/lang/String;ZZLjava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/Set;Ljava/util/List;Ljava/util/List;ZLjava/util/Set;ZZZILjava/lang/String;Ljava/lang/String;ZZLjava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Set;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/Set;Ljava/util/List;Ljava/util/List;ZLjava/util/Set;ZZZILjava/lang/String;Ljava/lang/String;ZZLjava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun build ()Lorg/jetbrains/dokka/DokkaSourceSetImpl;
 	public final fun getAnalysisPlatform ()Ljava/lang/String;
 	public final fun getApiVersion ()Ljava/lang/String;
@@ -111,6 +111,7 @@ public final class testApi/testRunner/DokkaSourceSetBuilder {
 	public final fun getSkipEmptyPackages ()Z
 	public final fun getSourceLinks ()Ljava/util/List;
 	public final fun getSourceRoots ()Ljava/util/List;
+	public final fun getSuppressedAnnotations ()Ljava/util/Set;
 	public final fun getSuppressedFiles ()Ljava/util/List;
 	public final fun setAnalysisPlatform (Ljava/lang/String;)V
 	public final fun setApiVersion (Ljava/lang/String;)V
@@ -133,6 +134,7 @@ public final class testApi/testRunner/DokkaSourceSetBuilder {
 	public final fun setSkipEmptyPackages (Z)V
 	public final fun setSourceLinks (Ljava/util/List;)V
 	public final fun setSourceRoots (Ljava/util/List;)V
+	public final fun setSuppressedAnnotations (Ljava/util/Set;)V
 	public final fun setSuppressedFiles (Ljava/util/List;)V
 }
 
@@ -156,6 +158,7 @@ public final class testApi/testRunner/SourceSetsBuilder : java/util/ArrayList {
 
 public final class testApi/testRunner/TestDokkaConfigurationBuilder {
 	public fun <init> ()V
+	public final fun applyGlobals (Lorg/jetbrains/dokka/GlobalDokkaConfiguration;)Lorg/jetbrains/dokka/DokkaConfigurationImpl;
 	public final fun build ()Lorg/jetbrains/dokka/DokkaConfigurationImpl;
 	public final fun getCacheRoot ()Ljava/lang/String;
 	public final fun getDelayTemplateSubstitution ()Z
@@ -171,6 +174,7 @@ public final class testApi/testRunner/TestDokkaConfigurationBuilder {
 	public final fun getPluginsConfigurations ()Ljava/util/List;
 	public final fun getSuppressInheritedMembers ()Z
 	public final fun getSuppressObviousFunctions ()Z
+	public final fun getSuppressedAnnotations ()Ljava/util/Set;
 	public final fun setCacheRoot (Ljava/lang/String;)V
 	public final fun setDelayTemplateSubstitution (Z)V
 	public final fun setFailOnWarning (Z)V
@@ -185,6 +189,7 @@ public final class testApi/testRunner/TestDokkaConfigurationBuilder {
 	public final fun setPluginsConfigurations (Ljava/util/List;)V
 	public final fun setSuppressInheritedMembers (Z)V
 	public final fun setSuppressObviousFunctions (Z)V
+	public final fun setSuppressedAnnotations (Ljava/util/Set;)V
 	public final fun sourceSet (Lkotlin/jvm/functions/Function1;)Lkotlin/Lazy;
 	public final fun sourceSets (Lkotlin/jvm/functions/Function1;)V
 	public final fun unattachedSourceSet (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/DokkaSourceSetImpl;

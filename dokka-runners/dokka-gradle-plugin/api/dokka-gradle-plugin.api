@@ -300,6 +300,7 @@ public abstract class org/jetbrains/dokka/gradle/engine/parameters/DokkaSourceSe
 	public abstract fun getSourceSetScope ()Lorg/gradle/api/provider/Property;
 	public abstract fun getSuppress ()Lorg/gradle/api/provider/Property;
 	public abstract fun getSuppressGeneratedFiles ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSuppressedAnnotations ()Lorg/gradle/api/provider/SetProperty;
 	public abstract fun getSuppressedFiles ()Lorg/gradle/api/file/ConfigurableFileCollection;
 	public final fun perPackageOption (Lorg/gradle/api/Action;)V
 	public final fun sourceLink (Lorg/gradle/api/Action;)V
