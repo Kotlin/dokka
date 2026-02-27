@@ -461,12 +461,22 @@ internal class DokkaSymbolVisitor(
             else -> emptyList()
         }
 
-        val syntheticJavaProperties =
+        val allSyntheticJavaProperties =
             namedClassOrObjectSymbol.defaultType.syntheticJavaPropertiesScope?.getCallableSignatures()
                 ?.map { it.symbol }
                 ?.filterIsInstance<KaSyntheticJavaPropertySymbol>()
                 ?.toList()
                 .orEmpty()
+
+        // Post-filter synthetic Java properties using PSI accessor convention rules
+        // (AA's syntheticJavaPropertiesScope uses looser matching than PSI's splitFunctionsAndAccessors)
+        val syntheticJavaProperties = if (useJavaVisibility) {
+            allSyntheticJavaProperties.filter { prop ->
+                isValidSyntheticJavaProperty(prop)
+            }
+        } else {
+            allSyntheticJavaProperties
+        }
 
         fun List<KaJavaFieldSymbol>.filterOutSyntheticJavaPropBackingField() =
             filterNot { javaField -> syntheticJavaProperties.any { it.hasBackingField && javaField.name == it.name } }
@@ -1071,6 +1081,41 @@ internal class DokkaSymbolVisitor(
     }
 
     private fun KaSymbol.isJavaSource() = origin == KaSymbolOrigin.JAVA_SOURCE || origin == KaSymbolOrigin.JAVA_LIBRARY
+
+    /**
+     * Validates that a [KaSyntheticJavaPropertySymbol] meets the PSI accessor convention rules.
+     * AA's `syntheticJavaPropertiesScope` uses looser matching than PSI's `splitFunctionsAndAccessors`:
+     * - The backing field must NOT be public API
+     * - The getter return type must match the field type
+     * - @JvmField fields should not have synthetic properties
+     * - There must be a backing field (not a Kotlin computed property)
+     */
+    private fun isValidSyntheticJavaProperty(prop: KaSyntheticJavaPropertySymbol): Boolean {
+        val getterPsi = prop.javaGetterSymbol.psi as? PsiMethod ?: return true
+        val fieldPsi = getterPsi.containingClass?.fields?.firstOrNull { it.name == prop.name.asString() }
+
+        // If there's no backing field, this is a computed property (Kotlin getter/setter without backing field).
+        // Don't create synthetic property — keep accessors as regular functions.
+        if (fieldPsi == null) return false
+
+        // @JvmField check: if the field has @JvmField, don't create a synthetic property
+        if (fieldPsi.annotations.any {
+                it.qualifiedName == "kotlin.jvm.JvmField" || it.qualifiedName == "JvmField"
+            }) return false
+
+        // PSI accessor convention: field must NOT be public API for accessor matching.
+        // If the field is public or protected, getters/setters stay as regular functions.
+        val fieldModifiers = fieldPsi.modifierList
+        val fieldIsPublicApi = fieldModifiers != null && (
+                fieldModifiers.hasModifierProperty(com.intellij.psi.PsiModifier.PUBLIC)
+                        || fieldModifiers.hasModifierProperty(com.intellij.psi.PsiModifier.PROTECTED))
+        if (fieldIsPublicApi) return false
+
+        // Getter return type must match field type (exact match) and have no parameters
+        if (getterPsi.returnType != fieldPsi.type || getterPsi.hasParameters()) return false
+
+        return true
+    }
 
     private fun KaSession.isObvious(functionSymbol: KaFunctionSymbol, inheritedFrom: DRI?): Boolean {
         return functionSymbol.origin == KaSymbolOrigin.SOURCE_MEMBER_GENERATED && !hasGeneratedKDocDocumentation(functionSymbol) ||
