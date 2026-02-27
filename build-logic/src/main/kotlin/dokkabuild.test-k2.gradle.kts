@@ -99,7 +99,7 @@ testing {
             // Create a new target for running tests with enabled experimental symbols java analysis.
             val testJavaSymbolsTarget = targets.register("testJavaSymbols") {
                 testTask.configure {
-                    val excludedTags = onlyDescriptorTags + onlyNewKdocResolutionTags // + onlyJavaPsiTags
+                    val excludedTags = onlyDescriptorTags + onlyNewKdocResolutionTags + onlyJavaPsiTags
                     description = "Runs tests using symbols-analysis (K2) for java (excluding tags: $excludedTags)"
                     useJUnitPlatform {
                         excludeTags.addAll(excludedTags)
