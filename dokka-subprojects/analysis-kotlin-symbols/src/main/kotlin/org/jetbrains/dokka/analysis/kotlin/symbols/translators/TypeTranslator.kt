@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.annotations.*
 import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.types.*
+import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 
 internal const val ERROR_CLASS_NAME = "<ERROR CLASS>"
 
@@ -80,15 +81,25 @@ internal class TypeTranslator(
             throw IllegalStateException("Expected type alias symbol in type")
     }
 
-    private fun KaSession.toTypeConstructorFrom(classType: KaClassType, isJavaContext: Boolean = false) =
-        GenericTypeConstructor(
-            dri = getDRIFromClassType(classType),
+    private fun KaSession.toTypeConstructorFrom(classType: KaClassType, isJavaContext: Boolean = false): GenericTypeConstructor {
+        var dri = getDRIFromClassType(classType)
+        // In Java context, reverse-map Kotlin-mapped types back to their Java originals
+        // (e.g., kotlin.String → java.lang.String, kotlin.collections.List → java.util.List)
+        if (isJavaContext) {
+            val javaClassId = JavaToKotlinClassMap.mapKotlinToJava(classType.classId.asSingleFqName().toUnsafe())
+            if (javaClassId != null) {
+                dri = javaClassId.createDRI()
+            }
+        }
+        return GenericTypeConstructor(
+            dri = dri,
             projections = classType.typeArguments.map { toProjection(it, isJavaContext || classType.symbol.isJavaSource()) },
             presentableName = classType.getPresentableName(),
             extra = PropertyContainer.withAll(
                 getDokkaAnnotationsFrom(classType)?.toSourceSetDependent()?.toAnnotations()
             )
         )
+    }
 
     private fun KaSession.toFunctionalTypeConstructorFrom(functionalType: KaFunctionType) = FunctionalTypeConstructor(
         dri = getDRIFromClassType(functionalType),

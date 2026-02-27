@@ -882,11 +882,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 assertEquals(expectedValueOfType, valueOfFunction.type)
 
                 val valueOfParamDRI = (valueOfFunction.parameters.single().type as GenericTypeConstructor).dri
-                assertTrue(
-                    valueOfParamDRI == DRI(packageName = "java.lang", classNames = "String")
-                            || valueOfParamDRI == DRI(packageName = "kotlin", classNames = "String"),
-                    "Expected java.lang/String or kotlin/String DRI but was: $valueOfParamDRI"
-                )
+                assertEquals(DRI(packageName = "java.lang", classNames = "String"), valueOfParamDRI)
             }
         }
     }
