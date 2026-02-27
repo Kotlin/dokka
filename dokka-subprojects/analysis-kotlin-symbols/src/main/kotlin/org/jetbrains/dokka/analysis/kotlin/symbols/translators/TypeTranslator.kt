@@ -30,20 +30,20 @@ internal class TypeTranslator(
     private fun <T> T.toSourceSetDependent() = if (this != null) mapOf(sourceSet to this) else emptyMap()
 
     /**
-     * @param unwrapInvariant when true, invariant type arguments are returned as raw bounds
+     * @param isJavaContext when true, invariant type arguments are returned as raw bounds
      *   (matching PSI translator behavior for Java types) instead of being wrapped in [Invariance].
      */
-    private fun KaSession.toProjection(typeProjection: KaTypeProjection, unwrapInvariant: Boolean = false): Projection =
+    private fun KaSession.toProjection(typeProjection: KaTypeProjection, isJavaContext: Boolean = false): Projection =
         when (typeProjection) {
-            is KaStarTypeProjection -> if (unwrapInvariant) Covariance(JavaObject()) else Star
+            is KaStarTypeProjection -> if (isJavaContext) Covariance(JavaObject()) else Star
             is KaTypeArgumentWithVariance -> {
-                val bound = toBoundFrom(typeProjection.type, unwrapInvariant)
-                if (unwrapInvariant && typeProjection.variance == org.jetbrains.kotlin.types.Variance.INVARIANT) {
+                val bound = toBoundFrom(typeProjection.type, isJavaContext)
+                if (isJavaContext && typeProjection.variance == org.jetbrains.kotlin.types.Variance.INVARIANT) {
                     bound
                 } else {
                     // In Java context, strip Nullable wrapper from wildcard bounds
                     // (Java wildcards like ? extends Object don't have nullability)
-                    val effectiveBound = if (unwrapInvariant && bound is Nullable) bound.inner else bound
+                    val effectiveBound = if (isJavaContext && bound is Nullable) bound.inner else bound
                     effectiveBound.wrapWithVariance(typeProjection.variance)
                 }
             }
@@ -80,10 +80,10 @@ internal class TypeTranslator(
             throw IllegalStateException("Expected type alias symbol in type")
     }
 
-    private fun KaSession.toTypeConstructorFrom(classType: KaClassType, unwrapInvariant: Boolean = false) =
+    private fun KaSession.toTypeConstructorFrom(classType: KaClassType, isJavaContext: Boolean = false) =
         GenericTypeConstructor(
             dri = getDRIFromClassType(classType),
-            projections = classType.typeArguments.map { toProjection(it, unwrapInvariant || classType.symbol.isJavaSource()) },
+            projections = classType.typeArguments.map { toProjection(it, isJavaContext || classType.symbol.isJavaSource()) },
             presentableName = classType.getPresentableName(),
             extra = PropertyContainer.withAll(
                 getDokkaAnnotationsFrom(classType)?.toSourceSetDependent()?.toAnnotations()
@@ -102,33 +102,33 @@ internal class TypeTranslator(
         contextParametersCount = @OptIn(KaExperimentalApi::class) functionalType.contextReceivers.size
     )
 
-    fun KaSession.toBoundFrom(type: KaType, unwrapInvariant: Boolean = false): Bound {
+    fun KaSession.toBoundFrom(type: KaType, isJavaContext: Boolean = false): Bound {
         val abbreviation = type.abbreviation
-        val bound = toBoundFromNoAbbreviation(type, unwrapInvariant)
+        val bound = toBoundFromNoAbbreviation(type, isJavaContext)
         return when {
             abbreviation != null -> toBoundFromTypeAliased(abbreviation, bound)
             else -> bound
         }
     }
 
-    fun KaSession.toBoundFromNoAbbreviation(type: KaType, unwrapInvariant: Boolean = false): Bound =
+    fun KaSession.toBoundFromNoAbbreviation(type: KaType, isJavaContext: Boolean = false): Bound =
         when (type) {
             is KaUsualClassType -> {
                 val classId = type.classId
                 val fqName = classId.asFqNameString()
                 when {
                     // Map java.lang.Object / kotlin.Any to JavaObject in Java context
-                    fqName == "java.lang.Object" || (unwrapInvariant && fqName == "kotlin.Any") -> JavaObject()
+                    fqName == "java.lang.Object" || (isJavaContext && fqName == "kotlin.Any") -> JavaObject()
                     // Map kotlin.Unit to Void in Java context (Java void methods)
-                    unwrapInvariant && fqName == "kotlin.Unit" -> Void
+                    isJavaContext && fqName == "kotlin.Unit" -> Void
                     // Map Kotlin primitive types to PrimitiveJavaType in Java context
-                    unwrapInvariant && kotlinPrimitiveToJava.containsKey(fqName) -> PrimitiveJavaType(kotlinPrimitiveToJava[fqName]!!)
+                    isJavaContext && kotlinPrimitiveToJava.containsKey(fqName) -> PrimitiveJavaType(kotlinPrimitiveToJava[fqName]!!)
                     // Map Kotlin primitive array types to Array<PrimitiveJavaType> in Java context
-                    unwrapInvariant && kotlinPrimitiveArrayToJava.containsKey(fqName) -> GenericTypeConstructor(
+                    isJavaContext && kotlinPrimitiveArrayToJava.containsKey(fqName) -> GenericTypeConstructor(
                         dri = DRI("kotlin", "Array"),
                         projections = listOf(PrimitiveJavaType(kotlinPrimitiveArrayToJava[fqName]!!))
                     )
-                    else -> toTypeConstructorFrom(type, unwrapInvariant)
+                    else -> toTypeConstructorFrom(type, isJavaContext)
                 }
             }
             is KaTypeParameterType -> TypeParameter(
@@ -144,13 +144,13 @@ internal class TypeTranslator(
             is KaFunctionType -> toFunctionalTypeConstructorFrom(type)
             is KaDynamicType -> Dynamic
             is KaDefinitelyNotNullType -> DefinitelyNonNullable(
-                toBoundFrom(type.original, unwrapInvariant)
+                toBoundFrom(type.original, isJavaContext)
             )
 
             // Java platform types are represented as flexible types (e.g. String..String?).
             // For Java source types, unwrap to the lower bound (non-nullable version)
             // to match the behavior of the PSI-based Java translator.
-            is KaFlexibleType -> toBoundFrom(type.lowerBound, unwrapInvariant)
+            is KaFlexibleType -> toBoundFrom(type.lowerBound, isJavaContext)
 
             is KaErrorType -> UnresolvedBound(type.toString())
             is KaCapturedType -> throw NotImplementedError()
@@ -252,8 +252,7 @@ internal class TypeTranslator(
         }
     }
 
-    private fun KaSymbol.isJavaSource() =
-        origin == KaSymbolOrigin.JAVA_SOURCE || origin == KaSymbolOrigin.JAVA_LIBRARY
+    private fun KaSymbol.isJavaSource() = isJavaOrigin()
 
     companion object {
         /** Kotlin primitive types → Java primitive type names */
