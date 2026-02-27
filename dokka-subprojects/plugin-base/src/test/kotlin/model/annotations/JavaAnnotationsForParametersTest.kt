@@ -92,7 +92,6 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
         }
     }
 
-    //  The PSI translator explicitly wraps bounds with Nullable(getBound(classType)).
     @Test
     fun `function with generic parameter that has annotated bounds`() {
         inlineModelTest(

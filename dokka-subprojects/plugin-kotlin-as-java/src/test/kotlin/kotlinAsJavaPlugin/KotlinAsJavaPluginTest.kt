@@ -212,7 +212,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     }
 
     // AA renders Java property modifiers differently in kotlin-as-java context
-    @kotlinAsJavaPlugin.utils.OnlyJavaPsi
+    @OnlyJavaPsi
     @Test
     fun `java properties should keep its modifiers`() {
         testInline(

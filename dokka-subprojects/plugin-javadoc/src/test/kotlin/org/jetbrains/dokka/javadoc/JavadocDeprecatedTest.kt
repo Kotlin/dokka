@@ -29,8 +29,6 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
         }
     }
 
-    // AA produces different deprecated constructor count for Java classes
-    @org.jetbrains.dokka.javadoc.utils.OnlyJavaPsi
     @Test
     fun `finds correct number of deprecated constructors`() {
         testDeprecatedPageTemplateMaps { templateMap ->

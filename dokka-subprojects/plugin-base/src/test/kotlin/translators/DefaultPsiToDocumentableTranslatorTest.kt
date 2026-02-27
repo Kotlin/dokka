@@ -738,7 +738,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    //  The SyntheticElementDocumentationProvider in analysis-java-psi is internal and can't be reused directly.
     @Test
     fun `should have documentation for synthetic Enum values functions`() {
         testInline(
@@ -808,7 +807,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    //  The SyntheticElementDocumentationProvider in analysis-java-psi is internal and can't be reused directly.
     @Test
     fun `should have documentation for synthetic Enum valueOf functions`() {
         testInline(

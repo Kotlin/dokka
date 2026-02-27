@@ -222,7 +222,6 @@ class ObviousAndInheritedFunctionsDocumentableFilterTest : BaseAbstractTest() {
         }
     }
 
-    //  for Java classes. Needs investigation into AA's scope resolution for Java classes.
     @ParameterizedTest
     @MethodSource(value = ["nonSuppressingObviousConfiguration", "nonSuppressingInheritedConfiguration"])
     fun `should not suppress toString, equals and hashcode if custom config is provided in Java`(
