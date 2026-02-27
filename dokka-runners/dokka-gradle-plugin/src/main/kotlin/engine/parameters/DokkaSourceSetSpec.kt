@@ -282,7 +282,7 @@ constructor(
     abstract val suppressGeneratedFiles: Property<Boolean>
 
     /**
-     * A set of annotation fully qualified names (FQNs) that should be suppressed.
+     * A set of annotation fully qualified names (FQNs) to suppress declarations annotated with.
      * Any declaration annotated with one of these annotations will be excluded from the generated documentation.
      */
     @get:Input

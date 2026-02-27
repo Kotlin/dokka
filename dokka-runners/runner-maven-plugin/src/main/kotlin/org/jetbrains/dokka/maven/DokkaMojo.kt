@@ -262,7 +262,7 @@ public abstract class AbstractDokkaMojo(
     public var suppressedFiles: List<String> = emptyList()
 
     /**
-     * List of annotation fully qualified names (FQNs) that should be suppressed.
+     * A list of annotation fully qualified names (FQNs) to suppress declarations annotated with.
      * Any declaration annotated with one of these annotations will be excluded from the generated documentation.
      */
     @Parameter

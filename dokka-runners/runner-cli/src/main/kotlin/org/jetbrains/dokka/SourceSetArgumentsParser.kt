@@ -109,7 +109,7 @@ internal fun parseSourceSet(moduleName: String, args: Array<String>): DokkaConfi
 
     val suppressedAnnotations by parser.option(
         ArgType.String,
-        description = "List of annotation FQNs to suppress annotated declarations. Accepts multiple values separated by semicolons."
+        description = "List of annotation FQNs to suppress declarations annotated with. Accepts multiple values separated by semicolons."
     ).delimiter(";")
 
     val analysisPlatform: Platform by parser.option(

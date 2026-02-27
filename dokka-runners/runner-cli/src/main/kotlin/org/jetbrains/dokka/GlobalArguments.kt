@@ -113,7 +113,7 @@ public class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     public val globalSuppressedAnnotations: List<String> by parser.option(
         ArgType.String,
         fullName = "globalSuppressedAnnotations",
-        description = "Global list of annotation FQNs to suppress. " +
+        description = "Global list of annotation FQNs to suppress declarations annotated with. " +
                 "Accepts multiple values separated by semicolons"
     ).delimiter(";")
 
