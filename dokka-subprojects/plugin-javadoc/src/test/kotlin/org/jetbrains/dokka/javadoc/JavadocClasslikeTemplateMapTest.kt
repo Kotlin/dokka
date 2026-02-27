@@ -239,7 +239,6 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
     }
 
     // TODO: AA-based Java analysis produces different template map for documented function parameters
-    @org.junit.jupiter.api.Disabled("AA Javadoc function parameter rendering differs")
     @OnlyJavaPsi
     @Test
     fun `documented function parameters`(){

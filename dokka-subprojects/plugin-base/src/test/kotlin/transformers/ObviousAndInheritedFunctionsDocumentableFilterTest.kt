@@ -225,7 +225,6 @@ class ObviousAndInheritedFunctionsDocumentableFilterTest : BaseAbstractTest() {
 
     // TODO: AA's combinedMemberScope doesn't include all inherited java.lang.Object methods (notify, notifyAll)
     //  for Java classes. Needs investigation into AA's scope resolution for Java classes.
-    @org.junit.jupiter.api.Disabled("AA does not include notify/notifyAll in combinedMemberScope for Java classes")
     @OnlyJavaPsi
     @ParameterizedTest
     @MethodSource(value = ["nonSuppressingObviousConfiguration", "nonSuppressingInheritedConfiguration"])

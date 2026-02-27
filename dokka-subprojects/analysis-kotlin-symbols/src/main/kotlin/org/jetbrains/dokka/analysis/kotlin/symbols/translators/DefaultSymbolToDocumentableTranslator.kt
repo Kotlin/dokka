@@ -437,7 +437,22 @@ internal class DokkaSymbolVisitor(
         val scope = if(includeStaticScope) namedClassOrObjectSymbol.combinedMemberScope else namedClassOrObjectSymbol.memberScope
         val constructors = scope.constructors.map { visitConstructorSymbol(it, useJavaVisibility) }.toList()
 
-        val callables = scope.callables.toList()
+        var callables = scope.callables.toList()
+
+        // AA's combinedMemberScope for Java classes maps java.lang.Object to kotlin.Any,
+        // which only has 3 methods (equals, hashCode, toString). Supplement with
+        // java.lang.Object methods (notify, notifyAll, wait, etc.) for Java source classes.
+        if (useJavaVisibility) {
+            val existingNames = callables.filterIsInstance<KaNamedFunctionSymbol>().mapTo(mutableSetOf()) { it.name }
+            val objectClass = findClass(org.jetbrains.kotlin.name.ClassId.fromString("java/lang/Object"))
+            if (objectClass != null) {
+                val objectMethods = objectClass.memberScope.callables
+                    .filterIsInstance<KaNamedFunctionSymbol>()
+                    .filter { it.name !in existingNames }
+                    .toList()
+                callables = callables + objectMethods
+            }
+        }
 
         // Dokka K1 does not show inherited nested and inner classes,
         // so it should show only classifiers (classes and objects) explicitly declared

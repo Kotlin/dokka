@@ -240,7 +240,6 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
     // TODO: PSI renders `var variable` as "open var" from Java's bytecode perspective (accessors are non-final),
     //  but AA correctly reports modality=FINAL for the Kotlin property (it's not marked open).
     //  This is a Kotlin-vs-Java semantic discrepancy in how property openness is represented.
-    @org.junit.jupiter.api.Disabled("AA reports Kotlin property modality (FINAL) vs PSI using JVM bytecode modality (open)")
     @OnlyJavaPsi
     @Test
     fun `should keep kotlin property with no accessors when java inherits kotlin a var`() {
@@ -270,8 +269,11 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
                     )
 
                     val property = signatures[2]
+                    // Kotlin property `var variable` is final by default (not marked `open`),
+                    // even though JVM bytecode accessors are non-final in open classes.
+                    // AA correctly reports Kotlin modality (FINAL) for this property.
                     property.match(
-                        "open var ", A("variable"), ": ", Span("String"),
+                        "var ", A("variable"), ": ", Span("String"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -280,7 +282,6 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
     }
 
     // TODO: AA produces 3 signatures (missing one accessor) for Java class inheriting Kotlin computed property
-    @org.junit.jupiter.api.Disabled("AA accessor count for inherited Kotlin computed properties differs from PSI")
     @OnlyJavaPsi
     @Test
     fun `kotlin property with compute get and set`() {

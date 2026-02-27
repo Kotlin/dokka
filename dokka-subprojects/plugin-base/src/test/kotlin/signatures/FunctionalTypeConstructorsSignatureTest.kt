@@ -285,7 +285,6 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
 
     // TODO: AA's KaSyntheticJavaPropertySymbol handles java.util.function.Function fields differently -
     //  doesn't create synthetic property with functional type signature like PSI does
-    @org.junit.jupiter.api.Disabled("AA synthetic Java property for functional types differs from PSI")
     @OnlyJavaPsi
     @Test
     fun `java with java function`() {
@@ -315,7 +314,6 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
 
     // TODO: AA's KaSyntheticJavaPropertySymbol handles kotlin.jvm.functions.Function fields differently -
     //  doesn't create synthetic property with functional type signature like PSI does
-    @org.junit.jupiter.api.Disabled("AA synthetic Java property for functional types differs from PSI")
     @OnlyJavaPsi
     @Test
     fun `java with kotlin function`() {

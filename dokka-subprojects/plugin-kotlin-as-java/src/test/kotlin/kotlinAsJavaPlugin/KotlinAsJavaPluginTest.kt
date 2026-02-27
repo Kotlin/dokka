@@ -212,7 +212,6 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
     }
 
     // TODO: AA renders Java property modifiers differently — likely accessor convention issue
-    @org.junit.jupiter.api.Disabled("AA Java property modifier rendering differs in kotlin-as-java")
     @OnlyJavaPsi
     @Test
     fun `java properties should keep its modifiers`() {
