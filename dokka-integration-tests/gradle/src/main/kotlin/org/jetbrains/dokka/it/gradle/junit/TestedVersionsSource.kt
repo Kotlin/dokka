@@ -206,6 +206,10 @@ fun interface TestedVersionsSource<T : TestedVersions> {
                     )
                 }
             }
+        }.filter {
+            // there is no anymore compose compiler dependency for KGP 1.9.25
+            // previously it was available only in maven.pkg.jetbrains.space/public/p/compose/dev
+            it.kgp.major == 2
         }
     }
 }
