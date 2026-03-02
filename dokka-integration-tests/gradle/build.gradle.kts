@@ -271,6 +271,8 @@ testing {
 
         targets.configureEach {
             testTask {
+                // TODO Gradle 9+ requires 17. do we want to run all tests with 17?
+                this.javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(17) }
                 systemProperty
                     .inputDirectory("exampleGradleProjectsDir", exampleGradleProjectsDir)
                     .withPathSensitivity(RELATIVE)
