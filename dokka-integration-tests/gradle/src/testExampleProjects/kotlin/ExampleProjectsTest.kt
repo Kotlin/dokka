@@ -3,11 +3,12 @@
  */
 package org.jetbrains.dokka.it.gradle.examples
 
-import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
+import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.paths.shouldBeADirectory
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldStartWith
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.*
 import org.jetbrains.dokka.gradle.utils.*
@@ -475,6 +476,9 @@ class ExampleProjectsTest {
 
         val configCacheRunner: GradleRunner =
             testCase.project.runner
+                // TODO either move this version to somewhere nicer,
+                //      or update Dokka's Gradle version
+                .withGradleVersion("9.3.1")
                 .addArguments(
                     testCase.dokkaGenerateTask,
                     "--stacktrace",
@@ -487,10 +491,26 @@ class ExampleProjectsTest {
 
             output shouldContain "Configuration cache entry stored"
 
-            loadConfigurationCacheReportData(projectDir = testCase.project.projectDir)
-                .asClue { ccReport ->
-                    ccReport.totalProblemCount shouldBe 0
-                }
+            val ccReport = loadConfigurationCacheReportData(projectDir = testCase.project.projectDir)
+
+            withClue("should have no CC problems") {
+                ccReport.totalProblemCount shouldBe 0
+            }
+
+            withClue("Dokka should only use `org.jetbrains.dokka` Gradle properties for CC") {
+                ccReport.diagnostics
+                    // find diagnostics that report o
+                    .filter { diag ->
+                        diag.trace.any { "org.jetbrains.dokka" in it.location.orEmpty() }
+                    }
+                    // verify all Dokka's CC inputs are namespaced with `org.jetbrains.dokka`.
+                    .shouldForAll { diag ->
+                        val inputNames = diag.input.mapNotNull { it.name }
+                        inputNames.shouldForAll { inputName ->
+                            inputName.shouldStartWith("org.jetbrains.dokka.")
+                        }
+                    }
+            }
         }
 
         withClue("KT-66423 KGP needs another build to finish setting up kotlin-native") {
