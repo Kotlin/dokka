@@ -3,7 +3,7 @@
  */
 
 plugins {
-    kotlin("jvm") version "2.3.20-RC"
+    kotlin("jvm") version "2.3.20-RC2"
     id("org.jetbrains.dokka") version "2.1.0"
 }
 
