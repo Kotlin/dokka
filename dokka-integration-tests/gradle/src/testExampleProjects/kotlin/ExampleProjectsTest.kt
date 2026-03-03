@@ -5,6 +5,7 @@ package org.jetbrains.dokka.it.gradle.examples
 
 import io.kotest.assertions.withClue
 import io.kotest.inspectors.shouldForAll
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.paths.shouldBeADirectory
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -476,13 +477,18 @@ class ExampleProjectsTest {
 
         val configCacheRunner: GradleRunner =
             testCase.project.runner
+                // Gradle 9.4.0 seems to be required for CC re-use?
+                // Earlier versions seem to fail.
                 // TODO either move this version to somewhere nicer,
                 //      or update Dokka's Gradle version
-                .withGradleVersion("9.3.1")
+                .withGradleVersion("9.4.0-rc-2")
+//                .withGradleVersion("9.3.1")
                 .addArguments(
                     testCase.dokkaGenerateTask,
                     "--stacktrace",
                     "--configuration-cache",
+                    // unusedProp is used to test Dokka does not use unrelated props as a CC input
+                    "-PunusedProp=1",
                 )
 
         // first build should store the configuration cache
@@ -498,11 +504,15 @@ class ExampleProjectsTest {
             }
 
             withClue("Dokka should only use `org.jetbrains.dokka` Gradle properties for CC") {
-                ccReport.diagnostics
-                    // find diagnostics that report o
-                    .filter { diag ->
-                        diag.trace.any { "org.jetbrains.dokka" in it.location.orEmpty() }
-                    }
+                val dokkaDiagnostics =
+                    ccReport.diagnostics
+                        // find diagnostics of Dokka's CC inputs
+                        .filter { diag ->
+                            diag.trace.any { "org.jetbrains.dokka" in it.location.orEmpty() }
+                        }
+
+                dokkaDiagnostics
+                    .shouldNotBeEmpty()
                     // verify all Dokka's CC inputs are namespaced with `org.jetbrains.dokka`.
                     .shouldForAll { diag ->
                         val inputNames = diag.input.mapNotNull { it.name }
@@ -520,9 +530,13 @@ class ExampleProjectsTest {
         }
 
         // second build should reuse the configuration cache
-        configCacheRunner.build {
-            shouldHaveTask(testCase.dokkaGenerateTask).shouldHaveOutcome(UP_TO_DATE, SUCCESS)
-            output shouldContain "Configuration cache entry reused"
-        }
+        configCacheRunner
+            .addArguments(
+                "-PunusedProp=2",
+            )
+            .build {
+                shouldHaveTask(testCase.dokkaGenerateTask).shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+                output shouldContain "Configuration cache entry reused"
+            }
     }
 }
