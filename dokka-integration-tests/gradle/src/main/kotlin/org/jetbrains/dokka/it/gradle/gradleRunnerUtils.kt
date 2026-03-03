@@ -7,6 +7,7 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.BuildTask
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.internal.DefaultGradleRunner
+import org.jetbrains.dokka.it.gradle.junit.TestedVersions
 
 
 /** Edit environment variables in the Gradle Runner */
@@ -49,3 +50,18 @@ fun GradleRunner.addArguments(
  */
 val BuildTask.name: String
     get() = path.substringAfterLast(':')
+
+/**
+ * `true` if the Gradle version fully supports CC re-use.
+ *
+ * This is specifically used to test DGP doesn't register unrelated CC inputs.
+ * https://github.com/Kotlin/dokka/issues/4467
+ *
+ * Gradle 9.1 is the first version that properly supported CC re-use,
+ * but 9.2 and 9.3 are bugged https://github.com/gradle/gradle/issues/35998.
+ * It's fixed in 9.4.
+ * Once the Dokka build updates to use Gradle 9.4, this property can be removed.
+ */
+fun TestedVersions.hasGradleVersionThatSupportsCcReuse(): Boolean =
+    gradle.majorAndMinorVersions == "9.1"
+            || (gradle.major >= 9 && gradle.minor >= 4)
