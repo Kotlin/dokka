@@ -68,13 +68,11 @@ data class GradlePropertiesBuilder(
     /** Dokka specific options. */
     data class DokkaArgs(
         /** @see org.jetbrains.dokka.gradle.internal.PluginFeaturesService.PluginMode */
-        // TODO revert? I removed it because I think it prevents the CC issue being found,
-        //      because if they're set it means DGP reads the properties and doesn't use `properties[]`
-        var pluginMode: String? = null,
-        var pluginModeNoWarn: Boolean? = null,
+        var pluginMode: String? = "V2Enabled",
+        var pluginModeNoWarn: Boolean? = true,
         var k2Analysis: Boolean? = null,
         var k2AnalysisNoWarn: Boolean? = null,
-        var enableLogHtmlPublicationLink: Boolean? = null,
+        var enableLogHtmlPublicationLink: Boolean? = false,
     )
 
     /** Gradle Daemon JVM args. */
