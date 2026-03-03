@@ -22,6 +22,7 @@ import org.jetbrains.dokka.analysis.java.parsers.doctag.InheritDocTagResolver
 import org.jetbrains.dokka.analysis.java.parsers.doctag.PsiDocTagParser
 import org.jetbrains.dokka.analysis.java.util.NoopIntellijLoggerFactory
 import org.jetbrains.dokka.plugability.*
+import org.jetbrains.dokka.transformers.sources.SourceToDocumentableTranslator
 import java.io.File
 
 
@@ -75,25 +76,23 @@ public class JavaAnalysisPlugin : DokkaPlugin() {
         docCommentCreators providing { JavaDocCommentCreator() }
     }
 
-    private val psiDocTagParser by lazy {
-        PsiDocTagParser(
-            inheritDocTagResolver = InheritDocTagResolver(
-                docCommentFactory = docCommentFactory,
-                docCommentFinder = docCommentFinder,
-                contentProviders = query { inheritDocTagContentProviders }
-            )
-        )
-    }
-
     internal val javaDocCommentParser by extending {
-        docCommentParsers providing {
+        docCommentParsers providing { ctx ->
             JavaPsiDocCommentParser(
-                psiDocTagParser
+                PsiDocTagParser(
+                    context = ctx,
+                    inheritDocTagResolver = InheritDocTagResolver(
+                        docCommentFactory = docCommentFactory,
+                        docCommentFinder = docCommentFinder,
+                        contentProviders = query { inheritDocTagContentProviders }
+                    )
+                )
             )
         }
     }
 
-    internal val psiToDocumentableTranslator by extending {
+    @InternalDokkaApi
+    public val psiToDocumentableTranslator: Extension<SourceToDocumentableTranslator, *, *> by extending {
         CoreExtensions.sourceToDocumentableTranslator providing { DefaultPsiToDocumentableTranslator() }
     }
 

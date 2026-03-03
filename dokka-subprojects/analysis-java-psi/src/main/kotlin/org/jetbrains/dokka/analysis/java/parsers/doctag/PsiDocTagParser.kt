@@ -6,33 +6,50 @@ package org.jetbrains.dokka.analysis.java.parsers.doctag
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.javadoc.PsiDocTag
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.java.parsers.CommentResolutionContext
+import org.jetbrains.dokka.analysis.java.parsers.doctag.markdown.JavaDocMarkdownFlavourDescriptor
+import org.jetbrains.dokka.analysis.java.parsers.doctag.markdown.MarkdownToHtmlConverter
 import org.jetbrains.dokka.model.doc.*
+import org.jetbrains.dokka.plugability.DokkaContext
 
 /**
  * Parses [PsiElement] of [PsiDocTag] into Dokka's [DocTag]
  */
 internal class PsiDocTagParser(
+    private val context: DokkaContext,
     private val inheritDocTagResolver: InheritDocTagResolver
 ) {
+
+    private val markdownToHtmlConverter by lazy { MarkdownToHtmlConverter(JavaDocMarkdownFlavourDescriptor()) }
+
     fun parse(
         psiElements: Iterable<PsiElement>,
-        commentResolutionContext: CommentResolutionContext
-    ): List<DocTag> = parse(asParagraph = false, psiElements, commentResolutionContext)
+        commentResolutionContext: CommentResolutionContext,
+        sourceSet: DokkaSourceSet
+    ): List<DocTag> = parse(asParagraph = false, psiElements, commentResolutionContext, sourceSet)
 
     fun parseAsParagraph(
         psiElements: Iterable<PsiElement>,
-        commentResolutionContext: CommentResolutionContext
-    ): List<DocTag> = parse(asParagraph = true, psiElements, commentResolutionContext)
+        commentResolutionContext: CommentResolutionContext,
+        sourceSet: DokkaSourceSet
+    ): List<DocTag> = parse(asParagraph = true, psiElements, commentResolutionContext, sourceSet)
 
     private fun parse(
         asParagraph: Boolean,
         psiElements: Iterable<PsiElement>,
-        commentResolutionContext: CommentResolutionContext
+        commentResolutionContext: CommentResolutionContext,
+        sourceSet: DokkaSourceSet
     ): List<DocTag> {
         val docTagParserContext = DocTagParserContext()
 
-        val psiToHtmlConverter = PsiElementToHtmlConverter(inheritDocTagResolver)
+        val psiToHtmlConverter = PsiElementToHtmlConverter(
+            inheritDocTagResolver = inheritDocTagResolver,
+            sourceSet = sourceSet,
+            logger = context.logger,
+            markdownToHtmlConverterProvider = { markdownToHtmlConverter }
+        )
+
         val elementsHtml = psiToHtmlConverter.convert(psiElements, docTagParserContext, commentResolutionContext)
             ?: return emptyList()
 

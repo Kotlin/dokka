@@ -6,12 +6,14 @@ package org.jetbrains.dokka.javadoc
 
 import org.jetbrains.dokka.javadoc.pages.DeprecatedPage
 import org.jetbrains.dokka.javadoc.renderer.TemplateMap
+import org.jetbrains.dokka.javadoc.utils.OnlyJavaPsi
 import org.junit.jupiter.api.Tag
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
 
+    @OnlyJavaPsi
     @Test
     fun `generates correct number of sections`() {
         testDeprecatedPageTemplateMaps { templateMap ->
@@ -20,6 +22,7 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
         }
     }
 
+    @OnlyJavaPsi
     @Test
     fun `finds correct number of element for removal`() {
         testDeprecatedPageTemplateMaps { templateMap ->
@@ -69,6 +72,7 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
         }
     }
 
+    @OnlyJavaPsi
     @Test
     fun `should be sorted by position`() {
         testDeprecatedPageTemplateMaps { templateMap ->

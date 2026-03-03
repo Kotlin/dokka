@@ -112,7 +112,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
             "8.11.2",
             "8.12.3",
             "8.13.2",
-            "9.0.0-rc02",
+            "9.0.0",
         ).map { SemVer(it) }
 
         private val matchedAgpVersions: List<SemVer> =
@@ -206,6 +206,10 @@ fun interface TestedVersionsSource<T : TestedVersions> {
                     )
                 }
             }
+        }.filter {
+            // there is no anymore compose compiler dependency for KGP 1.9.25
+            // previously it was available only in maven.pkg.jetbrains.space/public/p/compose/dev
+            it.kgp.major == 2
         }
     }
 }

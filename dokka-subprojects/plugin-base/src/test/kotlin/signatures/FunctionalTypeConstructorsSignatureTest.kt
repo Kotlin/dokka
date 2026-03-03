@@ -8,6 +8,7 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.jdk
 import utils.A
+import utils.OnlyJavaPsi
 import utils.OnlySymbols
 import utils.Span
 import utils.TestOutputWriterPlugin
@@ -282,6 +283,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi
     @Test
     fun `java with java function`() {
         val source = """
@@ -308,6 +310,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi
     @Test
     fun `java with kotlin function`() {
         val source = """
