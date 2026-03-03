@@ -3,7 +3,6 @@
  */
 package org.jetbrains.dokka.it.gradle
 
-import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.paths.shouldBeAFile
@@ -14,10 +13,8 @@ import org.gradle.testkit.runner.TaskOutcome.*
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
-import org.jetbrains.dokka.it.gradle.junit.DokkaGradlePluginTest
-import org.jetbrains.dokka.it.gradle.junit.DokkaGradleProjectRunner
-import org.jetbrains.dokka.it.gradle.junit.TestsDGPv2
-import org.jetbrains.dokka.it.gradle.junit.TestsKotlinMultiplatform
+import org.jetbrains.dokka.it.gradle.junit.*
+import org.jetbrains.dokka.it.gradle.junit.TestedVersions
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.name
 import kotlin.io.path.readText
@@ -134,6 +131,7 @@ class KotlinMultiplatformIT {
     @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-multiplatform")
     fun `expect Dokka is compatible with Gradle Configuration Cache`(
         project: DokkaGradleProjectRunner,
+        testedVersions: TestedVersions,
     ) {
         fun clearCcReports() {
             project.file(".gradle/configuration-cache").deleteRecursively()
@@ -155,10 +153,7 @@ class KotlinMultiplatformIT {
 
                 output shouldContain "Configuration cache entry stored"
 
-                loadConfigurationCacheReportData(projectDir = project.projectDir)
-                    .asClue { ccReport ->
-                        ccReport.totalProblemCount shouldBe 0
-                    }
+                testConfigurationCacheResult(project, testedVersions)
             }
         }
 
@@ -171,11 +166,6 @@ class KotlinMultiplatformIT {
                 shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
 
                 output shouldContain "Configuration cache entry stored"
-
-                loadConfigurationCacheReportData(projectDir = project.projectDir)
-                    .asClue { ccReport ->
-                        ccReport.totalProblemCount shouldBe 0
-                    }
             }
         }
 
@@ -183,6 +173,19 @@ class KotlinMultiplatformIT {
             configCacheRunner.build {
                 shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
                 output shouldContain "Configuration cache entry reused"
+            }
+        }
+
+        if (testedVersions.hasGradleVersionThatSupportsCcReuse()) {
+            // CC re-use is only supported in Gradle 9.1 or 9.4+ (it's bugged in 9.2 and 9.3)
+
+            withClue("unrelated properties should not cause CC misses") {
+                configCacheRunner.addArguments(
+                    "-PunusedProperty=unusedValue",
+                ).build {
+                    shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+                    output shouldContain "Configuration cache entry reused"
+                }
             }
         }
     }
