@@ -58,8 +58,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
         private val allGradleVersions: List<String> = listOf(
             "7.6.6",
             "8.14.4",
-            "9.3.1",
-            "9.4.0-rc-2",
+            "9.4.0",
         )
 
         private val allVersions: Sequence<TestedVersions.Default> =
