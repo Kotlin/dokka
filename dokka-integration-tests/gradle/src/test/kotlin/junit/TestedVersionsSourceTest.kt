@@ -39,7 +39,7 @@ class TestedVersionsSourceTest {
         val actual = TestedVersionsSource.Default.get().joinAllToString()
 
         actual shouldBe """
-            gradle: 7.6.6, 8.14.4, 9.3.1, 9.4.0-rc-2
+            gradle: 7.6.6, 8.14.4, 9.4.0
             kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0
         """.trimIndent()
     }
@@ -56,14 +56,14 @@ class TestedVersionsSourceTest {
             Required ->
                 """
                 agp: 9.0.0
-                gradle: 9.3.1, 9.4.0-rc-2
+                gradle: 9.4.0
                 kgp: 2.1.21, 2.2.21, 2.3.0
                 """.trimIndent()
 
             Supported ->
                 """
                 agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2, 9.0.0
-                gradle: 7.6.6, 8.14.4, 9.3.1, 9.4.0-rc-2
+                gradle: 7.6.6, 8.14.4, 9.4.0
                 kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0
                 """.trimIndent()
 
@@ -91,7 +91,7 @@ class TestedVersionsSourceTest {
                 """
                 agp: 9.0.0
                 composeGradlePlugin: 1.7.0
-                gradle: 9.3.1, 9.4.0-rc-2
+                gradle: 9.4.0
                 kgp: 2.1.21, 2.2.21, 2.3.0
                 """.trimIndent()
 
@@ -99,7 +99,7 @@ class TestedVersionsSourceTest {
                 """
                 agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2, 9.0.0
                 composeGradlePlugin: 1.7.0
-                gradle: 7.6.6, 8.14.4, 9.3.1, 9.4.0-rc-2
+                gradle: 7.6.6, 8.14.4, 9.4.0
                 kgp: 2.0.21, 2.1.21, 2.2.21, 2.3.0
                 """.trimIndent()
 
