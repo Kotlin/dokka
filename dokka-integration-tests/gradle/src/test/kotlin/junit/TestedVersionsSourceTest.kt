@@ -91,7 +91,7 @@ class TestedVersionsSourceTest {
                 """
                 agp: 9.0.0
                 composeGradlePlugin: 1.7.0
-                gradle: 9.2.1
+                gradle: 9.3.1, 9.4.0-rc-2
                 kgp: 2.1.21, 2.2.21, 2.3.0
                 """.trimIndent()
 
@@ -107,7 +107,7 @@ class TestedVersionsSourceTest {
                 """
                 agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2
                 composeGradlePlugin: 1.7.0
-                gradle: 7.6.6, 8.14.3
+                gradle: 7.6.6, 8.14.4
                 kgp: 2.0.21
                 """.trimIndent()
         }
