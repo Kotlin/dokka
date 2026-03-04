@@ -295,6 +295,7 @@ class MultiModuleFunctionalTest : FunSpec({
 
             project.runner
                 .addArguments(
+                    //"clean",
                     ":dokkaGenerate",
                     "--stacktrace",
                     "--no-build-cache",
