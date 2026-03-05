@@ -121,7 +121,6 @@ internal class DokkaKlibMetadataCommonDependencyContainer(
 
         return klibMetadataModuleDescriptorFactory.createPackageFragmentProvider(
             library = library,
-            packageAccessHandler = null,
             customMetadataProtoLoader = null,
             storageManager = LockBasedStorageManager("KlibMetadataPackageFragmentProvider"),
             moduleDescriptor = libraryModuleDescriptor,
