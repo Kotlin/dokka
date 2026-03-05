@@ -60,7 +60,8 @@ val BuildTask.name: String
  * Gradle 9.1 is the first version that properly supported CC re-use,
  * but 9.2 and 9.3 are bugged https://github.com/gradle/gradle/issues/35998.
  * It's fixed in 9.4.
- * Once the Dokka build updates to use Gradle 9.4, this property can be removed.
+ *
+ * Once the Dokka's minimum supported Gradle version is >= 9.4, this property can be removed.
  */
 fun TestedVersions.hasGradleVersionThatSupportsCcReuse(): Boolean =
     gradle.majorAndMinorVersions == "9.1"
