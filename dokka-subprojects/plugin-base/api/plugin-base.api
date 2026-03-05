@@ -36,6 +36,7 @@ public final class org/jetbrains/dokka/analysis/KotlinAnalysisDeprecatedApiKt {
 public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plugability/DokkaPlugin {
 	public fun <init> ()V
 	public final fun getActualTypealiasAdder ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getAnnotationSuppressionFilter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getAssetsInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getBaseSearchbarDataInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getCommentsToContentConverter ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
@@ -1101,6 +1102,12 @@ public final class org/jetbrains/dokka/base/templating/TypeReference$Companion {
 public final class org/jetbrains/dokka/base/transformers/documentables/ActualTypealiasAdder : org/jetbrains/dokka/transformers/documentation/DocumentableTransformer {
 	public fun <init> ()V
 	public fun invoke (Lorg/jetbrains/dokka/model/DModule;Lorg/jetbrains/dokka/plugability/DokkaContext;)Lorg/jetbrains/dokka/model/DModule;
+}
+
+public final class org/jetbrains/dokka/base/transformers/documentables/AnnotationSuppressionFilter : org/jetbrains/dokka/base/transformers/documentables/SuppressedByConditionDocumentableFilterTransformer {
+	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public final fun getDokkaContext ()Lorg/jetbrains/dokka/plugability/DokkaContext;
+	public fun shouldBeSuppressed (Lorg/jetbrains/dokka/model/Documentable;)Z
 }
 
 public final class org/jetbrains/dokka/base/transformers/documentables/CallableExtensions : org/jetbrains/dokka/model/properties/ExtraProperty {
