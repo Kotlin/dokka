@@ -15,7 +15,7 @@ import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
 import org.jetbrains.dokka.it.gradle.junit.*
 import org.jetbrains.dokka.it.gradle.junit.TestedVersions
-import kotlin.io.path.deleteRecursively
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import kotlin.io.path.name
 import kotlin.io.path.readText
 
@@ -133,11 +133,6 @@ class KotlinMultiplatformIT {
         project: DokkaGradleProjectRunner,
         testedVersions: TestedVersions,
     ) {
-        fun clearCcReports() {
-            project.file(".gradle/configuration-cache").deleteRecursively()
-            project.file("build/reports/configuration-cache").deleteRecursively()
-        }
-
         val configCacheRunner =
             project.runner.addArguments(
                 "clean",
@@ -147,7 +142,7 @@ class KotlinMultiplatformIT {
             )
 
         withClue("first build should store the configuration cache") {
-            clearCcReports()
+            project.deleteConfigurationCacheData()
             configCacheRunner.build {
                 shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
 
@@ -161,7 +156,7 @@ class KotlinMultiplatformIT {
             // without this second build the test fails on TeamCity, because the CC entry isn't reused because of:
             // Calculating task graph as configuration cache cannot be reused because directory '../../../../../../../home/.konan/kotlin-native-prebuilt-linux-x86_64-2.1.21/klib/platform/linux_x64' has changed
             // Probably is related to KT-77218
-            clearCcReports()
+            project.deleteConfigurationCacheData()
             configCacheRunner.build {
                 shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
 
@@ -175,17 +170,53 @@ class KotlinMultiplatformIT {
                 output shouldContain "Configuration cache entry reused"
             }
         }
+    }
 
-        if (testedVersions.hasGradleVersionThatSupportsCcReuse()) {
-            // CC re-use is only supported in Gradle 9.1 or 9.4+ (it's bugged in 9.2 and 9.3)
+    @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-multiplatform")
+    fun `expect Gradle Configuration Cache can be re-used`(
+        project: DokkaGradleProjectRunner,
+        testedVersions: TestedVersions,
+    ) {
+        assumeTrue(testedVersions.hasGradleVersionThatSupportsCcReuse()) {
+            "CC re-use is only supported in Gradle 9.1 or 9.4+ (it's bugged in 9.2 and 9.3)"
+        }
 
-            withClue("unrelated properties should not cause CC misses") {
-                configCacheRunner.addArguments(
-                    "-PunusedProperty=unusedValue",
-                ).build {
-                    shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
-                    output shouldContain "Configuration cache entry reused"
-                }
+        val configCacheRunner =
+            project.runner.addArguments(
+                "clean",
+                ":dokkaGenerate",
+                "--configuration-cache",
+            )
+
+        withClue("first build should store the configuration cache") {
+            project.deleteConfigurationCacheData()
+            configCacheRunner.build {
+                shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+
+                output shouldContain "Configuration cache entry stored"
+
+                testConfigurationCacheResult(project, testedVersions)
+            }
+        }
+
+        withClue("second build - because sometimes KGP needs to finish installing kotlin-native-prebuilt") {
+            // without this second build the test fails on TeamCity, because the CC entry isn't reused because of:
+            // Calculating task graph as configuration cache cannot be reused because directory '../../../../../../../home/.konan/kotlin-native-prebuilt-linux-x86_64-2.1.21/klib/platform/linux_x64' has changed
+            // Probably is related to KT-77218
+            project.deleteConfigurationCacheData()
+            configCacheRunner.build {
+                shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+
+                output shouldContain "Configuration cache entry stored"
+            }
+        }
+
+        withClue("unrelated properties should not cause CC misses") {
+            configCacheRunner.addArguments(
+                "-PunusedProperty=unusedValue",
+            ).build {
+                shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+                output shouldContain "Configuration cache entry reused"
             }
         }
     }
