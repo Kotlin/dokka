@@ -46,14 +46,16 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.compiler.TopDownAnalyzerFacadeForJVM
 import org.jetbrains.kotlin.cli.jvm.config.*
 import org.jetbrains.kotlin.cli.jvm.index.JavaRoot
+import org.jetbrains.kotlin.cli.registerExtensionStorage
 import org.jetbrains.kotlin.config.*
 import org.jetbrains.kotlin.context.ProjectContext
 import org.jetbrains.kotlin.context.withModule
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
+import org.jetbrains.kotlin.diagnostics.impl.BaseDiagnosticsCollector
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.js.resolve.JsPlatformAnalyzerServices
-import org.jetbrains.kotlin.library.KLIB_FILE_EXTENSION
+import org.jetbrains.kotlin.library.KlibConstants.KLIB_FILE_EXTENSION
 import org.jetbrains.kotlin.library.KotlinLibrary
 import org.jetbrains.kotlin.library.loader.KlibLoader
 import org.jetbrains.kotlin.library.loader.reportLoadingProblemsIfAny
@@ -97,10 +99,14 @@ public class AnalysisEnvironment(
     private val mockApplicationHack: MockApplicationHack,
     private val kLibService: KLibService,
 ) : Disposable {
+    @OptIn(CompilerConfiguration.Internals::class)
     private val configuration = CompilerConfiguration()
 
     init {
+        @OptIn(CompilerConfiguration.Internals::class)
+        configuration.registerExtensionStorage()
         configuration.put(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
+        configuration.put(CLIConfigurationKeys.DIAGNOSTICS_COLLECTOR, BaseDiagnosticsCollector.DoNothing)
     }
 
     internal fun createCoreEnvironment(): KotlinCoreEnvironment {
@@ -474,7 +480,7 @@ public class AnalysisEnvironment(
                                         content.moduleContentScope
                                     )
                                         .apply {
-                                            addRoots(javaRoots, messageCollector)
+                                            addRoots(javaRoots, configuration)
                                         }
                                 }, moduleByJavaClass = {
                                     val file =
