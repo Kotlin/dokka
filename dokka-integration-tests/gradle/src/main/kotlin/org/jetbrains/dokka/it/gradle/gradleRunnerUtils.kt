@@ -61,7 +61,7 @@ val BuildTask.name: String
  * but 9.2 and 9.3 are bugged https://github.com/gradle/gradle/issues/35998.
  * It's fixed in 9.4.
  *
- * Once the Dokka's minimum supported Gradle version is >= 9.4, this property can be removed.
+ * Once the Dokka's minimum supported Gradle version is >= 9.4, this function can be removed.
  */
 fun TestedVersions.hasGradleVersionThatSupportsCcReuse(): Boolean =
     gradle.majorAndMinorVersions == "9.1"
