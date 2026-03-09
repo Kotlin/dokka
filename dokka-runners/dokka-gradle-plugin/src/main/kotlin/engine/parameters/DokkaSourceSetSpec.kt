@@ -455,6 +455,8 @@ constructor(
             }
         }
 
+    internal val isBasedOnAndroidVariant: Property<Boolean> = objects.property(Boolean::class.java)
+
     companion object {
 
         /**
