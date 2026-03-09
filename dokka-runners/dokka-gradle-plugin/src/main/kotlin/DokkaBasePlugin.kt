@@ -277,6 +277,20 @@ constructor(
         target: Project,
         dokkaExtension: DokkaExtension,
     ) {
+        val enabledSourceSets = providers.provider {
+            // exclude suppressed source sets as early as possible, to avoid unnecessary dependency resolution
+            dokkaExtension.dokkaSourceSets.filterNot { it.suppress.get() }
+        }
+
+        val sourceRootsIntersectionsBasedOnAndroidVariants = enabledSourceSets.map { sourceSets ->
+            // no check in case there is only single source-set
+            if (sourceSets.size <= 1) return@map emptySet()
+
+            // check only source sets based on Android variants;
+            // everything else should be handled by the default checker in analysis
+            detectSourceRootsIntersections(sourceSets.filter { it.isBasedOnAndroidVariant.get() })
+        }
+
         target.tasks.register<DokkaBaseTask>(taskNames.generate) {
             description = "Generates Dokka publications for all formats"
             dependsOn(target.tasks.withType<DokkaGeneratePublicationTask>())
@@ -290,12 +304,43 @@ constructor(
             publicationEnabled.convention(true)
             onlyIf("publication must be enabled") { publicationEnabled.getOrElse(true) }
 
-            generator.dokkaSourceSets.addAllLater(
-                providers.provider {
-                    // exclude suppressed source sets as early as possible, to avoid unnecessary dependency resolution
-                    dokkaExtension.dokkaSourceSets.filterNot { it.suppress.get() }
+            generator.dokkaSourceSets.addAllLater(enabledSourceSets)
+
+            doFirst {
+                val sourceRootsIntersections = sourceRootsIntersectionsBasedOnAndroidVariants.get()
+                if (sourceRootsIntersections.isNotEmpty()) {
+                    val intersectedSourceSets = mutableSetOf<String>().apply {
+                        sourceRootsIntersections.forEach { (s1Name, s2Name, _) ->
+                            add(s1Name)
+                            add(s2Name)
+                        }
+                    }
+
+                    error(
+                        """
+                        |Dokka cannot generate documentation for Android projects with multiple enabled variants that have common source roots.
+                        |Please suppress all variants except ONE via the following configuration:
+                        |dokka {
+                        |    dokkaSourceSets.configureEach {
+                        |        suppress.set(name != VARIANT_NAME)
+                        |    }
+                        |}
+                        |Where VARIANT_NAME could be one of the following: $intersectedSourceSets
+                        |For more information regarding the reasoning behind this restriction: https://github.com/Kotlin/dokka/issues/4472
+                        |Common source roots:
+                        |${
+                            sourceRootsIntersections.joinToString("\n") { (s1Name, s2Name, intersectedPaths) ->
+                                "  '$s1Name' and '$s2Name' have common source roots:\n${
+                                    intersectedPaths.joinToString("\n") {
+                                        "    - ${it.absolutePath}"
+                                    }
+                                }"
+                            }
+                        }
+                        """.trimMargin()
+                    )
                 }
-            )
+            }
         }
 
         target.tasks.withType<DokkaGenerateModuleTask>().configureEach {
@@ -303,6 +348,49 @@ constructor(
         }
     }
 
+    private data class SourceRootIntersections(
+        val s1Name: String,
+        val s2Name: String,
+        val intersectedPaths: Set<File>,
+    )
+
+    // based on SourceRootIndependentChecker
+    private fun detectSourceRootsIntersections(sourceSets: List<DokkaSourceSetSpec>): List<SourceRootIntersections> {
+        fun Set<File>.normalize() = mapTo(mutableSetOf(), File::normalize)
+        fun intersectOfNormalizedPaths(normalizedPaths: Set<File>, normalizedPaths2: Set<File>): Set<File> {
+            val result = mutableSetOf<File>()
+            for (p1 in normalizedPaths) {
+                for (p2 in normalizedPaths2) {
+                    if (p1.startsWith(p2) || p2.startsWith(p1)) {
+                        result.add(p1)
+                        result.add(p2)
+                    }
+                }
+            }
+            return result
+        }
+
+        fun intersect(paths: Set<File>, paths2: Set<File>): Set<File> {
+            return intersectOfNormalizedPaths(paths.normalize(), paths2.normalize())
+        }
+
+        val intersections = mutableListOf<SourceRootIntersections>()
+        for (i in sourceSets.indices) {
+            for (j in i + 1 until sourceSets.size) {
+                val intersection = intersect(sourceSets[i].sourceRoots.files, sourceSets[j].sourceRoots.files)
+                if (intersection.isNotEmpty()) {
+                    intersections.add(
+                        SourceRootIntersections(
+                            s1Name = sourceSets[i].name,
+                            s2Name = sourceSets[j].name,
+                            intersectedPaths = intersection
+                        )
+                    )
+                }
+            }
+        }
+        return intersections
+    }
 
     //region workaround for https://github.com/gradle/gradle/issues/23708
     private fun RegularFileProperty.convention(file: File): RegularFileProperty =
