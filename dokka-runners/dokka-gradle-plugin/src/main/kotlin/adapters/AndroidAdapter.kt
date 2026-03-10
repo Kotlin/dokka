@@ -62,7 +62,7 @@ abstract class AndroidAdapter @Inject constructor(
 
                 // Required for the improved error message in case of multi-variant Android projects
                 // https://github.com/Kotlin/dokka/issues/4472
-                isBasedOnAndroidVariant.set(
+                basedOnAndroidVariant.set(
                     androidExt.isBasedOnAndroidVariant(this@dss.name)
                 )
             }

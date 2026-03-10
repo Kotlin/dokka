@@ -455,7 +455,9 @@ constructor(
             }
         }
 
-    internal val isBasedOnAndroidVariant: Property<Boolean> = objects.property(Boolean::class.java)
+    @get:Input
+    @get:Optional
+    internal abstract val basedOnAndroidVariant: Property<Boolean>
 
     companion object {
 
