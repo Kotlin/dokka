@@ -4,9 +4,16 @@
 
 package org.jetbrains.dokka.it.gradle
 
+import io.kotest.assertions.withClue
+import io.kotest.inspectors.shouldForAll
+import io.kotest.matchers.collections.shouldNotBeEmpty
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldStartWith
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.BuildTask
 import org.gradle.testkit.runner.TaskOutcome
+import org.jetbrains.dokka.it.gradle.junit.DokkaGradleProjectRunner
+import org.jetbrains.dokka.it.gradle.junit.TestedVersions
 import kotlin.test.assertContains
 import kotlin.test.assertNotNull
 
@@ -46,4 +53,37 @@ fun BuildTask.shouldHaveOutcome(
     }
 
     assertContains(expectedOutcomes.toList(), outcome, message)
+}
+
+
+fun testConfigurationCacheResult(
+    project: DokkaGradleProjectRunner,
+    testedVersions: TestedVersions,
+) {
+    val ccReport = loadConfigurationCacheReportData(projectDir = project.projectDir)
+
+    withClue("should have no CC problems") {
+        ccReport.totalProblemCount shouldBe 0
+    }
+
+    if (testedVersions.gradle.major > 9) {
+        withClue("Dokka should only use `org.jetbrains.dokka` Gradle properties for CC") {
+            val dokkaDiagnostics =
+                ccReport.diagnostics
+                    // find diagnostics of Dokka's CC inputs
+                    .filter { diag ->
+                        diag.trace.any { "org.jetbrains.dokka" in it.location.orEmpty() }
+                    }
+
+            dokkaDiagnostics
+                .shouldNotBeEmpty()
+                // verify all Dokka's CC inputs are namespaced with `org.jetbrains.dokka`.
+                .shouldForAll { diag ->
+                    val inputNames = diag.input.mapNotNull { it.name }
+                    inputNames.shouldForAll { inputName ->
+                        inputName.shouldStartWith("org.jetbrains.dokka.")
+                    }
+                }
+        }
+    }
 }

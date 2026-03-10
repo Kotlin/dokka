@@ -13,7 +13,6 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
-import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.provideDelegate
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.PLUGIN_MODE_NO_WARN_FLAG
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.configureParamsDuringAccessorsGeneration
@@ -338,7 +337,7 @@ constructor(
                         // (Because org.gradle.testfixtures.ProjectBuilder doesn't support mocking Gradle properties.
                         // But maybe soon! https://github.com/gradle/gradle/pull/30002)
                         project
-                            .provider { project.extra.properties[flag]?.toString() }
+                            .provider { project.findProperty(flag)?.toString() }
                             .forUseAtConfigurationTimeCompat()
                     )
 
