@@ -13,17 +13,17 @@ import org.junit.jupiter.params.provider.EnumSource
 
 /**
  * Test helps to verify that [TestedVersionsSource] doesn't accidentally filter out any of the tested versions.
- * 
+ *
  * ## Updating Expected Test Data
- * 
+ *
  * When updating Gradle, KGP, AGP versions, tests will fail showing the actual vs. expected version strings.
  * To update the expected data:
- * 
+ *
  * 1. Run the failing test to see the actual output in the error message
  * 2. Verify that the output is expected, keep in mind [KotlinBuiltInCompatibility] configuration
  * 3. Replace the expected string in the test with an actual output
  * 5. Re-run the test to verify it passes :)
- * 
+ *
  * For example, after adding Kotlin 2.4.0 to `allKgpVersions in [TestedVersionsSource.Default],
  * `test default versions` test will fail showing:
  * ```
@@ -39,7 +39,7 @@ class TestedVersionsSourceTest {
         val actual = TestedVersionsSource.Default.get().joinAllToString()
 
         actual shouldBe """
-            gradle: 7.6.4, 8.14.3, 9.2.1
+            gradle: 7.6.6, 8.14.4, 9.4.0
             kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0
         """.trimIndent()
     }
@@ -56,21 +56,21 @@ class TestedVersionsSourceTest {
             Required ->
                 """
                 agp: 9.0.0
-                gradle: 9.2.1
+                gradle: 9.4.0
                 kgp: 2.1.21, 2.2.21, 2.3.0
                 """.trimIndent()
 
             Supported ->
                 """
                 agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2, 9.0.0
-                gradle: 7.6.4, 8.14.3, 9.2.1
+                gradle: 7.6.6, 8.14.4, 9.4.0
                 kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0
                 """.trimIndent()
 
             Incompatible ->
                 """
                 agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2
-                gradle: 7.6.4, 8.14.3
+                gradle: 7.6.6, 8.14.4
                 kgp: 1.9.25, 2.0.21
                 """.trimIndent()
         }
@@ -91,7 +91,7 @@ class TestedVersionsSourceTest {
                 """
                 agp: 9.0.0
                 composeGradlePlugin: 1.7.0
-                gradle: 9.2.1
+                gradle: 9.4.0
                 kgp: 2.1.21, 2.2.21, 2.3.0
                 """.trimIndent()
 
@@ -99,7 +99,7 @@ class TestedVersionsSourceTest {
                 """
                 agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2, 9.0.0
                 composeGradlePlugin: 1.7.0
-                gradle: 7.6.4, 8.14.3, 9.2.1
+                gradle: 7.6.6, 8.14.4, 9.4.0
                 kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0
                 """.trimIndent()
 
@@ -107,7 +107,7 @@ class TestedVersionsSourceTest {
                 """
                 agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2
                 composeGradlePlugin: 1.7.0
-                gradle: 7.6.4, 8.14.3
+                gradle: 7.6.6, 8.14.4
                 kgp: 1.9.25, 2.0.21
                 """.trimIndent()
         }

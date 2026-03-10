@@ -49,6 +49,8 @@ fun loadConfigurationCacheReportData(projectDir: Path): ConfigurationCacheReport
 data class ConfigurationCacheReportData(
     val diagnostics: List<DiagnosticsItem>,
     val totalProblemCount: Int,
+    val uniqueProblemCount: Int? = null,
+    val overflownProblemCount: Int? = null,
     val buildName: String? = null,
     val requestedTasks: String,
     val cacheAction: String,
