@@ -288,7 +288,7 @@ constructor(
 
             // check only source sets based on Android variants;
             // everything else should be handled by the default checker in analysis
-            detectSourceRootsIntersections(sourceSets.filter { it.isBasedOnAndroidVariant.get() })
+            detectSourceRootsIntersections(sourceSets.filter { it.basedOnAndroidVariant.getOrElse(false) })
         }
 
         target.tasks.register<DokkaBaseTask>(taskNames.generate) {
