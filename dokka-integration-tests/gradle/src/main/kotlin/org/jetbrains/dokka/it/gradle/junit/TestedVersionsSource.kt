@@ -56,9 +56,9 @@ fun interface TestedVersionsSource<T : TestedVersions> {
          * We test the latest v7 and v8 Gradle versions supported by KGP and Android.
          */
         private val allGradleVersions: List<String> = listOf(
-            "7.6.4",
-            "8.14.3",
-            "9.2.1",
+            "7.6.6",
+            "8.14.4",
+            "9.4.0",
         )
 
         private val allVersions: Sequence<TestedVersions.Default> =

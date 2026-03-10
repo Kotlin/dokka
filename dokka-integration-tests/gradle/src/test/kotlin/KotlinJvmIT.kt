@@ -4,84 +4,23 @@
 package org.jetbrains.dokka.it.gradle
 
 import io.kotest.assertions.withClue
-import io.kotest.inspectors.shouldForAll
-import io.kotest.matchers.paths.shouldBeAFile
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import io.kotest.matchers.string.shouldNotContain
 import org.gradle.testkit.runner.TaskOutcome.*
-import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
+import org.jetbrains.dokka.gradle.utils.shouldNotHaveRunTask
 import org.jetbrains.dokka.it.gradle.junit.*
 import org.jetbrains.dokka.it.gradle.junit.TestedVersions
 import org.junit.jupiter.api.Assumptions.assumeTrue
-import kotlin.io.path.name
-import kotlin.io.path.readText
 
 /**
- * Integration test for the `it-kotlin-multiplatform` project.
+ * Integration test for the `it-kotlin-jvm` project.
  */
-@TestsKotlinMultiplatform
+@TestsKotlinJvm
 @TestsDGPv2
-class KotlinMultiplatformIT {
+class KotlinJvmIT {
 
-    @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-multiplatform")
-    fun `generate dokka HTML`(project: DokkaGradleProjectRunner) {
-        project.runner
-            .addArguments(
-                "clean",
-                ":dokkaGenerate",
-                "--stacktrace",
-                "--rerun-tasks",
-            )
-            .build {
-                withClue("expect project builds successfully") {
-                    shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(SUCCESS)
-                }
-
-                withClue("expect all dokka workers are successful") {
-                    project
-                        .findFiles { it.name == "dokka-worker.log" }
-                        .shouldForAll { dokkaWorkerLog ->
-                            dokkaWorkerLog.shouldBeAFile()
-                            dokkaWorkerLog.readText().shouldNotContainAnyOf(
-                                "[ERROR]",
-                                "[WARN]",
-                            )
-                        }
-                }
-
-                withClue("expect configurations are not resolved during configuration time") {
-                    output shouldNotContain Regex("""Configuration '.*' was resolved during configuration time""")
-                    output shouldNotContain "https://github.com/gradle/gradle/issues/2298"
-                }
-            }
-
-        withClue("expect the same HTML is generated") {
-            val expectedHtml = project.projectDir.resolve("expectedData/html")
-            val actualHtmlDir = project.projectDir.resolve("build/dokka/html")
-
-            withClue(
-                """
-                expectedHtml: ${expectedHtml.toUri()}
-                actualHtmlDir: ${actualHtmlDir.toUri()}
-                """.trimIndent()
-            ) {
-                val expectedFileTree = expectedHtml.toTreeString()
-                val actualFileTree = actualHtmlDir.toTreeString()
-                withClue((actualFileTree to expectedFileTree).sideBySide()) {
-                    actualFileTree shouldBe expectedFileTree
-
-                    actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedHtml, TestConstants.DokkaHtmlAssetsFiles)
-                }
-            }
-
-            assertNoUnknownClassErrorsInHtml(actualHtmlDir)
-        }
-    }
-
-    @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-multiplatform")
+    @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-jvm")
     fun `Dokka tasks should be build cacheable`(
         project: DokkaGradleProjectRunner,
     ) {
@@ -128,7 +67,7 @@ class KotlinMultiplatformIT {
             }
     }
 
-    @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-multiplatform")
+    @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-jvm")
     fun `expect Dokka is compatible with Gradle Configuration Cache`(
         project: DokkaGradleProjectRunner,
         testedVersions: TestedVersions,
@@ -152,19 +91,7 @@ class KotlinMultiplatformIT {
             }
         }
 
-        withClue("second build - because sometimes KGP needs to finish installing kotlin-native-prebuilt") {
-            // without this second build the test fails on TeamCity, because the CC entry isn't reused because of:
-            // Calculating task graph as configuration cache cannot be reused because directory '../../../../../../../home/.konan/kotlin-native-prebuilt-linux-x86_64-2.1.21/klib/platform/linux_x64' has changed
-            // Probably is related to KT-77218
-            project.deleteConfigurationCacheData()
-            configCacheRunner.build {
-                shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
-
-                output shouldContain "Configuration cache entry stored"
-            }
-        }
-
-        withClue("third build should reuse the configuration cache") {
+        withClue("second build should reuse the configuration cache") {
             configCacheRunner.build {
                 shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
                 output shouldContain "Configuration cache entry reused"
@@ -172,7 +99,7 @@ class KotlinMultiplatformIT {
         }
     }
 
-    @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-multiplatform")
+    @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-jvm")
     fun `expect Gradle Configuration Cache can be re-used`(
         project: DokkaGradleProjectRunner,
         testedVersions: TestedVersions,
@@ -196,18 +123,6 @@ class KotlinMultiplatformIT {
                 output shouldContain "Configuration cache entry stored"
 
                 testConfigurationCacheResult(project, testedVersions)
-            }
-        }
-
-        withClue("second build - because sometimes KGP needs to finish installing kotlin-native-prebuilt") {
-            // without this second build the test fails on TeamCity, because the CC entry isn't reused because of:
-            // Calculating task graph as configuration cache cannot be reused because directory '../../../../../../../home/.konan/kotlin-native-prebuilt-linux-x86_64-2.1.21/klib/platform/linux_x64' has changed
-            // Probably is related to KT-77218
-            project.deleteConfigurationCacheData()
-            configCacheRunner.build {
-                shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
-
-                output shouldContain "Configuration cache entry stored"
             }
         }
 
