@@ -59,6 +59,12 @@ abstract class AndroidAdapter @Inject constructor(
                 sourceRoots.from(
                     androidExt.sourceDirectories(this@dss.name)
                 )
+
+                // Required for the improved error message in case of multi-variant Android projects
+                // https://github.com/Kotlin/dokka/issues/4472
+                basedOnAndroidVariant.set(
+                    androidExt.isBasedOnAndroidVariant(this@dss.name)
+                )
             }
 
             classpath.from(
@@ -157,6 +163,10 @@ private interface AndroidExtensionWrapper {
         sourceSetName: String
     ): Provider<FileCollection>
 
+    fun isBasedOnAndroidVariant(
+        sourceSetName: String
+    ): Provider<Boolean>
+
     companion object {
 
         fun forAndroidComponents(
@@ -221,6 +231,12 @@ private interface AndroidExtensionWrapper {
                                 }
                             }
                         allSources
+                    }
+                }
+
+                override fun isBasedOnAndroidVariant(sourceSetName: String): Provider<Boolean> {
+                    return androidVariants.map { androidVariants ->
+                        androidVariants.any { it.name == sourceSetName }
                     }
                 }
             }

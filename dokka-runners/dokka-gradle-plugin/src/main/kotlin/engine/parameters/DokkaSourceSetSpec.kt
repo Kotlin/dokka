@@ -455,6 +455,10 @@ constructor(
             }
         }
 
+    @get:Input
+    @get:Optional
+    internal abstract val basedOnAndroidVariant: Property<Boolean>
+
     companion object {
 
         /**
