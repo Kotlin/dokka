@@ -1,15 +1,16 @@
 /*
- * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2014-2026 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.assertAll
-import utils.assertContains
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import kotlin.test.asserter
 
 /**
  * Documentation for Enum's synthetic `values()` and `valueOf()` functions is only present in source code,
@@ -88,6 +89,22 @@ class EnumTemplatesTest {
                     assertContains(file.toFile().readText(), substring)
                 }
             })
+        }
+
+        private fun messagePrefix(message: String?) = if (message == null) "" else "$message. "
+
+        // TODO replace with kotlin.test.assertContains after migrating to Kotlin 1.5+
+        // https://github.com/JetBrains/kotlin/blob/c072e7c945fed74805d87ecc89c9a650bad23e12/libraries/kotlin.test/common/src/main/kotlin/kotlin/test/Assertions.kt#L334-L345
+        internal fun assertContains(
+            charSequence: CharSequence,
+            other: CharSequence,
+            ignoreCase: Boolean = false,
+            message: String? = null,
+        ) {
+            asserter.assertTrue(
+                { messagePrefix(message) + "Expected the char sequence to contain the substring.\nCharSequence <$charSequence>, substring <$other>, ignoreCase <$ignoreCase>." },
+                charSequence.contains(other, ignoreCase)
+            )
         }
 
         private fun loadResource(@Language("file-reference") path: String): Path {
