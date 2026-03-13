@@ -148,7 +148,7 @@ private fun initKotlinMultiplatformProject(
 
         buildGradleKts = """
             |plugins {
-            |  kotlin("multiplatform") version "1.8.22"
+            |  kotlin("multiplatform") version "1.9.22"
             |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
             |}
             |
