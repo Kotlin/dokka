@@ -282,6 +282,13 @@ constructor(
     abstract val suppressGeneratedFiles: Property<Boolean>
 
     /**
+     * A set of annotation fully qualified names (FQNs) to suppress declarations annotated with.
+     * Any declaration annotated with one of these annotations will be excluded from the generated documentation.
+     */
+    @get:Input
+    abstract val suppressedAnnotations: SetProperty<String>
+
+    /**
      * Whether to generate external documentation links that lead to API reference documentation for
      * Kotlin's standard library when declarations from it are used.
      *

@@ -391,6 +391,12 @@ dokka {
         </p>
         <p>Default: <code>true</code></p>
     </def>
+    <def title="suppressedAnnotations">
+        <p>A set of annotation fully qualified names (FQNs) to suppress declarations annotated with.</p>
+        <p>
+            Any declaration annotated with one of these annotations is excluded from the generated documentation.
+        </p>
+    </def>
     <def title="jdkVersion">
         <p>The JDK version to use when generating external documentation links for Java types.</p>
         <p>
