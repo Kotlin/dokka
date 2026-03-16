@@ -283,6 +283,7 @@ constructor(
         }
 
         target.tasks.withType<DokkaGenerateTask>().configureEach {
+            projectDir.set(target.layout.projectDirectory)
             cacheDirectory.convention(dokkaExtension.dokkaCacheDirectory)
             workerLogFile.convention(temporaryDir.resolve("dokka-worker.log"))
             dokkaConfigurationJsonFile.convention(temporaryDir.resolve("dokka-configuration.json"))

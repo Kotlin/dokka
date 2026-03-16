@@ -39,8 +39,9 @@ internal class DokkaParametersBuilder(
         outputDirectory: File,
         cacheDirectory: File? = null,
         moduleDescriptorDirs: Iterable<File>,
+        projectDir: File
     ): DokkaConfiguration {
-        verifySourceRootsIntersectionsBasedOnAndroidVariants(spec.dokkaSourceSets)
+        verifySourceRootsIntersectionsBasedOnAndroidVariants(spec.dokkaSourceSets, projectDir)
 
         val moduleName = spec.moduleName.get()
         val moduleVersion = spec.moduleVersion.orNull?.takeIf { it != Project.DEFAULT_VERSION }
@@ -161,7 +162,10 @@ internal class DokkaParametersBuilder(
      * See [org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec.basedOnAndroidVariant]
      * for more information on why we need it.
      */
-    private fun verifySourceRootsIntersectionsBasedOnAndroidVariants(sourceSets: Set<DokkaSourceSetSpec>) {
+    private fun verifySourceRootsIntersectionsBasedOnAndroidVariants(
+        sourceSets: Set<DokkaSourceSetSpec>,
+        projectDir: File
+    ) {
         // no check in case there is only single source-set
         if (sourceSets.size <= 1) return
 
@@ -194,9 +198,9 @@ internal class DokkaParametersBuilder(
             |Common source roots:
             |${
                 sourceRootsIntersections.joinToString("\n") { (s1Name, s2Name, intersectedPaths) ->
-                    "  '$s1Name' and '$s2Name' have common source roots:\n${
+                    "  '$s1Name' and '$s2Name' have common source roots (relative to project directory):\n${
                         intersectedPaths.joinToString("\n") {
-                            "    - ${it.absolutePath}"
+                            "    - ${it.relativeTo(projectDir).invariantSeparatorsPath}"
                         }
                     }"
                 }

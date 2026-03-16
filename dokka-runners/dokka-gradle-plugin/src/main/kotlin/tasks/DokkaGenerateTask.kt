@@ -124,6 +124,10 @@ constructor(
     @InternalDokkaGradlePluginApi
     abstract val overrideJsonConfig: Property<String>
 
+    // needed to be able to relativize paths in error messages
+    @get:Internal
+    internal abstract val projectDir: DirectoryProperty
+
     @InternalDokkaGradlePluginApi
     enum class GeneratorMode {
         Module,
@@ -294,6 +298,7 @@ constructor(
             outputDirectory = outputDirectory,
             moduleDescriptorDirs = moduleOutputDirectories,
             cacheDirectory = cacheDirectory.asFile.orNull,
+            projectDir = projectDir.asFile.get(),
         )
     }
 }

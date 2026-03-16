@@ -35,8 +35,20 @@ class AndroidIntersectedSourceRootsErrorTest : FreeSpec({
             )
             .forwardOutput()
             .buildAndFail {
-                output shouldContain "Dokka cannot generate documentation for Android projects with multiple enabled variants that have common source roots."
                 output shouldNotContain "Pre-generation validity check failed: Source sets 'freeRelease' and 'paidRelease' have the common source roots"
+                // check that error message is printed
+                output shouldContain "Dokka cannot generate documentation for Android projects with multiple enabled variants that have common source roots"
+                // check that variants are correctly represented in the error message
+                output shouldContain "Where VARIANT_NAME could be one of the following: [freeRelease, paidRelease]"
+                // check that "intersected source roots" are correctly represented in the error message
+                output shouldContain """
+                    |Common source roots:
+                    |  'freeRelease' and 'paidRelease' have common source roots (relative to project directory):
+                    |    - src/main/java
+                    |    - src/main/kotlin
+                    |    - src/release/java
+                    |    - src/release/kotlin
+                    """.trimMargin()
             }
     }
 
@@ -52,8 +64,8 @@ class AndroidIntersectedSourceRootsErrorTest : FreeSpec({
             )
             .forwardOutput()
             .build {
-                output shouldNotContain "Dokka cannot generate documentation for Android projects with multiple enabled variants that have common source roots."
                 output shouldNotContain "Pre-generation validity check failed: Source sets 'freeRelease' and 'paidRelease' have the common source roots"
+                output shouldNotContain "Dokka cannot generate documentation for Android projects with multiple enabled variants that have common source roots."
             }
     }
 })
