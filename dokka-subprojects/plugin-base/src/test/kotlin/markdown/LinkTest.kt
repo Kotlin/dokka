@@ -1782,6 +1782,51 @@ class LinkTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    fun `should resolve KDoc links from classpath`() {
+       val coroutines = ClassLoader.getSystemResource("kotlinx/coroutines/MainCoroutineDispatcher.class")
+            ?.file
+            ?.replace("file:", "")
+            ?.replaceAfter(".jar", "") ?: throw IllegalStateException("Coroutines jar not found")
+
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/jvmMain/kotlin")
+                    analysisPlatform = "jvm"
+                    name = "jvm-example"
+                    classpath = listOf(coroutines)
+                }
+
+            }
+        }
+        testInline(
+            """
+                |/src/jvmMain/kotlin/main.kt
+                |package example
+                |import kotlinx.coroutines.MainCoroutineDispatcher
+                |/**
+                | * Links [MainCoroutineDispatcher.immediate] and [kotlinx.coroutines.MainCoroutineDispatcher.immediate]
+                |*/
+                |class TestClass
+            """,
+            configuration = configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val dri = DRI("kotlinx.coroutines", "MainCoroutineDispatcher", Callable("immediate", null, emptyList(), isProperty = true))
+                assertEquals(
+                    listOf(
+                        "MainCoroutineDispatcher.immediate" to dri,
+                        "kotlinx.coroutines.MainCoroutineDispatcher.immediate" to dri,
+                    ),
+                    module.getAllLinkDRIFrom("TestClass")
+                )
+            }
+
+        }
+    }
+
+
     private fun DModule.getLinkDRIFrom(name: String): DRI? {
         val doc = this.dfs { it.name == name }?.documentation?.values?.single()
             ?: throw IllegalStateException("Can't find documentation for declaration '$name'")
