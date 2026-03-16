@@ -10,18 +10,24 @@ import org.jetbrains.dokka.gradle.internal.DokkaConstants.DOKKA_VERSION
 import org.jetbrains.dokka.gradle.utils.*
 
 class AndroidIntersectedSourceRootsErrorTest : FreeSpec({
-    // AGP requires, Gradle 9.1+, which requires JDK 17
+    // Dokka project Gradle wrapper uses Gradle 8.14, which is used by default when running functional tests.
+    // But AGP 9+ requires Gradle 9.1+, so we need to override it for tests
+    // Once the Dokka project Gradle wrapper version is updated to 9.1+, we can remove this override
+    val gradleVersion = "9.1.0"
+    // In the Dokka project we run tests on CI (GitHub Actions) with different JDK versions, 8 by default.
+    // But Gradle 9+ requires JDK 17 to run
+    // Once we run tests on CI with JDK 17+, we can remove this check
     val javaVersion = when (val specVersion = System.getProperty("java.specification.version")) {
         "1.8" -> 8
         else -> specVersion.toInt()
     }
-    val hasJava17 = javaVersion >= 17
+    val usesJava17 = javaVersion >= 17
 
-    "when project has multiple flavors".config(enabled = hasJava17) {
+    "when project has multiple flavors".config(enabled = usesJava17) {
         val project = initAndroidProject(selectedVariantName = null)
 
         project.runner
-            .withGradleVersion("9.1.0")
+            .withGradleVersion(gradleVersion)
             .addArguments(
                 ":dokkaGeneratePublicationHtml",
                 "--rerun-tasks",
@@ -34,11 +40,11 @@ class AndroidIntersectedSourceRootsErrorTest : FreeSpec({
             }
     }
 
-    "when project has multiple flavors and single selected variant".config(enabled = hasJava17) {
+    "when project has multiple flavors and single selected variant".config(enabled = usesJava17) {
         val project = initAndroidProject(selectedVariantName = "freeRelease")
 
         project.runner
-            .withGradleVersion("9.1.0")
+            .withGradleVersion(gradleVersion)
             .addArguments(
                 ":dokkaGeneratePublicationHtml",
                 "--rerun-tasks",
