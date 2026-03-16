@@ -155,6 +155,12 @@ internal class DokkaParametersBuilder(
         )
     }
 
+    /**
+     * Throws an actionable error if the project with multiple Android variants has intersected source roots.
+     *
+     * See [org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec.basedOnAndroidVariant]
+     * for more information on why we need it.
+     */
     private fun verifySourceRootsIntersectionsBasedOnAndroidVariants(sourceSets: Set<DokkaSourceSetSpec>) {
         // no check in case there is only single source-set
         if (sourceSets.size <= 1) return

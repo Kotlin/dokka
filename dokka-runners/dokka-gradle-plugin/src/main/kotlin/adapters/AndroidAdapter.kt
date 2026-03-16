@@ -60,8 +60,6 @@ abstract class AndroidAdapter @Inject constructor(
                     androidExt.sourceDirectories(this@dss.name)
                 )
 
-                // Required for the improved error message in case of multi-variant Android projects
-                // https://github.com/Kotlin/dokka/issues/4472
                 basedOnAndroidVariant.set(
                     androidExt.isBasedOnAndroidVariant(this@dss.name)
                 )
@@ -163,6 +161,13 @@ private interface AndroidExtensionWrapper {
         sourceSetName: String
     ): Provider<FileCollection>
 
+    /**
+     * To have a better, Android-specific error, [DokkaGenerateTask][org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask]
+     * requires knowledge if the source-set is based on Android variant, which could be provided only by AGP.
+     *
+     * See [org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec.basedOnAndroidVariant]
+     * for more information on why we need it.
+     */
     fun isBasedOnAndroidVariant(
         sourceSetName: String
     ): Provider<Boolean>
