@@ -235,7 +235,7 @@ testing.suites.named<JvmTestSuite>("test") {
 
 val checkoutKotlinxDatetime by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx-datetime.git"
-    commitId = "4dadf6fbe4956a1a846cab0dc9282cfef1aeac23"
+    commitId = "8af8dd8791b9473309b650626850eb974ecae445" // master on Mar 13, 2026
     destination = templateProjectsDir.dir("datetime/kotlinx-datetime")
 }
 val checkoutKotlinxIo by tasks.registering(GitCheckoutTask::class) {
