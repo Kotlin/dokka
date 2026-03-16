@@ -240,7 +240,7 @@ val checkoutKotlinxDatetime by tasks.registering(GitCheckoutTask::class) {
 }
 val checkoutKotlinxIo by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx-io.git"
-    commitId = "8950a88f0d00ca2d23ad39db423a97840eea9dc2"
+    commitId = "82b77b119d0cc409fcc68a49a7461ed2dc20acd3" // 0.9.0 tag
     destination = templateProjectsDir.dir("io/kotlinx-io")
 }
 val checkoutKotlinxCoroutines by tasks.registering(GitCheckoutTask::class) {
