@@ -170,6 +170,21 @@ registerTestProjectSuite(
         }
     }
 }
+registerTestProjectSuite(
+    name = "testExternalProjectKotlinxCollectionsImmutable",
+    projectPath = "collectionsImmutable/kotlinx-collections-immutable",
+    jvm = JavaLanguageVersion.of(11)
+) {
+    targets.configureEach {
+        testTask.configure {
+            dependsOn(checkoutKotlinxCollectionsImmutable)
+            // register the whole directory as an input because it contains the git diff
+            inputs
+                .dir(templateProjectsDir.file("collectionsImmutable"))
+                .withPropertyName("collectionsImmutableProjectDir")
+        }
+    }
+}
 registerTestProjectSuite("testUiShowcaseProject", "ui-showcase")
 
 /**
@@ -253,6 +268,12 @@ val checkoutKotlinxSerialization by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx.serialization.git"
     commitId = "8ea8c941bfc86c220910ef8fed825091f8019dd4" // whyoleg/dokka-2.2.0-Beta branch for now
     destination = templateProjectsDir.dir("serialization/kotlinx-serialization")
+}
+
+val checkoutKotlinxCollectionsImmutable by tasks.registering(GitCheckoutTask::class) {
+    uri = "https://github.com/Kotlin/kotlinx.collections.immutable.git"
+    commitId = "1a2d703fa8517d72be33172b754fe45513e33e0b" // master on Feb 12, 2026
+    destination = templateProjectsDir.dir("collectionsImmutable/kotlinx-collections-immutable")
 }
 
 testing {
