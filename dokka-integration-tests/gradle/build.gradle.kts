@@ -245,7 +245,7 @@ val checkoutKotlinxIo by tasks.registering(GitCheckoutTask::class) {
 }
 val checkoutKotlinxCoroutines by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx.coroutines.git"
-    commitId = "f4f519b36734238ec686dfaec1e174086691781e"
+    commitId = "690337018de5528f7b789246cb762cff4a7a318d" // dev on Mar 10, 2026
     destination = templateProjectsDir.dir("coroutines/kotlinx-coroutines")
 }
 
