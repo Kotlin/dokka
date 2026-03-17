@@ -1149,8 +1149,7 @@ class SnippetTest : BaseAbstractTest() {
 
                 val warnMessage = logger.warnMessages.first()
 
-                val path = modules.first().sourceSets.first().sourceRoots.first().absolutePath
-                    .replace("\\", "/") // for Win
+                val path = modules.first().sourceSets.first().sourceRoots.first().invariantSeparatorsPath
 
                 assertEquals(
                     warnMessage.replace(path, "PATH"),

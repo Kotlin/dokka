@@ -63,8 +63,7 @@ class JavadocMarkdownTest : BaseAbstractTest() {
         ) {
             documentablesMergingStage = { m ->
                 val warn = logger.warnMessages.first()
-                val path = m.sourceSets.first().sourceRoots.first().absolutePath
-                    .replace("\\", "/") // for Win
+                val path = m.sourceSets.first().sourceRoots.first().invariantSeparatorsPath
 
                 assertEquals(
                     "Couldn't resolve JavaDoc link 'UnresolvedLink' in file:///PATH/main/java/example/Test.java:3:7",

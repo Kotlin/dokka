@@ -132,6 +132,7 @@ internal val PsiElement.kotlinFqNameProp: String?
     }
 
 /**
+ * Copy-paste from [org.jetbrains.dokka.analysis.kotlin.symbols.utils.getLocation]
  * @return a string in the format `file://file.kt:<line>:<column>`,
  * or `null` if [psiElement] is not from a source file
  */
