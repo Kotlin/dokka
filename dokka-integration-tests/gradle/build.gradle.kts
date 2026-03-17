@@ -251,7 +251,7 @@ val checkoutKotlinxCoroutines by tasks.registering(GitCheckoutTask::class) {
 
 val checkoutKotlinxSerialization by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx.serialization.git"
-    commitId = "4667a1891a925dc9e3e10490c274a875b0be4da6"
+    commitId = "8ea8c941bfc86c220910ef8fed825091f8019dd4" // whyoleg/dokka-2.2.0-Beta branch for now
     destination = templateProjectsDir.dir("serialization/kotlinx-serialization")
 }
 

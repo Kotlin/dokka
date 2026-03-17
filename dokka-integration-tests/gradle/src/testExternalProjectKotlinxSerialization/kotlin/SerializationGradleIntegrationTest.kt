@@ -17,14 +17,14 @@ import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
 import java.util.stream.Stream
 import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
+import kotlin.test.assertContains
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class SerializationBuildVersionsArgumentsProvider : ArgumentsProvider {
     private val buildVersions = BuildVersions.permutations(
-        gradleVersions = listOf("8.7"),
-        kotlinVersions = listOf("2.1.20")
+        gradleVersions = listOf("8.7"), // should be consistent with Gradle version used in project gradle-wrapper.properties
+        kotlinVersions = listOf("2.3.0") // not used, as we don't override it in external (git-based) projects
     )
 
     override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
@@ -34,7 +34,7 @@ class SerializationBuildVersionsArgumentsProvider : ArgumentsProvider {
 
 class SerializationGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopier {
 
-    override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/htmlMultiModule") }
+    override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/html") }
 
     @BeforeTest
     override fun beforeEachTest() {
@@ -49,9 +49,16 @@ class SerializationGradleIntegrationTest : AbstractGradleIntegrationTest(), Test
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(SerializationBuildVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
-        val result = createGradleRunner(buildVersions, ":dokkaHtmlMultiModule").buildRelaxed()
+        val result = createGradleRunner(
+            buildVersions,
+            ":dokkaGenerate",
+            "-Pdokka_it_failOnWarning=true"
+        ).buildRelaxed()
 
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtmlMultiModule")).outcome)
+        assertContains(
+            setOf(TaskOutcome.SUCCESS, TaskOutcome.FROM_CACHE),
+            assertNotNull(result.task(":dokkaGeneratePublicationHtml")).outcome
+        )
 
         assertTrue(projectOutputLocation.isDirectory, "Missing dokka output directory")
 
