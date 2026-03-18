@@ -18,9 +18,8 @@ class LogHtmlPublicationLinkTaskTest : FunSpec({
     context("given an active file-host server") {
         val server = embeddedServer(CIO, port = 0) { }
         server.start(wait = false)
-        val serverPort = server.resolvedConnectors().first().port
-
-        val validServerUri = "http://localhost:$serverPort"
+        val connector = server.resolvedConnectors().first()
+        val validServerUri = "http://${connector.host}:${connector.port}"
         val validServerUriParam = `-P`("testServerUri=$validServerUri")
 
         context("and a Kotlin project") {
