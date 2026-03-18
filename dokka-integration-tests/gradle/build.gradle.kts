@@ -57,6 +57,7 @@ dependencies {
     devPublication("org.jetbrains.dokka:plugin-mathjax:$dokkaVersion")
     devPublication("org.jetbrains.dokka:plugin-templating:$dokkaVersion")
     devPublication("org.jetbrains.dokka:plugin-versioning:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:plugin-kotlin-playground-samples:$dokkaVersion")
 
     devPublication("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
 }
