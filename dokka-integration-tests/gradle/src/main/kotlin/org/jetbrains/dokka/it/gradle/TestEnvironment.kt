@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Tag
 
 object TestEnvironment {
     const val TRY_K2: String = "org.jetbrains.dokka.experimental.tryK2"
-    const val TRY_EXPERIMENTAL_KDOC_RESOLUTION = "org.jetbrains.dokka.analysis.enableExperimentalKDocResolution"
 
     val isExhaustive: Boolean by systemProperty(String::toBoolean)
 
@@ -19,11 +18,6 @@ object TestEnvironment {
      * By default, it is disabled
      */
     fun shouldUseK2(): Boolean = getBooleanProperty(TRY_K2)
-
-    /**
-     * By default, it is disabled
-     */
-    fun shouldUseExperimentalKDocResolution(): Boolean = getBooleanProperty(TRY_EXPERIMENTAL_KDOC_RESOLUTION)
 
     private fun getBooleanProperty(propertyName: String): Boolean {
         return System.getProperty(propertyName) in setOf("1", "true")

@@ -27,12 +27,11 @@ import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.MemberPageNode
-import utils.OnlyNewKDocResolution
+import utils.OnlySymbols
 import utils.findTestType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OnlyNewKDocResolution("KEEP #389: New KDoc resolution")
 class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     private val testConfiguration = dokkaConfiguration {
         sourceSets {
@@ -45,6 +44,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("KEEP #389: New KDoc resolution")
     fun `#3451 ambiguous link to the class`() {
         testInline(
             """
@@ -119,6 +119,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("KEEP #389: New KDoc resolution")
     fun `#3451 ambiguous link to function and property`() {
         testInline(
             """
@@ -211,6 +212,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("KEEP #389: New KDoc resolution")
     fun `#3451 ambiguous link with factory functions`() {
         testInline(
             """
@@ -358,6 +360,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("KEEP #389: New KDoc resolution")
     fun `#3451 ambiguous link to inner class`() {
         testInline(
             """
@@ -534,6 +537,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
 
 
     @Test
+    @OnlySymbols("KEEP #389: New KDoc resolution")
     fun `#3604 KDoc reference to class from constructor`() {
         testInline(
             """
@@ -664,6 +668,7 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("KEEP #389: New KDoc resolution")
     fun `#3632 KDoc reference to member in extension`() {
         testInline(
             """
