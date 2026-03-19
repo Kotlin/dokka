@@ -467,7 +467,7 @@ internal class DokkaPsiParser(
                         .toListOfAnnotations() + it.toListOfAnnotations()).toSourceSetDependent()
                         .toAnnotations(),
                     ObviousMember.takeIf { psi.isObvious(inheritedFrom) },
-                    psi.throwsList.toDriList().takeIf { it.isNotEmpty() }
+                    PsiDocumentableUtils.getCheckedExceptionDRIs(psi).takeIf { it.isNotEmpty() }
                         ?.let { CheckedExceptions(it.toSourceSetDependent()) }
                 )
             }
@@ -496,8 +496,6 @@ internal class DokkaPsiParser(
     private fun DRI.isObvious(): Boolean {
         return packageName == "java.lang" && (classNames == "Object" || classNames == "Enum")
     }
-
-    private fun PsiReferenceList.toDriList() = referenceElements.mapNotNull { it?.resolve()?.let { DRI.from(it) } }
 
     private fun PsiModifierListOwner.additionalExtras() = listOfNotNull(
         ExtraModifiers.JavaOnlyModifiers.Static.takeIf { hasModifier(JvmModifier.STATIC) },

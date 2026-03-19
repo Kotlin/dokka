@@ -5,11 +5,10 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 
-import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.dokka.analysis.java.util.from
+import org.jetbrains.dokka.analysis.java.util.PsiDocumentableUtils
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.*
 import com.intellij.psi.util.PsiLiteralUtil
 import org.jetbrains.dokka.DokkaConfiguration
@@ -772,9 +771,7 @@ internal class DokkaSymbolVisitor(
 
     private fun getCheckedExceptions(functionSymbol: KaNamedFunctionSymbol): CheckedExceptions? {
         val psiMethod = functionSymbol.psi as? PsiMethod ?: return null
-        val driList = psiMethod.throwsList.referenceElements.mapNotNull { ref ->
-            (ref.resolve() as? PsiClass)?.let { DRI.from(it) }
-        }
+        val driList = PsiDocumentableUtils.getCheckedExceptionDRIs(psiMethod)
         return driList.takeIf { it.isNotEmpty() }?.let { CheckedExceptions(it.toSourceSetDependent()) }
     }
 
