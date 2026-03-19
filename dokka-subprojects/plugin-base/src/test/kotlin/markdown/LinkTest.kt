@@ -19,6 +19,7 @@ import utils.OnlyDescriptors
 import utils.OnlyNewKDocResolution
 import utils.OnlySymbols
 import utils.text
+import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -1781,6 +1782,56 @@ class LinkTest : BaseAbstractTest() {
             }
         }
     }
+
+    // copy-pasted org.jetbrains.dokka.analysis.test.api.util.getResourceAbsolutePath
+    private fun getResourceAbsolutePath(resourcePath: String): String {
+        val resource = object {}.javaClass.classLoader.getResource(resourcePath)?.file
+            ?: throw IllegalArgumentException("Resource not found: $resourcePath")
+
+        return File(resource).absolutePath
+    }
+
+    @Test
+    fun `should resolve fq KDoc links from unpacked klib`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/commonMain/kotlin")
+                    analysisPlatform = "common"
+                    name = "jvm-example"
+                    classpath = listOf(
+                      getResourceAbsolutePath("klibs/stdlib-2.2.10"),
+                    )
+                }
+
+            }
+        }
+        testInline(
+            """
+                |/src/commonMain/kotlin/main.kt
+                |package example
+                |/**
+                | * Links  [kotlin.ClassCastException] and [ClassCastException]
+                |*/
+                |fun f() = 0
+            """,
+            configuration = configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val dri = DRI("kotlin", "ClassCastException")//, Callable("ClassCastException", null, emptyList()))
+                val allLinks = module.getAllLinkDRIFrom("f")
+                assertEquals(
+                    listOf(
+                        "kotlin.ClassCastException" to dri,
+                        "ClassCastException" to dri,
+                    ),
+                    allLinks
+                )
+            }
+
+        }
+    }
+
 
     private fun DModule.getLinkDRIFrom(name: String): DRI? {
         val doc = this.dfs { it.name == name }?.documentation?.values?.single()

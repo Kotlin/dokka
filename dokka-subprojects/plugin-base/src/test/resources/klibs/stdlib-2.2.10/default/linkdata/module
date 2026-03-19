@@ -1,0 +1,3 @@
+
+<kotlin-stdlib-common>:kotlin:kotlin.annotation:kotlin.collections:kotlin.comparisons:kotlin.concurrent:kotlin.concurrent.atomics:kotlin.contracts:kotlin.coroutines:kotlin.coroutines.cancellation:kotlin.coroutines.intrinsics:kotlin.enums:kotlin.experimental:kotlin.internal:	kotlin.io:kotlin.io.encoding:	kotlin.js:
+kotlin.jvm:kotlin.math:kotlin.native:kotlin.native.concurrent:kotlin.properties:kotlin.random:kotlin.ranges:kotlin.reflect:kotlin.sequences:kotlin.text:kotlin.time:kotlin.uuid
