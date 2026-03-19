@@ -139,6 +139,7 @@ class JavaDeprecatedTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi("AA produces different content structure for @deprecated Javadoc tag")
     @Test
     fun `should take deprecation message from @deprecated javadoc tag`() {
         testInline(
