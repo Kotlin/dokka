@@ -114,11 +114,7 @@ public data class DokkaSourceSetID(
 public data class GlobalDokkaConfiguration(
     val perPackageOptions: List<PackageOptionsImpl>?,
     val externalDocumentationLinks: List<ExternalDocumentationLinkImpl>?,
-    val sourceLinks: List<SourceLinkDefinitionImpl>?,
-    /**
-     * A set of annotation fully qualified names (FQNs) to suppress declarations annotated with across all source sets.
-     */
-    val suppressedAnnotations: Set<String>? = null
+    val sourceLinks: List<SourceLinkDefinitionImpl>?
 )
 
 public fun DokkaConfiguration.apply(globals: GlobalDokkaConfiguration): DokkaConfiguration = this.apply {
@@ -134,10 +130,6 @@ public fun DokkaConfiguration.apply(globals: GlobalDokkaConfiguration): DokkaCon
 
     sourceSets.forEach {
         it.sourceLinks.cast<MutableSet<SourceLinkDefinitionImpl>>().addAll(globals.sourceLinks ?: emptyList())
-    }
-
-    sourceSets.forEach {
-        it.suppressedAnnotations.cast<MutableSet<String>>().addAll(globals.suppressedAnnotations ?: emptySet())
     }
 }
 

@@ -42,7 +42,6 @@ public class TestDokkaConfigurationBuilder {
     public var includes: List<File> = emptyList()
     public var suppressInheritedMembers: Boolean = DokkaDefaults.suppressInheritedMembers
     public var delayTemplateSubstitution: Boolean = DokkaDefaults.delayTemplateSubstitution
-    public var suppressedAnnotations: Set<String> = DokkaDefaults.suppressedAnnotations
     private val lazySourceSets = mutableListOf<Lazy<DokkaSourceSetImpl>>()
 
     public fun build(): DokkaConfigurationImpl = DokkaConfigurationImpl(
@@ -62,11 +61,6 @@ public class TestDokkaConfigurationBuilder {
         delayTemplateSubstitution = delayTemplateSubstitution,
         finalizeCoroutines = false
     )
-
-    public fun applyGlobals(globals: GlobalDokkaConfiguration): DokkaConfigurationImpl {
-        val config = build()
-        return config.apply(globals) as DokkaConfigurationImpl
-    }
 
     public fun sourceSets(block: SourceSetsBuilder.() -> Unit) {
         lazySourceSets.addAll(SourceSetsBuilder(moduleName).apply(block))

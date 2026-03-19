@@ -158,7 +158,6 @@ public final class testApi/testRunner/SourceSetsBuilder : java/util/ArrayList {
 
 public final class testApi/testRunner/TestDokkaConfigurationBuilder {
 	public fun <init> ()V
-	public final fun applyGlobals (Lorg/jetbrains/dokka/GlobalDokkaConfiguration;)Lorg/jetbrains/dokka/DokkaConfigurationImpl;
 	public final fun build ()Lorg/jetbrains/dokka/DokkaConfigurationImpl;
 	public final fun getCacheRoot ()Ljava/lang/String;
 	public final fun getDelayTemplateSubstitution ()Z
@@ -174,7 +173,6 @@ public final class testApi/testRunner/TestDokkaConfigurationBuilder {
 	public final fun getPluginsConfigurations ()Ljava/util/List;
 	public final fun getSuppressInheritedMembers ()Z
 	public final fun getSuppressObviousFunctions ()Z
-	public final fun getSuppressedAnnotations ()Ljava/util/Set;
 	public final fun setCacheRoot (Ljava/lang/String;)V
 	public final fun setDelayTemplateSubstitution (Z)V
 	public final fun setFailOnWarning (Z)V
@@ -189,7 +187,6 @@ public final class testApi/testRunner/TestDokkaConfigurationBuilder {
 	public final fun setPluginsConfigurations (Ljava/util/List;)V
 	public final fun setSuppressInheritedMembers (Z)V
 	public final fun setSuppressObviousFunctions (Z)V
-	public final fun setSuppressedAnnotations (Ljava/util/Set;)V
 	public final fun sourceSet (Lkotlin/jvm/functions/Function1;)Lkotlin/Lazy;
 	public final fun sourceSets (Lkotlin/jvm/functions/Function1;)V
 	public final fun unattachedSourceSet (Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/dokka/DokkaSourceSetImpl;
