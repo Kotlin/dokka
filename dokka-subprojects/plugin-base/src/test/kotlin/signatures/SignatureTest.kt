@@ -740,6 +740,7 @@ class SignatureTest : BaseAbstractTest() {
         )
     }
 
+    @OnlyJavaPsi("AA renders enum class link instead of plain enum keyword")
     @Test
     fun `java enum should render just enum`() = testRender(
         """

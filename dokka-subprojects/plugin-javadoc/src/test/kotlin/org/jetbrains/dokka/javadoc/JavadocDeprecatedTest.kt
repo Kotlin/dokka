@@ -28,6 +28,7 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
         }
     }
 
+    @Tag("onlyJavaPsi")
     @Test
     fun `finds correct number of deprecated constructors`() {
         testDeprecatedPageTemplateMaps { templateMap ->

@@ -174,6 +174,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi("AA does not extract annotations from package-info.java")
     @Test
     fun `java package-info package annotations`() {
         testInline(
@@ -741,6 +742,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi("AA generates different synthetic Javadoc text for enum methods")
     @Test
     fun `should have documentation for synthetic Enum values functions`() {
         testInline(
@@ -812,6 +814,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi("AA generates different synthetic Javadoc text for enum methods")
     @Test
     fun `should have documentation for synthetic Enum valueOf functions`() {
         testInline(

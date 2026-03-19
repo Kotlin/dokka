@@ -9,6 +9,7 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.utilities.cast
 import utils.AbstractModelTest
+import utils.OnlyJavaPsi
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -91,6 +92,7 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
         }
     }
 
+    @OnlyJavaPsi("AA does not wrap Java type parameter bounds in Nullable")
     @Test
     fun `function with generic parameter that has annotated bounds`() {
         inlineModelTest(
