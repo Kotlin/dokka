@@ -5,8 +5,11 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 
+import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiJavaFile
+import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.dokka.analysis.java.util.from
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.*
 import com.intellij.psi.util.PsiLiteralUtil
 import org.jetbrains.dokka.DokkaConfiguration
@@ -762,9 +765,18 @@ internal class DokkaSymbolVisitor(
                     getDokkaAnnotationsFrom(functionSymbol)
                         ?.toSourceSetDependent()?.toAnnotations(),
                     ObviousMember.takeIf { isObvious(functionSymbol, inheritedFrom) },
+                    getCheckedExceptions(functionSymbol),
                 )
             )
         }
+
+    private fun getCheckedExceptions(functionSymbol: KaNamedFunctionSymbol): CheckedExceptions? {
+        val psiMethod = functionSymbol.psi as? PsiMethod ?: return null
+        val driList = psiMethod.throwsList.referenceElements.mapNotNull { ref ->
+            (ref.resolve() as? PsiClass)?.let { DRI.from(it) }
+        }
+        return driList.takeIf { it.isNotEmpty() }?.let { CheckedExceptions(it.toSourceSetDependent()) }
+    }
 
     private fun KaSession.visitValueParameter(
         index: Int, valueParameterSymbol: KaValueParameterSymbol, dri: DRI
@@ -918,6 +930,7 @@ internal class DokkaSymbolVisitor(
          *      - delegating members
          */
         val isDeclaration = callableSymbol.origin == KaSymbolOrigin.SOURCE || callableSymbol.origin == KaSymbolOrigin.LIBRARY
+                || callableSymbol.origin == KaSymbolOrigin.JAVA_SOURCE || callableSymbol.origin == KaSymbolOrigin.JAVA_LIBRARY
         if (isDeclaration) {
             return DRIWithOverridden(getDRIFromSymbol(callableSymbol), wasOverriddenBy)
 
@@ -1100,7 +1113,8 @@ internal class DokkaSymbolVisitor(
             ExtraModifiers.KotlinOnlyModifiers.External.takeIf { isExternal },
             ExtraModifiers.KotlinOnlyModifiers.Override.takeIf {
                 isDokkaOverride(this)
-            }
+            },
+            ExtraModifiers.JavaOnlyModifiers.Static.takeIf { isStatic },
         ).toSet().takeUnless { it.isEmpty() }
     }
 
