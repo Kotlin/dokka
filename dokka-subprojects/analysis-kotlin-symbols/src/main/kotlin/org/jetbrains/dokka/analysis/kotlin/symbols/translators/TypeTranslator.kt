@@ -133,13 +133,11 @@ internal class TypeTranslator(
                 toBoundFrom(type.original, location)
             )
 
-            is KaFlexibleType -> TypeAliased(
-                toBoundFrom(type.upperBound, location),
-                toBoundFrom(type.lowerBound, location),
-                extra = PropertyContainer.withAll(
-                    getDokkaAnnotationsFrom(type)?.toSourceSetDependent()?.toAnnotations()
-                )
-            )
+            // Flexible types represent Java platform types (e.g., `String` in Java becomes `String..String?`).
+            // Ideally, we'd use the upper bound (nullable) since Java types have no nullability guarantees,
+            // but the PSI module doesn't wrap Java types in Nullable, and changing that would be too invasive.
+            // Using the lower bound (non-nullable) for consistency with the PSI implementation.
+            is KaFlexibleType -> toBoundFrom(type.lowerBound, location)
             is KaCapturedType -> throw NotImplementedError()
             is KaIntersectionType -> throw NotImplementedError()
             else -> throw NotImplementedError()

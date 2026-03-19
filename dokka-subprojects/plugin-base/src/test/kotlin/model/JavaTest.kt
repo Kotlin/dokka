@@ -127,7 +127,7 @@ class JavaTest : BaseAbstractTest() {
                     val implementedInterfaces = extra[ImplementedInterfaces]?.interfaces?.entries?.single()?.value!!
                     implementedInterfaces.map { it.dri.sureClassNames }.sorted() equals listOf("Highest", "Lower").sorted()
                     for (implementedInterface in implementedInterfaces) {
-                        assertEquals((implementedInterface.projections.single() as TypeParameter).name, "T")
+                        assertEquals(((implementedInterface.projections.single() as Invariance<*>).inner as TypeParameter).name, "T")
                     }
                 }
             }
@@ -176,7 +176,7 @@ class JavaTest : BaseAbstractTest() {
                     val interfaceType = supertypes.values.flatten().single()
                     assertEquals(interfaceType.kind, JavaClassKindTypes.INTERFACE)
                     assertEquals(interfaceType.typeConstructor.dri.classNames, "Bar")
-                    val generic = interfaceType.typeConstructor.projections.single() as GenericTypeConstructor
+                    val generic = (interfaceType.typeConstructor.projections.single() as Invariance<*>).inner as GenericTypeConstructor
                     assertEquals(generic.dri.classNames, "String")
                 }
             }
@@ -220,7 +220,7 @@ class JavaTest : BaseAbstractTest() {
                     val superclassType = supertypes.values.flatten().single()
                     assertEquals(superclassType.kind, JavaClassKindTypes.CLASS)
                     assertEquals(superclassType.typeConstructor.dri.classNames, "Bar")
-                    val generic = superclassType.typeConstructor.projections.single() as GenericTypeConstructor
+                    val generic = (superclassType.typeConstructor.projections.single() as Invariance<*>).inner as GenericTypeConstructor
                     assertEquals(generic.dri.classNames, "String")
                 }
             }
@@ -314,7 +314,7 @@ class JavaTest : BaseAbstractTest() {
                 with((module / "java" / "DocumentClassFactoryRegistry").cast<DClass>()) {
                     functions.forEach {
                         (it.type as GenericTypeConstructor).dri.classNames equals "DocumentClassFactory"
-                        ((it.type as GenericTypeConstructor).projections[0] as TypeParameter).dri.classNames equals "DocumentClassFactoryRegistry"
+                        (((it.type as GenericTypeConstructor).projections[0] as Invariance<*>).inner as TypeParameter).dri.classNames equals "DocumentClassFactoryRegistry"
                     }
                 }
             }
