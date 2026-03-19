@@ -891,8 +891,17 @@ internal class DokkaSymbolVisitor(
     }
     // ----------- Utils ----------------------------------------------------------------------------
 
-    private fun KaSession.getDokkaAnnotationsFrom(annotated: KaAnnotated): List<Annotations.Annotation>? =
-        with(annotationTranslator) { getAllAnnotationsFrom(annotated) }.takeUnless { it.isEmpty() }
+    private fun KaSession.getDokkaAnnotationsFrom(annotated: KaAnnotated): List<Annotations.Annotation>? {
+        // For Java symbols, extract annotations via PSI to preserve Java DRIs
+        // (e.g., java.lang.Deprecated instead of kotlin.Deprecated)
+        if (annotated is KaSymbol && annotated.isJavaSource()) {
+            val psiElement = annotated.psi as? com.intellij.psi.PsiModifierListOwner
+            if (psiElement != null) {
+                return psiHelper.convertAnnotations(psiElement.annotations.toList()).takeUnless { it.isEmpty() }
+            }
+        }
+        return with(annotationTranslator) { getAllAnnotationsFrom(annotated) }.takeUnless { it.isEmpty() }
+    }
 
     @OptIn(KaExperimentalApi::class)
     private fun KaSession.toBoundFrom(type: KaType, containingSymbol: KaSymbol): Bound {
