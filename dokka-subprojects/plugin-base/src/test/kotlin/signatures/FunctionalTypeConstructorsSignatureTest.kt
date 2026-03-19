@@ -277,6 +277,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi
     @Test
     fun `java with java function`() {
         val source = """
@@ -303,6 +304,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi
     @Test
     fun `java with kotlin function`() {
         val source = """

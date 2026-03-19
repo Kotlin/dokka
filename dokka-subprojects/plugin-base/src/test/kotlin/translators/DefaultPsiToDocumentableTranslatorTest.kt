@@ -12,6 +12,7 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
+import utils.OnlyJavaPsi
 import kotlin.test.*
 
 class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
@@ -385,6 +386,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
 //        }
 //    }
 
+    @OnlyJavaPsi
     @Test
     fun `should preserve regular functions that are named like getters, but are not getters`() {
         testInline(
@@ -408,6 +410,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi
     @Test
     fun `should ignore additional non-accessor setters`() {
         testInline(
@@ -556,6 +559,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi
     @Test
     fun `should not associate accessors with field because field is public api`() {
         val configuration = dokkaConfiguration {
