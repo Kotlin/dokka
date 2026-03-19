@@ -6,12 +6,7 @@ package signatures
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import utils.A
-import utils.Span
-import utils.TestOutputWriterPlugin
-import utils.match
-import utils.OnlyDescriptors
-import utils.OnlyJavaPsi
+import utils.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -237,7 +232,6 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `should keep kotlin property with no accessors when java inherits kotlin a var`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -275,7 +269,6 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `kotlin property with compute get and set`() {
         val writerPlugin = TestOutputWriterPlugin()

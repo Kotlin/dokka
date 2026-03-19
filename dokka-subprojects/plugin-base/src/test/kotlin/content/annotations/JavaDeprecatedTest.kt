@@ -15,7 +15,6 @@ import org.jetbrains.dokka.pages.ContentStyle
 import utils.*
 import kotlin.test.*
 
-@OnlyJavaPsi
 class JavaDeprecatedTest : BaseAbstractTest() {
 
     private val testConfiguration = dokkaConfiguration {
@@ -144,7 +143,7 @@ class JavaDeprecatedTest : BaseAbstractTest() {
     fun `should take deprecation message from @deprecated javadoc tag`() {
         testInline(
             """
-            |/src/main/kotlin/deprecated/DeprecatedJavaClass.java
+            |/src/main/kotlin/deprecated/DeprecatedJClass.java
             |package deprecated
             |
             |public class DeprecatedJClass {

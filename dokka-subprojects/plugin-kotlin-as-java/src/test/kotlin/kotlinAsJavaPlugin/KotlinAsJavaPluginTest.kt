@@ -4,7 +4,6 @@
 
 package kotlinAsJavaPlugin
 
-import kotlinAsJavaPlugin.utils.OnlyJavaPsi
 import matchers.content.*
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.SourceLinkDefinitionImpl
@@ -211,7 +210,6 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `java properties should keep its modifiers`() {
         testInline(
@@ -486,7 +484,6 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `Java function should keep its access modifier`() {
         val className = "Test"
