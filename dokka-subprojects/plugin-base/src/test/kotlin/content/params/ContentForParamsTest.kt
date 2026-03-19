@@ -5,6 +5,7 @@
 package content.params
 
 import matchers.content.*
+import utils.OnlyJavaPsi
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DFunction
@@ -1505,6 +1506,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi("AA does not propagate @param Javadoc tags to individual parameter documentation")
     @Test
     fun javaDocCommentWithDocumentedParameters() {
         testInline(

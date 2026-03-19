@@ -5,6 +5,7 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 
+import com.intellij.psi.PsiField
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiNamedElement
@@ -595,7 +596,7 @@ internal class DokkaSymbolVisitor(
                 extra = PropertyContainer.withAll(
                     javaFieldSymbol.additionalExtras()?.toSourceSetDependent()?.toAdditionalModifiers(),
                     getDokkaAnnotationsFrom(javaFieldSymbol)?.toSourceSetDependent()?.toAnnotations(),
-                    //javaFieldSymbol.getDefaultValue()?.let { DefaultValue(it.toSourceSetDependent()) },
+                    getJavaConstantExpression(javaFieldSymbol)?.let { DefaultValue(it.toSourceSetDependent()) },
                     inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
                     // non-final java property should be var
                     takeUnless { javaFieldSymbol.isVal }?.let { IsVar }
@@ -774,6 +775,23 @@ internal class DokkaSymbolVisitor(
                 )
             )
         }
+
+    private fun getJavaConstantExpression(javaFieldSymbol: KaJavaFieldSymbol): Expression? {
+        val psiField = javaFieldSymbol.psi as? PsiField ?: return null
+        val constantValue = psiField.computeConstantValue() ?: return null
+        return when (constantValue) {
+            is Byte -> IntegerConstant(constantValue.toLong())
+            is Short -> IntegerConstant(constantValue.toLong())
+            is Int -> IntegerConstant(constantValue.toLong())
+            is Long -> IntegerConstant(constantValue)
+            is Char -> StringConstant(constantValue.toString())
+            is String -> StringConstant(constantValue)
+            is Double -> DoubleConstant(constantValue)
+            is Float -> FloatConstant(constantValue)
+            is Boolean -> BooleanConstant(constantValue)
+            else -> ComplexExpression(constantValue.toString())
+        }
+    }
 
     private fun getCheckedExceptions(functionSymbol: KaNamedFunctionSymbol): CheckedExceptions? {
         val psiMethod = functionSymbol.psi as? PsiMethod ?: return null
