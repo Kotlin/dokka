@@ -12,7 +12,6 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
-import utils.OnlyJavaPsi
 import kotlin.test.*
 
 class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
@@ -174,7 +173,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `java package-info package annotations`() {
         testInline(
@@ -200,7 +198,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `should add default value to constant properties`() {
         testInline(
@@ -388,7 +385,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
 //        }
 //    }
 
-    @OnlyJavaPsi
     @Test
     fun `should preserve regular functions that are named like getters, but are not getters`() {
         testInline(
@@ -412,7 +408,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `should ignore additional non-accessor setters`() {
         testInline(
@@ -561,7 +556,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `should not associate accessors with field because field is public api`() {
         val configuration = dokkaConfiguration {
@@ -691,7 +685,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test // see https://github.com/Kotlin/dokka/issues/2646
     fun `should resolve PsiImmediateClassType as class reference`() {
         testInline(
@@ -744,7 +737,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `should have documentation for synthetic Enum values functions`() {
         testInline(
@@ -814,7 +806,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `should have documentation for synthetic Enum valueOf functions`() {
         testInline(
@@ -896,7 +887,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `should have public default constructor in public class`() {
         testInline(
@@ -950,7 +940,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `should have private default constructor in private nested class`() {
         val configuration = dokkaConfiguration {
@@ -982,7 +971,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `should not have a default public constructor because have explicit private`() {
         val configuration = dokkaConfiguration {

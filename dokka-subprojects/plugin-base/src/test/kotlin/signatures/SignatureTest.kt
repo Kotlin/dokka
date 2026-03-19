@@ -740,7 +740,6 @@ class SignatureTest : BaseAbstractTest() {
         )
     }
 
-    @OnlyJavaPsi
     @Test
     fun `java enum should render just enum`() = testRender(
         """
