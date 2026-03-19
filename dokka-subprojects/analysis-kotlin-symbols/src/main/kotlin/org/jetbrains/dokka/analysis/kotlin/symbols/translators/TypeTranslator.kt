@@ -174,7 +174,9 @@ internal class TypeTranslator(
             when (val classSymbol = type.symbol) {
                 is KaNamedClassSymbol -> TypeConstructorWithKind(
                     toTypeConstructorFrom(type, location),
-                    classSymbol.classKind.toDokkaClassKind()
+                    classSymbol.classKind.toDokkaClassKind(
+                        isJava = classSymbol.origin == KaSymbolOrigin.JAVA_SOURCE || classSymbol.origin == KaSymbolOrigin.JAVA_LIBRARY
+                    )
                 )
 
                 is KaAnonymousObjectSymbol -> throw NotImplementedError()
@@ -202,7 +204,7 @@ internal class TypeTranslator(
 
         is KaCapturedType -> throw NotImplementedError()
         is KaDynamicType -> throw NotImplementedError()
-        is KaFlexibleType -> throw NotImplementedError()
+        is KaFlexibleType -> toTypeConstructorWithKindFrom(type.lowerBound, location)
         is KaIntersectionType -> throw NotImplementedError()
         is KaTypeParameterType -> throw NotImplementedError()
         else -> throw NotImplementedError()
@@ -211,13 +213,13 @@ internal class TypeTranslator(
     private fun KaSession.getDokkaAnnotationsFrom(annotated: KaAnnotated): List<Annotations.Annotation>? =
         with(annotationTranslator) { getAllAnnotationsFrom(annotated) }.takeUnless { it.isEmpty() }
 
-    private fun KaClassKind.toDokkaClassKind() = when (this) {
-        KaClassKind.CLASS -> KotlinClassKindTypes.CLASS
-        KaClassKind.ENUM_CLASS -> KotlinClassKindTypes.ENUM_CLASS
-        KaClassKind.ANNOTATION_CLASS -> KotlinClassKindTypes.ANNOTATION_CLASS
+    private fun KaClassKind.toDokkaClassKind(isJava: Boolean = false): ClassKind = when (this) {
+        KaClassKind.CLASS -> if (isJava) JavaClassKindTypes.CLASS else KotlinClassKindTypes.CLASS
+        KaClassKind.ENUM_CLASS -> if (isJava) JavaClassKindTypes.ENUM_CLASS else KotlinClassKindTypes.ENUM_CLASS
+        KaClassKind.ANNOTATION_CLASS -> if (isJava) JavaClassKindTypes.ANNOTATION_CLASS else KotlinClassKindTypes.ANNOTATION_CLASS
         KaClassKind.OBJECT -> KotlinClassKindTypes.OBJECT
         KaClassKind.COMPANION_OBJECT -> KotlinClassKindTypes.OBJECT
-        KaClassKind.INTERFACE -> KotlinClassKindTypes.INTERFACE
+        KaClassKind.INTERFACE -> if (isJava) JavaClassKindTypes.INTERFACE else KotlinClassKindTypes.INTERFACE
         KaClassKind.ANONYMOUS_OBJECT -> KotlinClassKindTypes.OBJECT
     }
 
