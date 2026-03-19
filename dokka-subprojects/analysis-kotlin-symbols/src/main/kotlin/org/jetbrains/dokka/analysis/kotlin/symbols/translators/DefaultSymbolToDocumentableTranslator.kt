@@ -8,12 +8,13 @@ package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.dokka.analysis.java.util.PsiDocumentableUtils
+import org.jetbrains.dokka.analysis.java.util.PsiHelper
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.*
 import com.intellij.psi.util.PsiLiteralUtil
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.analysis.java.BreakingAbstractionKotlinLightMethodChecker
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
 import org.jetbrains.dokka.analysis.java.parsers.JavadocParser
 import org.jetbrains.dokka.analysis.java.util.PsiDocumentableSource
@@ -50,6 +51,7 @@ internal class DefaultSymbolToDocumentableTranslator(context: DokkaContext) : As
         docCommentParsers = context.plugin<JavaAnalysisPlugin>().query { docCommentParsers },
         docCommentFinder = context.plugin<JavaAnalysisPlugin>().docCommentFinder
     )
+    private val lightMethodChecker = context.plugin<JavaAnalysisPlugin>().querySingle { kotlinLightMethodChecker }
 
     override suspend fun invokeSuspending(
         sourceSet: DokkaConfiguration.DokkaSourceSet,
@@ -62,7 +64,8 @@ internal class DefaultSymbolToDocumentableTranslator(context: DokkaContext) : As
             moduleName = context.configuration.moduleName,
             analysisContext = analysisContext,
             logger = context.logger,
-            javadocParser = if(sourceSet.analysisPlatform == Platform.jvm) javadocParser else null
+            javadocParser = if(sourceSet.analysisPlatform == Platform.jvm) javadocParser else null,
+            lightMethodChecker = lightMethodChecker
         ).visitModule()
     }
 }
@@ -84,8 +87,10 @@ internal class DokkaSymbolVisitor(
     private val moduleName: String,
     private val analysisContext: KotlinAnalysis,
     private val logger: DokkaLogger,
-    private val javadocParser: JavadocParser? = null
+    private val javadocParser: JavadocParser? = null,
+    lightMethodChecker: BreakingAbstractionKotlinLightMethodChecker,
 ) {
+    private val psiHelper = PsiHelper(sourceSet, logger, lightMethodChecker)
     private val annotationTranslator = AnnotationTranslator(logger)
     private val typeTranslator = TypeTranslator(sourceSet, annotationTranslator, logger)
 
@@ -771,7 +776,7 @@ internal class DokkaSymbolVisitor(
 
     private fun getCheckedExceptions(functionSymbol: KaNamedFunctionSymbol): CheckedExceptions? {
         val psiMethod = functionSymbol.psi as? PsiMethod ?: return null
-        val driList = PsiDocumentableUtils.getCheckedExceptionDRIs(psiMethod)
+        val driList = psiHelper.getCheckedExceptionDRIs(psiMethod)
         return driList.takeIf { it.isNotEmpty() }?.let { CheckedExceptions(it.toSourceSetDependent()) }
     }
 
