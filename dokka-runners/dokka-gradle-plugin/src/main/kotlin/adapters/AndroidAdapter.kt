@@ -59,6 +59,10 @@ abstract class AndroidAdapter @Inject constructor(
                 sourceRoots.from(
                     androidExt.sourceDirectories(this@dss.name)
                 )
+
+                basedOnAndroidVariant.set(
+                    androidExt.isBasedOnAndroidVariant(this@dss.name)
+                )
             }
 
             classpath.from(
@@ -157,6 +161,17 @@ private interface AndroidExtensionWrapper {
         sourceSetName: String
     ): Provider<FileCollection>
 
+    /**
+     * To have a better, Android-specific error, [DokkaGenerateTask][org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask]
+     * requires knowledge if the source-set is based on Android variant, which could be provided only by AGP.
+     *
+     * See [org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec.basedOnAndroidVariant]
+     * for more information on why we need it.
+     */
+    fun isBasedOnAndroidVariant(
+        sourceSetName: String
+    ): Provider<Boolean>
+
     companion object {
 
         fun forAndroidComponents(
@@ -221,6 +236,12 @@ private interface AndroidExtensionWrapper {
                                 }
                             }
                         allSources
+                    }
+                }
+
+                override fun isBasedOnAndroidVariant(sourceSetName: String): Provider<Boolean> {
+                    return androidVariants.map { androidVariants ->
+                        androidVariants.any { it.name == sourceSetName }
                     }
                 }
             }

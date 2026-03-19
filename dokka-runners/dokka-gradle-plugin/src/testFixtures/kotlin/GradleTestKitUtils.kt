@@ -83,6 +83,14 @@ class GradleProjectTest(
                 |${dokkaTestRepo.prependIndent("    ")}
                 |    mavenCentral()
                 |    gradlePluginPortal()
+                |    google {
+                |        mavenContent {
+                |            // https://github.com/gradle/gradle/issues/35562
+                |            includeGroupAndSubgroups("com.android")
+                |            includeGroupAndSubgroups("com.google")
+                |            includeGroupAndSubgroups("androidx")
+                |        }
+                |    }
                 |  }
                 |}
                 |
@@ -91,6 +99,14 @@ class GradleProjectTest(
                 |  repositories {
                 |${dokkaTestRepo.prependIndent("    ")}
                 |    mavenCentral()
+                |    google {
+                |        mavenContent {
+                |            // https://github.com/gradle/gradle/issues/35562
+                |            includeGroupAndSubgroups("com.android")
+                |            includeGroupAndSubgroups("com.google")
+                |            includeGroupAndSubgroups("androidx")
+                |        }
+                |    }
                 |  }
                 |}
                 |
