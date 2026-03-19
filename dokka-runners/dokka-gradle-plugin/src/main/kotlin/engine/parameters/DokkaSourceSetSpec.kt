@@ -455,6 +455,20 @@ constructor(
             }
         }
 
+    /**
+     * In the case of [multi-variant Android projects](https://github.com/Kotlin/dokka/issues/4472)
+     * we could have a problem with [intersected source roots](https://github.com/Kotlin/dokka/issues/3701).
+     * In general, this is prohibited by Analysis API, reported by Dokka analysis, and there is no good way to overcome it.
+     * Currently, the workaround for this is a better, Android specific error,
+     * during the execution of [DokkaGenerateTask][org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask]
+     * which requires knowledge if the source-set is based on Android variant.
+     * That information is not part of [DokkaConfiguration][org.jetbrains.dokka.DokkaConfiguration],
+     * but only used for an improved error message.
+     */
+    @get:Input
+    @get:Optional
+    internal abstract val basedOnAndroidVariant: Property<Boolean>
+
     companion object {
 
         /**
