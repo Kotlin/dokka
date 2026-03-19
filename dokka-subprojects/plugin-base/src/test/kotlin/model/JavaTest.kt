@@ -13,6 +13,7 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.See
 import org.jetbrains.dokka.model.doc.Text
+import utils.OnlyJavaPsi
 import utils.assertContains
 import utils.assertNotNull
 import utils.name
@@ -47,6 +48,7 @@ class JavaTest : BaseAbstractTest() {
     private infix fun <T> Collection<T>?.counts(n: Int) =
         assertEquals(n, this.orEmpty().size, "Expected $n, got ${this.orEmpty().size}")
 
+    @OnlyJavaPsi("AA does not propagate @param Javadoc tags to individual parameter documentation")
     @Test
     fun function() {
         testInline(
