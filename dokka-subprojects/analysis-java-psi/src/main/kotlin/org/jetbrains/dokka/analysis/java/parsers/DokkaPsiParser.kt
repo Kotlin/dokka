@@ -617,7 +617,7 @@ internal class DokkaPsiParser(
     private fun getProjection(type: PsiType): Projection = when (type) {
         is PsiEllipsisType -> Star
         is PsiWildcardType -> getVariance(type)
-        else -> getBound(type)
+        else -> Invariance(getBound(type))
     }
 
     private fun PsiModifierListOwner.getModifier(): JavaModifier {

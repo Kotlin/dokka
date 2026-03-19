@@ -719,7 +719,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 )
                 val expectedArrayType = GenericTypeConstructor(
                     dri = DRI("kotlin", "Array", target = PointingToDeclaration),
-                    projections = listOf(expectedType)
+                    projections = listOf(Invariance(expectedType))
                 )
 
                 val classWithEnumUsage = module.packages.single().classlikes.single { it.name == "ContainingEnumType" }
@@ -792,12 +792,14 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                         classNames = "Array"
                     ),
                     projections = listOf(
-                        GenericTypeConstructor(
-                            dri = DRI(
-                                packageName = "test",
-                                classNames = "JavaEnum"
-                            ),
-                            projections = emptyList()
+                        Invariance(
+                            GenericTypeConstructor(
+                                dri = DRI(
+                                    packageName = "test",
+                                    classNames = "JavaEnum"
+                                ),
+                                projections = emptyList()
+                            )
                         )
                     )
                 )

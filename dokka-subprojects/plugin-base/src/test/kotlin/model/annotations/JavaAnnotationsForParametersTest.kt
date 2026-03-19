@@ -139,7 +139,7 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
                 with((this / "foo").cast<DFunction>()) {
                     val paramAnnotations = parameters.first()
                         .type.cast<GenericTypeConstructor>()
-                        .projections.first().cast<TypeParameter>()
+                        .projections.first().cast<Invariance<TypeParameter>>().inner
                         .annotations()
                         .values
                         .flatten()
@@ -169,7 +169,7 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
                 with((this / "foo").cast<DFunction>()) {
                     val paramAnnotations = parameters.first()
                         .type.cast<GenericTypeConstructor>()
-                        .projections.first().cast<TypeParameter>()
+                        .projections.first().cast<Invariance<TypeParameter>>().inner
                         .annotations()
 
                     assertTrue(paramAnnotations.isEmpty())
