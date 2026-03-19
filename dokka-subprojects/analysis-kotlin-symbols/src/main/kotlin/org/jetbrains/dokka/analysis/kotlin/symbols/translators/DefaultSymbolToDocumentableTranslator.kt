@@ -8,6 +8,7 @@ package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.PsiParameter
 import org.jetbrains.dokka.analysis.java.util.PsiHelper
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.*
 import com.intellij.psi.util.PsiLiteralUtil
@@ -893,8 +894,21 @@ internal class DokkaSymbolVisitor(
     private fun KaSession.getDokkaAnnotationsFrom(annotated: KaAnnotated): List<Annotations.Annotation>? =
         with(annotationTranslator) { getAllAnnotationsFrom(annotated) }.takeUnless { it.isEmpty() }
 
-    private fun KaSession.toBoundFrom(type: KaType, containingSymbol: KaSymbol) =
-        with(typeTranslator) { toBoundFrom(type, Location(containingSymbol)) }
+    @OptIn(KaExperimentalApi::class)
+    private fun KaSession.toBoundFrom(type: KaType, containingSymbol: KaSymbol): Bound {
+        // For Java sources, convert via PSI to get proper Java type representations
+        // (e.g., JavaObject for java.lang.Object, PrimitiveJavaType for primitives, Array for int[])
+        if (containingSymbol.isJavaSource()) {
+            // For parameters, use PsiParameter.type directly — it already has the correct Java type
+            // (including array wrapping for varargs, which asPsiType would lose)
+            val psiType = (containingSymbol.psi as? PsiParameter)?.type
+                ?: type.asPsiType(containingSymbol.psi ?: return with(typeTranslator) { toBoundFrom(type, Location(containingSymbol)) }, allowErrorTypes = true)
+            if (psiType != null) {
+                return psiHelper.getBound(psiType)
+            }
+        }
+        return with(typeTranslator) { toBoundFrom(type, Location(containingSymbol)) }
+    }
 
     /**
      * `createDRI` returns the DRI of the exact element and potential DRI of an element that is overriding it
