@@ -3,9 +3,6 @@
  */
 
 import dokkabuild.overridePublicationArtifactId
-import dokkabuild.utils.downloadKotlinStdlibJvmSources
-import dokkabuild.utils.systemProperty
-import org.gradle.api.tasks.PathSensitivity.RELATIVE
 
 plugins {
     id("dokkabuild.kotlin-jvm")
@@ -82,12 +79,3 @@ sourceSets.main {
 tasks.test {
     maxHeapSize = "4G"
 }
-
-//region Download and unpack kotlin-stdlib, so EnumTemplatesTest can test synthetic enum functions.
-val kotlinStdlibSourcesDir = downloadKotlinStdlibJvmSources(project)
-tasks.withType<Test>().configureEach {
-    systemProperty
-        .inputDirectory("kotlinStdlibSourcesDir", kotlinStdlibSourcesDir)
-        .withPathSensitivity(RELATIVE)
-}
-//endregion
