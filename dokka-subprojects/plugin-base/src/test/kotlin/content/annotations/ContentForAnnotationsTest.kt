@@ -13,7 +13,6 @@ import org.jetbrains.dokka.pages.ContentPage
 import org.jetbrains.dokka.pages.ContentText
 import org.jetbrains.dokka.pages.MemberPageNode
 import org.jetbrains.dokka.pages.PackagePageNode
-import utils.OnlyJavaPsi
 import utils.ParamAttributes
 import utils.assertNotNull
 import utils.bareSignature
@@ -323,7 +322,6 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("AA does not wrap Java type parameter bounds in Nullable and loses type-use annotations")
     @Test
     fun `annotated bounds in Java`() {
         testInline(

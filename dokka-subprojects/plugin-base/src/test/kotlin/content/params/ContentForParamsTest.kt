@@ -1506,6 +1506,7 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
+    // AA also maps java.lang.String -> kotlin.String
     @OnlyJavaPsi("AA does not propagate @param Javadoc tags to individual parameter documentation")
     @Test
     fun javaDocCommentWithDocumentedParameters() {

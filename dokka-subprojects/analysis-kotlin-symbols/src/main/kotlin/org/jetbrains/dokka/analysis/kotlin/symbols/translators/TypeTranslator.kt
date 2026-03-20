@@ -137,7 +137,7 @@ internal class TypeTranslator(
             // Ideally, we'd use the upper bound (nullable) since Java types have no nullability guarantees,
             // but the PSI module doesn't wrap Java types in Nullable, and changing that would be too invasive.
             // Using the lower bound (non-nullable) for consistency with the PSI implementation.
-            is KaFlexibleType -> toBoundFrom(type.lowerBound, location)
+            is KaFlexibleType -> toBoundFrom(type.upperBound, location)
             is KaCapturedType -> throw NotImplementedError()
             is KaIntersectionType -> throw NotImplementedError()
             else -> throw NotImplementedError()
