@@ -386,7 +386,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
 //        }
 //    }
 
-    @OnlyJavaPsi
+    @OnlyJavaPsi("AA's synthetic Java property scope uses looser accessor matching than PSI")
     @Test
     fun `should preserve regular functions that are named like getters, but are not getters`() {
         testInline(
@@ -410,7 +410,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
+    @OnlyJavaPsi("AA's synthetic Java property scope uses looser accessor matching than PSI")
     @Test
     fun `should ignore additional non-accessor setters`() {
         testInline(
@@ -559,7 +559,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
+    @OnlyJavaPsi("AA's synthetic Java property scope uses looser accessor matching than PSI")
     @Test
     fun `should not associate accessors with field because field is public api`() {
         val configuration = dokkaConfiguration {

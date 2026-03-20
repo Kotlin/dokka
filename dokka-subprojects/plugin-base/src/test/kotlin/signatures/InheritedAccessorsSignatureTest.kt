@@ -232,7 +232,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
+    @OnlyJavaPsi("AA reports different modality for synthetic Java properties inherited from Kotlin")
     @Test
     fun `should keep kotlin property with no accessors when java inherits kotlin a var`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -270,7 +270,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
+    @OnlyJavaPsi("AA reports different modality for synthetic Java properties inherited from Kotlin")
     @Test
     fun `kotlin property with compute get and set`() {
         val writerPlugin = TestOutputWriterPlugin()

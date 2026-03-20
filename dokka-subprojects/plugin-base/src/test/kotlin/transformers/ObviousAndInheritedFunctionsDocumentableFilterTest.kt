@@ -222,7 +222,7 @@ class ObviousAndInheritedFunctionsDocumentableFilterTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
+    @OnlyJavaPsi("AA's combinedMemberScope does not include all java.lang.Object methods (notify/notifyAll)")
     @ParameterizedTest
     @MethodSource(value = ["nonSuppressingObviousConfiguration", "nonSuppressingInheritedConfiguration"])
     fun `should not suppress toString, equals and hashcode if custom config is provided in Java`(
