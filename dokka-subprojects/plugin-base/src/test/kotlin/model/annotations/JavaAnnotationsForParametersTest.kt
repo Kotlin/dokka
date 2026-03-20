@@ -92,7 +92,7 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
         }
     }
 
-    @OnlyJavaPsi("AA does not wrap Java type parameter bounds in Nullable")
+    @OnlyJavaPsi("AA does not wrap Java type parameter bounds in Nullable and loses type-use annotations")
     @Test
     fun `function with generic parameter that has annotated bounds`() {
         inlineModelTest(
