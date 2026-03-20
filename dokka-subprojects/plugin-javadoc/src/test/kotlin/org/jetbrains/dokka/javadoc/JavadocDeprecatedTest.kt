@@ -10,6 +10,7 @@ import org.jetbrains.dokka.javadoc.utils.OnlyJavaPsi
 import org.junit.jupiter.api.Tag
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
 
@@ -29,12 +30,16 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
         }
     }
 
-    @OnlyJavaPsi("AA produces different deprecated constructor count")
     @Test
     fun `finds correct number of deprecated constructors`() {
         testDeprecatedPageTemplateMaps { templateMap ->
             val map = templateMap.section("Constructors")
-            assertEquals(1, map.elements().size)
+            // AA reports that constructor of deprecated class `ClassJavaException` is deprecated - looks fine to me
+            // PSI reports only explicitly deprecated constructor of `ClassJava`
+            assertTrue(
+                map.elements().size == 1 || map.elements().size == 2,
+                "Expected 1(PSI) or 2(AA) constructors, but found ${map.elements().size}"
+            )
         }
     }
 

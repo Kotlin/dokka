@@ -211,7 +211,6 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("AA renders different property modifiers for Java")
     @Test
     fun `java properties should keep its modifiers`() {
         testInline(
@@ -244,7 +243,9 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                                         divergent {
                                             group {
                                                 group {
-                                                    +"public Int"
+                                                    // Int is an unresolved type here, as there is no Int in java
+                                                    // final is correct, as it's a field in java, and it's not possible to override fields
+                                                    +"public final Int"
                                                     link {
                                                         +"publicProperty"
                                                     }
@@ -486,7 +487,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("AA renders Unit instead of void for Java methods")
+    @OnlyJavaPsi("mapped-types: AA exposes Unit instead of void for Java methods and kotlin-as-java doesn't handle it?")
     @Test
     fun `Java function should keep its access modifier`() {
         val className = "Test"

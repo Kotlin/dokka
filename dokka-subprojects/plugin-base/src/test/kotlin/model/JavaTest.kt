@@ -49,7 +49,7 @@ class JavaTest : BaseAbstractTest() {
     private infix fun <T> Collection<T>?.counts(n: Int) =
         assertEquals(n, this.orEmpty().size, "Expected $n, got ${this.orEmpty().size}")
 
-    @OnlyJavaPsi("AA does not propagate @param Javadoc tags to individual parameter documentation")
+    @OnlyJavaPsi("kdoc: AA does not propagate @param Javadoc tags to individual parameter documentation")
     @Test
     fun function() {
         testInline(
@@ -247,7 +247,7 @@ class JavaTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlyJavaPsi("AA represents int[] as IntArray, not Array<PrimitiveJavaType>")
+    @OnlyJavaPsi("mapped-types: AA represents int[] as IntArray, not Array<PrimitiveJavaType>")
     fun arrayType() {
         testInline(
             """
@@ -533,7 +533,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("AA represents java.lang.Object as kotlin.Any, not JavaObject")
+    @OnlyJavaPsi("mapped-types: AA represents java.lang.Object as kotlin.Any, not JavaObject")
     @Test
     fun javaLangObject() {
         testInline(

@@ -238,7 +238,7 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
         }
     }
 
-    @OnlyJavaPsi("AA does not propagate @param Javadoc tags to individual parameter documentation")
+    @OnlyJavaPsi("mapped-types|kdoc: AA does not propagate @param Javadoc tags to individual parameter documentation")
     @Test
     fun `documented function parameters`(){
         dualTestTemplateMapInline(

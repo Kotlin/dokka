@@ -387,7 +387,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
 //        }
 //    }
 
-    @OnlyJavaPsi("AA's synthetic Java property scope uses looser accessor matching than PSI")
+    @OnlyJavaPsi("synthetic: AA's synthetic Java property scope uses looser accessor matching than PSI")
     @Test
     fun `should preserve regular functions that are named like getters, but are not getters`() {
         testInline(
@@ -411,7 +411,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("AA's synthetic Java property scope uses looser accessor matching than PSI")
+    @OnlyJavaPsi("mapped-types: AA converts int to kotlin.Int")
     @Test
     fun `should ignore additional non-accessor setters`() {
         testInline(
@@ -560,7 +560,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("AA's synthetic Java property scope uses looser accessor matching than PSI")
+    @OnlyJavaPsi("synthetic: AA's synthetic Java property is treated as Public (incorrectly)")
     @Test
     fun `should not associate accessors with field because field is public api`() {
         val configuration = dokkaConfiguration {
@@ -742,7 +742,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("AA generates different synthetic Javadoc text for enum methods")
+    @OnlyJavaPsi("template: AA generates different synthetic Javadoc text for enum methods")
     @Test
     fun `should have documentation for synthetic Enum values functions`() {
         testInline(
@@ -814,7 +814,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("AA generates different synthetic Javadoc text for enum methods")
+    @OnlyJavaPsi("template: AA generates different synthetic Javadoc text for enum methods")
     @Test
     fun `should have documentation for synthetic Enum valueOf functions`() {
         testInline(
