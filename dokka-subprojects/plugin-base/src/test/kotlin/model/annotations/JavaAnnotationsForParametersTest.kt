@@ -141,7 +141,8 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
                     val paramAnnotations = parameters.first()
                         .type.cast<Nullable>()
                         .inner.cast<GenericTypeConstructor>()
-                        .projections.first().cast<Invariance<TypeParameter>>().inner
+                        .projections.first().cast<Invariance<Nullable>>().inner
+                        .inner.cast<TypeParameter>()
                         .annotations()
                         .values
                         .flatten()
@@ -172,7 +173,8 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
                     val paramAnnotations = parameters.first()
                         .type.cast<Nullable>()
                         .inner.cast<GenericTypeConstructor>()
-                        .projections.first().cast<Invariance<TypeParameter>>().inner
+                        .projections.first().cast<Invariance<Nullable>>().inner
+                        .inner.cast<TypeParameter>()
                         .annotations()
 
                     assertTrue(paramAnnotations.isEmpty())
