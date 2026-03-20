@@ -45,7 +45,8 @@ public class PsiHelper(
             PropertyContainer.withAll(annotations.toSourceSetDependent().toAnnotations())
         } ?: PropertyContainer.empty()
 
-    public fun getBound(type: PsiType): Bound {
+    // requires access to annotations, so extracted here
+    internal fun getBound(type: PsiType): Bound {
         //We would like to cache most of the bounds since it is not common to annotate them,
         //but if this is the case, we treat them as 'one of'
         fun PsiType.cacheBoundIfHasNoAnnotation(f: (List<Annotations.Annotation>) -> Bound): Bound {
@@ -131,7 +132,8 @@ public class PsiHelper(
         else -> throw IllegalStateException("${type.presentableText} has incorrect bounds")
     }
 
-    public fun getProjection(type: PsiType): Projection = when (type) {
+    // requires access to annotations, so extracted here
+    internal fun getProjection(type: PsiType): Projection = when (type) {
         is PsiEllipsisType -> Star
         is PsiWildcardType -> getVariance(type)
         else -> Invariance(getBound(type))

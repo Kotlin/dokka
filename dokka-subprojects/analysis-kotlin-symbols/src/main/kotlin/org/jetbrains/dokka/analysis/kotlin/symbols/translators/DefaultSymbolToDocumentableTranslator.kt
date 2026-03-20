@@ -901,6 +901,7 @@ internal class DokkaSymbolVisitor(
     // ----------- Utils ----------------------------------------------------------------------------
 
     private fun KaSession.getDokkaAnnotationsFrom(annotated: KaAnnotated): List<Annotations.Annotation>? {
+        // TODO: this is only relevant for mapped annotations: java.Deprecated is converted to kotlin.Deprecated by AA (in FIR)
         // For Java symbols, extract annotations via PSI to preserve Java DRIs
         // (e.g., java.lang.Deprecated instead of kotlin.Deprecated)
         if (annotated is KaSymbol && annotated.isJavaSource()) {
