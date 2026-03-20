@@ -161,7 +161,7 @@ internal class DokkaSymbolVisitor(
             javadocParser?.parseDocumentation(it, sourceSet).toSourceSetDependent()
         }.orEmpty()
 
-        // TODO annotations from `package-info.java`
+        val packageAnnotations = packageInfo?.packageStatement?.annotationList?.annotations
 
         return DPackage(
             dri = dri,
@@ -170,7 +170,10 @@ internal class DokkaSymbolVisitor(
             classlikes = classlikes,
             typealiases = typealiases,
             documentation = documentation,
-            sourceSets = setOf(sourceSet)
+            sourceSets = setOf(sourceSet),
+            extra = PropertyContainer.withAll(
+                psiHelper.convertAnnotations(packageAnnotations?.toList().orEmpty()).toSourceSetDependent().toAnnotations()
+            )
         )
     }
 
