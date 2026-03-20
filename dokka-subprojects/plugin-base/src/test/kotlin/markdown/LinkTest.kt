@@ -10,6 +10,7 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.TypeConstructor
+import org.jetbrains.dokka.links.Nullable
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.pages.ClasslikePageNode
@@ -461,7 +462,7 @@ class LinkTest : BaseAbstractTest() {
                                             classNames = "AppletContext",
                                             callable = Callable(
                                                 name = "showDocument",
-                                                params = listOf(TypeConstructor("java.net.URL", emptyList()))
+                                                params = listOf(Nullable(TypeConstructor("java.net.URL", emptyList())))
                                             ),
                                             target = PointingToDeclaration
                                         ),
@@ -1299,6 +1300,7 @@ class LinkTest : BaseAbstractTest() {
         }
     }
 
+    // TODO
     @Test
     @OnlySymbols("#3586 - K1 does not resolve KDoc links to synthetic java properties")
     fun `KDoc link should lead to java synthetic properties`() {
@@ -1328,7 +1330,7 @@ class LinkTest : BaseAbstractTest() {
                         "Storage.setValue" to DRI(
                             "example",
                             "Storage",
-                            Callable("setValue", null, listOf(TypeConstructor("kotlin.String", emptyList())))
+                            Callable("setValue", null, listOf(Nullable(TypeConstructor("kotlin.String", emptyList()))))
                         ),
                         "Storage.prop" to DRI("example", "Storage", Callable("getProp", null, emptyList()))
                     ),
