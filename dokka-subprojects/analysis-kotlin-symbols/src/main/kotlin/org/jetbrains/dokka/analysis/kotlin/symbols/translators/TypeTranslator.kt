@@ -134,9 +134,8 @@ internal class TypeTranslator(
             )
 
             // Flexible types represent Java platform types (e.g., `String` in Java becomes `String..String?`).
-            // Ideally, we'd use the upper bound (nullable) since Java types have no nullability guarantees,
-            // but the PSI module doesn't wrap Java types in Nullable, and changing that would be too invasive.
-            // Using the lower bound (non-nullable) for consistency with the PSI implementation.
+            // Ideally, we should use the upper bound (nullable) since Java types have no nullability guarantees,
+            // PSI module doesn't wrap Java types in Nullable !!!
             is KaFlexibleType -> toBoundFrom(type.upperBound, location)
             is KaCapturedType -> throw NotImplementedError()
             is KaIntersectionType -> throw NotImplementedError()
