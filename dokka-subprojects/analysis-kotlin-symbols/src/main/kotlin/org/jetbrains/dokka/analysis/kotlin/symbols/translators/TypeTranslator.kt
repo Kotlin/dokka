@@ -201,7 +201,7 @@ internal class TypeTranslator(
 
         is KaCapturedType -> throw NotImplementedError()
         is KaDynamicType -> throw NotImplementedError()
-        is KaFlexibleType -> toTypeConstructorWithKindFrom(type.upperBound, location)
+        is KaFlexibleType -> throw NotImplementedError()
         is KaIntersectionType -> throw NotImplementedError()
         is KaTypeParameterType -> throw NotImplementedError()
         else -> throw NotImplementedError()
