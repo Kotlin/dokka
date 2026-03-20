@@ -174,7 +174,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("AA does not extract annotations from package-info.java")
     @Test
     fun `java package-info package annotations`() {
         testInline(
