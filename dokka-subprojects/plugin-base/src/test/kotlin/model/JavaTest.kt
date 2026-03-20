@@ -10,6 +10,7 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.See
 import org.jetbrains.dokka.model.doc.Text
@@ -129,7 +130,7 @@ class JavaTest : BaseAbstractTest() {
                     val implementedInterfaces = extra[ImplementedInterfaces]?.interfaces?.entries?.single()?.value!!
                     implementedInterfaces.map { it.dri.sureClassNames }.sorted() equals listOf("Highest", "Lower").sorted()
                     for (implementedInterface in implementedInterfaces) {
-                        assertEquals(((implementedInterface.projections.single() as Invariance<*>).inner as TypeParameter).name, "T")
+                        assertEquals((((implementedInterface.projections.single() as Invariance<*>).inner as Nullable).inner as TypeParameter).name, "T")
                     }
                 }
             }
@@ -178,7 +179,7 @@ class JavaTest : BaseAbstractTest() {
                     val interfaceType = supertypes.values.flatten().single()
                     assertEquals(interfaceType.kind, JavaClassKindTypes.INTERFACE)
                     assertEquals(interfaceType.typeConstructor.dri.classNames, "Bar")
-                    val generic = (interfaceType.typeConstructor.projections.single() as Invariance<*>).inner as GenericTypeConstructor
+                    val generic = ((interfaceType.typeConstructor.projections.single() as Invariance<*>).inner as Nullable).inner as GenericTypeConstructor
                     assertEquals(generic.dri.classNames, "String")
                 }
             }
@@ -222,7 +223,7 @@ class JavaTest : BaseAbstractTest() {
                     val superclassType = supertypes.values.flatten().single()
                     assertEquals(superclassType.kind, JavaClassKindTypes.CLASS)
                     assertEquals(superclassType.typeConstructor.dri.classNames, "Bar")
-                    val generic = (superclassType.typeConstructor.projections.single() as Invariance<*>).inner as GenericTypeConstructor
+                    val generic = ((superclassType.typeConstructor.projections.single() as Invariance<*>).inner as Nullable).inner as GenericTypeConstructor
                     assertEquals(generic.dri.classNames, "String")
                 }
             }
@@ -230,6 +231,7 @@ class JavaTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlyJavaPsi("AA represents int[] as IntArray, not Array<PrimitiveJavaType>")
     fun arrayType() {
         testInline(
             """
@@ -315,8 +317,8 @@ class JavaTest : BaseAbstractTest() {
                 }
                 with((module / "java" / "DocumentClassFactoryRegistry").cast<DClass>()) {
                     functions.forEach {
-                        (it.type as GenericTypeConstructor).dri.classNames equals "DocumentClassFactory"
-                        (((it.type as GenericTypeConstructor).projections[0] as Invariance<*>).inner as TypeParameter).dri.classNames equals "DocumentClassFactoryRegistry"
+                        ((it.type as Nullable).inner as GenericTypeConstructor).dri.classNames equals "DocumentClassFactory"
+                        (((((it.type as Nullable).inner as GenericTypeConstructor).projections[0] as Invariance<*>).inner as Nullable).inner as TypeParameter).dri.classNames equals "DocumentClassFactoryRegistry"
                     }
                 }
             }
@@ -375,6 +377,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi("AA represents varargs as element type with VarArg modifier, not Array wrapping")
     @Test
     fun varargs() {
         testInline(
@@ -511,6 +514,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi("AA represents java.lang.Object as kotlin.Any, not JavaObject")
     @Test
     fun javaLangObject() {
         testInline(
@@ -645,24 +649,22 @@ class JavaTest : BaseAbstractTest() {
 
                     for (function in functions) {
                         val param = function.parameters.single()
-                        val type = param.type as GenericTypeConstructor
+                        val type = (param.type as Nullable).inner as GenericTypeConstructor
                         val variance = type.projections.single()
 
                         when (function.name) {
                             "superBound" -> {
                                 assertTrue(variance is Contravariance<*>)
-                                val bound = variance.inner
+                                val bound = (variance.inner as Nullable).inner
                                 assertEquals((bound as GenericTypeConstructor).dri.classNames, "String")
                             }
                             "extendsBound" -> {
                                 assertTrue(variance is Covariance<*>)
-                                val bound = variance.inner
+                                val bound = (variance.inner as Nullable).inner
                                 assertEquals((bound as GenericTypeConstructor).dri.classNames, "String")
                             }
                             "unbounded" -> {
-                                assertTrue(variance is Covariance<*>)
-                                val bound = variance.inner
-                                assertTrue(bound is JavaObject)
+                                assertTrue(variance is Star)
                             }
                         }
                     }

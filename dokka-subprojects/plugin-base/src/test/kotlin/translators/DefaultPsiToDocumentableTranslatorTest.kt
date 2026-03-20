@@ -11,6 +11,7 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.doc.*
 import utils.OnlyJavaPsi
 import kotlin.test.*
@@ -689,6 +690,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi("AA produces Array<out T> instead of Array<T> for Java arrays")
     @Test // see https://github.com/Kotlin/dokka/issues/2646
     fun `should resolve PsiImmediateClassType as class reference`() {
         testInline(
@@ -717,14 +719,14 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             configuration
         ) {
             documentablesMergingStage = { module ->
-                val expectedType = GenericTypeConstructor(
+                val expectedType = Nullable(GenericTypeConstructor(
                     dri = DRI(packageName = "test", classNames = "JavaEnum", target = PointingToDeclaration),
                     projections = emptyList()
-                )
-                val expectedArrayType = GenericTypeConstructor(
+                ))
+                val expectedArrayType = Nullable(GenericTypeConstructor(
                     dri = DRI("kotlin", "Array", target = PointingToDeclaration),
                     projections = listOf(Invariance(expectedType))
-                )
+                ))
 
                 val classWithEnumUsage = module.packages.single().classlikes.single { it.name == "ContainingEnumType" }
 
