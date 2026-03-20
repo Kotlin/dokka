@@ -130,7 +130,7 @@ class PsiSuperFieldsTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("AA's synthetic Java property scope inherits accessors for @JvmField properties")
+    @OnlyJavaPsi("synthetic: AA will have accessors, even if there is non in Kotlin")
     @Test
     fun `java inheriting kotlin with @JvmField should not inherit accessors`() {
         testInline(

@@ -277,7 +277,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("AA reports different modality for synthetic Java properties inherited from Kotlin")
+    @OnlyJavaPsi("mapped-types: AA returns java.util.Function and not kotlin lambda")
     @Test
     fun `java with java function`() {
         val source = """
@@ -297,14 +297,14 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-java-class/index.html").lastSignature().match(
-                    "open var ", A("javaFunction"), ": (", A("Integer"), ") -> ", A("String"),
+                    "var ", A("javaFunction"), ": (", A("Integer"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @OnlyJavaPsi("AA reports different modality for synthetic Java properties inherited from Kotlin")
+    @OnlyJavaPsi("mapped-types: AA converts Integer -> Int, + nullability")
     @Test
     fun `java with kotlin function`() {
         val source = """

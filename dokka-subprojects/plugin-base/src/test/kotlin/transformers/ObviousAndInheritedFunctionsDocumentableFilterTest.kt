@@ -222,7 +222,7 @@ class ObviousAndInheritedFunctionsDocumentableFilterTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("AA's combinedMemberScope does not include all java.lang.Object methods (notify/notifyAll)")
+    @OnlyJavaPsi("mapped-types: AA's combinedMemberScope does not include all java.lang.Object methods (notify/notifyAll) - mapped types")
     @ParameterizedTest
     @MethodSource(value = ["nonSuppressingObviousConfiguration", "nonSuppressingInheritedConfiguration"])
     fun `should not suppress toString, equals and hashcode if custom config is provided in Java`(
@@ -246,6 +246,7 @@ class ObviousAndInheritedFunctionsDocumentableFilterTest : BaseAbstractTest() {
                         "equals",
                         "hashCode",
                         "toString",
+                        // AA misses those, becuase it maps to kotlin/Any
                         "notify",
                         "notifyAll"
                     ).intersect(functions.map { it.name }).size
