@@ -323,7 +323,7 @@ class ContentForAnnotationsTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("AA does not wrap Java type parameter bounds in Nullable")
+    @OnlyJavaPsi("AA does not wrap Java type parameter bounds in Nullable and loses type-use annotations")
     @Test
     fun `annotated bounds in Java`() {
         testInline(
