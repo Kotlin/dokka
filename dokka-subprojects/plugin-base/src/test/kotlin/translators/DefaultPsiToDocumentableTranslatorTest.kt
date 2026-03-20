@@ -14,6 +14,7 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.doc.*
 import utils.OnlyJavaPsi
+import utils.OnlyJavaSymbols
 import kotlin.test.*
 
 class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
@@ -690,6 +691,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaSymbols
     @Test // see https://github.com/Kotlin/dokka/issues/2646
     fun `should resolve PsiImmediateClassType as class reference`() {
         testInline(

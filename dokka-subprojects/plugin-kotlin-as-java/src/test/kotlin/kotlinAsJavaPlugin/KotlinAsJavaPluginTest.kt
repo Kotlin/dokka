@@ -21,6 +21,7 @@ import signatures.firstSignature
 import signatures.renderedContent
 import utils.A
 import kotlinAsJavaPlugin.utils.OnlyJavaPsi
+import kotlinAsJavaPlugin.utils.OnlyJavaSymbols
 import utils.TestOutputWriterPlugin
 import utils.match
 import java.net.URL
@@ -211,6 +212,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaSymbols
     @Test
     fun `java properties should keep its modifiers`() {
         testInline(

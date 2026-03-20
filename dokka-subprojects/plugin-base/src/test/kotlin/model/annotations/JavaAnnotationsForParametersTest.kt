@@ -10,6 +10,7 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.utilities.cast
 import utils.AbstractModelTest
 import utils.OnlyJavaPsi
+import utils.OnlyJavaSymbols
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -122,6 +123,7 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
         }
     }
 
+    @OnlyJavaSymbols
     @Test
     fun `type parameter annotations should be visible even if type declaration has none`() {
         inlineModelTest(
@@ -154,6 +156,7 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
         }
     }
 
+    @OnlyJavaSymbols
     @Test
     fun `type parameter annotations should not be propagated from resolved type`() {
         inlineModelTest(

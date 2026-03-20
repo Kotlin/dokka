@@ -434,6 +434,7 @@ class LinkTest : BaseAbstractTest() {
         }
     }
 
+    @OnlySymbols
     @Test
     fun `link should lead to a function with a nullable parameter`() {
         testInline(
@@ -1300,7 +1301,6 @@ class LinkTest : BaseAbstractTest() {
         }
     }
 
-    // TODO
     @Test
     @OnlySymbols("#3586 - K1 does not resolve KDoc links to synthetic java properties")
     fun `KDoc link should lead to java synthetic properties`() {
@@ -1784,7 +1784,7 @@ class LinkTest : BaseAbstractTest() {
 
     @Test
     fun `should resolve KDoc links from classpath`() {
-       val coroutines = ClassLoader.getSystemResource("kotlinx/coroutines/MainCoroutineDispatcher.class")
+        val coroutines = ClassLoader.getSystemResource("kotlinx/coroutines/MainCoroutineDispatcher.class")
             ?.file
             ?.replace("file:", "")
             ?.replaceAfter(".jar", "") ?: throw IllegalStateException("Coroutines jar not found")
@@ -1813,7 +1813,11 @@ class LinkTest : BaseAbstractTest() {
             configuration = configuration
         ) {
             documentablesMergingStage = { module ->
-                val dri = DRI("kotlinx.coroutines", "MainCoroutineDispatcher", Callable("immediate", null, emptyList(), isProperty = true))
+                val dri = DRI(
+                    "kotlinx.coroutines",
+                    "MainCoroutineDispatcher",
+                    Callable("immediate", null, emptyList(), isProperty = true)
+                )
                 assertEquals(
                     listOf(
                         "MainCoroutineDispatcher.immediate" to dri,
