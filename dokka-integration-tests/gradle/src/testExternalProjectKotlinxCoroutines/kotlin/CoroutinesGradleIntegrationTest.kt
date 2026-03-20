@@ -17,14 +17,14 @@ import org.junit.jupiter.params.provider.ArgumentsSource
 import java.io.File
 import java.util.stream.Stream
 import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
+import kotlin.test.assertContains
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class CoroutinesBuildVersionsArgumentsProvider : ArgumentsProvider {
     private val buildVersions = BuildVersions.permutations(
-        gradleVersions = listOf("8.13"),
-        kotlinVersions = listOf("2.1.0")
+        gradleVersions = listOf("8.13"), // should be consistent with Gradle version used in project gradle-wrapper.properties
+        kotlinVersions = listOf("2.2.20") // not used, as we don't override it in external (git-based) projects
     )
 
     override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> {
@@ -34,7 +34,7 @@ class CoroutinesBuildVersionsArgumentsProvider : ArgumentsProvider {
 
 class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopier {
 
-    override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/htmlMultiModule") }
+    override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/html") }
 
     @BeforeTest
     override fun beforeEachTest() {
@@ -51,20 +51,26 @@ class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOut
     fun execute(buildVersions: BuildVersions) {
         val result = createGradleRunner(
             buildVersions,
-            ":dokkaHtmlMultiModule",
-            jvmArgs = listOf(
-                "-Xmx2G",
-                "-XX:MaxMetaspaceSize=700m", // Intentionally small to verify that Dokka tasks do not cause leaks.
-            )
+            ":dokkaGenerate",
+            // disabled because:
+            // #4482:
+            //  Unknown annotation value `ExperimentalWasmInterop::class` in kotlinx-coroutines-core/wasmWasi/src/internal/CoroutineExceptionHandlerImpl.kt:14:8
+            //  Unknown annotation value `ExperimentalWasmInterop::class` in kotlinx-coroutines-core/wasmWasi/src/internal/CoroutineExceptionHandlerImpl.kt:51:8
+            // https://github.com/Kotlin/kotlinx.coroutines/pull/4641:
+            //  there are a lot of unresolved links in coroutines - which will be potentially fixed in this PR
+            "-Pdokka_it_failOnWarning=false"
         ).buildRelaxed()
 
-        assertEquals(TaskOutcome.SUCCESS, assertNotNull(result.task(":dokkaHtmlMultiModule")).outcome)
+        assertContains(
+            setOf(TaskOutcome.SUCCESS, TaskOutcome.FROM_CACHE),
+            assertNotNull(result.task(":dokkaGeneratePublicationHtml")).outcome
+        )
 
         assertTrue(projectOutputLocation.isDirectory, "Missing dokka output directory")
 
         projectOutputLocation.allHtmlFiles().forEach { file ->
-//            assertContainsNoErrorClass(file)
-//            assertNoUnresolvedLinks(file)
+            assertContainsNoErrorClass(file)
+            assertNoUnresolvedLinks(file)
 //            assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoEmptyLinks(file)
             assertNoEmptySpans(file)
