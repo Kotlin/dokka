@@ -111,7 +111,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols
+    @OnlyJavaSymbols("PSI doesn't mark types as nullable")
     @Test
     fun allImplementedInterfacesWithGenericsInJava() {
         testInline(
@@ -178,7 +178,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols
+    @OnlyJavaSymbols("PSI doesn't mark types as nullable")
     @Test
     fun interfaceWithGeneric() {
         testInline(
@@ -224,7 +224,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols
+    @OnlyJavaSymbols("PSI doesn't mark types as nullable")
     @Test
     fun superclassWithGeneric() {
         testInline(
@@ -307,7 +307,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols
+    @OnlyJavaSymbols("PSI doesn't mark types as nullable")
     @Test
     fun typeParameterIntoDifferentClasses2596() {
         testInline(
@@ -398,7 +398,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols
+    @OnlyJavaSymbols("PSI doesn't handle varargs at all and returns `Array` type for `x`")
     @Test
     fun varargs() {
         testInline(
@@ -652,7 +652,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols
+    @OnlyJavaSymbols("PSI doesn't mark types as nullable")
     @Test
     fun variances() {
         testInline(

@@ -212,7 +212,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols
+    @OnlyJavaSymbols("PSI treats it as an open - which is wrong")
     @Test
     fun `java properties should keep its modifiers`() {
         testInline(

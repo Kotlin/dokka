@@ -232,7 +232,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols
+    @OnlyJavaSymbols("PSI treats the property as open - which is wrong")
     @Test
     fun `should keep kotlin property with no accessors when java inherits kotlin a var`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -270,7 +270,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols
+    @OnlyJavaSymbols("AA returns a property even for Java classes - seems correct")
     @Test
     fun `kotlin property with compute get and set`() {
         val writerPlugin = TestOutputWriterPlugin()

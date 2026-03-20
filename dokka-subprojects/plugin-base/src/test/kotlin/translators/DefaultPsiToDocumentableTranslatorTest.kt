@@ -691,7 +691,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols
+    @OnlyJavaSymbols("PSI doesn't mark types as nullable, and doesn't mark arrays as covariant")
     @Test // see https://github.com/Kotlin/dokka/issues/2646
     fun `should resolve PsiImmediateClassType as class reference`() {
         testInline(
