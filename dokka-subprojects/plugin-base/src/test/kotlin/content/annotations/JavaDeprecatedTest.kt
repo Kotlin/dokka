@@ -47,7 +47,8 @@ class JavaDeprecatedTest : BaseAbstractTest() {
                 val isDeprecated = (deprecatedClass as WithExtraProperties<out Documentable>).isDeprecated()
                 assertTrue(isDeprecated)
 
-                val deprecatedAnnotation = (deprecatedClass as WithExtraProperties<out Documentable>).deprecatedAnnotation
+                val deprecatedAnnotation =
+                    (deprecatedClass as WithExtraProperties<out Documentable>).deprecatedAnnotation
                 assertNotNull(deprecatedAnnotation)
 
                 assertTrue(deprecatedAnnotation.isDeprecated())
@@ -139,7 +140,6 @@ class JavaDeprecatedTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("AA produces different content structure for @deprecated Javadoc tag")
     @Test
     fun `should take deprecation message from @deprecated javadoc tag`() {
         testInline(

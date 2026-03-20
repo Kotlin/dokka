@@ -83,7 +83,8 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    @Test fun allImplementedInterfacesInJava() {
+    @Test
+    fun allImplementedInterfacesInJava() {
         testInline(
             """
             |/src/java/Highest.java
@@ -102,13 +103,15 @@ class JavaTest : BaseAbstractTest() {
         ) {
             documentablesTransformationStage = { module ->
                 with((module / "java" / "Tested").cast<DClass>()) {
-                    extra[ImplementedInterfaces]?.interfaces?.entries?.single()?.value?.map { it.dri.sureClassNames }?.sorted() equals listOf("Highest", "Lower").sorted()
+                    extra[ImplementedInterfaces]?.interfaces?.entries?.single()?.value?.map { it.dri.sureClassNames }
+                        ?.sorted() equals listOf("Highest", "Lower").sorted()
                 }
             }
         }
     }
 
-    @Test fun allImplementedInterfacesWithGenericsInJava() {
+    @Test
+    fun allImplementedInterfacesWithGenericsInJava() {
         testInline(
             """
             |/src/java/Highest.java
@@ -128,16 +131,23 @@ class JavaTest : BaseAbstractTest() {
             documentablesTransformationStage = { module ->
                 with((module / "java" / "Tested").cast<DClass>()) {
                     val implementedInterfaces = extra[ImplementedInterfaces]?.interfaces?.entries?.single()?.value!!
-                    implementedInterfaces.map { it.dri.sureClassNames }.sorted() equals listOf("Highest", "Lower").sorted()
+                    implementedInterfaces.map { it.dri.sureClassNames }.sorted() equals listOf(
+                        "Highest",
+                        "Lower"
+                    ).sorted()
                     for (implementedInterface in implementedInterfaces) {
-                        assertEquals((((implementedInterface.projections.single() as Invariance<*>).inner as Nullable).inner as TypeParameter).name, "T")
+                        assertEquals(
+                            (((implementedInterface.projections.single() as Invariance<*>).inner as Nullable).inner as TypeParameter).name,
+                            "T"
+                        )
                     }
                 }
             }
         }
     }
 
-    @Test fun multipleClassInheritanceWithInterface() {
+    @Test
+    fun multipleClassInheritanceWithInterface() {
         testInline(
             """
             |/src/java/Highest.java
@@ -156,7 +166,11 @@ class JavaTest : BaseAbstractTest() {
         ) {
             documentablesTransformationStage = { module ->
                 with((module / "java" / "Tested").cast<DClass>()) {
-                    supertypes.entries.single().value.map { it.typeConstructor.dri.sureClassNames to it.kind }.sortedBy { it.first } equals listOf("Extendable" to JavaClassKindTypes.CLASS, "Lower" to JavaClassKindTypes.INTERFACE)
+                    supertypes.entries.single().value.map { it.typeConstructor.dri.sureClassNames to it.kind }
+                        .sortedBy { it.first } equals listOf(
+                        "Extendable" to JavaClassKindTypes.CLASS,
+                        "Lower" to JavaClassKindTypes.INTERFACE
+                    )
                 }
             }
         }
@@ -179,7 +193,8 @@ class JavaTest : BaseAbstractTest() {
                     val interfaceType = supertypes.values.flatten().single()
                     assertEquals(interfaceType.kind, JavaClassKindTypes.INTERFACE)
                     assertEquals(interfaceType.typeConstructor.dri.classNames, "Bar")
-                    val generic = ((interfaceType.typeConstructor.projections.single() as Invariance<*>).inner as Nullable).inner as GenericTypeConstructor
+                    val generic =
+                        ((interfaceType.typeConstructor.projections.single() as Invariance<*>).inner as Nullable).inner as GenericTypeConstructor
                     assertEquals(generic.dri.classNames, "String")
                 }
             }
@@ -223,7 +238,8 @@ class JavaTest : BaseAbstractTest() {
                     val superclassType = supertypes.values.flatten().single()
                     assertEquals(superclassType.kind, JavaClassKindTypes.CLASS)
                     assertEquals(superclassType.typeConstructor.dri.classNames, "Bar")
-                    val generic = ((superclassType.typeConstructor.projections.single() as Invariance<*>).inner as Nullable).inner as GenericTypeConstructor
+                    val generic =
+                        ((superclassType.typeConstructor.projections.single() as Invariance<*>).inner as Nullable).inner as GenericTypeConstructor
                     assertEquals(generic.dri.classNames, "String")
                 }
             }
@@ -377,7 +393,6 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("AA represents varargs as element type with VarArg modifier, not Array wrapping")
     @Test
     fun varargs() {
         testInline(
@@ -398,7 +413,11 @@ class JavaTest : BaseAbstractTest() {
                         name equals "bar"
                         with(parameters.firstOrNull().assertNotNull("parameter")) {
                             name equals "x"
-                            type.name equals "Array"
+                            type.name equals "String"
+                            assertEquals(
+                                setOf(ExtraModifiers.KotlinOnlyModifiers.VarArg),
+                                extra[AdditionalModifiers]?.content?.values?.first(),
+                            )
                         }
                     }
                 }
@@ -658,11 +677,13 @@ class JavaTest : BaseAbstractTest() {
                                 val bound = (variance.inner as Nullable).inner
                                 assertEquals((bound as GenericTypeConstructor).dri.classNames, "String")
                             }
+
                             "extendsBound" -> {
                                 assertTrue(variance is Covariance<*>)
                                 val bound = (variance.inner as Nullable).inner
                                 assertEquals((bound as GenericTypeConstructor).dri.classNames, "String")
                             }
+
                             "unbounded" -> {
                                 assertTrue(variance is Star)
                             }
