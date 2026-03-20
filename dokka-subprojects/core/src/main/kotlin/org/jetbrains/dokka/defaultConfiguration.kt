@@ -61,7 +61,7 @@ public data class DokkaSourceSetImpl(
 ) : DokkaSourceSet {
 
     @Suppress("DEPRECATION")
-    @Deprecated("Use primary constructor with suppressedAnnotations", level = DeprecationLevel.HIDDEN)
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
     public constructor(
         displayName: String,
         sourceSetID: DokkaSourceSetID,
