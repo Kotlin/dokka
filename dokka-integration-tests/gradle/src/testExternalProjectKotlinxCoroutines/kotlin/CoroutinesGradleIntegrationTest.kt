@@ -52,7 +52,12 @@ class CoroutinesGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOut
         val result = createGradleRunner(
             buildVersions,
             ":dokkaGenerate",
-            // we can't enable it because there are a lot of unresolved links in coroutines...
+            // disabled because:
+            // #4482:
+            //  Unknown annotation value `ExperimentalWasmInterop::class` in kotlinx-coroutines-core/wasmWasi/src/internal/CoroutineExceptionHandlerImpl.kt:14:8
+            //  Unknown annotation value `ExperimentalWasmInterop::class` in kotlinx-coroutines-core/wasmWasi/src/internal/CoroutineExceptionHandlerImpl.kt:51:8
+            // https://github.com/Kotlin/kotlinx.coroutines/pull/4641:
+            //  there are a lot of unresolved links in coroutines - which will be potentially fixed in this PR
             "-Pdokka_it_failOnWarning=false"
         ).buildRelaxed()
 
