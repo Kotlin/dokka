@@ -1,89 +1,29 @@
 diff --git a/build.gradle.kts b/build.gradle.kts
-index f2cfd853..b74e188a 100644
+index 538b1804..923d0c86 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -21,13 +21,13 @@ plugins {
-
- repositories {
-     mavenCentral()
--    maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
-+    // maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
-     // kotlin-dev with space redirector
-     maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
-     // For Dokka that depends on kotlinx-html
-     maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
-     // For local development
--    mavenLocal()
-+    //mavenLocal()
- }
-
- // == common projects settings setup
-@@ -58,6 +58,7 @@ allprojects {
+@@ -52,6 +52,7 @@ allprojects {
          }
      }
      repositories {
 +        /* %{DOKKA_IT_MAVEN_REPO}% */
          mavenCentral()
-         maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
+         maven("https://redirector.kotlinlang.org/maven/dev")
      }
-@@ -138,12 +139,25 @@ tasks.register("dokka") {
-     dependsOn("dokkaHtmlMultiModule")
- }
-
--tasks.withType<DokkaMultiModuleTask>().named("dokkaHtmlMultiModule") {
-+tasks.withType<@Suppress("DEPRECATION") DokkaMultiModuleTask>().named("dokkaHtmlMultiModule") {
-     pluginsMapConfiguration.put("org.jetbrains.dokka.base.DokkaBase", """{ "templatesDir": "${projectDir.toString().replace("\\", "/")}/dokka-templates" }""")
- }
-
- dependencies {
--    dokkaPlugin(libs.dokka.pathsaver)
-+    dokkaPlugin(libs.dokka.pathsaver) {
-+        exclude("org.jetbrains.dokka", "templating-plugin")
-+        exclude("org.jetbrains.dokka", "dokka-base")
-+    }
-+}
-+
-+buildscript {
-+    configurations {
-+        classpath {
-+            exclude("org.jetbrains.dokka", "templating-plugin")
-+            exclude("org.jetbrains.dokka","dokka-base")
-+            exclude("org.jetbrains.dokka","dokka-core")
-+        }
-+    }
- }
-
- // == NPM setup ==
 diff --git a/buildSrc/build.gradle.kts b/buildSrc/build.gradle.kts
-index 529b81c1..218558c2 100644
+index 5c73ad8b..a6899605 100644
 --- a/buildSrc/build.gradle.kts
 +++ b/buildSrc/build.gradle.kts
-@@ -7,6 +7,7 @@ plugins {
- }
+@@ -26,6 +26,7 @@ repositories {
+         maven("https://oss.sonatype.org/content/repositories/snapshots")
+     }
 
- repositories {
 +    /* %{DOKKA_IT_MAVEN_REPO}% */
-     /**
-      * Overrides for Teamcity 'K2 User Projects' + 'Aggregate build / Kotlinx libraries compilation' configuration:
-      * kotlin_repo_url - local repository with snapshot Kotlin compiler
-@@ -29,12 +30,12 @@ repositories {
-     // kotlin-dev with space redirector
-     maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
-
--    maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
-+    //maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
-     // For Dokka that depends on kotlinx-html
--    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
-+    //maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
-
      mavenCentral()
--    mavenLocal()
-+    //mavenLocal()
+     maven("https://redirector.kotlinlang.org/maven/dev")
  }
-
- kotlin {
 diff --git a/buildSrc/settings.gradle.kts b/buildSrc/settings.gradle.kts
-index b450fd5e..927b34b9 100644
+index b450fd5e..9f189439 100644
 --- a/buildSrc/settings.gradle.kts
 +++ b/buildSrc/settings.gradle.kts
 @@ -14,6 +14,7 @@ dependencyResolutionManagement {
@@ -94,155 +34,41 @@ index b450fd5e..927b34b9 100644
          }
      }
  }
-@@ -48,4 +49,4 @@ fun overriddenKotlinVersion(): String? {
-         return trainVersion ?: trainVersionFile ?: throw IllegalArgumentException("\"kotlin_snapshot_version\" should be defined when building with snapshot compiler")
-     }
-     return null
--}
-\ No newline at end of file
-+}
 diff --git a/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts b/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts
-index d3013727..b58ad96a 100644
+index d64d46a9..74f00e7a 100644
 --- a/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts
 +++ b/buildSrc/src/main/kotlin/dokka-conventions.gradle.kts
-@@ -2,6 +2,8 @@
-  * Copyright 2017-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
-  */
-
-+@file:Suppress("DEPRECATION")
-+
- import org.jetbrains.dokka.gradle.*
- import java.net.URI
-
-@@ -15,7 +17,12 @@ plugins {
-
- val extens = extensions
- dependencies {
--    dokkaPlugin(provider { extens.getByType<VersionCatalogsExtension>().named("libs").findLibrary("dokka.pathsaver").get().get() })
-+    dokkaPlugin(provider { extens.getByType<VersionCatalogsExtension>().named("libs").findLibrary("dokka.pathsaver").get().get() }) {
-+        exclude("org.jetbrains.dokka", "templating-plugin")
-+        exclude("org.jetbrains.dokka", "dokka-base")
-+    }
-+    dokkaPlugin("org.jetbrains.dokka:templating-plugin:${providers.gradleProperty("dokka_it_dokka_version").get()}")
-+    dokkaPlugin("org.jetbrains.dokka:dokka-base:${providers.gradleProperty("dokka_it_dokka_version").get()}")
- }
-
- tasks.withType<DokkaTaskPartial>().named("dokkaHtmlPartial") {
-@@ -76,4 +83,4 @@ tasks.withType<DokkaTaskPartial>().named("dokkaHtmlPartial") {
-             }
-         }
+@@ -16,9 +16,11 @@ dokka {
+         templatesDir = rootDir.resolve("dokka-templates")
      }
--}
-\ No newline at end of file
-+}
-diff --git a/formats/json-io/build.gradle.kts b/formats/json-io/build.gradle.kts
-index 2effe4f2..0adb4f1e 100644
---- a/formats/json-io/build.gradle.kts
-+++ b/formats/json-io/build.gradle.kts
-@@ -33,7 +33,7 @@ kotlin {
 
- project.configureJava9ModuleInfo()
++    dokkaPublications.html {
++        failOnWarning.set(providers.gradleProperty("dokka_it_failOnWarning").map(String::toBoolean))
++    }
+     dokkaSourceSets.configureEach {
+         includes.from(rootDir.resolve("dokka/moduledoc.md").path)
+-        reportUndocumented = true
+         skipDeprecated = true
 
--tasks.named<DokkaTaskPartial>("dokkaHtmlPartial") {
-+tasks.named<@Suppress("DEPRECATION") DokkaTaskPartial>("dokkaHtmlPartial") {
-     dokkaSourceSets {
-         configureEach {
-             externalDocumentationLink {
-diff --git a/formats/json-okio/build.gradle.kts b/formats/json-okio/build.gradle.kts
-index 93513985..42b93ac2 100644
---- a/formats/json-okio/build.gradle.kts
-+++ b/formats/json-okio/build.gradle.kts
-@@ -34,7 +34,7 @@ kotlin {
-
- project.configureJava9ModuleInfo()
-
--tasks.named<DokkaTaskPartial>("dokkaHtmlPartial") {
-+tasks.named<@Suppress("DEPRECATION") DokkaTaskPartial>("dokkaHtmlPartial") {
-     dokkaSourceSets {
-         configureEach {
-             externalDocumentationLink {
-diff --git a/gradle.properties b/gradle.properties
-index deb1585f..774b0161 100644
---- a/gradle.properties
-+++ b/gradle.properties
-@@ -23,3 +23,6 @@ org.gradle.kotlin.dsl.allWarningsAsErrors=true
- kotlin.native.distribution.type=prebuilt
-
- org.gradle.jvmargs="-XX:+HeapDumpOnOutOfMemoryError"
-+
-+org.jetbrains.dokka.experimental.gradle.pluginMode=V1Enabled
-+org.jetbrains.dokka.experimental.gradle.pluginMode.noWarn=true
+         perPackageOption {
 diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
-index 132a67b6..b851a68c 100644
+index 126e9fda..85e8aae7 100644
 --- a/gradle/libs.versions.toml
 +++ b/gradle/libs.versions.toml
 @@ -1,7 +1,7 @@
  [versions]
- kotlin = "2.1.20"
+ kotlin = "2.3.0"
  kover = "0.8.2"
--dokka = "2.0.0"
+-dokka = "2.2.0-Beta"
 +dokka = "sanity-non-existent"
  knit = "0.5.0"
- bcv = "0.16.2"
+ bcv = "0.18.1"
  animalsniffer = "1.7.1"
-diff --git a/integration-test/build.gradle.kts b/integration-test/build.gradle.kts
-index 64b44e6d..5d2a492d 100644
---- a/integration-test/build.gradle.kts
-+++ b/integration-test/build.gradle.kts
-@@ -19,6 +19,7 @@ plugins {
- }
-
- repositories {
-+    /* %{DOKKA_IT_MAVEN_REPO}% */
-     mavenCentral()
-     maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
-     mavenLocal {
-diff --git a/integration-test/settings.gradle.kts b/integration-test/settings.gradle.kts
-index c2cb0c46..7c46d429 100644
---- a/integration-test/settings.gradle.kts
-+++ b/integration-test/settings.gradle.kts
-@@ -15,10 +15,11 @@ pluginManagement {
-     }
-
-     repositories {
-+        /* %{DOKKA_IT_MAVEN_REPO}% */
-         mavenCentral()
-         maven("https://plugins.gradle.org/m2/")
-         maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
--        mavenLocal()
-+        // mavenLocal()
-     }
- }
-
 diff --git a/settings.gradle.kts b/settings.gradle.kts
-index 5d8194dd..29d31f51 100644
+index 64d86bb4..df2f48c3 100644
 --- a/settings.gradle.kts
 +++ b/settings.gradle.kts
-@@ -4,6 +4,7 @@
-
- pluginManagement {
-     repositories {
-+        /* %{DOKKA_IT_MAVEN_REPO}% */
-         /**
-          * Overrides for Teamcity 'K2 User Projects' + 'Aggregate build / Kotlinx libraries compilation' configuration:
-          * kotlin_repo_url - local repository with snapshot Kotlin compiler
-@@ -27,13 +28,13 @@ pluginManagement {
-         // kotlin-dev with space redirector
-         maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
-
--        maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
-+        // maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
-         // For Dokka that depends on kotlinx-html
-         maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
-
-         gradlePluginPortal()
-         mavenCentral()
--        mavenLocal()
-+        // mavenLocal()
-     }
- }
-
-@@ -89,6 +90,7 @@ dependencyResolutionManagement {
+@@ -88,6 +88,7 @@ dependencyResolutionManagement {
                  logger.info("Overriding Kotlin version: $overriddenVersion")
                  version("kotlin", overriddenVersion)
              }

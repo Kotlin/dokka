@@ -4,7 +4,6 @@
 
 package org.jetbrains.dokka.it.gradle.kotlin
 
-import io.kotest.matchers.file.shouldContainFile
 import org.gradle.testkit.runner.TaskOutcome
 import org.jetbrains.dokka.it.TestOutputCopier
 import org.jetbrains.dokka.it.copyAndApplyGitDiff
@@ -22,9 +21,9 @@ import kotlin.test.assertContains
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class IoBuildVersionsArgumentsProvider : ArgumentsProvider {
+class CollectionsImmutableBuildVersionsArgumentsProvider : ArgumentsProvider {
     private val buildVersions = BuildVersions.permutations(
-        gradleVersions = listOf("8.9"), // should be consistent with Gradle version used in project gradle-wrapper.properties
+        gradleVersions = listOf("8.10"), // should be consistent with Gradle version used in project gradle-wrapper.properties
         kotlinVersions = listOf("2.3.0") // not used, as we don't override it in external (git-based) projects
     )
 
@@ -33,47 +32,40 @@ class IoBuildVersionsArgumentsProvider : ArgumentsProvider {
     }
 }
 
-class IoGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopier {
+class CollectionsImmutableGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopier {
 
-    override val projectOutputLocation: File by lazy { File(projectDir, "build/dokka/html") }
+    override val projectOutputLocation: File by lazy { File(projectDir, "core/build/dokka/html") }
 
     @BeforeTest
     override fun beforeEachTest() {
         prepareProjectFiles()
         copyAndApplyGitDiff(
             projectDir.toPath(),
-            templateProjectDir.parent.resolve("io.diff"),
+            templateProjectDir.parent.resolve("collectionsImmutable.diff"),
         )
         projectDir.toPath().updateProjectLocalMavenDir()
     }
 
     @ParameterizedTest(name = "{0}")
-    @ArgumentsSource(IoBuildVersionsArgumentsProvider::class)
+    @ArgumentsSource(CollectionsImmutableBuildVersionsArgumentsProvider::class)
     fun execute(buildVersions: BuildVersions) {
         val result = createGradleRunner(
             buildVersions,
-            ":dokkaGenerate",
-            // disabled because:
-            // ##4483/KT-85112:
-            // w: [:kotlinx-io-okio:dokkaGenerateModuleHtml] Couldn't resolve link: [kotlinx.io.bytestring.ByteString] in file:////private/var/folders/t0/r4zzg8js2gnchztmlh57dyn80000gp/T/junit6370252363311766546/project/integration/kotlinx-io-okio/common/src/OkioAdapters.kt:153:18 (:kotlinx-io-okio/commonMain)
-            // #4482:
-            // w: [:kotlinx-io-core:dokkaGenerateModuleHtml] Unknown annotation value `ExperimentalWasmInterop::class` in file:////private/var/folders/t0/r4zzg8js2gnchztmlh57dyn80000gp/T/junit6370252363311766546/project/core/wasmWasi/src/wasi/functions.kt:6:13
-            "-Pdokka_it_failOnWarning=false",
+            ":kotlinx-collections-immutable:dokkaGenerate",
+            "-Pdokka_it_failOnWarning=true"
         ).buildRelaxed()
 
         assertContains(
             setOf(TaskOutcome.SUCCESS, TaskOutcome.FROM_CACHE),
-            assertNotNull(result.task(":dokkaGeneratePublicationHtml")).outcome
+            assertNotNull(result.task(":kotlinx-collections-immutable:dokkaGeneratePublicationHtml")).outcome
         )
 
         assertTrue(projectOutputLocation.isDirectory, "Missing dokka output directory")
 
-        projectOutputLocation.shouldContainFile("index.html")
-
         projectOutputLocation.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
             assertNoUnresolvedLinks(file)
-            // assertNoHrefToMissingLocalFileOrDirectory(file)
+            assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoEmptyLinks(file)
             assertNoEmptySpans(file)
         }

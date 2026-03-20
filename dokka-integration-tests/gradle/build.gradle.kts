@@ -57,6 +57,7 @@ dependencies {
     devPublication("org.jetbrains.dokka:plugin-mathjax:$dokkaVersion")
     devPublication("org.jetbrains.dokka:plugin-templating:$dokkaVersion")
     devPublication("org.jetbrains.dokka:plugin-versioning:$dokkaVersion")
+    devPublication("org.jetbrains.dokka:plugin-kotlin-playground-samples:$dokkaVersion")
 
     devPublication("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
 }
@@ -170,6 +171,21 @@ registerTestProjectSuite(
         }
     }
 }
+registerTestProjectSuite(
+    name = "testExternalProjectKotlinxCollectionsImmutable",
+    projectPath = "collectionsImmutable/kotlinx-collections-immutable",
+    jvm = JavaLanguageVersion.of(11)
+) {
+    targets.configureEach {
+        testTask.configure {
+            dependsOn(checkoutKotlinxCollectionsImmutable)
+            // register the whole directory as an input because it contains the git diff
+            inputs
+                .dir(templateProjectsDir.file("collectionsImmutable"))
+                .withPropertyName("collectionsImmutableProjectDir")
+        }
+    }
+}
 registerTestProjectSuite("testUiShowcaseProject", "ui-showcase")
 
 /**
@@ -235,24 +251,30 @@ testing.suites.named<JvmTestSuite>("test") {
 
 val checkoutKotlinxDatetime by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx-datetime.git"
-    commitId = "4dadf6fbe4956a1a846cab0dc9282cfef1aeac23"
+    commitId = "8af8dd8791b9473309b650626850eb974ecae445" // master on Mar 13, 2026
     destination = templateProjectsDir.dir("datetime/kotlinx-datetime")
 }
 val checkoutKotlinxIo by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx-io.git"
-    commitId = "8950a88f0d00ca2d23ad39db423a97840eea9dc2"
+    commitId = "82b77b119d0cc409fcc68a49a7461ed2dc20acd3" // 0.9.0 tag
     destination = templateProjectsDir.dir("io/kotlinx-io")
 }
 val checkoutKotlinxCoroutines by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx.coroutines.git"
-    commitId = "f4f519b36734238ec686dfaec1e174086691781e"
+    commitId = "690337018de5528f7b789246cb762cff4a7a318d" // dev on Mar 10, 2026
     destination = templateProjectsDir.dir("coroutines/kotlinx-coroutines")
 }
 
 val checkoutKotlinxSerialization by tasks.registering(GitCheckoutTask::class) {
     uri = "https://github.com/Kotlin/kotlinx.serialization.git"
-    commitId = "4667a1891a925dc9e3e10490c274a875b0be4da6"
+    commitId = "8ea8c941bfc86c220910ef8fed825091f8019dd4" // whyoleg/dokka-2.2.0-Beta branch for now
     destination = templateProjectsDir.dir("serialization/kotlinx-serialization")
+}
+
+val checkoutKotlinxCollectionsImmutable by tasks.registering(GitCheckoutTask::class) {
+    uri = "https://github.com/Kotlin/kotlinx.collections.immutable.git"
+    commitId = "1a2d703fa8517d72be33172b754fe45513e33e0b" // master on Feb 12, 2026
+    destination = templateProjectsDir.dir("collectionsImmutable/kotlinx-collections-immutable")
 }
 
 testing {
