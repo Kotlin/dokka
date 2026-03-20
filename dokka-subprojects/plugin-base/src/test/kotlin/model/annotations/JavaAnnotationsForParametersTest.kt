@@ -92,7 +92,6 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
         }
     }
 
-    @OnlyJavaPsi("AA does not wrap Java type parameter bounds in Nullable and loses type-use annotations")
     @Test
     fun `function with generic parameter that has annotated bounds`() {
         inlineModelTest(
@@ -140,7 +139,8 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
             with((this / "java" / "Test").cast<DClass>()) {
                 with((this / "foo").cast<DFunction>()) {
                     val paramAnnotations = parameters.first()
-                        .type.cast<GenericTypeConstructor>()
+                        .type.cast<Nullable>()
+                        .inner.cast<GenericTypeConstructor>()
                         .projections.first().cast<Invariance<TypeParameter>>().inner
                         .annotations()
                         .values
@@ -170,7 +170,8 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
             with((this / "java" / "Test").cast<DClass>()) {
                 with((this / "foo").cast<DFunction>()) {
                     val paramAnnotations = parameters.first()
-                        .type.cast<GenericTypeConstructor>()
+                        .type.cast<Nullable>()
+                        .inner.cast<GenericTypeConstructor>()
                         .projections.first().cast<Invariance<TypeParameter>>().inner
                         .annotations()
 
