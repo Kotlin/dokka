@@ -781,19 +781,7 @@ internal class DokkaSymbolVisitor(
 
     private fun getJavaConstantExpression(javaFieldSymbol: KaJavaFieldSymbol): Expression? {
         val psiField = javaFieldSymbol.psi as? PsiField ?: return null
-        val constantValue = psiField.computeConstantValue() ?: return null
-        return when (constantValue) {
-            is Byte -> IntegerConstant(constantValue.toLong())
-            is Short -> IntegerConstant(constantValue.toLong())
-            is Int -> IntegerConstant(constantValue.toLong())
-            is Long -> IntegerConstant(constantValue)
-            is Char -> StringConstant(constantValue.toString())
-            is String -> StringConstant(constantValue)
-            is Double -> DoubleConstant(constantValue)
-            is Float -> FloatConstant(constantValue)
-            is Boolean -> BooleanConstant(constantValue)
-            else -> ComplexExpression(constantValue.toString())
-        }
+        return psiHelper.getConstantExpression(psiField)
     }
 
     private fun getCheckedExceptions(functionSymbol: KaNamedFunctionSymbol): CheckedExceptions? {

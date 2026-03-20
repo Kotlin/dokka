@@ -233,4 +233,20 @@ public class PsiHelper(
 
     private val PsiElement.psiReference
         get() = getChildOfType<PsiJavaCodeReferenceElement>()?.resolve()
+
+    public fun getConstantExpression(field: PsiField): Expression? {
+        val constantValue = field.computeConstantValue() ?: return null
+        return when (constantValue) {
+            is Byte -> IntegerConstant(constantValue.toLong())
+            is Short -> IntegerConstant(constantValue.toLong())
+            is Int -> IntegerConstant(constantValue.toLong())
+            is Long -> IntegerConstant(constantValue)
+            is Char -> StringConstant(constantValue.toString())
+            is String -> StringConstant(constantValue)
+            is Double -> DoubleConstant(constantValue)
+            is Float -> FloatConstant(constantValue)
+            is Boolean -> BooleanConstant(constantValue)
+            else -> ComplexExpression(constantValue.toString())
+        }
+    }
 }
