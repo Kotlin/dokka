@@ -690,7 +690,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("AA produces Array<out T> instead of Array<T> for Java arrays")
     @Test // see https://github.com/Kotlin/dokka/issues/2646
     fun `should resolve PsiImmediateClassType as class reference`() {
         testInline(
@@ -725,7 +724,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 ))
                 val expectedArrayType = Nullable(GenericTypeConstructor(
                     dri = DRI("kotlin", "Array", target = PointingToDeclaration),
-                    projections = listOf(Invariance(expectedType))
+                    projections = listOf(Covariance(expectedType))
                 ))
 
                 val classWithEnumUsage = module.packages.single().classlikes.single { it.name == "ContainingEnumType" }
