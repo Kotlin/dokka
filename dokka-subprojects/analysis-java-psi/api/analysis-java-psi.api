@@ -151,6 +151,14 @@ public final class org/jetbrains/dokka/analysis/java/util/PsiDocumentableSource 
 	public final fun getPsi ()Lcom/intellij/psi/PsiNamedElement;
 }
 
+public final class org/jetbrains/dokka/analysis/java/util/PsiHelper {
+	public fun <init> (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/utilities/DokkaLogger;Lorg/jetbrains/dokka/analysis/java/BreakingAbstractionKotlinLightMethodChecker;)V
+	public final fun convertAnnotation (Lcom/intellij/psi/PsiAnnotation;)Lorg/jetbrains/dokka/model/Annotations$Annotation;
+	public final fun convertAnnotations (Ljava/util/Collection;)Ljava/util/List;
+	public final fun getCheckedExceptionDRIs (Lcom/intellij/psi/PsiMethod;)Ljava/util/List;
+	public final fun getConstantExpression (Lcom/intellij/psi/PsiField;)Lorg/jetbrains/dokka/model/Expression;
+}
+
 public final class org/jetbrains/dokka/analysis/java/util/PsiUtilKt {
 	public static final fun from (Lorg/jetbrains/dokka/links/DRI$Companion;Lcom/intellij/psi/PsiElement;)Lorg/jetbrains/dokka/links/DRI;
 }
