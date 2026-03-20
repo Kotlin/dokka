@@ -277,7 +277,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
+    @OnlyJavaPsi("AA reports different modality for synthetic Java properties inherited from Kotlin")
     @Test
     fun `java with java function`() {
         val source = """
@@ -304,7 +304,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
+    @OnlyJavaPsi("AA reports different modality for synthetic Java properties inherited from Kotlin")
     @Test
     fun `java with kotlin function`() {
         val source = """

@@ -20,7 +20,7 @@ import signatures.Parameters
 import signatures.firstSignature
 import signatures.renderedContent
 import utils.A
-import org.junit.jupiter.api.Tag
+import kotlinAsJavaPlugin.utils.OnlyJavaPsi
 import utils.TestOutputWriterPlugin
 import utils.match
 import java.net.URL
@@ -211,7 +211,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         }
     }
 
-    @Tag("onlyJavaPsi")
+    @OnlyJavaPsi("AA renders different property modifiers for Java")
     @Test
     fun `java properties should keep its modifiers`() {
         testInline(
@@ -486,7 +486,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         }
     }
 
-    @Tag("onlyJavaPsi")
+    @OnlyJavaPsi("AA renders Unit instead of void for Java methods")
     @Test
     fun `Java function should keep its access modifier`() {
         val className = "Test"

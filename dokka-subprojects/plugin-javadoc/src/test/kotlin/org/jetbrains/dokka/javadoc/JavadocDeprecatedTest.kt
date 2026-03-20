@@ -6,6 +6,7 @@ package org.jetbrains.dokka.javadoc
 
 import org.jetbrains.dokka.javadoc.pages.DeprecatedPage
 import org.jetbrains.dokka.javadoc.renderer.TemplateMap
+import org.jetbrains.dokka.javadoc.utils.OnlyJavaPsi
 import org.junit.jupiter.api.Tag
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,7 +29,7 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
         }
     }
 
-    @Tag("onlyJavaPsi")
+    @OnlyJavaPsi("AA produces different deprecated constructor count")
     @Test
     fun `finds correct number of deprecated constructors`() {
         testDeprecatedPageTemplateMaps { templateMap ->
