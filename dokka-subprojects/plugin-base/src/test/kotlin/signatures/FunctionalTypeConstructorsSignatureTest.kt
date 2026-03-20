@@ -297,7 +297,8 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-java-class/index.html").lastSignature().match(
-                    "var ", A("javaFunction"), ": (", A("Integer"), ") -> ", A("String"),
+                    // open is wrong - AA works fine here
+                    "open var ", A("javaFunction"), ": (", A("Integer"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }

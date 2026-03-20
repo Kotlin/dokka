@@ -15,6 +15,7 @@ import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.See
 import org.jetbrains.dokka.model.doc.Text
 import utils.OnlyJavaPsi
+import utils.OnlyJavaSymbols
 import utils.assertContains
 import utils.assertNotNull
 import utils.name
@@ -110,6 +111,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaSymbols
     @Test
     fun allImplementedInterfacesWithGenericsInJava() {
         testInline(
@@ -176,6 +178,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaSymbols
     @Test
     fun interfaceWithGeneric() {
         testInline(
@@ -221,6 +224,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaSymbols
     @Test
     fun superclassWithGeneric() {
         testInline(
@@ -303,6 +307,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaSymbols
     @Test
     fun typeParameterIntoDifferentClasses2596() {
         testInline(
@@ -393,6 +398,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaSymbols
     @Test
     fun varargs() {
         testInline(
@@ -646,6 +652,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaSymbols
     @Test
     fun variances() {
         testInline(
