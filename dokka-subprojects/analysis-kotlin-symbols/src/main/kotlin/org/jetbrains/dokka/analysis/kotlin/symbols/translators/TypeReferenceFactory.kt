@@ -72,7 +72,7 @@ private fun KaSession.getTypeReferenceFromPossiblyRecursive(
         // For example, most Java types T in Kotlin are flexible (T..T?) or T!
         // see https://github.com/JetBrains/kotlin/blob/master/spec-docs/flexible-java-types.md (warn: it is not official spec)
         is KaFlexibleType -> getTypeReferenceFromPossiblyRecursive(
-            type.lowerBound,
+            type.upperBound,
             paramTrace
         )
 
