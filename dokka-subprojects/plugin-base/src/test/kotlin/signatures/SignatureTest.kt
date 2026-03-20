@@ -770,7 +770,7 @@ class SignatureTest : BaseAbstractTest() {
         )
     }
 
-    @OnlyJavaSymbols
+    @OnlyJavaSymbols("PSI doesn't add super type - AA does, same for Kotlin enum above")
     @Test
     fun `java enum should render just enum`() = testRender(
         """

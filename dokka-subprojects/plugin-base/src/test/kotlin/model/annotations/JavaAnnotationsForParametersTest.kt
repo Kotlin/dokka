@@ -123,7 +123,7 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
         }
     }
 
-    @OnlyJavaSymbols
+    @OnlyJavaSymbols("PSI doesn't mark types as nullable")
     @Test
     fun `type parameter annotations should be visible even if type declaration has none`() {
         inlineModelTest(
@@ -156,7 +156,7 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
         }
     }
 
-    @OnlyJavaSymbols
+    @OnlyJavaSymbols("PSI doesn't mark types as nullable")
     @Test
     fun `type parameter annotations should not be propagated from resolved type`() {
         inlineModelTest(
