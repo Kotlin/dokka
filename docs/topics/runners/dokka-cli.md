@@ -202,6 +202,7 @@ Short summary:
 | `noStdlibLink`               | Whether to generate links to the Kotlin standard library.                                                                                                                      | 
 | `noJdkLink`                  | Whether to generate links to JDK Javadocs.                                                                                                                                     | 
 | `suppressedFiles`            | Paths to files to be suppressed. Accepts multiple paths separated by semicolons.                                                                                               |
+| `suppressedAnnotations`      | Annotation fully qualified names (FQNs) to suppress declarations annotated with. Accepts multiple values separated by semicolons.                                              |
 | `analysisPlatform`           | Platform used for setting up analysis.                                                                                                                                         |
 | `perPackageOptions`          | List of package source set configurations in format `matchingRegexp,-deprecated,-privateApi,+warnUndocumented,+suppress;...`. Accepts multiple values separated by semicolons. |
 | `externalDocumentationLinks` | External documentation links in format `{url}^{packageListUrl}`. Accepts multiple values separated by `^^`.                                                                    |
@@ -535,6 +536,12 @@ How to configure Kotlin
     <def title="suppressedFiles">
         <p>The files to be suppressed when generating documentation.</p>
     </def>
+    <def title="suppressedAnnotations">
+        <p>A list of annotation fully qualified names (FQNs) to suppress declarations annotated with.</p>
+        <p>
+            Any declaration annotated with one of these annotations is excluded from the generated documentation.
+        </p>
+    </def>
     <def title="sourceLinks">
         <p>A set of parameters for source links that is applied only for this source set.</p>
         <p>For a list of possible options, see <a href="#source-link-configuration">source link configuration</a>.</p>
@@ -724,6 +731,9 @@ Below you can see all possible configuration options applied at the same time.
   "suppressObviousFunctions": true,
   "suppressInheritedMembers": false,
   "offlineMode": false,
+  "suppressedAnnotations": [
+    "com.example.SuppressMe"
+  ],
   "sourceLinks": [
     {
       "localDirectory": "src/main/kotlin",
@@ -788,6 +798,9 @@ Below you can see all possible configuration options applied at the same time.
       ],
       "suppressedFiles": [
         "src/main/kotlin/org/jetbrains/dokka/Suppressed.kt"
+      ],
+      "suppressedAnnotations": [
+        "com.example.SuppressMe"
       ],
       "sourceLinks": [
         {
