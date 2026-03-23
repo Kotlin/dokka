@@ -6,6 +6,7 @@
 
 import dokkabuild.tasks.GenerateDokkaGradlePluginConstants
 import dokkabuild.utils.skipTestFixturesPublications
+import org.gradle.plugin.compatibility.compatibility
 
 plugins {
     id("dokkabuild.gradle-plugin")
@@ -112,6 +113,11 @@ gradlePlugin {
             "api reference",
             "documentation",
         )
+        compatibility {
+            features {
+                configurationCache = true
+            }
+        }
     }
     plugins.register("dokkaHtml") {
         id = "org.jetbrains.dokka"
