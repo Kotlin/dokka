@@ -16,7 +16,7 @@ buildscript {
     }
 }
 
-version = "2.2.0-Beta"
+version = "2.2.0"
 
 tasks.withType<DokkaTask> {
     moduleName.set("Configuration Test Project")
