@@ -6,6 +6,7 @@ package org.jetbrains.dokka.plugability
 
 import org.jetbrains.dokka.DokkaConfiguration
 
+@ConsistentCopyVisibility
 public data class ExtensionPoint<T : Any> internal constructor(
     internal val pluginClass: String,
     internal val pointName: String

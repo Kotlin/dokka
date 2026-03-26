@@ -70,7 +70,6 @@ public class ActualTypealiasAdder : DocumentableTransformer {
                 ).let(::listOf),
                 typealiases
             )
-            else -> throw IllegalStateException("${it::class.qualifiedName} ${it.name} cannot have extra added")
         }
     }
 
@@ -114,7 +113,6 @@ public class ActualTypealiasAdder : DocumentableTransformer {
                                 sourceSets = element.sourceSets + ta.sourceSets
                             )
 
-                            else -> throw IllegalStateException("${it::class.qualifiedName} ${it.name} cannot have copy its sourceSets")
                         }
                     }
                     @Suppress("UNCHECKED_CAST")

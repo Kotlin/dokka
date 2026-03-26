@@ -13,6 +13,6 @@ public open class AndroidExternalLocationProvider(
     dokkaContext: DokkaContext
 ) : JavadocExternalLocationProvider(externalDocumentation, "", "", dokkaContext) {
 
-    override fun anchorPart(callable: Callable): String = callable.name.toLowerCase()
+    override fun anchorPart(callable: Callable): String = callable.name.lowercase()
 
 }
