@@ -148,7 +148,7 @@ For an example of Dokka plugins configuration, see the
 
 Dokka allows you 
 to extend its functionality
-and modify the documentation generation process by [configuring custom plugins](https://github.com/Kotlin/dokka/blob/v2.1.0/examples/gradle-v2/custom-dokka-plugin-example/demo-library/build.gradle.kts).
+and modify the documentation generation process by [configuring custom plugins](https://github.com/Kotlin/dokka/blob/v2.2.0/examples/gradle-v2/custom-dokka-plugin-example/demo-library/build.gradle.kts).
 
 </tab>
 <tab title="Gradle Groovy DSL" group-key="groovy">

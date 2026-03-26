@@ -349,7 +349,7 @@ dokka {
         </p>
         <p>
             Additionally, you can use Dokka's 
-            <a href="https://github.com/Kotlin/dokka/blob/v2.1.0/dokka-runners/dokka-gradle-plugin/src/main/kotlin/engine/parameters/HasConfigurableVisibilityModifiers.kt"><code>documentedVisibilities()</code> function</a> 
+            <a href="https://github.com/Kotlin/dokka/blob/v2.2.0/dokka-runners/dokka-gradle-plugin/src/main/kotlin/engine/parameters/HasConfigurableVisibilityModifiers.kt"><code>documentedVisibilities()</code> function</a> 
             to add documented visibilities.
         </p>
         <p>This can be configured for each individual package.</p>
