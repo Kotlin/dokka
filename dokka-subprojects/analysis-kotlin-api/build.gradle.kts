@@ -3,6 +3,9 @@
  */
 
 import dokkabuild.overridePublicationArtifactId
+import dokkabuild.utils.downloadLatestKotlinStdlibJvmSources
+import dokkabuild.utils.systemProperty
+import org.gradle.api.tasks.PathSensitivity.RELATIVE
 
 plugins {
     id("dokkabuild.kotlin-jvm")
@@ -39,3 +42,13 @@ fun disableTestFixturesPublishing() {
     javaComponent.withVariantsFromConfiguration(configurations["testFixturesApiElements"]) { skip() }
     javaComponent.withVariantsFromConfiguration(configurations["testFixturesRuntimeElements"]) { skip() }
 }
+
+
+//region Download and unpack kotlin-stdlib, so EnumTemplatesTest can test synthetic enum functions.
+val kotlinStdlibSourcesDir = downloadLatestKotlinStdlibJvmSources(project)
+tasks.withType<Test>().configureEach {
+    systemProperty
+        .inputDirectory("kotlinStdlibSourcesDir", kotlinStdlibSourcesDir)
+        .withPathSensitivity(RELATIVE)
+}
+//endregion
