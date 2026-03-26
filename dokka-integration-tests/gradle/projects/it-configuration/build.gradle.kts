@@ -16,7 +16,7 @@ buildscript {
     }
 }
 
-version = "2.3.0-SNAPSHOT"
+version = "3.0.0-KDP"
 
 tasks.withType<DokkaTask> {
     moduleName.set("Configuration Test Project")
