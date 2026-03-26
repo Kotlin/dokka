@@ -38,6 +38,7 @@ internal object NoopIntellijLogger : DefaultLogger(null) {
 
     override fun error(message: String?, t: Throwable?, vararg details: String?) {}
     override fun error(message: String?) {}
+    @Deprecated("Deprecated in Java")
     override fun error(message: Any?) {}
     override fun error(message: String?, vararg attachments: Attachment?) {}
     override fun error(message: String?, t: Throwable?, vararg attachments: Attachment?) {}

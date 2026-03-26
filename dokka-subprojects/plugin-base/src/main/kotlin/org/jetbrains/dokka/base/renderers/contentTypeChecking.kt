@@ -9,7 +9,7 @@ import org.jetbrains.dokka.pages.ContentEmbeddedResource
 import java.io.File
 
 public fun ContentEmbeddedResource.isImage(): Boolean {
-    return File(address).extension.toLowerCase() in imageExtensions
+    return File(address).extension.lowercase() in imageExtensions
 }
 
 public val String.URIExtension: String

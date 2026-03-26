@@ -195,7 +195,6 @@ public abstract class DocumentableReplacerTransformer(
                 Contravariance(bound.target ?: variance.inner), true)
             is Invariance<*> -> AnyWithChanges(
                 Invariance(bound.target ?: variance.inner), true)
-            else -> AnyWithChanges(variance, false)
         }
     }
 

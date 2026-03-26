@@ -22,7 +22,7 @@ public class JvmNameProvider {
 
     public fun <T> nameForSyntheticClass(entry: T): Name where T : WithSources, T : WithExtraProperties<T>, T : Documentable {
         val name: String = (entry.fileLevelJvmName()?.params?.get("name") as? StringValue)?.value
-            ?: (entry.sources.entries.first().value.path.split("/").last().split(".").first().capitalize() + "Kt")
+            ?: (entry.sources.entries.first().value.path.split("/").last().split(".").first().replaceFirstChar(Char::uppercase) + "Kt")
         return Name("${entry.dri.packageName}.$name")
     }
 
