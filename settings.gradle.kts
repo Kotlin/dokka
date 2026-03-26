@@ -133,3 +133,5 @@ dependencyResolutionManagement {
         }
     }
 }
+
+include("dokka-ir-to-html-generator")
