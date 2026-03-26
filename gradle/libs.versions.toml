@@ -82,6 +82,8 @@ kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinxSerialization-bom = { module = "org.jetbrains.kotlinx:kotlinx-serialization-bom", version.ref = "kotlinx-serialization" }
 kotlinxSerialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json" }
+kotlinxSerialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cbor" }
+kotlinxSerialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf" }
 
 ## Ktor
 ktor-bom = { group = "io.ktor", name = "ktor-bom", version.ref = "ktor" }
