@@ -210,7 +210,7 @@ public open class MarkdownParser(
         node.children
             .filter { it.type == MarkdownElementTypes.LINK_DEFINITION }
             .map {
-                text.substring(it.children[0].startOffset, it.children[0].endOffset).toLowerCase() to
+                text.substring(it.children[0].startOffset, it.children[0].endOffset).lowercase() to
                         text.substring(it.children[2].startOffset, it.children[2].endOffset)
             } +
                 node.children.filterIsInstance<CompositeASTNode>().flatMap { getAllDestinationLinks(text, it) }
@@ -223,7 +223,7 @@ public open class MarkdownParser(
 
         val linkKey = text.substring(linkLabel.startOffset, linkLabel.endOffset)
 
-        val link = destinationLinksMap[linkKey.toLowerCase()] ?: linkKey
+        val link = destinationLinksMap[linkKey.lowercase()] ?: linkKey
 
         return linksHandler(linkText, link)
     }

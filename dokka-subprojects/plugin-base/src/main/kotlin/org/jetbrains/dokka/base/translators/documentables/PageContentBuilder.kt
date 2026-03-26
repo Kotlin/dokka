@@ -110,7 +110,7 @@ public open class PageContentBuilder(
                     sourceSets,
                     kind,
                     styles,
-                    extra + SymbolAnchorHint(text.replace("\\s".toRegex(), "").toLowerCase(), kind)
+                    extra + SymbolAnchorHint(text.replace("\\s".toRegex(), "").lowercase(), kind)
                 ) {
                     text(text, kind = kind)
                     block()

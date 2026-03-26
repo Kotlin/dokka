@@ -73,6 +73,6 @@ public class DefaultVersioningStorage(
         }
 
     private data class Version(
-        @JsonProperty("version") val version: String,
+        @param:JsonProperty("version") val version: String,
     )
 }

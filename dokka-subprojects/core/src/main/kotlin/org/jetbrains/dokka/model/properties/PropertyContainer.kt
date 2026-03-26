@@ -4,6 +4,7 @@
 
 package org.jetbrains.dokka.model.properties
 
+@ConsistentCopyVisibility
 public data class PropertyContainer<C : Any> internal constructor(
     @PublishedApi internal val map: Map<ExtraProperty.Key<C, *>, ExtraProperty<C>>
 ) {

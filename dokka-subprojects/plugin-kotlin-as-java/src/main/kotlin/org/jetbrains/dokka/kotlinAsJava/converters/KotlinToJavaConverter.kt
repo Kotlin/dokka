@@ -147,7 +147,7 @@ public class KotlinToJavaConverter(
     ): List<DFunction> =
         listOfNotNull(
             getter?.let { getter ->
-                val name = "get" + name.capitalize()
+                val name = "get" + name.replaceFirstChar(Char::uppercase)
                 getter.copy(
                     dri = if (relocateToClass.isNullOrBlank()) {
                         getter.dri
@@ -168,7 +168,7 @@ public class KotlinToJavaConverter(
                 )
             },
             setter?.let { setter ->
-                val name = "set" + name.capitalize()
+                val name = "set" + name.replaceFirstChar(Char::uppercase)
                 val baseDRI = (if (relocateToClass.isNullOrBlank()) {
                     setter.dri
                 } else {
@@ -269,7 +269,6 @@ public class KotlinToJavaConverter(
         is DAnnotation -> asJava()
         is DObject -> asJava()
         is DInterface -> asJava()
-        else -> throw IllegalArgumentException("$this shouldn't be here")
     }
 
     internal fun DClass.asJava(): DClass = copy(
