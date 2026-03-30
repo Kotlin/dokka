@@ -66,16 +66,15 @@ val mavenBinary by configurations.registering {
     description = "used to download the Maven binary"
     isCanBeResolved = true
     isCanBeConsumed = false
-    isVisible = false
 
     defaultDependencies {
         addLater(mavenCliSetupExtension.mavenVersion.map { mavenVersion ->
-            project.dependencies.create(
-                group = "org.apache.maven",
-                name = "apache-maven",
-                version = mavenVersion,
-                classifier = "bin",
-                ext = "zip"
+            dependencyFactory.create(
+                /* group = */ "org.apache.maven",
+                /* name = */ "apache-maven",
+                /* version = */ mavenVersion,
+                /* classifier = */ "bin",
+                /* extension = */ "zip",
             )
         })
     }
