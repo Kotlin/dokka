@@ -50,7 +50,7 @@ class GradleSourceLinkBuilder(
      * ```
      */
     @Internal // changing contents of the directory should not invalidate the task
-    val localDirectory: Property<File?> = project.objects.property()
+    val localDirectory: Property<File> = project.objects.property()
 
     /**
      * The relative path to [localDirectory] from the project directory. Declared as an input to invalidate the task if that path changes.
@@ -58,7 +58,7 @@ class GradleSourceLinkBuilder(
      */
     @Suppress("unused")
     @get:Input
-    internal val localDirectoryPath: Provider<String?> =
+    internal val localDirectoryPath: Provider<String> =
         localDirectory.map { it.relativeToOrSelf(project.projectDir).invariantSeparatorsPath }
 
     /**

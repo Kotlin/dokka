@@ -60,7 +60,7 @@ internal class TransformedMetadataDependencyProvider(private val project: Projec
         return map { task ->
             val taskPath = task.path // redefined, for configuration-cache compatibility
 
-            val allTransformedLibraries =
+            val allTransformedLibraries: Provider<List<File>> =
                 try {
                     @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
                     task.allTransformedLibraries()
@@ -69,10 +69,10 @@ internal class TransformedMetadataDependencyProvider(private val project: Projec
                     project.logWarningWithStacktraceHint(e) {
                         "Failed to access allTransformedLibraries from task ${task.path}"
                     }
-                    null
+                    task.project.provider { emptyList() }
                 }
 
-            allTransformedLibraries?.map { libs ->
+            allTransformedLibraries.map { libs ->
                 logger.debug { "$taskPath allTransformedLibraries ${libs.map { it.name }}" }
                 libs
             }

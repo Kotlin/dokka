@@ -11,7 +11,6 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.DokkaDefaults
-import org.jetbrains.dokka.gradle.DOKKA_V1_DEPRECATION_MESSAGE
 
 /**
  * The OG Dokka Gradle Plugin. A.K.A. DGP Classic, or Dokka V1.
@@ -118,7 +117,9 @@ open class DokkaClassicPlugin : Plugin<Project> {
         tasks.withType<@Suppress("DEPRECATION") AbstractDokkaTask>().configureEach task@{
             val formatClassifier = name.removePrefix("dokka").decapitalize()
             outputDirectory.convention(project.layout.buildDirectory.dir("dokka/$formatClassifier"))
-            cacheRoot.convention(project.layout.dir(providers.provider { DokkaDefaults.cacheRoot }))
+            DokkaDefaults.cacheRoot?.let { defaultCacheRoot ->
+                cacheRoot.convention(project.layout.dir(providers.provider { defaultCacheRoot }))
+            }
 
             pluginsClasspath.from(this@task.plugins)
             runtimeClasspath.from(this@task.runtime)

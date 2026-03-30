@@ -226,6 +226,7 @@ abstract class AbstractDokkaTask : DefaultTask() {
             .flatMap {
                 providers.provider {
                     LogLevel.values().firstOrNull { level -> level.name == it }
+                        ?: LogLevel.LIFECYCLE
                 }
             }
 

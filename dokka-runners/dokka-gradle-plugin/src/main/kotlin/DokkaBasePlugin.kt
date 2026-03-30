@@ -95,15 +95,17 @@ constructor(
                     project.pathAsFilePath()
                 }
             )
-            konanHome.convention(
-                providers
-                    .provider {
-                        // konanHome is set into in extraProperties:
-                        // https://github.com/JetBrains/kotlin/blob/v1.9.0/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/targets/native/KotlinNativeTargetPreset.kt#L35-L38
-                        project.extensions.extraProperties.get("konanHome") as? String?
-                    }
-                    .map { File(it) }
-            )
+            if (CurrentGradleVersion >= GradleVersion.version("8.5"))
+                konanHome.convention(
+                    providers
+                        .provider {
+                            // konanHome is set into in extraProperties:
+                            // https://github.com/JetBrains/kotlin/blob/v1.9.0/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/targets/native/KotlinNativeTargetPreset.kt#L35-L38
+                            project.extensions.extraProperties.get("konanHome") as? String? ?: ""
+                        }
+                        .filter { it.isNotBlank() }
+                        .map { File(it) }
+                )
 
             sourceSetScopeDefault.convention(project.path)
             basePublicationsDirectory.convention(layout.buildDirectory.dir("dokka"))

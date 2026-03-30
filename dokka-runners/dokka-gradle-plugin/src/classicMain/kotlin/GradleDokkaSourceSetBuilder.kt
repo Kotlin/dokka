@@ -73,7 +73,7 @@ open class GradleDokkaSourceSetBuilder(
      */
     @Input
     @Optional
-    val displayName: Property<String?> = project.objects.property()
+    val displayName: Property<String> = project.objects.property()
 
     /**
      * List of Markdown files that contain
@@ -313,7 +313,7 @@ open class GradleDokkaSourceSetBuilder(
      */
     @Input
     @Optional
-    val languageVersion: Property<String?> = project.objects.property()
+    val languageVersion: Property<String> = project.objects.property()
 
     /**
      * [Kotlin API version](https://kotlinlang.org/docs/compatibility-modes.html)
@@ -324,7 +324,7 @@ open class GradleDokkaSourceSetBuilder(
      */
     @Input
     @Optional
-    val apiVersion: Property<String?> = project.objects.property()
+    val apiVersion: Property<String> = project.objects.property()
 
     /**
      * JDK version to use when generating external documentation links for Java types.
@@ -404,7 +404,8 @@ open class GradleDokkaSourceSetBuilder(
      */
     @Suppress("DEPRECATION")
     fun sourceLink(c: Closure<in GradleSourceLinkBuilder>) {
-        val configured = org.gradle.util.ConfigureUtil.configure(c, GradleSourceLinkBuilder(project))
+        val configured = c.call(GradleSourceLinkBuilder(project)) as GradleSourceLinkBuilder
+//        val configured = org.gradle.util.ConfigureUtil.configure(c, GradleSourceLinkBuilder(project))
         sourceLinks.add(configured)
     }
 
@@ -426,7 +427,8 @@ open class GradleDokkaSourceSetBuilder(
      */
     @Suppress("DEPRECATION")
     fun perPackageOption(c: Closure<in GradlePackageOptionsBuilder>) {
-        val configured = org.gradle.util.ConfigureUtil.configure(c, GradlePackageOptionsBuilder(project))
+        val configured = c.call(GradlePackageOptionsBuilder(project)) as GradlePackageOptionsBuilder
+//        val configured = org.gradle.util.ConfigureUtil.configure(c, GradlePackageOptionsBuilder(project))
         perPackageOptions.add(configured)
     }
 
@@ -448,7 +450,8 @@ open class GradleDokkaSourceSetBuilder(
      */
     @Suppress("DEPRECATION")
     fun externalDocumentationLink(c: Closure<in GradleExternalDocumentationLinkBuilder>) {
-        val link = org.gradle.util.ConfigureUtil.configure(c, GradleExternalDocumentationLinkBuilder(project))
+        val link = c.call(GradleExternalDocumentationLinkBuilder(project)) as GradleExternalDocumentationLinkBuilder
+//        val link = org.gradle.util.ConfigureUtil.configure(c, GradleExternalDocumentationLinkBuilder(project))
         externalDocumentationLinks.add(link)
     }
 

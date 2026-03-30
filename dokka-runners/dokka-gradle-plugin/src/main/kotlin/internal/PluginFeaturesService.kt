@@ -7,6 +7,7 @@ import org.gradle.TaskExecutionRequest
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.configuration.BuildFeatures
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
@@ -14,6 +15,8 @@ import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import org.gradle.kotlin.dsl.provideDelegate
+import org.gradle.kotlin.dsl.support.serviceOf
+import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.PLUGIN_MODE_NO_WARN_FLAG
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.configureParamsDuringAccessorsGeneration
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.PluginMode.*
@@ -327,19 +330,13 @@ constructor(
             project: Project
         ): Action<Params> {
 
+//            val projectIsoEnabled = project.serviceOf<BuildFeatures>().isolatedProjects.active
+
             /** Find a flag for [PluginFeaturesService]. */
             fun getFlag(flag: String): Provider<String> =
                 project.providers
                     .gradleProperty(flag)
                     .forUseAtConfigurationTimeCompat()
-                    .orElse(
-                        // Note: Enabling/disabling features via extra-properties is only intended for unit tests.
-                        // (Because org.gradle.testfixtures.ProjectBuilder doesn't support mocking Gradle properties.
-                        // But maybe soon! https://github.com/gradle/gradle/pull/30002)
-                        project
-                            .provider { project.findProperty(flag)?.toString() }
-                            .forUseAtConfigurationTimeCompat()
-                    )
 
             return Action {
                 projectDirectory.set(project.projectDir.invariantSeparatorsPath)
@@ -363,6 +360,13 @@ constructor(
 
                 configureParamsDuringAccessorsGeneration(project)
             }
+        }
+
+        private fun isProjectIsolationActive(project: Project): Provider<Boolean> {
+            if (GradleVersion.current() < GradleVersion.version("8.5")) {
+                return project.provider { false }.forUseAtConfigurationTimeCompat()
+            }
+            return project.serviceOf<BuildFeatures>().isolatedProjects.active
         }
 
         /**

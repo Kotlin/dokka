@@ -17,7 +17,10 @@ import org.gradle.api.services.BuildServiceRegistry
 import org.gradle.api.services.BuildServiceSpec
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.add
+import org.gradle.kotlin.dsl.domainObjectContainer
+import org.gradle.kotlin.dsl.polymorphicDomainObjectContainer
+import org.gradle.kotlin.dsl.registerIfAbsent
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec
 import kotlin.reflect.KClass
@@ -42,7 +45,7 @@ internal fun Configuration.declarable(
     isCanBeResolved = false
     isCanBeConsumed = false
     canBeDeclared(true)
-    isVisible = visible
+    isVisible(visible)
 }
 
 
@@ -61,7 +64,7 @@ internal fun Configuration.consumable(
     isCanBeResolved = false
     isCanBeConsumed = true
     canBeDeclared(false)
-    isVisible = visible
+    isVisible(visible)
 }
 
 
@@ -80,7 +83,7 @@ internal fun Configuration.resolvable(
     isCanBeResolved = true
     isCanBeConsumed = false
     canBeDeclared(false)
-    isVisible = visible
+    isVisible(visible)
 }
 
 
@@ -93,6 +96,12 @@ internal fun Configuration.resolvable(
 @Suppress("UnstableApiUsage")
 private fun Configuration.canBeDeclared(value: Boolean) {
     if (CurrentGradleVersion >= "8.2") {
+        isCanBeDeclared = value
+    }
+}
+
+private fun Configuration.isVisible(value: Boolean) {
+    if (CurrentGradleVersion >= "9.1.0") {
         isCanBeDeclared = value
     }
 }
@@ -135,7 +144,7 @@ internal fun <T : Task> TaskProvider<T>.configuring(
 ): TaskProvider<T> = apply { configure(block) }
 
 
-internal fun <T> NamedDomainObjectContainer<T>.maybeCreate(
+internal fun <T : Any> NamedDomainObjectContainer<T>.maybeCreate(
     name: String,
     configure: T.() -> Unit,
 ): T = maybeCreate(name).apply(configure)
