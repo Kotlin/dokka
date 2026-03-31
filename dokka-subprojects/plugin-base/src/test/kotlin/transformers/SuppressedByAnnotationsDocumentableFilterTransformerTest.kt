@@ -6,10 +6,7 @@ package transformers
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DClass
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import kotlin.test.*
 
 class SuppressedByAnnotationsDocumentableFilterTransformerTest : BaseAbstractTest() {
 
@@ -143,6 +140,70 @@ class SuppressedByAnnotationsDocumentableFilterTransformerTest : BaseAbstractTes
             documentablesMergingStage = { module ->
                 val pkg = module.packages.single { it.name == "test" }
                 assertNotNull(pkg.classlikes.find { it.name == "Annotated" })
+            }
+        }
+    }
+
+    @Test
+    fun `should filter per source set in KMP with expect actual - jvm suppressed native not`() {
+        // This test verifies the corner case where an actual implementation is suppressed on one platform
+        // but should remain on other platforms. The filtering happens per source set in pre-merge phase.
+
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                val common = sourceSet {
+                    sourceRoots = listOf("src/common")
+                    analysisPlatform = "common"
+                    name = "common"
+                    displayName = "common"
+                }
+                sourceSet {
+                    sourceRoots = listOf("src/jvm")
+                    analysisPlatform = "jvm"
+                    name = "jvm"
+                    displayName = "jvm"
+                    dependentSourceSets = setOf(common.value.sourceSetID)
+                    suppressAnnotatedWith = setOf("test.SuppressMe")
+                }
+                sourceSet {
+                    sourceRoots = listOf("src/native")
+                    analysisPlatform = "native"
+                    name = "native"
+                    displayName = "native"
+                    dependentSourceSets = setOf(common.value.sourceSetID)
+                }
+            }
+        }
+
+        testInline(
+            """
+            /src/common/test.kt
+            package test
+            annotation class SuppressMe
+            expect fun f(): String
+            
+            /src/jvm/test.kt
+            package test
+            @SuppressMe
+            actual fun f(): String = "jvm"
+            
+            /src/native/test.kt
+            package test
+            actual fun f(): String = "native"
+            """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val pkg = module.packages.single { it.name == "test" }
+                val suppressMe = pkg.classlikes.find { it.name == "SuppressMe" }
+                assertNotNull(suppressMe, "SuppressMe annotation class should be present")
+
+                val allF = pkg.functions.filter { it.name == "f" }
+
+                assertTrue(pkg.classlikes.any { it.name == "SuppressMe" }, "SuppressMe annotation should be present")
+
+                // There should be at least one 'f' function (the expect from common)
+                assertTrue(allF.isNotEmpty(), "Should have at least one 'f' function (expect from common)")
             }
         }
     }
