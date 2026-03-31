@@ -41,9 +41,9 @@ public object DokkaDefaults {
     public val pluginsConfiguration: List<PluginConfigurationImpl> = mutableListOf()
 
     /**
-     * Default value for [DokkaConfiguration.DokkaSourceSet.suppressedAnnotations].
+     * Default value for [DokkaConfiguration.DokkaSourceSet.suppressAnnotatedWith].
      */
-    public val suppressedAnnotations: Set<String> = emptySet()
+    public val suppressAnnotatedWith: Set<String> = emptySet()
 
     public const val delayTemplateSubstitution: Boolean = false
 
@@ -217,7 +217,7 @@ public interface DokkaConfiguration : Serializable {
         /**
          * A set of annotation fully qualified names (FQNs) to suppress declarations annotated with.
          */
-        public val suppressedAnnotations: Set<String>
+        public val suppressAnnotatedWith: Set<String>
         public val analysisPlatform: Platform
         public val documentedVisibilities: Set<Visibility>
     }

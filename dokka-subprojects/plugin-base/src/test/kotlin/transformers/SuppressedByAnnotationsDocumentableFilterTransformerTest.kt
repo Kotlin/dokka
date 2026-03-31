@@ -19,7 +19,7 @@ class SuppressedByAnnotationsDocumentableFilterTransformerTest : BaseAbstractTes
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src")
-                    suppressedAnnotations = setOf("test.SuppressMe")
+                    suppressAnnotatedWith = setOf("test.SuppressMe")
                 }
             }
         }
@@ -53,7 +53,7 @@ class SuppressedByAnnotationsDocumentableFilterTransformerTest : BaseAbstractTes
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src")
-                    suppressedAnnotations = setOf("test.SuppressMe")
+                    suppressAnnotatedWith = setOf("test.SuppressMe")
                 }
             }
         }
@@ -88,7 +88,7 @@ class SuppressedByAnnotationsDocumentableFilterTransformerTest : BaseAbstractTes
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src")
-                    suppressedAnnotations = setOf("test.SuppressMe1", "test.SuppressMe2")
+                    suppressAnnotatedWith = setOf("test.SuppressMe1", "test.SuppressMe2")
                 }
             }
         }
@@ -119,12 +119,12 @@ class SuppressedByAnnotationsDocumentableFilterTransformerTest : BaseAbstractTes
     }
 
     @Test
-    fun `should handle empty suppressedAnnotations`() {
+    fun `should handle empty suppressAnnotatedWith`() {
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src")
-                    suppressedAnnotations = emptySet<String>()
+                    suppressAnnotatedWith = emptySet<String>()
                 }
             }
         }

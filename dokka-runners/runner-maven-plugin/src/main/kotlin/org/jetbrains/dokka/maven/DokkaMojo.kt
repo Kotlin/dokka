@@ -266,7 +266,7 @@ public abstract class AbstractDokkaMojo(
      * Any declaration annotated with one of these annotations will be excluded from the generated documentation.
      */
     @Parameter
-    public var suppressedAnnotations: List<String> = emptyList()
+    public var suppressAnnotatedWith: List<String> = emptyList()
 
     /**
      * Set of visibility modifiers that should be documented.
@@ -414,7 +414,7 @@ public abstract class AbstractDokkaMojo(
             noStdlibLink = noStdlibLink,
             noJdkLink = noJdkLink,
             suppressedFiles = suppressedFiles.map(::File).toSet(),
-            suppressedAnnotations = suppressedAnnotations.toSet(),
+            suppressAnnotatedWith = suppressAnnotatedWith.toSet(),
             analysisPlatform = if (platform.isNotEmpty()) Platform.fromString(platform) else Platform.DEFAULT,
         ).let {
             it.copy(

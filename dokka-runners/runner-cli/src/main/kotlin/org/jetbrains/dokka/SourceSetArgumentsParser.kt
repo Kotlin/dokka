@@ -107,7 +107,7 @@ internal fun parseSourceSet(moduleName: String, args: Array<String>): DokkaConfi
         description = "Paths to files to be suppressed. Accepts multiple paths separated by semicolons."
     ).delimiter(";")
 
-    val suppressedAnnotations by parser.option(
+    val suppressAnnotatedWith by parser.option(
         ArgType.String,
         description = "List of annotation FQNs to suppress declarations annotated with. Accepts multiple values separated by semicolons."
     ).delimiter(";")
@@ -164,8 +164,8 @@ internal fun parseSourceSet(moduleName: String, args: Array<String>): DokkaConfi
         override val noStdlibLink = noStdlibLink
         override val noJdkLink = noJdkLink
         override val suppressedFiles = suppressedFiles.toMutableSet()
-        override val suppressedAnnotations: Set<String> = suppressedAnnotations.toSet()
-            .ifEmpty { DokkaDefaults.suppressedAnnotations }.toMutableSet()
+        override val suppressAnnotatedWith: Set<String> = suppressAnnotatedWith.toSet()
+            .ifEmpty { DokkaDefaults.suppressAnnotatedWith }.toMutableSet()
         override val documentedVisibilities: Set<DokkaConfiguration.Visibility> = documentedVisibilities.toSet()
             .ifEmpty { DokkaDefaults.documentedVisibilities }
 

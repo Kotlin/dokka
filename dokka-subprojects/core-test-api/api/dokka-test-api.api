@@ -111,7 +111,7 @@ public final class testApi/testRunner/DokkaSourceSetBuilder {
 	public final fun getSkipEmptyPackages ()Z
 	public final fun getSourceLinks ()Ljava/util/List;
 	public final fun getSourceRoots ()Ljava/util/List;
-	public final fun getSuppressedAnnotations ()Ljava/util/Set;
+	public final fun getSuppressAnnotatedWith ()Ljava/util/Set;
 	public final fun getSuppressedFiles ()Ljava/util/List;
 	public final fun setAnalysisPlatform (Ljava/lang/String;)V
 	public final fun setApiVersion (Ljava/lang/String;)V
@@ -134,7 +134,7 @@ public final class testApi/testRunner/DokkaSourceSetBuilder {
 	public final fun setSkipEmptyPackages (Z)V
 	public final fun setSourceLinks (Ljava/util/List;)V
 	public final fun setSourceRoots (Ljava/util/List;)V
-	public final fun setSuppressedAnnotations (Ljava/util/Set;)V
+	public final fun setSuppressAnnotatedWith (Ljava/util/Set;)V
 	public final fun setSuppressedFiles (Ljava/util/List;)V
 }
 

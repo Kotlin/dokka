@@ -114,7 +114,7 @@ public abstract interface class org/jetbrains/dokka/DokkaConfiguration$DokkaSour
 	public abstract fun getSourceLinks ()Ljava/util/Set;
 	public abstract fun getSourceRoots ()Ljava/util/Set;
 	public abstract fun getSourceSetID ()Lorg/jetbrains/dokka/DokkaSourceSetID;
-	public abstract fun getSuppressedAnnotations ()Ljava/util/Set;
+	public abstract fun getSuppressAnnotatedWith ()Ljava/util/Set;
 	public abstract fun getSuppressedFiles ()Ljava/util/Set;
 }
 
@@ -241,7 +241,7 @@ public final class org/jetbrains/dokka/DokkaDefaults {
 	public final fun getModuleVersion ()Ljava/lang/String;
 	public final fun getOutputDir ()Ljava/io/File;
 	public final fun getPluginsConfiguration ()Ljava/util/List;
-	public final fun getSuppressedAnnotations ()Ljava/util/Set;
+	public final fun getSuppressAnnotatedWith ()Ljava/util/Set;
 }
 
 public class org/jetbrains/dokka/DokkaException : java/lang/RuntimeException {
@@ -337,7 +337,7 @@ public final class org/jetbrains/dokka/DokkaSourceSetImpl : org/jetbrains/dokka/
 	public fun getSourceLinks ()Ljava/util/Set;
 	public fun getSourceRoots ()Ljava/util/Set;
 	public fun getSourceSetID ()Lorg/jetbrains/dokka/DokkaSourceSetID;
-	public fun getSuppressedAnnotations ()Ljava/util/Set;
+	public fun getSuppressAnnotatedWith ()Ljava/util/Set;
 	public fun getSuppressedFiles ()Ljava/util/Set;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;

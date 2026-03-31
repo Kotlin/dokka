@@ -188,9 +188,9 @@ with [all configuration options](#complete-configuration) applied at the bottom 
             <file>/path/to/dir</file>
             <file>/path/to/file</file>
         </suppressedFiles>
-        <suppressedAnnotations>
+        <suppressAnnotatedWith>
             <annotation>com.example.SuppressMe</annotation>
-        </suppressedAnnotations>
+        </suppressAnnotatedWith>
         <jdkVersion>8</jdkVersion>
         <languageVersion>1.7</languageVersion>
         <apiVersion>1.7</apiVersion>
@@ -327,7 +327,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
             are not documented.
         </p>
     </def>
-    <def title="suppressedAnnotations">
+    <def title="suppressAnnotatedWith">
         <p>A list of annotation fully qualified names (FQNs) to suppress declarations annotated with.</p>
         <p>
             Any declaration annotated with one of these annotations is excluded from the generated documentation.

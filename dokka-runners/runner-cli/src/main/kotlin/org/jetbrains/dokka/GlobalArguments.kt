@@ -110,9 +110,9 @@ public class GlobalArguments(args: Array<String>) : DokkaConfiguration {
                 "Accepts multiple paths separated by semicolons"
     ).delimiter(";")
 
-    public val globalSuppressedAnnotations: List<String> by parser.option(
+    public val globalSuppressAnnotatedWith: List<String> by parser.option(
         ArgType.String,
-        fullName = "globalSuppressedAnnotations",
+        fullName = "globalSuppressAnnotatedWith",
         description = "Global list of annotation FQNs to suppress declarations annotated with. " +
                 "Accepts multiple values separated by semicolons"
     ).delimiter(";")
@@ -173,7 +173,7 @@ public class GlobalArguments(args: Array<String>) : DokkaConfiguration {
         }
 
         sourceSets.forEach {
-            it.suppressedAnnotations.cast<MutableSet<String>>().addAll(globalSuppressedAnnotations)
+            it.suppressAnnotatedWith.cast<MutableSet<String>>().addAll(globalSuppressAnnotatedWith)
         }
     }
 }

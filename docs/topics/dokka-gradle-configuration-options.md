@@ -391,7 +391,7 @@ dokka {
         </p>
         <p>Default: <code>true</code></p>
     </def>
-    <def title="suppressedAnnotations">
+    <def title="suppressAnnotatedWith">
         <p>A set of annotation fully qualified names (FQNs) to suppress declarations annotated with.</p>
         <p>
             Any declaration annotated with one of these annotations is excluded from the generated documentation.

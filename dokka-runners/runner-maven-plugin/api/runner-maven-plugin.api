@@ -30,9 +30,9 @@ public abstract class org/jetbrains/dokka/maven/AbstractDokkaMojo : org/apache/m
 	public final fun getSourceDirectories ()Ljava/util/List;
 	public final fun getSourceLinks ()Ljava/util/List;
 	public final fun getSourceSetName ()Ljava/lang/String;
+	public final fun getSuppressAnnotatedWith ()Ljava/util/List;
 	public final fun getSuppressInheritedMembers ()Z
 	public final fun getSuppressObviousFunctions ()Z
-	public final fun getSuppressedAnnotations ()Ljava/util/List;
 	public final fun getSuppressedFiles ()Ljava/util/List;
 	public final fun setApiVersion (Ljava/lang/String;)V
 	public final fun setCacheRoot (Ljava/lang/String;)V
@@ -62,9 +62,9 @@ public abstract class org/jetbrains/dokka/maven/AbstractDokkaMojo : org/apache/m
 	public final fun setSourceDirectories (Ljava/util/List;)V
 	public final fun setSourceLinks (Ljava/util/List;)V
 	public final fun setSourceSetName (Ljava/lang/String;)V
+	public final fun setSuppressAnnotatedWith (Ljava/util/List;)V
 	public final fun setSuppressInheritedMembers (Z)V
 	public final fun setSuppressObviousFunctions (Z)V
-	public final fun setSuppressedAnnotations (Ljava/util/List;)V
 	public final fun setSuppressedFiles (Ljava/util/List;)V
 }
 

@@ -286,7 +286,7 @@ constructor(
      * Any declaration annotated with one of these annotations will be excluded from the generated documentation.
      */
     @get:Input
-    abstract val suppressedAnnotations: SetProperty<String>
+    abstract val suppressAnnotatedWith: SetProperty<String>
 
     /**
      * Whether to generate external documentation links that lead to API reference documentation for

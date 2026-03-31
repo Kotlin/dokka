@@ -15,13 +15,13 @@ internal class SuppressedByAnnotationsDocumentableFilterTransformer(
 ) : SuppressedByConditionDocumentableFilterTransformer(context) {
 
     override fun shouldBeSuppressed(d: Documentable): Boolean {
-        val suppressedAnnotations = sourceSet(d).suppressedAnnotations
-        if (suppressedAnnotations.isEmpty()) return false
+        val suppressAnnotatedWith = sourceSet(d).suppressAnnotatedWith
+        if (suppressAnnotatedWith.isEmpty()) return false
 
         val annotations = (d as? WithExtraProperties<*>)?.annotations() ?: return false
         return annotations.any { annotation ->
             val fqName = listOfNotNull(annotation.dri.packageName, annotation.dri.classNames).joinToString(".")
-            fqName in suppressedAnnotations
+            fqName in suppressAnnotatedWith
         }
     }
 

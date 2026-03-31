@@ -57,7 +57,7 @@ public data class DokkaSourceSetImpl(
     override val suppressedFiles: Set<File> = emptySet(),
     override val analysisPlatform: Platform = DokkaDefaults.analysisPlatform,
     override val documentedVisibilities: Set<DokkaConfiguration.Visibility> = DokkaDefaults.documentedVisibilities,
-    override val suppressedAnnotations: Set<String> = DokkaDefaults.suppressedAnnotations,
+    override val suppressAnnotatedWith: Set<String> = DokkaDefaults.suppressAnnotatedWith,
 ) : DokkaSourceSet {
 
     @Suppress("DEPRECATION")
@@ -108,7 +108,7 @@ public data class DokkaSourceSetImpl(
         suppressedFiles = suppressedFiles,
         analysisPlatform = analysisPlatform,
         documentedVisibilities = documentedVisibilities,
-        suppressedAnnotations = DokkaDefaults.suppressedAnnotations
+        suppressAnnotatedWith = DokkaDefaults.suppressAnnotatedWith
     )
 
     @Suppress("DEPRECATION")
@@ -159,7 +159,7 @@ public data class DokkaSourceSetImpl(
         suppressedFiles = suppressedFiles,
         analysisPlatform = analysisPlatform,
         documentedVisibilities = documentedVisibilities,
-        suppressedAnnotations = this.suppressedAnnotations
+        suppressAnnotatedWith = this.suppressAnnotatedWith
     )
 
     override fun equals(other: Any?): Boolean {
