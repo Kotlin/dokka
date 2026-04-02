@@ -27,8 +27,8 @@ import org.junit.jupiter.params.provider.EnumSource
  * For example, after adding Kotlin 2.4.0 to `allKgpVersions in [TestedVersionsSource.Default],
  * `test default versions` test will fail showing:
  * ```
- * expected: <"... kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0 ...">
- * but was:  <"... kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0, 2.4.0 ...">
+ * expected: <"... kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.21-RC-255 ...">
+ * but was:  <"... kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.21-RC-255, 2.4.0 ...">
  * ```
  * Verify that the values are expected and replace the expected string in the test with an actual output.
  */
@@ -40,7 +40,7 @@ class TestedVersionsSourceTest {
 
         actual shouldBe """
             gradle: 7.6.6, 8.14.4, 9.4.0
-            kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0
+            kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.21-RC-255
         """.trimIndent()
     }
 
@@ -57,14 +57,14 @@ class TestedVersionsSourceTest {
                 """
                 agp: 9.0.0
                 gradle: 9.4.0
-                kgp: 2.1.21, 2.2.21, 2.3.0
+                kgp: 2.1.21, 2.2.21, 2.3.21-RC-255
                 """.trimIndent()
 
             Supported ->
                 """
                 agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2, 9.0.0
                 gradle: 7.6.6, 8.14.4, 9.4.0
-                kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0
+                kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.21-RC-255
                 """.trimIndent()
 
             Incompatible ->
@@ -92,7 +92,7 @@ class TestedVersionsSourceTest {
                 agp: 9.0.0
                 composeGradlePlugin: 1.7.0
                 gradle: 9.4.0
-                kgp: 2.1.21, 2.2.21, 2.3.0
+                kgp: 2.1.21, 2.2.21, 2.3.21-RC-255
                 """.trimIndent()
 
             Supported ->
@@ -100,7 +100,7 @@ class TestedVersionsSourceTest {
                 agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2, 9.0.0
                 composeGradlePlugin: 1.7.0
                 gradle: 7.6.6, 8.14.4, 9.4.0
-                kgp: 2.0.21, 2.1.21, 2.2.21, 2.3.0
+                kgp: 2.0.21, 2.1.21, 2.2.21, 2.3.21-RC-255
                 """.trimIndent()
 
             Incompatible ->
