@@ -73,9 +73,21 @@ class IoGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopie
         projectOutputLocation.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
             assertNoUnresolvedLinks(file)
-            // assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoEmptyLinks(file)
             assertNoEmptySpans(file)
         }
+
+        assertHrefMissing(
+            output = projectOutputLocation,
+            // missing links to constructor parameters - https://github.com/Kotlin/dokka/issues/4328
+            expected = mapOf(
+                "kotlinx-io-bytestring/kotlinx.io.bytestring/-byte-string/index.html" to setOf(
+                    "../../../kotlinx-io-bytestring/kotlinx.io.bytestring/-byte-string/--root--.html" to "kotlinx-io-bytestring/kotlinx.io.bytestring/-byte-string/--root--.html",
+                ),
+                "kotlinx-io-bytestring/kotlinx.io.bytestring/-byte-string/-byte-string.html" to setOf(
+                    "../../../kotlinx-io-bytestring/kotlinx.io.bytestring/-byte-string/--root--.html" to "kotlinx-io-bytestring/kotlinx.io.bytestring/-byte-string/--root--.html",
+                ),
+            )
+        )
     }
 }
