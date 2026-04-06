@@ -202,8 +202,12 @@ class SuppressedByAnnotationsDocumentableFilterTransformerTest : BaseAbstractTes
 
                 assertTrue(pkg.classlikes.any { it.name == "SuppressMe" }, "SuppressMe annotation should be present")
 
-                // There should be at least one 'f' function (the expect from common)
-                assertTrue(allF.isNotEmpty(), "Should have at least one 'f' function (expect from common)")
+                val fSourceSets = allF.flatMap { it.sourceSets.map { it.sourceSetID.sourceSetName } }.toSet()
+                assertEquals(
+                    setOf("common", "native"),
+                    fSourceSets,
+                    "f should be present in common and native"
+                )
             }
         }
     }
