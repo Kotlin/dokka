@@ -2,6 +2,8 @@
  * Copyright 2014-2026 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+package org.jetbrains.dokka.test
+
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.assertAll
 import java.nio.file.Files
