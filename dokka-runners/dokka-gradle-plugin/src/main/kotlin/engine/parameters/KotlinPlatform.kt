@@ -24,6 +24,8 @@ enum class KotlinPlatform(
     JVM("jvm"),
     Native("native"),
     Wasm("wasm"),
+    WasmWasi("wasmWasi"),
+    WasmJs("wasmJs"),
     ;
 
     companion object {
@@ -53,6 +55,8 @@ enum class KotlinPlatform(
                     AndroidJVM, JVM -> Platform.jvm
                     JS -> Platform.js
                     Wasm -> Platform.wasm
+                    WasmWasi -> Platform.wasmWasi
+                    WasmJs -> Platform.wasmJs
                     Native -> Platform.native
                     Common -> Platform.common
                 }

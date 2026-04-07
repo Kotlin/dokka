@@ -51,6 +51,8 @@ public enum class Platform(
     jvm("jvm"),
     js("js"),
     wasm("wasm"),
+    wasmWasi("wasmWasi"),
+    wasmJs("wasmJs"),
     native("native"),
     common("common");
 
@@ -62,6 +64,8 @@ public enum class Platform(
                 jvm.key -> jvm
                 js.key -> js
                 wasm.key -> wasm
+                wasmWasi.key.toLowerCase() -> wasmWasi
+                wasmJs.key.toLowerCase() -> wasmJs
                 native.key -> native
                 common.key -> common
                 "androidjvm", "android" -> jvm

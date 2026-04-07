@@ -31,6 +31,8 @@ import java.io.File
 
 internal fun Platform.toTargetPlatform() = when (this) {
     Platform.wasm -> WasmPlatforms.unspecifiedWasmPlatform
+    Platform.wasmJs -> WasmPlatforms.wasmJs
+    Platform.wasmWasi -> WasmPlatforms.wasmWasi
     Platform.js -> JsPlatforms.defaultJsPlatform
     Platform.common -> CommonPlatforms.defaultCommonPlatform
     Platform.native -> NativePlatforms.unspecifiedNativePlatform

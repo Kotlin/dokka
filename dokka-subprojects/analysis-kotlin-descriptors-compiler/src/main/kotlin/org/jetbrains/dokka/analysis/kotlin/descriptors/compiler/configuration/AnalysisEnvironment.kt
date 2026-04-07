@@ -116,7 +116,7 @@ public class AnalysisEnvironment(
         val configFiles = when (analysisPlatform) {
             Platform.jvm, Platform.common -> EnvironmentConfigFiles.JVM_CONFIG_FILES
             Platform.native -> EnvironmentConfigFiles.NATIVE_CONFIG_FILES
-            Platform.js, Platform.wasm -> EnvironmentConfigFiles.JS_CONFIG_FILES
+            Platform.js, Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> EnvironmentConfigFiles.JS_CONFIG_FILES
         }
 
         @OptIn(K1Deprecation::class)
@@ -158,7 +158,7 @@ public class AnalysisEnvironment(
     private fun createSourceModuleSearchScope(project: Project, sourceFiles: List<KtFile>): GlobalSearchScope =
         when (analysisPlatform) {
             Platform.jvm -> TopDownAnalyzerFacadeForJVM.newModuleSearchScope(project, sourceFiles)
-            Platform.js, Platform.common, Platform.native, Platform.wasm -> GlobalSearchScope.filesScope(
+            Platform.js, Platform.common, Platform.native, Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> GlobalSearchScope.filesScope(
                 project,
                 sourceFiles.map { it.virtualFile }.toSet()
             )
@@ -173,7 +173,7 @@ public class AnalysisEnvironment(
         val sourceFiles = environment.getSourceFiles()
 
         val targetPlatform = when (analysisPlatform) {
-            Platform.js, Platform.wasm -> JsPlatforms.defaultJsPlatform
+            Platform.js, Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> JsPlatforms.defaultJsPlatform
             Platform.common -> CommonPlatforms.defaultCommonPlatform
             Platform.native -> NativePlatforms.unspecifiedNativePlatform
             Platform.jvm -> JvmPlatforms.defaultJvmPlatform
@@ -257,7 +257,7 @@ public class AnalysisEnvironment(
                 environment,
                 commonDependencyContainer
             )
-            Platform.js, Platform.wasm -> createJsResolverForProject(projectContext, module, modulesContent)
+            Platform.js, Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> createJsResolverForProject(projectContext, module, modulesContent)
             Platform.native -> createNativeResolverForProject(projectContext, module, modulesContent)
 
         }
@@ -282,7 +282,7 @@ public class AnalysisEnvironment(
     }
 
     private fun Platform.analyzerServices() = when (this) {
-        Platform.js, Platform.wasm -> JsPlatformAnalyzerServices
+        Platform.js, Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> JsPlatformAnalyzerServices
         Platform.common -> CommonPlatformAnalyzerServices
         Platform.native -> NativePlatformAnalyzerServices
         Platform.jvm -> JvmPlatformAnalyzerServices
