@@ -54,7 +54,7 @@ enum class KotlinPlatform(
                 when (this) {
                     AndroidJVM, JVM -> Platform.jvm
                     JS -> Platform.js
-                    Wasm -> Platform.wasm
+                    Wasm -> Platform.wasmWasi
                     WasmWasi -> Platform.wasmWasi
                     WasmJs -> Platform.wasmJs
                     Native -> Platform.native
