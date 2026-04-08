@@ -113,10 +113,10 @@ public class AnalysisEnvironment(
         System.setProperty("idea.io.use.nio2", "true")
         System.setProperty("idea.ignore.disabled.plugins", "true")
 
-        val configFiles = when (analysisPlatform) {
+        val configFiles = @Suppress("DEPRECATION") when (analysisPlatform) {
             Platform.jvm, Platform.common -> EnvironmentConfigFiles.JVM_CONFIG_FILES
             Platform.native -> EnvironmentConfigFiles.NATIVE_CONFIG_FILES
-            Platform.js, @Suppress("DEPRECATION") Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> EnvironmentConfigFiles.JS_CONFIG_FILES
+            Platform.js, Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> EnvironmentConfigFiles.JS_CONFIG_FILES
         }
 
         @OptIn(K1Deprecation::class)
@@ -156,9 +156,9 @@ public class AnalysisEnvironment(
     }
 
     private fun createSourceModuleSearchScope(project: Project, sourceFiles: List<KtFile>): GlobalSearchScope =
-        when (analysisPlatform) {
+        @Suppress("DEPRECATION") when (analysisPlatform) {
             Platform.jvm -> TopDownAnalyzerFacadeForJVM.newModuleSearchScope(project, sourceFiles)
-            Platform.js, Platform.common, Platform.native, @Suppress("DEPRECATION") Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> GlobalSearchScope.filesScope(
+            Platform.js, Platform.common, Platform.native, Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> GlobalSearchScope.filesScope(
                 project,
                 sourceFiles.map { it.virtualFile }.toSet()
             )
@@ -172,8 +172,8 @@ public class AnalysisEnvironment(
         val projectContext = ProjectContext(environment.project, "Dokka")
         val sourceFiles = environment.getSourceFiles()
 
-        val targetPlatform = when (analysisPlatform) {
-            Platform.js, @Suppress("DEPRECATION") Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> JsPlatforms.defaultJsPlatform
+        val targetPlatform = @Suppress("DEPRECATION") when (analysisPlatform) {
+            Platform.js, Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> JsPlatforms.defaultJsPlatform
             Platform.common -> CommonPlatforms.defaultCommonPlatform
             Platform.native -> NativePlatforms.unspecifiedNativePlatform
             Platform.jvm -> JvmPlatforms.defaultJvmPlatform
@@ -235,7 +235,7 @@ public class AnalysisEnvironment(
 
         var builtIns: JvmBuiltIns? = null
 
-        val resolverForProject = when (analysisPlatform) {
+        val resolverForProject = @Suppress("DEPRECATION") when (analysisPlatform) {
             Platform.jvm -> {
                 builtIns = JvmBuiltIns(
                     projectContext.storageManager,
@@ -257,7 +257,7 @@ public class AnalysisEnvironment(
                 environment,
                 commonDependencyContainer
             )
-            Platform.js, @Suppress("DEPRECATION") Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> createJsResolverForProject(projectContext, module, modulesContent)
+            Platform.js, Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> createJsResolverForProject(projectContext, module, modulesContent)
             Platform.native -> createNativeResolverForProject(projectContext, module, modulesContent)
 
         }
@@ -281,8 +281,8 @@ public class AnalysisEnvironment(
         )
     }
 
-    private fun Platform.analyzerServices() = when (this) {
-        Platform.js, @Suppress("DEPRECATION") Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> JsPlatformAnalyzerServices
+    private fun Platform.analyzerServices() = @Suppress("DEPRECATION") when (this) {
+        Platform.js, Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> JsPlatformAnalyzerServices
         Platform.common -> CommonPlatformAnalyzerServices
         Platform.native -> NativePlatformAnalyzerServices
         Platform.jvm -> JvmPlatformAnalyzerServices
