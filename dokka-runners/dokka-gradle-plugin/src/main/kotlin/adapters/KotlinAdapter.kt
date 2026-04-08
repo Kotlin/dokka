@@ -748,7 +748,7 @@ private class KotlinSourceSetDetailsBuilder(
                 }
             }
 
-        val transformedMetadataDependencies =
+        @Suppress("DEPRECATION") val transformedMetadataDependencies =
             allAssociatedCompilations.map { associated ->
                 if (associated.all { it.kotlinPlatform == KotlinPlatform.Wasm || it.kotlinPlatform == KotlinPlatform.WasmJs || it.kotlinPlatform == KotlinPlatform.WasmWasi}) {
                     transformedMetadataDependencyProvider?.get(kotlinSourceSet)
