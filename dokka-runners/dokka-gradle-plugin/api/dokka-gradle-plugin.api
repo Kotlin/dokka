@@ -316,6 +316,8 @@ public final class org/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform :
 	public static final field JVM Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
 	public static final field Native Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
 	public static final field Wasm Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
+	public static final field WasmJs Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
+	public static final field WasmWasi Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
 	public static fun values ()[Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
 }

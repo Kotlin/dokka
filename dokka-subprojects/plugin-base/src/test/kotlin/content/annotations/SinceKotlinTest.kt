@@ -194,7 +194,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
                 @Suppress("UNCHECKED_CAST") val funcs = module.children.single { it.name == "test" }
                     .children.filter { it.name == "ring" && it is DFunction } as List<DFunction>
                 with(funcs) {
-                    val sinceKotlin = mapOf(
+                    @Suppress("DEPRECATION") val sinceKotlin = mapOf(
                         Platform.common to SinceKotlinVersion("1.0"),
                         Platform.jvm to SinceKotlinVersion("1.0"),
                         Platform.js to SinceKotlinVersion("1.1"),
@@ -295,7 +295,7 @@ class SinceKotlinTest : AbstractRenderingTest() {
                 @Suppress("UNCHECKED_CAST") val funcs = module.children.single { it.name == "test" }
                     .children.filter { it.name == "ring" && it is DFunction } as List<DFunction>
                 with(funcs) {
-                    val sinceKotlin = mapOf(
+                    @Suppress("DEPRECATION") val sinceKotlin = mapOf(
                         Platform.common to SinceKotlinVersion("1.3"),
                         Platform.jvm to SinceKotlinVersion("1.3"),
                         Platform.js to SinceKotlinVersion("1.3"),
