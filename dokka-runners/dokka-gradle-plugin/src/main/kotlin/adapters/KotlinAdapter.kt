@@ -446,7 +446,7 @@ private class KotlinCompilationDetailsBuilder(
         return KotlinCompilationDetails(
             target = target.name,
             kotlinPlatform =
-                if (target is KotlinWasmTargetDsl) // Dokka needs to distinguish wasmWasi and wasmJs for analyzing
+                if (target is KotlinWasmTargetDsl && target.wasmTargetType != null) // Dokka needs to distinguish wasmWasi and wasmJs for analyzing
                     KotlinPlatform.fromString("wasm"+ (target.wasmTargetType?.name ?: ""))
                 else
                     KotlinPlatform.fromString(compilation.platformType.name),
