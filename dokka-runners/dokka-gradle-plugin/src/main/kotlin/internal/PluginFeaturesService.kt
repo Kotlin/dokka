@@ -330,9 +330,14 @@ constructor(
             // Note: Manually reading `gradle.properties is only required for unit tests.
             // (Because org.gradle.testfixtures.ProjectBuilder doesn't support mocking Gradle properties
             // in Gradle versions lower than 9.4.)
-            val gpProps = project.providers.of(GradlePropertiesFileSource::class) {
-                parameters.projectDirectory.set(project.layout.projectDirectory.asFile)
-            }
+            val gpProps: Provider<Map<String, String?>> =
+                if (CurrentGradleVersion < "9.4.0") {
+                    project.providers.of(GradlePropertiesFileSource::class) {
+                        parameters.projectDirectory.set(project.layout.projectDirectory.asFile)
+                    }
+                } else {
+                    project.providers.provider { emptyMap() }
+                }
 
             /** Find a flag for [PluginFeaturesService]. */
             fun getFlag(flag: String): Provider<String> =
@@ -495,13 +500,6 @@ private abstract class GradlePropertiesFileSource :
 
     interface Params : ValueSourceParameters {
         val projectDirectory: RegularFileProperty
-    }
-
-    init {
-        require(CurrentGradleVersion < "9.4.0") {
-            "GradlePropertiesFileSource is not needed anymore and can be deleted. " +
-                    "Gradle will read properties files in tests https://github.com/gradle/gradle/issues/17638#issuecomment-4030001290"
-        }
     }
 
     override fun obtain(): Map<String, String?> {
