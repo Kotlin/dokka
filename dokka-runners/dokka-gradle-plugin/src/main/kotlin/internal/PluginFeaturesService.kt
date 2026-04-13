@@ -7,9 +7,10 @@ import org.gradle.TaskExecutionRequest
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logging
-import org.gradle.api.provider.*
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import org.gradle.kotlin.dsl.of
@@ -486,37 +487,4 @@ private fun Project.findGradlePropertiesFile(): File? {
         .map { it.resolve("gradle.properties") }
 
         .firstOrNull { it.exists() && it.isFile }
-}
-
-/**
- * Read `gradle.properties` files from the project directory.
- *
- * Workaround for [org.gradle.testfixtures.ProjectBuilder] not reading `gradle.properties` files.
- */
-// TODO remove when updating Gradle to 9.4+
-//      https://github.com/gradle/gradle/issues/17638#issuecomment-4030001290
-private abstract class GradlePropertiesFileSource :
-    ValueSource<Map<String, String?>, GradlePropertiesFileSource.Params> {
-
-    interface Params : ValueSourceParameters {
-        val projectDirectory: RegularFileProperty
-    }
-
-    override fun obtain(): Map<String, String?> {
-        val gpFile = parameters.projectDirectory.get().asFile
-            .resolve("gradle.properties")
-            .takeIf { it.exists() }
-
-        if (gpFile == null) {
-            return emptyMap()
-        }
-
-        val props = Properties()
-
-        gpFile.inputStream().use { reader ->
-            props.load(reader)
-        }
-
-        return props.entries.associate { it.key.toString() to it.value?.toString() }
-    }
 }
