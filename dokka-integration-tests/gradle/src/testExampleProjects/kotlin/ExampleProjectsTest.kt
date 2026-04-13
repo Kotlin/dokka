@@ -215,6 +215,9 @@ class ExampleProjectsTest {
                         // when generating on Linux machines, resulting in 'Error class: unknown class'
                         // for CoroutineScope appearing in the generated docs.
                         kotlin.native.enableKlibsCrossCompilation = true
+
+                        // KT-80311 Kotlin JS and Wasm do not support isolated projects
+                        gradle.isolatedProjects = false
                     }
                 }
 
