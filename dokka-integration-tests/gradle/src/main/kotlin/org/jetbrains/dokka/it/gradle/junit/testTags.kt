@@ -83,7 +83,7 @@ annotation class TestsAndroid(
 @Target(FUNCTION, CLASS)
 @MustBeDocumented
 @Inherited
-@WithGradleProperties(GradlePropertiesProvider.Android::class)
+@WithGradleProperties(GradlePropertiesProvider.AndroidCompose::class)
 annotation class TestsAndroidCompose(
     val kotlinBuiltIn: KotlinBuiltInCompatibility = KotlinBuiltInCompatibility.Supported,
 )
