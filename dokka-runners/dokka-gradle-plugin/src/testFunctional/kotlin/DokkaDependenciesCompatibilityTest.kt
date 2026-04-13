@@ -15,14 +15,19 @@ import org.jetbrains.dokka.gradle.utils.*
 class DokkaDependenciesCompatibilityTest : FunSpec({
     context("verify that DGP does not interfere with resolving JAR Configurations") {
 
-        val project = initProject()
+        val project = initProject {
+            gradleProperties {
+                gradle.configurationCache = false
+                gradle.isolatedProjects = false
+                gradle.buildCache = false
+            }
+        }
 
         project.runner
             .addArguments(
                 ":subproject-without-dokka:printJarFileCoords",
                 "--quiet",
                 "--stacktrace",
-                "--no-configuration-cache",
             )
             .forwardOutput()
             .build {

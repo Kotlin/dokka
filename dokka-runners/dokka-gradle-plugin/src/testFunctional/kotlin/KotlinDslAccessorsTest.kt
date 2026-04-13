@@ -26,7 +26,15 @@ import kotlin.test.assertEquals
 class KotlinDslAccessorsTest : FunSpec({
 
     context("Kotlin DSL generated accessors") {
-        val project = initMultiModuleProject("KotlinDslAccessorsTest")
+        val project = initMultiModuleProject("KotlinDslAccessorsTest") {
+            gradleProperties {
+                // kotlinDslAccessorsReport is not CC compatible
+                // https://github.com/gradle/gradle/issues/28144
+                gradle.configurationCache = false
+                gradle.isolatedProjects = false
+                gradle.buildCache = false
+            }
+        }
 
         /**
          * Verify the current accessors match the dumped accessors.
@@ -99,8 +107,6 @@ class KotlinDslAccessorsTest : FunSpec({
                     ":compileKotlin",
                     "--project-dir", "buildSrc",
                     "--rerun-tasks",
-                    "--no-build-cache",
-                    "--no-configuration-cache",
                 )
                 .build {
                     shouldHaveTaskWithOutcome(":compileKotlin", SUCCESS)

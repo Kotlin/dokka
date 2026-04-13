@@ -15,6 +15,11 @@ import org.jetbrains.dokka.gradle.utils.*
 class DokkaPluginFunctionalTest : FunSpec({
     val testProject = gradleKtsProjectTest("DokkaPluginFunctionalTest") {
 
+        gradleProperties {
+            gradle.isolatedProjects = false
+            gradle.configurationCache = false
+        }
+
         buildGradleKts = """
             |plugins {
             |  id("org.jetbrains.dokka") version "$DOKKA_VERSION"

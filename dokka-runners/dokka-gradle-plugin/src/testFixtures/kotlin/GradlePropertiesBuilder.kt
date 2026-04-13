@@ -20,6 +20,11 @@ data class GradlePropertiesBuilder(
     fun gradle(config: GradleArgs.() -> Unit): Unit = gradle.config()
     fun kotlin(config: KotlinArgs.() -> Unit): Unit = kotlin.config()
 
+    init {
+        // TODO enable isolatedProjects by default when DGPv1 is removed
+        gradle.isolatedProjects = if (dokka.pluginMode == "V1Enabled") null else true
+    }
+
     /** Gradle specific options. */
     data class GradleArgs(
         var logLevel: LogLevel? = LogLevel.LIFECYCLE,
@@ -43,9 +48,10 @@ data class GradlePropertiesBuilder(
         var maxWorkers: Int? = null,
         val jvmArgs: JvmArgs = JvmArgs(),
 
+        var isolatedProjects: Boolean? = null,
+
         // Maybe also implement these flags? Although there's no suitable tests for them at present.
         // org.gradle.projectcachedir=(directory)
-        // org.gradle.unsafe.isolated-projects=(true,false)
         // org.gradle.vfs.verbose=(true,false)
         // org.gradle.vfs.watch=(true,false)
     ) {
@@ -128,6 +134,7 @@ data class GradlePropertiesBuilder(
             putNotNull("org.gradle.parallel", parallel)
             putNotNull("org.gradle.logging.stacktrace", stacktrace)
             putNotNull("org.gradle.warning.mode", warningMode)
+            putNotNull("org.gradle.unsafe.isolated-projects", isolatedProjects)
             jvmArgs.buildString().takeIf { it.isNotBlank() }?.let {
                 put("org.gradle.jvmargs", it)
             }

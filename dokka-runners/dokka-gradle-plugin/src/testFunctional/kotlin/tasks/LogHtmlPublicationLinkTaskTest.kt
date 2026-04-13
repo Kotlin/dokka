@@ -24,7 +24,9 @@ class LogHtmlPublicationLinkTaskTest : FunSpec({
         val validServerUriParam = `-P`("testServerUri=$validServerUri")
 
         context("and a Kotlin project") {
-            val project = initDokkaProject()
+            val project = initDokkaProject {
+                gradleProperties.gradle.isolatedProjects = false
+            }
 
             context("when generate task is run with correct server URI") {
                 project.runner

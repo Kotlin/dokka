@@ -7,12 +7,12 @@ import org.gradle.TaskExecutionRequest
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logging
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
-import org.gradle.api.provider.ProviderFactory
+import org.gradle.api.provider.*
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
+import org.gradle.kotlin.dsl.of
 import org.gradle.kotlin.dsl.provideDelegate
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.PLUGIN_MODE_NO_WARN_FLAG
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.configureParamsDuringAccessorsGeneration
@@ -327,17 +327,23 @@ constructor(
             project: Project
         ): Action<Params> {
 
+            // Note: Manually reading `gradle.properties is only required for unit tests.
+            // (Because org.gradle.testfixtures.ProjectBuilder doesn't support mocking Gradle properties
+            // in Gradle versions lower than 9.4.)
+            val gpProps = project.providers.of(GradlePropertiesFileSource::class) {
+                parameters.projectDirectory.set(project.layout.projectDirectory.asFile)
+            }
+
             /** Find a flag for [PluginFeaturesService]. */
             fun getFlag(flag: String): Provider<String> =
                 project.providers
                     .gradleProperty(flag)
                     .forUseAtConfigurationTimeCompat()
                     .orElse(
-                        // Note: Enabling/disabling features via extra-properties is only intended for unit tests.
-                        // (Because org.gradle.testfixtures.ProjectBuilder doesn't support mocking Gradle properties.
-                        // But maybe soon! https://github.com/gradle/gradle/pull/30002)
-                        project
-                            .provider { project.findProperty(flag)?.toString() }
+                        gpProps
+                            .flatMap {
+                                project.providers.provider { it[flag] }
+                            }
                             .forUseAtConfigurationTimeCompat()
                     )
 
@@ -475,4 +481,44 @@ private fun Project.findGradlePropertiesFile(): File? {
         .map { it.resolve("gradle.properties") }
 
         .firstOrNull { it.exists() && it.isFile }
+}
+
+/**
+ * Read `gradle.properties` files from the project directory.
+ *
+ * Workaround for [org.gradle.testfixtures.ProjectBuilder] not reading `gradle.properties` files.
+ */
+// TODO remove when updating Gradle to 9.4+
+//      https://github.com/gradle/gradle/issues/17638#issuecomment-4030001290
+private abstract class GradlePropertiesFileSource :
+    ValueSource<Map<String, String?>, GradlePropertiesFileSource.Params> {
+
+    interface Params : ValueSourceParameters {
+        val projectDirectory: RegularFileProperty
+    }
+
+    init {
+        require(CurrentGradleVersion < "9.4.0") {
+            "GradlePropertiesFileSource is not needed anymore and can be deleted. " +
+                    "Gradle will read properties files in tests https://github.com/gradle/gradle/issues/17638#issuecomment-4030001290"
+        }
+    }
+
+    override fun obtain(): Map<String, String?> {
+        val gpFile = parameters.projectDirectory.get().asFile
+            .resolve("gradle.properties")
+            .takeIf { it.exists() }
+
+        if (gpFile == null) {
+            return emptyMap()
+        }
+
+        val props = Properties()
+
+        gpFile.inputStream().use { reader ->
+            props.load(reader)
+        }
+
+        return props.entries.associate { it.key.toString() to it.value?.toString() }
+    }
 }

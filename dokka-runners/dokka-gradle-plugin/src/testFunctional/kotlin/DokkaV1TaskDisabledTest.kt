@@ -19,6 +19,7 @@ class DokkaV1TaskDisabledTest : FunSpec({
                 dokka {
                     pluginMode = "V2EnabledWithHelpers"
                 }
+                gradle.isolatedProjects = false
             }
         }
 
