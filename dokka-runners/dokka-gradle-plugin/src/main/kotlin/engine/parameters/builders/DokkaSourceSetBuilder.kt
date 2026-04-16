@@ -73,6 +73,7 @@ internal object DokkaSourceSetBuilder {
             skipEmptyPackages = spec.skipEmptyPackages.get(),
             sourceLinks = spec.sourceLinks.mapToSet { build(it) },
             sourceSetID = build(spec.sourceSetId.get()),
+            suppressAnnotatedWith = spec.suppressAnnotatedWith.get(),
 
             // files
             classpath = spec.classpath.files.toList(),
