@@ -77,7 +77,7 @@ public class DefaultTemplateModelFactory(
                 .flatMap { it.sourceSets }
                 .distinct()
                 .sortedBy { it.comparableKey }
-                .map { SourceSetModel(it.name, it.platform.name, it.sourceSetIDs.merged.toString()) }
+                .map { SourceSetModel(it.name, it.platform.key, it.sourceSetIDs.merged.toString()) }
                 .toList()
 
             if (sourceSets.isNotEmpty()) {
