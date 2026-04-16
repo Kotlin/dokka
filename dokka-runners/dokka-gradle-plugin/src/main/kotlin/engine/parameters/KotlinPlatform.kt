@@ -23,7 +23,10 @@ enum class KotlinPlatform(
     JS("js"),
     JVM("jvm"),
     Native("native"),
+    @Deprecated("Use `wasmWasi` or `wasmJs`")
     Wasm("wasm"),
+    WasmWasi("wasmWasi"),
+    WasmJs("wasmJs"),
     ;
 
     companion object {
@@ -49,10 +52,12 @@ enum class KotlinPlatform(
         // Not defined as a property to try and minimize the dependency on Dokka Core types
         internal val KotlinPlatform.dokkaType: Platform
             get() =
-                when (this) {
+                @Suppress("DEPRECATION")  when (this) {
                     AndroidJVM, JVM -> Platform.jvm
                     JS -> Platform.js
                     Wasm -> Platform.wasm
+                    WasmWasi -> Platform.wasmWasi
+                    WasmJs -> Platform.wasmJs
                     Native -> Platform.native
                     Common -> Platform.common
                 }
