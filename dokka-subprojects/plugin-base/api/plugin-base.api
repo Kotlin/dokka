@@ -96,6 +96,7 @@ public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plug
 	public final fun getSourceSetMerger ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getSourcesetDependencyAppender ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getStylesInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getSuppressedByAnnotationsFilter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getSuppressedBySuppressTagDocumentableFilter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getSuppressedDocumentableFilter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getTabSortingStrategy ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
