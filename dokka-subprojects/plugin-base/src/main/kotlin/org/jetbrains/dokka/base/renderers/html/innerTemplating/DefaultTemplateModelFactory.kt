@@ -10,7 +10,6 @@ import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.renderers.URIExtension
@@ -78,7 +77,7 @@ public class DefaultTemplateModelFactory(
                 .flatMap { it.sourceSets }
                 .distinct()
                 .sortedBy { it.comparableKey }
-                .map { SourceSetModel(it.name, it.platform.modelName, it.sourceSetIDs.merged.toString()) }
+                .map { SourceSetModel(it.name, it.platform.name, it.sourceSetIDs.merged.toString()) }
                 .toList()
 
             if (sourceSets.isNotEmpty()) {
@@ -87,17 +86,6 @@ public class DefaultTemplateModelFactory(
         }
         return mapper
     }
-
-    private val Platform.modelName: String
-        get() = @Suppress("DEPRECATION") when (this) {
-            Platform.jvm -> "jvm"
-            Platform.js -> "js"
-            Platform.common -> "common"
-            Platform.native -> "native"
-            Platform.wasm -> "wasm"
-            Platform.wasmWasi -> "wasm"
-            Platform.wasmJs -> "wasm"
-        }
 
     override fun buildSharedModel(): TemplateMap {
         val mapper = mutableMapOf<String, Any>()
