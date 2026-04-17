@@ -20,6 +20,8 @@ fun TestScope.initMultiModuleProject(
         .substringAfter("org.jetbrains.dokka.gradle.") // drop the package name
         .replaceNonAlphaNumeric()
 
+    val kgpVersion = "2.3.0"
+
     return gradleKtsProjectTest(
         projectLocation = "$baseDirName/multi-module-hello-goodbye/$testName",
         rootProjectName = rootProjectName,
@@ -36,7 +38,7 @@ fun TestScope.initMultiModuleProject(
             |plugins {
             |  // Must apply KGP in the root project ensure consistent classpath, 
             |  // preventing issues like https://github.com/gradle/gradle/issues/17559 and https://github.com/gradle/gradle/issues/27218
-            |  kotlin("jvm") version embeddedKotlinVersion apply false
+            |  kotlin("jvm") version "$kgpVersion" apply false
             |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
             |  id("org.jetbrains.dokka-javadoc") version "${DokkaConstants.DOKKA_VERSION}"
             |}
@@ -51,7 +53,7 @@ fun TestScope.initMultiModuleProject(
         dir("subproject-hello") {
             buildGradleKts = """
                 |plugins {
-                |  kotlin("jvm") version embeddedKotlinVersion
+                |  kotlin("jvm") version "$kgpVersion"
                 |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
                 |  id("org.jetbrains.dokka-javadoc") version "${DokkaConstants.DOKKA_VERSION}"
                 |}
@@ -79,7 +81,7 @@ fun TestScope.initMultiModuleProject(
 
             buildGradleKts = """
                 |plugins {
-                |  kotlin("jvm") version embeddedKotlinVersion
+                |  kotlin("jvm") version "$kgpVersion"
                 |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
                 |  id("org.jetbrains.dokka-javadoc") version "${DokkaConstants.DOKKA_VERSION}"
                 |}

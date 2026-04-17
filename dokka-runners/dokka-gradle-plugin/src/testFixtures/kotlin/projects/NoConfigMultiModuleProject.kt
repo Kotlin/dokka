@@ -26,6 +26,8 @@ fun TestScope.initNoConfigMultiModuleProject(
         .substringAfter("org.jetbrains.dokka.gradle.") // drop the package name
         .replaceNonAlphaNumeric()
 
+    val kgpVersion = "2.3.0"
+
     return gradleKtsProjectTest(
         projectLocation = "$baseDirName/multi-module-hello-goodbye/$testName",
         rootProjectName = rootProjectName,
@@ -46,7 +48,7 @@ fun TestScope.initNoConfigMultiModuleProject(
 
         buildGradleKts = """
             |plugins {
-            |  kotlin("jvm") version embeddedKotlinVersion apply false
+            |  kotlin("jvm") version "$kgpVersion" apply false
             |  // important: don't register Dokka in the root project, because we _want_ the test to trigger a
             |  // Gradle classloader bug.
             |  //id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
@@ -57,10 +59,10 @@ fun TestScope.initNoConfigMultiModuleProject(
         dir("subproject-one") {
             buildGradleKts = """
                 |plugins {
-                |  kotlin("jvm") version embeddedKotlinVersion
+                |  kotlin("jvm") version "$kgpVersion"
                 |  // important: Register different plugins here to make the buildscript classpath different,
                 |  // because we _want_ the test to trigger a Gradle classloader bug.
-                |  kotlin("plugin.serialization") version embeddedKotlinVersion
+                |  kotlin("plugin.serialization") version "$kgpVersion"
                 |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
                 |}
                 |
@@ -85,7 +87,7 @@ fun TestScope.initNoConfigMultiModuleProject(
 
             buildGradleKts = """
                 |plugins {
-                |  kotlin("jvm") version embeddedKotlinVersion
+                |  kotlin("jvm") version "$kgpVersion"
                 |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
                 |}
                 |
