@@ -36,7 +36,6 @@ class KmpSharedWasmTest : FunSpec({
                     "--stacktrace",
                 )
                 .forwardOutput()
-                .withDebug(true)
                 .build {
 
                     test("expect project builds successfully") {
