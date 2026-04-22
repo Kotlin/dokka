@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Kotlinlang Slack
+    url: https://surveys.jetbrains.com/s3/kotlin-slack-sign-up
+    about: Ask questions, share knowledge, and discuss Dokka usage with the community
