@@ -150,9 +150,14 @@ class SinceKotlinTest : AbstractRenderingTest() {
                     name = "js"
                 }
                 sourceSet {
-                    sourceRoots = listOf("src/wasm/")
-                    analysisPlatform = "wasm"
-                    name = "wasm"
+                    sourceRoots = listOf("src/wasmWasi/")
+                    analysisPlatform = "wasmWasi"
+                    name = "wasmWasi"
+                }
+                sourceSet {
+                    sourceRoots = listOf("src/wasmJs/")
+                    analysisPlatform = "wasmJs"
+                    name = "wasmJs"
                 }
             }
         }
@@ -182,7 +187,13 @@ class SinceKotlinTest : AbstractRenderingTest() {
             |fun ring(abc: String): String {
             |    return "My precious " + abc
             |}
-            |/src/wasm/kotlin/test/source.kt
+            |/src/wasmWasi/kotlin/test/source.kt
+            |package test
+            |
+            |fun ring(abc: String): String {
+            |    return "My precious " + abc
+            |}            
+            |/src/wasmJs/kotlin/test/source.kt
             |package test
             |
             |fun ring(abc: String): String {
@@ -194,12 +205,13 @@ class SinceKotlinTest : AbstractRenderingTest() {
                 @Suppress("UNCHECKED_CAST") val funcs = module.children.single { it.name == "test" }
                     .children.filter { it.name == "ring" && it is DFunction } as List<DFunction>
                 with(funcs) {
-                    @Suppress("DEPRECATION") val sinceKotlin = mapOf(
+                    val sinceKotlin = mapOf(
                         Platform.common to SinceKotlinVersion("1.0"),
                         Platform.jvm to SinceKotlinVersion("1.0"),
                         Platform.js to SinceKotlinVersion("1.1"),
                         Platform.native to SinceKotlinVersion("1.3"),
-                        Platform.wasm to SinceKotlinVersion("1.8"),
+                        Platform.wasmWasi to SinceKotlinVersion("1.8"),
+                        Platform.wasmJs to SinceKotlinVersion("1.8"),
                     )
 
                     for(i in sinceKotlin) {
@@ -241,9 +253,14 @@ class SinceKotlinTest : AbstractRenderingTest() {
                     name = "js"
                 }
                 sourceSet {
-                    sourceRoots = listOf("src/wasm/")
-                    analysisPlatform = "wasm"
-                    name = "wasm"
+                    sourceRoots = listOf("src/wasmWasi/")
+                    analysisPlatform = "wasmWasi"
+                    name = "wasmWasi"
+                }
+                sourceSet {
+                    sourceRoots = listOf("src/wasmJs/")
+                    analysisPlatform = "wasmJs"
+                    name = "wasmJs"
                 }
             }
         }
@@ -281,7 +298,15 @@ class SinceKotlinTest : AbstractRenderingTest() {
             |fun ring(abc: String): String {
             |    return "My precious " + abc
             |}            
-            |/src/wasm/kotlin/test/source.kt
+            |/src/wasmWasi/kotlin/test/source.kt
+            |package test
+            |
+            |/** dssdd */
+            |@SinceKotlin("1.3")
+            |fun ring(abc: String): String {
+            |    return "My precious " + abc
+            |}            
+            |/src/wasmJs/kotlin/test/source.kt
             |package test
             |
             |/** dssdd */
@@ -295,12 +320,13 @@ class SinceKotlinTest : AbstractRenderingTest() {
                 @Suppress("UNCHECKED_CAST") val funcs = module.children.single { it.name == "test" }
                     .children.filter { it.name == "ring" && it is DFunction } as List<DFunction>
                 with(funcs) {
-                    @Suppress("DEPRECATION") val sinceKotlin = mapOf(
+                    val sinceKotlin = mapOf(
                         Platform.common to SinceKotlinVersion("1.3"),
                         Platform.jvm to SinceKotlinVersion("1.3"),
                         Platform.js to SinceKotlinVersion("1.3"),
                         Platform.native to SinceKotlinVersion("1.3"),
-                        Platform.wasm to SinceKotlinVersion("1.8"),
+                        Platform.wasmWasi to SinceKotlinVersion("1.8"),
+                        Platform.wasmJs to SinceKotlinVersion("1.8"),
                     )
 
                     for(i in sinceKotlin) {
