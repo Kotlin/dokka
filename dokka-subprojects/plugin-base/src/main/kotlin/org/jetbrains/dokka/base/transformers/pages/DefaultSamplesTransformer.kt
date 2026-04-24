@@ -53,7 +53,7 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
         fqLink: String,
         sample: SampleSnippet,
     ): ContentNode {
-        val node = contentCode(contentPage.content.sourceSets, contentPage.dri, sample.body, "kotlin")
+        val node = contentCode(contentPage.content.sourceSets, contentPage.dri, sample, "kotlin")
         return dfs(fqLink, node)
     }
 
@@ -87,25 +87,114 @@ internal class DefaultSamplesTransformer(val context: DokkaContext) : PageTransf
     private fun contentCode(
         sourceSets: Set<DisplaySourceSet>,
         dri: Set<DRI>,
-        content: String,
+        sample: SampleSnippet,
         language: String,
         styles: Set<Style> = emptySet(),
         extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
-    ) =
-        ContentCodeBlock(
-            children = listOf(
-                ContentText(
-                    text = content,
-                    dci = DCI(dri, ContentKind.Sample),
-                    sourceSets = sourceSets,
-                    style = emptySet(),
-                    extra = PropertyContainer.empty()
-                )
-            ),
+    ): ContentCodeBlock {
+        val dci = DCI(dri, ContentKind.Sample)
+        val children = buildContentNodesFromBody(sample, dci, sourceSets)
+        return ContentCodeBlock(
+            children = children,
             language = language,
-            dci = DCI(dri, ContentKind.Sample),
+            dci = dci,
             sourceSets = sourceSets,
             style = styles + TextStyle.Monospace,
             extra = extra
         )
+    }
+
+    /**
+     * Parses the sample body for link placeholders of the form `%index%content%index%`
+     * and replaces them with [ContentDRILink] nodes pointing to the corresponding [DRI]
+     * from [SampleSnippet.links].
+     */
+    private fun buildContentNodesFromBody(
+        sample: SampleSnippet,
+        dci: DCI,
+        sourceSets: Set<DisplaySourceSet>,
+    ): List<ContentNode> {
+        if (sample.links.isEmpty()) {
+            return listOf(
+                ContentText(
+                    text = sample.body,
+                    dci = dci,
+                    sourceSets = sourceSets,
+                    style = emptySet(),
+                    extra = PropertyContainer.empty()
+                )
+            )
+        }
+
+        val result = mutableListOf<ContentNode>()
+        // Pattern: %<index>%<content>%<index>% where <index> is a 0-based index into sample.links
+        val linkPattern = Regex("""%(\d+)%(.*?)%\1%""")
+        var lastEnd = 0
+
+        for (match in linkPattern.findAll(sample.body)) {
+            // Add text before this link
+            if (match.range.first > lastEnd) {
+                result.add(
+                    ContentText(
+                        text = sample.body.substring(lastEnd, match.range.first),
+                        dci = dci,
+                        sourceSets = sourceSets,
+                        style = emptySet(),
+                        extra = PropertyContainer.empty()
+                    )
+                )
+            }
+
+            val linkIndex = match.groupValues[1].toInt()
+            val linkText = match.groupValues[2]
+            val linkDri = sample.links.getOrNull(linkIndex)
+
+            if (linkDri != null) {
+                result.add(
+                    ContentDRILink(
+                        children = listOf(
+                            ContentText(
+                                text = linkText,
+                                dci = dci,
+                                sourceSets = sourceSets,
+                                style = emptySet(),
+                                extra = PropertyContainer.empty()
+                            )
+                        ),
+                        address = linkDri,
+                        dci = dci,
+                        sourceSets = sourceSets,
+                    )
+                )
+            } else {
+                // Invalid link index — render as plain text
+                result.add(
+                    ContentText(
+                        text = linkText,
+                        dci = dci,
+                        sourceSets = sourceSets,
+                        style = emptySet(),
+                        extra = PropertyContainer.empty()
+                    )
+                )
+            }
+
+            lastEnd = match.range.last + 1
+        }
+
+        // Add remaining text after the last link
+        if (lastEnd < sample.body.length) {
+            result.add(
+                ContentText(
+                    text = sample.body.substring(lastEnd),
+                    dci = dci,
+                    sourceSets = sourceSets,
+                    style = emptySet(),
+                    extra = PropertyContainer.empty()
+                )
+            )
+        }
+
+        return result
+    }
 }

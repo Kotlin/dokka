@@ -21,12 +21,20 @@ import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.resolveKDocTextLinkToSym
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.KotlinAnalysis
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.SamplesKotlinAnalysis
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.SymbolsAnalysisPlugin
+import org.jetbrains.dokka.analysis.kotlin.symbols.translators.getDRIFromFunction
+import org.jetbrains.dokka.analysis.kotlin.symbols.translators.getDRIFromVariable
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaLogger
+import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.resolution.KaFunctionCall
+import org.jetbrains.kotlin.analysis.api.resolution.KaSuccessCallInfo
+import org.jetbrains.kotlin.analysis.api.resolution.KaVariableAccessCall
+import org.jetbrains.kotlin.analysis.api.resolution.symbol
 import org.jetbrains.kotlin.analysis.api.symbols.sourcePsiSafe
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.*
@@ -91,9 +99,12 @@ private class SymbolSampleAnalysisEnvironment(
         }
 
         val imports = processImports(psiElement, sampleRewriter)
-        val body = processBody(psiElement)
+        val links = mutableListOf<DRI>()
+        val body = analyze(samplesKotlinAnalysis.getModuleOrNull(sourceSet)!!) {
+            processBody(psiElement, this, links)
+        }
 
-        return SampleSnippet(imports, body)
+        return SampleSnippet(imports, body, links)
     }
 
     private fun findPsiElement(sourceSet: DokkaSourceSet, fqLink: String): PsiElement? {
@@ -122,29 +133,27 @@ private class SymbolSampleAnalysisEnvironment(
             }
     }
 
-    private fun processBody(sampleElement: KtDeclarationWithBody): String {
-        return getSampleBody(sampleElement)
+    private fun processBody(sampleElement: KtDeclarationWithBody, session: KaSession, links: MutableList<DRI>): String {
+        return getSampleBody(sampleElement, session, links)
             .trim { it == '\n' || it == '\r' }
             .trimEnd()
             .trimIndent()
     }
 
-    private fun getSampleBody(psiElement: KtDeclarationWithBody): String {
+    private fun getSampleBody(psiElement: KtDeclarationWithBody, session: KaSession, links: MutableList<DRI>): String {
         val bodyExpression = psiElement.bodyExpression
-        val bodyExpressionText = bodyExpression!!.buildSampleText()
+        val bodyExpressionText = bodyExpression!!.buildSampleText(session, links)
         return when (bodyExpression) {
             is KtBlockExpression -> bodyExpressionText.removeSurrounding("{", "}") // without braces according to the documentation of [SampleSnippet.body]
             else -> bodyExpressionText
         }
     }
 
-    private fun PsiElement.buildSampleText(): String {
-        if (sampleRewriter == null) return this.text
-
+    private fun PsiElement.buildSampleText(session: KaSession, links: MutableList<DRI>): String {
         val textBuilder = StringBuilder()
         val errors = mutableListOf<SampleBuilder.ConvertError>()
 
-        this.accept(SampleBuilder(sampleRewriter, textBuilder, errors))
+        this.accept(SampleBuilder(sampleRewriter, textBuilder, errors, links, session))
 
         errors.forEach {
             val st = it.e.stackTraceToString()
@@ -160,15 +169,17 @@ private class SymbolSampleAnalysisEnvironment(
 }
 
 private class SampleBuilder(
-    private val sampleRewriter: SampleRewriter,
+    private val sampleRewriter: SampleRewriter?,
     val textBuilder: StringBuilder,
-    val errors: MutableList<ConvertError>
+    val errors: MutableList<ConvertError>,
+    val links: MutableList<DRI>,
+    val session: KaSession
 ) : KtTreeVisitorVoid() {
 
     data class ConvertError(val e: Exception, val text: String, val loc: String)
 
     override fun visitCallExpression(expression: KtCallExpression) {
-        val callRewriter = expression.calleeExpression?.text?.let { sampleRewriter.getFunctionCallRewriter(it) }
+        val callRewriter = expression.calleeExpression?.text?.let { sampleRewriter?.getFunctionCallRewriter(it) }
         if(callRewriter != null) {
             val rewrittenResult = callRewriter.rewrite(
                 arguments = expression.valueArguments.map { it.text ?: "" }, // expect not nullable ASTDelegatePsiElement.text
@@ -213,5 +224,34 @@ private class SampleBuilder(
                 }
             }
         })
+    }
+
+    override fun visitReferenceExpression(expression: KtReferenceExpression): Unit = with(session) {
+        // just named calls, no arguments
+        if (expression !is KtNameReferenceExpression) return super.visitReferenceExpression(expression)
+
+        val dri = resolveDRIFromExpression(expression) ?: return super.visitReferenceExpression(expression)
+
+        // println("${expression.text} -> $dri")
+
+        val index = links.size
+        links.add(dri)
+
+        textBuilder.append("%$index%")
+        super.visitReferenceExpression(expression)
+        textBuilder.append("%$index%")
+    }
+
+    // best effort resolution
+    private fun KaSession.resolveDRIFromExpression(expression: KtReferenceExpression): DRI? {
+        if (expression !is KtNameReferenceExpression) return null
+
+        val callInfo = expression.resolveToCall() as? KaSuccessCallInfo ?: return null
+
+        return when (val call = callInfo.call) {
+            is KaFunctionCall<*> -> getDRIFromFunction(call.symbol)
+            is KaVariableAccessCall if call.symbol.callableId != null -> getDRIFromVariable(call.symbol)
+            else -> null
+        }
     }
 }

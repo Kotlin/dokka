@@ -4,6 +4,8 @@
 
 package org.jetbrains.dokka.analysis.kotlin.sample
 
+import org.jetbrains.dokka.links.DRI
+
 /**
  * Represents a sample code snippet of a Kotlin function. The snippet includes both file
  * import directives (all, even unused) and the sample function body.
@@ -19,7 +21,8 @@ package org.jetbrains.dokka.analysis.kotlin.sample
  */
 public class SampleSnippet(
     public val imports: List<String>,
-    public val body: String
+    public val body: String,
+    public val links: List<DRI> = emptyList(),
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
