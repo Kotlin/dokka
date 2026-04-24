@@ -629,6 +629,8 @@ public open class HtmlRenderer(
                         "jvm" -> classes = classes + "jvm-like"
                         "js" -> classes = classes + "js-like"
                         "wasm" -> classes = classes + "wasm-like"
+                        "wasmJs" -> classes = classes + "wasm-like"
+                        "wasmWasi" -> classes = classes + "wasm-like"
                     }
                     text(it.name)
                 }

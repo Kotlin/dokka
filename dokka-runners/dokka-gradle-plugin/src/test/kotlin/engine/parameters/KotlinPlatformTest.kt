@@ -31,6 +31,8 @@ class KotlinPlatformTest : FunSpec({
             "jvm",
             "js",
             "wasm",
+            "wasmJs",
+            "wasmWasi",
             "native",
             "common",
         ).shouldForAll {

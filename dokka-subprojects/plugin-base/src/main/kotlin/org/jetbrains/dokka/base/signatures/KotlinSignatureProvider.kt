@@ -43,7 +43,7 @@ public class KotlinSignatureProvider(
         ExtraModifiers.KotlinOnlyModifiers.External
     )
     private val platformSpecificModifiers: Map<ExtraModifiers, Set<Platform>> = mapOf(
-        ExtraModifiers.KotlinOnlyModifiers.External to setOf(Platform.js, Platform.wasm)
+        ExtraModifiers.KotlinOnlyModifiers.External to setOf(Platform.js, @Suppress("DEPRECATION") Platform.wasm, Platform.wasmWasi, Platform.wasmJs)
     )
 
     override fun signature(documentable: Documentable): List<ContentNode> = when (documentable) {
