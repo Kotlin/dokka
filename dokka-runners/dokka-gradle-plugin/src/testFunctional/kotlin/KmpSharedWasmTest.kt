@@ -9,11 +9,13 @@ import io.kotest.inspectors.shouldForAll
 import io.kotest.inspectors.shouldForOne
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.sequences.shouldNotBeEmpty
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldEndWith
 import io.kotest.matchers.string.shouldStartWith
 import org.jetbrains.dokka.DokkaConfigurationImpl
+import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.gradle.internal.DokkaConstants
 import org.jetbrains.dokka.gradle.utils.*
 import kotlin.io.path.*
@@ -89,6 +91,12 @@ class KmpSharedWasmTest : FunSpec({
                         val commonDss = dokkaSourceSets["common"].shouldNotBeNull()
                         val wasmDss = dokkaSourceSets["wasm"].shouldNotBeNull()
 
+                        test("expect correct analysisPlatform") {
+                            dokkaSourceSets["common"]?.analysisPlatform.shouldBe(Platform.common)
+                            dokkaSourceSets["wasm"]?.analysisPlatform.shouldBe(Platform.common)
+                            dokkaSourceSets["wasmJs"]?.analysisPlatform.shouldBe(Platform.wasmJs)
+                            dokkaSourceSets["wasmWasi"]?.analysisPlatform.shouldBe(Platform.wasmWasi)
+                        }
                         test("expect common classpath has kotlin-stdlib") {
                             commonDss.classpath
                                 .filter { it.isFile }

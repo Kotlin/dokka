@@ -39,6 +39,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmTargetDsl
 import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
 import java.io.File
 import javax.inject.Inject
@@ -439,16 +440,23 @@ private class KotlinCompilationDetailsBuilder(
         val compilationClasspath: FileCollection =
             collectKotlinCompilationClasspath(compilation = compilation)
 
+
+        val target = compilation.target
+
         return KotlinCompilationDetails(
-            target = compilation.target.name,
-            kotlinPlatform = KotlinPlatform.fromString(compilation.platformType.name),
+            target = target.name,
+            kotlinPlatform =
+                if (target is KotlinWasmTargetDsl && target.wasmTargetType != null) // Dokka needs to distinguish wasmWasi and wasmJs for analyzing
+                    KotlinPlatform.fromString("wasm"+ (target.wasmTargetType?.name ?: ""))
+                else
+                    KotlinPlatform.fromString(compilation.platformType.name),
             primarySourceSetNames = primarySourceSetNames.toSet(),
             allSourceSetNames = allSourceSetNames.toSet(),
             publishedCompilation = compilation.isPublished(),
             dependentSourceSetNames = dependentSourceSetNames.toSet(),
             compilationClasspath = compilationClasspath,
             defaultSourceSetName = compilation.defaultSourceSet.name,
-            isMetadata = compilation.target is KotlinMetadataTarget,
+            isMetadata = target is KotlinMetadataTarget,
         )
     }
 
@@ -740,9 +748,9 @@ private class KotlinSourceSetDetailsBuilder(
                 }
             }
 
-        val transformedMetadataDependencies =
+        @Suppress("DEPRECATION") val transformedMetadataDependencies =
             allAssociatedCompilations.map { associated ->
-                if (associated.all { it.kotlinPlatform == KotlinPlatform.Wasm }) {
+                if (associated.all { it.kotlinPlatform == KotlinPlatform.Wasm || it.kotlinPlatform == KotlinPlatform.WasmJs || it.kotlinPlatform == KotlinPlatform.WasmWasi}) {
                     transformedMetadataDependencyProvider?.get(kotlinSourceSet)
                         ?: objects.fileCollection()
                 } else {
