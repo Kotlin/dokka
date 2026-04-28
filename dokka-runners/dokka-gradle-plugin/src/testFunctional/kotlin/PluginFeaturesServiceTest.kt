@@ -11,7 +11,12 @@ import org.jetbrains.dokka.gradle.utils.projects.initNoConfigMultiModuleProject
 
 class PluginFeaturesServiceTest : FunSpec({
     context("given multi-module project") {
-        val project = initNoConfigMultiModuleProject()
+        val project = initNoConfigMultiModuleProject {
+            gradleProperties {
+                // disable project-iso because subprojects with DGP must be configured to trigger warnings
+                gradle.isolatedProjects = false
+            }
+        }
 
         context("when PluginMode has invalid value") {
             project.runner
