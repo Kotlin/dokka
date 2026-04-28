@@ -21,7 +21,7 @@ data class GradlePropertiesBuilder(
     fun kotlin(config: KotlinArgs.() -> Unit): Unit = kotlin.config()
 
     init {
-        // TODO enable isolatedProjects by default when DGPv1 is removed
+        // TODO #4436 enable isolatedProjects by default when DGPv1 is removed
         gradle.isolatedProjects = if (dokka.pluginMode == "V1Enabled") null else true
     }
 

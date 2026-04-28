@@ -16,8 +16,8 @@ class DokkaPluginFunctionalTest : FunSpec({
     val testProject = gradleKtsProjectTest("DokkaPluginFunctionalTest") {
 
         gradleProperties {
+            // the built-in Gradle tasks `outgoingVariants` and `resolvableConfigurations` don't support project-iso
             gradle.isolatedProjects = false
-            gradle.configurationCache = false
         }
 
         buildGradleKts = """
@@ -27,7 +27,7 @@ class DokkaPluginFunctionalTest : FunSpec({
             |}
             |
             |val printDeclarableConfigurations by tasks.registering {
-            |  val declarableConfNames = provider { configurations.matching { it.isCanBeDeclared }.names }
+            |  val declarableConfNames = provider { configurations.matching { it.isCanBeDeclared }.names.toList() }
             |  inputs.property("declarableConfNames", declarableConfNames)
             |  doLast {
             |    println("declarableConfigurations:" + declarableConfNames.get())

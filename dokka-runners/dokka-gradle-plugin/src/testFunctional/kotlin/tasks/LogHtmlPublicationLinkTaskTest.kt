@@ -12,6 +12,7 @@ import org.gradle.testkit.runner.TaskOutcome.SKIPPED
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.jetbrains.dokka.gradle.internal.DokkaConstants
 import org.jetbrains.dokka.gradle.utils.*
+import org.jetbrains.dokka.gradle.utils.projects.defaultKgpTestVersion
 
 class LogHtmlPublicationLinkTaskTest : FunSpec({
 
@@ -24,9 +25,7 @@ class LogHtmlPublicationLinkTaskTest : FunSpec({
         val validServerUriParam = `-P`("testServerUri=$validServerUri")
 
         context("and a Kotlin project") {
-            val project = initDokkaProject {
-                gradleProperties.gradle.isolatedProjects = false
-            }
+            val project = initDokkaProject()
 
             context("when generate task is run with correct server URI") {
                 project.runner
@@ -104,7 +103,7 @@ private fun initDokkaProject(
     return gradleKtsProjectTest("log-html-publication-link-task") {
         buildGradleKts = """
             |plugins {
-            |  kotlin("jvm") version "1.8.22"
+            |  kotlin("jvm") version "$defaultKgpTestVersion"
             |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
             |}
             |
