@@ -13,6 +13,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
+import org.gradle.kotlin.dsl.of
 import org.gradle.kotlin.dsl.provideDelegate
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.PLUGIN_MODE_NO_WARN_FLAG
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.configureParamsDuringAccessorsGeneration
@@ -327,17 +328,28 @@ constructor(
             project: Project
         ): Action<Params> {
 
+            // Note: Manually reading `gradle.properties is only required for unit tests.
+            // (Because org.gradle.testfixtures.ProjectBuilder doesn't support mocking Gradle properties
+            // in Gradle versions lower than 9.4.)
+            val gpProps: Provider<Map<String, String?>> =
+                if (CurrentGradleVersion < "9.4.0") {
+                    project.providers.of(GradlePropertiesFileSource::class) {
+                        parameters.projectDirectory.set(project.layout.projectDirectory.asFile)
+                    }
+                } else {
+                    project.providers.provider { emptyMap() }
+                }
+
             /** Find a flag for [PluginFeaturesService]. */
             fun getFlag(flag: String): Provider<String> =
                 project.providers
                     .gradleProperty(flag)
                     .forUseAtConfigurationTimeCompat()
                     .orElse(
-                        // Note: Enabling/disabling features via extra-properties is only intended for unit tests.
-                        // (Because org.gradle.testfixtures.ProjectBuilder doesn't support mocking Gradle properties.
-                        // But maybe soon! https://github.com/gradle/gradle/pull/30002)
-                        project
-                            .provider { project.findProperty(flag)?.toString() }
+                        gpProps
+                            .flatMap {
+                                project.providers.provider { it[flag] }
+                            }
                             .forUseAtConfigurationTimeCompat()
                     )
 

@@ -9,6 +9,7 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import org.jetbrains.dokka.gradle.internal.DokkaConstants.DOKKA_VERSION
 import org.jetbrains.dokka.gradle.utils.*
+import org.jetbrains.dokka.gradle.utils.projects.defaultKgpTestVersion
 import java.nio.file.Path
 import kotlin.io.path.readText
 
@@ -60,7 +61,7 @@ private fun createProject(
 ): GradleProjectTest = gradleKtsProjectTest("suppress-kgp-generated-files-$suppressGeneratedFiles") {
     buildGradleKts = """
         |plugins {
-        |    kotlin("jvm") version "2.3.0" // KGP 2.3.0 is the first version that contains `generatedKotlin` API
+        |    kotlin("jvm") version "$defaultKgpTestVersion"
         |    id("org.jetbrains.dokka") version "$DOKKA_VERSION"
         |}
         |

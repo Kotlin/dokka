@@ -19,7 +19,10 @@ class TryK2MessagesTest : FunSpec({
 
         // Test with a multi-module project to verify that even though there
         // are multiple subprojects with Dokka only one message is logged.
-        val project = initMultiModuleProject("TryK2MessagesTest")
+        val project = initMultiModuleProject("TryK2MessagesTest") {
+            // disable project iso, because all projects must be configured to trigger the logged warnings
+            gradleProperties.gradle.isolatedProjects = false
+        }
 
         val k2Flags = listOf(null, true, false)
         val noWarns = listOf(null, true, false)
@@ -102,7 +105,7 @@ class TryK2MessagesTest : FunSpec({
             logLevel: LogLevel,
         ): String {
             val args = buildList {
-                add(":help")
+                add("help")
                 add("--dry-run")
                 k2Enabled?.let { add("-P$K2_ANALYSIS_ENABLED_FLAG=$it") }
                 if (logLevel != LIFECYCLE) add("--${logLevel.name.lowercase()}")
