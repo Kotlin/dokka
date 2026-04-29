@@ -174,7 +174,7 @@ public class KotlinSignatureProvider(
                 }
                 is DEnum -> {
                     processExtraModifiers(c)
-                    keyword("enum ")
+                    keyword("enum class ")
                 }
                 is DObject -> {
                     processExtraModifiers(c)
