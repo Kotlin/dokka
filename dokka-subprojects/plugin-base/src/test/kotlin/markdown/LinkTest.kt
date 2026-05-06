@@ -463,7 +463,7 @@ class LinkTest : BaseAbstractTest() {
                                             classNames = "AppletContext",
                                             callable = Callable(
                                                 name = "showDocument",
-                                                params = listOf(Nullable(TypeConstructor("java.net.URL", emptyList())))
+                                                params = listOf(JavaClassReference("java.net.URL"))
                                             ),
                                             target = PointingToDeclaration
                                         ),
@@ -1330,7 +1330,7 @@ class LinkTest : BaseAbstractTest() {
                         "Storage.setValue" to DRI(
                             "example",
                             "Storage",
-                            Callable("setValue", null, listOf(Nullable(TypeConstructor("kotlin.String", emptyList()))))
+                            Callable("setValue", null, listOf(JavaClassReference("java.lang.String")))
                         ),
                         "Storage.prop" to DRI("example", "Storage", Callable("getProp", null, emptyList()))
                     ),

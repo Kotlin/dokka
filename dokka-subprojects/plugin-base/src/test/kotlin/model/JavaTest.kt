@@ -14,7 +14,6 @@ import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.See
 import org.jetbrains.dokka.model.doc.Text
-import utils.OnlyJavaPsi
 import utils.OnlyJavaSymbols
 import utils.assertContains
 import utils.assertNotNull
@@ -50,7 +49,6 @@ class JavaTest : BaseAbstractTest() {
     private infix fun <T> Collection<T>?.counts(n: Int) =
         assertEquals(n, this.orEmpty().size, "Expected $n, got ${this.orEmpty().size}")
 
-    @OnlyJavaPsi("kdoc: AA does not propagate @param Javadoc tags to individual parameter documentation")
     @Test
     fun function() {
         testInline(
@@ -251,7 +249,7 @@ class JavaTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlyJavaPsi("mapped-types: AA represents int[] as IntArray, not Array<PrimitiveJavaType>")
+    //@OnlyJavaPsi("mapped-types: AA represents int[] as IntArray, not Array<PrimitiveJavaType>")
     fun arrayType() {
         testInline(
             """
@@ -307,7 +305,6 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols("PSI doesn't mark types as nullable")
     @Test
     fun typeParameterIntoDifferentClasses2596() {
         testInline(
@@ -338,8 +335,8 @@ class JavaTest : BaseAbstractTest() {
                 }
                 with((module / "java" / "DocumentClassFactoryRegistry").cast<DClass>()) {
                     functions.forEach {
-                        ((it.type as Nullable).inner as GenericTypeConstructor).dri.classNames equals "DocumentClassFactory"
-                        (((((it.type as Nullable).inner as GenericTypeConstructor).projections[0] as Invariance<*>).inner as Nullable).inner as TypeParameter).dri.classNames equals "DocumentClassFactoryRegistry"
+                        (it.type as GenericTypeConstructor).dri.classNames equals "DocumentClassFactory"
+                        (((it.type as GenericTypeConstructor).projections[0] as Invariance<*>).inner as TypeParameter).dri.classNames equals "DocumentClassFactoryRegistry"
                     }
                 }
             }
@@ -398,7 +395,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols("PSI doesn't handle varargs at all and returns `Array` type for `x`")
+    @OnlyJavaSymbols("Java symbols have `KotlinOnlyModifiers.VarArg`")
     @Test
     fun varargs() {
         testInline(
@@ -419,7 +416,7 @@ class JavaTest : BaseAbstractTest() {
                         name equals "bar"
                         with(parameters.firstOrNull().assertNotNull("parameter")) {
                             name equals "x"
-                            type.name equals "String"
+                            type.name equals "Array"
                             assertEquals(
                                 setOf(ExtraModifiers.KotlinOnlyModifiers.VarArg),
                                 extra[AdditionalModifiers]?.content?.values?.first(),
@@ -539,7 +536,6 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("mapped-types: AA represents java.lang.Object as kotlin.Any, not JavaObject")
     @Test
     fun javaLangObject() {
         testInline(
@@ -652,7 +648,7 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols("PSI doesn't mark types as nullable")
+    //@OnlyJavaSymbols("PSI doesn't mark types as nullable")
     @Test
     fun variances() {
         testInline(
@@ -675,19 +671,19 @@ class JavaTest : BaseAbstractTest() {
 
                     for (function in functions) {
                         val param = function.parameters.single()
-                        val type = (param.type as Nullable).inner as GenericTypeConstructor
+                        val type = param.type as GenericTypeConstructor
                         val variance = type.projections.single()
 
                         when (function.name) {
                             "superBound" -> {
                                 assertTrue(variance is Contravariance<*>)
-                                val bound = (variance.inner as Nullable).inner
+                                val bound = variance.inner
                                 assertEquals((bound as GenericTypeConstructor).dri.classNames, "String")
                             }
 
                             "extendsBound" -> {
                                 assertTrue(variance is Covariance<*>)
-                                val bound = (variance.inner as Nullable).inner
+                                val bound = variance.inner
                                 assertEquals((bound as GenericTypeConstructor).dri.classNames, "String")
                             }
 

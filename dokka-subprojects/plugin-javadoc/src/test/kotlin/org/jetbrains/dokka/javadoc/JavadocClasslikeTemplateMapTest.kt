@@ -5,7 +5,6 @@
 package org.jetbrains.dokka.javadoc
 
 import org.jetbrains.dokka.javadoc.pages.JavadocClasslikePageNode
-import org.jetbrains.dokka.javadoc.utils.OnlyJavaPsi
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -238,7 +237,6 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
         }
     }
 
-    @OnlyJavaPsi("mapped-types|kdoc: AA does not propagate @param Javadoc tags to individual parameter documentation")
     @Test
     fun `documented function parameters`(){
         dualTestTemplateMapInline(

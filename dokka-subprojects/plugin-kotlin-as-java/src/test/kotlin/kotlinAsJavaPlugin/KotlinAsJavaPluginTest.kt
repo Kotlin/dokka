@@ -20,7 +20,6 @@ import signatures.Parameters
 import signatures.firstSignature
 import signatures.renderedContent
 import utils.A
-import kotlinAsJavaPlugin.utils.OnlyJavaPsi
 import kotlinAsJavaPlugin.utils.OnlyJavaSymbols
 import utils.TestOutputWriterPlugin
 import utils.match
@@ -489,7 +488,6 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("mapped-types: AA exposes Unit instead of void for Java methods and kotlin-as-java doesn't handle it?")
     @Test
     fun `Java function should keep its access modifier`() {
         val className = "Test"

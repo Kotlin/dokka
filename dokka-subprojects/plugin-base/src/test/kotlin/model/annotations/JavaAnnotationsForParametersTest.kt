@@ -9,8 +9,6 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.utilities.cast
 import utils.AbstractModelTest
-import utils.OnlyJavaPsi
-import utils.OnlyJavaSymbols
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -123,7 +121,6 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
         }
     }
 
-    @OnlyJavaSymbols("PSI doesn't mark types as nullable")
     @Test
     fun `type parameter annotations should be visible even if type declaration has none`() {
         inlineModelTest(
@@ -141,10 +138,8 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
             with((this / "java" / "Test").cast<DClass>()) {
                 with((this / "foo").cast<DFunction>()) {
                     val paramAnnotations = parameters.first()
-                        .type.cast<Nullable>()
-                        .inner.cast<GenericTypeConstructor>()
-                        .projections.first().cast<Invariance<Nullable>>().inner
-                        .inner.cast<TypeParameter>()
+                        .type.cast<GenericTypeConstructor>()
+                        .projections.first().cast<Invariance<TypeParameter>>().inner
                         .annotations()
                         .values
                         .flatten()
@@ -156,7 +151,6 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
         }
     }
 
-    @OnlyJavaSymbols("PSI doesn't mark types as nullable")
     @Test
     fun `type parameter annotations should not be propagated from resolved type`() {
         inlineModelTest(
@@ -174,10 +168,8 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
             with((this / "java" / "Test").cast<DClass>()) {
                 with((this / "foo").cast<DFunction>()) {
                     val paramAnnotations = parameters.first()
-                        .type.cast<Nullable>()
-                        .inner.cast<GenericTypeConstructor>()
-                        .projections.first().cast<Invariance<Nullable>>().inner
-                        .inner.cast<TypeParameter>()
+                        .type.cast<GenericTypeConstructor>()
+                        .projections.first().cast<Invariance<TypeParameter>>().inner
                         .annotations()
 
                     assertTrue(paramAnnotations.isEmpty())

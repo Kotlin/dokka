@@ -388,7 +388,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
 //        }
 //    }
 
-    @OnlyJavaPsi("synthetic: AA's synthetic Java property scope uses looser accessor matching than PSI")
+    @OnlyJavaPsi("synthetic: #4250 AA generate an extra synthetic property `a: String` with the getter String getA()")
     @Test
     fun `should preserve regular functions that are named like getters, but are not getters`() {
         testInline(
@@ -396,7 +396,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             |/src/main/java/test/A.java
             |package test;
             |public class A {
-            |    private int a = 1;
+            |    public int a = 1;
             |    public String getA() { return "s"; } // wrong return type
             |    public int getA(String param) { return 123; } // shouldn't have params
             |}
@@ -412,7 +412,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("mapped-types: AA converts int to kotlin.Int")
     @Test
     fun `should ignore additional non-accessor setters`() {
         testInline(
@@ -561,7 +560,8 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("synthetic: AA's synthetic Java property is treated as Public (incorrectly)")
+
+    @OnlyJavaPsi("synthetic: #4250 AA's synthetic Java property is treated as Public (incorrectly)")
     @Test
     fun `should not associate accessors with field because field is public api`() {
         val configuration = dokkaConfiguration {
@@ -575,7 +575,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 }
             }
         }
-
         testInline(
             """
             |/src/test/A.java
@@ -691,7 +690,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols("PSI doesn't mark types as nullable, and doesn't mark arrays as covariant")
     @Test // see https://github.com/Kotlin/dokka/issues/2646
     fun `should resolve PsiImmediateClassType as class reference`() {
         testInline(
@@ -720,14 +718,14 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             configuration
         ) {
             documentablesMergingStage = { module ->
-                val expectedType = Nullable(GenericTypeConstructor(
+                val expectedType = GenericTypeConstructor(
                     dri = DRI(packageName = "test", classNames = "JavaEnum", target = PointingToDeclaration),
                     projections = emptyList()
-                ))
-                val expectedArrayType = Nullable(GenericTypeConstructor(
+                )
+                val expectedArrayType = GenericTypeConstructor(
                     dri = DRI("kotlin", "Array", target = PointingToDeclaration),
-                    projections = listOf(Covariance(expectedType))
-                ))
+                    projections = listOf(Invariance(expectedType))
+                )
 
                 val classWithEnumUsage = module.packages.single().classlikes.single { it.name == "ContainingEnumType" }
 
@@ -744,7 +742,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("template: AA generates different synthetic Javadoc text for enum methods")
     @Test
     fun `should have documentation for synthetic Enum values functions`() {
         testInline(
@@ -816,7 +813,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("template: AA generates different synthetic Javadoc text for enum methods")
+    @OnlyJavaPsi("type-mapping: in the inherited `valueOf`, kotlin.String instead of java.lang.String in parameters")
     @Test
     fun `should have documentation for synthetic Enum valueOf functions`() {
         testInline(

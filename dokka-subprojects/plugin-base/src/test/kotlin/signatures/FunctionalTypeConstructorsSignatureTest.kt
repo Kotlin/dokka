@@ -277,7 +277,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("mapped-types: AA returns java.util.Function and not kotlin lambda")
+    @OnlyJavaSymbols("#3611 - do not show open for Java fields")
     @Test
     fun `java with java function`() {
         val source = """
@@ -298,14 +298,14 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-java-class/index.html").lastSignature().match(
                     // open is wrong - AA works fine here
-                    "open var ", A("javaFunction"), ": (", A("Integer"), ") -> ", A("String"),
+                    "var ", A("javaFunction"), ": (", A("Integer"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @OnlyJavaPsi("mapped-types: AA converts Integer -> Int, + nullability")
+    @OnlyJavaSymbols("#3611 - do not show open for Java fields")
     @Test
     fun `java with kotlin function`() {
         val source = """
@@ -325,7 +325,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-java-class/index.html").lastSignature().match(
-                    "open var ", A("kotlinFunction"), ": (", A("Integer"), ") -> ", A("String"),
+                    "var ", A("kotlinFunction"), ": (", A("Integer"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
