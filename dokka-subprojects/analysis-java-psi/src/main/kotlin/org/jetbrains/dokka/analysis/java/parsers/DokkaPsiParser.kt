@@ -34,12 +34,11 @@ internal class DokkaPsiParser(
     project: Project,
     logger: DokkaLogger,
     private val javadocParser: JavadocParser,
-    javaPsiDocCommentParser: JavaPsiDocCommentParser,
     lightMethodChecker: BreakingAbstractionKotlinLightMethodChecker,
 ) {
     private val helper = PsiHelper(sourceSetData, logger, lightMethodChecker)
 
-    private val syntheticDocProvider = SyntheticElementDocumentationProvider(javaPsiDocCommentParser, project)
+    private val syntheticDocProvider = SyntheticElementDocumentationProvider(javadocParser, project)
 
     private val PsiMethod.hash: Int
         get() = "$returnType $name$parameterList".hashCode()

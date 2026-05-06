@@ -18,8 +18,10 @@ import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.java.BreakingAbstractionKotlinLightMethodChecker
 import org.jetbrains.dokka.analysis.java.JavaAnalysisPlugin
+import org.jetbrains.dokka.analysis.java.SyntheticElementDocumentationProvider
 import org.jetbrains.dokka.analysis.java.parsers.JavadocParser
 import org.jetbrains.dokka.analysis.java.util.PsiDocumentableSource
+import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getGenerateJavaDocDocumentationFrom
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getGeneratedKDocDocumentationFrom
 import org.jetbrains.dokka.analysis.kotlin.symbols.services.KtPsiDocumentableSource
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getJavaDocDocumentationFrom
@@ -454,9 +456,10 @@ internal class DokkaSymbolVisitor(
         val javaFields = callables.filterIsInstance<KaJavaFieldSymbol>()
             .filterOutSyntheticJavaPropBackingField()
 
+
         fun List<KaNamedFunctionSymbol>.filterOutSyntheticJavaPropAccessors() = filterNot { fn ->
-            if ((fn.origin == KaSymbolOrigin.JAVA_SOURCE || fn.origin == KaSymbolOrigin.JAVA_LIBRARY) && fn.callableId != null)
-                syntheticJavaProperties.any { fn.callableId == it.javaGetterSymbol.callableId || fn.callableId == it.javaSetterSymbol?.callableId }
+            if ((fn.origin == KaSymbolOrigin.JAVA_SOURCE || fn.origin == KaSymbolOrigin.JAVA_LIBRARY) && fn.psi != null)
+                syntheticJavaProperties.any { fn.psi == it.javaGetterSymbol.psi || fn.psi == it.javaSetterSymbol?.psi }
             else false
         }
 
@@ -544,7 +547,8 @@ internal class DokkaSymbolVisitor(
                 visibility = getDokkaVisibility(propertySymbol, isJavaContext).toSourceSetDependent(),
                 documentation = getDocumentation(propertySymbol)?.toSourceSetDependent() ?: emptyMap(), // TODO
                 modifier = propertySymbol.getDokkaModality().toSourceSetDependent(),
-                type = toBoundFrom(propertySymbol.returnType, propertySymbol),
+                type = (propertySymbol.psi as? PsiMethod)?.returnType?.let { psiHelper.getBound(it) }
+                    ?: toBoundFrom(propertySymbol.returnType, propertySymbol),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 sourceSets = setOf(sourceSet),
                 generics = generics,
@@ -591,7 +595,8 @@ internal class DokkaSymbolVisitor(
                 visibility = getDokkaVisibility(javaFieldSymbol, isJavaContext).toSourceSetDependent(),
                 documentation = getDocumentation(javaFieldSymbol)?.toSourceSetDependent() ?: emptyMap(), // TODO
                 modifier = javaFieldSymbol.getDokkaModality().toSourceSetDependent(),
-                type = toBoundFrom(javaFieldSymbol.returnType, javaFieldSymbol),
+                type = (javaFieldSymbol.psi as? PsiField)?.let { psiHelper.getBound(it.type) }
+                    ?: toBoundFrom(javaFieldSymbol.returnType, javaFieldSymbol),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 sourceSets = setOf(sourceSet),
                 generics = emptyList(),
@@ -662,7 +667,8 @@ internal class DokkaSymbolVisitor(
             generics = generics,
             documentation = getAccessorSymbolDocumentation(propertyAccessorSymbol)?.toSourceSetDependent() ?: emptyMap(),
             modifier = propertyAccessorSymbol.getDokkaModality().toSourceSetDependent(),
-            type = toBoundFrom(propertyAccessorSymbol.returnType, propertyAccessorSymbol),
+            type = (propertyAccessorSymbol.psi as? PsiMethod)?.returnType?.let { psiHelper.getBound(it) }
+                ?: toBoundFrom(propertyAccessorSymbol.returnType, propertyAccessorSymbol),
             sourceSets = setOf(sourceSet),
             isExpectActual = false,
             extra = PropertyContainer.withAll(
@@ -735,7 +741,6 @@ internal class DokkaSymbolVisitor(
             val inheritedFrom = dri.getInheritedFromDRI(parent)
             val isExpect = functionSymbol.isExpect
             val isActual = functionSymbol.isActual
-
             val generics =
                 functionSymbol.typeParameters.mapIndexed { index, symbol ->
                     visitVariantTypeParameter(
@@ -765,7 +770,8 @@ internal class DokkaSymbolVisitor(
                 generics = generics,
                 documentation = getDocumentation(functionSymbol)?.toSourceSetDependent() ?: emptyMap(),
                 modifier = functionSymbol.getDokkaModality().toSourceSetDependent(),
-                type = toBoundFrom(functionSymbol.returnType, functionSymbol),
+                type = (functionSymbol.psi as? PsiMethod)?.let { it.returnType?.let { psiHelper.getBound(it) } ?: Void }
+                    ?: toBoundFrom(functionSymbol.returnType, functionSymbol),
                 sourceSets = setOf(sourceSet),
                 isExpectActual = (isExpect || isActual),
                 extra = PropertyContainer.withAll(
@@ -795,7 +801,8 @@ internal class DokkaSymbolVisitor(
     ) = DParameter(
         dri = dri.copy(target = PointingToCallableParameters(index)),
         name = valueParameterSymbol.name.asString(),
-        type = toBoundFrom(valueParameterSymbol.returnType, valueParameterSymbol),
+        type = (valueParameterSymbol.psi as? PsiParameter)?.let { psiHelper.getBound(it.type) }
+            ?: toBoundFrom(valueParameterSymbol.returnType, valueParameterSymbol),
         expectPresentInSet = null,
         documentation = getDocumentation(valueParameterSymbol)?.toSourceSetDependent() ?: emptyMap(),
         sourceSets = setOf(sourceSet),

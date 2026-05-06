@@ -46,7 +46,7 @@ public class PsiHelper(
         } ?: PropertyContainer.empty()
 
     // requires access to annotations, so extracted here
-    internal fun getBound(type: PsiType): Bound {
+    public fun getBound(type: PsiType): Bound {
         //We would like to cache most of the bounds since it is not common to annotate them,
         //but if this is the case, we treat them as 'one of'
         fun PsiType.cacheBoundIfHasNoAnnotation(f: (List<Annotations.Annotation>) -> Bound): Bound {
@@ -105,10 +105,15 @@ public class PsiHelper(
                         }
                     }
                 } ?: UnresolvedBound(type.presentableText, type.annotations())
-
+            // aka vararg
+            is PsiEllipsisType -> GenericTypeConstructor(
+                DRI("kotlin", "Array"),
+                listOf(Invariance(getBound(type.componentType))),
+                extra = type.annotations()
+            )
             is PsiArrayType -> GenericTypeConstructor(
                 DRI("kotlin", "Array"),
-                listOf(getProjection(type.componentType)),
+                listOf(Invariance(getBound(type.componentType))), // kotlin.Array is invariant, but Java Array is covariant
                 extra = type.annotations()
             )
 
@@ -128,7 +133,9 @@ public class PsiHelper(
         type.isExtends -> Covariance(getBound(type.extendsBound))
         type.isSuper -> Contravariance(getBound(type.superBound))
         // If the type isn't explicitly bounded, it still has an implicit `extends Object` bound
-        type.extendsBound != PsiTypes.nullType() -> Covariance(getBound(type.extendsBound))
+        type.extendsBound != PsiTypes.nullType() -> if ((type.extendsBound as PsiClassType).resolve()?.qualifiedName == "java.lang.Object") Star else Covariance(
+            getBound(type.extendsBound)
+        )
         else -> throw IllegalStateException("${type.presentableText} has incorrect bounds")
     }
 
