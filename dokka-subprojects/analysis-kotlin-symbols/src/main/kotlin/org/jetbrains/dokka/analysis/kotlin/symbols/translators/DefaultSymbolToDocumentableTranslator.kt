@@ -98,6 +98,10 @@ internal class DokkaSymbolVisitor(
     private val annotationTranslator = AnnotationTranslator(logger)
     private val typeTranslator = TypeTranslator(sourceSet, annotationTranslator, logger)
 
+    private val syntheticJavaDocProvider = javadocParser?.let {
+        SyntheticElementDocumentationProvider(it, analysisContext.getModule(sourceSet).project)
+    }
+
     private fun <T> T.toSourceSetDependent() = if (this != null) mapOf(sourceSet to this) else emptyMap()
 
     private fun <T : KaSymbol> Sequence<T>.filterSymbolsInSourceSet(moduleKtFiles: Set<KtFile>, moduleJavaFiles: Set<PsiJavaFile>): Sequence<T> = filter {
@@ -982,8 +986,12 @@ internal class DokkaSymbolVisitor(
 
     private fun KaSession.getDocumentation(symbol: KaSymbol) = when(symbol.origin) {
         KaSymbolOrigin.SOURCE_MEMBER_GENERATED -> {
+            if (symbol.containingSymbol?.isJavaSource() == true)
+                syntheticJavaDocProvider?.let { getGenerateJavaDocDocumentationFrom(symbol, it, sourceSet) }
+            else
             // a primary (implicit default) constructor  can be generated, so we need KDoc from @constructor tag
-            getGeneratedKDocDocumentationFrom(symbol) ?: if(symbol is KaConstructorSymbol) getKDocDocumentationFrom(symbol, logger, sourceSet) else null
+                getGeneratedKDocDocumentationFrom(symbol)
+                    ?: if (symbol is KaConstructorSymbol) getKDocDocumentationFrom(symbol, logger, sourceSet) else null
         }
         KaSymbolOrigin.JAVA_SOURCE, KaSymbolOrigin.JAVA_LIBRARY -> javadocParser?.let { getJavaDocDocumentationFrom(symbol, it, sourceSet) }
         else -> getKDocDocumentationFrom(symbol, logger, sourceSet) ?: javadocParser?.let { getJavaDocDocumentationFrom(symbol, it, sourceSet) }
