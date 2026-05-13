@@ -37,13 +37,9 @@ object TestedVersions {
      */
     val ANDROID =
         BuildVersions.permutations(
-            gradleVersions = listOf("8.4"),
+            gradleVersions = listOf("8.7"),
             kotlinVersions = listOf("2.3.21", "2.2.21", "2.1.21", "2.0.21"),
-            androidGradlePluginVersions = listOf("8.3.0")
-        ) + BuildVersions.permutations(
-            gradleVersions = listOf("7.6.3"),
-            kotlinVersions = listOf("1.9.25"),
-            androidGradlePluginVersions = listOf("7.4.2")
+            androidGradlePluginVersions = listOf("8.5.2")
         )
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin-wrappers/kotlin-react
