@@ -14,4 +14,4 @@ package org.jetbrains.dokka.gradle.utils.projects
 // Must use KGP >= 2.3.0:
 // - to avoid KT-77988
 // - to test `generatedKotlin` API
-const val defaultKgpTestVersion = "2.3.0"
+const val defaultKgpTestVersion = "2.3.21"
