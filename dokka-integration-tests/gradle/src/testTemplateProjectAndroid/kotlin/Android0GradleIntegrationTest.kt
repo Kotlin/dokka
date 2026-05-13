@@ -57,7 +57,7 @@ class Android0GradleIntegrationTest : AbstractGradleIntegrationTest() {
 
         htmlOutputDir.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
-            assertNoUnresolvedLinks(file, knownUnresolvedDRIs)
+            assertNoUnresolvedLinks(file)
             assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoEmptyLinks(file)
             assertNoEmptySpans(file)
@@ -82,12 +82,4 @@ class Android0GradleIntegrationTest : AbstractGradleIntegrationTest() {
             assertNoHrefToMissingLocalFileOrDirectory(file)
         }
     }
-
-    // TODO: remove this list when https://github.com/Kotlin/dokka/issues/1306 is closed
-    private val knownUnresolvedDRIs = setOf(
-        "it.android/IntegrationTestActivity/findViewById/#kotlin.Int/PointingToGenericParameters(0)/",
-        "it.android/IntegrationTestActivity/getExtraData/#java.lang.Class[TypeParam(bounds=[androidx.core.app.ComponentActivity.ExtraData])]/PointingToGenericParameters(0)/",
-        "it.android/IntegrationTestActivity/getSystemService/#java.lang.Class[TypeParam(bounds=[kotlin.Any])]/PointingToGenericParameters(0)/",
-        "it.android/IntegrationTestActivity/requireViewById/#kotlin.Int/PointingToGenericParameters(0)/"
-    )
 }
