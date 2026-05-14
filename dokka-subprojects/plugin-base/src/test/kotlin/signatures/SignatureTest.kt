@@ -650,7 +650,7 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `kotlin enum should render just enum`() = testRender(
+    fun `kotlin enum should render enum class`() = testRender(
         """
             |/src/main/kotlin/common/Test.kt
             |package example
@@ -658,7 +658,7 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-enum-class/index.html").firstSignature().matchIgnoringSpans(
-            "enum", A("EnumClass"), ":", A("Enum"), "<", A("EnumClass"), ">"
+            "enum class", A("EnumClass"), ":", A("Enum"), "<", A("EnumClass"), ">"
         )
     }
 
@@ -742,7 +742,7 @@ class SignatureTest : BaseAbstractTest() {
 
     @OnlyJavaPsi
     @Test
-    fun `java enum should render just enum`() = testRender(
+    fun `java enum should render enum class`() = testRender(
         """
             |/src/example/EnumClass.java
             |package example;
@@ -750,7 +750,7 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-enum-class/index.html").firstSignature().matchIgnoringSpans(
-            "enum", A("EnumClass"),
+            "enum class", A("EnumClass"),
         )
     }
 
