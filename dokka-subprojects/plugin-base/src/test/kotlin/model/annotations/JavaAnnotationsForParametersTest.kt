@@ -109,7 +109,7 @@ class JavaAnnotationsForParametersTest : AbstractModelTest("/src/main/kotlin/jav
         ) {
             with((this / "java" / "Test").cast<DClass>()) {
                 with((this / "foo").cast<DFunction>()) {
-                    val annotations = ((generics.first().bounds.first() as Nullable).inner as GenericTypeConstructor)
+                    val annotations = (generics.first().bounds.first() as GenericTypeConstructor)
                         .extra[Annotations]?.directAnnotations?.flatMap { it.value }
                     val driOfHello = DRI("java", "Hello")
                     val annotationsValues = annotations?.flatMap { it.params.values }?.map { it.toString() }?.toList()
