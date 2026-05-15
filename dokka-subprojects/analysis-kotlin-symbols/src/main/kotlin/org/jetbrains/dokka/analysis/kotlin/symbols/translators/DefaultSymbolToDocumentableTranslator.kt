@@ -46,6 +46,7 @@ import org.jetbrains.kotlin.analysis.api.annotations.KaAnnotated
 import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.types.*
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.JvmStandardClassIds
 import org.jetbrains.kotlin.name.SpecialNames.UNDERSCORE_FOR_UNUSED_VAR
 import org.jetbrains.kotlin.psi.*
 
@@ -534,6 +535,11 @@ internal class DokkaSymbolVisitor(
                     )
                 }
 
+            // java inheriting kotlin with @JvmField
+            val isJvmField = isJavaContext && propertySymbol.backingFieldSymbol?.annotations?.any {
+                it.classId == JvmStandardClassIds.Annotations.JvmField
+            } == true
+
             return DProperty(
                 dri = dri,
                 name = propertySymbol.name.asString(),
@@ -546,8 +552,8 @@ internal class DokkaSymbolVisitor(
                 contextParameters = @OptIn(KaExperimentalApi::class) propertySymbol.contextParameters
                     .mapIndexed { index, symbol -> visitContextParameter(index, symbol, dri) },
                 sources = getSource(propertySymbol),
-                getter = propertySymbol.getter?.let { visitPropertyAccessor(it, propertySymbol, dri, parent, isJavaContext) },
-                setter = propertySymbol.setter?.let { visitPropertyAccessor(it, propertySymbol, dri, parent, isJavaContext) },
+                getter = if (isJvmField) null else propertySymbol.getter?.let { visitPropertyAccessor(it, propertySymbol, dri, parent, isJavaContext) },
+                setter = if (isJvmField) null else propertySymbol.setter?.let { visitPropertyAccessor(it, propertySymbol, dri, parent, isJavaContext) },
                 visibility = getDokkaVisibility(propertySymbol, isJavaContext).toSourceSetDependent(),
                 documentation = getDocumentation(propertySymbol)?.toSourceSetDependent() ?: emptyMap(), // TODO
                 modifier = propertySymbol.getDokkaModality().toSourceSetDependent(),

@@ -11,7 +11,6 @@ import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.InheritedMember
 import org.jetbrains.dokka.model.IsVar
 import org.jetbrains.dokka.model.isJvmField
-import utils.OnlyJavaPsi
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -158,8 +157,6 @@ class PsiSuperFieldsTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi("synthetic: #4250 AA will have accessors, even if there is non in Kotlin")
-    // [A.a] has the same accessors as well
     @Test
     fun `java inheriting kotlin with @JvmField should not inherit accessors`() {
         testInline(
