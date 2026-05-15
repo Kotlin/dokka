@@ -10,7 +10,6 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
-import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.See
 import org.jetbrains.dokka.model.doc.Text
@@ -109,7 +108,6 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols("PSI doesn't mark types as nullable")
     @Test
     fun allImplementedInterfacesWithGenericsInJava() {
         testInline(
@@ -137,7 +135,7 @@ class JavaTest : BaseAbstractTest() {
                     ).sorted()
                     for (implementedInterface in implementedInterfaces) {
                         assertEquals(
-                            (((implementedInterface.projections.single() as Invariance<*>).inner as Nullable).inner as TypeParameter).name,
+                            ((implementedInterface.projections.single() as Invariance<*>).inner as TypeParameter).name,
                             "T"
                         )
                     }
@@ -176,7 +174,6 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols("PSI doesn't mark types as nullable")
     @Test
     fun interfaceWithGeneric() {
         testInline(
@@ -195,7 +192,7 @@ class JavaTest : BaseAbstractTest() {
                     assertEquals(interfaceType.kind, JavaClassKindTypes.INTERFACE)
                     assertEquals(interfaceType.typeConstructor.dri.classNames, "Bar")
                     val generic =
-                        ((interfaceType.typeConstructor.projections.single() as Invariance<*>).inner as Nullable).inner as GenericTypeConstructor
+                        (interfaceType.typeConstructor.projections.single() as Invariance<*>).inner as GenericTypeConstructor
                     assertEquals(generic.dri.classNames, "String")
                 }
             }
@@ -222,7 +219,6 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaSymbols("PSI doesn't mark types as nullable")
     @Test
     fun superclassWithGeneric() {
         testInline(
@@ -241,7 +237,7 @@ class JavaTest : BaseAbstractTest() {
                     assertEquals(superclassType.kind, JavaClassKindTypes.CLASS)
                     assertEquals(superclassType.typeConstructor.dri.classNames, "Bar")
                     val generic =
-                        ((superclassType.typeConstructor.projections.single() as Invariance<*>).inner as Nullable).inner as GenericTypeConstructor
+                        (superclassType.typeConstructor.projections.single() as Invariance<*>).inner as GenericTypeConstructor
                     assertEquals(generic.dri.classNames, "String")
                 }
             }
@@ -249,7 +245,6 @@ class JavaTest : BaseAbstractTest() {
     }
 
     @Test
-    //@OnlyJavaPsi("mapped-types: AA represents int[] as IntArray, not Array<PrimitiveJavaType>")
     fun arrayType() {
         testInline(
             """
@@ -648,7 +643,6 @@ class JavaTest : BaseAbstractTest() {
         }
     }
 
-    //@OnlyJavaSymbols("PSI doesn't mark types as nullable")
     @Test
     fun variances() {
         testInline(

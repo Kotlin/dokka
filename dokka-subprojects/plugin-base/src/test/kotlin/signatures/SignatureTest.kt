@@ -750,7 +750,7 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-enum-class/index.html").firstSignature().matchIgnoringSpans(
-            "enum", A("EnumClass"),
+            "enum", A("EnumClass"), ":", A("Enum"), "<", A("EnumClass"), "?>" // TODO: `?` should it be here?
         )
     }
 

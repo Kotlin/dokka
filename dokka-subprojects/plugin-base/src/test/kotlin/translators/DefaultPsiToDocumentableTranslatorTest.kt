@@ -396,7 +396,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             |/src/main/java/test/A.java
             |package test;
             |public class A {
-            |    public int a = 1;
+            |    private int a = 1;
             |    public String getA() { return "s"; } // wrong return type
             |    public int getA(String param) { return 123; } // shouldn't have params
             |}
