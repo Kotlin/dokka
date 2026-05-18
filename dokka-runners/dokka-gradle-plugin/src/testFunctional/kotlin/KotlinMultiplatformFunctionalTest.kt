@@ -154,7 +154,7 @@ private fun initKotlinMultiplatformProject(
             |
             |kotlin {
             |  jvm()
-            |  js(IR) {
+            |  js {
             |    browser()
             |  }
             |
