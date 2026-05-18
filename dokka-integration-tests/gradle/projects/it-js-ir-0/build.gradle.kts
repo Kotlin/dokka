@@ -4,20 +4,23 @@
 
 plugins {
     id("org.jetbrains.dokka")
-    kotlin("js")
+    kotlin("multiplatform")
 }
 
 kotlin {
-    js(IR) {
+    js {
         browser()
         nodejs()
     }
-}
+    sourceSets {
+        val jsMain by getting {
+            dependencies {
+                implementation(npm("is-sorted", "1.0.5"))
 
-dependencies {
-    implementation(npm("is-sorted", "1.0.5"))
-
-    val reactVersion = properties["react_version"]
-    implementation("org.jetbrains.kotlin-wrappers:kotlin-react:$reactVersion")
-    implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$reactVersion")
+                val reactVersion = properties["react_version"]
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-react:$reactVersion")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$reactVersion")
+            }
+        }
+    }
 }
