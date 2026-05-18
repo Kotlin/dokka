@@ -9,8 +9,8 @@ import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.projects.defaultKgpTestVersion
 
 class MemoryStressTest : FunSpec({
-    context("when subprojects have 10 modules and uses single worker") {
-        val project = setupProject(10)
+    context("when subprojects have 50 modules and uses single worker") {
+        val project = setupProject(50, "500m")
 
         test("generate HTML publication") {
             project.runner
@@ -31,7 +31,7 @@ class MemoryStressTest : FunSpec({
 
 private fun setupProject(
     numberOfProjects: Int,
-    metaspaceMemory: String = "500m"
+    metaspaceMemory: String
 ): GradleProjectTest = gradleKtsProjectTest("MemoryStressTest-$numberOfProjects") {
     val projectNames = List(numberOfProjects) { "subproject_$it" }
     settingsGradleKts += projectNames.joinToString("\n") { """include(":$it")""" }
