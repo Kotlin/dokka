@@ -64,6 +64,7 @@ private fun setupProject(
                 |  dokkaGeneratorIsolation.set(ProcessIsolation {
                 |      maxHeapSize.set("1g")
                 |      jvmArgs.add("-XX:MaxMetaspaceSize=$metaspaceMemory") // limit metaspace
+                |      jvmArgs.add("-XX:SoftRefLRUPolicyMSPerMB=10")
                 |  })
                 |}
                 |
