@@ -45,13 +45,13 @@ abstract class AbstractIntegrationTest {
         )
     }
 
-    protected fun assertNoUnresolvedLinks(file: File, exceptions: Set<String> = emptySet()) {
+    protected fun assertNoUnresolvedLinks(file: File) {
         val fileText = file.readText()
         val regex = Regex("""data-unresolved-link="\[(.+?(?=]"))""")
         val match = regex.findAll(fileText).map { it.groups[1]!!.value }
 
         assertTrue(
-            match.filterNot { it in exceptions }.toList().isEmpty(),
+            match.toList().isEmpty(),
             "Unexpected unresolved link in ${file.path}\n" + fileText
         )
     }
