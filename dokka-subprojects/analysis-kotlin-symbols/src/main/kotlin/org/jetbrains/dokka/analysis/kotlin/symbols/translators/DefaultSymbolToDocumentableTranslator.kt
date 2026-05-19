@@ -557,7 +557,7 @@ internal class DokkaSymbolVisitor(
                 visibility = getDokkaVisibility(propertySymbol, isJavaContext).toSourceSetDependent(),
                 documentation = getDocumentation(propertySymbol)?.toSourceSetDependent() ?: emptyMap(), // TODO
                 modifier = propertySymbol.getDokkaModality().toSourceSetDependent(),
-                type = (propertySymbol.psi as? PsiMethod)?.returnType?.let { psiHelper.getBound(it) }
+                type = (propertySymbol.getter?.psi as? PsiMethod)?.returnType?.let { psiHelper.getBound(it) }
                     ?: toBoundFrom(propertySymbol.returnType, propertySymbol),
                 expectPresentInSet = sourceSet.takeIf { isExpect },
                 sourceSets = setOf(sourceSet),

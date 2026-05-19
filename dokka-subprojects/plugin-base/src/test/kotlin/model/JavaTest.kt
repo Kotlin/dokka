@@ -6,6 +6,7 @@ package model
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.Platform
+import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.driOrNull
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.links.*
@@ -712,6 +713,29 @@ class JavaTest : BaseAbstractTest() {
                         target = PointingToDeclaration,
                     )
                     assertEquals(expectedDRI, (doc.dfs { it is See } as See).address)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `synthetic properties should have a Java type`() {
+        testInline(
+            """
+            |/src/java/Foo.java
+            |package java;
+            |public class Foo {
+            | String getA() {}
+            |}
+            """.trimIndent(), configuration
+        ) {
+            documentablesTransformationStage = { module ->
+                with((module / "java" / "Foo" / "a").cast< DProperty>()) {
+                    val expectedDRI = DRI(
+                        packageName = "java.lang", classNames = "String",
+                        target = PointingToDeclaration,
+                    )
+                    assertEquals(expectedDRI, this.type.driOrNull)
                 }
             }
         }
