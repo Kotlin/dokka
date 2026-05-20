@@ -719,6 +719,7 @@ class JavaTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlyJavaSymbols("Java PSI incorrectly omits generating a synthetic property without a backing field")
     fun `synthetic properties should have a Java type`() {
         testInline(
             """
