@@ -7,21 +7,18 @@ import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.AttributeContainer
-import org.gradle.api.attributes.Bundling.BUNDLING_ATTRIBUTE
-import org.gradle.api.attributes.Bundling.EXTERNAL
 import org.gradle.api.attributes.Category.CATEGORY_ATTRIBUTE
 import org.gradle.api.attributes.Category.LIBRARY
 import org.gradle.api.attributes.LibraryElements.JAR
 import org.gradle.api.attributes.LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE
-import org.gradle.api.attributes.Usage.JAVA_RUNTIME
 import org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE
 import org.gradle.api.attributes.java.TargetJvmEnvironment.STANDARD_JVM
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.gradle.api.model.ObjectFactory
-import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.named
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaClasspathAttribute
 import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaFormatAttribute
+import org.jetbrains.dokka.gradle.dependencies.DokkaAttribute.Companion.DokkaJavaRuntimeUsage
 import org.jetbrains.dokka.gradle.internal.*
 
 /**
@@ -51,18 +48,18 @@ class FormatDependenciesManager(
             formatName = formatName,
         )
 
-    init {
-        project.dependencies {
-            applyAttributeHacks()
-        }
-    }
-
-    private fun AttributeContainer.jvmJar() {
-        attribute(USAGE_ATTRIBUTE, objects.named(AttributeHackPrefix + JAVA_RUNTIME))
-        attribute(CATEGORY_ATTRIBUTE, objects.named(AttributeHackPrefix + LIBRARY))
-        attribute(BUNDLING_ATTRIBUTE, objects.named(AttributeHackPrefix + EXTERNAL))
-        attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, objects.named(AttributeHackPrefix + STANDARD_JVM))
-        attribute(LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(AttributeHackPrefix + JAR))
+    /**
+     * Specifically request JVM JARs for any Dokka classpath.
+     * I.e., uses [DokkaJavaRuntimeUsage] instead of [org.gradle.api.attributes.Usage.JAVA_RUNTIME].
+     *
+     * @see DokkaJavaRuntimeUsage
+     * @see DokkaJavaRuntimeUsage
+     */
+    private fun AttributeContainer.dokkaJvmJar() {
+        attribute(USAGE_ATTRIBUTE, objects.named(DokkaJavaRuntimeUsage))
+        attribute(LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(JAR))
+        attribute(CATEGORY_ATTRIBUTE, objects.named(LIBRARY))
+        attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, objects.named(STANDARD_JVM))
     }
 
     //region Dokka Generator Plugins
@@ -93,7 +90,7 @@ class FormatDependenciesManager(
             extendsFrom(dokkaPluginsClasspath)
             isTransitive = false
             attributes {
-                jvmJar()
+                dokkaJvmJar()
                 attribute(DokkaFormatAttribute, formatAttributes.format.name)
                 attribute(DokkaClasspathAttribute, baseAttributes.dokkaPlugins.name)
             }
@@ -122,7 +119,7 @@ class FormatDependenciesManager(
             resolvable()
             extendsFrom(dokkaPublicationPluginClasspath.get())
             attributes {
-                jvmJar()
+                dokkaJvmJar()
                 attribute(DokkaFormatAttribute, formatAttributes.format.name)
                 attribute(DokkaClasspathAttribute, baseAttributes.dokkaPublicationPlugins.name)
             }
@@ -153,7 +150,7 @@ class FormatDependenciesManager(
             consumable()
             extendsFrom(dokkaPublicationPluginClasspathApiOnly)
             attributes {
-                jvmJar()
+                dokkaJvmJar()
                 attribute(DokkaFormatAttribute, formatAttributes.format.name)
                 attribute(DokkaClasspathAttribute, baseAttributes.dokkaPublicationPlugins.name)
             }
@@ -202,7 +199,7 @@ class FormatDependenciesManager(
             extendsFrom(dokkaGeneratorClasspath.get())
 
             attributes {
-                jvmJar()
+                dokkaJvmJar()
                 attribute(DokkaFormatAttribute, formatAttributes.format.name)
                 attribute(DokkaClasspathAttribute, baseAttributes.dokkaGenerator.name)
             }

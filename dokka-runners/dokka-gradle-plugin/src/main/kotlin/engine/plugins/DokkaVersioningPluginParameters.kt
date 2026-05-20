@@ -86,6 +86,14 @@ constructor(
     abstract val olderVersions: ConfigurableFileCollection
 
     /**
+     * An optional folder name where other documentation versions output will be placed. In case
+     * of empty string root folder will be used instead. Set to `older` by default.
+     */
+    @get:Input
+    @get:Optional
+    abstract val olderVersionsDirName: Property<String>
+
+    /**
      * An optional boolean value indicating whether to render the navigation dropdown on all pages.
      *
      * Set to `true` by default.
@@ -110,6 +118,7 @@ constructor(
             putJsonArray("olderVersions") {
                 addAll(olderVersions.files)
             }
+            putIfNotNull("olderVersionsDirName", olderVersionsDirName.orNull)
             putIfNotNull("renderVersionsNavigationOnAllPages", renderVersionsNavigationOnAllPages.orNull)
         }.toString()
     }

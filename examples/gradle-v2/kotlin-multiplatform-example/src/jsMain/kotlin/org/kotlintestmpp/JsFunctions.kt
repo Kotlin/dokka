@@ -1,7 +1,7 @@
 package org.kotlintestmpp
 
 /**
- * Function declares in JS source set
+ * Function declared in JS source set
  */
 fun js() {}
 

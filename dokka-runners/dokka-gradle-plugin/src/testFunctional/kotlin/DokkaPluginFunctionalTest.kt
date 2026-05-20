@@ -15,6 +15,11 @@ import org.jetbrains.dokka.gradle.utils.*
 class DokkaPluginFunctionalTest : FunSpec({
     val testProject = gradleKtsProjectTest("DokkaPluginFunctionalTest") {
 
+        gradleProperties {
+            // the built-in Gradle tasks `outgoingVariants` and `resolvableConfigurations` don't support project-iso
+            gradle.isolatedProjects = false
+        }
+
         buildGradleKts = """
             |plugins {
             |  id("org.jetbrains.dokka") version "$DOKKA_VERSION"
@@ -22,7 +27,7 @@ class DokkaPluginFunctionalTest : FunSpec({
             |}
             |
             |val printDeclarableConfigurations by tasks.registering {
-            |  val declarableConfNames = provider { configurations.matching { it.isCanBeDeclared }.names }
+            |  val declarableConfNames = provider { configurations.matching { it.isCanBeDeclared }.names.toList() }
             |  inputs.property("declarableConfNames", declarableConfNames)
             |  doLast {
             |    println("declarableConfigurations:" + declarableConfNames.get())
@@ -135,7 +140,6 @@ class DokkaPluginFunctionalTest : FunSpec({
                 fun checkVariant(format: String) {
                     @Suppress("LocalVariableName")
                     val Format = format.uppercaseFirstChar()
-
                     variants shouldContain /* language=text */ """
                         |--------------------------------------------------
                         |Variant dokka${Format}ModuleOutputDirectoriesConsumable~internal
@@ -195,13 +199,12 @@ class DokkaPluginFunctionalTest : FunSpec({
                                     |[Internal Dokka Configuration] Dokka Generator runtime classpath for $format - will be used in Dokka Worker. Should contain all transitive dependencies, plugins (and their transitive dependencies), so Dokka Worker can run.
                                     |
                                     |Attributes
-                                    |    - org.gradle.category            = DGP~library
-                                    |    - org.gradle.dependency.bundling = DGP~external
-                                    |    - org.gradle.jvm.environment     = DGP~standard-jvm
-                                    |    - org.gradle.libraryelements     = DGP~jar
-                                    |    - org.gradle.usage               = DGP~java-runtime
-                                    |    - org.jetbrains.dokka.classpath  = dokka-generator
-                                    |    - org.jetbrains.dokka.format     = $format
+                                    |    - org.gradle.category           = library
+                                    |    - org.gradle.jvm.environment    = standard-jvm
+                                    |    - org.gradle.libraryelements    = jar
+                                    |    - org.gradle.usage              = dokka-java-runtime
+                                    |    - org.jetbrains.dokka.classpath = dokka-generator
+                                    |    - org.jetbrains.dokka.format    = $format
                                     |Extended Configurations
                                     |    - dokka${Format}GeneratorRuntime
                                     """.trimMargin(),
@@ -221,13 +224,12 @@ class DokkaPluginFunctionalTest : FunSpec({
                                     |[Internal Dokka Configuration] Resolves Dokka Plugins classpath for $format. Fetch only the plugins (no transitive dependencies) for use in the Dokka JSON Configuration.
                                     |
                                     |Attributes
-                                    |    - org.gradle.category            = DGP~library
-                                    |    - org.gradle.dependency.bundling = DGP~external
-                                    |    - org.gradle.jvm.environment     = DGP~standard-jvm
-                                    |    - org.gradle.libraryelements     = DGP~jar
-                                    |    - org.gradle.usage               = DGP~java-runtime
-                                    |    - org.jetbrains.dokka.classpath  = dokka-plugins
-                                    |    - org.jetbrains.dokka.format     = $format
+                                    |    - org.gradle.category           = library
+                                    |    - org.gradle.jvm.environment    = standard-jvm
+                                    |    - org.gradle.libraryelements    = jar
+                                    |    - org.gradle.usage              = dokka-java-runtime
+                                    |    - org.jetbrains.dokka.classpath = dokka-plugins
+                                    |    - org.jetbrains.dokka.format    = $format
                                     |Extended Configurations
                                     |    - dokka${Format}Plugin
                                     """.trimMargin(),
@@ -236,13 +238,12 @@ class DokkaPluginFunctionalTest : FunSpec({
                                     |[Internal Dokka Configuration] Resolves Dokka Plugins classpath for a $format Publication (consisting of one or more Dokka Modules).
                                     |
                                     |Attributes
-                                    |    - org.gradle.category            = DGP~library
-                                    |    - org.gradle.dependency.bundling = DGP~external
-                                    |    - org.gradle.jvm.environment     = DGP~standard-jvm
-                                    |    - org.gradle.libraryelements     = DGP~jar
-                                    |    - org.gradle.usage               = DGP~java-runtime
-                                    |    - org.jetbrains.dokka.classpath  = dokka-publication-plugins
-                                    |    - org.jetbrains.dokka.format     = $format
+                                    |    - org.gradle.category           = library
+                                    |    - org.gradle.jvm.environment    = standard-jvm
+                                    |    - org.gradle.libraryelements    = jar
+                                    |    - org.gradle.usage              = dokka-java-runtime
+                                    |    - org.jetbrains.dokka.classpath = dokka-publication-plugins
+                                    |    - org.jetbrains.dokka.format    = $format
                                     |Extended Configurations
                                     |    - dokka${Format}PublicationPlugin
                                     """.trimMargin(),

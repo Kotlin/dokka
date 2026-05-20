@@ -40,6 +40,11 @@ public object DokkaDefaults {
 
     public val pluginsConfiguration: List<PluginConfigurationImpl> = mutableListOf()
 
+    /**
+     * Default value for [DokkaConfiguration.DokkaSourceSet.suppressAnnotatedWith].
+     */
+    public val suppressAnnotatedWith: Set<String> = emptySet()
+
     public const val delayTemplateSubstitution: Boolean = false
 
     public val cacheRoot: File? = null
@@ -50,7 +55,10 @@ public enum class Platform(
 ) {
     jvm("jvm"),
     js("js"),
+    @Deprecated("Use `wasmWasi` or `wasmJs`")
     wasm("wasm"),
+    wasmWasi("wasmWasi"),
+    wasmJs("wasmJs"),
     native("native"),
     common("common");
 
@@ -58,10 +66,13 @@ public enum class Platform(
         public val DEFAULT: Platform = jvm
 
         public fun fromString(key: String): Platform {
+
             return when (key.toLowerCase()) {
                 jvm.key -> jvm
                 js.key -> js
-                wasm.key -> wasm
+                @Suppress("DEPRECATION") wasm.key -> @Suppress("DEPRECATION") wasm
+                wasmWasi.key.toLowerCase() -> wasmWasi
+                wasmJs.key.toLowerCase() -> wasmJs
                 native.key -> native
                 common.key -> common
                 "androidjvm", "android" -> jvm
@@ -208,6 +219,11 @@ public interface DokkaConfiguration : Serializable {
         public val noStdlibLink: Boolean
         public val noJdkLink: Boolean
         public val suppressedFiles: Set<File>
+
+        /**
+         * A set of annotation fully qualified names (FQNs) to suppress declarations annotated with.
+         */
+        public val suppressAnnotatedWith: Set<String>
         public val analysisPlatform: Platform
         public val documentedVisibilities: Set<Visibility>
     }

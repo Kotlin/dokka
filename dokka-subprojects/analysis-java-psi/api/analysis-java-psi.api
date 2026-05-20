@@ -1,3 +1,8 @@
+public final class com/intellij/openapi/fileTypes/BinaryFileTypeDecompilers : com/intellij/openapi/fileTypes/FileTypeExtension {
+	public static fun getInstance ()Lcom/intellij/openapi/fileTypes/BinaryFileTypeDecompilers;
+	public fun notifyDecompilerSetChange ()V
+}
+
 public final class org/jetbrains/dokka/analysis/java/AuthorJavadocTag : org/jetbrains/dokka/analysis/java/JavadocTag {
 	public static final field INSTANCE Lorg/jetbrains/dokka/analysis/java/AuthorJavadocTag;
 }
@@ -32,6 +37,7 @@ public final class org/jetbrains/dokka/analysis/java/JavaAnalysisPlugin : org/je
 	public final fun getInheritDocTagContentProviders ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getKotlinLightMethodChecker ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getProjectProvider ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getPsiToDocumentableTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getSourceRootsExtractor ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 }
 
@@ -77,6 +83,14 @@ public abstract interface class org/jetbrains/dokka/analysis/java/SourceRootsExt
 	public abstract fun extract (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/plugability/DokkaContext;)Ljava/util/List;
 }
 
+public final class org/jetbrains/dokka/analysis/java/SyntheticElementDocumentationProvider {
+	public fun <init> (Lorg/jetbrains/dokka/analysis/java/parsers/JavadocParser;Lcom/intellij/openapi/project/Project;)V
+	public final fun getDocumentation (Lcom/intellij/psi/PsiElement;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+	public final fun getDocumentationForEnumValueOfMethod (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+	public final fun getDocumentationForEnumValuesMethod (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+	public final fun isDocumented (Lcom/intellij/psi/PsiElement;)Z
+}
+
 public abstract class org/jetbrains/dokka/analysis/java/ThrowingExceptionJavadocTag : org/jetbrains/dokka/analysis/java/JavadocTag {
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getExceptionQualifiedName ()Ljava/lang/String;
@@ -117,12 +131,12 @@ public abstract interface class org/jetbrains/dokka/analysis/java/doccomment/Doc
 
 public abstract interface class org/jetbrains/dokka/analysis/java/parsers/DocCommentParser {
 	public abstract fun canParse (Lorg/jetbrains/dokka/analysis/java/doccomment/DocComment;)Z
-	public abstract fun parse (Lorg/jetbrains/dokka/analysis/java/doccomment/DocComment;Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+	public abstract fun parse (Lorg/jetbrains/dokka/analysis/java/doccomment/DocComment;Lcom/intellij/psi/PsiNamedElement;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
 }
 
 public final class org/jetbrains/dokka/analysis/java/parsers/JavadocParser : org/jetbrains/dokka/analysis/java/parsers/JavaDocumentationParser {
 	public fun <init> (Ljava/util/List;Lorg/jetbrains/dokka/analysis/java/doccomment/DocCommentFinder;)V
-	public fun parseDocumentation (Lcom/intellij/psi/PsiNamedElement;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+	public fun parseDocumentation (Lcom/intellij/psi/PsiNamedElement;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
 }
 
 public final class org/jetbrains/dokka/analysis/java/parsers/doctag/DocTagParserContext {
@@ -143,6 +157,15 @@ public final class org/jetbrains/dokka/analysis/java/util/PsiDocumentableSource 
 	public fun computeLineNumber ()Ljava/lang/Integer;
 	public fun getPath ()Ljava/lang/String;
 	public final fun getPsi ()Lcom/intellij/psi/PsiNamedElement;
+}
+
+public final class org/jetbrains/dokka/analysis/java/util/PsiHelper {
+	public fun <init> (Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;Lorg/jetbrains/dokka/utilities/DokkaLogger;Lorg/jetbrains/dokka/analysis/java/BreakingAbstractionKotlinLightMethodChecker;)V
+	public final fun convertAnnotation (Lcom/intellij/psi/PsiAnnotation;)Lorg/jetbrains/dokka/model/Annotations$Annotation;
+	public final fun convertAnnotations (Ljava/util/Collection;)Ljava/util/List;
+	public final fun getBound (Lcom/intellij/psi/PsiType;)Lorg/jetbrains/dokka/model/Bound;
+	public final fun getCheckedExceptionDRIs (Lcom/intellij/psi/PsiMethod;)Ljava/util/List;
+	public final fun getConstantExpression (Lcom/intellij/psi/PsiField;)Lorg/jetbrains/dokka/model/Expression;
 }
 
 public final class org/jetbrains/dokka/analysis/java/util/PsiUtilKt {

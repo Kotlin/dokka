@@ -118,7 +118,8 @@ public open class DefaultPageCreator(
                     props.mergeClashingDocumentable().map(::pageForProperties)
         else
             classlikes.renameClashingDocumentable().map(::pageForClasslike) +
-                    (functions + props).renameClashingDocumentable().mapNotNull(::pageForMember)
+                    functions.renameClashingDocumentable().map(::pageForFunction) +
+                    props.renameClashingDocumentable().mapNotNull(::pageForProperty)
 
         return ClasslikePageNode(
             documentables.first().nameAfterClash(), contentForClasslikesAndEntries(documentables), dri, documentables,
@@ -148,17 +149,19 @@ public open class DefaultPageCreator(
         val nestedClasslikes = classlikes.flatMap { it.classlikes }
         val functions = classlikes.flatMap { it.filteredFunctions }
         val props = classlikes.flatMap { it.filteredProperties }
+        val typealiases = classlikes.flatMap { (it as? WithTypealiases)?.typealiases.orEmpty() }
         val entries = classlikes.flatMap { if (it is DEnum) it.entries else emptyList() }
 
         val childrenPages = constructors.map(::pageForFunction) +
                 if (mergeImplicitExpectActualDeclarations)
-                    nestedClasslikes.mergeClashingDocumentable().map(::pageForClasslikes) +
+                    (nestedClasslikes + typealiases).mergeClashingDocumentable().map(::pageForClasslikes) +
                             functions.mergeClashingDocumentable().map(::pageForFunctions) +
                             props.mergeClashingDocumentable().map(::pageForProperties) +
                             entries.mergeClashingDocumentable().map(::pageForEnumEntries)
                 else
-                    nestedClasslikes.renameClashingDocumentable().map(::pageForClasslike) +
-                            (functions + props).renameClashingDocumentable().mapNotNull(::pageForMember)  +
+                    (nestedClasslikes + typealiases).renameClashingDocumentable().map(::pageForClasslike) +
+                            functions.renameClashingDocumentable().map(::pageForFunction) +
+                            props.renameClashingDocumentable().mapNotNull(::pageForProperty) +
                             entries.renameClashingDocumentable().map(::pageForEnumEntry)
 
 
@@ -204,12 +207,6 @@ public open class DefaultPageCreator(
             }
         }
         return MemberPageNode(fs.first().nameAfterClash(), contentForMembers(fs), dri, fs)
-    }
-
-    private fun pageForMember(d: Documentable): MemberPageNode? = when (d) {
-        is DProperty -> pageForProperty(d)
-        is DFunction -> pageForFunction(d)
-        else -> throw IllegalStateException()
     }
 
     public open fun pageForProperty(p: DProperty): MemberPageNode? =
@@ -397,7 +394,7 @@ public open class DefaultPageCreator(
         dri = @Suppress("UNCHECKED_CAST") (scopes as List<Documentable>).dri,
         sourceSets = sourceSets,
         types = scopes.flatMap { it.classlikes } +
-                scopes.filterIsInstance<DPackage>().flatMap { it.typealiases },
+                scopes.flatMap { (it as? WithTypealiases)?.typealiases.orEmpty() },
         functions = scopes.flatMap { it.functions },
         properties = scopes.flatMap { it.properties },
         extensions = extensions,
@@ -622,13 +619,13 @@ public open class DefaultPageCreator(
 
     protected open fun contentForMember(d: Documentable): ContentGroup = contentForMembers(listOf(d))
 
-    protected open fun contentForMembers(doumentables: List<Documentable>): ContentGroup =
-        contentBuilder.contentFor(doumentables.dri, doumentables.sourceSets) {
+    protected open fun contentForMembers(documentables: List<Documentable>): ContentGroup =
+        contentBuilder.contentFor(documentables.dri, documentables.sourceSets) {
             group(kind = ContentKind.Cover) {
-                cover(doumentables.first().name.orEmpty())
+                cover(documentables.first().name.orEmpty())
             }
             divergentGroup(ContentDivergentGroup.GroupID("member")) {
-                doumentables.forEach { d ->
+                documentables.forEach { d ->
                     instance(setOf(d.dri), d.sourceSets) {
                         divergent {
                             +buildSignature(d)
@@ -644,15 +641,8 @@ public open class DefaultPageCreator(
     private fun DocumentableContentBuilder.typesBlock(types: List<Documentable>) {
         if (types.isEmpty()) return
 
-        val grouped = types
-            // This groupBy should probably use LocationProvider
-            .groupBy(Documentable::name)
-            .mapValues { (_, elements) ->
-                // This hacks displaying actual typealias signatures along classlike ones
-                if (elements.any { it is DClasslike }) elements.filter { it !is DTypeAlias } else elements
-            }
-
-        val groups = grouped.entries
+        // This groupBy should probably use LocationProvider
+        val groups = types.groupBy(Documentable::name).entries
             .sortedWith(compareBy(nullsFirst(canonicalAlphabeticalOrder)) { it.key })
             .map { (name, elements) ->
                 DivergentElementGroup(

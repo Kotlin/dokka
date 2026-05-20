@@ -455,6 +455,28 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols
+    fun `fun with unresolved parameter`() {
+        val source = source("fun simpleFun(param: UnresolvedType): Unit")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
+                    "fun ", A("simpleFun"), "(", Parameters(
+                        Parameter("param: UnresolvedType"),
+                    ), ")",
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
     fun `fun with vararg`() {
         val source = source("fun simpleFun(vararg params: Int): Unit")
         val writerPlugin = TestOutputWriterPlugin()
@@ -628,7 +650,7 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `kotlin enum should render just enum`() = testRender(
+    fun `kotlin enum should render enum class`() = testRender(
         """
             |/src/main/kotlin/common/Test.kt
             |package example
@@ -636,7 +658,7 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-enum-class/index.html").firstSignature().matchIgnoringSpans(
-            "enum", A("EnumClass"), ":", A("Enum"), "<", A("EnumClass"), ">"
+            "enum class", A("EnumClass"), ":", A("Enum"), "<", A("EnumClass"), ">"
         )
     }
 
@@ -718,6 +740,7 @@ class SignatureTest : BaseAbstractTest() {
         )
     }
 
+    @OnlyJavaSymbols("PSI doesn't add super type - AA does, same for Kotlin enum above")
     @Test
     fun `java enum should render just enum`() = testRender(
         """
@@ -727,7 +750,7 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-enum-class/index.html").firstSignature().matchIgnoringSpans(
-            "enum", A("EnumClass"),
+            "enum class", A("EnumClass"), ":", A("Enum"), "<", A("EnumClass"), ">"
         )
     }
 

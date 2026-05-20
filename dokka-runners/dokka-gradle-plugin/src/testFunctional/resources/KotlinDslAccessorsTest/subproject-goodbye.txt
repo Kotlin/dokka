@@ -1236,6 +1236,9 @@ fun org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokk
 fun org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec>.`html`(configure: Action<org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("html", configure)
 
+fun org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec>.`kotlinPlaygroundSamples`(configure: Action<org.jetbrains.dokka.gradle.engine.plugins.DokkaKotlinPlaygroundSamplesParameters>): Unit =
+    (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("kotlinPlaygroundSamples", configure)
+
 fun org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec>.`versioning`(configure: Action<org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("versioning", configure)
 
@@ -1261,6 +1264,9 @@ fun org.jetbrains.dokka.gradle.DokkaExtension.`pluginsConfiguration`(configure: 
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("pluginsConfiguration", configure)
 
 fun org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters.`ext`(configure: Action<org.gradle.api.plugins.ExtraPropertiesExtension>): Unit =
+    (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("ext", configure)
+
+fun org.jetbrains.dokka.gradle.engine.plugins.DokkaKotlinPlaygroundSamplesParameters.`ext`(configure: Action<org.gradle.api.plugins.ExtraPropertiesExtension>): Unit =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("ext", configure)
 
 fun org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters.`ext`(configure: Action<org.gradle.api.plugins.ExtraPropertiesExtension>): Unit =
@@ -1295,6 +1301,9 @@ val org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokk
 
 val org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec>.`html`: org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters get() =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("html") as org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
+
+val org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec>.`kotlinPlaygroundSamples`: org.jetbrains.dokka.gradle.engine.plugins.DokkaKotlinPlaygroundSamplesParameters get() =
+    (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("kotlinPlaygroundSamples") as org.jetbrains.dokka.gradle.engine.plugins.DokkaKotlinPlaygroundSamplesParameters
 
 val org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec>.`versioning`: org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters get() =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("versioning") as org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters
@@ -1405,6 +1414,9 @@ val org.jetbrains.dokka.gradle.DokkaExtension.`pluginsConfiguration`: org.gradle
     (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("pluginsConfiguration") as org.gradle.api.ExtensiblePolymorphicDomainObjectContainer<org.jetbrains.dokka.gradle.engine.plugins.DokkaPluginParametersBaseSpec>
 
 val org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters.`ext`: org.gradle.api.plugins.ExtraPropertiesExtension get() =
+    (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("ext") as org.gradle.api.plugins.ExtraPropertiesExtension
+
+val org.jetbrains.dokka.gradle.engine.plugins.DokkaKotlinPlaygroundSamplesParameters.`ext`: org.gradle.api.plugins.ExtraPropertiesExtension get() =
     (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("ext") as org.gradle.api.plugins.ExtraPropertiesExtension
 
 val org.jetbrains.dokka.gradle.engine.plugins.DokkaVersioningPluginParameters.`ext`: org.gradle.api.plugins.ExtraPropertiesExtension get() =

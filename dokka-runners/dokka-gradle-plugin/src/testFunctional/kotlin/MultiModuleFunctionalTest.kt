@@ -17,6 +17,7 @@ import io.kotest.matchers.sequences.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldContainOnlyOnce
 import io.kotest.matchers.string.shouldNotContain
 import org.gradle.testkit.runner.TaskOutcome.*
 import org.jetbrains.dokka.gradle.WorkerIsolation.ClassLoader
@@ -442,7 +443,12 @@ class MultiModuleFunctionalTest : FunSpec({
     }
 
     context("logging") {
-        val project = initMultiModuleProject("logging")
+        val project = initMultiModuleProject("logging") {
+            gradleProperties {
+                // disable project iso, because all projects must be configured to trigger the logged warnings
+                gradle.isolatedProjects = false
+            }
+        }
 
         test("expect no logs when built using --quiet log level") {
             project.runner
@@ -516,18 +522,37 @@ class MultiModuleFunctionalTest : FunSpec({
                     else -> line
                 }
             }
+            // disable project iso, because all projects must be configured to trigger the logged warnings
+            gradleProperties.gradle.isolatedProjects = false
         }
 
-        test("expect warning regarding KotlinProjectExtension") {
+        test("expect KotlinAdapter not applied to root project") {
             project.runner
-                .addArguments("clean")
-                .forwardOutput()
+                .addArguments(
+                    "clean",
+                    "--stacktrace",
+                    "--info",
+                )
                 .build {
-                    // the root project doesn't have the KGP applied, so KotlinProjectExtension shouldn't be applied
-                    output shouldNotContain "KotlinAdapter failed to get KotlinProjectExtension in :\n"
+                    // the root project doesn't have KGP applied, so KotlinAdapter shouldn't be applied
+                    output shouldContain "Dokka Gradle Plugin could not load KotlinBasePlugin in root project 'kpe-warning'"
+                    output shouldNotContain "Applying KotlinAdapter to :\n"
+                }
+        }
 
-                    output shouldContain "KotlinAdapter failed to get KotlinProjectExtension in :subproject-hello\n"
-                    output shouldContain "KotlinAdapter failed to get KotlinProjectExtension in :subproject-goodbye\n"
+        test("expect KotlinAdapter applied to subprojects, with KotlinProjectExtension warnings") {
+            project.runner
+                .addArguments(
+                    "clean",
+                    "--stacktrace",
+                    "--warn",
+                )
+                .build {
+                    // the subprojects should have KotlinAdapter applied, but the extension should be unavailable
+                    // because the buildscript classpath is inconsistent.
+                    // (DGP is applied to the root project, but KGP is not.)
+                    output shouldContainOnlyOnce "warning: Dokka could not load KotlinBasePlugin in project ':subproject-hello', even though plugin org.jetbrains.kotlin.jvm is applied."
+                    output shouldContainOnlyOnce "warning: Dokka could not load KotlinBasePlugin in project ':subproject-goodbye', even though plugin org.jetbrains.kotlin.jvm is applied."
                 }
         }
     }

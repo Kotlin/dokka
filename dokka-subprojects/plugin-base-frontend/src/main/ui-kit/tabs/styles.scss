@@ -58,9 +58,9 @@
   margin-top: 12px;
 }
 
-.tabs-section-body .with-platform-tabs {
-  padding-top: 12px;
-  padding-bottom: 12px;
+/* tabs inside tables should have decreased spacing */
+.table .platform-bookmarks-row, .table .tabs-section {
+  margin-bottom: var(--size-s3);
 }
 
 .platform-hinted {

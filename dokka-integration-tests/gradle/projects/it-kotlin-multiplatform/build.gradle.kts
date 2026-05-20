@@ -9,4 +9,11 @@ kotlin {
     linuxArm64()
     iosX64()
     iosArm64()
+
+    androidNativeArm32()
+    androidNativeArm64()
+    androidNativeX64()
+    androidNativeX86()
 }
+
+dokka.pluginsConfiguration.html.footerMessage.set("© 2025 Copyright")

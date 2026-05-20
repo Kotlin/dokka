@@ -4,11 +4,13 @@
 
 package markdown
 
+import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.analysis.kotlin.markdown.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.TypeConstructor
+import org.jetbrains.dokka.links.Nullable
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.pages.ClasslikePageNode
@@ -31,6 +33,7 @@ class LinkTest : BaseAbstractTest() {
             }
         }
     }
+
     @Test
     fun linkToClassLoader() {
         val configuration = dokkaConfiguration {
@@ -54,12 +57,13 @@ class LinkTest : BaseAbstractTest() {
             configuration
         ) {
             renderingStage = { rootPageNode, _ ->
-                assertNotNull((rootPageNode.children.single().children.single() as MemberPageNode)
-                    .content
-                    .dfs { node ->
-                        node is ContentDRILink &&
-                                node.address.toString() == "parser//test/#java.lang.ClassLoader/PointingToDeclaration/"
-                    }
+                assertNotNull(
+                    (rootPageNode.children.single().children.single() as MemberPageNode)
+                        .content
+                        .dfs { node ->
+                            node is ContentDRILink &&
+                                    node.address.toString() == "parser//test/#java.lang.ClassLoader/PointingToDeclaration/"
+                        }
                 )
             }
         }
@@ -307,7 +311,7 @@ class LinkTest : BaseAbstractTest() {
                                         dri = DRI(
                                             packageName = "example",
                                             classNames = "Testing",
-                                            callable = Callable("property", null, emptyList()),
+                                            callable = Callable("property", null, emptyList(), isProperty = true),
                                             target = PointingToDeclaration
                                         ),
                                         children = listOf(
@@ -343,7 +347,8 @@ class LinkTest : BaseAbstractTest() {
             configuration
         ) {
             documentablesMergingStage = { module ->
-                val functionDocs = (module.packages.flatMap { it.classlikes }.first() as DClass).constructors.first().documentation.values.first()
+                val functionDocs = (module.packages.flatMap { it.classlikes }
+                    .first() as DClass).constructors.first().documentation.values.first()
                 val expected = Description(
                     root = CustomDocTag(
                         children = listOf(
@@ -429,6 +434,7 @@ class LinkTest : BaseAbstractTest() {
         }
     }
 
+    @OnlySymbols
     @Test
     fun `link should lead to a function with a nullable parameter`() {
         testInline(
@@ -457,7 +463,7 @@ class LinkTest : BaseAbstractTest() {
                                             classNames = "AppletContext",
                                             callable = Callable(
                                                 name = "showDocument",
-                                                params = listOf(TypeConstructor("java.net.URL", emptyList()))
+                                                params = listOf(JavaClassReference("java.net.URL"))
                                             ),
                                             target = PointingToDeclaration
                                         ),
@@ -529,7 +535,8 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `fully qualified link should lead to package`() {
+    @OnlyDescriptors("KEEP #389: New KDoc resolution")
+    fun `fully qualified link should lead to package K1`() {
         // for the test case, there is the only one link candidate in K1 and K2
         testInline(
             """
@@ -585,7 +592,8 @@ class LinkTest : BaseAbstractTest() {
                                             target = PointingToDeclaration,
                                             callable = Callable(
                                                 "x",
-                                                params = emptyList()
+                                                params = emptyList(),
+                                                isProperty = true
                                             )
                                         ),
                                         children = listOf(
@@ -604,6 +612,90 @@ class LinkTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    @OnlySymbols("KEEP #389: New KDoc resolution")
+    fun `fully qualified link should lead to function`() {
+        // for the test case, there is the only one link candidate in K1 and K2
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |
+            |/**
+            | * refs to the function [example.fn] and the property [example.x]
+            | */
+            |val x = 0
+            |
+            |/**
+            | * refs to the function [example.fn] and the property [example.x]
+            | */
+            |fun fn(p: Int){}
+            |
+            |/src/main/kotlin/Testing2.kt
+            |package example.fn
+            |
+            |fun fn(p: Int){}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val propDocs =
+                    module.packages.flatMap { it.properties }.first { it.name == "x" }.documentation.values.first()
+
+                val fnDocs =
+                    module.packages.first { it.name == "example" }.functions.first { it.name == "fn" }.documentation.values.first()
+
+                val expected = Description(
+                    root = CustomDocTag(
+                        children = listOf(
+                            P(
+                                children = listOf(
+                                    Text("refs to the function "),
+                                    DocumentationLink(
+                                        dri = DRI(
+                                            packageName = "example",
+                                            classNames = null,
+                                            callable = Callable(
+                                                "fn",
+                                                params = listOf(TypeConstructor("kotlin.Int", emptyList()))
+                                            ),
+                                            target = PointingToDeclaration,
+                                        ),
+                                        children = listOf(
+                                            Text("example.fn")
+                                        ),
+                                        params = mapOf("href" to "[example.fn]")
+                                    ),
+                                    Text(" and the property "),
+                                    DocumentationLink(
+                                        dri = DRI(
+                                            packageName = "example",
+                                            classNames = null,
+                                            target = PointingToDeclaration,
+                                            callable = Callable(
+                                                "x",
+                                                params = emptyList(),
+                                                isProperty = true
+                                            )
+                                        ),
+                                        children = listOf(
+                                            Text("example.x")
+                                        ),
+                                        params = mapOf("href" to "[example.x]")
+                                    )
+                                )
+                            )
+                        ),
+                        name = "MARKDOWN_FILE"
+                    )
+                )
+                assertEquals(expected, propDocs.children.first())
+                assertEquals(expected, fnDocs.children.first())
+            }
+        }
+    }
+
 
     @Test
     fun `short link should lead to class rather than package`() {
@@ -655,6 +747,7 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlyDescriptors("KEEP #389: New KDoc resolution")
     fun `short link should lead to package rather than function`() {
         testInline(
             """
@@ -685,6 +778,60 @@ class LinkTest : BaseAbstractTest() {
                                         dri = DRI(
                                             packageName = "example",
                                             classNames = null,
+                                            target = PointingToDeclaration,
+                                        ),
+                                        children = listOf(
+                                            Text("example")
+                                        ),
+                                        params = mapOf("href" to "[example]")
+                                    ),
+                                )
+                            )
+                        ),
+                        name = "MARKDOWN_FILE"
+                    )
+                )
+                assertEquals(expected, propDocs.children.first())
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols("KEEP #389: New KDoc resolution")
+    fun `short link should lead to function`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |
+            |/**
+            | * refs to the function [example]
+            | */
+            |val x = 0
+            |
+            |fun example() {}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val propDocs =
+                    module.packages.flatMap { it.properties }.first { it.name == "x" }.documentation.values.first()
+
+
+                val expected = Description(
+                    root = CustomDocTag(
+                        children = listOf(
+                            P(
+                                children = listOf(
+                                    Text("refs to the function "),
+                                    DocumentationLink(
+                                        dri = DRI(
+                                            packageName = "example",
+                                            classNames = null,
+                                            callable = Callable(
+                                                "example",
+                                                params = emptyList()
+                                            ),
                                             target = PointingToDeclaration,
                                         ),
                                         children = listOf(
@@ -776,6 +923,7 @@ class LinkTest : BaseAbstractTest() {
             }
         }
     }
+
     @Test
     fun `link should be stable for overloads in different files`() {
         testInline(
@@ -851,7 +999,17 @@ class LinkTest : BaseAbstractTest() {
             configuration
         ) {
             documentablesMergingStage = { module ->
-                assertEquals(DRI("example", null, callable = Callable("bar", receiver = TypeConstructor("example.Bar", params = emptyList()), params = emptyList())), module.getLinkDRIFrom("usage"))
+                assertEquals(
+                    DRI(
+                        "example",
+                        null,
+                        callable = Callable(
+                            "bar",
+                            receiver = TypeConstructor("example.Bar", params = emptyList()),
+                            params = emptyList()
+                        )
+                    ), module.getLinkDRIFrom("usage")
+                )
             }
         }
     }
@@ -888,7 +1046,15 @@ class LinkTest : BaseAbstractTest() {
                     null,
                     callable = Callable(
                         "foo",
-                        receiver = TypeConstructor("kotlin.collections.List", params = listOf(TypeParam(listOf(TypeConstructor("kotlin.Number", emptyList()))))),
+                        receiver = TypeConstructor(
+                            "kotlin.collections.List",
+                            params = listOf(
+                                TypeParam(
+                                    name = "T",
+                                    bounds = listOf(TypeConstructor("kotlin.Number", emptyList()))
+                                )
+                            )
+                        ),
                         params = emptyList()
                     )
                 )
@@ -946,7 +1112,15 @@ class LinkTest : BaseAbstractTest() {
                     null,
                     callable = Callable(
                         "foo",
-                        receiver = TypeConstructor("kotlin.collections.List", params = listOf(TypeParam(listOf(TypeConstructor("kotlin.Number", emptyList()))))),
+                        receiver = TypeConstructor(
+                            "kotlin.collections.List",
+                            params = listOf(
+                                TypeParam(
+                                    name = "T",
+                                    bounds = listOf(TypeConstructor("kotlin.Number", emptyList()))
+                                )
+                            )
+                        ),
                         params = emptyList()
                     )
                 )
@@ -996,7 +1170,10 @@ class LinkTest : BaseAbstractTest() {
                     assertEquals("kotlin.collections", dri.packageName)
                     assertEquals(null, dri.classNames)
                     assertEquals(functionName, dri.callable?.name)
-                    assertEquals("kotlin.collections.Iterable", (dri.callable?.receiver as? TypeConstructor)?.fullyQualifiedName)
+                    assertEquals(
+                        "kotlin.collections.Iterable",
+                        (dri.callable?.receiver as? TypeConstructor)?.fullyQualifiedName
+                    )
                     assertEquals(PointingToDeclaration, dri.target)
                     assertEquals(null, dri.extra)
                 }
@@ -1036,7 +1213,7 @@ class LinkTest : BaseAbstractTest() {
                         "String.length" to DRI(
                             "kotlin",
                             "String",
-                            Callable(name = "length", receiver = null, params = emptyList())
+                            Callable(name = "length", receiver = null, params = emptyList(), isProperty = true)
                         )
                     ),
                     module.getAllLinkDRIFrom("usage")
@@ -1116,7 +1293,10 @@ class LinkTest : BaseAbstractTest() {
             configuration
         ) {
             documentablesMergingStage = { module ->
-                assertEquals(DRI("example", "Storage", Callable("value", null, emptyList())), module.getLinkDRIFrom("usage"))
+                assertEquals(
+                    DRI("example", "Storage", Callable("value", null, emptyList(), isProperty = true)),
+                    module.getLinkDRIFrom("usage")
+                )
             }
         }
     }
@@ -1147,10 +1327,15 @@ class LinkTest : BaseAbstractTest() {
             documentablesMergingStage = { module ->
                 assertEquals(
                     listOf(
-                        "Storage.setValue" to DRI("example", "Storage", Callable("setValue", null, listOf(TypeConstructor("kotlin.String", emptyList())))),
+                        "Storage.setValue" to DRI(
+                            "example",
+                            "Storage",
+                            Callable("setValue", null, listOf(JavaClassReference("java.lang.String")))
+                        ),
                         "Storage.prop" to DRI("example", "Storage", Callable("getProp", null, emptyList()))
                     ),
-                    module.getAllLinkDRIFrom("usage"))
+                    module.getAllLinkDRIFrom("usage")
+                )
             }
         }
     }
@@ -1182,7 +1367,7 @@ class LinkTest : BaseAbstractTest() {
             |/src/main/kotlin/Testing.kt
             |/**
             |* Text
-            |* [some 
+            |* [some
             |* link](https://www.google.com/)
             |*
             |* Text:
@@ -1289,7 +1474,7 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `should resolve KDoc links in package documentation`() {
+    fun `should resolve KDoc links in module and package documentation`() {
         val configuration = dokkaConfiguration {
             sourceSets {
                 sourceSet {
@@ -1336,6 +1521,315 @@ class LinkTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `should resolve KDoc links in module and package documentation in source set without sources`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                val a = sourceSet {
+                    name = "moduleA"
+                    classpath = listOfNotNull(jvmStdlibPath)
+                    sourceRoots = listOf("src/")
+                    includes = listOf("module.md")
+                }
+                sourceSet {
+                    name = "moduleB"
+                    classpath = listOfNotNull(jvmStdlibPath)
+                    includes = listOf("module.md")
+                    dependentSourceSets = setOf(a.value.sourceSetID)
+                }
+            }
+        }
+        testInline(
+            """
+            |/module.md
+            |# Module root
+            |
+            |Link to [example.Foo]
+            |
+            |# Package example
+            |
+            |Link to [example.Foo] and [Bar]
+            |
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |
+            |class Foo
+            |class Bar
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = {
+                // as `moduleB` has no sources, and so has no declarations it will be filtered out
+                // still, as we resolve links earlier in the pipeline,
+                // unresolved links will cause unnecessary warning messages in logs,
+                // while not affecting the output.
+                // so the only way to check that all links were resolved is to check, that there were no `logger.warn` calls
+                assertEquals(emptyList(), logger.warnMessages)
+            }
+        }
+    }
+
+    @Test
+    fun `should resolve KDoc links in the second line of @param tag`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |interface Call
+            |/**
+            | * @param text some description with reference.
+            | *     But with a few lines and indent [Call]
+            | */
+            |fun protocol(text: String) {}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                assertEquals(
+                    listOf(
+                        "Call" to DRI("example", "Call"),
+                    ),
+                    module.getAllLinkDRIFrom("protocol")
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should resolve KDoc links in the second line of @constructor tag`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |interface Call
+            |/**
+            |* @constructor text some description with reference.
+            |*     But with a few lines and indent [Call]
+            |*/
+            |class A(val text: String) 
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                assertEquals(
+                    listOf(
+                        "Call" to DRI("example", "Call"),
+                    ),
+                    module.getAllLinkDRIFrom("A")
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should resolve KDoc links in the second level of a list`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |interface IllegalTimeZoneException
+            |interface UTC
+            |
+            |/**
+            | * ...
+            | * How exactly the time zone is acquired is system-dependent. The current implementation:
+            | * - JVM: `java.time.ZoneId.systemDefault()` is queried.
+            | * - Kotlin/Native:
+            | *     - Darwin: first, `NSTimeZone.resetSystemTimeZone` is called to clear the cache of the system timezone.
+            | *       Then, `NSTimeZone.systemTimeZone.name` is used to obtain the up-to-date timezone name.
+            | *     - Linux: this function checks the `/etc/localtime` symbolic link.
+            | *       If the link is missing, [UTC] is used.
+            | *       If the file is not a link but a plain file,
+            | *       the contents of `/etc/timezone` are additionally checked for the timezone name.
+            | *       [IllegalTimeZoneException] is thrown if the timezone name cannot be determined
+            | *       or is invalid.
+            | * ...
+            | */
+            |fun currentSystemDefault(g) {}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                assertEquals(
+                    listOf(
+                        "UTC" to DRI("example", "UTC"),
+                        "IllegalTimeZoneException" to DRI("example", "IllegalTimeZoneException"),
+                    ),
+                    module.getAllLinkDRIFrom("currentSystemDefault")
+                )
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols("context parameters")
+    fun `should resolve KDoc links to context parameter`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |/**
+            | * [s]
+            | */
+            |context(s: String)
+            |fun saveFromResponse()
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                assertEquals(
+                    DRI(
+                        "example",
+                        null,
+                        Callable(
+                            "saveFromResponse",
+                            null,
+                            emptyList(),
+                            listOf(TypeConstructor("kotlin.String", emptyList()))
+                        ),
+                        @OptIn(ExperimentalDokkaApi::class) PointingToContextParameters(0)
+                    ),
+                    module.getLinkDRIFrom("saveFromResponse")
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should resolve KDoc links that goes after markdown blocks`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |interface JavaNetCookieJar
+            |
+            |/**
+            | * Markdown syntax ```code```
+            | * This references doesn't work: [System.currentTimeMillis] and [JavaNetCookieJar].
+            | */
+            |fun saveFromResponse(url: String)
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                assertEquals(
+                    listOf(
+                        "System.currentTimeMillis" to DRI(
+                            "java.lang", "System", Callable(
+                                "currentTimeMillis",
+                                receiver = null,
+                                params = emptyList()
+                            )
+                        ),
+                        "JavaNetCookieJar" to DRI("example", "JavaNetCookieJar"),
+                    ),
+                    module.getAllLinkDRIFrom("saveFromResponse")
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should resolve KDoc link in indented @param tag`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |interface Call
+            |
+            |/**
+            | * @param text some description with reference.
+            | *     But with a few lines and indent [Call]
+            | */
+            |fun protocol(text: String) {}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                assertEquals(
+                    DRI("example", "Call"),
+                    module.getLinkDRIFrom("protocol")
+                )
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols
+    fun `should warn about unresolved links`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |
+            |/**
+            |* [property] is unresolved
+            | */
+            |fun usage() = 0
+            |}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { m ->
+                val warn = logger.warnMessages.first()
+                val path = m.sourceSets.first().sourceRoots.first().invariantSeparatorsPath
+
+                assertEquals(
+                    "Couldn't resolve link: [property] in file:///PATH/main/kotlin/Testing.kt:2:3 (root/main)",
+                    warn.replace(path, "PATH")
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should resolve KDoc links from classpath`() {
+        val coroutines = ClassLoader.getSystemResource("kotlinx/coroutines/MainCoroutineDispatcher.class")
+            ?.file
+            ?.replace("file:", "")
+            ?.replaceAfter(".jar", "") ?: throw IllegalStateException("Coroutines jar not found")
+
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/jvmMain/kotlin")
+                    analysisPlatform = "jvm"
+                    name = "jvm-example"
+                    classpath = listOf(coroutines)
+                }
+
+            }
+        }
+        testInline(
+            """
+                |/src/jvmMain/kotlin/main.kt
+                |package example
+                |import kotlinx.coroutines.MainCoroutineDispatcher
+                |/**
+                | * Links [MainCoroutineDispatcher.immediate] and [kotlinx.coroutines.MainCoroutineDispatcher.immediate]
+                |*/
+                |class TestClass
+            """,
+            configuration = configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val dri = DRI(
+                    "kotlinx.coroutines",
+                    "MainCoroutineDispatcher",
+                    Callable("immediate", null, emptyList(), isProperty = true)
+                )
+                assertEquals(
+                    listOf(
+                        "MainCoroutineDispatcher.immediate" to dri,
+                        "kotlinx.coroutines.MainCoroutineDispatcher.immediate" to dri,
+                    ),
+                    module.getAllLinkDRIFrom("TestClass")
+                )
+            }
+
+        }
+    }
+
 
     private fun DModule.getLinkDRIFrom(name: String): DRI? {
         val doc = this.dfs { it.name == name }?.documentation?.values?.single()

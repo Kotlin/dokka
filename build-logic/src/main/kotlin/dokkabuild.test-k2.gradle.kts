@@ -47,13 +47,16 @@ testing {
             // JUnit tags for descriptors (K1) and symbols (K2) are defined with annotations in test classes.
             val onlyDescriptorTags = listOf("onlyDescriptors", "onlyDescriptorsMPP")
             val onlySymbolsTags = listOf("onlySymbols")
+            val onlyJavaPsiTags = listOf("onlyJavaPsi")
+            val onlyJavaSymbolsTags = listOf("onlyJavaSymbols")
 
             // Create a new target for _only_ running test compatible with descriptor-analysis (K1).
             val testDescriptorsTarget = targets.register("testDescriptors") {
                 testTask.configure {
-                    description = "Runs tests using descriptors-analysis (K1) (excluding tags: ${onlySymbolsTags})"
+                    val excludedTags = onlySymbolsTags + onlyJavaSymbolsTags
+                    description = "Runs tests using descriptors-analysis (K1) (excluding tags: ${excludedTags})"
                     useJUnitPlatform {
-                        excludeTags.addAll(onlySymbolsTags)
+                        excludeTags.addAll(excludedTags)
                     }
                     // Analysis dependencies from `descriptorsTestImplementation` should precede all other dependencies
                     // in order to use the shadowed stdlib from the analysis dependencies
@@ -64,13 +67,31 @@ testing {
             // Create a new target for _only_ running test compatible with symbols-analysis (K2).
             val testSymbolsTarget = targets.register("testSymbols") {
                 testTask.configure {
-                    description = "Runs tests using symbols-analysis (K2) (excluding tags: ${onlyDescriptorTags})"
+                    val excludedTags = onlyDescriptorTags + onlyJavaSymbolsTags
+                    description = "Runs tests using symbols-analysis (K2) (excluding tags: ${excludedTags})"
                     useJUnitPlatform {
-                        excludeTags.addAll(onlyDescriptorTags)
+                        excludeTags.addAll(excludedTags)
                     }
                     // Analysis dependencies from `symbolsTestImplementation` should precede all other dependencies
                     // in order  to use the shadowed stdlib from the analysis dependencies
                     classpath = symbolsTestImplementationResolver.incoming.files + classpath
+                }
+            }
+
+            // Create a new target for running tests with enabled experimental symbols java analysis.
+            val testJavaSymbolsTarget = targets.register("testJavaSymbols") {
+                testTask.configure {
+                    val excludedTags = onlyDescriptorTags + onlyJavaPsiTags
+                    description = "Runs tests using symbols-analysis (K2) for java (excluding tags: $excludedTags)"
+                    useJUnitPlatform {
+                        excludeTags.addAll(excludedTags)
+                    }
+                    // Analysis dependencies from `symbolsTestImplementation` should precede all other dependencies
+                    // in order to use the shadowed stdlib from the analysis dependencies
+                    classpath = symbolsTestImplementationResolver.incoming.files + classpath
+
+                    // Enable experimental symbols java analysis
+                    systemProperty("org.jetbrains.dokka.analysis.enableExperimentalSymbolsJavaAnalysis", "true")
                 }
             }
 
@@ -82,6 +103,7 @@ testing {
                     onlyIf { false }
                     dependsOn(testDescriptorsTarget.map { it.testTask })
                     dependsOn(testSymbolsTarget.map { it.testTask })
+                    dependsOn(testJavaSymbolsTarget.map { it.testTask })
                 }
             }
         }

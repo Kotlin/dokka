@@ -10,9 +10,9 @@ data class SemVer(
     val version: String,
 ) : Comparable<SemVer> {
     val major: Int
+    val minor: Int
 
     //region These fields are private to avoid IJ warnings, feel free to make them public if it's helpful.
-    private val minor: Int
     val patch: Int
     private val prerelease: String?
     private val metadata: String?

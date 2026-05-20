@@ -68,6 +68,7 @@ public class KotlinToJavaConverter(
                                             .flatMap { it.asJava(syntheticClassName.name, true) })
                             .filterNot { it.hasJvmSynthetic() },
                         classlikes = emptyList(),
+                        typealiases = emptyList(),
                         sources = emptyMap(),
                         expectPresentInSet = null,
                         visibility = sourceSets.associateWith {

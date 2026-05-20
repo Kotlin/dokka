@@ -13,8 +13,10 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
-import org.gradle.kotlin.dsl.extra
+import org.gradle.kotlin.dsl.of
 import org.gradle.kotlin.dsl.provideDelegate
+import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.PLUGIN_MODE_NO_WARN_FLAG
+import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.configureParamsDuringAccessorsGeneration
 import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.PluginMode.*
 import org.jetbrains.dokka.gradle.tasks.LogHtmlPublicationLinkTask
 import java.io.File
@@ -55,6 +57,9 @@ constructor(
 
         /** [Project.getProjectDir] - only used for log messages. */
         val projectDirectory: Property<String>
+
+        /** @see [PluginFeaturesService.enableWorkaroundKT80551] */
+        val enableWorkaroundKT80551: Property<Boolean>
     }
 
     /**
@@ -133,6 +138,7 @@ constructor(
             V2EnabledWithHelpers -> {
                 // this is the default, don't log messages to avoid spamming users
             }
+
             V2Enabled -> {
                 // we want users to update to V2Enabled, don't log messages to avoid spamming users
             }
@@ -231,6 +237,17 @@ constructor(
             .toBoolean()
             .orElse(true)
 
+    /**
+     * Enable DGP's workaround for KT-80551.
+     *
+     * DGP will manually register metadata compilations for Wasm source sets.
+     * This property exists so when KGP fixes the bug, KGP can disable DGP's behaviour if necessary.
+     *
+     * See [org.jetbrains.dokka.gradle.adapters.TransformedMetadataDependencyProvider] for more details.
+     */
+    val enableWorkaroundKT80551: Provider<Boolean> =
+        parameters.enableWorkaroundKT80551.orElse(true)
+
     companion object {
         private val logger = Logging.getLogger(PluginFeaturesService::class.java)
 
@@ -254,6 +271,9 @@ constructor(
 
         private const val K2_ANALYSIS_NO_WARN_FLAG_PRETTY =
             "$K2_ANALYSIS_ENABLED_FLAG.noWarn"
+
+        private const val ENABLE_WORKAROUND_KT80551 =
+            "org.jetbrains.dokka.internal.enableWorkaroundKT80551"
 
         @Suppress("ObjectPrivatePropertyName")
         private val `To learn about migrating read the migration guide` = /* language=text */ """
@@ -308,17 +328,28 @@ constructor(
             project: Project
         ): Action<Params> {
 
+            // Note: Manually reading `gradle.properties is only required for unit tests.
+            // (Because org.gradle.testfixtures.ProjectBuilder doesn't support mocking Gradle properties
+            // in Gradle versions lower than 9.4.)
+            val gpProps: Provider<Map<String, String?>> =
+                if (CurrentGradleVersion < "9.4.0") {
+                    project.providers.of(GradlePropertiesFileSource::class) {
+                        parameters.projectDirectory.set(project.layout.projectDirectory.asFile)
+                    }
+                } else {
+                    project.providers.provider { emptyMap() }
+                }
+
             /** Find a flag for [PluginFeaturesService]. */
             fun getFlag(flag: String): Provider<String> =
                 project.providers
                     .gradleProperty(flag)
                     .forUseAtConfigurationTimeCompat()
                     .orElse(
-                        // Note: Enabling/disabling features via extra-properties is only intended for unit tests.
-                        // (Because org.gradle.testfixtures.ProjectBuilder doesn't support mocking Gradle properties.
-                        // But maybe soon! https://github.com/gradle/gradle/pull/30002)
-                        project
-                            .provider { project.extra.properties[flag]?.toString() }
+                        gpProps
+                            .flatMap {
+                                project.providers.provider { it[flag] }
+                            }
                             .forUseAtConfigurationTimeCompat()
                     )
 
@@ -339,6 +370,8 @@ constructor(
                         .orElse(getFlag(K2_ANALYSIS_NO_WARN_FLAG))
                         .toBoolean()
                 )
+
+                enableWorkaroundKT80551.set(getFlag(ENABLE_WORKAROUND_KT80551).toBoolean())
 
                 configureParamsDuringAccessorsGeneration(project)
             }

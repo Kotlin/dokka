@@ -32,7 +32,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                 with(getter.assertNotNull("Getter")) {
                     type.name equals "String"
                 }
-                 type.name equals "String"
+                type.name equals "String"
             }
         }
     }
@@ -51,7 +51,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                 with(getter.assertNotNull("Getter")) {
                     type.name equals "String"
                 }
-                 type.name equals "String"
+                type.name equals "String"
             }
         }
     }
@@ -70,7 +70,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                 with(getter.assertNotNull("Getter")) {
                     type.name equals "String"
                 }
-                 type.name equals "String"
+                type.name equals "String"
             }
         }
     }
@@ -169,6 +169,45 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                     children counts 0
                     with(getter.assertNotNull("Getter")) {
                         type.name equals "Int"
+                        extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
+                            classNames equals "Foo"
+                            callable equals null
+                        }
+                    }
+                    extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
+                        classNames equals "Foo"
+                        callable equals null
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `accessors of inherited property should have correct extra`() {
+        inlineModelTest(
+            """
+            |open class Foo() {
+            |    var property = 0
+            |}
+            |class Bar(): Foo()
+            """
+        ) {
+            with((this / "property").cast<DPackage>()) {
+                with((this / "Bar" / "property").cast<DProperty>()) {
+                    with(getter.assertNotNull("Getter")) {
+                        type.name equals "Int"
+                        extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
+                            classNames equals "Foo"
+                            callable equals null
+                        }
+                    }
+                    with(setter.assertNotNull("Setter")) {
+                        type.name equals "Unit"
+                        extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
+                            classNames equals "Foo"
+                            callable equals null
+                        }
                     }
                     extra[InheritedMember]?.inheritedFrom?.values?.single()?.run {
                         classNames equals "Foo"
@@ -230,12 +269,13 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
         }
     }
 
-    @Test fun genericTopLevelExtensionProperty(){
+    @Test
+    fun genericTopLevelExtensionProperty() {
         inlineModelTest(
             """ | val <T : Number> List<T>.sampleProperty: T
                 |   get() { TODO() }
             """.trimIndent()
-        ){
+        ) {
             with((this / "property" / "sampleProperty").cast<DProperty>()) {
                 name equals "sampleProperty"
                 with(receiver.assertNotNull("Property receiver")) {
@@ -255,7 +295,8 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
         }
     }
 
-    @Test fun genericExtensionPropertyInClass(){
+    @Test
+    fun genericExtensionPropertyInClass() {
         inlineModelTest(
             """ | package test
                 | class XD<T> {
@@ -264,7 +305,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                 |       set(value) { TODO() }
                 | }
             """.trimIndent()
-        ){
+        ) {
             with((this / "property" / "XD" / "sampleProperty").cast<DProperty>()) {
                 name equals "sampleProperty"
                 children counts 0
@@ -277,7 +318,8 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                         "kotlin.collections.List",
                         listOf(
                             TypeParam(
-                                listOf(Nullable(TypeConstructor("kotlin.Any", emptyList())))
+                                name = "T",
+                                bounds = listOf(Nullable(TypeConstructor("kotlin.Any", emptyList())))
                             )
                         )
                     )
@@ -288,21 +330,34 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                     this.dri.callable?.receiver equals receiver
                     this.dri.callable?.params equals emptyList<TypeReference>()
                 }
-                with(setter.assertNotNull("Setter")){
+                with(setter.assertNotNull("Setter")) {
                     type.name equals "Unit"
 
                     val receiver = TypeConstructor(
                         "kotlin.collections.List",
                         listOf(
                             TypeParam(
-                                listOf(Nullable(TypeConstructor("kotlin.Any", emptyList())))
+                                name = "T",
+                                bounds = listOf(Nullable(TypeConstructor("kotlin.Any", emptyList())))
                             )
                         )
                     )
                     this.dri.packageName equals "property"
                     this.dri.classNames equals "XD"
                     this.dri.callable?.receiver equals receiver
-                    this.dri.callable?.params equals listOf(TypeParam(listOf(Nullable(TypeConstructor("kotlin.Any", emptyList())))))
+                    this.dri.callable?.params equals listOf(
+                        TypeParam(
+                            name = "T",
+                            bounds = listOf(
+                                Nullable(
+                                    TypeConstructor(
+                                        "kotlin.Any",
+                                        emptyList()
+                                    )
+                                )
+                            )
+                        )
+                    )
                 }
                 generics counts 0
                 visibility.values allEquals KotlinVisibility.Public
@@ -353,12 +408,13 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
             with((this / "sample" / "prop").cast<DProperty>()) {
                 dri.callable equals org.jetbrains.dokka.links.Callable(
                     name = "prop",
-                    receiver = org.jetbrains.dokka.links.TypeConstructor("kotlin.Int", emptyList()),
+                    receiver = TypeConstructor("kotlin.Int", emptyList()),
                     params = emptyList(),
                     contextParameters = listOf(
-                        org.jetbrains.dokka.links.TypeConstructor("kotlin.String", emptyList()),
-                        org.jetbrains.dokka.links.TypeConstructor("kotlin.Int", emptyList())
-                    )
+                        TypeConstructor("kotlin.String", emptyList()),
+                        TypeConstructor("kotlin.Int", emptyList())
+                    ),
+                    isProperty = true
                 )
                 documentation.values.single().children.single().text() equals "Some doc\n"
                 contextParameters counts 2

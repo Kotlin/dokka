@@ -39,17 +39,33 @@ annotation class TestsKotlinMultiplatform
 
 
 /**
+ * JUnit [Tag] indicating the test involves a Kotlin JVM project.
+ */
+@Tag("KotlinJvm")
+@Target(FUNCTION, CLASS)
+@MustBeDocumented
+@Inherited
+annotation class TestsKotlinJvm
+
+
+/**
  * JUnit [Tag] indicating the test involves an Android project.
  *
  * If a test is annotated with [TestsAndroid] then
  * [DokkaGradlePluginTestExtension] will run the test multiple times,
  * and provide a [DokkaGradleProjectRunner] using [TestedVersions.Android].
+ *
+ * [DokkaGradlePluginTestExtension] will use [kotlinBuiltIn]
+ * to filter the AGP versions used to test the project.
  */
 @Tag("Android")
 @Target(FUNCTION, CLASS)
 @MustBeDocumented
 @Inherited
-annotation class TestsAndroid
+@WithGradleProperties(GradlePropertiesProvider.Android::class)
+annotation class TestsAndroid(
+    val kotlinBuiltIn: KotlinBuiltInCompatibility = KotlinBuiltInCompatibility.Supported,
+)
 
 
 /**
@@ -58,10 +74,16 @@ annotation class TestsAndroid
  * If a test is annotated with [TestsAndroid] then
  * [DokkaGradlePluginTestExtension] will run the test multiple times,
  * and provide a [DokkaGradleProjectRunner] using [TestedVersions.AndroidCompose].
+ *
+ * [DokkaGradlePluginTestExtension] will use [kotlinBuiltIn]
+ * to filter the AGP versions used to test the project.
  */
 @Tag("Compose")
 @TestsAndroid
 @Target(FUNCTION, CLASS)
 @MustBeDocumented
 @Inherited
-annotation class TestsAndroidCompose
+@WithGradleProperties(GradlePropertiesProvider.AndroidCompose::class)
+annotation class TestsAndroidCompose(
+    val kotlinBuiltIn: KotlinBuiltInCompatibility = KotlinBuiltInCompatibility.Supported,
+)

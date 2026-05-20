@@ -1,0 +1,1 @@
+sourceset_dependencies='{":/androidAndJvmMain":[],":/androidMain":[":/androidAndJvmMain",":/commonMain"],":/androidRelease":[":/commonMain"],":/commonMain":[],":/jvmMain":[":/androidAndJvmMain",":/commonMain"]}'

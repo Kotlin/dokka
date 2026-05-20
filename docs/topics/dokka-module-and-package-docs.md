@@ -1,15 +1,15 @@
 [//]: # (title: Module documentation)
 
-Documentation for a module as a whole, as well as packages in that module, can be provided as separate Markdown files.
+Documentation for a subproject as a whole, as well as packages in that subproject, can be provided as separate Markdown files.
 
 ## File format
 
-Inside the Markdown file, the documentation for the module as a whole and for individual packages is introduced by the corresponding
-first-level headings. The text of the heading **must** be **Module `<module name>`** for a module, and **Package `<package qualified name>`**
+Inside the Markdown file, the documentation for the subproject as a whole and for individual packages is introduced by the corresponding
+first-level headings. The text of the heading **must** be **Module `<module name>`** for a subproject, and **Package `<package qualified name>`**
 for a package. 
 
-The file doesn't have to contain both module and package documentation. You can have files that contain only package or 
-module documentation. You can even have a Markdown file per module or package.
+The file doesn't have to contain both subproject and package documentation. You can have files that contain only package or
+subproject documentation. You can even have a Markdown file per subproject or package.
 
 Using [Markdown syntax](https://www.markdownguide.org/basic-syntax/), you can add:
 * Headings up to level 6
@@ -19,12 +19,12 @@ Using [Markdown syntax](https://www.markdownguide.org/basic-syntax/), you can ad
 * Code blocks
 * Blockquotes
 
-Here's an example file containing both module and package documentation:
+Here's an example file containing both subproject and package documentation:
 
 ```text
 # Module kotlin-demo
 
-This content appears under your module name.
+This content appears under your subproject name.
 
 # Package org.jetbrains.kotlin.demo
 
@@ -54,22 +54,22 @@ To pass these files to Dokka, you need to use the relevant **includes** option f
 <tabs group="build-script">
 <tab title="Gradle" group-key="gradle">
 
-Use the [includes](dokka-gradle.md#includes) option in [Source set configuration](dokka-gradle.md#source-set-configuration).
+Use the `includes` option in [General configuration](dokka-gradle-configuration-options.md).
 
 </tab>
 
 <tab title="Maven" group-key="mvn">
 
-Use the [includes](dokka-maven.md#includes) option in [General configuration](dokka-maven.md#general-configuration).
+Use the `includes` option in [General configuration](dokka-maven.md#general-configuration).
 
 </tab>
 
 <tab title="CLI" group-key="cli">
 
-If you are using command line configuration, use the [includes](dokka-cli.md#includes-cli) option in 
+If you are using command line configuration, use the `includes` option in 
 [Source set options](dokka-cli.md#source-set-options).
 
-If you are using JSON configuration, use the [includes](dokka-cli.md#includes-json) option in 
+If you are using JSON configuration, use the `includes` option in 
 [General configuration](dokka-cli.md#general-configuration).
 
 </tab>

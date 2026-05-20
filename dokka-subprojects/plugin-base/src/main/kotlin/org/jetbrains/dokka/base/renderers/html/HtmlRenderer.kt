@@ -629,6 +629,8 @@ public open class HtmlRenderer(
                         "jvm" -> classes = classes + "jvm-like"
                         "js" -> classes = classes + "js-like"
                         "wasm" -> classes = classes + "wasm-like"
+                        "wasmJs" -> classes = classes + "wasm-like"
+                        "wasmWasi" -> classes = classes + "wasm-like"
                     }
                     text(it.name)
                 }
@@ -870,12 +872,7 @@ public open class HtmlRenderer(
                     code.children.forEach { buildContentNode(it, pageContext) }
                 }
             }
-            /*
-            Disable copy button on samples as:
-             - it is useless
-             - it overflows with playground's run button
-             */
-            if (!code.style.contains(ContentStyle.RunnableSample)) copyButton()
+            copyButton()
         }
     }
 
@@ -921,8 +918,10 @@ public open class HtmlRenderer(
             TextStyle.Italic -> i { body() }
             TextStyle.Strikethrough -> strike { body() }
             TextStyle.Strong -> strong { body() }
+            TextStyle.Emphasis -> em { body() }
             TextStyle.Var -> htmlVar { body() }
             TextStyle.Underlined -> underline { body() }
+            TextStyle.Highlight -> mark { body() }
             is TokenStyle -> span("token ${styleToApply.prismJsClass()}") { body() }
             else -> body()
         }

@@ -98,4 +98,67 @@ class JavadocExternalLocationProviderTest : BaseAbstractTest() {
             locationProvider.resolve(dri)
         )
     }
+
+    @Test
+    fun `#2881 link to Java function with vararg parameter`() {
+        val locationProvider = getTestLocationProvider()
+        val dri = DRI(
+            packageName = "java.nio.file",
+            classNames = "Files",
+            callable = Callable(
+                name = "createDirectories",
+                params = listOf(
+                    Nullable(TypeConstructor("java.nio.file.Path", emptyList())),
+                    Nullable(Vararg(TypeConstructor("java.nio.file.attribute.FileAttribute", listOf(StarProjection))))
+                ),
+            ),
+            target = PointingToDeclaration
+        )
+
+        assertEquals(
+            "https://docs.oracle.com/javase/8/docs/api/java/nio/file/Files.html#createDirectories-java.nio.file.Path-java.nio.file.attribute.FileAttribute...-",
+            locationProvider.resolve(dri)
+        )
+    }
+
+    @Test
+    fun `#3502 link to Java function with type parameters`() {
+        val locationProvider = getTestLocationProvider()
+        val dri = DRI(
+            packageName = "java.util",
+            classNames = "Arrays",
+            callable = Callable(
+                name = "asList",
+                params = listOf(
+                    Nullable(Vararg(TypeParam(name = "T", bounds = listOf(TypeConstructor("kotlin.Any", emptyList())))))
+                ),
+            ),
+            target = PointingToDeclaration
+        )
+
+        assertEquals(
+            "https://docs.oracle.com/javase/8/docs/api/java/util/Arrays.html#asList-T...-",
+            locationProvider.resolve(dri)
+        )
+    }
+
+    @Test
+    fun `#3351 link to Java field`() {
+        val locationProvider = getTestLocationProvider()
+        val dri = DRI(
+            packageName = "java.io",
+            classNames = "Reader",
+            callable = Callable(
+                name = "lock",
+                params = emptyList(),
+                isProperty = true
+            ),
+            target = PointingToDeclaration
+        )
+
+        assertEquals(
+            "https://docs.oracle.com/javase/8/docs/api/java/io/Reader.html#lock",
+            locationProvider.resolve(dri)
+        )
+    }
 }

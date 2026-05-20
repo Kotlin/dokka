@@ -15,6 +15,7 @@ import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
 import org.jetbrains.dokka.it.gradle.junit.*
+import org.jetbrains.dokka.it.gradle.junit.KotlinBuiltInCompatibility.Incompatible
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.name
 import kotlin.io.path.readText
@@ -23,8 +24,8 @@ import kotlin.io.path.readText
  * Integration test for the `it-android-compose` project.
  */
 @TestsDGPv2
-@TestsAndroidCompose
-@WithGradleProperties(GradlePropertiesProvider.Android::class)
+@TestsAndroidCompose(kotlinBuiltIn = Incompatible)
+@TestsKotlinJvm
 class AndroidComposeIT {
 
     @DokkaGradlePluginTest(sourceProjectName = "it-android-compose")
@@ -79,6 +80,8 @@ class AndroidComposeIT {
                     actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedHtml, TestConstants.DokkaHtmlAssetsFiles)
                 }
             }
+
+            assertNoUnknownClassErrorsInHtml(actualHtmlDir)
         }
     }
 

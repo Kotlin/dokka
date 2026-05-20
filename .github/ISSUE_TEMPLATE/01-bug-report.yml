@@ -1,0 +1,123 @@
+name: Bug report
+description: Something in Dokka behaves incorrectly
+title: "[Bug] "
+labels:
+  - bug
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report!
+
+        Please focus on **what happens** and **how to reproduce it**.
+        Everything else is optional.
+
+        Before filing, a quick sanity check (no worries if you're unsure):
+
+        - If the behavior is documented but feels wrong or questionable,
+          it might be better filed as a **design discussion** rather than a bug.
+        - If something is unclear rather than broken, you may get a faster answer on
+          [StackOverflow](https://stackoverflow.com/) or in the [Kotlin Slack](https://slack-chats.kotlinlang.org/).
+        - Please make sure the issue is in **Dokka itself**,
+          not in Kotlin, a third-party plugin, or your own code.
+        - If you suspect this might already be fixed, trying a recent version can help —
+          but it's okay if you can't.
+
+        If in doubt, just file the issue and describe what you see.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is happening? What should have happened instead?
+      placeholder: |
+        Describe what looks wrong or unexpected in the generated documentation.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproducer
+    attributes:
+      label: Reproducer
+      description: |
+        Any form of reproducer is welcome.
+
+        - A minimal, self-contained code snippet is ideal
+        - A small sample project is great
+        - A real-world project or production code is also fine if isolating the issue is hard
+
+        If the code is private, please mention that — we can discuss alternatives.
+      placeholder: |
+        ```kotlin
+        /**
+         * Example documentation that produces unexpected output
+         */
+        fun exampleFunction() {}
+        ```
+
+        Dokka configuration:
+        ```kotlin
+        // build.gradle.kts or dokka config
+        ```
+    validations:
+      required: true
+
+  - type: input
+    id: dokka-version
+    attributes:
+      label: Dokka version
+      description: Which version of Dokka are you using?
+      placeholder: "e.g., 1.9.20, 2.0.0-Beta"
+    validations:
+      required: true
+
+  - type: input
+    id: kgp-version
+    attributes:
+      label: Kotlin Gradle Plugin (KGP) version
+      description: Which version of Kotlin are you using?
+      placeholder: "e.g., 1.9.22, 2.0.0"
+    validations:
+      required: false
+
+  - type: input
+    id: agp-version
+    attributes:
+      label: Android Gradle Plugin (AGP) version (if applicable)
+      description: If using Android, which AGP version?
+      placeholder: "e.g., 8.2.0, 8.3.0"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: build-tool
+    attributes:
+      label: Build tool
+      description: What build tool are you using?
+      options:
+        - Gradle
+        - Maven
+        - CLI
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: project-type
+    attributes:
+      label: Project type
+      description: What type of project is this? (select all that apply)
+      options:
+        - label: Kotlin Multiplatform (KMP)
+        - label: Android
+        - label: JVM
+        - label: Other
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Anything else? (optional)
+      placeholder: |
+        Output format (HTML/Markdown/etc), logs, screenshots of generated docs, links, or anything else you think matters.
+    validations:
+      required: false

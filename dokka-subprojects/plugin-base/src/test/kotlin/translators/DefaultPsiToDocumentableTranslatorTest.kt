@@ -11,7 +11,10 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.doc.*
+import utils.OnlyJavaPsi
+import utils.OnlyJavaSymbols
 import kotlin.test.*
 
 class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
@@ -385,6 +388,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
 //        }
 //    }
 
+    @OnlyJavaPsi("synthetic: #4250 AA generate an extra synthetic property `a: String` with the getter String getA()")
     @Test
     fun `should preserve regular functions that are named like getters, but are not getters`() {
         testInline(
@@ -556,6 +560,8 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
+
+    @OnlyJavaPsi("synthetic: #4250 AA's synthetic Java property is treated as Public (incorrectly)")
     @Test
     fun `should not associate accessors with field because field is public api`() {
         val configuration = dokkaConfiguration {
@@ -569,7 +575,6 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 }
             }
         }
-
         testInline(
             """
             |/src/test/A.java
@@ -719,7 +724,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                 )
                 val expectedArrayType = GenericTypeConstructor(
                     dri = DRI("kotlin", "Array", target = PointingToDeclaration),
-                    projections = listOf(expectedType)
+                    projections = listOf(Invariance(expectedType))
                 )
 
                 val classWithEnumUsage = module.packages.single().classlikes.single { it.name == "ContainingEnumType" }
@@ -792,12 +797,14 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
                         classNames = "Array"
                     ),
                     projections = listOf(
-                        GenericTypeConstructor(
-                            dri = DRI(
-                                packageName = "test",
-                                classNames = "JavaEnum"
-                            ),
-                            projections = emptyList()
+                        Invariance(
+                            GenericTypeConstructor(
+                                dri = DRI(
+                                    packageName = "test",
+                                    classNames = "JavaEnum"
+                                ),
+                                projections = emptyList()
+                            )
                         )
                     )
                 )
@@ -806,6 +813,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi("type-mapping: in the inherited `valueOf`, kotlin.String instead of java.lang.String in parameters")
     @Test
     fun `should have documentation for synthetic Enum valueOf functions`() {
         testInline(

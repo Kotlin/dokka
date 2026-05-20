@@ -24,6 +24,8 @@ class MigrationMessagesTest : FunSpec({
                     pluginMode = null
                     pluginModeNoWarn = null
                 }
+                // must disable project iso, because all projects must be configured to trigger the logged warnings
+                gradle.isolatedProjects = false
             }
         }
 
