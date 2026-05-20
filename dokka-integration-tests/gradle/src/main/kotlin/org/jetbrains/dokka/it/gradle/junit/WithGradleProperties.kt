@@ -36,7 +36,17 @@ fun interface GradlePropertiesProvider {
 
     object Android : GradlePropertiesProvider {
         override fun get(): Map<String, String> = buildMap {
+            putAll(Default.get())
             put("android.useAndroidX", "true")
+        }
+    }
+
+    object AndroidCompose : GradlePropertiesProvider {
+        override fun get(): Map<String, String> = buildMap {
+            putAll(Android.get())
+            // compose plugin doesn't support project-iso
+            // https://youtrack.jetbrains.com/issue/CMP-7080 https://youtrack.jetbrains.com/issue/CMP-8375
+            put("org.gradle.unsafe.isolated-projects", "false")
         }
     }
 }

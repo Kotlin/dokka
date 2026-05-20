@@ -10,15 +10,19 @@ import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.driOrNull
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToContextParameters
+import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.DProperty
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.MemberPageNode
+import org.junit.jupiter.api.Nested
+import translators.findClasslike
 import utils.OnlySymbols
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 
@@ -445,9 +449,15 @@ class ExpectActualsTest : BaseAbstractTest() {
         }
     }
 
-    @Test
-    fun `should merge an implicit-expectActual function with a single property #3685`() = testInline(
-        """
+    /**
+     * This is a corner case because a property and a function have the same DRI in the same source set
+     */
+    @Nested
+    inner class MergingPropertyAndFunction {
+
+        @Test
+        fun `should merge an implicit-expectActual function with a single property #3685`() = testInline(
+            """
         /src/common/test.kt
         expect class Skiko
 
@@ -466,21 +476,25 @@ class ExpectActualsTest : BaseAbstractTest() {
             }
         }
         """.trimMargin(),
-        multiplatformConfiguration
-    ) {
-        pagesGenerationStage = { root ->
-            val cl = root.dfs { it.name == "Skiko" && it is ClasslikePageNode } ?: throw IllegalStateException()
-            assertEquals(2, cl.children.count { it.name == "[jvm]isShowing" })
-        }
-        renderingStage = { root, _ ->
-            val documentables = (root.dfs { it.name == "[jvm]isShowing" } as MemberPageNode).documentables
-            assertEquals(listOf(DFunction::class, DProperty::class), documentables.map { it::class })
-        }
-    }
+            multiplatformConfiguration
+        ) {
+            pagesGenerationStage = { root ->
+                val cl = root.dfs { it.name == "Skiko" && it is ClasslikePageNode } ?: throw IllegalStateException()
+                assertEquals(1, cl.children.count { it.name == "[jvm]isShowing" })
+                assertEquals(1, cl.children.count { it.name == "isShowing" })
+            }
+            renderingStage = { root, _ ->
+                val documentables = (root.dfs { it.name == "[jvm]isShowing" } as MemberPageNode).documentables
+                assertEquals(listOf(DFunction::class), documentables.map { it::class })
 
-    @Test
-    fun `should merge an implicit-expectActual property with a single function #3685`() = testInline(
-        """
+                val documentableOfIsShowing = (root.dfs { it.name == "isShowing" } as MemberPageNode).documentables
+                assertEquals(listOf(DProperty::class), documentableOfIsShowing.map { it::class })
+            }
+        }
+
+        @Test
+        fun `should merge an implicit-expectActual property with a single function #3685`() = testInline(
+            """
         /src/common/test.kt
         expect class Skiko
 
@@ -497,15 +511,127 @@ class ExpectActualsTest : BaseAbstractTest() {
             val isShowing = false
         }
         """.trimMargin(),
-        multiplatformConfiguration
-    ) {
-        pagesGenerationStage = { root ->
-            val cl = root.dfs { it.name == "Skiko" && it is ClasslikePageNode } ?: throw IllegalStateException()
-            assertEquals(2, cl.children.count { it.name == "[jvm]isShowing" })
+            multiplatformConfiguration
+        ) {
+            pagesGenerationStage = { root ->
+                val cl = root.dfs { it.name == "Skiko" && it is ClasslikePageNode } ?: throw IllegalStateException()
+                assertEquals(1, cl.children.count { it.name == "[jvm]isShowing" })
+                assertEquals(1, cl.children.count { it.name == "isShowing" })
+            }
+            renderingStage = { root, _ ->
+                val documentables = (root.dfs { it.name == "[jvm]isShowing" } as MemberPageNode).documentables
+                assertEquals(listOf(DProperty::class), documentables.map { it::class })
+
+                val documentableOfIsShowing = (root.dfs { it.name == "isShowing" } as MemberPageNode).documentables
+                assertEquals(listOf(DFunction::class), documentableOfIsShowing.map { it::class })
+            }
         }
-        renderingStage = { root, _ ->
-            val documentables = (root.dfs { it.name == "[jvm]isShowing" } as MemberPageNode).documentables
-            assertEquals(listOf(DFunction::class, DProperty::class), documentables.map { it::class })
+
+        @Test
+        fun `should merge an explicit-expectActual property with a single function #3685`() = testInline(
+            """
+        /src/common/test.kt
+        expect class Skiko {
+            val isShowing
+        }
+
+        /src/jvm/test.kt
+        actual class Skiko actual constructor() {
+             actual val isShowing = false
+             fun isShowing(): Boolean {
+                return false
+            }
+        }
+        
+        /src/native/test.kt
+        actual class Skiko actual constructor(){
+            actual val isShowing = false
+        }
+        """.trimMargin(),
+            multiplatformConfiguration
+        ) {
+            pagesGenerationStage = { root ->
+                val cl = root.dfs { it.name == "Skiko" && it is ClasslikePageNode } ?: throw IllegalStateException()
+                // before page merging
+                assertEquals(2, cl.children.count { it.name == "isShowing" })
+            }
+            renderingStage = { root, _ ->
+                val documentables = (root.dfs { it.name == "isShowing" } as MemberPageNode).documentables
+                // after page merging
+                assertEquals(listOf(DFunction::class, DProperty::class), documentables.map { it::class })
+            }
+        }
+
+        @Test
+        fun `should merge an explicit-expectActual function with a single property #3685`() = testInline(
+            """
+        /src/common/test.kt
+        expect class Skiko {
+            fun isShowing(): Boolean
+        }
+
+        /src/jvm/test.kt
+        actual class Skiko actual constructor() {
+             val isShowing = false
+             actual fun isShowing(): Boolean {
+                return false
+            }
+        }
+        
+        /src/native/test.kt
+        actual class Skiko actual constructor(){
+            actual fun isShowing(): Boolean
+        }
+        """.trimMargin(),
+            multiplatformConfiguration
+        ) {
+            pagesGenerationStage = { root ->
+                val cl = root.dfs { it.name == "Skiko" && it is ClasslikePageNode } ?: throw IllegalStateException()
+                // before page merging
+                assertEquals(2, cl.children.count { it.name == "isShowing" })
+            }
+            renderingStage = { root, _ ->
+                val documentables = (root.dfs { it.name == "isShowing" } as MemberPageNode).documentables
+                // after page merging
+                assertEquals(listOf(DFunction::class, DProperty::class), documentables.map { it::class })
+            }
+        }
+
+        @Test
+        fun `should merge an explicit-expectActual function with a single function #3685`() = testInline(
+            """
+        /src/common/test.kt
+        expect class Skiko {
+            fun isShowing(): Boolean
+        }
+
+        /src/jvm/test.kt
+        actual class Skiko actual constructor() {
+             fun isShowing(b: Boolean): Boolean {
+                return b
+            }
+             actual fun isShowing(): Boolean {
+                return false
+            }
+        }
+        
+        /src/native/test.kt
+        actual class Skiko actual constructor(){
+            actual fun isShowing(): Boolean
+        }
+        """.trimMargin(),
+            multiplatformConfiguration
+        ) {
+            pagesGenerationStage = { root ->
+                val cl = root.dfs { it.name == "Skiko" && it is ClasslikePageNode } ?: throw IllegalStateException()
+                // before page merging
+                assertEquals(2, cl.children.count { it.name == "isShowing" })
+            }
+            renderingStage = { root, _ ->
+                val documentables = (root.dfs { it.name == "isShowing" } as MemberPageNode).documentables
+                // after page merging
+                assertEquals(listOf(DFunction::class, DFunction::class), documentables.map { it::class })
+            }
         }
     }
 
@@ -546,7 +672,7 @@ class ExpectActualsTest : BaseAbstractTest() {
                 with(first.contextParameters.single()) {
                     assertEquals(DRI("kotlin", "Int"), type.driOrNull)
                     assertEquals("_", name)
-                    assertEquals(0, (dri.target as? PointingToContextParameters)?.parameterIndex )
+                    assertEquals(0, (dri.target as? PointingToContextParameters)?.parameterIndex)
                     assertEquals(
                         setOf("common", "jvm", "native"), this.sourceSets.map { it.sourceSetID.sourceSetName }.toSet()
                     )
@@ -560,7 +686,7 @@ class ExpectActualsTest : BaseAbstractTest() {
                 with(second.contextParameters.single()) {
                     assertEquals(DRI("kotlin", "String"), type.driOrNull)
                     assertEquals("_", name)
-                    assertEquals(0, (dri.target as? PointingToContextParameters)?.parameterIndex )
+                    assertEquals(0, (dri.target as? PointingToContextParameters)?.parameterIndex)
                     assertEquals(
                         setOf("common", "jvm", "native"), this.sourceSets.map { it.sourceSetID.sourceSetName }.toSet()
                     )
@@ -597,7 +723,7 @@ class ExpectActualsTest : BaseAbstractTest() {
                 assertEquals("i", property.name)
                 with(property.contextParameters.single()) {
                     assertEquals(DRI("kotlin", "String"), type.driOrNull)
-                    assertEquals(0, (dri.target as? PointingToContextParameters)?.parameterIndex )
+                    assertEquals(0, (dri.target as? PointingToContextParameters)?.parameterIndex)
                     assertEquals("_", name)
                     assertEquals(
                         setOf("common", "jvm", "native"), this.sourceSets.map { it.sourceSetID.sourceSetName }.toSet()
@@ -605,6 +731,80 @@ class ExpectActualsTest : BaseAbstractTest() {
                 }
                 assertEquals(
                     setOf("common", "jvm", "native"), property.sourceSets.map { it.sourceSetID.sourceSetName }.toSet()
+                )
+            }
+        }
+    }
+
+    @Test
+    @OnlySymbols("#4245: New KDoc resolve for symbols")
+    fun `kdoc on expect-actual`() {
+        testInline(
+            """
+        /src/common/test.kt
+        /**
+         * @constructor Common Description
+         */
+        expect class A() {
+            /**
+             * Common Description
+             */
+            fun foo()
+            
+            /**
+             * Common Description
+             */
+            fun bar()
+        }
+        
+        /src/jvm/test.kt
+        actual class A actual constructor() {
+            actual fun foo() {}
+            
+            /**
+             * Platform Description
+             */
+            actual fun bar() {}
+        }
+        """.trimMargin(),
+            multiplatformConfiguration
+        ) {
+            documentablesTransformationStage = { module ->
+                val a = module.findClasslike("", "A") as DClass
+                val constructor = a.constructors.single()
+                val foo = a.functions.first { it.name == "foo" }
+                val bar = a.functions.first { it.name == "bar" }
+
+                val common = multiplatformConfiguration.sourceSets.first { it.displayName == "common" }
+                val jvm = multiplatformConfiguration.sourceSets.first { it.displayName == "jvm" }
+
+                assertEquals(2, constructor.documentation.size)
+                assertEquals(constructor.documentation[common], constructor.documentation[jvm])
+                constructor.documentation.values.forEach {
+                    assertEquals(
+                        "DocumentationNode(children=[Description(root=CustomDocTag(children=[P(children=[Text(body=Common Description, children=[], params={})], params={})], params={}, name=MARKDOWN_FILE))])",
+                        it.toString()
+                    )
+                }
+
+                assertEquals(2, foo.documentation.size)
+                assertEquals(foo.documentation[common], foo.documentation[jvm])
+                foo.documentation.values.forEach {
+                    assertEquals(
+                        "DocumentationNode(children=[Description(root=CustomDocTag(children=[P(children=[Text(body=Common Description, children=[], params={})], params={})], params={}, name=MARKDOWN_FILE))])",
+                        it.toString()
+                    )
+                }
+
+                assertEquals(2, bar.documentation.size)
+                assertNotEquals(bar.documentation[common], bar.documentation[jvm])
+                assertEquals(
+                    "DocumentationNode(children=[Description(root=CustomDocTag(children=[P(children=[Text(body=Common Description, children=[], params={})], params={})], params={}, name=MARKDOWN_FILE))])",
+                    bar.documentation[common].toString()
+                )
+                assertEquals(
+                    "DocumentationNode(children=[Description(root=CustomDocTag(children=[P(children=[Text(body=Platform Description, children=[], params={})], params={})], params={}, name=MARKDOWN_FILE))])",
+                    bar.documentation[jvm].toString()
                 )
             }
         }

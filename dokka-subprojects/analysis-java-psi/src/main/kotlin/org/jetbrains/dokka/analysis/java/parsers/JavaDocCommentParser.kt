@@ -8,11 +8,14 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.PsiParameter
+import com.intellij.psi.PsiParameterList
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.tree.JavaDocElementType
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.javadoc.PsiDocTag
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 
 import org.jetbrains.dokka.analysis.java.*
 import org.jetbrains.dokka.analysis.java.doccomment.DocComment
@@ -32,71 +35,82 @@ internal class JavaPsiDocCommentParser(
         return docComment is JavaDocComment
     }
 
-    override fun parse(docComment: DocComment, context: PsiNamedElement): DocumentationNode {
+    override fun parse(docComment: DocComment, context: PsiNamedElement, sourceSet: DokkaSourceSet): DocumentationNode {
         val javaDocComment = docComment as JavaDocComment
-        return parsePsiDocComment(javaDocComment.comment, context)
+        return parsePsiDocComment(javaDocComment.comment, context, sourceSet)
     }
 
-    internal fun parsePsiDocComment(docComment: PsiDocComment, context: PsiNamedElement): DocumentationNode {
-        val description = listOfNotNull(docComment.getDescription())
+    internal fun parsePsiDocComment(docComment: PsiDocComment, context: PsiNamedElement, sourceSet: DokkaSourceSet): DocumentationNode {
+        if(context is PsiParameter && context.parent is PsiParameterList) {
+            return DocumentationNode(docComment.tags.mapNotNull { tag ->
+                if(tag.name == ParamJavadocTag.name)
+                    parseParamTag(tag, docComment, context, sourceSet)
+                else null
+            })
+        }
+
+        val description = listOfNotNull(docComment.getDescription(sourceSet))
         val tags = docComment.tags.mapNotNull { tag ->
-            parseDocTag(tag, docComment, context)
+            parseDocTag(tag, docComment, context, sourceSet)
         }
         return DocumentationNode(description + tags)
     }
 
-    private fun PsiDocComment.getDescription(): Description? {
+    private fun PsiDocComment.getDescription(sourceSet: DokkaSourceSet): Description? {
         val docTags = psiDocTagParser.parseAsParagraph(
             psiElements = descriptionElements.asIterable(),
             commentResolutionContext = CommentResolutionContext(this, DescriptionJavadocTag),
+            sourceSet = sourceSet
         )
         return docTags.takeIf { it.isNotEmpty() }?.let {
             Description(wrapTagIfNecessary(it))
         }
     }
 
-    private fun parseDocTag(tag: PsiDocTag, docComment: PsiDocComment, analysedElement: PsiNamedElement): TagWrapper? {
+    private fun parseDocTag(tag: PsiDocTag, docComment: PsiDocComment, analysedElement: PsiNamedElement, sourceSet: DokkaSourceSet): TagWrapper? {
         return when (tag.name) {
-            ParamJavadocTag.name -> parseParamTag(tag, docComment, analysedElement)
-            ThrowsJavadocTag.name, ExceptionJavadocTag.name -> parseThrowsTag(tag, docComment)
-            ReturnJavadocTag.name -> parseReturnTag(tag, docComment)
-            SinceJavadocTag.name -> parseSinceTag(tag, docComment)
-            AuthorJavadocTag.name -> parseAuthorTag(tag, docComment)
-            SeeJavadocTag.name -> parseSeeTag(tag, docComment)
-            DeprecatedJavadocTag.name -> parseDeprecatedTag(tag, docComment)
-            else -> emptyTagWrapper(tag, docComment)
+            ParamJavadocTag.name -> parseParamTag(tag, docComment, analysedElement, sourceSet)
+            ThrowsJavadocTag.name, ExceptionJavadocTag.name -> parseThrowsTag(tag, docComment, sourceSet)
+            ReturnJavadocTag.name -> parseReturnTag(tag, docComment, sourceSet)
+            SinceJavadocTag.name -> parseSinceTag(tag, docComment, sourceSet)
+            AuthorJavadocTag.name -> parseAuthorTag(tag, docComment, sourceSet)
+            SeeJavadocTag.name -> parseSeeTag(tag, docComment, sourceSet)
+            DeprecatedJavadocTag.name -> parseDeprecatedTag(tag, docComment, sourceSet)
+            else -> emptyTagWrapper(tag, docComment, sourceSet)
         }
     }
 
     private fun parseParamTag(
         tag: PsiDocTag,
         docComment: PsiDocComment,
-        analysedElement: PsiNamedElement
+        analysedElement: PsiNamedElement,
+        sourceSet: DokkaSourceSet
     ): TagWrapper? {
         val paramName = tag.dataElements.firstOrNull()?.text.orEmpty()
-        val paramIndex = when (analysedElement) {
+        if(analysedElement is PsiParameter && paramName != analysedElement.name) return null
+        val parent = if(analysedElement is PsiParameter) analysedElement.parent.parent else analysedElement
+        val paramIndex = when (parent) {
             // for functions `@param` can be used with both generics and arguments
             //  if it's for generics,
             //  then `paramName` will be in the form of `<T>`, where `T` is a type parameter name
             is PsiMethod -> when {
                 paramName.startsWith('<') -> {
                     val pName = paramName.removeSurrounding("<", ">")
-                    analysedElement.typeParameters.indexOfFirst { it.name == pName }
+                    parent.typeParameters.indexOfFirst { it.name == pName }
                 }
 
-                else -> analysedElement.parameterList.parameters.indexOfFirst { it.name == paramName }
+                else -> parent.parameterList.parameters.indexOfFirst { it.name == paramName }
             }
 
             // for classes `@param` can be used with generics and `record` components
             is PsiClass -> when {
                 paramName.startsWith('<') -> {
                     val pName = paramName.removeSurrounding("<", ">")
-                    analysedElement.typeParameters.indexOfFirst { it.name == pName }
+                    parent.typeParameters.indexOfFirst { it.name == pName }
                 }
 
-                else -> analysedElement.recordComponents.indexOfFirst { it.name == paramName }
+                else -> parent.recordComponents.indexOfFirst { it.name == paramName }
             }
-
             // if `@param` tag is on any other element - ignore it
             else -> return null
         }
@@ -106,14 +120,16 @@ internal class JavaPsiDocCommentParser(
             commentResolutionContext = CommentResolutionContext(
                 comment = docComment,
                 tag = ParamJavadocTag(paramName, paramIndex)
-            )
+            ),
+            sourceSet = sourceSet
         )
         return Param(root = wrapTagIfNecessary(docTags), name = paramName)
     }
 
     private fun parseThrowsTag(
         tag: PsiDocTag,
-        docComment: PsiDocComment
+        docComment: PsiDocComment,
+        sourceSet: DokkaSourceSet
     ): Throws {
         val resolvedElement = tag.resolveToElement()
         val exceptionAddress = resolvedElement?.let { DRI.from(it) }
@@ -138,6 +154,7 @@ internal class JavaPsiDocCommentParser(
                 comment = docComment,
                 tag = javadocTag
             ),
+            sourceSet = sourceSet
         )
         return Throws(
             root = wrapTagIfNecessary(docTags),
@@ -148,29 +165,34 @@ internal class JavaPsiDocCommentParser(
 
     private fun parseReturnTag(
         tag: PsiDocTag,
-        docComment: PsiDocComment
+        docComment: PsiDocComment,
+        sourceSet: DokkaSourceSet
     ): Return {
         val docTags = psiDocTagParser.parseAsParagraph(
             psiElements = tag.contentElementsWithSiblingIfNeeded(),
             commentResolutionContext = CommentResolutionContext(comment = docComment, tag = ReturnJavadocTag),
+            sourceSet = sourceSet
         )
         return Return(root = wrapTagIfNecessary(docTags))
     }
 
     private fun parseSinceTag(
         tag: PsiDocTag,
-        docComment: PsiDocComment
+        docComment: PsiDocComment,
+        sourceSet: DokkaSourceSet
     ): Since {
         val docTags = psiDocTagParser.parseAsParagraph(
             psiElements = tag.contentElementsWithSiblingIfNeeded(),
             commentResolutionContext = CommentResolutionContext(comment = docComment, tag = ReturnJavadocTag),
+            sourceSet = sourceSet
         )
         return Since(root = wrapTagIfNecessary(docTags))
     }
 
     private fun parseAuthorTag(
         tag: PsiDocTag,
-        docComment: PsiDocComment
+        docComment: PsiDocComment,
+        sourceSet: DokkaSourceSet
     ): Author {
         // TODO [beresnev] see what the hell this is
         // Workaround: PSI returns first word after @author tag as a `DOC_TAG_VALUE_ELEMENT`,
@@ -178,13 +200,15 @@ internal class JavaPsiDocCommentParser(
         val docTags = psiDocTagParser.parseAsParagraph(
             psiElements = tag.contentElementsWithSiblingIfNeeded(),
             commentResolutionContext = CommentResolutionContext(comment = docComment, tag = AuthorJavadocTag),
+            sourceSet = sourceSet
         )
         return Author(root = wrapTagIfNecessary(docTags))
     }
 
     private fun parseSeeTag(
         tag: PsiDocTag,
-        docComment: PsiDocComment
+        docComment: PsiDocComment,
+        sourceSet: DokkaSourceSet
     ): See {
         val referenceElement = tag.referenceElement()
         val fullyQualifiedSeeReference = tag.resolveToElement()?.getKotlinFqName()
@@ -196,12 +220,13 @@ internal class JavaPsiDocCommentParser(
                 it is PsiWhiteSpace || it.isDocReferenceHolder() || it == referenceElement
             },
             commentResolutionContext = context,
+            sourceSet = sourceSet
         )
 
         return See(
             root = wrapTagIfNecessary(docTags),
             name = fullyQualifiedSeeReference,
-            address = referenceElement?.toDocumentationLink(context = context)?.dri
+            address = referenceElement?.toDocumentationLink(context = context, sourceSet = sourceSet)?.dri
         )
     }
 
@@ -211,11 +236,13 @@ internal class JavaPsiDocCommentParser(
 
     private fun parseDeprecatedTag(
         tag: PsiDocTag,
-        docComment: PsiDocComment
+        docComment: PsiDocComment,
+        sourceSet: DokkaSourceSet
     ): Deprecated {
         val docTags = psiDocTagParser.parseAsParagraph(
             tag.contentElementsWithSiblingIfNeeded(),
             CommentResolutionContext(comment = docComment, tag = DeprecatedJavadocTag),
+            sourceSet
         )
         return Deprecated(root = wrapTagIfNecessary(docTags))
     }
@@ -233,10 +260,12 @@ internal class JavaPsiDocCommentParser(
     private fun emptyTagWrapper(
         tag: PsiDocTag,
         docComment: PsiDocComment,
+        sourceSet: DokkaSourceSet
     ): CustomTagWrapper {
         val docTags = psiDocTagParser.parseAsParagraph(
             psiElements = tag.contentElementsWithSiblingIfNeeded(),
             commentResolutionContext = CommentResolutionContext(docComment, null),
+            sourceSet = sourceSet
         )
         return CustomTagWrapper(
             root = wrapTagIfNecessary(docTags),
@@ -244,10 +273,10 @@ internal class JavaPsiDocCommentParser(
         )
     }
 
-    private fun PsiElement.toDocumentationLink(labelElement: PsiElement? = null, context: CommentResolutionContext): DocumentationLink? {
+    private fun PsiElement.toDocumentationLink(labelElement: PsiElement? = null, context: CommentResolutionContext, sourceSet: DokkaSourceSet): DocumentationLink? {
         val resolvedElement = this.resolveToGetDri() ?: return null
         val label = labelElement ?: defaultLabel()
-        val docTags = psiDocTagParser.parse(listOfNotNull(label), context)
+        val docTags = psiDocTagParser.parse(listOfNotNull(label), context, sourceSet)
         return DocumentationLink(dri = DRI.from(resolvedElement), children = docTags)
     }
 }

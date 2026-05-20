@@ -9,6 +9,7 @@ import org.jetbrains.dokka.javadoc.renderer.TemplateMap
 import org.junit.jupiter.api.Tag
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
 
@@ -32,7 +33,12 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
     fun `finds correct number of deprecated constructors`() {
         testDeprecatedPageTemplateMaps { templateMap ->
             val map = templateMap.section("Constructors")
-            assertEquals(1, map.elements().size)
+            // AA reports that constructor of deprecated class `ClassJavaException` is deprecated - looks fine to me
+            // PSI reports only explicitly deprecated constructor of `ClassJava`
+            assertTrue(
+                map.elements().size == 1 || map.elements().size == 2,
+                "Expected 1(PSI) or 2(AA) constructors, but found ${map.elements().size}"
+            )
         }
     }
 
@@ -60,16 +66,12 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
         }
     }
 
-    @Tag("onlyDescriptors") // https://github.com/Kotlin/dokka/issues/3266 - `describeConstable` is in deprecated page on Java 17
+    @Tag("onlySymbols") // https://github.com/Kotlin/dokka/issues/3266 - `describeConstable` is in deprecated page on Java 17
     @Test
     fun `finds correct number of deprecated methods`() {
         testDeprecatedPageTemplateMaps { templateMap ->
-            //We are checking whether we will have an additional function for enum classes
-            fun hasAdditionalFunction() =
-                AnnotationTarget.ANNOTATION_CLASS::class.java.methods.any { it.name == "describeConstable" }
-
             val map = templateMap.section("Methods")
-            assertEquals(if (hasAdditionalFunction()) 5 else 4, map.elements().size)
+            assertEquals(4, map.elements().size)
         }
     }
 

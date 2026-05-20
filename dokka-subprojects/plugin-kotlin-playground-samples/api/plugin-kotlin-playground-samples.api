@@ -1,0 +1,29 @@
+public final class org/jetbrains/dokka/kotlinPlaygroundSamples/KotlinPlaygroundSamplesConfiguration : org/jetbrains/dokka/plugability/ConfigurableBlock {
+	public static final field Companion Lorg/jetbrains/dokka/kotlinPlaygroundSamples/KotlinPlaygroundSamplesConfiguration$Companion;
+	public static final field defaultKotlinPlaygroundScript Ljava/lang/String;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/kotlinPlaygroundSamples/KotlinPlaygroundSamplesConfiguration;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/kotlinPlaygroundSamples/KotlinPlaygroundSamplesConfiguration;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/kotlinPlaygroundSamples/KotlinPlaygroundSamplesConfiguration;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKotlinPlaygroundScript ()Ljava/lang/String;
+	public final fun getKotlinPlaygroundServer ()Ljava/lang/String;
+	public fun hashCode ()I
+	public final fun setKotlinPlaygroundScript (Ljava/lang/String;)V
+	public final fun setKotlinPlaygroundServer (Ljava/lang/String;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/kotlinPlaygroundSamples/KotlinPlaygroundSamplesConfiguration$Companion {
+}
+
+public final class org/jetbrains/dokka/kotlinPlaygroundSamples/KotlinPlaygroundSamplesPlugin : org/jetbrains/dokka/plugability/DokkaPlugin {
+	public fun <init> ()V
+	public final fun getKotlinPlaygroundSamplesScriptsInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getKotlinPlaygroundSamplesStylesInstaller ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getKotlinPlaygroundSamplesTransformer ()Lorg/jetbrains/dokka/plugability/Extension;
+}
+

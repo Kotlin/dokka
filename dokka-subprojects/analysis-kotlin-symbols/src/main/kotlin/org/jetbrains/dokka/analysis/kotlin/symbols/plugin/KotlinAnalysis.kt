@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSdkModule
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSourceModule
 import org.jetbrains.kotlin.config.AnalysisFlags
 import org.jetbrains.kotlin.config.ApiVersion
+import org.jetbrains.kotlin.config.LanguageFeature
 import org.jetbrains.kotlin.config.LanguageVersion
 import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
 import org.jetbrains.kotlin.platform.CommonPlatforms
@@ -26,13 +27,11 @@ import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
 import org.jetbrains.kotlin.platform.konan.NativePlatforms
 import org.jetbrains.kotlin.platform.wasm.WasmPlatforms
 import java.io.File
-import java.io.IOException
-import java.nio.file.*
-import java.nio.file.attribute.BasicFileAttributes
-import kotlin.io.path.extension
 
 internal fun Platform.toTargetPlatform() = when (this) {
-    Platform.wasm -> WasmPlatforms.unspecifiedWasmPlatform
+    @Suppress("DEPRECATION") Platform.wasm -> WasmPlatforms.unspecifiedWasmPlatform
+    Platform.wasmJs -> WasmPlatforms.wasmJs
+    Platform.wasmWasi -> WasmPlatforms.wasmWasi
     Platform.js -> JsPlatforms.defaultJsPlatform
     Platform.common -> CommonPlatforms.defaultCommonPlatform
     Platform.native -> NativePlatforms.unspecifiedNativePlatform
@@ -50,19 +49,25 @@ private fun getJdkHomeFromSystemProperty(logger: DokkaLogger): File? {
 
 internal fun getLanguageVersionSettings(
     languageVersionString: String?,
-    apiVersionString: String?
+    apiVersionString: String?,
+    isMultiplatformProject: Boolean,
 ): LanguageVersionSettingsImpl {
-    val languageVersion = LanguageVersion.fromVersionString(languageVersionString) ?: LanguageVersion.LATEST_STABLE
-    val apiVersion =
-        apiVersionString?.let { ApiVersion.parse(it) } ?: ApiVersion.createByLanguageVersion(languageVersion)
+    val languageVersion = LanguageVersion.fromVersionString(languageVersionString)
+        ?: LanguageVersion.LATEST_STABLE
+    val apiVersion = apiVersionString?.let { ApiVersion.parse(it) }
+        ?: ApiVersion.createByLanguageVersion(languageVersion)
     return LanguageVersionSettingsImpl(
         languageVersion = languageVersion,
-        apiVersion = apiVersion, analysisFlags = hashMapOf(
+        apiVersion = apiVersion,
+        analysisFlags = hashMapOf(
             AnalysisFlags.allowKotlinPackage to InternalConfiguration.allowKotlinPackage,
             // special flag for Dokka
             // force to resolve light classes (lazily by default)
-            AnalysisFlags.eagerResolveOfLightClasses to true
-        )
+            AnalysisFlags.eagerResolveOfLightClasses to true,
+        ),
+        specificFeatures = listOfNotNull(
+            if (isMultiplatformProject) LanguageFeature.MultiPlatformProjects to LanguageFeature.State.ENABLED else null
+        ).toMap()
     )
 }
 
@@ -73,6 +78,7 @@ internal fun createAnalysisSession(
     isSampleProject: Boolean = false
 ): KotlinAnalysis {
     val sourcesModule = mutableMapOf<DokkaConfiguration.DokkaSourceSet, KaSourceModule>()
+    val isMultiplatformProject = sourceSets.any { it.analysisPlatform != Platform.jvm }
 
     val analysisSession = buildStandaloneAnalysisAPISession(
         projectDisposable = projectDisposable,
@@ -116,8 +122,11 @@ internal fun createAnalysisSession(
             for (sourceSet in sortedSourceSets) {
                 val targetPlatform = sourceSet.analysisPlatform.toTargetPlatform()
                 val sourceModule = buildKtSourceModule {
-                    languageVersionSettings =
-                        getLanguageVersionSettings(sourceSet.languageVersion, sourceSet.apiVersion)
+                    languageVersionSettings = getLanguageVersionSettings(
+                        languageVersionString = sourceSet.languageVersion,
+                        apiVersionString = sourceSet.apiVersion,
+                        isMultiplatformProject = isMultiplatformProject,
+                    )
                     platform = targetPlatform
                     moduleName = "<module ${sourceSet.displayName}>"
 
@@ -125,13 +134,9 @@ internal fun createAnalysisSession(
                     // here we mimic the logic, which happens inside AA during building KaModule, but we follow symlinks
                     // https://github.com/JetBrains/kotlin/blob/dcd24449718cba21bd86428e5cddb9b25e5612af/analysis/analysis-api-standalone/src/org/jetbrains/kotlin/analysis/project/structure/builder/KaSourceModuleBuilder.kt#L80
                     if (isSampleProject) {
-                        sourceSet.samples.forEach { root ->
-                            addSourceRoots(collectSourceFilePaths(root.toPath()))
-                        }
+                        addSourceRoots(sourceSet.samples.map { it.toPath() })
                     } else {
-                        sourceSet.sourceRoots.forEach { root ->
-                            addSourceRoots(collectSourceFilePaths(root.toPath()))
-                        }
+                        addSourceRoots(sourceSet.sourceRoots.map { it.toPath() })
                     }
                     addModuleDependencies(
                         sourceSet,
@@ -161,8 +166,8 @@ internal fun topologicalSortByDependantSourceSets(
     val result = mutableListOf<DokkaConfiguration.DokkaSourceSet>()
 
     val verticesAssociatedWithState = sourceSets.associateWithTo(mutableMapOf()) { State.UNVISITED }
-    fun dfs(souceSet: DokkaConfiguration.DokkaSourceSet) {
-        when (verticesAssociatedWithState[souceSet]) {
+    fun dfs(sourceSet: DokkaConfiguration.DokkaSourceSet) {
+        when (verticesAssociatedWithState[sourceSet]) {
             State.VISITED -> return
             State.VISITING -> {
                 logger.error("Detected cycle in source set graph")
@@ -171,64 +176,20 @@ internal fun topologicalSortByDependantSourceSets(
 
             else -> {
                 val dependentSourceSets =
-                    souceSet.dependentSourceSets.mapNotNull { dependentSourceSetId ->
-                       sourceSets.find { it.sourceSetID == dependentSourceSetId } ?: run {
+                    sourceSet.dependentSourceSets.mapNotNull { dependentSourceSetId ->
+                        sourceSets.find { it.sourceSetID == dependentSourceSetId } ?: run {
                             logger.error("Cannot find source set with id $dependentSourceSetId")
-                            null }
+                            null
+                        }
 
                     }
-                verticesAssociatedWithState[souceSet] = State.VISITING
+                verticesAssociatedWithState[sourceSet] = State.VISITING
                 dependentSourceSets.forEach(::dfs)
-                verticesAssociatedWithState[souceSet] = State.VISITED
-                result += souceSet
+                verticesAssociatedWithState[sourceSet] = State.VISITED
+                result += sourceSet
             }
         }
     }
     sourceSets.forEach(::dfs)
     return result
-}
-
-// copied from AA: https://github.com/JetBrains/kotlin/blob/dcd24449718cba21bd86428e5cddb9b25e5612af/analysis/analysis-api-standalone/src/org/jetbrains/kotlin/analysis/project/structure/impl/KaModuleUtils.kt#L60-L110
-// with a fix for following symlinks
-
-private fun collectSourceFilePaths(root: Path): List<Path> {
-    // NB: [Files#walk] throws an exception if there is an issue during IO.
-    // With [Files#walkFileTree] with a custom visitor, we can take control of exception handling.
-    val result = mutableListOf<Path>()
-    Files.walkFileTree(
-        /* start = */ root,
-        /* options = */ setOf(FileVisitOption.FOLLOW_LINKS), // <-- THIS IS THE FIX
-        /* maxDepth = */ Int.MAX_VALUE,
-        /* visitor = */ object : SimpleFileVisitor<Path>() {
-            override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
-                return if (Files.isReadable(dir))
-                    FileVisitResult.CONTINUE
-                else
-                    FileVisitResult.SKIP_SUBTREE
-            }
-
-            override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
-                if (!Files.isRegularFile(file) || !Files.isReadable(file))
-                    return FileVisitResult.CONTINUE
-                if (file.hasSuitableExtensionToAnalyse()) {
-                    result.add(file)
-                }
-                return FileVisitResult.CONTINUE
-            }
-
-            override fun visitFileFailed(file: Path, exc: IOException): FileVisitResult {
-                // TODO: report or log [IOException]?
-                // NB: this intentionally swallows the exception, hence fail-safe.
-                // Skipping subtree doesn't make any sense, since this is not a directory.
-                // Skipping sibling may drop valid file paths afterward, so we just continue.
-                return FileVisitResult.CONTINUE
-            }
-        }
-    )
-    return result
-}
-
-private fun Path.hasSuitableExtensionToAnalyse(): Boolean {
-    val extension = extension
-    return extension == "kt" || extension == "kts" || extension == "java"
 }

@@ -56,7 +56,7 @@ By default, the Maven plugin for Dokka builds documentation in [HTML](dokka-html
 All other output formats are implemented as [Dokka plugins](dokka-plugins.md). In order to generate documentation in the 
 desired format, you have to add it as a Dokka plugin to the configuration.
 
-For example, to use the experimental [GFM](dokka-markdown.md#gfm) format, you have to add `gfm-plugin` artifact:
+For example, to use the experimental [GFM](https://github.com/Kotlin/dokka/tree/master/dokka-subprojects/plugin-gfm#readme) format, you have to add `gfm-plugin` artifact:
 
 ```xml
 <plugin>
@@ -188,6 +188,9 @@ with [all configuration options](#complete-configuration) applied at the bottom 
             <file>/path/to/dir</file>
             <file>/path/to/file</file>
         </suppressedFiles>
+        <suppressAnnotatedWith>
+            <annotation>com.example.SuppressMe</annotation>
+        </suppressAnnotatedWith>
         <jdkVersion>8</jdkVersion>
         <languageVersion>1.7</languageVersion>
         <apiVersion>1.7</apiVersion>
@@ -322,6 +325,12 @@ with [all configuration options](#complete-configuration) applied at the bottom 
         <p>
             The directories or individual files that should be suppressed, meaning that declarations from them 
             are not documented.
+        </p>
+    </def>
+    <def title="suppressAnnotatedWith">
+        <p>A list of annotation fully qualified names (FQNs) to suppress declarations annotated with.</p>
+        <p>
+            Any declaration annotated with one of these annotations is excluded from the generated documentation.
         </p>
     </def>
     <def title="jdkVersion">

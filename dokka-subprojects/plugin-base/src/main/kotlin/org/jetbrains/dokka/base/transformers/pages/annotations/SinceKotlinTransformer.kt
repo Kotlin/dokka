@@ -46,7 +46,9 @@ public class SinceKotlinVersion(str: String) : Comparable<SinceKotlinVersion> {
             Platform.jvm to SinceKotlinVersion("1.0"),
             Platform.js to SinceKotlinVersion("1.1"),
             Platform.native to SinceKotlinVersion("1.3"),
-            Platform.wasm to SinceKotlinVersion("1.8"),
+            @Suppress("DEPRECATION") Platform.wasm to SinceKotlinVersion("1.8"),
+            Platform.wasmWasi to SinceKotlinVersion("1.8"),
+            Platform.wasmJs to SinceKotlinVersion("1.8")
         )
 
         fun minVersionOfPlatform(platform: Platform): SinceKotlinVersion {
@@ -104,35 +106,39 @@ public class SinceKotlinTransformer(
                 classlikes = classlikes.map { it.transform() as DClasslike },
                 functions = functions.map { it.transform() as DFunction },
                 properties = properties.map { it.transform() as DProperty },
-                typealiases = typealiases.map { it.transform() as DTypeAlias }
+                typealiases = typealiases.map { it.transform() as DTypeAlias },
             )
 
             is DClass -> copy(
                 documentation = appendSinceKotlin(versions),
                 classlikes = classlikes.map { it.transform(versions) as DClasslike },
                 functions = functions.map { it.transform(versions) as DFunction },
-                properties = properties.map { it.transform(versions) as DProperty }
+                properties = properties.map { it.transform(versions) as DProperty },
+                typealiases = typealiases.map { it.transform(versions) as DTypeAlias },
             )
 
             is DEnum -> copy(
                 documentation = appendSinceKotlin(versions),
                 classlikes = classlikes.map { it.transform(versions) as DClasslike },
                 functions = functions.map { it.transform(versions) as DFunction },
-                properties = properties.map { it.transform(versions) as DProperty }
+                properties = properties.map { it.transform(versions) as DProperty },
+                typealiases = typealiases.map { it.transform(versions) as DTypeAlias },
             )
 
             is DInterface -> copy(
                 documentation = appendSinceKotlin(versions),
                 classlikes = classlikes.map { it.transform(versions) as DClasslike },
                 functions = functions.map { it.transform(versions) as DFunction },
-                properties = properties.map { it.transform(versions) as DProperty }
+                properties = properties.map { it.transform(versions) as DProperty },
+                typealiases = typealiases.map { it.transform(versions) as DTypeAlias },
             )
 
             is DObject -> copy(
                 documentation = appendSinceKotlin(versions),
                 classlikes = classlikes.map { it.transform(versions) as DClasslike },
                 functions = functions.map { it.transform(versions) as DFunction },
-                properties = properties.map { it.transform(versions) as DProperty }
+                properties = properties.map { it.transform(versions) as DProperty },
+                typealiases = typealiases.map { it.transform(versions) as DTypeAlias },
             )
 
             is DTypeAlias -> copy(
@@ -143,7 +149,7 @@ public class SinceKotlinTransformer(
                 documentation = appendSinceKotlin(versions),
                 classlikes = classlikes.map { it.transform(versions) as DClasslike },
                 functions = functions.map { it.transform(versions) as DFunction },
-                properties = properties.map { it.transform(versions) as DProperty }
+                properties = properties.map { it.transform(versions) as DProperty },
             )
 
             is DFunction -> copy(

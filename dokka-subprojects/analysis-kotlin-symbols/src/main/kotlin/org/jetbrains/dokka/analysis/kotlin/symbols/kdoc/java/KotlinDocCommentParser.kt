@@ -5,14 +5,14 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.java
 
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.analysis.java.doccomment.DocComment
 import org.jetbrains.dokka.analysis.java.parsers.DocCommentParser
-import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.*
-import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.logUnresolvedLink
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.parseFromKDocTag
-import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.resolveKDocLinkToDRI
+import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.resolveKDocLink
 import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.SymbolsAnalysisPlugin
+import org.jetbrains.dokka.analysis.kotlin.symbols.utils.getLocation
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
@@ -27,7 +27,7 @@ internal class KotlinDocCommentParser(
         return docComment is KotlinDocComment
     }
 
-    override fun parse(docComment: DocComment, context: PsiNamedElement): DocumentationNode {
+    override fun parse(docComment: DocComment, context: PsiNamedElement, sourceSet: DokkaSourceSet): DocumentationNode {
         val kotlinDocComment = docComment as KotlinDocComment
         return parseDocumentation(kotlinDocComment)
     }
@@ -38,11 +38,10 @@ internal class KotlinDocCommentParser(
                 ?: sourceSets.first { it.analysisPlatform == Platform.jvm }
         }
         val kotlinAnalysis = context.plugin<SymbolsAnalysisPlugin>().querySingle { kotlinAnalysis }
-        val elementName = element.resolveDocContext.ktElement.name
         return analyze(kotlinAnalysis.getModule(sourceSet)) {
             parseFromKDocTag(
                 kDocTag = element.comment,
-                externalDri = { link -> resolveKDocLinkToDRI(link).ifUnresolved { context.logger.logUnresolvedLink(link.getLinkText(), elementName) } },
+                externalDri = { resolveKDocLink(it, context.logger, sourceSet) },
                 kdocLocation = null,
                 parseWithChildren = parseWithChildren
             )

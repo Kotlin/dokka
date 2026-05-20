@@ -8,8 +8,13 @@ import org.jetbrains.dokka.links.*
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.types.*
 
-internal fun KaSession.getTypeReferenceFrom(type: KaType): TypeReference =
-    getTypeReferenceFromPossiblyRecursive(type, emptyList())
+internal fun KaSession.getTypeReferenceFrom(type: KaType, isVararg: Boolean = false): TypeReference {
+    val typeReference = getTypeReferenceFromPossiblyRecursive(type, emptyList())
+    return when {
+        isVararg -> Vararg(typeReference)
+        else -> typeReference
+    }
+}
 
 
 // see `deep recursive typebound #1342` test
@@ -39,12 +44,15 @@ private fun KaSession.getTypeReferenceFromPossiblyRecursive(
             val upperBoundsOrNullableAny =
                 type.symbol.upperBounds.takeIf { it.isNotEmpty() } ?: listOf(this.builtinTypes.nullableAny)
 
-            TypeParam(bounds = upperBoundsOrNullableAny.map {
-                getTypeReferenceFromPossiblyRecursive(
-                    it,
-                    paramTrace + type
-                )
-            })
+            TypeParam(
+                name = type.name.asString(),
+                bounds = upperBoundsOrNullableAny.map {
+                    getTypeReferenceFromPossiblyRecursive(
+                        it,
+                        paramTrace + type
+                    )
+                }
+            )
         }
 
         is KaClassErrorType -> TypeConstructor("$ERROR_CLASS_NAME $type", emptyList())
@@ -67,6 +75,7 @@ private fun KaSession.getTypeReferenceFromPossiblyRecursive(
             type.lowerBound,
             paramTrace
         )
+
         is KaCapturedType -> throw NotImplementedError()
         is KaIntersectionType -> throw NotImplementedError()
         else -> throw NotImplementedError()

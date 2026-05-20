@@ -51,10 +51,12 @@ public open class JavadocExternalLocationProvider(
     }
 
     protected open fun anchorPart(callable: Callable): String {
-        return callable.name +
-                "${brackets.first()}" +
-                callable.params.joinToString(separator) { it.toJavadocURL() } +
-                "${brackets.last()}"
+        return if (callable.isProperty)
+            callable.name
+        else
+            callable.name + "${brackets.first()}" +
+                    callable.params.joinToString(separator) { it.toJavadocURL() } +
+                    "${brackets.last()}"
     }
 
     private fun TypeReference.toJavadocURL(): String {
@@ -63,11 +65,10 @@ public open class JavadocExternalLocationProvider(
             is Nullable -> wrapped.toJavadocURL() // just ignore
             is StarProjection -> "?"
 
-            // TODO #3502
-            is TypeConstructor -> fullyQualifiedName +
-                    (if (params.isNotEmpty()) "[${params.joinToString(",") { it.toJavadocURL() }}]" else "")
-            is TypeParam -> toString()
+            is TypeConstructor -> fullyQualifiedName
+            is TypeParam -> name
             is RecursiveType -> "^".repeat(rank + 1)
+            is Vararg -> "${elementType.toJavadocURL()}..."
         }
     }
 }

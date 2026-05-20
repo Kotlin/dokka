@@ -33,6 +33,12 @@ dependencyResolutionManagement {
         google {
             setUrl("https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2")
             name = "Google-JBCache"
+            mavenContent {
+                // https://github.com/gradle/gradle/issues/35562
+                includeGroupAndSubgroups("com.android")
+                includeGroupAndSubgroups("com.google")
+                includeGroupAndSubgroups("androidx")
+            }
         }
     }
 

@@ -14,8 +14,6 @@ import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.StandardFileSystems
-import com.intellij.psi.PsiNameHelper
-import com.intellij.psi.impl.PsiNameHelperImpl
 import com.intellij.psi.impl.source.javadoc.JavadocManagerImpl
 import com.intellij.psi.javadoc.CustomJavadocTagProvider
 import com.intellij.psi.javadoc.JavadocManager
@@ -27,6 +25,7 @@ import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.AnalysisContextC
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.KLibService
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.MockApplicationHack
 import org.jetbrains.dokka.analysis.kotlin.descriptors.compiler.configuration.resolve.*
+import org.jetbrains.kotlin.K1Deprecation
 import org.jetbrains.kotlin.analyzer.*
 import org.jetbrains.kotlin.analyzer.common.CommonAnalysisParameters
 import org.jetbrains.kotlin.analyzer.common.CommonDependenciesContainer
@@ -47,17 +46,19 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.compiler.TopDownAnalyzerFacadeForJVM
 import org.jetbrains.kotlin.cli.jvm.config.*
 import org.jetbrains.kotlin.cli.jvm.index.JavaRoot
+import org.jetbrains.kotlin.cli.registerExtensionStorage
 import org.jetbrains.kotlin.config.*
 import org.jetbrains.kotlin.context.ProjectContext
 import org.jetbrains.kotlin.context.withModule
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
+import org.jetbrains.kotlin.diagnostics.impl.BaseDiagnosticsCollector
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.js.resolve.JsPlatformAnalyzerServices
-import org.jetbrains.kotlin.library.KLIB_FILE_EXTENSION
+import org.jetbrains.kotlin.library.KlibConstants.KLIB_FILE_EXTENSION
 import org.jetbrains.kotlin.library.KotlinLibrary
-import org.jetbrains.kotlin.library.ToolingSingleFileKlibResolveStrategy
-import org.jetbrains.kotlin.library.resolveSingleFileKlib
+import org.jetbrains.kotlin.library.loader.KlibLoader
+import org.jetbrains.kotlin.library.loader.reportLoadingProblemsIfAny
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
 import org.jetbrains.kotlin.load.java.structure.impl.classFiles.BinaryJavaClass
 import org.jetbrains.kotlin.name.Name
@@ -76,6 +77,8 @@ import org.jetbrains.kotlin.resolve.jvm.JvmResolverForModuleFactory
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatformAnalyzerServices
 import org.jetbrains.kotlin.resolve.konan.platform.NativePlatformAnalyzerServices
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
+import org.jetbrains.kotlin.util.DummyLogger
+import org.jetbrains.kotlin.util.Logger
 import java.io.File
 import org.jetbrains.kotlin.konan.file.File as KFile
 
@@ -96,22 +99,27 @@ public class AnalysisEnvironment(
     private val mockApplicationHack: MockApplicationHack,
     private val kLibService: KLibService,
 ) : Disposable {
+    @OptIn(CompilerConfiguration.Internals::class)
     private val configuration = CompilerConfiguration()
 
     init {
+        @OptIn(CompilerConfiguration.Internals::class)
+        configuration.registerExtensionStorage()
         configuration.put(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
+        configuration.put(CLIConfigurationKeys.DIAGNOSTICS_COLLECTOR, BaseDiagnosticsCollector.DoNothing)
     }
 
     internal fun createCoreEnvironment(): KotlinCoreEnvironment {
         System.setProperty("idea.io.use.nio2", "true")
         System.setProperty("idea.ignore.disabled.plugins", "true")
 
-        val configFiles = when (analysisPlatform) {
+        val configFiles = @Suppress("DEPRECATION") when (analysisPlatform) {
             Platform.jvm, Platform.common -> EnvironmentConfigFiles.JVM_CONFIG_FILES
             Platform.native -> EnvironmentConfigFiles.NATIVE_CONFIG_FILES
-            Platform.js, Platform.wasm -> EnvironmentConfigFiles.JS_CONFIG_FILES
+            Platform.js, Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> EnvironmentConfigFiles.JS_CONFIG_FILES
         }
 
+        @OptIn(K1Deprecation::class)
         val environment = KotlinCoreEnvironment.createForProduction(this, configuration, configFiles)
         val projectComponentManager = environment.project as MockComponentManager
 
@@ -140,11 +148,6 @@ public class AnalysisEnvironment(
         )
 
         projectComponentManager.registerService(
-            PsiNameHelper::class.java,
-            PsiNameHelperImpl(environment.project)
-        )
-
-        projectComponentManager.registerService(
             CustomJavadocTagProvider::class.java,
             CustomJavadocTagProvider { emptyList() }
         )
@@ -153,9 +156,9 @@ public class AnalysisEnvironment(
     }
 
     private fun createSourceModuleSearchScope(project: Project, sourceFiles: List<KtFile>): GlobalSearchScope =
-        when (analysisPlatform) {
+        @Suppress("DEPRECATION") when (analysisPlatform) {
             Platform.jvm -> TopDownAnalyzerFacadeForJVM.newModuleSearchScope(project, sourceFiles)
-            Platform.js, Platform.common, Platform.native, Platform.wasm -> GlobalSearchScope.filesScope(
+            Platform.js, Platform.common, Platform.native, Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> GlobalSearchScope.filesScope(
                 project,
                 sourceFiles.map { it.virtualFile }.toSet()
             )
@@ -169,8 +172,8 @@ public class AnalysisEnvironment(
         val projectContext = ProjectContext(environment.project, "Dokka")
         val sourceFiles = environment.getSourceFiles()
 
-        val targetPlatform = when (analysisPlatform) {
-            Platform.js, Platform.wasm -> JsPlatforms.defaultJsPlatform
+        val targetPlatform = @Suppress("DEPRECATION") when (analysisPlatform) {
+            Platform.js, Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> JsPlatforms.defaultJsPlatform
             Platform.common -> CommonPlatforms.defaultCommonPlatform
             Platform.native -> NativePlatforms.unspecifiedNativePlatform
             Platform.jvm -> JvmPlatforms.defaultJvmPlatform
@@ -232,7 +235,7 @@ public class AnalysisEnvironment(
 
         var builtIns: JvmBuiltIns? = null
 
-        val resolverForProject = when (analysisPlatform) {
+        val resolverForProject = @Suppress("DEPRECATION") when (analysisPlatform) {
             Platform.jvm -> {
                 builtIns = JvmBuiltIns(
                     projectContext.storageManager,
@@ -254,7 +257,7 @@ public class AnalysisEnvironment(
                 environment,
                 commonDependencyContainer
             )
-            Platform.js, Platform.wasm -> createJsResolverForProject(projectContext, module, modulesContent)
+            Platform.js, Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> createJsResolverForProject(projectContext, module, modulesContent)
             Platform.native -> createNativeResolverForProject(projectContext, module, modulesContent)
 
         }
@@ -278,20 +281,29 @@ public class AnalysisEnvironment(
         )
     }
 
-    private fun Platform.analyzerServices() = when (this) {
-        Platform.js, Platform.wasm -> JsPlatformAnalyzerServices
+    private fun Platform.analyzerServices() = @Suppress("DEPRECATION") when (this) {
+        Platform.js, Platform.wasm, Platform.wasmWasi, Platform.wasmJs -> JsPlatformAnalyzerServices
         Platform.common -> CommonPlatformAnalyzerServices
         Platform.native -> NativePlatformAnalyzerServices
         Platform.jvm -> JvmPlatformAnalyzerServices
     }
 
     private fun Collection<KotlinLibrary>.registerLibraries(): List<DokkaKlibLibraryInfo> {
-        if (analysisPlatform != Platform.native && analysisPlatform != Platform.js && analysisPlatform != Platform.wasm) return emptyList()
+        val supportedPlatforms = setOf(
+            Platform.native,
+            Platform.js,
+            @Suppress("DEPRECATION") Platform.wasm,
+            Platform.wasmWasi,
+            Platform.wasmJs
+        )
+
+        if (analysisPlatform !in supportedPlatforms) return emptyList()
+
         val dependencyResolver = DokkaKlibLibraryDependencyResolver()
         val analyzerServices = analysisPlatform.analyzerServices()
 
         return map { kotlinLibrary ->
-            if (analysisPlatform == org.jetbrains.dokka.Platform.native) DokkaNativeKlibLibraryInfo(
+            if (analysisPlatform == Platform.native) DokkaNativeKlibLibraryInfo(
                 kotlinLibrary,
                 analyzerServices,
                 dependencyResolver
@@ -302,18 +314,17 @@ public class AnalysisEnvironment(
 
     @OptIn(ExperimentalStdlibApi::class)
     private fun resolveKotlinLibraries(): Map<AbsolutePathString, KotlinLibrary> {
-        return if (analysisPlatform == Platform.jvm) emptyMap() else buildMap {
+        return if (analysisPlatform == Platform.jvm) emptyMap() else {
+            val result = mutableMapOf<AbsolutePathString, KotlinLibrary>()
+
             classpath
                 .filter { it.isDirectory || it.extension == KLIB_FILE_EXTENSION }
                 .forEach { libraryFile ->
                     try {
-                        val kotlinLibrary = resolveSingleFileKlib(
-                            libraryFile = KFile(libraryFile.absolutePath),
-                            strategy = ToolingSingleFileKlibResolveStrategy
-                        )
+                        val kotlinLibrary = resolveSingleFileKlib(KFile(libraryFile.absolutePath), DummyLogger)
                         if (kLibService.isAnalysisCompatible(kotlinLibrary)) {
                             // exists, is KLIB, has compatible format
-                            put(
+                            result.put(
                                 libraryFile.absolutePath,
                                 kotlinLibrary
                             )
@@ -323,6 +334,7 @@ public class AnalysisEnvironment(
                             .report(CompilerMessageSeverity.WARNING, "Can not resolve KLIB. " + e.message)
                     }
                 }
+            result
         }
     }
 
@@ -477,7 +489,7 @@ public class AnalysisEnvironment(
                                         content.moduleContentScope
                                     )
                                         .apply {
-                                            addRoots(javaRoots, messageCollector)
+                                            addRoots(javaRoots, configuration)
                                         }
                                 }, moduleByJavaClass = {
                                     val file =
@@ -530,7 +542,7 @@ public class AnalysisEnvironment(
      * $paths: collection of files to add
      */
     internal fun addClasspath(paths: List<File>) {
-        if (analysisPlatform == Platform.js || analysisPlatform == Platform.wasm) {
+        if (analysisPlatform == Platform.js || analysisPlatform == @Suppress("DEPRECATION") Platform.wasm || analysisPlatform == Platform.wasmWasi || analysisPlatform == Platform.wasmJs) {
             configuration.addAll(JSConfigurationKeys.LIBRARIES, paths.map { it.absolutePath })
         } else {
             configuration.addJvmClasspathRoots(paths)
@@ -551,7 +563,15 @@ public class AnalysisEnvironment(
      * $path: path to add
      */
     internal fun addClasspath(path: File) {
-        if (analysisPlatform == Platform.js || analysisPlatform == Platform.wasm) {
+        val wasmOrJsPlatforms = setOf(
+            Platform.js,
+            @Suppress("DEPRECATION") Platform.wasm,
+            Platform.wasmWasi,
+            Platform.wasmJs
+        )
+
+        // Then replace the condition with:
+        if (analysisPlatform in wasmOrJsPlatforms) {
             configuration.add(JSConfigurationKeys.LIBRARIES, path.absolutePath)
         } else {
             configuration.addJvmClasspathRoot(path)
@@ -592,4 +612,10 @@ public class AnalysisEnvironment(
 
 }
 
-
+private fun resolveSingleFileKlib(libraryFile: KFile, logger: Logger): KotlinLibrary {
+    val klibLoadingResult = KlibLoader { libraryPaths(libraryFile.path) }.load()
+    klibLoadingResult.reportLoadingProblemsIfAny { _, message ->
+        logger.error(message)
+    }
+    return klibLoadingResult.librariesStdlibFirst.single()
+}

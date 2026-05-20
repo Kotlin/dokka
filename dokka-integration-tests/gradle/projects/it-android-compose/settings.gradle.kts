@@ -15,10 +15,6 @@ dependencyResolutionManagement {
         /* %{DOKKA_IT_MAVEN_REPO}% */
         mavenCentral()
         google()
-        maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev") {
-            name = "JetBrainsComposeDev"
-            // required for org.jetbrains.compose.compiler:compiler:1.5.15
-        }
     }
 }
 

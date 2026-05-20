@@ -6,11 +6,7 @@ package signatures
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
-import utils.A
-import utils.Span
-import utils.TestOutputWriterPlugin
-import utils.match
-import utils.OnlyDescriptors
+import utils.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -236,6 +232,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaSymbols("PSI treats the property as open - which is wrong")
     @Test
     fun `should keep kotlin property with no accessors when java inherits kotlin a var`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -265,7 +262,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                     val property = signatures[2]
                     property.match(
-                        "open var ", A("variable"), ": ", Span("String"),
+                        "var ", A("variable"), ": ", A("String"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -273,6 +270,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaSymbols("AA returns a property even for Java classes - seems correct")
     @Test
     fun `kotlin property with compute get and set`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -305,28 +303,14 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
                     )
                 }
 
-                // it's actually unclear how it should react in this situation. It should most likely not
-                // break the abstraction and display it as a simple variable just like can be seen from Kotlin,
-                // test added to control changes
+                // AA returns a property - which seems correct, as we show "Kotlin API"?
                 writerPlugin.writer.renderedContent("root/test/-java-class/index.html").let { javaClassContent ->
                     val signatures = javaClassContent.signature().toList()
-                    assertEquals(
-                        4,
-                        signatures.size,
-                        "Expected to find 4 signatures: class, default constructor and two accessors"
-                    )
+                    assertEquals(3, signatures.size, "Expected to find 3 signatures: class, constructor and property")
 
-                    val getter = signatures[2]
-                    getter.match(
-                        "fun ", A("getVariable"), "(): ", Span("String"),
-                        ignoreSpanWithTokenStyle = true
-                    )
-
-                    val setter = signatures[3]
-                    setter.match(
-                        "fun ", A("setVariable"), "(", Parameters(
-                            Parameter("value: ", Span("String"))
-                        ), ")",
+                    val property = signatures[2]
+                    property.match(
+                        "var ", A("variable"), ": ", A("String"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }

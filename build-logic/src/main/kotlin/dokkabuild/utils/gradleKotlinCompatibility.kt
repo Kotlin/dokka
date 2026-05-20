@@ -21,7 +21,7 @@ fun Project.configureGradleKotlinCompatibility() {
      * See https://kotlinlang.org/docs/kotlin-evolution-principles.html#evolving-the-binary-format
      */
     val analysisK2Projects = listOf("analysis-kotlin-symbols", "runner-maven-plugin")
-    if (!dokkaBuild.enforceGradleKotlinCompatibility.get() ||  project.name in analysisK2Projects) return
+    if (!dokkaBuild.enforceGradleKotlinCompatibility.get() || project.name in analysisK2Projects) return
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class, ExperimentalBuildToolsApi::class)
     extensions.configure<KotlinJvmProjectExtension>("kotlin") {
@@ -37,6 +37,17 @@ fun Project.configureGradleKotlinCompatibility() {
                 // we need this flag to be able to use newer Analysis API versions
                 "-Xskip-metadata-version-check"
             )
+        }
+
+        // see https://youtrack.jetbrains.com/issue/KT-86158
+        configurations.named { it.startsWith("kotlinCompilerPluginClasspath") }.configureEach {
+            resolutionStrategy {
+                eachDependency {
+                    if (requested.group == "org.jetbrains.kotlin") {
+                        useVersion(btaCompilerVersion.get())
+                    }
+                }
+            }
         }
     }
 }

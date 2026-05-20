@@ -4,6 +4,7 @@
 
 package superFields
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.Annotations
@@ -23,6 +24,33 @@ class PsiSuperFieldsTest : BaseAbstractTest() {
                 sourceRoots = listOf("src/")
                 analysisPlatform = "jvm"
                 name = "jvm"
+                documentedVisibilities = setOf(DokkaConfiguration.Visibility.PUBLIC, DokkaConfiguration.Visibility.PROTECTED, DokkaConfiguration.Visibility.PRIVATE)
+            }
+        }
+    }
+
+    @Test
+    fun `java inheriting java1`() {
+        testInline(
+            """
+            |/src/test/A.java
+            |package test;
+            |public class A {
+            |    private int a = 1;
+            |}
+            |
+            |/src/test/B.java
+            |package test;
+            |public class B extends A {}
+        """.trimIndent(),
+            commonTestConfiguration
+        ) {
+            documentablesMergingStage = { module ->
+                val inheritorProperties = module.packages.single().classlikes.single { it.name == "B" }.properties
+                val property = inheritorProperties.single { it.name == "a" }
+
+                val inheritedFrom = property.extra[InheritedMember]?.inheritedFrom?.values?.single()
+                assertEquals(DRI(packageName = "test", classNames = "A"), inheritedFrom)
             }
         }
     }
@@ -135,7 +163,7 @@ class PsiSuperFieldsTest : BaseAbstractTest() {
             """
             |/src/test/A.kt
             |package test
-            |open class A {
+            |class A {
             |    @kotlin.jvm.JvmField
             |    var a: Int = 1
             |}

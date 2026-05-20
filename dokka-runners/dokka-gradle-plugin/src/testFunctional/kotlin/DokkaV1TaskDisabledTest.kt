@@ -19,6 +19,8 @@ class DokkaV1TaskDisabledTest : FunSpec({
                 dokka {
                     pluginMode = "V2EnabledWithHelpers"
                 }
+                // DGPv1 does not support isolated projects
+                gradle.isolatedProjects = false
             }
         }
 

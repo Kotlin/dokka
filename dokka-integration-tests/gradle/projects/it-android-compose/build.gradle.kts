@@ -14,3 +14,5 @@ dependencies {
     dokka(project(":core"))
     dokka(project(":material3"))
 }
+
+dokka.pluginsConfiguration.html.footerMessage.set("© 2025 Copyright")

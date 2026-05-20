@@ -54,15 +54,15 @@ internal class HtmlToDocTagConverter(
                     element.attributes().associate { (if (it.key == "src") "href" else it.key) to it.value })
             )
             "em" -> listOf(Em(children))
-            "code" -> ifChildrenPresent { if(keepFormatting) CodeBlock(children) else CodeInline(children) }
-            "pre" -> if(children.size == 1) {
-                when(children.first()) {
-                    is CodeInline -> listOf(CodeBlock(children.first().children))
-                    is CodeBlock -> listOf(children.first())
-                    else -> listOf(Pre(children))
+            "mark" -> ifChildrenPresent { Mark(children) }
+            "code" -> ifChildrenPresent { if(keepFormatting) CodeBlock(children, mapOf("lang" to "java")) else CodeInline(children, mapOf("lang" to "java")) }
+            "pre" -> {
+                val lang = element.attr("lang").trim().takeIf { it.isNotBlank() } ?: "java"
+                when (val child = children.singleOrNull()) {
+                    is CodeInline -> listOf(CodeBlock(child.children, child.params + ("lang" to lang)))
+                    is CodeBlock -> listOf(child.copy(params = child.params + ("lang" to lang)))
+                    else -> listOf(Pre(children = children, params = mapOf("lang" to lang)))
                 }
-            } else {
-                listOf(Pre(children))
             }
             "ul" -> ifChildrenPresent { Ul(children) }
             "ol" -> ifChildrenPresent { Ol(children) }
@@ -74,6 +74,7 @@ internal class HtmlToDocTagConverter(
             "table" -> ifChildrenPresent { Table(children) }
             "tr" -> ifChildrenPresent { Tr(children) }
             "td" -> listOf(Td(children))
+            "th" -> ifChildrenPresent { Th(children) }
             "thead" -> listOf(THead(children))
             "tbody" -> listOf(TBody(children))
             "tfoot" -> listOf(TFoot(children))
@@ -92,6 +93,9 @@ internal class HtmlToDocTagConverter(
             "h1" -> ifChildrenPresent { H1(children) }
             "h2" -> ifChildrenPresent { H2(children) }
             "h3" -> ifChildrenPresent { H3(children) }
+            "h4" -> ifChildrenPresent { H4(children) }
+            "h5" -> ifChildrenPresent { H5(children) }
+            "h6" -> ifChildrenPresent { H6(children) }
             "var" -> ifChildrenPresent { Var(children) }
             "u" -> ifChildrenPresent { U(children) }
             else -> listOf(Text(body = element.ownText()))

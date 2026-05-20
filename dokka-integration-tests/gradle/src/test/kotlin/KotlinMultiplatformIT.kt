@@ -3,22 +3,21 @@
  */
 package org.jetbrains.dokka.it.gradle
 
-import io.kotest.assertions.asClue
 import io.kotest.assertions.withClue
-import io.kotest.matchers.sequences.shouldBeEmpty
+import io.kotest.inspectors.shouldForAll
+import io.kotest.matchers.paths.shouldBeAFile
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import kotlinx.serialization.json.Json
+import io.kotest.matchers.string.shouldNotContain
 import org.gradle.testkit.runner.TaskOutcome.*
 import org.jetbrains.dokka.gradle.utils.*
 import org.jetbrains.dokka.gradle.utils.addArguments
 import org.jetbrains.dokka.gradle.utils.build
-import org.jetbrains.dokka.it.gradle.junit.DokkaGradlePluginTest
-import org.jetbrains.dokka.it.gradle.junit.DokkaGradleProjectRunner
-import org.jetbrains.dokka.it.gradle.junit.TestsDGPv2
-import org.jetbrains.dokka.it.gradle.junit.TestsKotlinMultiplatform
-import org.junit.jupiter.api.Disabled
-import kotlin.io.path.*
+import org.jetbrains.dokka.it.gradle.junit.*
+import org.jetbrains.dokka.it.gradle.junit.TestedVersions
+import org.junit.jupiter.api.Assumptions.assumeTrue
+import kotlin.io.path.name
+import kotlin.io.path.readText
 
 /**
  * Integration test for the `it-kotlin-multiplatform` project.
@@ -27,81 +26,58 @@ import kotlin.io.path.*
 @TestsDGPv2
 class KotlinMultiplatformIT {
 
-    @Disabled("KMP: References to shared code is not linked when there is an intermediate level https://github.com/Kotlin/dokka/issues/3382")
     @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-multiplatform")
     fun `generate dokka HTML`(project: DokkaGradleProjectRunner) {
         project.runner
             .addArguments(
+                "clean",
                 ":dokkaGenerate",
+                "--stacktrace",
+                "--rerun-tasks",
             )
             .build {
                 withClue("expect project builds successfully") {
-                    shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(SUCCESS, UP_TO_DATE)
+                    shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(SUCCESS)
+                }
+
+                withClue("expect all dokka workers are successful") {
+                    project
+                        .findFiles { it.name == "dokka-worker.log" }
+                        .shouldForAll { dokkaWorkerLog ->
+                            dokkaWorkerLog.shouldBeAFile()
+                            dokkaWorkerLog.readText().shouldNotContainAnyOf(
+                                "[ERROR]",
+                                "[WARN]",
+                            )
+                        }
+                }
+
+                withClue("expect configurations are not resolved during configuration time") {
+                    output shouldNotContain Regex("""Configuration '.*' was resolved during configuration time""")
+                    output shouldNotContain "https://github.com/gradle/gradle/issues/2298"
                 }
             }
 
-        withClue("expect actual generated HTML matches expected HTML") {
+        withClue("expect the same HTML is generated") {
             val expectedHtml = project.projectDir.resolve("expectedData/html")
             val actualHtmlDir = project.projectDir.resolve("build/dokka/html")
 
-            val dokkaConfigurationJsonFiles = project.findFiles { it.name == "dokka-configuration.json" }
-            val dokkaConfigContent = dokkaConfigurationJsonFiles.joinToString("\n\n") { dcFile ->
-                // re-encode the JSON to a compact format, to prevent the log output being completely spammed
-                val compactJson = Json.parseToJsonElement(dcFile.readText())
-                """
-                - ${dcFile.invariantSeparatorsPathString}
-                  $compactJson
-                """.trimIndent()
-            }
-
             withClue(
                 """
-                |expectedHtml: ${expectedHtml.toUri()}
-                |actualHtmlDir: ${actualHtmlDir.toUri()}
-                |dokkaConfigurationJsons [${dokkaConfigurationJsonFiles.count()}]:
-                |$dokkaConfigContent
-                """.trimMargin()
+                expectedHtml: ${expectedHtml.toUri()}
+                actualHtmlDir: ${actualHtmlDir.toUri()}
+                """.trimIndent()
             ) {
                 val expectedFileTree = expectedHtml.toTreeString()
                 val actualFileTree = actualHtmlDir.toTreeString()
                 withClue((actualFileTree to expectedFileTree).sideBySide()) {
-                    actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedHtml)
-                }
-            }
-        }
-    }
+                    actualFileTree shouldBe expectedFileTree
 
-    @Disabled("KMP: References to shared code is not linked when there is an intermediate level https://github.com/Kotlin/dokka/issues/3382")
-    @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-multiplatform")
-    fun `verify generated HTML contains no class resolution errors`(project: DokkaGradleProjectRunner) {
-        project.runner
-            .addArguments(
-                ":dokkaGenerate",
-            )
-            .build {
-                withClue("expect project builds successfully") {
-                    shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(SUCCESS, UP_TO_DATE)
+                    actualHtmlDir.shouldBeADirectoryWithSameContentAs(expectedHtml, TestConstants.DokkaHtmlAssetsFiles)
                 }
             }
 
-        withClue("expect actual generated HTML contains no class resolution errors") {
-            val actualHtmlDir = project.projectDir.resolve("build/dokka/html")
-
-            val filesWithErrors = actualHtmlDir.walk()
-                .filter { it.isRegularFile() }
-                .filter { file ->
-                    file.useLines { lines ->
-                        lines.any { line ->
-                            "Error class: unknown class" in line || "Error type: Unresolved type" in line
-                        }
-                    }
-                }
-
-            withClue(
-                "${filesWithErrors.count()} file(s) with errors:\n${filesWithErrors.joinToString("\n") { " - ${it.toUri()}" }}"
-            ) {
-                filesWithErrors.shouldBeEmpty()
-            }
+            assertNoUnknownClassErrorsInHtml(actualHtmlDir)
         }
     }
 
@@ -155,29 +131,24 @@ class KotlinMultiplatformIT {
     @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-multiplatform")
     fun `expect Dokka is compatible with Gradle Configuration Cache`(
         project: DokkaGradleProjectRunner,
+        testedVersions: TestedVersions,
     ) {
-        fun clearCcReports() {
-            project.file(".gradle/configuration-cache").deleteRecursively()
-            project.file("build/reports/configuration-cache").deleteRecursively()
-        }
-
         val configCacheRunner =
             project.runner.addArguments(
+                "clean",
                 ":dokkaGenerate",
+                "--no-build-cache",
                 "--configuration-cache",
             )
 
         withClue("first build should store the configuration cache") {
-            clearCcReports()
+            project.deleteConfigurationCacheData()
             configCacheRunner.build {
                 shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
 
                 output shouldContain "Configuration cache entry stored"
 
-                loadConfigurationCacheReportData(projectDir = project.projectDir)
-                    .asClue { ccReport ->
-                        ccReport.totalProblemCount shouldBe 0
-                    }
+                testConfigurationCacheResult(project, testedVersions)
             }
         }
 
@@ -185,21 +156,65 @@ class KotlinMultiplatformIT {
             // without this second build the test fails on TeamCity, because the CC entry isn't reused because of:
             // Calculating task graph as configuration cache cannot be reused because directory '../../../../../../../home/.konan/kotlin-native-prebuilt-linux-x86_64-2.1.21/klib/platform/linux_x64' has changed
             // Probably is related to KT-77218
-            clearCcReports()
+            project.deleteConfigurationCacheData()
             configCacheRunner.build {
                 shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
 
                 output shouldContain "Configuration cache entry stored"
-
-                loadConfigurationCacheReportData(projectDir = project.projectDir)
-                    .asClue { ccReport ->
-                        ccReport.totalProblemCount shouldBe 0
-                    }
             }
         }
 
         withClue("third build should reuse the configuration cache") {
             configCacheRunner.build {
+                shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+                output shouldContain "Configuration cache entry reused"
+            }
+        }
+    }
+
+    @DokkaGradlePluginTest(sourceProjectName = "it-kotlin-multiplatform")
+    fun `expect Gradle Configuration Cache can be re-used`(
+        project: DokkaGradleProjectRunner,
+        testedVersions: TestedVersions,
+    ) {
+        assumeTrue(testedVersions.hasGradleVersionThatSupportsCcReuse()) {
+            "CC re-use is only supported in Gradle 9.1 or 9.4+ (it's bugged in 9.2 and 9.3)"
+        }
+
+        val configCacheRunner =
+            project.runner.addArguments(
+                "clean",
+                ":dokkaGenerate",
+                "--configuration-cache",
+            )
+
+        withClue("first build should store the configuration cache") {
+            project.deleteConfigurationCacheData()
+            configCacheRunner.build {
+                shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+
+                output shouldContain "Configuration cache entry stored"
+
+                testConfigurationCacheResult(project, testedVersions)
+            }
+        }
+
+        withClue("second build - because sometimes KGP needs to finish installing kotlin-native-prebuilt") {
+            // without this second build the test fails on TeamCity, because the CC entry isn't reused because of:
+            // Calculating task graph as configuration cache cannot be reused because directory '../../../../../../../home/.konan/kotlin-native-prebuilt-linux-x86_64-2.1.21/klib/platform/linux_x64' has changed
+            // Probably is related to KT-77218
+            project.deleteConfigurationCacheData()
+            configCacheRunner.build {
+                shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
+
+                output shouldContain "Configuration cache entry stored"
+            }
+        }
+
+        withClue("unrelated properties should not cause CC misses") {
+            configCacheRunner.addArguments(
+                "-PunusedProperty=unusedValue",
+            ).build {
                 shouldHaveTask(":dokkaGenerate").shouldHaveOutcome(UP_TO_DATE, SUCCESS)
                 output shouldContain "Configuration cache entry reused"
             }

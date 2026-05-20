@@ -6,6 +6,7 @@
 
 import dokkabuild.tasks.GenerateDokkaGradlePluginConstants
 import dokkabuild.utils.skipTestFixturesPublications
+import org.gradle.plugin.compatibility.compatibility
 
 plugins {
     id("dokkabuild.gradle-plugin")
@@ -52,6 +53,10 @@ dependencies {
     compileOnly(libs.gradlePlugin.android)
     compileOnly(libs.gradlePlugin.androidApi)
 
+    compileOnly("com.android.tools:common:30.3.1") {
+        because("Needed for `com.android.Version`, and AGP 7 doesn't have this as a dependency. Remove when min supported AGP is 8+")
+    }
+
     implementation(platform(libs.kotlinxSerialization.bom))
     implementation(libs.kotlinxSerialization.json)
 
@@ -90,6 +95,7 @@ dependencies {
     devPublication("org.jetbrains.dokka:plugin-jekyll:${project.version}")
     devPublication("org.jetbrains.dokka:plugin-jekyll-template-processing:${project.version}")
     devPublication("org.jetbrains.dokka:plugin-kotlin-as-java:${project.version}")
+    devPublication("org.jetbrains.dokka:plugin-kotlin-playground-samples:${project.version}")
     devPublication("org.jetbrains.dokka:plugin-mathjax:${project.version}")
     devPublication("org.jetbrains.dokka:plugin-templating:${project.version}")
     devPublication("org.jetbrains.dokka:plugin-versioning:${project.version}")
@@ -107,6 +113,11 @@ gradlePlugin {
             "api reference",
             "documentation",
         )
+        compatibility {
+            features {
+                configurationCache = true
+            }
+        }
     }
     plugins.register("dokkaHtml") {
         id = "org.jetbrains.dokka"

@@ -1,50 +1,50 @@
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 8b831e5..b63444a 100644
+index 6a845fc..6089e4e 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -22,6 +22,7 @@ val modularJavaToolchainVersion by ext(project.property("java.modularToolchainVe
- 
+@@ -25,6 +25,7 @@ val modularJavaToolchainVersion by ext(project.property("java.modularToolchainVe
+
  allprojects {
      repositories {
 +        /* %{DOKKA_IT_MAVEN_REPO}% */
-         addTrainRepositories(project)
          mavenCentral()
-     }
+         kupInfra {
+             kupArtifactsRepo(context = project)
 diff --git a/core/build.gradle.kts b/core/build.gradle.kts
-index b12f85d..05e46c0 100644
+index 6d544ea..d2c92f0 100644
 --- a/core/build.gradle.kts
 +++ b/core/build.gradle.kts
-@@ -384,7 +384,7 @@ dokka {
+@@ -390,7 +390,7 @@ dokka {
      }
- 
+
      dokkaPublications.html {
 -        failOnWarning.set(true)
-+        failOnWarning.set(false)
++        failOnWarning.set(providers.gradleProperty("dokka_it_failOnWarning").map(String::toBoolean))
          // Enum members and undocumented toString()
          suppressInheritedMembers.set(true)
      }
 diff --git a/gradle.properties b/gradle.properties
-index 5673f91..19c1f98 100644
+index 5a60eb6..d231b07 100644
 --- a/gradle.properties
 +++ b/gradle.properties
 @@ -8,7 +8,7 @@ versionSuffix=SNAPSHOT
- tzdbVersion=2025b
- 
+ tzdbVersion=2026a
+
  defaultKotlinVersion=2.1.20
--dokkaVersion=2.0.0
-+dokkaVersion=non-existing-sanity-check-SNAPSHOT
+-dokkaVersion=2.2.0-Beta
++dokkaVersion=sanity-non-existent
  serializationVersion=1.6.2
  benchmarksVersion=0.7.2
  bcvVersion=0.17.0
 diff --git a/settings.gradle.kts b/settings.gradle.kts
-index 28c526f..611522b 100644
+index 992dbc3..2c02cae 100644
 --- a/settings.gradle.kts
 +++ b/settings.gradle.kts
 @@ -1,14 +1,15 @@
  pluginManagement {
      repositories {
 +        /* %{DOKKA_IT_MAVEN_REPO}% */
-         maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/kotlinx/maven")
+         maven(url = "https://packages.jetbrains.team/maven/p/kotlinx-team-infra/maven")
          mavenCentral()
          gradlePluginPortal()
      }

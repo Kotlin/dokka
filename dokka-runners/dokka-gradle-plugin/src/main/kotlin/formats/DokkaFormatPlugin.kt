@@ -65,9 +65,9 @@ abstract class DokkaFormatPlugin(
         target.pluginManager.apply(DokkaBasePlugin::class)
 
         // apply the plugin that will autoconfigure Dokka to use the sources of a Kotlin project
-        target.pluginManager.apply(type = KotlinAdapter::class)
-        target.pluginManager.apply(type = JavaAdapter::class)
-        target.pluginManager.apply(type = AndroidAdapter::class)
+        KotlinAdapter.applyTo(target)
+        AndroidAdapter.applyTo(target)
+        JavaAdapter.applyTo(target)
 
         target.plugins.withType<DokkaBasePlugin>().configureEach {
             val dokkaExtension = target.extensions.getByType(DokkaExtension::class)

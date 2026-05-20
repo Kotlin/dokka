@@ -47,7 +47,8 @@ class JavaDeprecatedTest : BaseAbstractTest() {
                 val isDeprecated = (deprecatedClass as WithExtraProperties<out Documentable>).isDeprecated()
                 assertTrue(isDeprecated)
 
-                val deprecatedAnnotation = (deprecatedClass as WithExtraProperties<out Documentable>).deprecatedAnnotation
+                val deprecatedAnnotation =
+                    (deprecatedClass as WithExtraProperties<out Documentable>).deprecatedAnnotation
                 assertNotNull(deprecatedAnnotation)
 
                 assertTrue(deprecatedAnnotation.isDeprecated())
@@ -143,7 +144,7 @@ class JavaDeprecatedTest : BaseAbstractTest() {
     fun `should take deprecation message from @deprecated javadoc tag`() {
         testInline(
             """
-            |/src/main/kotlin/deprecated/DeprecatedJavaClass.java
+            |/src/main/kotlin/deprecated/DeprecatedJClass.java
             |package deprecated
             |
             |public class DeprecatedJClass {

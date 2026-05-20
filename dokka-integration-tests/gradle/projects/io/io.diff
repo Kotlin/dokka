@@ -1,5 +1,5 @@
 diff --git a/build-logic/build.gradle.kts b/build-logic/build.gradle.kts
-index c26e65a2..394cfd04 100644
+index b9642d58..d1994d3f 100644
 --- a/build-logic/build.gradle.kts
 +++ b/build-logic/build.gradle.kts
 @@ -8,6 +8,7 @@ plugins {
@@ -22,11 +22,25 @@ index 4b401d8b..fcfac2c6 100644
          }
      }
  }
+diff --git a/build-logic/src/main/kotlin/kotlinx/io/conventions/kotlinx-io-dokka.gradle.kts b/build-logic/src/main/kotlin/kotlinx/io/conventions/kotlinx-io-dokka.gradle.kts
+index eef54191..5a68581d 100644
+--- a/build-logic/src/main/kotlin/kotlinx/io/conventions/kotlinx-io-dokka.gradle.kts
++++ b/build-logic/src/main/kotlin/kotlinx/io/conventions/kotlinx-io-dokka.gradle.kts
+@@ -31,6 +31,9 @@ dokka {
+     pluginsConfiguration.html {
+         templatesDir = rootDir.resolve("dokka-templates")
+     }
++    dokkaPublications.html {
++        failOnWarning.set(providers.gradleProperty("dokka_it_failOnWarning").map(String::toBoolean))
++    }
+ }
+
+ dependencies {
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 2e45281b..411af247 100644
+index 0f855cb7..05bc4912 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -17,6 +17,7 @@ plugins {
+@@ -14,6 +14,7 @@ plugins {
  allprojects {
      properties["DeployVersion"]?.let { version = it }
      repositories {
@@ -34,30 +48,19 @@ index 2e45281b..411af247 100644
          mavenCentral()
      }
  }
-diff --git a/gradle.properties b/gradle.properties
-index cb48c128..21630ed6 100644
---- a/gradle.properties
-+++ b/gradle.properties
-@@ -9,3 +9,6 @@ kotlin.code.style=official
- org.gradle.jvmargs=-Xmx4G
- nativeBenchmarksEnabled=true
- kotlin.mpp.applyDefaultHierarchyTemplate=false
-+
-+org.jetbrains.dokka.experimental.gradle.pluginMode=V1Enabled
-+org.jetbrains.dokka.experimental.gradle.pluginMode.noWarn=true
 diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
-index 0c32461a..6e8701b8 100644
+index d2028bc3..9de0d68e 100644
 --- a/gradle/libs.versions.toml
 +++ b/gradle/libs.versions.toml
 @@ -2,7 +2,7 @@
- kotlin = "2.1.0"
+ kotlin = "2.3.0"
  java = "8"
  multi-release-toolchain = "17"
--dokka = "2.0.0"
+-dokka = "2.2.0-Beta"
 +dokka = "sanity-non-existent"
- kover = "0.8.3"
- bcv = "0.16.3"
- benchmark = "0.4.13"
+ kover = "0.9.3"
+ benchmark = "0.4.14"
+ jmh = "1.37"
 diff --git a/settings.gradle.kts b/settings.gradle.kts
 index 79515254..f4fb9730 100644
 --- a/settings.gradle.kts

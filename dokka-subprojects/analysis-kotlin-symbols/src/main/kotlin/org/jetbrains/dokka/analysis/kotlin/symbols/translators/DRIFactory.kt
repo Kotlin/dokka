@@ -4,6 +4,8 @@
 
 package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
+import com.intellij.psi.PsiMethod
+import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.links.*
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaSession
@@ -13,19 +15,21 @@ import org.jetbrains.kotlin.analysis.api.types.*
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
+import kotlin.NotImplementedError
 
 internal fun ClassId.createDRI(): DRI = DRI(
     packageName = this.packageFqName.asString(), classNames = this.relativeClassName.asString()
 )
 
-private fun CallableId.createDRI(receiver: TypeReference?, params: List<TypeReference>, contextParams: List<TypeReference>): DRI = DRI(
+private fun CallableId.createDRI(receiver: TypeReference?, params: List<TypeReference>, contextParams: List<TypeReference>, isProperty: Boolean): DRI = DRI(
     packageName = this.packageName.asString(),
     classNames = this.className?.asString(),
     callable = Callable(
         this.callableName.asString(),
         params = params,
         receiver = receiver,
-        contextParameters = contextParams
+        contextParameters = contextParams,
+        isProperty = isProperty
     )
 )
 
@@ -57,7 +61,7 @@ internal fun KaSession.getDRIFromConstructor(symbol: KaConstructorSymbol): DRI {
     return containingClassId.createDRI().copy(
         callable = Callable(
             name = containingClassId.shortClassName.asString(),
-            params = symbol.valueParameters.map { getTypeReferenceFrom(it.returnType) }
+            params = symbol.valueParameters.map { getTypeReferenceFrom(it.returnType, isVararg = it.isVararg) }
         )
     )
 }
@@ -66,17 +70,22 @@ internal fun KaSession.getDRIFromVariable(symbol: KaVariableSymbol): DRI {
     val callableId = symbol.callableId ?: throw IllegalStateException("Can not get callable Id due to it is local")
     val receiver = symbol.receiverType?.let(::getTypeReferenceFrom)
     val contextParams = @OptIn(KaExperimentalApi::class) symbol.contextParameters.map { getTypeReferenceFrom(it.returnType) }
-    return callableId.createDRI(receiver, emptyList(), contextParams)
+    return callableId.createDRI(receiver, emptyList(), contextParams, true)
 }
 
 
 internal fun KaSession.getDRIFromFunction(symbol: KaFunctionSymbol): DRI {
-    val params = symbol.valueParameters.map { getTypeReferenceFrom(it.returnType) }
-    val contextParams = @OptIn(KaExperimentalApi::class) symbol.contextParameters.map { getTypeReferenceFrom(it.returnType) }
+    val psi = symbol.psi
+    val params =
+        if (psi is PsiMethod) psi.parameterList.parameters.map { param -> JavaClassReference(param.type.canonicalText) }
+        else symbol.valueParameters.map { getTypeReferenceFrom(it.returnType, isVararg = it.isVararg) }
+
+    val contextParams =
+        @OptIn(KaExperimentalApi::class) symbol.contextParameters.map { getTypeReferenceFrom(it.returnType) }
     val receiver = symbol.receiverType?.let {
         getTypeReferenceFrom(it)
     }
-    return symbol.callableId?.createDRI(receiver, params, contextParams) ?: getDRIFromLocalFunction(symbol)
+    return symbol.callableId?.createDRI(receiver, params, contextParams, false) ?: getDRIFromLocalFunction(symbol)
 }
 
 internal fun getDRIFromClassLike(symbol: KaClassLikeSymbol): DRI =
@@ -93,6 +102,15 @@ internal fun KaSession.getDRIFromValueParameter(symbol: KaValueParameterSymbol):
     return funDRI.copy(target = PointingToCallableParameters(index))
 }
 
+@OptIn(KaExperimentalApi::class)
+internal fun KaSession.getDRIFromContextParameter(symbol: KaContextParameterSymbol): DRI {
+    val function = (symbol.containingSymbol as? KaFunctionSymbol)
+        ?: throw IllegalStateException("Containing symbol is null for type parameter")
+    val index = function.contextParameters.indexOfFirst { it.name == symbol.name }
+    val funDRI = getDRIFromFunction(function)
+    return funDRI.copy(target = @OptIn(ExperimentalDokkaApi::class) PointingToContextParameters(index))
+}
+
 /**
  * @return [DRI] to receiver type
  */
@@ -100,7 +118,7 @@ internal fun KaSession.getDRIFromReceiverParameter(receiverParameterSymbol: KaRe
     getDRIFromReceiverType(receiverParameterSymbol.returnType)
 
 private fun KaSession.getDRIFromReceiverType(type: KaType): DRI {
-    return when(type) {
+    return when (type) {
         is KaClassType -> getDRIFromClassType(type)
         is KaTypeParameterType -> getDRIFromTypeParameter(type.symbol)
         is KaDefinitelyNotNullType -> getDRIFromReceiverType(type.original)
@@ -116,14 +134,30 @@ private fun KaSession.getDRIFromReceiverType(type: KaType): DRI {
 
 internal fun KaSession.getDRIFromSymbol(symbol: KaSymbol): DRI =
     when (symbol) {
-        is KaEnumEntrySymbol -> getDRIFromEnumEntry(symbol)
-        is KaReceiverParameterSymbol -> getDRIFromReceiverParameter(symbol)
-        is KaTypeParameterSymbol -> getDRIFromTypeParameter(symbol)
-        is KaConstructorSymbol -> getDRIFromConstructor(symbol)
-        is KaValueParameterSymbol -> getDRIFromValueParameter(symbol)
-        is KaVariableSymbol -> getDRIFromVariable(symbol)
-        is KaFunctionSymbol -> getDRIFromFunction(symbol)
-        is KaClassLikeSymbol -> getDRIFromClassLike(symbol)
+        is KaDeclarationSymbol -> @OptIn(KaExperimentalApi::class) when (symbol) {
+            is KaAnonymousFunctionSymbol -> throw NotImplementedError()
+            is KaConstructorSymbol -> getDRIFromConstructor(symbol)
+            is KaNamedFunctionSymbol -> getDRIFromFunction(symbol)
+            is KaPropertyGetterSymbol -> getDRIFromFunction(symbol)
+            is KaPropertySetterSymbol -> getDRIFromFunction(symbol)
+            is KaSamConstructorSymbol -> throw NotImplementedError()
+            is KaBackingFieldSymbol -> throw NotImplementedError()
+            is KaEnumEntrySymbol -> getDRIFromEnumEntry(symbol)
+            is KaJavaFieldSymbol -> getDRIFromVariable(symbol)
+            is KaLocalVariableSymbol -> throw NotImplementedError()
+            is KaContextParameterSymbol -> getDRIFromContextParameter(symbol)
+            is KaReceiverParameterSymbol -> getDRIFromReceiverParameter(symbol)
+            is KaValueParameterSymbol -> getDRIFromValueParameter(symbol)
+            is KaKotlinPropertySymbol -> getDRIFromVariable(symbol)
+            is KaSyntheticJavaPropertySymbol -> getDRIFromVariable(symbol)
+            is KaClassInitializerSymbol -> throw NotImplementedError()
+            is KaAnonymousObjectSymbol -> throw NotImplementedError()
+            is KaNamedClassSymbol -> getDRIFromClassLike(symbol)
+            is KaTypeAliasSymbol -> getDRIFromClassLike(symbol)
+            is KaTypeParameterSymbol -> getDRIFromTypeParameter(symbol)
+            is KaDestructuringDeclarationSymbol -> throw NotImplementedError()
+            is KaScriptSymbol -> throw NotImplementedError()
+        }
         is KaPackageSymbol -> getDRIFromPackage(symbol)
         else -> throw IllegalStateException("Unknown symbol while creating DRI $symbol")
     }
@@ -149,7 +183,7 @@ private fun KaSession.getDRIFromLocalFunction(symbol: KaFunctionSymbol): DRI {
     return containingSymbolDRI.copy(
         callable = Callable(
             (symbol as? KaNamedSymbol)?.name?.asString() ?: "",
-            params = symbol.valueParameters.map { getTypeReferenceFrom(it.returnType) },
+            params = symbol.valueParameters.map { getTypeReferenceFrom(it.returnType, isVararg = it.isVararg) },
             receiver = symbol.receiverType?.let {
                 getTypeReferenceFrom(it)
             }
