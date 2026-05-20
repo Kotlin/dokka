@@ -740,9 +740,9 @@ class SignatureTest : BaseAbstractTest() {
         )
     }
 
-    @OnlyJavaPsi
+    @OnlyJavaSymbols("PSI doesn't add super type - AA does, same for Kotlin enum above")
     @Test
-    fun `java enum should render enum class`() = testRender(
+    fun `java enum should render just enum`() = testRender(
         """
             |/src/example/EnumClass.java
             |package example;
@@ -750,7 +750,7 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-enum-class/index.html").firstSignature().matchIgnoringSpans(
-            "enum class", A("EnumClass"),
+            "enum class", A("EnumClass"), ":", A("Enum"), "<", A("EnumClass"), ">"
         )
     }
 
