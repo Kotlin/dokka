@@ -7,13 +7,7 @@ package signatures
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.jdk
-import utils.A
-import utils.OnlyJavaPsi
-import utils.OnlySymbols
-import utils.Span
-import utils.TestOutputWriterPlugin
-import utils.Wbr
-import utils.match
+import utils.*
 import kotlin.test.Ignore
 import kotlin.test.Test
 
@@ -283,12 +277,12 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
+    @OnlyJavaSymbols("#3611 - do not show open for Java fields")
     @Test
     fun `java with java function`() {
         val source = """
-            |/src/main/kotlin/test/JavaClass.java
-            |package example
+            |/src/example/JavaClass.java
+            |package example;
             |
             |public class JavaClass {
             |    public java.util.function.Function<Integer, String> javaFunction = null;
@@ -303,19 +297,20 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-java-class/index.html").lastSignature().match(
-                    "open var ", A("javaFunction"), ": (", A("Integer"), ") -> ", A("String"),
+                    // open is wrong - AA works fine here
+                    "var ", A("javaFunction"), ": (", A("Integer"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @OnlyJavaPsi
+    @OnlyJavaSymbols("#3611 - do not show open for Java fields")
     @Test
     fun `java with kotlin function`() {
         val source = """
-            |/src/main/kotlin/test/JavaClass.java
-            |package example
+            |/src/example/JavaClass.java
+            |package example;
             |
             |public class JavaClass {
             |    public kotlin.jvm.functions.Function1<Integer, String> kotlinFunction = null;
@@ -330,7 +325,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-java-class/index.html").lastSignature().match(
-                    "open var ", A("kotlinFunction"), ": (", A("Integer"), ") -> ", A("String"),
+                    "var ", A("kotlinFunction"), ": (", A("Integer"), ") -> ", A("String"),
                         ignoreSpanWithTokenStyle = true
                 )
             }

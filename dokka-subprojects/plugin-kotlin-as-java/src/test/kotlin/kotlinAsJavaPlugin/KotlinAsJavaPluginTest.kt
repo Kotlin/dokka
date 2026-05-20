@@ -4,7 +4,6 @@
 
 package kotlinAsJavaPlugin
 
-import kotlinAsJavaPlugin.utils.OnlyJavaPsi
 import matchers.content.*
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.SourceLinkDefinitionImpl
@@ -21,6 +20,7 @@ import signatures.Parameters
 import signatures.firstSignature
 import signatures.renderedContent
 import utils.A
+import kotlinAsJavaPlugin.utils.OnlyJavaSymbols
 import utils.TestOutputWriterPlugin
 import utils.match
 import java.net.URL
@@ -211,7 +211,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
+    @OnlyJavaSymbols("PSI treats it as an open - which is wrong")
     @Test
     fun `java properties should keep its modifiers`() {
         testInline(
@@ -244,7 +244,9 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
                                         divergent {
                                             group {
                                                 group {
-                                                    +"public Int"
+                                                    // Int is an unresolved type here, as there is no Int in java
+                                                    // final is correct, as it's a field in java, and it's not possible to override fields
+                                                    +"public final Int"
                                                     link {
                                                         +"publicProperty"
                                                     }
@@ -486,7 +488,6 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `Java function should keep its access modifier`() {
         val className = "Test"

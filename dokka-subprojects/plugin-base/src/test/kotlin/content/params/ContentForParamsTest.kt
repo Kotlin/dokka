@@ -248,7 +248,6 @@ class ContentForParamsTest : BaseAbstractTest() {
     }
 
 
-    @OnlyJavaPsi
     @Test
     fun `deprecated with multiple links inside`() {
         testInline(
@@ -320,7 +319,6 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun `deprecated with an html link in multiple lines`() {
         testInline(
@@ -369,7 +367,6 @@ class ContentForParamsTest : BaseAbstractTest() {
     }
 
 
-    @OnlyJavaPsi
     @Test
     fun `deprecated with an multiple inline links`() {
         testInline(
@@ -1508,7 +1505,6 @@ class ContentForParamsTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyJavaPsi
     @Test
     fun javaDocCommentWithDocumentedParameters() {
         testInline(
