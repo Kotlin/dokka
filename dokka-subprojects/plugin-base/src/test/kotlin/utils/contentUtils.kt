@@ -328,12 +328,16 @@ inline fun<reified T> PageNode.contentPage(name: String, block: T.() -> Unit) {
     (dfs { it.name == name } as? T).assertNotNull("The page `$name` is not found").block()
 }
 
-fun ClasslikePageNode.assertHasFunctions(vararg expectedFunctionName: String) {
-    val functions = this.findSectionWithName("Functions").assertNotNull("Functions")
+fun ClasslikePageNode.assertHasFunctions(vararg expectedFunctionName: String) = assertHasSignatures("Functions", *expectedFunctionName)
+
+fun ClasslikePageNode.assertHasCompanionFunctions(vararg expectedFunctionName: String) = assertHasSignatures("Companion functions", *expectedFunctionName)
+
+
+private fun ClasslikePageNode.assertHasSignatures(sectionName: String, vararg expectedFunctionName: String) {
+    val functions = this.findSectionWithName(sectionName).assertNotNull(sectionName)
     val functionsName = functions.children.map { (it.dfs { it is ContentText } as ContentText).text }
     assertEquals(expectedFunctionName.toList(), functionsName)
 }
-
 fun ClasslikePageNode.findSectionWithName(name: String) : ContentNode? {
     var sectionHeader: ContentHeader? = null
     return content.dfs { node ->

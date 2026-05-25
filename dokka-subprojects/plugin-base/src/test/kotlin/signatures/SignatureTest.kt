@@ -1788,7 +1788,7 @@ class SignatureTest : BaseAbstractTest() {
             |companion fun Vector.unit(): Vector = Vector(1.0, 1.0)
         """.trimMargin()
     ) {
-        renderedContent("root/example/-vector/unit.html").firstSignature().matchIgnoringSpans(
+        renderedContent("root/example/unit.html").firstSignature().matchIgnoringSpans(
             "companion fun ", A("Vector"), ".", A("unit"), "(): ", A("Vector"),
         )
     }
@@ -1803,7 +1803,7 @@ class SignatureTest : BaseAbstractTest() {
             |companion val Vector.UnitX: Vector get() = Vector(1.0, 0.0)
         """.trimMargin()
     ) {
-        renderedContent("root/example/-vector/-unit-x.html").firstSignature().matchIgnoringSpans(
+        renderedContent("root/example/-unit-x.html").firstSignature().matchIgnoringSpans(
             "companion val ", A("Vector"), ".", A("UnitX"), ": ", A("Vector"),
         )
     }

@@ -361,7 +361,8 @@ class KotlinEnumsTest : BaseAbstractTest() {
                 }
 
                 root.contentPage<ClasslikePageNode>("TestEnum") {
-                    assertHasFunctions("toBeImplemented", "valueOf", "values")
+                    assertHasFunctions("toBeImplemented")
+                    assertHasCompanionFunctions("valueOf", "values")
                 }
             }
         }
