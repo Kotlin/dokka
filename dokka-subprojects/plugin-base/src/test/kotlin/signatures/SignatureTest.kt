@@ -1765,6 +1765,151 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
+    // ----------------------------------------------------------------------
+    // Kotlin signatures: KEEP-0449 companion modifier.
+    //
+    // The `companion` keyword is rendered in the Kotlin signature ONLY for
+    // companion extensions — top-level extension functions/properties declared
+    // with the `companion` modifier (e.g. `companion fun Vector.unit()`).
+    //
+    // Companion-block members (`companion { fun foo() }`), Java statics, and
+    // enum synthetic declarations are also represented as companion-block scope
+    // in the model, but they don't carry a `companion` keyword in source and
+    // therefore must NOT render one in the Kotlin signature either.
+    // ----------------------------------------------------------------------
+
+    @Test
+    fun `kotlin companion extension function renders companion keyword`() = testRender(
+        """
+            |/src/main/kotlin/example/Util.kt
+            |package example
+            |class Vector(val x: Double, val y: Double)
+            |
+            |companion fun Vector.unit(): Vector = Vector(1.0, 1.0)
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-vector/unit.html").firstSignature().matchIgnoringSpans(
+            "companion fun ", A("Vector"), ".", A("unit"), "(): ", A("Vector"),
+        )
+    }
+
+    @Test
+    fun `kotlin companion extension property renders companion keyword`() = testRender(
+        """
+            |/src/main/kotlin/example/Util.kt
+            |package example
+            |class Vector(val x: Double, val y: Double)
+            |
+            |companion val Vector.UnitX: Vector get() = Vector(1.0, 0.0)
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-vector/-unit-x.html").firstSignature().matchIgnoringSpans(
+            "companion val ", A("Vector"), ".", A("UnitX"), ": ", A("Vector"),
+        )
+    }
+
+    @Test
+    fun `plain top-level extension does not render companion keyword`() = testRender(
+        """
+            |/src/main/kotlin/example/Util.kt
+            |package example
+            |class Vector(val x: Double, val y: Double)
+            |
+            |fun Vector.length(): Double = 0.0
+        """.trimMargin()
+    ) {
+        val sig = renderedContent("root/example/length.html").firstSignature().toString()
+        assertTrue("companion" !in sig, "expected no 'companion' keyword for a plain extension, got: $sig")
+    }
+
+    @Test
+    fun `kotlin companion-block function does not render companion keyword`() = testRender(
+        """
+            |/src/main/kotlin/example/Vector.kt
+            |package example
+            |class Vector(val x: Double, val y: Double) {
+            |    companion {
+            |        fun unit(): Vector = Vector(1.0, 1.0)
+            |    }
+            |}
+        """.trimMargin()
+    ) {
+        val sig = renderedContent("root/example/-vector/unit.html").firstSignature().toString()
+        // companion-block members live inside `companion { ... }` in source — the
+        // function itself has no `companion` modifier on it.
+        assertTrue("companion" !in sig, "expected no 'companion' keyword on companion-block function, got: $sig")
+    }
+
+    @Test
+    fun `kotlin companion-block property does not render companion keyword`() = testRender(
+        """
+            |/src/main/kotlin/example/Vector.kt
+            |package example
+            |class Vector(val x: Double, val y: Double) {
+            |    companion {
+            |        val Zero: Vector = Vector(0.0, 0.0)
+            |    }
+            |}
+        """.trimMargin()
+    ) {
+        val sig = renderedContent("root/example/-vector/-zero.html").firstSignature().toString()
+        assertTrue("companion" !in sig, "expected no 'companion' keyword on companion-block property, got: $sig")
+    }
+
+    @Test
+    fun `java static method does not render companion keyword in kotlin signature`() = testRender(
+        """
+            |/src/example/Util.java
+            |package example;
+            |public class Util {
+            |  public static int doStuff() { return 0; }
+            |}
+        """.trimMargin()
+    ) {
+        val sig = renderedContent("root/example/-util/do-stuff.html").firstSignature().toString()
+        assertTrue("companion" !in sig, "Java statics are not extensions; expected no 'companion', got: $sig")
+    }
+
+    @Test
+    fun `java static field does not render companion keyword in kotlin signature`() = testRender(
+        """
+            |/src/example/Util.java
+            |package example;
+            |public class Util {
+            |  public static final String NAME = "x";
+            |}
+        """.trimMargin()
+    ) {
+        val sig = renderedContent("root/example/-util/-n-a-m-e.html").firstSignature().toString()
+        assertTrue("companion" !in sig, "Java static fields are not extensions; expected no 'companion', got: $sig")
+    }
+
+    @Test
+    fun `kotlin enum synthetic values method does not render companion keyword`() = testRender(
+        """
+            |/src/main/kotlin/example/E.kt
+            |package example
+            |enum class E { A, B }
+        """.trimMargin()
+    ) {
+        val sig = renderedContent("root/example/-e/values.html").firstSignature().toString()
+        assertTrue("companion" !in sig, "Enum synthetic 'values' is not an extension; expected no 'companion', got: $sig")
+    }
+
+    @Test
+    fun `kotlin instance extension function does not render companion keyword`() = testRender(
+        """
+            |/src/main/kotlin/example/Util.kt
+            |package example
+            |class Vector(val x: Double, val y: Double)
+            |
+            |fun Vector.length(): Double = 0.0
+        """.trimMargin()
+    ) {
+        val sig = renderedContent("root/example/length.html").firstSignature().toString()
+        assertTrue("companion" !in sig, "expected no 'companion' for plain extension, got: $sig")
+    }
+
     private fun testRender(
         query: String,
         configuration: DokkaConfigurationImpl = this.configuration,

@@ -11,6 +11,7 @@ import com.intellij.psi.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.analysis.java.BreakingAbstractionKotlinLightMethodChecker
 import org.jetbrains.dokka.analysis.java.SyntheticElementDocumentationProvider
 import org.jetbrains.dokka.analysis.java.getVisibility
@@ -419,9 +420,11 @@ internal class DokkaPsiParser(
         inheritedFrom: DRI? = null,
         parentDRI: DRI? = null,
     ): DFunction {
-        val dri = parentDRI?.let { dri ->
+        val isCompanionBlock = !isConstructor && psi.hasModifier(JvmModifier.STATIC)
+        val baseDri = parentDRI?.let { dri ->
             DRI.from(psi).copy(packageName = dri.packageName, classNames = dri.classNames)
         } ?: DRI.from(psi)
+        val dri = baseDri.markStaticIfNeeded(isCompanionBlock)
         val docs = psi.getDocumentation()
         return DFunction(
             dri = dri,
@@ -463,11 +466,21 @@ internal class DokkaPsiParser(
                         .toAnnotations(),
                     ObviousMember.takeIf { psi.isObvious(inheritedFrom) },
                     helper.getCheckedExceptionDRIs(psi).takeIf { it.isNotEmpty() }
-                        ?.let { CheckedExceptions(it.toSourceSetDependent()) }
+                        ?.let { CheckedExceptions(it.toSourceSetDependent()) },
+                    @OptIn(ExperimentalDokkaApi::class) CompanionBlockMember.takeIf { isCompanionBlock },
                 )
             }
         )
     }
+
+    /**
+     * Marks the callable part of a [DRI] as static so static Java members (and any other
+     * companion-block scope declarations) can be distinguished from instance ones with the
+     * same name on the same classlike.
+     */
+    private fun DRI.markStaticIfNeeded(isCompanionBlock: Boolean): DRI =
+        if (!isCompanionBlock) this
+        else copy(callable = callable?.copy(isCompanion = true))
 
     private fun PsiNamedElement.parseSources(): SourceSetDependent<DocumentableSource> {
         return when {
@@ -604,7 +617,8 @@ internal class DokkaPsiParser(
         setter: DFunction?,
         inheritedFrom: DRI? = null
     ): DProperty {
-        val dri = DRI.from(psi)
+        val isCompanionBlock = psi.hasModifier(JvmModifier.STATIC)
+        val dri = DRI.from(psi).markStaticIfNeeded(isCompanionBlock)
 
         // non-final java field without accessors should be a var
         // setter should be not null when inheriting kotlin vars
@@ -638,7 +652,8 @@ internal class DokkaPsiParser(
                     it.toSourceSetDependent().toAdditionalModifiers(),
                     annotations.toSourceSetDependent().toAnnotations(),
                     helper.getConstantExpression(psi)?.let { DefaultValue(it.toSourceSetDependent()) },
-                    takeIf { isVar }?.let { IsVar }
+                    takeIf { isVar }?.let { IsVar },
+                    @OptIn(ExperimentalDokkaApi::class) CompanionBlockMember.takeIf { isCompanionBlock },
                 )
             }
         )
