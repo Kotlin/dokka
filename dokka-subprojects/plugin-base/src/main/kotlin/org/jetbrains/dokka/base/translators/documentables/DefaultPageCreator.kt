@@ -702,8 +702,8 @@ public open class DefaultPageCreator(
             name = "Companion functions",
             contentKind = ContentKind.Functions,
             contentType = when {
-                declarations.isEmpty() -> BasicTabbedContentType.EXTENSION_PROPERTY
-                else -> BasicTabbedContentType.PROPERTY
+                declarations.isEmpty() -> BasicTabbedContentType.EXTENSION_FUNCTION
+                else -> BasicTabbedContentType.FUNCTION
             },
             declarations = declarations,
             extensions = extensions,
