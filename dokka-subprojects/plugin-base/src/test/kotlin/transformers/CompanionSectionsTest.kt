@@ -10,6 +10,7 @@ import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ContentHeader
 import org.jetbrains.dokka.pages.ContentNode
 import org.jetbrains.dokka.pages.ContentText
+import utils.OnlySymbols
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -27,6 +28,7 @@ import kotlin.test.assertTrue
  *
  * They must be rendered between "Types" and "Properties"/"Functions".
  */
+@OnlySymbols("companion block")
 class CompanionSectionsTest : BaseAbstractTest() {
 
     private val configuration = dokkaConfiguration {

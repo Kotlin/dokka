@@ -1779,6 +1779,7 @@ class SignatureTest : BaseAbstractTest() {
     // ----------------------------------------------------------------------
 
     @Test
+    @OnlySymbols("companion block")
     fun `kotlin companion extension function renders companion keyword`() = testRender(
         """
             |/src/main/kotlin/example/Util.kt
@@ -1794,6 +1795,7 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("companion block")
     fun `kotlin companion extension property renders companion keyword`() = testRender(
         """
             |/src/main/kotlin/example/Util.kt
@@ -1823,6 +1825,7 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("companion block")
     fun `kotlin companion-block function does not render companion keyword`() = testRender(
         """
             |/src/main/kotlin/example/Vector.kt
@@ -1841,6 +1844,7 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("companion block")
     fun `kotlin companion-block property does not render companion keyword`() = testRender(
         """
             |/src/main/kotlin/example/Vector.kt

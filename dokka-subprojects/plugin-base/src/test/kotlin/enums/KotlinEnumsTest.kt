@@ -328,6 +328,7 @@ class KotlinEnumsTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("companion block")
     fun `enum should have functions on page`() {
         val configuration = dokkaConfiguration {
             sourceSets {

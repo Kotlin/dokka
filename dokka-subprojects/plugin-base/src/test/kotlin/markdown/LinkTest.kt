@@ -1697,6 +1697,7 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("companion block - Java static is marked as companion")
     fun `should resolve KDoc links that goes after markdown blocks`() {
         testInline(
             """
