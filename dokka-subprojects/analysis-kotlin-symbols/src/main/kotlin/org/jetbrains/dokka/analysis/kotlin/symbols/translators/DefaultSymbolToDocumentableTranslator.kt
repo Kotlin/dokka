@@ -461,15 +461,8 @@ internal class DokkaSymbolVisitor(
         val javaFields = callables.filterIsInstance<KaJavaFieldSymbol>()
             .filterOutSyntheticJavaPropBackingField()
 
-
-        fun List<KaNamedFunctionSymbol>.filterOutSyntheticJavaPropAccessors() = filterNot { fn ->
-            if ((fn.origin == KaSymbolOrigin.JAVA_SOURCE || fn.origin == KaSymbolOrigin.JAVA_LIBRARY) && fn.psi != null)
-                syntheticJavaProperties.any { fn.psi == it.javaGetterSymbol.psi || fn.psi == it.javaSetterSymbol?.psi }
-            else false
-        }
-
         val functions = callables.filterIsInstance<KaNamedFunctionSymbol>()
-            .filterOutSyntheticJavaPropAccessors().map { visitFunctionSymbol(it, dri, isJavaContext) }
+            .map { visitFunctionSymbol(it, dri, isJavaContext) }
 
 
         val properties = callables.filterIsInstance<KaPropertySymbol>().map { visitPropertySymbol(it, dri, isJavaContext) } +
