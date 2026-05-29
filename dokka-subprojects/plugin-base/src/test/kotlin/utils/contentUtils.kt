@@ -331,12 +331,13 @@ inline fun<reified T> PageNode.contentPage(name: String, block: T.() -> Unit) {
 fun ClasslikePageNode.assertHasFunctions(vararg expectedFunctionName: String) = assertHasSignatures("Functions", *expectedFunctionName)
 
 fun ClasslikePageNode.assertHasCompanionFunctions(vararg expectedFunctionName: String) = assertHasSignatures("Companion functions", *expectedFunctionName)
+fun ClasslikePageNode.assertHasCompanionProperty(vararg expectedPropertyName: String) = assertHasSignatures("Companion properties", *expectedPropertyName)
 
 
 private fun ClasslikePageNode.assertHasSignatures(sectionName: String, vararg expectedFunctionName: String) {
-    val functions = this.findSectionWithName(sectionName).assertNotNull(sectionName)
-    val functionsName = functions.children.map { (it.dfs { it is ContentText } as ContentText).text }
-    assertEquals(expectedFunctionName.toList(), functionsName)
+    val signatures = this.findSectionWithName(sectionName).assertNotNull(sectionName)
+    val names = signatures.children.map { (it.dfs { it is ContentText } as ContentText).text }
+    assertEquals(expectedFunctionName.toList(), names)
 }
 fun ClasslikePageNode.findSectionWithName(name: String) : ContentNode? {
     var sectionHeader: ContentHeader? = null

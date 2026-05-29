@@ -370,6 +370,37 @@ class KotlinEnumsTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("companion block")
+    fun `enum should have entries property`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    classpath = listOf(commonStdlibPath!!, jvmStdlibPath!!)
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/main/kotlin/basic/TestEnum.kt
+            |package testpackage
+            |
+            |enum class TestEnum {
+            |    FOO, BAR;
+            |}
+        """.trimMargin(),
+            configuration
+        ) {
+            pagesTransformationStage = { root ->
+                root.contentPage<ClasslikePageNode>("TestEnum") {
+                    assertHasCompanionProperty("entries")
+                }
+            }
+        }
+    }
+
+    @Test
     fun enumWithAnnotationsOnEntries() {
         val configuration = dokkaConfiguration {
             sourceSets {
