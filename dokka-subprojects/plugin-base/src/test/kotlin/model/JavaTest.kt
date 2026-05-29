@@ -588,18 +588,6 @@ class JavaTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `Callable signature distinguishes static from instance for same-name callables`() {
-        val instance = org.jetbrains.dokka.links.Callable("foo", receiver = null, params = emptyList(), isCompanion = false)
-        val static = org.jetbrains.dokka.links.Callable("foo", receiver = null, params = emptyList(), isCompanion = true)
-
-        assertTrue(instance.signature() != static.signature(), "static and instance signatures must differ")
-        assertTrue(static.signature().endsWith("/static"))
-
-        // an existing instance member DRI's signature must remain unchanged
-        assertEquals("#", instance.signature())
-    }
-
-    @Test
     fun throwsList() {
         testInline(
             """

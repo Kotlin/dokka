@@ -7,10 +7,12 @@
 package model
 
 import org.jetbrains.dokka.ExperimentalDokkaApi
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.CompanionBlockMember
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DFunction
+import org.jetbrains.dokka.model.GenericTypeConstructor
 import utils.AbstractModelTest
 import utils.OnlySymbols
 import utils.assertNotNull
@@ -210,6 +212,7 @@ class CompanionBlockTest : AbstractModelTest("/src/main/kotlin/companions/Test.k
             ext.extra[CompanionBlockMember].assertNotNull("CompanionBlockMember on companion extension 'unit'")
             // sanity-check it is in fact an extension: receiver is non-null and resolves to Vector
             assertTrue(ext.receiver != null, "companion extension must keep its receiver in the documentable")
+            assertEquals(GenericTypeConstructor(DRI("companions", "Vector"), emptyList()), ext.receiver?.type)
         }
     }
 
@@ -227,6 +230,7 @@ class CompanionBlockTest : AbstractModelTest("/src/main/kotlin/companions/Test.k
                 .assertNotNull("top-level companion extension property 'UnitX'")
             ext.extra[CompanionBlockMember].assertNotNull("CompanionBlockMember on companion extension 'UnitX'")
             assertTrue(ext.receiver != null, "companion extension property must keep its receiver")
+            assertEquals(GenericTypeConstructor(DRI("companions", "Vector"), emptyList()), ext.receiver?.type)
         }
     }
 

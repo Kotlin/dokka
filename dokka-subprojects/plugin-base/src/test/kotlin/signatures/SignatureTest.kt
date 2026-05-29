@@ -1820,8 +1820,9 @@ class SignatureTest : BaseAbstractTest() {
             |fun Vector.length(): Double = 0.0
         """.trimMargin()
     ) {
-        val sig = renderedContent("root/example/length.html").firstSignature().toString()
-        assertTrue("companion" !in sig, "expected no 'companion' keyword for a plain extension, got: $sig")
+        renderedContent("root/example/length.html").firstSignature().matchIgnoringSpans(
+            "fun ", A("Vector"), ".", A("length"), "(): ", A("Double"),
+        )
     }
 
     @Test
@@ -1837,10 +1838,9 @@ class SignatureTest : BaseAbstractTest() {
             |}
         """.trimMargin()
     ) {
-        val sig = renderedContent("root/example/-vector/unit.html").firstSignature().toString()
-        // companion-block members live inside `companion { ... }` in source — the
-        // function itself has no `companion` modifier on it.
-        assertTrue("companion" !in sig, "expected no 'companion' keyword on companion-block function, got: $sig")
+        renderedContent("root/example/-vector/unit.html").firstSignature().matchIgnoringSpans(
+            "fun ", A("unit"), "(): ", A("Vector"),
+        )
     }
 
     @Test
@@ -1856,8 +1856,9 @@ class SignatureTest : BaseAbstractTest() {
             |}
         """.trimMargin()
     ) {
-        val sig = renderedContent("root/example/-vector/-zero.html").firstSignature().toString()
-        assertTrue("companion" !in sig, "expected no 'companion' keyword on companion-block property, got: $sig")
+        renderedContent("root/example/-vector/-zero.html").firstSignature().matchIgnoringSpans(
+            "val ", A("Zero"), ": ", A("Vector"),
+        )
     }
 
     @Test
@@ -1870,8 +1871,9 @@ class SignatureTest : BaseAbstractTest() {
             |}
         """.trimMargin()
     ) {
-        val sig = renderedContent("root/example/-util/do-stuff.html").firstSignature().toString()
-        assertTrue("companion" !in sig, "Java statics are not extensions; expected no 'companion', got: $sig")
+        renderedContent("root/example/-util/do-stuff.html").firstSignature().matchIgnoringSpans(
+            "open fun ", A("doStuff"), "(): ", A("Int"),
+        )
     }
 
     @Test
@@ -1884,8 +1886,9 @@ class SignatureTest : BaseAbstractTest() {
             |}
         """.trimMargin()
     ) {
-        val sig = renderedContent("root/example/-util/-n-a-m-e.html").firstSignature().toString()
-        assertTrue("companion" !in sig, "Java static fields are not extensions; expected no 'companion', got: $sig")
+        renderedContent("root/example/-util/-n-a-m-e.html").firstSignature().matchIgnoringSpans(
+            "val ", A("NAME"), ": ", Span("String"), " = \"x\"",
+        )
     }
 
     @Test
@@ -1896,8 +1899,9 @@ class SignatureTest : BaseAbstractTest() {
             |enum class E { A, B }
         """.trimMargin()
     ) {
-        val sig = renderedContent("root/example/-e/values.html").firstSignature().toString()
-        assertTrue("companion" !in sig, "Enum synthetic 'values' is not an extension; expected no 'companion', got: $sig")
+        renderedContent("root/example/-e/values.html").firstSignature().matchIgnoringSpans(
+            "fun ", A("values"), "(): ", A("Array"), "<", A("E"), ">",
+        )
     }
 
     @Test
@@ -1910,8 +1914,9 @@ class SignatureTest : BaseAbstractTest() {
             |fun Vector.length(): Double = 0.0
         """.trimMargin()
     ) {
-        val sig = renderedContent("root/example/length.html").firstSignature().toString()
-        assertTrue("companion" !in sig, "expected no 'companion' for plain extension, got: $sig")
+        renderedContent("root/example/length.html").firstSignature().matchIgnoringSpans(
+            "fun ", A("Vector"), ".", A("length"), "(): ", A("Double"),
+        )
     }
 
     private fun testRender(

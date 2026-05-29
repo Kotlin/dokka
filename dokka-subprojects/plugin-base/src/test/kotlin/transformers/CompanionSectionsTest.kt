@@ -140,8 +140,7 @@ class CompanionSectionsTest : BaseAbstractTest() {
                 assertEquals(listOf("valueOf", "values"), companionFns, "expected synthetic 'valueOf' and 'values' under Companion functions, got: $companionFns")
 
                 val regularFns = enumPage.sectionTexts("Functions").orEmpty()
-                assertTrue("values" !in regularFns, "synthetic 'values' must NOT appear in Functions, got: $regularFns")
-                assertTrue("valueOf" !in regularFns, "synthetic 'valueOf' must NOT appear in Functions, got: $regularFns")
+                assertEquals(emptyList(),regularFns, "no regular function is expected, got: $regularFns " )
             }
         }
     }
