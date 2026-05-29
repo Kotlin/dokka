@@ -421,10 +421,9 @@ internal class DokkaPsiParser(
         parentDRI: DRI? = null,
     ): DFunction {
         val isCompanionBlock = !isConstructor && psi.hasModifier(JvmModifier.STATIC)
-        val baseDri = parentDRI?.let { dri ->
+        val dri = parentDRI?.let { dri ->
             DRI.from(psi).copy(packageName = dri.packageName, classNames = dri.classNames)
         } ?: DRI.from(psi)
-        val dri = baseDri.markStaticIfNeeded(isCompanionBlock)
         val docs = psi.getDocumentation()
         return DFunction(
             dri = dri,
@@ -472,15 +471,6 @@ internal class DokkaPsiParser(
             }
         )
     }
-
-    /**
-     * Marks the callable part of a [DRI] as static so static Java members (and any other
-     * companion-block scope declarations) can be distinguished from instance ones with the
-     * same name on the same classlike.
-     */
-    private fun DRI.markStaticIfNeeded(isCompanionBlock: Boolean): DRI =
-        if (!isCompanionBlock) this
-        else copy(callable = callable?.copy(isCompanion = true))
 
     private fun PsiNamedElement.parseSources(): SourceSetDependent<DocumentableSource> {
         return when {
@@ -617,8 +607,7 @@ internal class DokkaPsiParser(
         setter: DFunction?,
         inheritedFrom: DRI? = null
     ): DProperty {
-        val isCompanionBlock = psi.hasModifier(JvmModifier.STATIC)
-        val dri = DRI.from(psi).markStaticIfNeeded(isCompanionBlock)
+        val dri = DRI.from(psi)
 
         // non-final java field without accessors should be a var
         // setter should be not null when inheriting kotlin vars
@@ -653,7 +642,7 @@ internal class DokkaPsiParser(
                     annotations.toSourceSetDependent().toAnnotations(),
                     helper.getConstantExpression(psi)?.let { DefaultValue(it.toSourceSetDependent()) },
                     takeIf { isVar }?.let { IsVar },
-                    @OptIn(ExperimentalDokkaApi::class) CompanionBlockMember.takeIf { isCompanionBlock },
+                    @OptIn(ExperimentalDokkaApi::class) CompanionBlockMember.takeIf { psi.hasModifier(JvmModifier.STATIC) },
                 )
             }
         )
