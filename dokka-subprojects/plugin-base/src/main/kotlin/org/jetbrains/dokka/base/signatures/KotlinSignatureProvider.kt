@@ -65,6 +65,24 @@ public class KotlinSignatureProvider(
             ?.contains(ExtraModifiers.KotlinOnlyModifiers.Data) == true
     }
 
+    /**
+     * Whether this callable is a KEEP-0449 companion extension — a top-level
+     * extension function/property declared with the `companion` modifier.
+     *
+     * Only such declarations carry the `companion` keyword in their source form
+     * (and therefore in their rendered Kotlin signature). Companion-block members
+     * (declarations inside `companion { ... }`), Java statics, and enum synthetic
+     * declarations also carry [IsCompanion], but they have no receiver
+     * and do not use the `companion` keyword in source — they are excluded here.
+     */
+    private fun DFunction.isCompanionExtension(): Boolean {
+        @OptIn(ExperimentalDokkaApi::class) return receiver != null && extra[IsCompanion] != null
+    }
+
+    private fun DProperty.isCompanionExtension(): Boolean {
+        @OptIn(ExperimentalDokkaApi::class) return receiver != null && extra[IsCompanion] != null
+    }
+
     private fun <T> PageContentBuilder.DocumentableContentBuilder.modifier(
         documentable: T,
         sourceSet: DokkaSourceSet
@@ -280,6 +298,7 @@ public class KotlinSignatureProvider(
                 }
                 p.visibility[sourceSet].takeIf { it !in ignoredVisibilities }?.name?.let { keyword("$it ") }
                 if (p.isExpectActual) keyword(if (sourceSet == p.expectPresentInSet) "expect " else "actual ")
+                if (p.isCompanionExtension()) keyword("companion ")
                 modifier(p, sourceSet)
                 p.modifiers()[sourceSet]?.toSignatureString()?.takeIf { it.isNotEmpty() }?.let { keyword(it) }
                 if (p.isMutable()) keyword("var ") else keyword("val ")
@@ -346,6 +365,7 @@ public class KotlinSignatureProvider(
                 if (f.isConstructor) {
                     keyword("constructor")
                 } else {
+                    if (f.isCompanionExtension()) keyword("companion ")
                     modifier(f, sourceSet)
                     f.modifiers()[sourceSet]?.toSignatureString()?.takeIf { it.isNotEmpty() }?.let { keyword(it) }
                     keyword("fun ")
