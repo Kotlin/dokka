@@ -99,7 +99,7 @@ public data class Callable(
      * - Kotlin companion-block members (see [KEEP-0449](https://github.com/Kotlin/KEEP/blob/main/proposals/KEEP-0449-companions-block-extension.md))
      * - Kotlin companion extensions (see [KEEP-0449](https://github.com/Kotlin/KEEP/blob/main/proposals/KEEP-0449-companions-block-extension.md))
      *
-     * @see org.jetbrains.dokka.model.CompanionBlockMember
+     * @see org.jetbrains.dokka.model.IsCompanion
      */
     @property:ExperimentalDokkaApi
     val isCompanion: Boolean = false,

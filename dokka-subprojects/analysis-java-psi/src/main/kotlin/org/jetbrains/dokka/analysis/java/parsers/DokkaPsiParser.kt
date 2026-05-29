@@ -466,7 +466,7 @@ internal class DokkaPsiParser(
                     ObviousMember.takeIf { psi.isObvious(inheritedFrom) },
                     helper.getCheckedExceptionDRIs(psi).takeIf { it.isNotEmpty() }
                         ?.let { CheckedExceptions(it.toSourceSetDependent()) },
-                    @OptIn(ExperimentalDokkaApi::class) CompanionBlockMember.takeIf { isCompanionBlock },
+                    @OptIn(ExperimentalDokkaApi::class) IsCompanion.takeIf { isCompanionBlock },
                 )
             }
         )
@@ -642,7 +642,7 @@ internal class DokkaPsiParser(
                     annotations.toSourceSetDependent().toAnnotations(),
                     helper.getConstantExpression(psi)?.let { DefaultValue(it.toSourceSetDependent()) },
                     takeIf { isVar }?.let { IsVar },
-                    @OptIn(ExperimentalDokkaApi::class) CompanionBlockMember.takeIf { psi.hasModifier(JvmModifier.STATIC) },
+                    @OptIn(ExperimentalDokkaApi::class) IsCompanion.takeIf { psi.hasModifier(JvmModifier.STATIC) },
                 )
             }
         )

@@ -72,15 +72,15 @@ public class KotlinSignatureProvider(
      * Only such declarations carry the `companion` keyword in their source form
      * (and therefore in their rendered Kotlin signature). Companion-block members
      * (declarations inside `companion { ... }`), Java statics, and enum synthetic
-     * declarations also carry [CompanionBlockMember], but they have no receiver
+     * declarations also carry [IsCompanion], but they have no receiver
      * and do not use the `companion` keyword in source — they are excluded here.
      */
     private fun DFunction.isCompanionExtension(): Boolean {
-        @OptIn(ExperimentalDokkaApi::class) return receiver != null && extra[CompanionBlockMember] != null
+        @OptIn(ExperimentalDokkaApi::class) return receiver != null && extra[IsCompanion] != null
     }
 
     private fun DProperty.isCompanionExtension(): Boolean {
-        @OptIn(ExperimentalDokkaApi::class) return receiver != null && extra[CompanionBlockMember] != null
+        @OptIn(ExperimentalDokkaApi::class) return receiver != null && extra[IsCompanion] != null
     }
 
     private fun <T> PageContentBuilder.DocumentableContentBuilder.modifier(

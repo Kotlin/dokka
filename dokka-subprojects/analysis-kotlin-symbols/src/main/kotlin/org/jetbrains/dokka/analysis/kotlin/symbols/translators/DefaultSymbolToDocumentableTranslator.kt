@@ -575,7 +575,7 @@ internal class DokkaSymbolVisitor(
 
                         IsAlsoParameter(listOf(sourceSet))
                     },
-                    @OptIn(ExperimentalDokkaApi::class) CompanionBlockMember.takeIf { @OptIn(KaExperimentalApi::class) propertySymbol.isCompanion },
+                    @OptIn(ExperimentalDokkaApi::class) IsCompanion.takeIf { @OptIn(KaExperimentalApi::class) propertySymbol.isCompanion },
                 )
             )
         }
@@ -619,7 +619,7 @@ internal class DokkaSymbolVisitor(
                     inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
                     // non-final java property should be var
                     takeUnless { javaFieldSymbol.isVal }?.let { IsVar },
-                    @OptIn(ExperimentalDokkaApi::class) CompanionBlockMember.takeIf { @OptIn(KaExperimentalApi::class) javaFieldSymbol.isCompanion },
+                    @OptIn(ExperimentalDokkaApi::class) IsCompanion.takeIf { @OptIn(KaExperimentalApi::class) javaFieldSymbol.isCompanion },
                 )
             )
         }
@@ -793,7 +793,7 @@ internal class DokkaSymbolVisitor(
                         ?.toSourceSetDependent()?.toAnnotations(),
                     ObviousMember.takeIf { isObvious(functionSymbol, inheritedFrom) },
                     getCheckedExceptions(functionSymbol),
-                    @OptIn(ExperimentalDokkaApi::class) CompanionBlockMember.takeIf { @OptIn(KaExperimentalApi::class) functionSymbol.isCompanion },
+                    @OptIn(ExperimentalDokkaApi::class) IsCompanion.takeIf { @OptIn(KaExperimentalApi::class) functionSymbol.isCompanion },
                 )
             )
         }

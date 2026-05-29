@@ -894,13 +894,6 @@ public final class org/jetbrains/dokka/model/ClassValue : org/jetbrains/dokka/mo
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class org/jetbrains/dokka/model/CompanionBlockMember : org/jetbrains/dokka/model/properties/ExtraProperty, org/jetbrains/dokka/model/properties/ExtraProperty$Key {
-	public static final field INSTANCE Lorg/jetbrains/dokka/model/CompanionBlockMember;
-	public fun getKey ()Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;
-	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
-	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/CompanionBlockMember;Lorg/jetbrains/dokka/model/CompanionBlockMember;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
-}
-
 public final class org/jetbrains/dokka/model/ComplexExpression : org/jetbrains/dokka/model/Expression {
 	public fun <init> (Ljava/lang/String;)V
 	public final fun component1 ()Ljava/lang/String;
@@ -1888,6 +1881,13 @@ public final class org/jetbrains/dokka/model/IsAlsoParameter : org/jetbrains/dok
 public final class org/jetbrains/dokka/model/IsAlsoParameter$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
 	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/IsAlsoParameter;Lorg/jetbrains/dokka/model/IsAlsoParameter;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+}
+
+public final class org/jetbrains/dokka/model/IsCompanion : org/jetbrains/dokka/model/properties/ExtraProperty, org/jetbrains/dokka/model/properties/ExtraProperty$Key {
+	public static final field INSTANCE Lorg/jetbrains/dokka/model/IsCompanion;
+	public fun getKey ()Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;
+	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/IsCompanion;Lorg/jetbrains/dokka/model/IsCompanion;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
 public final class org/jetbrains/dokka/model/IsVar : org/jetbrains/dokka/model/properties/ExtraProperty, org/jetbrains/dokka/model/properties/ExtraProperty$Key {

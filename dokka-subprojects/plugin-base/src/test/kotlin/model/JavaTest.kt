@@ -491,7 +491,7 @@ class JavaTest : BaseAbstractTest() {
             documentablesTransformationStage = { module ->
                 with((module / "java" / "C" / "foo").cast<DFunction>()) {
                     @OptIn(ExperimentalDokkaApi::class)
-                    extra[CompanionBlockMember].assertNotNull("CompanionBlockMember on Java static method")
+                    extra[IsCompanion].assertNotNull("CompanionBlockMember on Java static method")
                     assertEquals(
                         true,
                         @OptIn(ExperimentalDokkaApi::class) dri.callable?.isCompanion,
@@ -515,7 +515,7 @@ class JavaTest : BaseAbstractTest() {
         ) {
             documentablesTransformationStage = { module ->
                 with((module / "java" / "C" / "instanceFoo").cast<DFunction>()) {
-                    @OptIn(ExperimentalDokkaApi::class) assertEquals(null, extra[CompanionBlockMember])
+                    @OptIn(ExperimentalDokkaApi::class) assertEquals(null, extra[IsCompanion])
                     assertEquals(false, @OptIn(ExperimentalDokkaApi::class) dri.callable?.isCompanion)
                 }
             }
@@ -537,7 +537,7 @@ class JavaTest : BaseAbstractTest() {
             documentablesTransformationStage = { module ->
                 with((module / "java" / "C" / "s").cast<DProperty>()) {
                     @OptIn(ExperimentalDokkaApi::class)
-                    extra[CompanionBlockMember].assertNotNull("CompanionBlockMember on Java static field")
+                    extra[IsCompanion].assertNotNull("CompanionBlockMember on Java static field")
                     assertEquals(
                         true,
                         @OptIn(ExperimentalDokkaApi::class) dri.callable?.isCompanion,
@@ -545,7 +545,7 @@ class JavaTest : BaseAbstractTest() {
                     )
                 }
                 with((module / "java" / "C" / "i").cast<DProperty>()) {
-                    @OptIn(ExperimentalDokkaApi::class) assertEquals(null, extra[CompanionBlockMember])
+                    @OptIn(ExperimentalDokkaApi::class) assertEquals(null, extra[IsCompanion])
                     assertEquals(false, @OptIn(ExperimentalDokkaApi::class) dri.callable?.isCompanion)
                 }
             }
@@ -570,8 +570,8 @@ class JavaTest : BaseAbstractTest() {
                     val valueOf = functions.firstOrNull { it.name == "valueOf" }
                         .assertNotNull("synthetic 'valueOf' function")
 
-                    @OptIn(ExperimentalDokkaApi::class) values.extra[CompanionBlockMember].assertNotNull("CompanionBlockMember on enum 'values'")
-                    @OptIn(ExperimentalDokkaApi::class) valueOf.extra[CompanionBlockMember].assertNotNull("CompanionBlockMember on enum 'valueOf'")
+                    @OptIn(ExperimentalDokkaApi::class) values.extra[IsCompanion].assertNotNull("CompanionBlockMember on enum 'values'")
+                    @OptIn(ExperimentalDokkaApi::class) valueOf.extra[IsCompanion].assertNotNull("CompanionBlockMember on enum 'valueOf'")
                     assertEquals(
                         true,
                         @OptIn(ExperimentalDokkaApi::class) values.dri.callable?.isCompanion,

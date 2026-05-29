@@ -54,13 +54,15 @@ public object ObviousMember : ExtraProperty<Documentable>, ExtraProperty.Key<Doc
  * - Enum synthetic declarations (`values`, `valueOf`, `entries`)
  * - Kotlin companion-block members
  *   (see [KEEP-0449](https://github.com/Kotlin/KEEP/blob/main/proposals/KEEP-0449-companions-block-extension.md))
+ * - Kotlin companion extensions
+ *   (see [KEEP-0449](https://github.com/Kotlin/KEEP/blob/main/proposals/KEEP-0449-companions-block-extension.md))
  *
  * The same condition is reflected in the [org.jetbrains.dokka.links.Callable.isCompanion]
  * field of the [DRI] so that companion and instance callables with the same name
  * can be distinguished by their DRI signature.
  */
 @ExperimentalDokkaApi
-public object CompanionBlockMember : ExtraProperty<Documentable>, ExtraProperty.Key<Documentable, CompanionBlockMember> {
+public object IsCompanion : ExtraProperty<Documentable>, ExtraProperty.Key<Documentable, IsCompanion> {
     override val key: ExtraProperty.Key<Documentable, *> = this
 }
 

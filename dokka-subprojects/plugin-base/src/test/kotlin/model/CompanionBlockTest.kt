@@ -8,7 +8,7 @@ package model
 
 import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.model.CompanionBlockMember
+import org.jetbrains.dokka.model.IsCompanion
 import org.jetbrains.dokka.model.DClass
 import org.jetbrains.dokka.model.DEnum
 import org.jetbrains.dokka.model.DFunction
@@ -27,7 +27,7 @@ import kotlin.test.assertTrue
  * They are represented in Dokka in the same way as Java static declarations and
  * enum synthetic declarations (`values` / `valueOf` / `entries`):
  *   - the [org.jetbrains.dokka.links.DRI]'s [org.jetbrains.dokka.links.Callable.isCompanion] is `true`
- *   - the documentable carries [CompanionBlockMember] in its extra container
+ *   - the documentable carries [IsCompanion] in its extra container
  *
  * See [KEEP-0449](https://github.com/Kotlin/KEEP/blob/main/proposals/KEEP-0449-companions-block-extension.md).
  */
@@ -49,7 +49,7 @@ class CompanionBlockTest : AbstractModelTest("/src/main/kotlin/companions/Test.k
             with((this / "companions" / "Vector").cast<DClass>()) {
                 val unit = functions.firstOrNull { it.name == "unit" }
                     .assertNotNull("companion-block function 'unit'")
-                unit.extra[CompanionBlockMember].assertNotNull("CompanionBlockMember on 'unit'")
+                unit.extra[IsCompanion].assertNotNull("CompanionBlockMember on 'unit'")
                 assertEquals(true, @OptIn(ExperimentalDokkaApi::class) unit.dri.callable?.isCompanion, "DRI for 'unit' should be marked isStatic=true")
             }
         }
@@ -73,8 +73,8 @@ class CompanionBlockTest : AbstractModelTest("/src/main/kotlin/companions/Test.k
                 val dimensions = properties.firstOrNull { it.name == "Dimensions" }
                     .assertNotNull("companion-block property 'Dimensions'")
 
-                zero.extra[CompanionBlockMember].assertNotNull("CompanionBlockMember on 'Zero'")
-                dimensions.extra[CompanionBlockMember].assertNotNull("CompanionBlockMember on 'Dimensions'")
+                zero.extra[IsCompanion].assertNotNull("CompanionBlockMember on 'Zero'")
+                dimensions.extra[IsCompanion].assertNotNull("CompanionBlockMember on 'Dimensions'")
                 assertEquals(true, @OptIn(ExperimentalDokkaApi::class) zero.dri.callable?.isCompanion)
                 assertEquals(true, @OptIn(ExperimentalDokkaApi::class) dimensions.dri.callable?.isCompanion)
             }
@@ -100,9 +100,9 @@ class CompanionBlockTest : AbstractModelTest("/src/main/kotlin/companions/Test.k
                 val name = properties.firstOrNull { it.name == "name" }
                     .assertNotNull("instance property 'name'")
 
-                assertEquals(null, length.extra[CompanionBlockMember])
+                assertEquals(null, length.extra[IsCompanion])
                 assertEquals(false, @OptIn(ExperimentalDokkaApi::class) length.dri.callable?.isCompanion)
-                assertEquals(null, name.extra[CompanionBlockMember])
+                assertEquals(null, name.extra[IsCompanion])
                 assertEquals(false, @OptIn(ExperimentalDokkaApi::class) name.dri.callable?.isCompanion)
             }
         }
@@ -125,8 +125,8 @@ class CompanionBlockTest : AbstractModelTest("/src/main/kotlin/companions/Test.k
                 val foos = functions.filter { it.name == "foo" }
                 assertEquals(2, foos.size, "expected an instance and a companion-block 'foo'")
 
-                val instance = foos.single { it.extra[CompanionBlockMember] == null }
-                val companion = foos.single { it.extra[CompanionBlockMember] != null }
+                val instance = foos.single { it.extra[IsCompanion] == null }
+                val companion = foos.single { it.extra[IsCompanion] != null }
 
                 assertEquals(false, @OptIn(ExperimentalDokkaApi::class) instance.dri.callable?.isCompanion)
                 assertEquals(true, @OptIn(ExperimentalDokkaApi::class) companion.dri.callable?.isCompanion)
@@ -156,8 +156,8 @@ class CompanionBlockTest : AbstractModelTest("/src/main/kotlin/companions/Test.k
                 val valueOf = functions.firstOrNull { it.name == "valueOf" }
                     .assertNotNull("synthetic enum function 'valueOf'")
 
-                values.extra[CompanionBlockMember].assertNotNull("CompanionBlockMember on 'values'")
-                valueOf.extra[CompanionBlockMember].assertNotNull("CompanionBlockMember on 'valueOf'")
+                values.extra[IsCompanion].assertNotNull("CompanionBlockMember on 'values'")
+                valueOf.extra[IsCompanion].assertNotNull("CompanionBlockMember on 'valueOf'")
                 assertEquals(true, @OptIn(ExperimentalDokkaApi::class) values.dri.callable?.isCompanion)
                 assertEquals(true, @OptIn(ExperimentalDokkaApi::class) valueOf.dri.callable?.isCompanion)
             }
@@ -180,9 +180,9 @@ class CompanionBlockTest : AbstractModelTest("/src/main/kotlin/companions/Test.k
             // not in the enclosing class's static scope.
             with((this / "companions" / "Holder").cast<DClass>()) {
                 // No companion-block functions on the enclosing class.
-                val staticOnHolder = functions.filter { it.extra[CompanionBlockMember] != null }
+                val staticOnHolder = functions.filter { it.extra[IsCompanion] != null }
                 assertEquals(emptyList(), staticOnHolder)
-                val staticPropsOnHolder = properties.filter { it.extra[CompanionBlockMember] != null }
+                val staticPropsOnHolder = properties.filter { it.extra[IsCompanion] != null }
                 assertEquals(emptyList(), staticPropsOnHolder)
             }
         }
@@ -209,7 +209,7 @@ class CompanionBlockTest : AbstractModelTest("/src/main/kotlin/companions/Test.k
             val pkg = packages.single()
             val ext = pkg.functions.firstOrNull { it.name == "unit" }
                 .assertNotNull("top-level companion extension 'unit'")
-            ext.extra[CompanionBlockMember].assertNotNull("CompanionBlockMember on companion extension 'unit'")
+            ext.extra[IsCompanion].assertNotNull("CompanionBlockMember on companion extension 'unit'")
             // sanity-check it is in fact an extension: receiver is non-null and resolves to Vector
             assertTrue(ext.receiver != null, "companion extension must keep its receiver in the documentable")
             assertEquals(GenericTypeConstructor(DRI("companions", "Vector"), emptyList()), ext.receiver?.type)
@@ -228,7 +228,7 @@ class CompanionBlockTest : AbstractModelTest("/src/main/kotlin/companions/Test.k
             val pkg = packages.single()
             val ext = pkg.properties.firstOrNull { it.name == "UnitX" }
                 .assertNotNull("top-level companion extension property 'UnitX'")
-            ext.extra[CompanionBlockMember].assertNotNull("CompanionBlockMember on companion extension 'UnitX'")
+            ext.extra[IsCompanion].assertNotNull("CompanionBlockMember on companion extension 'UnitX'")
             assertTrue(ext.receiver != null, "companion extension property must keep its receiver")
             assertEquals(GenericTypeConstructor(DRI("companions", "Vector"), emptyList()), ext.receiver?.type)
         }
@@ -250,8 +250,8 @@ class CompanionBlockTest : AbstractModelTest("/src/main/kotlin/companions/Test.k
             val nameExt = pkg.properties.firstOrNull { it.name == "name" }
                 .assertNotNull("plain extension property 'name'")
 
-            assertEquals(null, @OptIn(ExperimentalDokkaApi::class) length.extra[CompanionBlockMember])
-            assertEquals(null, @OptIn(ExperimentalDokkaApi::class) nameExt.extra[CompanionBlockMember])
+            assertEquals(null, @OptIn(ExperimentalDokkaApi::class) length.extra[IsCompanion])
+            assertEquals(null, @OptIn(ExperimentalDokkaApi::class) nameExt.extra[IsCompanion])
         }
     }
 
@@ -265,7 +265,7 @@ class CompanionBlockTest : AbstractModelTest("/src/main/kotlin/companions/Test.k
             """.trimIndent()
         ) {
             val pkg = packages.single()
-            val companionExtensions = pkg.functions.filter { it.extra[CompanionBlockMember] != null }
+            val companionExtensions = pkg.functions.filter { it.extra[IsCompanion] != null }
             assertEquals(emptyList<DFunction>(), companionExtensions)
         }
     }

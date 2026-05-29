@@ -457,7 +457,7 @@ public open class DefaultPageCreator(
     }
 
     private fun <T> T.isCompanionBlock(): Boolean where T : Documentable, T : WithExtraProperties<T> {
-        @OptIn(ExperimentalDokkaApi::class) return extra[CompanionBlockMember] != null
+        @OptIn(ExperimentalDokkaApi::class) return extra[IsCompanion] != null
     }
 
 

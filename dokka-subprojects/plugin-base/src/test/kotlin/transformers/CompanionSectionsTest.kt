@@ -22,7 +22,7 @@ import kotlin.test.assertTrue
  *   - "Companion functions"
  *   - "Companion properties"
  *
- * These sections collect every documentable carrying [org.jetbrains.dokka.model.CompanionBlockMember]:
+ * These sections collect every documentable carrying [org.jetbrains.dokka.model.IsCompanion]:
  * Java static methods/fields, enum synthetic declarations (`values`/`valueOf`/`entries`),
  * Kotlin companion-block members, and companion extensions.
  *
