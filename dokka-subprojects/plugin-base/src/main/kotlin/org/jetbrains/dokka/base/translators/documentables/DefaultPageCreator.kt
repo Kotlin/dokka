@@ -422,11 +422,11 @@ public open class DefaultPageCreator(
 
         // Companion-block scope members (Java statics, enum synthetic, KEEP-0449 companion blocks)
         // are rendered right after Types and before instance Functions/Properties.
-        val (companionExtensionFunctions, extensionInstanceFunctions) = extensionFunctions.partition { it.isCompanionBlock() }
-        val (companionExtensionProperties, extensionInstanceProperties) = extensionProperties.partition { it.isCompanionBlock() }
+        val (companionExtensionFunctions, extensionInstanceFunctions) = extensionFunctions.partition { it.isCompanion() }
+        val (companionExtensionProperties, extensionInstanceProperties) = extensionProperties.partition { it.isCompanion() }
 
-        val (companionFunctions, instanceFunctions) = functions.partition { it.isCompanionBlock() }
-        val (companionProperties, instanceProperties) = properties.partition { it.isCompanionBlock() }
+        val (companionFunctions, instanceFunctions) = functions.partition { it.isCompanion() }
+        val (companionProperties, instanceProperties) = properties.partition { it.isCompanion() }
 
         companionPropertiesBlock(companionProperties, companionExtensionProperties)
         companionFunctionsBlock(companionFunctions, companionExtensionFunctions)
@@ -456,7 +456,7 @@ public open class DefaultPageCreator(
         }
     }
 
-    private fun <T> T.isCompanionBlock(): Boolean where T : Documentable, T : WithExtraProperties<T> {
+    private fun <T> T.isCompanion(): Boolean where T : Documentable, T : WithExtraProperties<T>, T : org.jetbrains.dokka.model.Callable {
         @OptIn(ExperimentalDokkaApi::class) return extra[IsCompanion] != null
     }
 
