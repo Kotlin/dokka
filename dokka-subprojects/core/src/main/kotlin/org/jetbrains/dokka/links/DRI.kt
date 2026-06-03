@@ -173,7 +173,7 @@ public data class Callable(
             "${contextParameters.joinToString("#")}#${receiver?.toString().orEmpty()}#${params.joinToString("#")}"
         else
             "${receiver?.toString().orEmpty()}#${params.joinToString("#")}"
-        return if (@OptIn(ExperimentalDokkaApi::class) isCompanion) "$base/static" else base
+        return if (@OptIn(ExperimentalDokkaApi::class) isCompanion) "$base/companion" else base
     }
 
     public companion object

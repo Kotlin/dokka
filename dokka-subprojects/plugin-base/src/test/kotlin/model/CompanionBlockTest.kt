@@ -136,8 +136,8 @@ class CompanionBlockTest : AbstractModelTest("/src/main/kotlin/companions/Test.k
                 )
                 assertEquals(
                     true,
-                    companion.dri.callable?.signature()?.endsWith("/static"),
-                    "Companion-block signature must end with the /static marker"
+                    companion.dri.callable?.signature()?.endsWith("/companion"),
+                    "Companion-block signature must end with the /companion marker"
                 )
             }
         }
