@@ -1332,7 +1332,7 @@ class LinkTest : BaseAbstractTest() {
                             "Storage",
                             Callable("setValue", null, listOf(JavaClassReference("java.lang.String")))
                         ),
-                        "Storage.prop" to DRI("example", "Storage", Callable("getProp", null, emptyList()))
+                        "Storage.prop" to DRI("example", "Storage", Callable("prop", null, emptyList(), isProperty = true))
                     ),
                     module.getAllLinkDRIFrom("usage")
                 )
