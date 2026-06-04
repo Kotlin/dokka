@@ -7,6 +7,14 @@ package org.jetbrains.kotlin.documentation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+// TODO: there should be a way to represent both:
+//  int (java primitive), Integer (java object), Int (Kotlin type)
+//  Overall, it looks like we just need to have `Primitive` type.
+//  Integer = java.lang.Integer
+//  Int = kotlin.Int
+//  int = primitive(int) - enum
+//  something similar for arrays? (`int[]` == `IntArray`) != (`Array<Int>` == `Array<Integer>`)
+
 // TODO: where to add annotations to types?
 // TODO: how those are represented???
 @Serializable

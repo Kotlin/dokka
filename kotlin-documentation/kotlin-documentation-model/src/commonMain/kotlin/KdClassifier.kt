@@ -17,7 +17,7 @@ import kotlinx.serialization.encoding.Encoder
 public data class KdClassifierId(
     public val packageName: String,
     public val classNames: String, // it could be A.B.C for nested class
-)
+) : KdSymbolId()
 
 internal object KdClassifierIdSerializer : KSerializer<KdClassifierId> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("KdClassifierId", PrimitiveKind.STRING)
@@ -34,7 +34,9 @@ internal object KdClassifierIdSerializer : KSerializer<KdClassifierId> {
 }
 
 @Serializable
-public sealed class KdClassifier : KdDeclaration()
+public sealed class KdClassifier : KdDeclaration() {
+    abstract override val id: KdClassifierId
+}
 
 // TODO: enum is one more case? or we could represent entries as `static` variables? valueOf is `static` function, entries is `static` variable
 
@@ -54,6 +56,7 @@ public sealed class KdClassifier : KdDeclaration()
 @SerialName("class")
 @Serializable
 public data class KdClass(
+    override val id: KdClassifierId,
     override val name: String,
     // TODO: check Kotlin spec - it gives a good idea on how to generalize the models!!!
     // TODO: decide how to represent this
@@ -66,7 +69,29 @@ public data class KdClass(
 
     val isInner: Boolean = false,
     val superTypes: List<KdType> = emptyList(),
-    val declarations: List<KdDeclaration> = emptyList(),
+    val classifiers: List<KdClassifierId> = emptyList(),
+
+    // TODO: do we need to show both inherited and overridden callables?
+    // it looks like we need separate lists for them
+    // those are callables, which are coming from parent classes, but not overridden
+    // TODO: it could be coming from java class...
+    //  looks like in this case we need to still include it + have some reference, that it's just inherited?
+    //  e.g it could be [A.x] where x is declared in B, and A: B
+    //  if we are working with kotlin->kotlin where both have KDM generated - there is no need for this
+    // TODO: it's very similar to expect/actual case
+    // TODO: having all "inherited" callables here might require more post-processing if we already have KDM model for external declarations from libraries
+    //  maybe we need to somehow split those more naturally in the list here and in the doc?
+    //  e.g. here in class A we could have:
+    //  - example/A/hashCode - inherits [kotlin/Any/hashCode, example/B/hashCode]
+    //  - example/A/toString - overrides kotlin/Any/toString (override + maybe add docs (or not))
+
+    // for Java:
+    // - if we need to include "inherited" members -> Java supertypes is a must
+    // - if we need to include only "declared" members -> Java supertypes is not needed
+
+    val callables: List<KdCallableId> = emptyList(),
+    // TODO: should we have `constructors`?
+    // TODO: should we split callables and classifiers?
     override val source: KdSource = KdSource.Kotlin,
     override val visibility: KdVisibility = KdVisibility.PUBLIC,
     override val modality: KdModality = KdModality.FINAL,
@@ -80,6 +105,7 @@ public data class KdClass(
 @SerialName("typealias")
 @Serializable
 public data class KdTypealias(
+    override val id: KdClassifierId,
     override val name: String,
     val underlyingType: KdType,
     // optionals

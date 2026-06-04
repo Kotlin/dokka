@@ -2,18 +2,13 @@
  * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:OptIn(ExperimentalSerializationApi::class)
-
 package org.jetbrains.kotlin.documentation
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 
 //@Serializable(KdDeclarationSerializer::class)
 @Serializable
-public sealed class KdDeclaration : KdDocumented {
-    public abstract val name: String
-
+public sealed class KdDeclaration : KdSymbol() {
     public abstract val isExternal: Boolean
     public abstract val source: KdSource
     public abstract val visibility: KdVisibility
@@ -22,7 +17,8 @@ public sealed class KdDeclaration : KdDocumented {
     public abstract val annotations: List<KdAnnotation>
     public abstract val typeParameters: List<KdTypeParameter>
 }
-//
+
+// WIP: protobuf experiments
 //internal object KdDeclarationSerializer : KSerializer<KdDeclaration> {
 //    override val descriptor: SerialDescriptor = buildClassSerialDescriptor(
 //        "KdDeclaration"

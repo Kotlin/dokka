@@ -6,6 +6,8 @@ package org.jetbrains.kotlin.documentation
 
 import kotlinx.serialization.Serializable
 
+// fragment = main (target=jvm)
+
 // we work on the level of the module for now
 // project(kotlinx.coroutines) ->        <- build system only
 //  module(coroutines-core) ->
@@ -37,17 +39,8 @@ public data class KdModule(
 public data class KdFragment(
     // TODO: the name is correct only for the current module (dependsOn) and not comparable between different modules
     val name: String,
-    val dependsOn: List<String> = emptyList(), // TODO: what about test & main ?
+    val dependsOn: List<String> = emptyList(), // TODO: what about test & main ? - they should be split in separate KDM artifacts if tests are needed
     val targets: List<KdTarget> = emptyList(), // all targets supported by this fragment?
-    val packages: List<KdPackage> = emptyList(),
+    val symbols: List<KdSymbol> = emptyList(),
     override val documentation: List<KdDocumentationNode> = emptyList(), // a.k.a module-docs
 ) : KdDocumented
-
-// TODO: some other metadata could go here from YAML frontmatter ???
-@Serializable
-public data class KdPackage(
-    val name: String,
-    val declarations: List<KdDeclaration> = emptyList(),
-    override val documentation: List<KdDocumentationNode> = emptyList(),
-) : KdDocumented {
-}

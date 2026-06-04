@@ -23,7 +23,7 @@ public data class KdCallableId(
     // TODO: how to distinguish between: constructor vs function, property vs function
     public val callableName: String?, // if null -> constructor, `classNames` should be not null
 //    public val isProperty: Boolean // if false -> function - TODO: should we?
-)
+) : KdSymbolId()
 
 internal object KdCallableIdSerializer : KSerializer<KdCallableId> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("KdCallableId", PrimitiveKind.STRING)
@@ -41,17 +41,24 @@ internal object KdCallableIdSerializer : KSerializer<KdCallableId> {
 
 @Serializable
 public sealed class KdCallable : KdDeclaration() {
+    abstract override val id: KdCallableId
     public abstract val returns: KdReturns
 
+    // means, it's explicitly marked as `override`, and not just an inherited callable
+    public abstract val isOverride: Boolean
     public abstract val isStatic: Boolean // do nothing until static KEEP?
     public abstract val receiverParameter: KdReceiverParameter?
     public abstract val contextParameters: List<KdContextParameter>
     public abstract val throws: List<KdThrows>
+
+    // there could be multiple overrides - not really "override" more - "inherits from"?
+    public abstract val inheritedFrom: List<KdCallableId>
 }
 
 @SerialName("constructor")
 @Serializable
 public data class KdConstructor(
+    override val id: KdCallableId,
     override val name: String,
     override val returns: KdReturns, // TODO is it fine?
     // optionals
@@ -66,10 +73,12 @@ public data class KdConstructor(
     override val documentation: List<KdDocumentationNode>,
     override val annotations: List<KdAnnotation> = emptyList(),
 ) : KdCallable() {
+    override val isOverride: Boolean get() = false
     override val isStatic: Boolean get() = false
     override val typeParameters: List<KdTypeParameter> get() = emptyList()
     override val receiverParameter: KdReceiverParameter? get() = null
     override val contextParameters: List<KdContextParameter> get() = emptyList()
+    override val inheritedFrom: List<KdCallableId> get() = emptyList()
 }
 
 /*
@@ -107,7 +116,8 @@ what should be the relations in this case + when it's about libraries
 @SerialName("function")
 @Serializable
 public data class KdFunction(
-    override val name: String, // TODO: what is the name for constructors? `<init>` or ``(empty-string) or class-name?
+    override val id: KdCallableId,
+    override val name: String,
     override val returns: KdReturns,
     // optionals
     val isSuspend: Boolean = false,
@@ -115,11 +125,13 @@ public data class KdFunction(
     val isInfix: Boolean = false,
     val isInline: Boolean = false,
     val isTailRec: Boolean = false,
+    override val isOverride: Boolean = false,
     override val isStatic: Boolean = false,
     override val receiverParameter: KdReceiverParameter? = null,
     val valueParameters: List<KdValueParameter> = emptyList(),
     override val contextParameters: List<KdContextParameter> = emptyList(),
     override val throws: List<KdThrows> = emptyList(),
+    override val inheritedFrom: List<KdCallableId> = emptyList(),
     override val source: KdSource = KdSource.Kotlin,
     override val visibility: KdVisibility = KdVisibility.PUBLIC,
     override val modality: KdModality = KdModality.FINAL,
@@ -130,6 +142,10 @@ public data class KdFunction(
     override val documentation: List<KdDocumentationNode> = emptyList(),
 ) : KdCallable()
 
+// TODO: we should have a `KdProperty` with getter/setter and potentially `field`
+//  `field` is present only in case `private` declarations are included - TBD
+//  TBD what to do with synthetic properties
+
 // getter and setter could have different visibility, so we should have them? they could also have annotations
 // we can't really document getter or setter explicitly
 // java synthetic property can have field + get/set. Kotlin with EBH also can have different field type?
@@ -137,6 +153,7 @@ public data class KdFunction(
 @SerialName("variable")
 @Serializable
 public data class KdVariable(
+    override val id: KdCallableId,
     override val name: String,
     override val returns: KdReturns,
     val variableKind: KdVariableKind,
@@ -144,10 +161,12 @@ public data class KdVariable(
     val isMutable: Boolean = false, // isVar or isVal
     val constValue: KdConstValue? = null,
     // TODO: getter and setter? do we need them?
+    override val isOverride: Boolean = false,
     override val isStatic: Boolean = false,
     override val receiverParameter: KdReceiverParameter? = null,
     override val contextParameters: List<KdContextParameter> = emptyList(),
     override val throws: List<KdThrows> = emptyList(),
+    override val inheritedFrom: List<KdCallableId> = emptyList(),
     override val source: KdSource = KdSource.Kotlin,
     override val visibility: KdVisibility = KdVisibility.PUBLIC,
     override val modality: KdModality = KdModality.FINAL,

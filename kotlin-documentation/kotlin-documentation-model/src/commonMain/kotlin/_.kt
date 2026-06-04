@@ -117,25 +117,30 @@ private fun test() {
     KdFragment(
         name = "common",
         documentation = listOf(KdDocumentationNode.Text("Module docs")),
-        packages = listOf(
+        symbols = listOf(
             KdPackage(
+                id = KdPackageId("org.example.test"),
                 name = "org.example.test",
                 documentation = listOf(KdDocumentationNode.Text("Package docs")),
-                declarations = listOf(
-                    KdClass(
-                        name = "TestClass",
-                        classKind = KdClassKind.CLASS,
-                        documentation = listOf(KdDocumentationNode.Text("Class docs")),
-                        declarations = listOf(
-                            KdVariable(
-                                name = "test",
-                                variableKind = KdVariableKind.PROPERTY,
-                                returns = KdReturns(KdClassifierType(KdClassifierId("kotlin", "String"))),
-                                documentation = listOf(KdDocumentationNode.Text("Property docs"))
-                            )
-                        )
-                    )
+                classifiers = listOf(
+                    KdClassifierId("org.example.test", "TestClass")
                 )
+            ),
+            KdClass(
+                id = KdClassifierId("org.example.test", "TestClass"),
+                name = "TestClass",
+                classKind = KdClassKind.CLASS,
+                documentation = listOf(KdDocumentationNode.Text("Class docs")),
+                callables = listOf(
+                    KdCallableId("org.example.test", "TestClass", "test")
+                )
+            ),
+            KdVariable(
+                id = KdCallableId("org.example.test", "TestClass", "test"),
+                name = "test",
+                variableKind = KdVariableKind.PROPERTY,
+                returns = KdReturns(KdClassifierType(KdClassifierId("kotlin", "String"))),
+                documentation = listOf(KdDocumentationNode.Text("Property docs"))
             )
         )
     )
