@@ -114,6 +114,7 @@ public abstract interface class org/jetbrains/dokka/DokkaConfiguration$DokkaSour
 	public abstract fun getSourceLinks ()Ljava/util/Set;
 	public abstract fun getSourceRoots ()Ljava/util/Set;
 	public abstract fun getSourceSetID ()Lorg/jetbrains/dokka/DokkaSourceSetID;
+	public abstract fun getSuppressAnnotatedWith ()Ljava/util/Set;
 	public abstract fun getSuppressedFiles ()Ljava/util/Set;
 }
 
@@ -240,6 +241,7 @@ public final class org/jetbrains/dokka/DokkaDefaults {
 	public final fun getModuleVersion ()Ljava/lang/String;
 	public final fun getOutputDir ()Ljava/io/File;
 	public final fun getPluginsConfiguration ()Ljava/util/List;
+	public final fun getSuppressAnnotatedWith ()Ljava/util/Set;
 }
 
 public class org/jetbrains/dokka/DokkaException : java/lang/RuntimeException {
@@ -284,8 +286,9 @@ public final class org/jetbrains/dokka/DokkaSourceSetID : java/io/Serializable {
 }
 
 public final class org/jetbrains/dokka/DokkaSourceSetImpl : org/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet {
-	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/DokkaSourceSetID;Ljava/util/List;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;ZZZZILjava/util/Set;Ljava/util/List;Ljava/util/Set;Ljava/lang/String;Ljava/lang/String;ZZLjava/util/Set;Lorg/jetbrains/dokka/Platform;Ljava/util/Set;)V
-	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/DokkaSourceSetID;Ljava/util/List;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;ZZZZILjava/util/Set;Ljava/util/List;Ljava/util/Set;Ljava/lang/String;Ljava/lang/String;ZZLjava/util/Set;Lorg/jetbrains/dokka/Platform;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/DokkaSourceSetID;Ljava/util/List;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;ZZZZILjava/util/Set;Ljava/util/List;Ljava/util/Set;Ljava/lang/String;Ljava/lang/String;ZZLjava/util/Set;Lorg/jetbrains/dokka/Platform;Ljava/util/Set;)V
+	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/DokkaSourceSetID;Ljava/util/List;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;ZZZZILjava/util/Set;Ljava/util/List;Ljava/util/Set;Ljava/lang/String;Ljava/lang/String;ZZLjava/util/Set;Lorg/jetbrains/dokka/Platform;Ljava/util/Set;Ljava/util/Set;)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/DokkaSourceSetID;Ljava/util/List;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;ZZZZILjava/util/Set;Ljava/util/List;Ljava/util/Set;Ljava/lang/String;Ljava/lang/String;ZZLjava/util/Set;Lorg/jetbrains/dokka/Platform;Ljava/util/Set;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component10 ()Z
 	public final fun component11 ()Z
@@ -301,6 +304,7 @@ public final class org/jetbrains/dokka/DokkaSourceSetImpl : org/jetbrains/dokka/
 	public final fun component20 ()Ljava/util/Set;
 	public final fun component21 ()Lorg/jetbrains/dokka/Platform;
 	public final fun component22 ()Ljava/util/Set;
+	public final fun component23 ()Ljava/util/Set;
 	public final fun component3 ()Ljava/util/List;
 	public final fun component4 ()Ljava/util/Set;
 	public final fun component5 ()Ljava/util/Set;
@@ -308,8 +312,9 @@ public final class org/jetbrains/dokka/DokkaSourceSetImpl : org/jetbrains/dokka/
 	public final fun component7 ()Ljava/util/Set;
 	public final fun component8 ()Z
 	public final fun component9 ()Z
-	public final fun copy (Ljava/lang/String;Lorg/jetbrains/dokka/DokkaSourceSetID;Ljava/util/List;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;ZZZZILjava/util/Set;Ljava/util/List;Ljava/util/Set;Ljava/lang/String;Ljava/lang/String;ZZLjava/util/Set;Lorg/jetbrains/dokka/Platform;Ljava/util/Set;)Lorg/jetbrains/dokka/DokkaSourceSetImpl;
-	public static synthetic fun copy$default (Lorg/jetbrains/dokka/DokkaSourceSetImpl;Ljava/lang/String;Lorg/jetbrains/dokka/DokkaSourceSetID;Ljava/util/List;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;ZZZZILjava/util/Set;Ljava/util/List;Ljava/util/Set;Ljava/lang/String;Ljava/lang/String;ZZLjava/util/Set;Lorg/jetbrains/dokka/Platform;Ljava/util/Set;ILjava/lang/Object;)Lorg/jetbrains/dokka/DokkaSourceSetImpl;
+	public final synthetic fun copy (Ljava/lang/String;Lorg/jetbrains/dokka/DokkaSourceSetID;Ljava/util/List;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;ZZZZILjava/util/Set;Ljava/util/List;Ljava/util/Set;Ljava/lang/String;Ljava/lang/String;ZZLjava/util/Set;Lorg/jetbrains/dokka/Platform;Ljava/util/Set;)Lorg/jetbrains/dokka/DokkaSourceSetImpl;
+	public final fun copy (Ljava/lang/String;Lorg/jetbrains/dokka/DokkaSourceSetID;Ljava/util/List;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;ZZZZILjava/util/Set;Ljava/util/List;Ljava/util/Set;Ljava/lang/String;Ljava/lang/String;ZZLjava/util/Set;Lorg/jetbrains/dokka/Platform;Ljava/util/Set;Ljava/util/Set;)Lorg/jetbrains/dokka/DokkaSourceSetImpl;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/DokkaSourceSetImpl;Ljava/lang/String;Lorg/jetbrains/dokka/DokkaSourceSetID;Ljava/util/List;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;ZZZZILjava/util/Set;Ljava/util/List;Ljava/util/Set;Ljava/lang/String;Ljava/lang/String;ZZLjava/util/Set;Lorg/jetbrains/dokka/Platform;Ljava/util/Set;Ljava/util/Set;ILjava/lang/Object;)Lorg/jetbrains/dokka/DokkaSourceSetImpl;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getAnalysisPlatform ()Lorg/jetbrains/dokka/Platform;
 	public fun getApiVersion ()Ljava/lang/String;
@@ -332,6 +337,7 @@ public final class org/jetbrains/dokka/DokkaSourceSetImpl : org/jetbrains/dokka/
 	public fun getSourceLinks ()Ljava/util/Set;
 	public fun getSourceRoots ()Ljava/util/Set;
 	public fun getSourceSetID ()Lorg/jetbrains/dokka/DokkaSourceSetID;
+	public fun getSuppressAnnotatedWith ()Ljava/util/Set;
 	public fun getSuppressedFiles ()Ljava/util/Set;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -404,6 +410,8 @@ public final class org/jetbrains/dokka/Platform : java/lang/Enum {
 	public static final field jvm Lorg/jetbrains/dokka/Platform;
 	public static final field native Lorg/jetbrains/dokka/Platform;
 	public static final field wasm Lorg/jetbrains/dokka/Platform;
+	public static final field wasmJs Lorg/jetbrains/dokka/Platform;
+	public static final field wasmWasi Lorg/jetbrains/dokka/Platform;
 	public final fun getKey ()Ljava/lang/String;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/Platform;
 	public static fun values ()[Lorg/jetbrains/dokka/Platform;
@@ -475,25 +483,31 @@ public final class org/jetbrains/dokka/links/Callable {
 	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;)V
 	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;Z)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;Z)V
 	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;ZZ)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Lorg/jetbrains/dokka/links/TypeReference;
 	public final fun component3 ()Ljava/util/List;
 	public final fun component4 ()Ljava/util/List;
 	public final fun component5 ()Z
+	public final fun component6 ()Z
 	public final synthetic fun copy (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;)Lorg/jetbrains/dokka/links/Callable;
 	public final synthetic fun copy (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;)Lorg/jetbrains/dokka/links/Callable;
-	public final fun copy (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;Z)Lorg/jetbrains/dokka/links/Callable;
+	public final synthetic fun copy (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;Z)Lorg/jetbrains/dokka/links/Callable;
+	public final fun copy (Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;ZZ)Lorg/jetbrains/dokka/links/Callable;
 	public static synthetic fun copy$default (Lorg/jetbrains/dokka/links/Callable;Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/links/Callable;
 	public static synthetic fun copy$default (Lorg/jetbrains/dokka/links/Callable;Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/dokka/links/Callable;
 	public static synthetic fun copy$default (Lorg/jetbrains/dokka/links/Callable;Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;ZILjava/lang/Object;)Lorg/jetbrains/dokka/links/Callable;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/links/Callable;Ljava/lang/String;Lorg/jetbrains/dokka/links/TypeReference;Ljava/util/List;Ljava/util/List;ZZILjava/lang/Object;)Lorg/jetbrains/dokka/links/Callable;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getContextParameters ()Ljava/util/List;
 	public final fun getName ()Ljava/lang/String;
 	public final fun getParams ()Ljava/util/List;
 	public final fun getReceiver ()Lorg/jetbrains/dokka/links/TypeReference;
 	public fun hashCode ()I
+	public final fun isCompanion ()Z
 	public final fun isProperty ()Z
 	public final fun signature ()Ljava/lang/String;
 	public fun toString ()Ljava/lang/String;
@@ -1867,6 +1881,13 @@ public final class org/jetbrains/dokka/model/IsAlsoParameter : org/jetbrains/dok
 public final class org/jetbrains/dokka/model/IsAlsoParameter$Companion : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
 	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/IsAlsoParameter;Lorg/jetbrains/dokka/model/IsAlsoParameter;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+}
+
+public final class org/jetbrains/dokka/model/IsCompanion : org/jetbrains/dokka/model/properties/ExtraProperty, org/jetbrains/dokka/model/properties/ExtraProperty$Key {
+	public static final field INSTANCE Lorg/jetbrains/dokka/model/IsCompanion;
+	public fun getKey ()Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;
+	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/IsCompanion;Lorg/jetbrains/dokka/model/IsCompanion;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
 }
 
 public final class org/jetbrains/dokka/model/IsVar : org/jetbrains/dokka/model/properties/ExtraProperty, org/jetbrains/dokka/model/properties/ExtraProperty$Key {

@@ -60,23 +60,6 @@ annotation class OnlySymbols(val reason: String = "")
 annotation class OnlyDescriptorsMPP(val reason: String = "")
 
 /**
- * Run a test only for a new KDoc resolution (with K2)
- *
- * After we switch to the new KDoc resolution by default, this annotation should be removed
- */
-@Target(
-    AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER
-)
-@Retention(
-    AnnotationRetention.RUNTIME
-)
-@Tag("onlyNewKDocResolution")
-annotation class OnlyNewKDocResolution(val reason: String = "")
-
-/**
  * Tests that pass with PSI-based Java analysis but fail with symbol-based Java analysis.
  */
 @Target(
@@ -90,3 +73,19 @@ annotation class OnlyNewKDocResolution(val reason: String = "")
 )
 @Tag("onlyJavaPsi")
 annotation class OnlyJavaPsi(val reason: String = "")
+
+/**
+ * Tests that pass with symbol-based Java analysis (AA) but fail with PSI-based Java analysis.
+ * These tests verify AA-specific behavior that differs from PSI (e.g., Kotlin modality vs JVM bytecode modality).
+ */
+@Target(
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER
+)
+@Retention(
+    AnnotationRetention.RUNTIME
+)
+@Tag("onlyJavaSymbols")
+annotation class OnlyJavaSymbols(val reason: String = "")

@@ -7,6 +7,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.string.shouldNotBeBlank
 import org.jetbrains.dokka.gradle.internal.DokkaConstants.DOKKA_VERSION
 import org.jetbrains.dokka.gradle.utils.*
+import org.jetbrains.dokka.gradle.utils.projects.defaultKgpTestVersion
 
 /**
  * Test Dokka creates Configurations that do not interfere with
@@ -22,7 +23,6 @@ class DokkaDependenciesCompatibilityTest : FunSpec({
                 ":subproject-without-dokka:printJarFileCoords",
                 "--quiet",
                 "--stacktrace",
-                "--no-configuration-cache",
             )
             .forwardOutput()
             .build {
@@ -64,7 +64,7 @@ private fun initProject(
         dir("subproject-with-dokka") {
             buildGradleKts = """
                 |plugins {
-                |  kotlin("multiplatform") version embeddedKotlinVersion
+                |  kotlin("multiplatform") version "$defaultKgpTestVersion"
                 |  id("org.jetbrains.dokka") version "$DOKKA_VERSION"
                 |}
                 |

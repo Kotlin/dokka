@@ -299,6 +299,7 @@ public abstract class org/jetbrains/dokka/gradle/engine/parameters/DokkaSourceSe
 	public final fun getSourceSetId ()Lorg/gradle/api/provider/Provider;
 	public abstract fun getSourceSetScope ()Lorg/gradle/api/provider/Property;
 	public abstract fun getSuppress ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSuppressAnnotatedWith ()Lorg/gradle/api/provider/SetProperty;
 	public abstract fun getSuppressGeneratedFiles ()Lorg/gradle/api/provider/Property;
 	public abstract fun getSuppressedFiles ()Lorg/gradle/api/file/ConfigurableFileCollection;
 	public final fun perPackageOption (Lorg/gradle/api/Action;)V
@@ -316,6 +317,8 @@ public final class org/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform :
 	public static final field JVM Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
 	public static final field Native Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
 	public static final field Wasm Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
+	public static final field WasmJs Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
+	public static final field WasmWasi Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
 	public static fun values ()[Lorg/jetbrains/dokka/gradle/engine/parameters/KotlinPlatform;
 }

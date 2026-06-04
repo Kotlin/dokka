@@ -27,8 +27,8 @@ import org.junit.jupiter.params.provider.EnumSource
  * For example, after adding Kotlin 2.4.0 to `allKgpVersions in [TestedVersionsSource.Default],
  * `test default versions` test will fail showing:
  * ```
- * expected: <"... kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0 ...">
- * but was:  <"... kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0, 2.4.0 ...">
+ * expected: <"... kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.21 ...">
+ * but was:  <"... kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.21, 2.4.0 ...">
  * ```
  * Verify that the values are expected and replace the expected string in the test with an actual output.
  */
@@ -39,8 +39,8 @@ class TestedVersionsSourceTest {
         val actual = TestedVersionsSource.Default.get().joinAllToString()
 
         actual shouldBe """
-            gradle: 7.6.6, 8.14.4, 9.4.0
-            kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0
+            gradle: 7.6.6, 8.14.5, 9.5.1
+            kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.21
         """.trimIndent()
     }
 
@@ -55,22 +55,22 @@ class TestedVersionsSourceTest {
         val expected = when (kotlinBuiltIn) {
             Required ->
                 """
-                agp: 9.0.0
-                gradle: 9.4.0
-                kgp: 2.1.21, 2.2.21, 2.3.0
+                agp: 9.0.0, 9.2.1
+                gradle: 9.5.1
+                kgp: 2.1.21, 2.2.21, 2.3.21
                 """.trimIndent()
 
             Supported ->
                 """
-                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2, 9.0.0
-                gradle: 7.6.6, 8.14.4, 9.4.0
-                kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.0
+                agp: 8.5.2, 8.13.2, 9.0.0, 9.2.1
+                gradle: 8.14.5, 9.5.1
+                kgp: 1.9.25, 2.0.21, 2.1.21, 2.2.21, 2.3.21
                 """.trimIndent()
 
             Incompatible ->
                 """
-                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2
-                gradle: 7.6.6, 8.14.4
+                agp: 8.5.2, 8.13.2
+                gradle: 8.14.5
                 kgp: 1.9.25, 2.0.21
                 """.trimIndent()
         }
@@ -89,25 +89,25 @@ class TestedVersionsSourceTest {
         val expected = when (kotlinBuiltIn) {
             Required ->
                 """
-                agp: 9.0.0
+                agp: 9.0.0, 9.2.1
                 composeGradlePlugin: 1.7.0
-                gradle: 9.4.0
-                kgp: 2.1.21, 2.2.21, 2.3.0
+                gradle: 9.5.1
+                kgp: 2.1.21, 2.2.21, 2.3.21
                 """.trimIndent()
 
             Supported ->
                 """
-                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2, 9.0.0
+                agp: 8.5.2, 8.13.2, 9.0.0, 9.2.1
                 composeGradlePlugin: 1.7.0
-                gradle: 7.6.6, 8.14.4, 9.4.0
-                kgp: 2.0.21, 2.1.21, 2.2.21, 2.3.0
+                gradle: 8.14.5, 9.5.1
+                kgp: 2.0.21, 2.1.21, 2.2.21, 2.3.21
                 """.trimIndent()
 
             Incompatible ->
                 """
-                agp: 7.4.2, 8.11.2, 8.12.3, 8.13.2
+                agp: 8.5.2, 8.13.2
                 composeGradlePlugin: 1.7.0
-                gradle: 7.6.6, 8.14.4
+                gradle: 8.14.5
                 kgp: 2.0.21
                 """.trimIndent()
         }

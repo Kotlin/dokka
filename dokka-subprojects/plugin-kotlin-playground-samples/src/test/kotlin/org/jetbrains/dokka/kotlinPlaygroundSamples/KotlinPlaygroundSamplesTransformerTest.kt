@@ -9,6 +9,7 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.pages.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class KotlinPlaygroundSamplesTransformerTest : BaseAbstractTest() {
@@ -50,6 +51,11 @@ class KotlinPlaygroundSamplesTransformerTest : BaseAbstractTest() {
 
     @Test
     fun `page should contain correct embedded resources`() {
+        val kotlinPlaygroundSamplesEmbeddedResources = listOf(
+            KotlinPlaygroundSamplesConfiguration.defaultKotlinPlaygroundScript,
+            "scripts/kotlin-playground-samples.js",
+            "styles/kotlin-playground-samples.css"
+        )
         testInline(
             """
             |/src/main/kotlin/Sample.kt
@@ -67,24 +73,17 @@ class KotlinPlaygroundSamplesTransformerTest : BaseAbstractTest() {
             configuration = configuration
         ) {
             pagesTransformationStage = { root ->
-                val contentPages = root.children.filterIsInstance<ContentPage>()
+                val pageNodes = root.children.first().children
+                val classFooResources = (pageNodes[0] as ClasslikePageNode).embeddedResources
+                val sampleFunctionResources = (pageNodes[1] as MemberPageNode).embeddedResources
 
-                val defaultKotlinPlaygroundScriptIncluded = contentPages.all {
-                    KotlinPlaygroundSamplesConfiguration.defaultKotlinPlaygroundScript in it.embeddedResources
-                }
-                assertTrue(defaultKotlinPlaygroundScriptIncluded, "Default Kotlin Playground script should be included")
-
-                val kotlinPlaygroundSamplesScriptIncluded = contentPages.all {
-                    "scripts/kotlin-playground-samples.js" in it.embeddedResources
+                assertFalse("Page without sample should not contain kotlin playground resources") {
+                    kotlinPlaygroundSamplesEmbeddedResources.any { it in sampleFunctionResources }
                 }
 
-                assertTrue(kotlinPlaygroundSamplesScriptIncluded, "Kotlin Playground Samples script should be included")
-
-                val kotlinPlaygroundSamplesStyleIncluded = contentPages.all {
-                    "styles/kotlin-playground-samples.css" in it.embeddedResources
+                assertTrue("Page with sample should contain kotlin playground resources") {
+                    kotlinPlaygroundSamplesEmbeddedResources.all { it in classFooResources }
                 }
-
-                assertTrue(kotlinPlaygroundSamplesStyleIncluded, "Kotlin Playground Samples style should be included")
             }
         }
     }
@@ -112,7 +111,10 @@ class KotlinPlaygroundSamplesTransformerTest : BaseAbstractTest() {
                 assertEquals(1, kotlinPlaygroundSamples.size)
                 val kotlinPlaygroundSample = kotlinPlaygroundSamples[0]
                 assertEquals("kotlin", kotlinPlaygroundSample.language)
-                assertEquals(setOf<Style>(ContentStyle.RunnableSample, TextStyle.Monospace), kotlinPlaygroundSample.style)
+                assertEquals(
+                    setOf<Style>(ContentStyle.RunnableSample, TextStyle.Monospace),
+                    kotlinPlaygroundSample.style
+                )
                 val child = kotlinPlaygroundSample.children[0]
                 if (child is ContentText) {
                     assertEquals(

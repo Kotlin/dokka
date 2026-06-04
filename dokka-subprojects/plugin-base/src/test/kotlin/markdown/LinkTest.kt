@@ -16,7 +16,6 @@ import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.MemberPageNode
 import utils.OnlyDescriptors
-import utils.OnlyNewKDocResolution
 import utils.OnlySymbols
 import utils.text
 import java.io.File
@@ -435,6 +434,7 @@ class LinkTest : BaseAbstractTest() {
         }
     }
 
+    @OnlySymbols
     @Test
     fun `link should lead to a function with a nullable parameter`() {
         testInline(
@@ -463,7 +463,7 @@ class LinkTest : BaseAbstractTest() {
                                             classNames = "AppletContext",
                                             callable = Callable(
                                                 name = "showDocument",
-                                                params = listOf(TypeConstructor("java.net.URL", emptyList()))
+                                                params = listOf(JavaClassReference("java.net.URL"))
                                             ),
                                             target = PointingToDeclaration
                                         ),
@@ -614,7 +614,7 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlyNewKDocResolution("KEEP #389: New KDoc resolution")
+    @OnlySymbols("KEEP #389: New KDoc resolution")
     fun `fully qualified link should lead to function`() {
         // for the test case, there is the only one link candidate in K1 and K2
         testInline(
@@ -797,7 +797,7 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlyNewKDocResolution("KEEP #389: New KDoc resolution")
+    @OnlySymbols("KEEP #389: New KDoc resolution")
     fun `short link should lead to function`() {
         testInline(
             """
@@ -1330,9 +1330,10 @@ class LinkTest : BaseAbstractTest() {
                         "Storage.setValue" to DRI(
                             "example",
                             "Storage",
-                            Callable("setValue", null, listOf(TypeConstructor("kotlin.String", emptyList())))
+                            Callable("setValue", null, listOf(JavaClassReference("java.lang.String")))
                         ),
-                        "Storage.prop" to DRI("example", "Storage", Callable("getProp", null, emptyList()))
+                        // refers to a Java synthetic property, see https://youtrack.jetbrains.com/issue/KT-86394
+                        "Storage.prop" to DRI("example", "Storage", Callable("prop", null, emptyList(), isProperty = true))
                     ),
                     module.getAllLinkDRIFrom("usage")
                 )
@@ -1697,6 +1698,7 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlySymbols("companion block - Java static is marked as companion")
     fun `should resolve KDoc links that goes after markdown blocks`() {
         testInline(
             """
@@ -1719,7 +1721,8 @@ class LinkTest : BaseAbstractTest() {
                             "java.lang", "System", Callable(
                                 "currentTimeMillis",
                                 receiver = null,
-                                params = emptyList()
+                                params = emptyList(),
+                                isCompanion = true
                             )
                         ),
                         "JavaNetCookieJar" to DRI("example", "JavaNetCookieJar"),
@@ -1772,8 +1775,7 @@ class LinkTest : BaseAbstractTest() {
         ) {
             documentablesMergingStage = { m ->
                 val warn = logger.warnMessages.first()
-                val path = m.sourceSets.first().sourceRoots.first().absolutePath
-                    .replace("\\","/") // for Win
+                val path = m.sourceSets.first().sourceRoots.first().invariantSeparatorsPath
 
                 assertEquals(
                     "Couldn't resolve link: [property] in file:///PATH/main/kotlin/Testing.kt:2:3 (root/main)",
@@ -1800,7 +1802,7 @@ class LinkTest : BaseAbstractTest() {
                     analysisPlatform = "native"
                     name = "example"
                     classpath = listOf(
-                      getResourceAbsolutePath("klibs/example"),
+                        getResourceAbsolutePath("klibs/example"),
                     )
                 }
 
@@ -1833,6 +1835,140 @@ class LinkTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    fun `should resolve KDoc links from classpath`() {
+        val coroutines = ClassLoader.getSystemResource("kotlinx/coroutines/MainCoroutineDispatcher.class")
+            ?.file
+            ?.replace("file:", "")
+            ?.replaceAfter(".jar", "") ?: throw IllegalStateException("Coroutines jar not found")
+
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/jvmMain/kotlin")
+                    analysisPlatform = "jvm"
+                    name = "jvm-example"
+                    classpath = listOf(coroutines)
+                }
+
+            }
+        }
+        testInline(
+            """
+                |/src/jvmMain/kotlin/main.kt
+                |package example
+                |import kotlinx.coroutines.MainCoroutineDispatcher
+                |/**
+                | * Links [MainCoroutineDispatcher.immediate] and [kotlinx.coroutines.MainCoroutineDispatcher.immediate]
+                |*/
+                |class TestClass
+            """,
+            configuration = configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val dri = DRI(
+                    "kotlinx.coroutines",
+                    "MainCoroutineDispatcher",
+                    Callable("immediate", null, emptyList(), isProperty = true)
+                )
+                assertEquals(
+                    listOf(
+                        "MainCoroutineDispatcher.immediate" to dri,
+                        "kotlinx.coroutines.MainCoroutineDispatcher.immediate" to dri,
+                    ),
+                    module.getAllLinkDRIFrom("TestClass")
+                )
+            }
+
+        }
+    }
+
+    @Test
+    @OnlySymbols("KEEP-0449 companion block and companion extensions")
+    fun `KDoc links to companion object, companion block and companion extensions`() {
+        testInline(
+            """
+            |/src/main/kotlin/example/Test.kt
+            |package example
+            |
+            |data class Vector(val x: Double, val y: Double) {
+            |    companion object {
+            |        val ZeroObject: Vector get() = Vector(0.0, 0.0)
+            |    }
+            |    companion {
+            |        val ZeroBlock: Vector get() = Vector(0.0, 0.0)
+            |    }
+            |}
+            |
+            |val Vector.Companion.UnitXObjectExtension get() = Vector(1.0, 0.0)
+            |
+            |companion val Vector.UnitXExtension get() = Vector(1.0, 0.0)
+            |
+            |/**
+            | * - [Vector.ZeroObject]
+            | * - [Vector.Companion.ZeroObject]
+            | * - [Vector.ZeroBlock]
+            | * - [Vector.Companion.ZeroBlock] is unresolved
+            | * - [Vector.UnitXObjectExtension]
+            | * - [Vector.UnitXExtension]
+            | * - [Vector.Companion.UnitXObjectExtension]
+            | * - [Vector.Companion.UnitXExtension] is unresolved
+            | */
+            |fun usage() {}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                // a property of the `companion object` - a regular member of `Vector.Companion`
+                val zeroObject = DRI(
+                    "example", "Vector.Companion",
+                    Callable("ZeroObject", null, emptyList(), isProperty = true)
+                )
+                // a property of the `companion { }` block - lives in `Vector`'s static scope (isCompanion)
+                val zeroBlock = DRI(
+                    "example", "Vector",
+                    Callable("ZeroBlock", null, emptyList(), isProperty = true, isCompanion = true)
+                )
+                // a top-level extension on `Vector.Companion`
+                val unitXObjectExtension = DRI(
+                    "example", null,
+                    Callable(
+                        "UnitXObjectExtension",
+                        receiver = TypeConstructor("example.Vector.Companion", emptyList()),
+                        params = emptyList(),
+                        isProperty = true
+                    )
+                )
+                // a companion extension on `Vector` - lives in `Vector`'s static scope (isCompanion)
+                val unitXExtension = DRI(
+                    "example", null,
+                    Callable(
+                        "UnitXExtension",
+                        receiver = TypeConstructor("example.Vector", emptyList()),
+                        params = emptyList(),
+                        isProperty = true,
+                        isCompanion = true
+                    )
+                )
+
+                assertEquals(
+                    listOf(
+                        "Vector.ZeroObject" to zeroObject,
+                        "Vector.Companion.ZeroObject" to zeroObject,
+                        "Vector.ZeroBlock" to zeroBlock,
+                        // [Vector.Companion.ZeroBlock] is intentionally unresolved:
+                        // a companion-block member is not a member of the `Companion` object
+                        "Vector.UnitXObjectExtension" to unitXObjectExtension,
+                        "Vector.UnitXExtension" to unitXExtension,
+                        "Vector.Companion.UnitXObjectExtension" to unitXObjectExtension,
+                        // [Vector.Companion.UnitXExtension] is intentionally unresolved:
+                        // a companion extension extends `Vector`, not `Vector.Companion`
+                    ),
+                    module.getAllLinkDRIFrom("usage")
+                )
+            }
+        }
+    }
 
     private fun DModule.getLinkDRIFrom(name: String): DRI? {
         val doc = this.dfs { it.name == name }?.documentation?.values?.single()

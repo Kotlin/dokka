@@ -4,6 +4,7 @@
 
 package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
+import com.intellij.psi.PsiMethod
 import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.links.*
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
@@ -20,7 +21,13 @@ internal fun ClassId.createDRI(): DRI = DRI(
     packageName = this.packageFqName.asString(), classNames = this.relativeClassName.asString()
 )
 
-private fun CallableId.createDRI(receiver: TypeReference?, params: List<TypeReference>, contextParams: List<TypeReference>, isProperty: Boolean): DRI = DRI(
+private fun CallableId.createDRI(
+    receiver: TypeReference?,
+    params: List<TypeReference>,
+    contextParams: List<TypeReference>,
+    isProperty: Boolean,
+    isCompanion: Boolean
+): DRI = DRI(
     packageName = this.packageName.asString(),
     classNames = this.className?.asString(),
     callable = Callable(
@@ -28,7 +35,8 @@ private fun CallableId.createDRI(receiver: TypeReference?, params: List<TypeRefe
         params = params,
         receiver = receiver,
         contextParameters = contextParams,
-        isProperty = isProperty
+        isProperty = isProperty,
+        isCompanion = isCompanion
     )
 )
 
@@ -69,17 +77,22 @@ internal fun KaSession.getDRIFromVariable(symbol: KaVariableSymbol): DRI {
     val callableId = symbol.callableId ?: throw IllegalStateException("Can not get callable Id due to it is local")
     val receiver = symbol.receiverType?.let(::getTypeReferenceFrom)
     val contextParams = @OptIn(KaExperimentalApi::class) symbol.contextParameters.map { getTypeReferenceFrom(it.returnType) }
-    return callableId.createDRI(receiver, emptyList(), contextParams, true)
+    return callableId.createDRI(receiver, emptyList(), contextParams, true, @OptIn(KaExperimentalApi::class) symbol.isCompanion)
 }
 
 
 internal fun KaSession.getDRIFromFunction(symbol: KaFunctionSymbol): DRI {
-    val params = symbol.valueParameters.map { getTypeReferenceFrom(it.returnType, isVararg = it.isVararg) }
-    val contextParams = @OptIn(KaExperimentalApi::class) symbol.contextParameters.map { getTypeReferenceFrom(it.returnType) }
+    val psi = symbol.psi
+    val params =
+        if (psi is PsiMethod) psi.parameterList.parameters.map { param -> JavaClassReference(param.type.canonicalText) }
+        else symbol.valueParameters.map { getTypeReferenceFrom(it.returnType, isVararg = it.isVararg) }
+
+    val contextParams =
+        @OptIn(KaExperimentalApi::class) symbol.contextParameters.map { getTypeReferenceFrom(it.returnType) }
     val receiver = symbol.receiverType?.let {
         getTypeReferenceFrom(it)
     }
-    return symbol.callableId?.createDRI(receiver, params, contextParams, false) ?: getDRIFromLocalFunction(symbol)
+    return symbol.callableId?.createDRI(receiver, params, contextParams, false, @OptIn(KaExperimentalApi::class) symbol.isCompanion) ?: getDRIFromLocalFunction(symbol)
 }
 
 internal fun getDRIFromClassLike(symbol: KaClassLikeSymbol): DRI =

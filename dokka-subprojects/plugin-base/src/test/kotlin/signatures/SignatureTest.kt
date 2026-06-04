@@ -650,7 +650,7 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    fun `kotlin enum should render just enum`() = testRender(
+    fun `kotlin enum should render enum class`() = testRender(
         """
             |/src/main/kotlin/common/Test.kt
             |package example
@@ -658,7 +658,7 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-enum-class/index.html").firstSignature().matchIgnoringSpans(
-            "enum", A("EnumClass"), ":", A("Enum"), "<", A("EnumClass"), ">"
+            "enum class", A("EnumClass"), ":", A("Enum"), "<", A("EnumClass"), ">"
         )
     }
 
@@ -740,7 +740,7 @@ class SignatureTest : BaseAbstractTest() {
         )
     }
 
-    @OnlyJavaPsi
+    @OnlyJavaSymbols("PSI doesn't add super type - AA does, same for Kotlin enum above")
     @Test
     fun `java enum should render just enum`() = testRender(
         """
@@ -750,7 +750,7 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-enum-class/index.html").firstSignature().matchIgnoringSpans(
-            "enum", A("EnumClass"),
+            "enum class", A("EnumClass"), ":", A("Enum"), "<", A("EnumClass"), ">"
         )
     }
 
@@ -1763,6 +1763,160 @@ class SignatureTest : BaseAbstractTest() {
                 )
             }
         }
+    }
+
+    // ----------------------------------------------------------------------
+    // Kotlin signatures: KEEP-0449 companion modifier.
+    //
+    // The `companion` keyword is rendered in the Kotlin signature ONLY for
+    // companion extensions — top-level extension functions/properties declared
+    // with the `companion` modifier (e.g. `companion fun Vector.unit()`).
+    //
+    // Companion-block members (`companion { fun foo() }`), Java statics, and
+    // enum synthetic declarations are also represented as companion-block scope
+    // in the model, but they don't carry a `companion` keyword in source and
+    // therefore must NOT render one in the Kotlin signature either.
+    // ----------------------------------------------------------------------
+
+    @Test
+    @OnlySymbols("companion block")
+    fun `kotlin companion extension function renders companion keyword`() = testRender(
+        """
+            |/src/main/kotlin/example/Util.kt
+            |package example
+            |class Vector(val x: Double, val y: Double)
+            |
+            |companion fun Vector.unit(): Vector = Vector(1.0, 1.0)
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/unit.html").firstSignature().matchIgnoringSpans(
+            "companion fun ", A("Vector"), ".", A("unit"), "(): ", A("Vector"),
+        )
+    }
+
+    @Test
+    @OnlySymbols("companion block")
+    fun `kotlin companion extension property renders companion keyword`() = testRender(
+        """
+            |/src/main/kotlin/example/Util.kt
+            |package example
+            |class Vector(val x: Double, val y: Double)
+            |
+            |companion val Vector.UnitX: Vector get() = Vector(1.0, 0.0)
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-unit-x.html").firstSignature().matchIgnoringSpans(
+            "companion val ", A("Vector"), ".", A("UnitX"), ": ", A("Vector"),
+        )
+    }
+
+    @Test
+    fun `plain top-level extension does not render companion keyword`() = testRender(
+        """
+            |/src/main/kotlin/example/Util.kt
+            |package example
+            |class Vector(val x: Double, val y: Double)
+            |
+            |fun Vector.length(): Double = 0.0
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/length.html").firstSignature().matchIgnoringSpans(
+            "fun ", A("Vector"), ".", A("length"), "(): ", A("Double"),
+        )
+    }
+
+    @Test
+    @OnlySymbols("companion block")
+    fun `kotlin companion-block function does not render companion keyword`() = testRender(
+        """
+            |/src/main/kotlin/example/Vector.kt
+            |package example
+            |class Vector(val x: Double, val y: Double) {
+            |    companion {
+            |        fun unit(): Vector = Vector(1.0, 1.0)
+            |    }
+            |}
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-vector/unit.html").firstSignature().matchIgnoringSpans(
+            "fun ", A("unit"), "(): ", A("Vector"),
+        )
+    }
+
+    @Test
+    @OnlySymbols("companion block")
+    fun `kotlin companion-block property does not render companion keyword`() = testRender(
+        """
+            |/src/main/kotlin/example/Vector.kt
+            |package example
+            |class Vector(val x: Double, val y: Double) {
+            |    companion {
+            |        val Zero: Vector = Vector(0.0, 0.0)
+            |    }
+            |}
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-vector/-zero.html").firstSignature().matchIgnoringSpans(
+            "val ", A("Zero"), ": ", A("Vector"),
+        )
+    }
+
+    @Test
+    fun `java static method does not render companion keyword in kotlin signature`() = testRender(
+        """
+            |/src/example/Util.java
+            |package example;
+            |public class Util {
+            |  public static int doStuff() { return 0; }
+            |}
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-util/do-stuff.html").firstSignature().matchIgnoringSpans(
+            "open fun ", A("doStuff"), "(): ", A("Int"),
+        )
+    }
+
+    @Test
+    fun `java static field does not render companion keyword in kotlin signature`() = testRender(
+        """
+            |/src/example/Util.java
+            |package example;
+            |public class Util {
+            |  public static final String NAME = "x";
+            |}
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-util/-n-a-m-e.html").firstSignature().matchIgnoringSpans(
+            "val ", A("NAME"), ": ", Span("String"), " = \"x\"",
+        )
+    }
+
+    @Test
+    fun `kotlin enum synthetic values method does not render companion keyword`() = testRender(
+        """
+            |/src/main/kotlin/example/E.kt
+            |package example
+            |enum class E { A, B }
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/-e/values.html").firstSignature().matchIgnoringSpans(
+            "fun ", A("values"), "(): ", A("Array"), "<", A("E"), ">",
+        )
+    }
+
+    @Test
+    fun `kotlin instance extension function does not render companion keyword`() = testRender(
+        """
+            |/src/main/kotlin/example/Util.kt
+            |package example
+            |class Vector(val x: Double, val y: Double)
+            |
+            |fun Vector.length(): Double = 0.0
+        """.trimMargin()
+    ) {
+        renderedContent("root/example/length.html").firstSignature().matchIgnoringSpans(
+            "fun ", A("Vector"), ".", A("length"), "(): ", A("Double"),
+        )
     }
 
     private fun testRender(

@@ -282,6 +282,13 @@ constructor(
     abstract val suppressGeneratedFiles: Property<Boolean>
 
     /**
+     * A set of annotation fully qualified names (FQNs) to suppress declarations annotated with.
+     * Any declaration annotated with one of these annotations will be excluded from the generated documentation.
+     */
+    @get:Input
+    abstract val suppressAnnotatedWith: SetProperty<String>
+
+    /**
      * Whether to generate external documentation links that lead to API reference documentation for
      * Kotlin's standard library when declarations from it are used.
      *
@@ -454,6 +461,20 @@ constructor(
                 sourceFile.startsWith(suppressedFile)
             }
         }
+
+    /**
+     * In the case of [multi-variant Android projects](https://github.com/Kotlin/dokka/issues/4472)
+     * we could have a problem with [intersected source roots](https://github.com/Kotlin/dokka/issues/3701).
+     * In general, this is prohibited by Analysis API, reported by Dokka analysis, and there is no good way to overcome it.
+     * Currently, the workaround for this is a better, Android specific error,
+     * during the execution of [DokkaGenerateTask][org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask]
+     * which requires knowledge if the source-set is based on Android variant.
+     * That information is not part of [DokkaConfiguration][org.jetbrains.dokka.DokkaConfiguration],
+     * but only used for an improved error message.
+     */
+    @get:Input
+    @get:Optional
+    internal abstract val basedOnAndroidVariant: Property<Boolean>
 
     companion object {
 

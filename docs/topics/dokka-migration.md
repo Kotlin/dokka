@@ -233,7 +233,7 @@ documentedVisibilities.set(
 documentedVisibilities(VisibilityModifier.Public)
 ```
 
-Additionally, use DGP v2's [utility function](https://github.com/Kotlin/dokka/blob/v2.1.0/dokka-runners/dokka-gradle-plugin/src/main/kotlin/engine/parameters/HasConfigurableVisibilityModifiers.kt#L14-L16) to add documented visibilities:
+Additionally, use DGP v2's [utility function](https://github.com/Kotlin/dokka/blob/v2.2.0/dokka-runners/dokka-gradle-plugin/src/main/kotlin/engine/parameters/HasConfigurableVisibilityModifiers.kt#L14-L16) to add documented visibilities:
 
 ```kotlin
 fun documentedVisibilities(vararg visibilities: VisibilityModifier): Unit =

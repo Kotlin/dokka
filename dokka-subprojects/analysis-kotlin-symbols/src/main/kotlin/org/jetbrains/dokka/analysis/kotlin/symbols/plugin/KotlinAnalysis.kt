@@ -4,7 +4,6 @@
 
 package org.jetbrains.dokka.analysis.kotlin.symbols.plugin
 
-import com.intellij.diagnostic.LoadingState
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.util.Disposer
 import org.jetbrains.dokka.DokkaConfiguration
@@ -30,7 +29,9 @@ import org.jetbrains.kotlin.platform.wasm.WasmPlatforms
 import java.io.File
 
 internal fun Platform.toTargetPlatform() = when (this) {
-    Platform.wasm -> WasmPlatforms.unspecifiedWasmPlatform
+    @Suppress("DEPRECATION") Platform.wasm -> WasmPlatforms.unspecifiedWasmPlatform
+    Platform.wasmJs -> WasmPlatforms.wasmJs
+    Platform.wasmWasi -> WasmPlatforms.wasmWasi
     Platform.js -> JsPlatforms.defaultJsPlatform
     Platform.common -> CommonPlatforms.defaultCommonPlatform
     Platform.native -> NativePlatforms.unspecifiedNativePlatform
@@ -76,10 +77,6 @@ internal fun createAnalysisSession(
     projectDisposable: Disposable = Disposer.newDisposable("StandaloneAnalysisAPISession.project"),
     isSampleProject: Boolean = false
 ): KotlinAnalysis {
-    if (InternalConfiguration.experimentalKDocResolutionEnabled) {
-        enableExperimentalKDocResolution()
-    }
-
     val sourcesModule = mutableMapOf<DokkaConfiguration.DokkaSourceSet, KaSourceModule>()
     val isMultiplatformProject = sourceSets.any { it.analysisPlatform != Platform.jvm }
 
@@ -195,11 +192,4 @@ internal fun topologicalSortByDependantSourceSets(
     }
     sourceSets.forEach(::dfs)
     return result
-}
-
-private fun enableExperimentalKDocResolution() {
-    // Enable experimental KDoc resolution in Kotlin Analysis API (K2)
-    @Suppress("UnstableApiUsage")
-    LoadingState.setCurrentState(LoadingState.COMPONENTS_LOADED)
-    System.setProperty("kotlin.analysis.experimentalKDocResolution", "true")
 }

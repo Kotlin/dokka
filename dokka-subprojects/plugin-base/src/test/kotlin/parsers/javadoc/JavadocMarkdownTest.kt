@@ -49,6 +49,31 @@ class JavadocMarkdownTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `should warn about unresolved links`() {
+        testInline(
+            """
+            |/src/main/java/example/Test.java
+            |package example
+            |
+            | /// [UnresolvedLink]
+            | /// [java.util.HashMap] is resolved
+            | public class Test {}
+            """.trimMargin(),
+            configuration,
+        ) {
+            documentablesMergingStage = { m ->
+                val warn = logger.warnMessages.first()
+                val path = m.sourceSets.first().sourceRoots.first().invariantSeparatorsPath
+
+                assertEquals(
+                    "Couldn't resolve JavaDoc link 'UnresolvedLink' in file:///PATH/main/java/example/Test.java:3:7",
+                    warn.replace(path, "PATH")
+                )
+            }
+        }
+    }
+
+    @Test
     fun `markdown version of javadoc for hashCode`() {
         testInline(
             """
@@ -222,7 +247,9 @@ class JavadocMarkdownTest : BaseAbstractTest() {
                         classNames = "System",
                         callable = Callable(
                             name = "identityHashCode",
-                            params = listOf(JavaClassReference("java.lang.Object"))
+                            params = listOf(JavaClassReference("java.lang.Object")),
+                            isProperty = false,
+                            isCompanion = true
                         )
                     ),
                     (see2Root as See).address
@@ -354,7 +381,8 @@ class JavadocMarkdownTest : BaseAbstractTest() {
                                                 callable = Callable(
                                                     name = "CASE_INSENSITIVE_ORDER",
                                                     params = emptyList(),
-                                                    isProperty = true
+                                                    isProperty = true,
+                                                    isCompanion = true
                                                 )
                                             ),
                                             children = listOf(Text("String#CASE_INSENSITIVE_ORDER"))
@@ -405,7 +433,8 @@ class JavadocMarkdownTest : BaseAbstractTest() {
                                                 callable = Callable(
                                                     name = "CASE_INSENSITIVE_ORDER",
                                                     params = emptyList(),
-                                                    isProperty = true
+                                                    isProperty = true,
+                                                    isCompanion = true
                                                 )
                                             ),
                                             children = listOf(Text("a field"))
@@ -436,7 +465,9 @@ class JavadocMarkdownTest : BaseAbstractTest() {
                                                 classNames = "String",
                                                 callable = Callable(
                                                     name = "copyValueOf",
-                                                    params = listOf(JavaClassReference("char[]"))
+                                                    params = listOf(JavaClassReference("char[]")),
+                                                    isProperty = false,
+                                                    isCompanion = true
                                                 )
                                             ),
                                             children = listOf(Text("String#copyValueOf(char[])"))

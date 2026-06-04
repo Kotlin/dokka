@@ -40,7 +40,7 @@ dependencies {
             <plugin>
                 <groupId>org.jetbrains.dokka</groupId>
                 <artifactId>kotlin-playground-samples-plugin</artifactId>
-                <version>2.1.0</version>
+                <version>2.2.0</version>
             </plugin>
         </dokkaPlugins>
     </configuration>

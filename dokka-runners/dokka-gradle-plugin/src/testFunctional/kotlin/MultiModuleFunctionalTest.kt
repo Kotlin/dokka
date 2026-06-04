@@ -443,7 +443,12 @@ class MultiModuleFunctionalTest : FunSpec({
     }
 
     context("logging") {
-        val project = initMultiModuleProject("logging")
+        val project = initMultiModuleProject("logging") {
+            gradleProperties {
+                // disable project iso, because all projects must be configured to trigger the logged warnings
+                gradle.isolatedProjects = false
+            }
+        }
 
         test("expect no logs when built using --quiet log level") {
             project.runner
@@ -517,6 +522,8 @@ class MultiModuleFunctionalTest : FunSpec({
                     else -> line
                 }
             }
+            // disable project iso, because all projects must be configured to trigger the logged warnings
+            gradleProperties.gradle.isolatedProjects = false
         }
 
         test("expect KotlinAdapter not applied to root project") {

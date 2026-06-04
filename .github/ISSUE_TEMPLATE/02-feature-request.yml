@@ -1,0 +1,93 @@
+name: Feature request
+description: Suggest a new feature or enhancement for Dokka
+title: "[Feature] "
+labels:
+  - enhancement
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea!
+
+        Please focus on **what problem you're trying to solve** and **why existing features don't work well enough**.
+
+        If you're unsure whether this belongs here, that's okay —
+        just describe your use case and we'll figure it out together.
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: What are you trying to do?
+      description: |
+        Describe the problem or use case you're facing.
+        Focus on *what* you want to achieve and *why* it's difficult today.
+      placeholder: |
+        Example:
+        I need to generate documentation that includes custom tags for API versioning,
+        and I need to ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: underlying_problem
+    attributes:
+      label: What problem does this actually solve?
+      description: |
+        Describe the underlying need, independent of any specific solution or feature.
+
+        In other words:
+        * What is hard or impossible to do today?
+        * What breaks or becomes unsafe/inefficient without this?
+        * How would you know that the problem is solved?
+
+        Please avoid describing a specific feature or implementation here.
+      placeholder: |
+        Example:
+        In production we need to ensure that our API documentation clearly shows...
+        Without this, we end up with...
+        Existing features fail because...
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea (optional)
+      description: |
+        If you have an idea of what the solution or feature could look like, feel free to share it.
+        Rough sketches, configuration examples, or mockups are all welcome.
+      placeholder: |
+        ```kotlin
+        // Example configuration or API
+        dokka {
+            customFeature {
+                // ...
+            }
+        }
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: prior_art
+    attributes:
+      label: Prior art or similar ideas (optional)
+      description: |
+        Are there similar features in other documentation tools or ecosystems?
+        Links and comparisons are helpful, but not required.
+      placeholder: |
+        JavaDoc has a similar feature that works like this...
+        Sphinx uses an approach where...
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Anything else? (optional)
+      description: |
+        Motivation, constraints, production experience, trade-offs —
+        anything that helps understand the request.
+    validations:
+      required: false

@@ -12,6 +12,7 @@ import org.gradle.testkit.runner.TaskOutcome.SKIPPED
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.jetbrains.dokka.gradle.internal.DokkaConstants
 import org.jetbrains.dokka.gradle.utils.*
+import org.jetbrains.dokka.gradle.utils.projects.defaultKgpTestVersion
 
 class LogHtmlPublicationLinkTaskTest : FunSpec({
 
@@ -102,7 +103,7 @@ private fun initDokkaProject(
     return gradleKtsProjectTest("log-html-publication-link-task") {
         buildGradleKts = """
             |plugins {
-            |  kotlin("jvm") version "1.8.22"
+            |  kotlin("jvm") version "$defaultKgpTestVersion"
             |  id("org.jetbrains.dokka") version "${DokkaConstants.DOKKA_VERSION}"
             |}
             |
