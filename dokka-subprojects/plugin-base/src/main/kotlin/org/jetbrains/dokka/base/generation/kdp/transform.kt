@@ -117,7 +117,7 @@ private fun DProperty.toKdVariable(
                 documentation = it.toKdDocumentation()
             )
         },
-        sourceLanguage = KdSourceLanguage.KOTLIN, // TODO: not enought information right now
+        source = KdSource.Kotlin, // TODO: not enought information right now
         visibility = kdVisibility(sourceSet),
         modality = kdModality(sourceSet),
         actuality = kdActuality(sourceSet),
@@ -161,7 +161,7 @@ private fun DEnumEntry.toKdVariable(
                 documentation = it.toKdDocumentation()
             )
         },
-        sourceLanguage = KdSourceLanguage.KOTLIN, // TODO: not enought information right now
+        source = KdSource.Kotlin, // TODO: not enought information right now
         visibility = enum.kdVisibility(sourceSet),
         modality = KdModality.FINAL,
         actuality = enum.kdActuality(sourceSet),
@@ -212,7 +212,7 @@ private fun DFunction.toKdFunction(
                 documentation = it.toKdDocumentation()
             )
         },
-        sourceLanguage = KdSourceLanguage.KOTLIN, // TODO: not enought information right now
+        source = KdSource.Kotlin, // TODO: not enought information right now
         visibility = kdVisibility(sourceSet),
         modality = kdModality(sourceSet),
         actuality = kdActuality(sourceSet),
@@ -251,7 +251,7 @@ private fun DFunction.toKdConstructor(
                 documentation = it.toKdDocumentation()
             )
         },
-        sourceLanguage = KdSourceLanguage.KOTLIN, // TODO: not enought information right now
+        source = KdSource.Kotlin, // TODO: not enought information right now
         visibility = kdVisibility(sourceSet),
         modality = kdModality(sourceSet),
         actuality = kdActuality(sourceSet),
@@ -307,7 +307,7 @@ private fun DClasslike.toKdClass(
             else -> emptyList()
         },
 
-        sourceLanguage = KdSourceLanguage.KOTLIN, // TODO: not enought information right now
+        source = KdSource.Kotlin, // TODO: not enought information right now
         visibility = kdVisibility(sourceSet),
         modality = when (this) {
             is WithAbstraction -> kdModality(sourceSet)

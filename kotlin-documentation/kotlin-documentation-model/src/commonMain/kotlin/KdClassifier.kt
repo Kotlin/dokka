@@ -67,7 +67,7 @@ public data class KdClass(
     val isInner: Boolean = false,
     val superTypes: List<KdType> = emptyList(),
     val declarations: List<KdDeclaration> = emptyList(),
-    override val sourceLanguage: KdSourceLanguage = KdSourceLanguage.KOTLIN,
+    override val source: KdSource = KdSource.Kotlin,
     override val visibility: KdVisibility = KdVisibility.PUBLIC,
     override val modality: KdModality = KdModality.FINAL,
     override val actuality: KdActuality? = null,
@@ -90,7 +90,7 @@ public data class KdTypealias(
     override val documentation: List<KdDocumentationNode> = emptyList(),
 ) : KdClassifier() {
     // TODO: is it true? :)
-    override val sourceLanguage: KdSourceLanguage get() = KdSourceLanguage.KOTLIN
+    override val source: KdSource get() = KdSource.Kotlin
     override val modality: KdModality get() = KdModality.FINAL
     override val isExternal: Boolean get() = false
 }

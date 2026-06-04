@@ -17,12 +17,6 @@ public enum class KdModality {
     // non-sealed in java?
 }
 
-public enum class KdSourceLanguage {
-    KOTLIN, JAVA
-    // C/OBJ_C - cinterop
-    // TYPE_SCRIPT - dukat generated
-}
-
 public enum class KdVariance {
     IN, OUT
 }

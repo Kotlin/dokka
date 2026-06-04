@@ -15,7 +15,7 @@ public sealed class KdDeclaration : KdDocumented {
     public abstract val name: String
 
     public abstract val isExternal: Boolean
-    public abstract val sourceLanguage: KdSourceLanguage
+    public abstract val source: KdSource
     public abstract val visibility: KdVisibility
     public abstract val modality: KdModality
     public abstract val actuality: KdActuality?
