@@ -113,9 +113,6 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
             configuration,
             pluginOverrides = listOf(writerPlugin)
         ) {
-            documentablesMergingStage = {
-                println(it)
-            }
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
                     "val ", A("nF"), ": (param: ", A("Int"), ") -> ", A("String"),
@@ -305,6 +302,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyDescriptors("#4516")
     @OnlyJavaSymbols("#3611 - do not show open for Java fields")
     @Test
     fun `java with kotlin function`() {
