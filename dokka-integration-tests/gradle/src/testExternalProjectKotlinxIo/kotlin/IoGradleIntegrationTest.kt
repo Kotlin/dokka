@@ -53,12 +53,7 @@ class IoGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopie
         val result = createGradleRunner(
             buildVersions,
             ":dokkaGenerate",
-            // disabled because:
-            // ##4483/KT-85112:
-            // w: [:kotlinx-io-okio:dokkaGenerateModuleHtml] Couldn't resolve link: [kotlinx.io.bytestring.ByteString] in file:////private/var/folders/t0/r4zzg8js2gnchztmlh57dyn80000gp/T/junit6370252363311766546/project/integration/kotlinx-io-okio/common/src/OkioAdapters.kt:153:18 (:kotlinx-io-okio/commonMain)
-            // #4482:
-            // w: [:kotlinx-io-core:dokkaGenerateModuleHtml] Unknown annotation value `ExperimentalWasmInterop::class` in file:////private/var/folders/t0/r4zzg8js2gnchztmlh57dyn80000gp/T/junit6370252363311766546/project/core/wasmWasi/src/wasi/functions.kt:6:13
-            "-Pdokka_it_failOnWarning=false",
+            "-Pdokka_it_failOnWarning=true",
         ).buildRelaxed()
 
         assertContains(
