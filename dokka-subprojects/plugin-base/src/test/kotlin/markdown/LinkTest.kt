@@ -1797,10 +1797,10 @@ class LinkTest : BaseAbstractTest() {
             sourceSets {
                 sourceSet {
                     sourceRoots = listOf("src/commonMain/kotlin")
-                    analysisPlatform = "common"
-                    name = "jvm-example"
+                    analysisPlatform = "native"
+                    name = "example"
                     classpath = listOf(
-                      getResourceAbsolutePath("klibs/stdlib-2.2.10"),
+                      getResourceAbsolutePath("klibs/example"),
                     )
                 }
 
@@ -1810,20 +1810,21 @@ class LinkTest : BaseAbstractTest() {
             """
                 |/src/commonMain/kotlin/main.kt
                 |package example
+                |import com.example.A
                 |/**
-                | * Links  [kotlin.ClassCastException] and [ClassCastException]
+                | * Links [com.example.A] and [A]
                 |*/
                 |fun f() = 0
             """,
             configuration = configuration
         ) {
             documentablesMergingStage = { module ->
-                val dri = DRI("kotlin", "ClassCastException")//, Callable("ClassCastException", null, emptyList()))
+                val dri = DRI("com.example", "A")
                 val allLinks = module.getAllLinkDRIFrom("f")
                 assertEquals(
                     listOf(
-                        "kotlin.ClassCastException" to dri,
-                        "ClassCastException" to dri,
+                        "com.example.A" to dri,
+                        "A" to dri,
                     ),
                     allLinks
                 )
