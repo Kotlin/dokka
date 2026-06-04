@@ -1332,6 +1332,7 @@ class LinkTest : BaseAbstractTest() {
                             "Storage",
                             Callable("setValue", null, listOf(JavaClassReference("java.lang.String")))
                         ),
+                        // refers to a Java synthetic property, see https://youtrack.jetbrains.com/issue/KT-86394
                         "Storage.prop" to DRI("example", "Storage", Callable("prop", null, emptyList(), isProperty = true))
                     ),
                     module.getAllLinkDRIFrom("usage")
