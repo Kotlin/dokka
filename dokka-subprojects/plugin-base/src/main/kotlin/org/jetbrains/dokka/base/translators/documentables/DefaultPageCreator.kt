@@ -5,6 +5,7 @@
 package org.jetbrains.dokka.base.translators.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
+import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.base.resolvers.anchors.SymbolAnchorHint
@@ -416,20 +417,33 @@ public open class DefaultPageCreator(
         extensions: List<Documentable>,
     ) = contentBuilder.contentFor(dri, sourceSets) {
         typesBlock(types)
+
         val (extensionProperties, extensionFunctions) = extensions.splitPropsAndFuns()
+
+        // Companion-block scope members (Java statics, enum synthetic, KEEP-0449 companion blocks)
+        // are rendered right after Types and before instance Functions/Properties.
+        val (companionExtensionFunctions, extensionInstanceFunctions) = extensionFunctions.partition { it.isCompanion() }
+        val (companionExtensionProperties, extensionInstanceProperties) = extensionProperties.partition { it.isCompanion() }
+
+        val (companionFunctions, instanceFunctions) = functions.partition { it.isCompanion() }
+        val (companionProperties, instanceProperties) = properties.partition { it.isCompanion() }
+
+        companionPropertiesBlock(companionProperties, companionExtensionProperties)
+        companionFunctionsBlock(companionFunctions, companionExtensionFunctions)
+
         if (separateInheritedMembers) {
-            val (inheritedFunctions, memberFunctions) = functions.splitInherited()
-            val (inheritedProperties, memberProperties) = properties.splitInherited()
+            val (inheritedFunctions, memberFunctions) = instanceFunctions.splitInherited()
+            val (inheritedProperties, memberProperties) = instanceProperties.splitInherited()
 
             val (
                 inheritedExtensionFunctions,
                 directExtensionFunctions
-            ) = extensionFunctions.splitInheritedExtension(dri)
+            ) = extensionInstanceFunctions.splitInheritedExtension(dri)
 
             val (
                 inheritedExtensionProperties,
                 directExtensionProperties
-            ) = extensionProperties.splitInheritedExtension(dri)
+            ) = extensionInstanceProperties.splitInheritedExtension(dri)
 
             propertiesBlock("Properties", memberProperties, directExtensionProperties)
             propertiesBlock("Inherited properties", inheritedProperties, inheritedExtensionProperties)
@@ -437,10 +451,15 @@ public open class DefaultPageCreator(
             functionsBlock("Functions", memberFunctions, directExtensionFunctions)
             functionsBlock("Inherited functions", inheritedFunctions, inheritedExtensionFunctions)
         } else {
-            propertiesBlock("Properties", properties, extensionProperties)
-            functionsBlock("Functions", functions, extensionFunctions)
+            propertiesBlock("Properties", instanceProperties, extensionInstanceProperties)
+            functionsBlock("Functions", instanceFunctions, extensionInstanceFunctions)
         }
     }
+
+    private fun <T> T.isCompanion(): Boolean where T : Documentable, T : WithExtraProperties<T>, T : org.jetbrains.dokka.model.Callable {
+        @OptIn(ExperimentalDokkaApi::class) return extra[IsCompanion] != null
+    }
+
 
     /**
      * @param documentables a list of [DClasslike] and [DEnumEntry] and [DTypeAlias] with the same dri in different sourceSets
@@ -675,6 +694,32 @@ public open class DefaultPageCreator(
             },
             declarations = declarations,
             extensions = extensions
+        )
+    }
+
+    private fun DocumentableContentBuilder.companionFunctionsBlock(declarations: List<DFunction>, extensions: List<DFunction>) {
+        functionsOrPropertiesBlock(
+            name = "Companion functions",
+            contentKind = ContentKind.Functions,
+            contentType = when {
+                declarations.isEmpty() -> BasicTabbedContentType.EXTENSION_FUNCTION
+                else -> BasicTabbedContentType.FUNCTION
+            },
+            declarations = declarations,
+            extensions = extensions,
+        )
+    }
+
+    private fun DocumentableContentBuilder.companionPropertiesBlock(declarations: List<DProperty>, extensions: List<DProperty>) {
+        functionsOrPropertiesBlock(
+            name = "Companion properties",
+            contentKind = ContentKind.Properties,
+            contentType = when {
+                declarations.isEmpty() -> BasicTabbedContentType.EXTENSION_PROPERTY
+                else -> BasicTabbedContentType.PROPERTY
+            },
+            declarations = declarations,
+            extensions = extensions,
         )
     }
 
