@@ -8,6 +8,7 @@ import org.jsoup.Jsoup
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.net.URL
+import kotlin.io.relativeTo
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -59,6 +60,24 @@ abstract class AbstractIntegrationTest {
     protected fun assertNoHrefToMissingLocalFileOrDirectory(
         file: File, fileExtensions: Set<String> = setOf("html")
     ) {
+        val errors = collectHrefToMissingLocalFileOrDirectory(file, fileExtensions)
+        if (errors.isEmpty()) return
+
+        val errorMessage = buildString {
+            appendLine("Missing hrefs in ${file.relativeTo(projectDir).path}:")
+            errors.forEach { (href, targetFile) ->
+                appendLine("  href=\"$href\"")
+                appendLine("  target=${targetFile.relativeTo(projectDir).path}")
+            }
+        }
+        throw AssertionError(errorMessage)
+    }
+
+    private fun collectHrefToMissingLocalFileOrDirectory(
+        file: File,
+        fileExtensions: Set<String> = setOf("html"),
+    ): Set<Pair<String, File>> {
+        val errors = mutableSetOf<Pair<String, File>>()
         val fileText = file.readText()
         val html = Jsoup.parse(fileText)
         html.allElements.toList().forEach { element ->
@@ -81,13 +100,42 @@ abstract class AbstractIntegrationTest {
             if (targetFile.extension.isNotEmpty() && targetFile.extension !in fileExtensions) return@forEach
 
             if (targetFile.extension.isEmpty() || targetFile.extension == "html" && !href.startsWith("#")) {
-                assertTrue(
-                    targetFile.exists(),
-                    "${file.relativeTo(projectDir).path}: href=\"$href\"\n" +
-                            "file does not exist: ${targetFile.path}"
-                )
+                if (!targetFile.exists()) {
+                    errors.add(href to targetFile)
+                }
             }
         }
+        return errors
+    }
+
+    protected fun assertHrefMissing(
+        output: File,
+        expected: Map<String, Set<Pair<String, String>>> = emptyMap()
+    ) {
+        val errors = output.allHtmlFiles().mapNotNull { file ->
+            val errors = collectHrefToMissingLocalFileOrDirectory(file)
+            if (errors.isEmpty()) null else file to errors
+        }.toList()
+        if (errors.isEmpty()) return
+        val relativeErrors = errors.associate { (file, fileErrors) ->
+            file.relativeTo(output).path to fileErrors.mapTo(mutableSetOf()) { (href, targetFile) ->
+                href to targetFile.relativeTo(output).path
+            }
+        }
+
+        fun Map<String, Set<Pair<String, String>>>.printAsKotlinMap(): String = buildString {
+            appendLine("mapOf(")
+            this@printAsKotlinMap.forEach { (file, errors) ->
+                appendLine("  \"$file\" to setOf(")
+                errors.forEach { (href, targetFile) ->
+                    appendLine("    \"$href\" to \"$targetFile\",")
+                }
+                appendLine("  ),")
+            }
+            appendLine(")")
+        }
+
+        assertEquals(expected.printAsKotlinMap(), relativeErrors.printAsKotlinMap(), "Missing links")
     }
 
     protected fun assertNoSuppressedMarker(file: File) {
