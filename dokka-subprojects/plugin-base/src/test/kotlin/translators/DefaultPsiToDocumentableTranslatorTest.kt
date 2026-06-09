@@ -813,6 +813,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
+    // still actual for combinedDeclaredScope
     @OnlyJavaPsi("type-mapping: in the inherited `valueOf`, kotlin.String instead of java.lang.String in parameters")
     @Test
     fun `should have documentation for synthetic Enum valueOf functions`() {
@@ -1005,6 +1006,34 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
 
                 assertEquals(1, testedClass.constructors.size, "Expect 1 declared constructor")
                 assertEquals(JavaVisibility.Private, testedClass.constructors.first().visibility())
+            }
+        }
+    }
+
+    @Test
+    @OnlyJavaPsi("keeps `annotationType`, but for unknown reasons skips declared \"equals\", \"hashCode\", \"toString\"")
+    fun `java annotation should have all methods inherited from Annotation interface`() {
+        testInline(
+            """
+            |/src/main/java/test/MyAnnotation.java
+            |package test;
+            |public @interface MyAnnotation {
+            |    String value();
+            |}
+            """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val annotation = module.findClasslike(packageName = "test", "MyAnnotation") as DAnnotation
+
+                // A Java annotation implicitly extends java.lang.annotation.Annotation,
+                // which declares annotationType(), equals(Object), hashCode() and toString().
+                val functionNames = annotation.functions.map { it.name }
+                assertTrue(
+                    functionNames.containsAll(listOf("annotationType", "equals", "hashCode", "toString")),
+                    "A Java annotation should inherit all methods from java.lang.annotation.Annotation, " +
+                            "but got: $functionNames"
+                )
             }
         }
     }

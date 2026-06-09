@@ -5,6 +5,8 @@
 package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiClassOwner
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiMethod
@@ -45,6 +47,7 @@ import org.jetbrains.kotlin.analysis.api.*
 import org.jetbrains.kotlin.analysis.api.annotations.KaAnnotated
 import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.types.*
+import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.JvmStandardClassIds
 import org.jetbrains.kotlin.name.SpecialNames.UNDERSCORE_FOR_UNUSED_VAR
@@ -467,8 +470,46 @@ internal class DokkaSymbolVisitor(
                 syntheticJavaProperties.any { fn.psi == it.javaGetterSymbol.psi || fn.psi == it.javaSetterSymbol?.psi }
             else false
         }
+        val psi = namedClassOrObjectSymbol.psi
+        val functionSymbols =  if(psi is PsiClass) {
+            val declaredMethods = if(includeStaticScope) namedClassOrObjectSymbol.combinedDeclaredMemberScope.callables.filterIsInstance<KaNamedFunctionSymbol>().toList()
+                else namedClassOrObjectSymbol.declaredMemberScope.callables.filterIsInstance<KaNamedFunctionSymbol>().toList()
+            val supertypesSymbols = mutableListOf<KaClassSymbol>()
 
-        val functions = callables.filterIsInstance<KaNamedFunctionSymbol>()
+            fun collectSupertypes(psi: PsiClass) {
+                psi.superTypes.mapNotNull {
+                    val classPsi = it.resolve()
+                    // classPsi?.namedClassSymbol // does not work since the AA throws the exception: "Class symbol not found for PSI class" late
+                    // t.asKaType(useSitePosition = psi) is not applicable since it maps Java types to Kotlin
+
+                    classPsi?.classId()?.let { it1 ->
+                        findClass(it1)?.let { element ->
+                            supertypesSymbols.add(element)
+                        }
+                    }
+                    classPsi?.let { it1 -> collectSupertypes(it1) }
+                }
+            }
+            collectSupertypes(psi)
+            val superMethods = mutableListOf<KaNamedFunctionSymbol>()
+            supertypesSymbols.forEach {
+                val methods = it.declaredMemberScope.callables.filterIsInstance<KaNamedFunctionSymbol>().toList()
+                superMethods.addAll(methods)
+            }
+
+            // A method declared in this class, or in a more-derived supertype, overrides some of the collected
+            // super methods. Exclude those overridden super declarations to avoid showing them as duplicates.
+            val overriddenSuperMethods = (declaredMethods + superMethods)
+                .flatMap { it.allOverriddenSymbols }
+                .mapNotNull { it.psi }
+                .toSet()
+            val notOverriddenSuperMethods = superMethods.filterNot { it.psi in overriddenSuperMethods }
+
+            notOverriddenSuperMethods + declaredMethods
+        } else  callables.filterIsInstance<KaNamedFunctionSymbol>()
+
+
+       val functions = functionSymbols
             .filterOutSyntheticJavaPropAccessors().map { visitFunctionSymbol(it, dri, isJavaContext) }
 
 
@@ -1184,4 +1225,15 @@ internal class DokkaSymbolVisitor(
         KaSymbolVisibility.PACKAGE_PRIVATE -> JavaVisibility.Default
         KaSymbolVisibility.UNKNOWN, KaSymbolVisibility.LOCAL -> if (isJavaSource) JavaVisibility.Public else KotlinVisibility.Public
     }
+}
+
+
+private fun PsiClass.classId(): ClassId? {
+    val packageName = (containingFile as? PsiClassOwner)?.packageName ?: return null
+    // outermost → innermost simple names
+    val names = generateSequence(this) { it.containingClass }
+        .map { it.name ?: return@map null }   // null name => local/anonymous => no ClassId
+        .toList()
+        .asReversed()
+    return ClassId(FqName(packageName), FqName.fromSegments(names), /* isLocal = */ false)
 }
