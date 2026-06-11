@@ -25,14 +25,7 @@ dependencies {
     dokkaPluginsClasspath(libs.kotlinx.html)
     dokkaPluginsClasspath(libs.freemarker)
 
-    val analysisDependency = dokkaBuild.integrationTestUseK2.map { useK2 ->
-        if (useK2) {
-            "org.jetbrains.dokka:analysis-kotlin-symbols"
-        } else {
-            "org.jetbrains.dokka:analysis-kotlin-descriptors"
-        }
-    }
-    dokkaPluginsClasspath(analysisDependency) {
+    dokkaPluginsClasspath("org.jetbrains.dokka:analysis-kotlin-symbols") {
         attributes {
             attribute(BUNDLING_ATTRIBUTE, project.objects.named(SHADOWED))
         }
