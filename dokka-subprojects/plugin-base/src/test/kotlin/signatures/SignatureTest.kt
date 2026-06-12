@@ -1498,6 +1498,7 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlyJavaPsi("\"open var \" expected but found: var")
     fun `java property without accessors should be var`() {
         val writerPlugin = TestOutputWriterPlugin()
         testInline(
