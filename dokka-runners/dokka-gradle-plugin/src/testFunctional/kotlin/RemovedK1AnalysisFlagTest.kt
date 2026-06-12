@@ -30,7 +30,6 @@ class RemovedK1AnalysisFlagTest : FunSpec({
                 .addArguments(
                     ":help",
                     "--dry-run",
-                    "--warn",
                     "-Porg.jetbrains.dokka.experimental.tryK2=false",
                 )
                 .build {
@@ -46,7 +45,6 @@ class RemovedK1AnalysisFlagTest : FunSpec({
                 .addArguments(
                     ":help",
                     "--dry-run",
-                    "--warn",
                     "-Porg.jetbrains.dokka.experimental.tryK2.noWarn=true",
                 )
                 .build {
@@ -62,7 +60,6 @@ class RemovedK1AnalysisFlagTest : FunSpec({
                 .addArguments(
                     ":help",
                     "--dry-run",
-                    "--warn",
                 )
                 .build {
                     test("output should NOT contain the removed-K1-analysis warning") {
