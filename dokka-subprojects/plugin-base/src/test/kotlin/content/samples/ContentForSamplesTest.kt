@@ -7,8 +7,6 @@ package content.samples
 import matchers.content.*
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.DisplaySourceSet
-import utils.OnlyDescriptors
-import utils.OnlySymbols
 import utils.TestOutputWriterPlugin
 import utils.classSignature
 import utils.findTestType
@@ -103,7 +101,6 @@ class ContentForSamplesTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("#4245: K2 inherits KDoc from expect")
     fun `multiplatform class with samples in few platforms K2`() {
         testInline(
             """
@@ -186,81 +183,6 @@ class ContentForSamplesTest : BaseAbstractTest() {
         }
     }
 
-    @Test
-    @OnlyDescriptors("#4245: K2 inherits KDoc from expect")
-    fun `multiplatform class with samples in few platforms K1`() {
-        testInline(
-            """
-                |/src/commonMain/kotlin/pageMerger/Test.kt
-                |package pageMerger
-                |
-                |/**
-                |* @sample [test.sampleForClassDescription]
-                |*/
-                |expect open class Parent
-                |
-                |/src/jvmMain/kotlin/pageMerger/Test.kt
-                |package pageMerger
-                |
-                |/**
-                |* @sample unresolved
-                |*/
-                |actual open class Parent
-                |
-                |/src/linuxX64Main/kotlin/pageMerger/Test.kt
-                |package pageMerger
-                |
-                |actual open class Parent
-                |
-            """.trimMargin(),
-            mppTestConfiguration
-        ) {
-            pagesTransformationStage = { module ->
-                val page = module.findTestType("pageMerger", "Parent")
-                page.content.assertNode {
-                    group {
-                        header(1) { +"Parent" }
-                        platformHinted {
-                            group {
-                                +"expect open class "
-                                link {
-                                    +"Parent"
-                                }
-                            }
-                            group {
-                                +"actual open class "
-                                link {
-                                    +"Parent"
-                                }
-                            }
-                            group {
-                                +"actual open class "
-                                link {
-                                    +"Parent"
-                                }
-                            }
-                            header(4) { +"Samples" }
-                            group {
-                                codeBlock {
-                                    +"""print("Hello")"""
-                                }
-                                check {
-                                    sourceSets.assertSourceSet("common")
-                                }
-                            }
-                            group {
-                                +"unresolved"
-                                check {
-                                    sourceSets.assertSourceSet("jvm")
-                                }
-                            }
-                        }
-                    }
-                    skipAllNotMatching()
-                }
-            }
-        }
-    }
 }
 
 

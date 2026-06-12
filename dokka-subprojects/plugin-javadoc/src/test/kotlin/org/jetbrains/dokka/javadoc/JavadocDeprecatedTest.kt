@@ -6,7 +6,6 @@ package org.jetbrains.dokka.javadoc
 
 import org.jetbrains.dokka.javadoc.pages.DeprecatedPage
 import org.jetbrains.dokka.javadoc.renderer.TemplateMap
-import org.junit.jupiter.api.Tag
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -66,7 +65,6 @@ internal class JavadocDeprecatedTest : AbstractJavadocTemplateMapTest() {
         }
     }
 
-    @Tag("onlySymbols") // https://github.com/Kotlin/dokka/issues/3266 - `describeConstable` is in deprecated page on Java 17
     @Test
     fun `finds correct number of deprecated methods`() {
         testDeprecatedPageTemplateMaps { templateMap ->
