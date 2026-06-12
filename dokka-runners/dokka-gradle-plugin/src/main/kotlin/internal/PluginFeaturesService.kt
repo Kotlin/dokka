@@ -46,10 +46,19 @@ constructor(
         /** If `true`, suppress [pluginMode] messages. */
         val pluginModeNoWarn: Property<Boolean>
 
-        /** If `true`, enable K2 analysis. */
+        /**
+         * `true` if the user has set the removed K1 analysis flag
+         * (`org.jetbrains.dokka.experimental.tryK2`).
+         *
+         * @see PluginFeaturesService.removedK1AnalysisFlagWarning
+         */
         val k2AnalysisEnabled: Property<Boolean>
 
-        /** If `true`, suppress [k2AnalysisEnabled] messages. */
+        /**
+         * `true` if the user has set the deprecated `org.jetbrains.dokka.experimental.tryK2.noWarn` flag.
+         *
+         * @see PluginFeaturesService.removedK1AnalysisFlagWarning
+         */
         val k2AnalysisNoWarn: Property<Boolean>
 
         /** [Project.getDisplayName] - only used for log messages. */
@@ -166,34 +175,42 @@ constructor(
         }
     }
 
-    internal val enableK2Analysis: Boolean by lazy {
-        // use lazy {} to ensure messages are only logged once
+    /**
+     * Warn (once) if the user still has the removed K1 analysis flag, or the deprecated
+     * `*.noWarn` flag, configured.
+     *
+     * K1 (descriptors) analysis has been removed. DGP now always uses K2 (symbols) analysis, so
+     * [K2_ANALYSIS_ENABLED_FLAG] and [K2_ANALYSIS_NO_WARN_FLAG_PRETTY] no longer have any effect.
+     *
+     * @see warnIfRemovedK1AnalysisFlagUsed
+     */
+    private val removedK1AnalysisFlagWarning: Unit by lazy {
+        // use lazy {} to ensure the message is only logged once
 
-        val enableK2Analysis = parameters.k2AnalysisEnabled.getOrElse(true)
+        if (!primaryService) return@lazy
 
-        if (!enableK2Analysis) {
-            logK1AnalysisWarning()
+        @OptIn(ExperimentalStdlibApi::class) val usedFlags = buildList {
+            if (parameters.k2AnalysisEnabled.getOrElse(false)) add(K2_ANALYSIS_ENABLED_FLAG)
+            if (parameters.k2AnalysisNoWarn.getOrElse(false)) add(K2_ANALYSIS_NO_WARN_FLAG_PRETTY)
         }
 
-        enableK2Analysis
+        if (usedFlags.isEmpty()) return@lazy
+
+        logger.warn("warning: Dokka K1 analysis has been removed")
+        logger.lifecycle(
+            """
+            |Dokka K1 analysis has been removed. Dokka now always uses K2 analysis, which supports new language features like context parameters.
+            |The following Dokka propert${if (usedFlags.size == 1) "y is" else "ies are"} no longer supported and ${if (usedFlags.size == 1) "has" else "have"} no effect. Please remove ${if (usedFlags.size == 1) "it" else "them"} from your `gradle.properties` file:
+            |${usedFlags.joinToString("\n") { "    $it" }}
+            |
+            |$`We would appreciate your feedback`
+            """.trimMargin().prependIndent()
+        )
     }
 
-    private fun logK1AnalysisWarning() {
-        if (primaryService && !parameters.k2AnalysisNoWarn.getOrElse(false)) {
-            logger.warn("warning: Dokka K1 Analysis is enabled")
-            logger.lifecycle(
-                """
-                |Dokka K1 Analysis is deprecated and will be removed in a future release. It can cause build failures or generate incorrect documentation.
-                |Please use Dokka K2 Analysis, which is enabled by default, and supports new language features like context parameters.
-                |
-                |To start using Dokka K2 Analysis remove
-                |    ${K2_ANALYSIS_ENABLED_FLAG}=false
-                |in your project's `gradle.properties` file.
-                |
-                |$`We would appreciate your feedback`
-                """.trimMargin().prependIndent()
-            )
-        }
+    /** Trigger [removedK1AnalysisFlagWarning]. */
+    internal fun warnIfRemovedK1AnalysisFlagUsed() {
+        removedK1AnalysisFlagWarning
     }
 
     /** Values for [pluginMode]. */
@@ -364,11 +381,12 @@ constructor(
                         .toBoolean()
                 )
 
-                k2AnalysisEnabled.set(getFlag(K2_ANALYSIS_ENABLED_FLAG).toBoolean())
+                // Detect only whether these (removed/deprecated) flags are present - their value is ignored.
+                k2AnalysisEnabled.set(getFlag(K2_ANALYSIS_ENABLED_FLAG).map { true }.orElse(false))
                 k2AnalysisNoWarn.set(
                     getFlag(K2_ANALYSIS_NO_WARN_FLAG_PRETTY)
                         .orElse(getFlag(K2_ANALYSIS_NO_WARN_FLAG))
-                        .toBoolean()
+                        .map { true }.orElse(false)
                 )
 
                 enableWorkaroundKT80551.set(getFlag(ENABLE_WORKAROUND_KT80551).toBoolean())
