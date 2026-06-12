@@ -37,7 +37,7 @@ Listed below are the dependencies that you need for any output format:
 | **Group**             | **Artifact**                  | **Version**    | **Link**                                                                                                                                                 |
 |-----------------------|-------------------------------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `org.jetbrains.dokka` | `dokka-base`                  | %dokkaVersion% | [download](https://repo1.maven.org/maven2/org/jetbrains/dokka/dokka-base/%dokkaVersion%/dokka-base-%dokkaVersion%.jar)                                   |
-| `org.jetbrains.dokka` | `analysis-kotlin-descriptors` | %dokkaVersion% | [download](https://repo1.maven.org/maven2/org/jetbrains/dokka/analysis-kotlin-descriptors/%dokkaVersion%/analysis-kotlin-descriptors-%dokkaVersion%.jar) |
+| `org.jetbrains.dokka` | `analysis-kotlin-symbols` | %dokkaVersion% | [download](https://repo1.maven.org/maven2/org/jetbrains/dokka/analysis-kotlin-symbols/%dokkaVersion%/analysis-kotlin-symbols-%dokkaVersion%.jar) |
 
 Below are the additional dependencies that you need for [HTML](dokka-html.md) output format:
 
@@ -59,7 +59,7 @@ At the very least you need to provide the following options:
 
 ```Bash
 java -jar dokka-cli-%dokkaVersion%.jar \
-     -pluginsClasspath "./dokka-base-%dokkaVersion%.jar;./analysis-kotlin-descriptors-%dokkaVersion%.jar;./kotlinx-html-jvm-0.8.0.jar;./freemarker-2.3.31.jar" \
+     -pluginsClasspath "./dokka-base-%dokkaVersion%.jar;./analysis-kotlin-symbols-%dokkaVersion%.jar;./kotlinx-html-jvm-0.8.0.jar;./freemarker-2.3.31.jar" \
      -sourceSet "-src /home/myCoolProject/src/main/kotlin" \
      -outputDir "./dokka/html"
 ```
@@ -97,7 +97,7 @@ At the very least, you need the following JSON configuration file:
   "pluginsClasspath": [
     "./dokka-base-%dokkaVersion%.jar",
     "./kotlinx-html-jvm-0.8.0.jar",
-    "./analysis-kotlin-descriptors-%dokkaVersion%.jar",
+    "./analysis-kotlin-symbols-%dokkaVersion%.jar",
     "./freemarker-2.3.31.jar"
   ]
 }
@@ -242,7 +242,7 @@ with [all configuration options](#complete-configuration) applied at the bottom 
   "pluginsClasspath": [
     "./dokka-base-%dokkaVersion%.jar",
     "./kotlinx-html-jvm-0.8.0.jar",
-    "./analysis-kotlin-descriptors-%dokkaVersion%.jar",
+    "./analysis-kotlin-symbols-%dokkaVersion%.jar",
     "./freemarker-2.3.31.jar"
   ]
 }
@@ -833,7 +833,7 @@ Below you can see all possible configuration options applied at the same time.
   "pluginsClasspath": [
     "./dokka-base-%dokkaVersion%.jar",
     "./kotlinx-html-jvm-0.8.0.jar",
-    "./analysis-kotlin-descriptors-%dokkaVersion%.jar",
+    "./analysis-kotlin-symbols-%dokkaVersion%.jar",
     "./freemarker-2.3.31.jar"
   ],
   "pluginsConfiguration": [
