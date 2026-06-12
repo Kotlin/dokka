@@ -428,33 +428,6 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
         }
     }
 
-    @OnlyDescriptors("Bug in descriptors, DRI of entry should have [EnumEntryDRIExtra]")
-    @Test
-    fun javaAnnotationClass() {
-        inlineModelTest(
-            """
-                |import java.lang.annotation.Retention
-                |import java.lang.annotation.RetentionPolicy
-                |
-                |@Retention(RetentionPolicy.SOURCE)
-                |public annotation class throws()
-            """
-        ) {
-            with((this / "classes" / "throws").cast<DAnnotation>()) {
-                with(extra[Annotations]!!.directAnnotations.entries.single().value.assertNotNull("Annotations")) {
-                    this counts 1
-                    with(first()) {
-                        dri.classNames equals "Retention"
-                        params["value"].assertNotNull("value") equals EnumValue(
-                            "RetentionPolicy.SOURCE",
-                            DRI("java.lang.annotation", "RetentionPolicy.SOURCE")
-                        )
-                    }
-                }
-            }
-        }
-    }
-
     @Test
     fun genericAnnotationClass() {
         inlineModelTest(

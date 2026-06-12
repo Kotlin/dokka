@@ -175,47 +175,6 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors("No link for `abc` in K1")
-    @Test
-    fun `undocumented seealso with reference to parameter for class`() {
-        testInline(
-            """
-            |/src/main/kotlin/test/source.kt
-            |package test
-            | /**
-            |  * @see abc
-            |  */
-            |class Foo(abc: String)
-        """.trimIndent(), testConfiguration
-        ) {
-            pagesTransformationStage = { module ->
-                val page = module.findTestType("test", "Foo")
-                page.content.assertNode {
-                    group {
-                        header(1) { +"Foo" }
-                        platformHinted {
-                            classSignature(
-                                emptyMap(),
-                                "",
-                                "",
-                                emptySet(),
-                                "Foo",
-                                "abc" to ParamAttributes(emptyMap(), emptySet(), "String")
-                            )
-                            header(4) { +"See also" }
-                            table {
-                                group {
-                                    +"abc"  // link { +"abc" }
-                                }
-                            }
-                        }
-                    }
-                    skipAllNotMatching()
-                }
-            }
-        }
-    }
-
     @Test
     fun `undocumented seealso with reference to property for class`() {
         testInline(
@@ -824,7 +783,6 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("#4245: K2 inherits KDoc from expect")
     fun `multiplatform class with seealso in few platforms K2`() {
         testInline(
             """
@@ -930,106 +888,6 @@ class ContentForSeeAlsoTest : BaseAbstractTest() {
         }
     }
 
-    @Test
-    @OnlyDescriptors("#4245: K2 inherits KDoc from expect")
-    fun `multiplatform class with seealso in few platforms K1`() {
-        testInline(
-            """
-                |/src/commonMain/kotlin/pageMerger/Test.kt
-                |package pageMerger
-                |
-                |/**
-                |* @see Unit
-                |*/
-                |expect open class Parent
-                |
-                |/src/jvmMain/kotlin/pageMerger/Test.kt
-                |package pageMerger
-                |
-                |val x = 0
-                |/**
-                |* @see x resolved
-                |* @see y unresolved
-                |*/
-                |actual open class Parent
-                |
-                |/src/linuxX64Main/kotlin/pageMerger/Test.kt
-                |package pageMerger
-                |
-                |actual open class Parent
-                |
-            """.trimMargin(),
-            mppTestConfiguration
-        ) {
-            pagesTransformationStage = { module ->
-                val page = module.findTestType("pageMerger", "Parent")
-                page.content.assertNode {
-                    group {
-                        header(1) { +"Parent" }
-                        platformHinted {
-                            group {
-                                +"expect open class "
-                                link {
-                                    +"Parent"
-                                }
-                            }
-                            group {
-                                +"actual open class "
-                                link {
-                                    +"Parent"
-                                }
-                            }
-                            group {
-                                +"actual open class "
-                                link {
-                                    +"Parent"
-                                }
-                            }
-                            header(4) {
-                                +"See also"
-                                check {
-                                    assertEquals(2, sourceSets.size)
-                                }
-                            }
-                            table {
-                                group {
-                                    link { +"Unit" }
-                                    check {
-                                        sourceSets.assertSourceSet("common")
-                                    }
-                                }
-                                group {
-                                    link { +"Unit" }
-                                    check {
-                                        sourceSets.assertSourceSet("jvm")
-                                    }
-                                }
-                                group {
-                                    link { +"x" }
-                                    group { group { +"resolved" } }
-                                    check {
-                                        sourceSets.assertSourceSet("jvm")
-                                    }
-                                }
-                                group {
-                                    +"y"
-                                    group { group { +"unresolved" } }
-                                    check {
-                                        sourceSets.assertSourceSet("jvm")
-                                    }
-                                }
-
-                                check {
-                                    assertEquals(2, sourceSets.size)
-                                }
-                            }
-                        }
-                    }
-                    skipAllNotMatching()
-                }
-            }
-        }
-    }
 }
 
 private fun Set<DisplaySourceSet>.assertSourceSet(expectedName: String) {

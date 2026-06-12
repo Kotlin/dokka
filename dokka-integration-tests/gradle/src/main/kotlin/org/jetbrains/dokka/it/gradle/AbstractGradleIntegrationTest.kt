@@ -110,9 +110,6 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                         add("-Pdokka_it_android_gradle_plugin_version=$androidVersion")
                     }
 
-                    // property flag to use K2
-                    add("-P${TestEnvironment.TRY_K2}=${TestEnvironment.shouldUseK2()}")
-
                     // Decrease Gradle daemon idle timeout to prevent old agents lingering on CI.
                     // A lower timeout means slower tests, which is preferred over OOMs and locked processes.
                     add("-Dorg.gradle.daemon.idletimeout=" + 10.seconds.inWholeMilliseconds) // default is 3 hours!

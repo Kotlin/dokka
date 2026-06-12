@@ -24,6 +24,7 @@ constructor() : Plugin<Project> {
 
     override fun apply(project: Project) {
         val pluginFeaturesService = project.pluginFeaturesService
+        pluginFeaturesService.warnIfRemovedK1AnalysisFlagUsed()
         if (pluginFeaturesService.v2PluginEnabled) {
             applyV2(project)
         } else {
