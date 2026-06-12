@@ -26,6 +26,107 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `should collapse accessor functions inherited from java into the property`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/test/A.java
+            |package test;
+            |public class A {
+            |   private int a = 1;
+            |   public int getA() { return a; }
+            |   public void setA(int a) { this.a = a; }
+            |}
+            |
+            |/src/test/B.kt
+            |package test
+            |class B : A {}
+        """.trimIndent(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/test/-b/index.html").let { kotlinClassContent ->
+                    val signatures = kotlinClassContent.signature().toList()
+                    assertEquals(
+                        3, signatures.size,
+                        "Expected 3 signatures: class signature, constructor and property"
+                    )
+
+                    val property = signatures[2]
+                    property.match(
+                        "open var ", A("a"), ":", A("Int"),
+                        ignoreSpanWithTokenStyle = true
+                    )
+                }
+
+                writerPlugin.writer.renderedContent("root/test/-a/index.html").let { javaClassContent ->
+                    val signatures = javaClassContent.signature().toList()
+                    assertEquals(
+                        3, signatures.size,
+                        "Expected 3 signatures: class signature, default constructor and property"
+                    )
+
+                    val property = signatures[2]
+                    property.match(
+                        "open var ", A("a"), ":", A("Int"),
+                        ignoreSpanWithTokenStyle = true
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `should render as val if inherited java property has no setter`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/test/A.java
+            |package test;
+            |public class A {
+            |   private int a = 1;
+            |   public int getA() { return a; }
+            |}
+            |
+            |/src/test/B.kt
+            |package test
+            |class B : A {}
+        """.trimIndent(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/test/-b/index.html").let { kotlinClassContent ->
+                    val signatures = kotlinClassContent.signature().toList()
+                    assertEquals(3, signatures.size, "Expected 3 signatures: class signature, constructor and property")
+
+                    val property = signatures[2]
+                    property.match(
+                        "open val ", A("a"), ":", A("Int"),
+                        ignoreSpanWithTokenStyle = true
+                    )
+                }
+
+                writerPlugin.writer.renderedContent("root/test/-a/index.html").let { javaClassContent ->
+                    val signatures = javaClassContent.signature().toList()
+                    assertEquals(
+                        3,
+                        signatures.size,
+                        "Expected 3 signatures: class signature, default constructor and property"
+                    )
+
+                    val property = signatures[2]
+                    property.match(
+                        "open val ", A("a"), ":", A("Int"),
+                        ignoreSpanWithTokenStyle = true
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
     fun `should keep inherited java setter as a regular function due to inaccessible property`() {
         val writerPlugin = TestOutputWriterPlugin()
         testInline(
@@ -74,6 +175,42 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
                         ignoreSpanWithTokenStyle = true
                     )
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `should keep inherited java accessor lookalikes if underlying function is public`() {
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/test/A.java
+            |package test;
+            |public class A {
+            |   public int a = 1;
+            |   public int getA() { return a; }
+            |   public void setA(int a) { this.a = a; }
+            |}
+            |
+            |/src/test/B.kt
+            |package test
+            |class B : A {}
+        """.trimIndent(),
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val signatures = writerPlugin.writer.renderedContent("root/test/-b/index.html").signature().toList()
+                assertEquals(
+                    3, signatures.size,
+                    "Expected 3 signatures: class signature, constructor, property"
+                )
+
+                val property = signatures[2]
+                property.match(
+                    "open var ", A("a"), ":", A("Int"),
+                    ignoreSpanWithTokenStyle = true
+                )
             }
         }
     }
@@ -164,4 +301,126 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    fun `inherited property should inherit getter's visibility`() {
+        val configWithProtectedVisibility = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    classpath = listOf(
+                        commonStdlibPath ?: throw IllegalStateException("Common stdlib is not found"),
+                        jvmStdlibPath ?: throw IllegalStateException("JVM stdlib is not found")
+                    )
+                    externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
+                    documentedVisibilities = setOf(
+                        DokkaConfiguration.Visibility.PUBLIC,
+                        DokkaConfiguration.Visibility.PROTECTED
+                    )
+                }
+            }
+        }
+
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/test/JavaClass.java
+            |package test;
+            |public class JavaClass {
+            |    private int protectedGetterAndProtectedSetter = 0;
+            |
+            |    protected int getProtectedGetterAndProtectedSetter() {
+            |        return protectedGetterAndProtectedSetter;
+            |    }
+            |
+            |    protected void setProtectedGetterAndProtectedSetter(int protectedGetterAndProtectedSetter) {
+            |        this.protectedGetterAndProtectedSetter = protectedGetterAndProtectedSetter;
+            |    }
+            |}
+            |
+            |/src/test/KotlinClass.kt
+            |package test
+            |open class KotlinClass : JavaClass() { }
+        """.trimIndent(),
+            configWithProtectedVisibility,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/test/-kotlin-class/index.html").let { kotlinClassContent ->
+                    val signatures = kotlinClassContent.signature().toList()
+                    assertEquals(3, signatures.size, "Expected 3 signatures: class signature, constructor and property")
+
+                    val property = signatures[2]
+                    property.match(
+                        "protected open var ", A("protectedGetterAndProtectedSetter"), ":", A("Int"),
+                        ignoreSpanWithTokenStyle = true
+                    )
+                }
+
+                writerPlugin.writer.renderedContent("root/test/-java-class/index.html").let { javaClassContent ->
+                    val signatures = javaClassContent.signature().toList()
+                    assertEquals(
+                        3,
+                        signatures.size,
+                        "Expected 3 signatures: class signature, default constructor and property"
+                    )
+
+                    val property = signatures[2]
+                    property.match(
+                        "protected open var ", A("protectedGetterAndProtectedSetter"), ":", A("Int"),
+                        ignoreSpanWithTokenStyle = true
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `should resolve protected java property as protected`() {
+        val configWithProtectedVisibility = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/")
+                    classpath = listOf(
+                        commonStdlibPath ?: throw IllegalStateException("Common stdlib is not found"),
+                        jvmStdlibPath ?: throw IllegalStateException("JVM stdlib is not found")
+                    )
+                    externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
+                    documentedVisibilities = setOf(
+                        DokkaConfiguration.Visibility.PUBLIC,
+                        DokkaConfiguration.Visibility.PROTECTED
+                    )
+                }
+            }
+        }
+
+        val writerPlugin = TestOutputWriterPlugin()
+        testInline(
+            """
+            |/src/test/JavaClass.java
+            |package test;
+            |public class JavaClass {
+            |    protected int protectedProperty = 0;
+            |}
+            |
+            |/src/test/KotlinClass.kt
+            |package test
+            |open class KotlinClass : JavaClass() { }
+        """.trimIndent(),
+            configWithProtectedVisibility,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/test/-kotlin-class/index.html").let { kotlinClassContent ->
+                    val signatures = kotlinClassContent.signature().toList()
+                    assertEquals(3, signatures.size, "Expected 2 signatures: class signature, constructor and property")
+
+                    val property = signatures[2]
+                    property.match(
+                        "protected var ", A("protectedProperty"), ":", A("Int"),
+                        ignoreSpanWithTokenStyle = true
+                    )
+                }
+            }
+        }
+    }
 }
