@@ -199,7 +199,6 @@ constructor(
         logger.warn("warning: Dokka K1 analysis has been removed")
         logger.lifecycle(
             """
-            |Dokka K1 analysis has been removed. Dokka now always uses K2 analysis, which supports new language features like context parameters.
             |The following Dokka propert${if (usedFlags.size == 1) "y is" else "ies are"} no longer supported and ${if (usedFlags.size == 1) "has" else "have"} no effect. Please remove ${if (usedFlags.size == 1) "it" else "them"} from your `gradle.properties` file:
             |${usedFlags.joinToString("\n") { "    $it" }}
             |

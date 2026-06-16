@@ -24,37 +24,37 @@ class RemovedK1AnalysisFlagTest : FunSpec({
                 gradle.isolatedProjects = false
             }
         }
-
-        context("when the removed tryK2 flag is set") {
-            project.runner
-                .addArguments(
-                    ":help",
-                    "--dry-run",
-                    "-Porg.jetbrains.dokka.experimental.tryK2=false",
-                )
-                .build {
-                    test("output should contain the removed-K1-analysis warning") {
-                        output shouldContain removedK1AnalysisWarning
-                        output shouldContain "org.jetbrains.dokka.experimental.tryK2"
+        for(flag in listOf("true", "false")) {
+            context("when the removed tryK2 flag is set to $flag") {
+                project.runner
+                    .addArguments(
+                        ":help",
+                        "--dry-run",
+                        "-Porg.jetbrains.dokka.experimental.tryK2=$flag",
+                    )
+                    .build {
+                        test("output should contain the removed-K1-analysis warning") {
+                            output shouldContain removedK1AnalysisWarning
+                            output shouldContain "org.jetbrains.dokka.experimental.tryK2"
+                        }
                     }
-                }
-        }
+            }
 
-        context("when the deprecated tryK2.noWarn flag is set") {
-            project.runner
-                .addArguments(
-                    ":help",
-                    "--dry-run",
-                    "-Porg.jetbrains.dokka.experimental.tryK2.noWarn=true",
-                )
-                .build {
-                    test("output should contain the removed-K1-analysis warning") {
-                        output shouldContain removedK1AnalysisWarning
-                        output shouldContain "org.jetbrains.dokka.experimental.tryK2.noWarn"
+            context("when the deprecated tryK2.noWarn flag is set to $flag") {
+                project.runner
+                    .addArguments(
+                        ":help",
+                        "--dry-run",
+                        "-Porg.jetbrains.dokka.experimental.tryK2.noWarn=$flag",
+                    )
+                    .build {
+                        test("output should contain the removed-K1-analysis warning") {
+                            output shouldContain removedK1AnalysisWarning
+                            output shouldContain "org.jetbrains.dokka.experimental.tryK2.noWarn"
+                        }
                     }
-                }
+            }
         }
-
         context("when no removed flags are set") {
             project.runner
                 .addArguments(
