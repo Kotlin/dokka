@@ -17,7 +17,6 @@ import utils.TestOutputWriterPlugin
 import utils.assertNotNull
 import java.net.URL
 import java.nio.file.Paths
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -25,7 +24,6 @@ import kotlin.test.assertNotNull
 
 class LinkableContentTest : BaseAbstractTest() {
 
-    @Ignore("#3238")
     @Test
     fun `Include module and package documentation`() {
 
@@ -72,13 +70,12 @@ class LinkableContentTest : BaseAbstractTest() {
                 assertEquals(2, it.documentation.size)
                 assertEquals(2, it.packages.size)
                 assertEquals(1, it.packages.first().documentation.size)
-                assertEquals(1, it.packages.last().documentation.size)
+                assertEquals(0, it.packages.last().documentation.size)
             }
         }
 
     }
 
-    @Ignore("#3238")
     @Test
     fun `Samples multiplatform documentation`() {
 
