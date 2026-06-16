@@ -307,10 +307,10 @@ constructor(
                 // and classloaders could really be GC-ed only in case all heap memory is used in this case,
                 // which for small modules will never happen.
                 // So metaspace memory will grow unconditionally.
-                // That's why we set a reasonable default of 512 MB, which enough for proper Dokka execution.
+                // That's why we set a reasonable default of 1 GM, which enough for proper Dokka execution.
                 // Additionally, this will help to discover potential classloader leaks on user projects.
                 // See https://github.com/Kotlin/dokka/pull/4512 for more details.
-                add("-XX:MaxMetaspaceSize=512m")
+                add("-XX:MaxMetaspaceSize=1g")
                 if (JavaVersion.current() <= JavaVersion.VERSION_1_8) {
                     // On JVM 8: GC doesn't collect soft references fast enough.
                     // The property helps GC to collect them faster.

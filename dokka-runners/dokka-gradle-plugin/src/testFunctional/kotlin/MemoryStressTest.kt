@@ -16,7 +16,7 @@ class MemoryStressTest : FunSpec({
             // but we explicitly set heap size bigger to not cause automatic GC of classloaders created inside workers
             maxHeapSize = "4g",
             // overall, it's current default, set here just to be explicit about it in case it's changed to test that everything works fine
-            maxMetaspaceSize = "512m"
+            maxMetaspaceSize = "1g"
         )
 
         test("generate HTML publication") {
