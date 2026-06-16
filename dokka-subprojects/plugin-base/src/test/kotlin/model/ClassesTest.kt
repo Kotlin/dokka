@@ -6,6 +6,9 @@ package model
 
 import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.DRIExtraContainer
+import org.jetbrains.dokka.links.EnumEntryDRIExtra
+import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.links.sureClassNames
 import org.jetbrains.dokka.model.*
@@ -423,6 +426,38 @@ class ClassesTest : AbstractModelTest("/src/main/kotlin/classes/Test.kt", "class
                 ) {
                     dri.toString() equals "kotlin/Suppress///PointingToDeclaration/"
                     (params["names"].assertNotNull("param") as ArrayValue).value equals listOf(StringValue("abc"))
+                }
+            }
+        }
+    }
+
+    @Test
+    fun javaAnnotationClass() {
+        inlineModelTest(
+            """
+                |import java.lang.annotation.Retention
+                |import java.lang.annotation.RetentionPolicy
+                |
+                |@Retention(RetentionPolicy.SOURCE)
+                |public annotation class throws()
+            """
+        ) {
+            with((this / "classes" / "throws").cast<DAnnotation>()) {
+                with(extra[Annotations]!!.directAnnotations.entries.single().value.assertNotNull("Annotations")) {
+                    this counts 1
+                    with(first()) {
+                        dri.classNames equals "Retention"
+                        params["value"].assertNotNull("value") equals EnumValue(
+                            "RetentionPolicy.SOURCE",
+                            DRI(
+                                "java.lang.annotation",
+                                "RetentionPolicy.SOURCE",
+                                null,
+                                PointingToDeclaration,
+                                DRIExtraContainer().also { it[EnumEntryDRIExtra] = EnumEntryDRIExtra }.encode()
+                            )
+                        )
+                    }
                 }
             }
         }
