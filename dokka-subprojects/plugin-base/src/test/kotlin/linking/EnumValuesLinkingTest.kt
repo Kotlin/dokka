@@ -17,11 +17,9 @@ import java.nio.file.Paths
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import utils.OnlyDescriptors
 
 class EnumValuesLinkingTest : BaseAbstractTest() {
 
-    @OnlyDescriptors // TODO
     @Test
     fun `check if enum values are correctly linked`() {
         val writerPlugin = TestOutputWriterPlugin()

@@ -302,7 +302,7 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors("#4516")
+    @Ignore("#4516")
     @OnlyJavaSymbols("#3611 - do not show open for Java fields")
     @Test
     fun `java with kotlin function`() {
@@ -331,7 +331,6 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("context parameters")
     fun `lambda with context parameters`() {
         val source = source("fun simpleFun(a: context(String, Double) Boolean.(Int) -> String): String = \"Celebrimbor\"")
         val writerPlugin = TestOutputWriterPlugin()

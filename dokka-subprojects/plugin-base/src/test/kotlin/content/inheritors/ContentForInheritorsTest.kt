@@ -12,7 +12,6 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.dfs
 import org.jetbrains.dokka.pages.MemberPageNode
-import utils.OnlyDescriptors
 import utils.classSignature
 import utils.findTestType
 import kotlin.test.Test
@@ -138,7 +137,6 @@ class ContentForInheritorsTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors("Order of inheritors is different in K2")
     @Test
     fun `interface with few inheritors has table in description`() {
         testInline(

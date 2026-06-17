@@ -10,7 +10,6 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.attributes.Usage
 import org.gradle.kotlin.dsl.named
-import org.jetbrains.dokka.gradle.internal.PluginFeaturesService.Companion.pluginFeaturesService
 
 internal fun Project.maybeCreateDokkaDefaultPluginConfiguration(): Configuration {
     return configurations.findOrCreate("dokkaPlugin") {
@@ -50,11 +49,7 @@ internal fun Project.maybeCreateDokkaRuntimeConfiguration(dokkaTaskName: String)
                 // Analysis dependencies are not a plugin
                 // It should precede the core dependency in order
                 // to use the shadowed stdlib from the analysis dependencies
-                if (project.pluginFeaturesService.enableK2Analysis) {
-                    project.dokkaArtifacts.analysisKotlinSymbols
-                } else {
-                    project.dokkaArtifacts.analysisKotlinDescriptors
-                }
+                project.dokkaArtifacts.analysisKotlinSymbols
             )
             add(project.dokkaArtifacts.dokkaCore)
         }

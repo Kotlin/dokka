@@ -1543,8 +1543,7 @@ class ContentForParamsTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("#4065 - context parameters")
-    fun `context parameter in param tag`() {
+    fun`context parameter in param tag`() {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -1608,8 +1607,7 @@ class ContentForParamsTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("#4065 - context parameters")
-    fun `context parameter in param tag with brackets`() {
+    fun`context parameter in param tag with brackets`() {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -1790,8 +1788,7 @@ class ContentForParamsTest : BaseAbstractTest() {
 
 
     @Test
-    @OnlySymbols("#4065 - context parameters")
-    fun `context parameter and type parameter in param tag`() {
+    fun`context parameter and type parameter in param tag`() {
         testInline(
             """
             |/src/main/kotlin/test/source.kt

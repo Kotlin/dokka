@@ -75,8 +75,3 @@ To update the expected data:
 2. Delete the 'expected' directory.
 3. Copy the actual generated files to the same location.
 4. Re-run the test to verify the tests pass.
-
-### Run integration tests with K2 (symbols)
-
-To run integration tests with K2, the property `org.jetbrains.dokka.integration_test.useK2` should be set to `true`.
-By default, the task `integrationTest` is run with K1 (descriptors).

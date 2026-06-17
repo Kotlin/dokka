@@ -8,20 +8,9 @@ import org.jetbrains.dokka.it.systemProperty
 import org.junit.jupiter.api.Tag
 
 object TestEnvironment {
-    const val TRY_K2: String = "org.jetbrains.dokka.experimental.tryK2"
-
     val isExhaustive: Boolean by systemProperty(String::toBoolean)
 
     val isEnabledDebug: Boolean = System.getenv("ENABLE_DEBUG").toBoolean()
-
-    /**
-     * By default, it is disabled
-     */
-    fun shouldUseK2(): Boolean = getBooleanProperty(TRY_K2)
-
-    private fun getBooleanProperty(propertyName: String): Boolean {
-        return System.getProperty(propertyName) in setOf("1", "true")
-    }
 }
 
 /**

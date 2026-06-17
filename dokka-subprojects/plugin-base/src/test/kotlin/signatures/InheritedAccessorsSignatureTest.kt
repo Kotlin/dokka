@@ -25,7 +25,6 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors("'var' expected but found: 'open var'")
     @Test
     fun `should collapse accessor functions inherited from java into the property`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -56,7 +55,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                     val property = signatures[2]
                     property.match(
-                        "var ", A("a"), ":", A("Int"),
+                        "open var ", A("a"), ":", A("Int"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -78,7 +77,6 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors("'var' expected but found: 'open var'")
     @Test
     fun `should render as val if inherited java property has no setter`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -105,7 +103,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                     val property = signatures[2]
                     property.match(
-                        "val ", A("a"), ":", A("Int"),
+                        "open val ", A("a"), ":", A("Int"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -181,7 +179,6 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors("'var' expected but found: 'open var'")
     @Test
     fun `should keep inherited java accessor lookalikes if underlying function is public`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -205,27 +202,13 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 val signatures = writerPlugin.writer.renderedContent("root/test/-b/index.html").signature().toList()
                 assertEquals(
-                    5, signatures.size,
-                    "Expected 5 signatures: class signature, constructor, property and two accessor lookalikes"
-                )
-
-                val getterLookalikeFunction = signatures[3]
-                getterLookalikeFunction.match(
-                    "open fun ", A("getA"), "():", A("Int"),
-                    ignoreSpanWithTokenStyle = true
-                )
-
-                val setterLookalikeFunction = signatures[4]
-                setterLookalikeFunction.match(
-                    "open fun ", A("setA"), "(", Parameters(
-                        Parameter("a: ", A("Int"))
-                    ), ")",
-                    ignoreSpanWithTokenStyle = true
+                    3, signatures.size,
+                    "Expected 3 signatures: class signature, constructor, property"
                 )
 
                 val property = signatures[2]
                 property.match(
-                    "var ", A("a"), ":", A("Int"),
+                    "open var ", A("a"), ":", A("Int"),
                     ignoreSpanWithTokenStyle = true
                 )
             }
@@ -318,7 +301,6 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors("'var' expected but found: 'open var'")
     @Test
     fun `inherited property should inherit getter's visibility`() {
         val configWithProtectedVisibility = dokkaConfiguration {
@@ -369,7 +351,7 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
 
                     val property = signatures[2]
                     property.match(
-                        "protected var ", A("protectedGetterAndProtectedSetter"), ":", A("Int"),
+                        "protected open var ", A("protectedGetterAndProtectedSetter"), ":", A("Int"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -392,7 +374,6 @@ class InheritedAccessorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors("'var' expected but found: 'open var'")
     @Test
     fun `should resolve protected java property as protected`() {
         val configWithProtectedVisibility = dokkaConfiguration {

@@ -41,7 +41,6 @@ dependencies {
     // need to use the Gradle project name, *not* the published Maven artifact-id
     devPublication("org.jetbrains.dokka:plugin-all-modules-page:$dokkaVersion")
     devPublication("org.jetbrains.dokka:analysis-kotlin-api:$dokkaVersion")
-    devPublication("org.jetbrains.dokka:analysis-kotlin-descriptors:$dokkaVersion")
     devPublication("org.jetbrains.dokka:analysis-kotlin-symbols:$dokkaVersion")
     devPublication("org.jetbrains.dokka:analysis-markdown-jb:$dokkaVersion")
     devPublication("org.jetbrains.dokka:plugin-android-documentation:$dokkaVersion")

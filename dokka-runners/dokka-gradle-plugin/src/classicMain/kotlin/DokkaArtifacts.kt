@@ -14,10 +14,6 @@ internal class DokkaArtifacts(private val project: Project) {
     private fun fromModuleName(name: String): Dependency =
         project.dependencies.create("org.jetbrains.dokka:$name:${DokkaVersion.version}")
 
-    /** K1 Analysis */
-    val analysisKotlinDescriptors get() = fromModuleName("analysis-kotlin-descriptors")
-
-    /** K2 Analysis */
     val analysisKotlinSymbols get() = fromModuleName("analysis-kotlin-symbols")
 
     val allModulesPage get() = fromModuleName("all-modules-page-plugin")
