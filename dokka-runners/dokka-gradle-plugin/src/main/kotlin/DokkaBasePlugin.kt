@@ -170,7 +170,7 @@ constructor(
             enabled.convention(true)
             cacheRoot.convention(dokkaExtension.dokkaCacheDirectory)
             failOnWarning.convention(false)
-            finalizeCoroutines.convention(false)
+            finalizeCoroutines.convention(true)
             moduleName.convention(dokkaExtension.moduleName)
             moduleVersion.convention(dokkaExtension.moduleVersion)
             offlineMode.convention(false)
