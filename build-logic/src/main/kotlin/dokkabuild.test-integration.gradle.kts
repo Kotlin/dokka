@@ -35,13 +35,7 @@ tasks.withType<Test>().configureEach {
     systemProperty.inputProperty("dokkaVersionOverride", dokkaBuild.integrationTestDokkaVersionOverride)
         .optional(true)
 
-    val useK2 = dokkaBuild.integrationTestUseK2
-    systemProperty.inputProperty("org.jetbrains.dokka.experimental.tryK2", useK2)
-        .optional(true)
-
-    useJUnitPlatform {
-        if (useK2.get()) excludeTags("onlyDescriptors", "onlyDescriptorsMPP")
-    }
+    useJUnitPlatform()
 
     systemProperty.inputProperty("isExhaustive", dokkaBuild.integrationTestExhaustive)
 

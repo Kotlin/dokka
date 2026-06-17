@@ -455,7 +455,6 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols
     fun `fun with unresolved parameter`() {
         val source = source("fun simpleFun(param: UnresolvedType): Unit")
         val writerPlugin = TestOutputWriterPlugin()
@@ -1231,7 +1230,6 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors("Order of constructors is different in K2")
     @Test
     fun `generic constructor params`() {
         val writerPlugin = TestOutputWriterPlugin()
@@ -1260,6 +1258,13 @@ class SignatureTest : BaseAbstractTest() {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-generic-class/-generic-class.html").signature().zip(
                     listOf(
+                        arrayOf(
+                            "constructor(",
+                            Parameters(
+                                Parameter("x: ", A("Int"))
+                            ),
+                            ")",
+                        ),
                         arrayOf(
                             "constructor(",
                             Parameters(
@@ -1299,13 +1304,7 @@ class SignatureTest : BaseAbstractTest() {
                             ),
                             ")",
                         ),
-                        arrayOf(
-                            "constructor(",
-                            Parameters(
-                                Parameter("x: ", A("Int"))
-                            ),
-                            ")",
-                        ),
+
                     )
                 ).forEach {
                     it.first.match(*it.second, ignoreSpanWithTokenStyle = true)
@@ -1390,7 +1389,6 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("context parameters")
     @OptIn(ExperimentalDokkaApi::class)
     fun `fun with context parameters`() {
         val source = source("""
@@ -1419,7 +1417,6 @@ class SignatureTest : BaseAbstractTest() {
 
 
     @Test
-    @OnlySymbols("context parameters")
     @OptIn(ExperimentalDokkaApi::class)
     fun `property with context parameters`() {
         val source = source("""
@@ -1500,8 +1497,8 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors("'var' expected but found: 'open var'")
     @Test
+    @OnlyJavaPsi("\"open var \" expected but found: var")
     fun `java property without accessors should be var`() {
         val writerPlugin = TestOutputWriterPlugin()
         testInline(
@@ -1548,6 +1545,7 @@ class SignatureTest : BaseAbstractTest() {
             }
         }
     }
+
 
     @Test
     fun `should not add an empty span with java default visibility`() {
@@ -1602,7 +1600,6 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("#4056")
     fun `primary constructor parameter should not be marked as property for derived non-generic class`() = testRender(
         """
             |/src/main/kotlin/SomeClass.kt
@@ -1670,19 +1667,20 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors("#3354")
     @Test
-    fun `should not render parameterless constructor with annotation without mustBeDocumented annotation - for kotlin Any `() = testRender(
-        """
+    fun `should not render parameterless constructor with annotation without mustBeDocumented annotation - for kotlin Any `() = withAllowKotlinPackage {
+        testRender(
+            """
             |/src/main/kotlin/Any.kt
             |package kotlin
             |annotation class WasmPrimitiveConstructor
             |open class Any @WasmPrimitiveConstructor constructor()
         """.trimMargin(),
-    ) {
-        renderedContent("root/kotlin/-any/index.html").firstSignature().matchIgnoringSpans(
-            "open class", A("Any")
-        )
+        ) {
+            renderedContent("root/kotlin/-any/index.html").firstSignature().matchIgnoringSpans(
+                "open class", A("Any")
+            )
+        }
     }
 
     @Test
@@ -1779,7 +1777,6 @@ class SignatureTest : BaseAbstractTest() {
     // ----------------------------------------------------------------------
 
     @Test
-    @OnlySymbols("companion block")
     fun `kotlin companion extension function renders companion keyword`() = testRender(
         """
             |/src/main/kotlin/example/Util.kt
@@ -1795,7 +1792,6 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("companion block")
     fun `kotlin companion extension property renders companion keyword`() = testRender(
         """
             |/src/main/kotlin/example/Util.kt
@@ -1826,7 +1822,6 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("companion block")
     fun `kotlin companion-block function does not render companion keyword`() = testRender(
         """
             |/src/main/kotlin/example/Vector.kt
@@ -1844,7 +1839,6 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
-    @OnlySymbols("companion block")
     fun `kotlin companion-block property does not render companion keyword`() = testRender(
         """
             |/src/main/kotlin/example/Vector.kt

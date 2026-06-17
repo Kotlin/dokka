@@ -10,7 +10,6 @@ import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.pages.BasicTabbedContentType
 import org.jetbrains.dokka.pages.ContentPage
 import kotlin.test.Test
-import utils.OnlyDescriptors
 import kotlin.test.assertEquals
 
 class ConstructorsSignaturesTest : BaseAbstractTest() {
@@ -182,7 +181,6 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
         }
     }
 
-    @OnlyDescriptors("Order of constructors is different in K2")
     @Test
     fun `class with a parameterless secondary constructor`() {
         testInline(
@@ -227,17 +225,17 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                                             group {
                                                 +"constructor"
                                                 +"("
-                                                +")"
-                                            }
-                                            group {
-                                                +"constructor"
-                                                +"("
                                                 group {
                                                     group {
                                                         +"a: "
                                                         group { link { +"String" } }
                                                     }
                                                 }
+                                                +")"
+                                            }
+                                            group {
+                                                +"constructor"
+                                                +"("
                                                 +")"
                                             }
                                         }
@@ -252,8 +250,6 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
         }
     }
 
-
-    @OnlyDescriptors("Order of constructors is different in K2")
     @Test
     fun `class with a few documented constructors`() {
         testInline(
@@ -311,6 +307,24 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                                             group {
                                                 +"constructor"
                                                 +"("
+                                                group {
+                                                    group {
+                                                        +"a: "
+                                                        group {
+                                                            link { +"String" }
+                                                        }
+                                                    }
+                                                }
+                                                +")"
+                                            }
+                                            group {
+                                                group {
+                                                    group { +"ctor comment" }
+                                                }
+                                            }
+                                            group {
+                                                +"constructor"
+                                                +"("
                                                 +")"
                                             }
                                             group {
@@ -334,24 +348,6 @@ class ConstructorsSignaturesTest : BaseAbstractTest() {
                                             group {
                                                 group {
                                                     group { +"ctor two" }
-                                                }
-                                            }
-                                            group {
-                                                +"constructor"
-                                                +"("
-                                                group {
-                                                    group {
-                                                        +"a: "
-                                                        group {
-                                                            link { +"String" }
-                                                        }
-                                                    }
-                                                }
-                                                +")"
-                                            }
-                                            group {
-                                                group {
-                                                    group { +"ctor comment" }
                                                 }
                                             }
                                         }

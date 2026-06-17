@@ -32,5 +32,4 @@ dependencies {
     testImplementation(projects.dokkaSubprojects.dokkaTestApi)
 
     symbolsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
-    descriptorsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-descriptors", configuration = "shadow"))
 }
