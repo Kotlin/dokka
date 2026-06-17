@@ -7,11 +7,20 @@ package org.jetbrains.dokka
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import org.jetbrains.dokka.utilities.*
 import java.nio.file.Paths
+import kotlin.system.exitProcess
 
 public fun main(args: Array<String>) {
     val globalArguments = GlobalArguments(args)
     val configuration = initializeConfiguration(globalArguments)
-    DokkaGenerator(configuration, globalArguments.logger).generate()
+    var exitCode = 0
+    try {
+        DokkaGenerator(configuration, globalArguments.logger).generate()
+    } catch (e: Throwable) {
+        exitCode = 1
+        e.printStackTrace()
+    } finally {
+        exitProcess(exitCode)
+    }
 }
 
 public fun initializeConfiguration(globalArguments: GlobalArguments): DokkaConfiguration {
