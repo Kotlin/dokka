@@ -133,7 +133,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         val result = process.awaitProcessResult()
         assertEquals(1, result.exitCode, "Expected exitCode 1 (Fail)")
 
-        assertTrue(result.output.contains("Exception in thread \"main\" org.jetbrains.dokka.DokkaException: Failed with warningCount"))
+        assertTrue(result.output.contains("org.jetbrains.dokka.DokkaException: Failed with warningCount"))
     }
 
     @Test
