@@ -76,4 +76,30 @@ class SymbolsTranslatorTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `should warn about multiline unresolved annotation on a single line`() {
+        testInline(
+            """
+            |/src/main/kotlin/Test.kt
+            |
+            |@Unresolved(
+            |    value = 0
+            |)
+            |class Foo
+            """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { m ->
+                val warns = logger.warnMessages
+                val path = m.sourceSets.first().sourceRoots.first().absolutePath
+                    .replace("\\","/") // for Win
+
+                assertEquals(
+                    "Unknown annotation `@Unresolved( value = 0 )` in file:///PATH/Test.kt:1:1",
+                    warns[0].replace(path, "PATH")
+                )
+            }
+        }
+    }
 }
