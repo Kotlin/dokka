@@ -28,8 +28,7 @@ class SymbolsTranslatorTest : BaseAbstractTest() {
         ) {
             documentablesMergingStage = { m ->
                 val warn = logger.warnMessages.first()
-                val path = m.sourceSets.first().sourceRoots.first().absolutePath
-                    .replace("\\","/") // for Win
+                val path = m.sourceSets.first().sourceRoots.first().invariantSeparatorsPath
 
                 assertEquals(
                     "`UnresolvedSymbols` is unresolved in file:///PATH/Test.kt:1:7",
@@ -58,8 +57,7 @@ class SymbolsTranslatorTest : BaseAbstractTest() {
         ) {
             documentablesMergingStage = { m ->
                 val warns = logger.warnMessages
-                val path = m.sourceSets.first().sourceRoots.first().absolutePath
-                    .replace("\\","/") // for Win
+                val path = m.sourceSets.first().sourceRoots.first().invariantSeparatorsPath
 
                 assertEquals(
                     "Unknown annotation `@Unresolved(1)` in file:///PATH/Test.kt:1:10",
@@ -92,8 +90,7 @@ class SymbolsTranslatorTest : BaseAbstractTest() {
         ) {
             documentablesMergingStage = { m ->
                 val warns = logger.warnMessages
-                val path = m.sourceSets.first().sourceRoots.first().absolutePath
-                    .replace("\\","/") // for Win
+                val path = m.sourceSets.first().sourceRoots.first().invariantSeparatorsPath
 
                 assertEquals(
                     "Unknown annotation `@Unresolved( value = 0 )` in file:///PATH/Test.kt:1:1",
