@@ -55,10 +55,11 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
 
         report("Running post-actions")
         runPostActions()
-
-        reportAfterRendering()
     } finally {
-        PackageList.clearCache()
+        report("Cleaning up")
+        cleanUp()
+
+        reportAfterGeneration()
     }
 
     override val generationName: String = "documentation for ${context.configuration.moduleName}"
@@ -101,6 +102,18 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
         context[CoreExtensions.postActions].forEach { it() }
     }
 
+    public fun cleanUp() {
+        // Don't allow errors to block other clean up steps from running.
+        context[CoreExtensions.cleanUp].forEach {
+            try {
+                it()
+            } catch (e: Exception) {
+                context.logger.error("Failed to run ${it.javaClass.name}: ${e.message}")
+            }
+        }
+        PackageList.clearCache()
+    }
+
     public fun validityCheck(context: DokkaContext) {
         val (preGenerationCheckResult, checkMessages) = context[CoreExtensions.preGenerationCheck].fold(
             Pair(true, emptyList<String>())
@@ -110,7 +123,7 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
         )
     }
 
-    public fun reportAfterRendering() {
+    public fun reportAfterGeneration() {
         context.unusedPoints.takeIf { it.isNotEmpty() }?.also {
             context.logger.info("Unused extension points found: ${it.joinToString(", ")}")
         }

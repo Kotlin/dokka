@@ -29,45 +29,50 @@ public class BaseDokkaTestGenerator(
     additionalPlugins: List<DokkaPlugin> = emptyList()
 ) : DokkaTestGenerator<BaseTestMethods>(configuration, logger, testMethods, additionalPlugins) {
 
-    override fun generate(): Unit = try {
-        with(testMethods) {
-            val dokkaGenerator = DokkaGenerator(configuration, logger)
+    override fun generate(): Unit {
+        var singleModuleGeneration: SingleModuleGeneration? = null
+        try {
+            with(testMethods) {
+                val dokkaGenerator = DokkaGenerator(configuration, logger)
 
-            val context =
-                dokkaGenerator.initializePlugins(configuration, logger, additionalPlugins)
-            pluginsSetupStage(context)
+                val context =
+                    dokkaGenerator.initializePlugins(configuration, logger, additionalPlugins)
+                pluginsSetupStage(context)
 
-            val singleModuleGeneration = context.single(CoreExtensions.generation) as SingleModuleGeneration
+                singleModuleGeneration = context.single(CoreExtensions.generation) as SingleModuleGeneration
 
-            verificationStage { singleModuleGeneration.validityCheck(context) }
+                verificationStage { singleModuleGeneration.validityCheck(context) }
 
-            val modulesFromPlatforms = singleModuleGeneration.createDocumentationModels()
-            documentablesCreationStage(modulesFromPlatforms)
+                val modulesFromPlatforms = singleModuleGeneration.createDocumentationModels()
+                documentablesCreationStage(modulesFromPlatforms)
 
-            val filteredModules = singleModuleGeneration.transformDocumentationModelBeforeMerge(modulesFromPlatforms)
-            documentablesFirstTransformationStep(filteredModules)
+                val filteredModules =
+                    singleModuleGeneration.transformDocumentationModelBeforeMerge(modulesFromPlatforms)
+                documentablesFirstTransformationStep(filteredModules)
 
-            val documentationModel = singleModuleGeneration.mergeDocumentationModels(filteredModules)
-            documentablesMergingStage(documentationModel!!)
+                val documentationModel = singleModuleGeneration.mergeDocumentationModels(filteredModules)
+                documentablesMergingStage(documentationModel!!)
 
-            val transformedDocumentation = singleModuleGeneration.transformDocumentationModelAfterMerge(documentationModel)
-            documentablesTransformationStage(transformedDocumentation)
+                val transformedDocumentation =
+                    singleModuleGeneration.transformDocumentationModelAfterMerge(documentationModel)
+                documentablesTransformationStage(transformedDocumentation)
 
-            val pages = singleModuleGeneration.createPages(transformedDocumentation)
-            pagesGenerationStage(pages)
+                val pages = singleModuleGeneration.createPages(transformedDocumentation)
+                pagesGenerationStage(pages)
 
-            val transformedPages = singleModuleGeneration.transformPages(pages)
-            pagesTransformationStage(transformedPages)
+                val transformedPages = singleModuleGeneration.transformPages(pages)
+                pagesTransformationStage(transformedPages)
 
-            singleModuleGeneration.render(transformedPages)
-            renderingStage(transformedPages, context)
+                singleModuleGeneration.render(transformedPages)
+                renderingStage(transformedPages, context)
 
-            singleModuleGeneration.runPostActions()
+                singleModuleGeneration.runPostActions()
+            }
+        } finally {
+            singleModuleGeneration?.cleanUp()
 
-            singleModuleGeneration.reportAfterRendering()
+            singleModuleGeneration?.reportAfterGeneration()
         }
-    } finally {
-        PackageList.clearCache()
     }
 }
 

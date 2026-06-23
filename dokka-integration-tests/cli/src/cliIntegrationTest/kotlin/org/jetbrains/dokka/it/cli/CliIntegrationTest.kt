@@ -5,6 +5,7 @@ package org.jetbrains.dokka.it.cli
 
 import org.jetbrains.dokka.it.awaitProcessResult
 import java.io.File
+import java.util.concurrent.TimeUnit
 import kotlin.test.*
 
 class CliIntegrationTest : AbstractCliIntegrationTest() {
@@ -117,6 +118,7 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
             "-outputDir", dokkaOutputDir.path,
             "-pluginsClasspath", dokkaPluginsClasspath,
             "-moduleName", "Basic Project",
+            // The failure here happens after all generation is complete.
             "-failOnWarning",
             "-sourceSet",
             buildString {
@@ -134,6 +136,41 @@ class CliIntegrationTest : AbstractCliIntegrationTest() {
         assertEquals(1, result.exitCode, "Expected exitCode 1 (Fail)")
 
         assertTrue(result.output.contains("Exception in thread \"main\" org.jetbrains.dokka.DokkaException: Failed with warningCount"))
+    }
+
+    @Test
+    fun failCliDuringGeneration() {
+        val dokkaOutputDir = File(projectDir, "output")
+        assertTrue(dokkaOutputDir.mkdirs())
+        // Making the output unwritable causes a failure before all steps of generation are complete. This verifies that
+        // clean up actions run successfully (if they didn't, the test would time out).
+        assertTrue(dokkaOutputDir.setWritable(false))
+
+        val process = ProcessBuilder(
+            "java",
+            "-jar", dokkaCliJarPath,
+            "-outputDir", dokkaOutputDir.path,
+            "-pluginsClasspath", dokkaPluginsClasspath,
+            "-moduleName", "Basic Project",
+            "-sourceSet",
+            buildString {
+                append(" -sourceSetName cliMain")
+                append(" -src ${File(projectDir, "src").path}")
+                append(" -jdkVersion 8")
+                append(" -analysisPlatform jvm")
+            }
+        )
+            .redirectErrorStream(true)
+            .start()
+
+        // Forces the test to time out if the process does not terminate within 30 seconds.
+        val complete = process.waitFor(30, TimeUnit.SECONDS)
+        assertTrue(complete)
+
+        val result = process.awaitProcessResult()
+        assertEquals(1, result.exitCode, "Expected exitCode 1 (Fail)")
+
+        assertTrue(result.output.contains("Failed to write"))
     }
 
     @Test
