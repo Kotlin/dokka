@@ -10,7 +10,14 @@ import org.jetbrains.dokka.gradle.utils.projects.defaultKgpTestVersion
 
 class MemoryStressTest : FunSpec({
     context("when subprojects have 50 modules and uses single worker") {
-        val project = setupProject(50, "500m")
+        val project = setupProject(
+            numberOfProjects = 50,
+            // we have just one class with stdlib in dependencies, so no need for a lot of memory,
+            // but we explicitly set heap size bigger to not cause automatic GC of classloaders created inside workers
+            maxHeapSize = "4g",
+            // overall, it's current default, set here just to be explicit about it in case it's changed to test that everything works fine
+            maxMetaspaceSize = "1g"
+        )
 
         test("generate HTML publication") {
             project.runner
@@ -31,7 +38,8 @@ class MemoryStressTest : FunSpec({
 
 private fun setupProject(
     numberOfProjects: Int,
-    metaspaceMemory: String
+    maxHeapSize: String,
+    maxMetaspaceSize: String
 ): GradleProjectTest = gradleKtsProjectTest("MemoryStressTest-$numberOfProjects") {
     val projectNames = List(numberOfProjects) { "subproject_$it" }
     settingsGradleKts += projectNames.joinToString("\n") { """include(":$it")""" }
@@ -62,9 +70,8 @@ private fun setupProject(
                 |
                 |dokka {
                 |  dokkaGeneratorIsolation.set(ProcessIsolation {
-                |      maxHeapSize.set("1g")
-                |      jvmArgs.add("-XX:MaxMetaspaceSize=$metaspaceMemory") // limit metaspace
-                |      jvmArgs.add("-XX:SoftRefLRUPolicyMSPerMB=10")
+                |      maxHeapSize.set("$maxHeapSize")
+                |      jvmArgs.add("-XX:MaxMetaspaceSize=$maxMetaspaceSize")
                 |  })
                 |}
                 |

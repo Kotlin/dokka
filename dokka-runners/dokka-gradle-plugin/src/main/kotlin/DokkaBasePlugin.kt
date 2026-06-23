@@ -111,30 +111,7 @@ constructor(
             dokkaEngineVersion.convention(DokkaConstants.DOKKA_VERSION)
         }
 
-        dokkaExtension.dokkaGeneratorIsolation.convention(
-            dokkaExtension.ProcessIsolation {
-                maxHeapSize.convention("2g")
-                debug.convention(false)
-                jvmArgs.convention(
-                    listOf(
-                        //"-XX:MaxMetaspaceSize=512m",
-                        "-XX:+HeapDumpOnOutOfMemoryError",
-                        "-XX:+AlwaysPreTouch", // https://github.com/gradle/gradle/issues/3093#issuecomment-387259298
-                        //"-XX:StartFlightRecording=disk=true,name={path.drop(1).map { if (it.isLetterOrDigit()) it else '-' }.joinToString("")},dumponexit=true,duration=30s",
-                        //"-XX:FlightRecorderOptions=repository=$baseDir/jfr,stackdepth=512",
-                    ) + if (JavaVersion.current() >= JavaVersion.VERSION_24) {
-                        // https://openjdk.org/jeps/498
-                        // the option has been available since Java 24,
-                        // has `warn` value since Java 25,
-                        // will have `deny` value at some point after Java 26
-                        //
-                        // suppresses: sun.misc.Unsafe::objectFieldOffset has been called by com.intellij.util.containers.Unsafe
-                        // requires IntelliJ platform update to resolve the issue
-                        listOf("--sun-misc-unsafe-memory-access=allow")
-                    } else emptyList()
-                )
-            }
-        )
+        dokkaExtension.dokkaGeneratorIsolation.convention(dokkaExtension.ProcessIsolation())
 
         @Suppress("DEPRECATION")
         dokkaExtension.suppressInheritedMembers.convention(false)
