@@ -3,6 +3,7 @@
  */
 package org.jetbrains.dokka.gradle
 
+import org.gradle.api.JavaVersion
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -295,7 +296,45 @@ constructor(
      * @see dokkaGeneratorIsolation
      */
     fun ProcessIsolation(configure: ProcessIsolation.() -> Unit = {}): ProcessIsolation =
-        objects.newInstance<ProcessIsolation>().apply(configure)
+        objects.newInstance<ProcessIsolation>().apply {
+            maxHeapSize.convention("2g")
+            debug.convention(false)
+
+            val defaultJvmArgs = mutableListOf<String>().apply {
+                add("-XX:+HeapDumpOnOutOfMemoryError")
+                // By default, there is no limit for metaspace memory.
+                // Currently we create a new classloader inside of a worker for every Dokka execution
+                // and classloaders could really be GC-ed only in case all heap memory is used in this case,
+                // which for small modules will never happen.
+                // So metaspace memory will grow unconditionally.
+                // That's why we set a reasonable default of 1 GM, which enough for proper Dokka execution.
+                // Additionally, this will help to discover potential classloader leaks on user projects.
+                // See https://github.com/Kotlin/dokka/pull/4512 for more details.
+                add("-XX:MaxMetaspaceSize=1g")
+                if (JavaVersion.current() <= JavaVersion.VERSION_1_8) {
+                    // On JVM 8: GC doesn't collect soft references fast enough.
+                    // The property helps GC to collect them faster.
+                    // For better description of the property see https://www.jasonpearson.dev/softreflrupolicymspermb-in-jvm-builds/
+                    add("-XX:SoftRefLRUPolicyMSPerMB=1")
+                }
+                if (JavaVersion.current() >= JavaVersion.VERSION_24) {
+                    // https://openjdk.org/jeps/498
+                    // the option has been available since Java 24,
+                    // has `warn` value since Java 25,
+                    // will have `deny` value at some point after Java 26
+                    //
+                    // suppresses: sun.misc.Unsafe::objectFieldOffset has been called by com.intellij.util.containers.Unsafe
+                    // requires IntelliJ platform update to resolve the issue
+                    add("--sun-misc-unsafe-memory-access=allow")
+                }
+            }
+            // We use `set` instead of `convention` because we want for end-users to always use our default JVM args
+            // even in case they use `jvmArgs.add`
+            // See https://github.com/gradle/gradle/issues/18352 for more details.
+            // it will still allow for users to override some flags, like `-XX:MaxMetaspaceSize`,
+            // as the last argument will be used by JVM
+            jvmArgs.set(defaultJvmArgs)
+        }.apply(configure)
 
 
     //region deprecated properties
