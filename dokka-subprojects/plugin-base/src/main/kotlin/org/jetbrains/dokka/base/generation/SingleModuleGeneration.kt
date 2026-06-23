@@ -59,7 +59,7 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
         report("Cleaning up")
         cleanUp()
 
-        reportAfterGeneration()
+        reportAfterRendering()
     }
 
     override val generationName: String = "documentation for ${context.configuration.moduleName}"
@@ -123,7 +123,7 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
         )
     }
 
-    public fun reportAfterGeneration() {
+    public fun reportAfterRendering() {
         context.unusedPoints.takeIf { it.isNotEmpty() }?.also {
             context.logger.info("Unused extension points found: ${it.joinToString(", ")}")
         }

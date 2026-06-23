@@ -8,7 +8,6 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaGenerator
 import org.jetbrains.dokka.base.generation.SingleModuleGeneration
-import org.jetbrains.dokka.base.resolvers.shared.PackageList
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
@@ -30,7 +29,7 @@ public class BaseDokkaTestGenerator(
 ) : DokkaTestGenerator<BaseTestMethods>(configuration, logger, testMethods, additionalPlugins) {
 
     override fun generate(): Unit {
-        var singleModuleGeneration: SingleModuleGeneration? = null
+        var singleModuleGenerationForCleanUp: SingleModuleGeneration? = null
         try {
             with(testMethods) {
                 val dokkaGenerator = DokkaGenerator(configuration, logger)
@@ -39,7 +38,8 @@ public class BaseDokkaTestGenerator(
                     dokkaGenerator.initializePlugins(configuration, logger, additionalPlugins)
                 pluginsSetupStage(context)
 
-                singleModuleGeneration = context.single(CoreExtensions.generation) as SingleModuleGeneration
+                val singleModuleGeneration = context.single(CoreExtensions.generation) as SingleModuleGeneration
+                singleModuleGenerationForCleanUp = singleModuleGeneration
 
                 verificationStage { singleModuleGeneration.validityCheck(context) }
 
@@ -69,9 +69,9 @@ public class BaseDokkaTestGenerator(
                 singleModuleGeneration.runPostActions()
             }
         } finally {
-            singleModuleGeneration?.cleanUp()
+            singleModuleGenerationForCleanUp?.cleanUp()
 
-            singleModuleGeneration?.reportAfterGeneration()
+            singleModuleGenerationForCleanUp?.reportAfterRendering()
         }
     }
 }
