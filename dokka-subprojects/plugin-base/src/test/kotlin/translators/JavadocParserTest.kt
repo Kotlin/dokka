@@ -13,6 +13,7 @@ import org.jetbrains.dokka.model.DFunction
 import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.model.firstChildOfType
 import org.jetbrains.dokka.model.firstMemberOfType
+import utils.OnlyJavaPsi
 import utils.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -66,6 +67,71 @@ class JavadocParserTest : BaseAbstractTest() {
                     assertNull(address?.callable)
                     assertEquals("java.util.List", name)
                 }
+            }
+        }
+    }
+
+    @OnlyJavaPsi("Symbol-based Java analysis represents the overriding getter as a synthetic property")
+    @Test
+    fun `should resolve javadoc link to a method overriding a classpath method #4543`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/main/java")
+                }
+            }
+        }
+
+        testInline(
+            """
+            /src/main/java/sample/StringList.java
+            package sample;
+            import java.util.LinkedList;
+
+            public class StringList extends LinkedList<String> {
+                /**
+                 * no class: {@link #getFirst() a}
+                 * with class: {@link StringList#getFirst() b}
+                 * parent: {@link LinkedList#getFirst() c}
+                 */
+                @Override
+                public String getFirst() {
+                    return super.getFirst();
+                }
+            }
+            """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val fn = module.dfs { it.name == "getFirst" && it is DFunction } as DFunction
+                val description = fn.documentation.values.single().children
+                    .filterIsInstance<Description>().single()
+
+                val allLinks = mutableListOf<DocumentationLink>()
+                fun collect(node: DocTag) {
+                    if (node is DocumentationLink) allLinks += node
+                    node.children.forEach { collect(it) }
+                }
+                description.children.forEach { collect(it) }
+
+                // All three links must resolve, and the ones without an explicit parent class
+                // must point to the overriding (child) declaration in StringList, not the parent.
+                assertEquals(3, allLinks.size, "Expected all three @link references to resolve")
+
+                val noClassLink = allLinks.single { it.text().trim() == "a" }
+                val withClassLink = allLinks.single { it.text().trim() == "b" }
+                val parentLink = allLinks.single { it.text().trim() == "c" }
+
+                assertEquals("sample", noClassLink.dri.packageName)
+                assertEquals("StringList", noClassLink.dri.classNames)
+                assertEquals("StringList", withClassLink.dri.classNames)
+                assertEquals("LinkedList", parentLink.dri.classNames)
+
+                assertEquals(
+                    emptyList<String>(),
+                    logger.warnMessages.filter { "Couldn't resolve JavaDoc link" in it },
+                    "There should be no unresolved JavaDoc link warnings"
+                )
             }
         }
     }
