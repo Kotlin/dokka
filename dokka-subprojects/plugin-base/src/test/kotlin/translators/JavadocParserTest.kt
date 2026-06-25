@@ -5,7 +5,9 @@
 package translators
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.links.Callable
 import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.links.JavaClassReference
 import org.jetbrains.dokka.model.DModule
 import org.jetbrains.dokka.model.childrenOfType
 import org.jetbrains.dokka.model.dfs
@@ -18,6 +20,7 @@ import utils.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class JavadocParserTest : BaseAbstractTest() {
 
@@ -128,8 +131,65 @@ class JavadocParserTest : BaseAbstractTest() {
                 assertEquals("LinkedList", parentLink.dri.classNames)
 
                 assertEquals(
-                    emptyList<String>(),
-                    logger.warnMessages.filter { "Couldn't resolve JavaDoc link" in it },
+                    0,
+                    logger.warningsCount,
+                    "There should be no unresolved JavaDoc link warnings"
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should resolve ambiguous JavaDoc link to several overloads`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    sourceRoots = listOf("src/main/java")
+                }
+            }
+        }
+
+        testInline(
+            """
+            /src/main/java/sample/Overloads.java
+            package sample;
+
+            public class Overloads {
+                /**
+                 * link: {@link #foo n}
+                 */
+                public void doc() {}
+
+                public void foo(int x) {}
+                public void foo(String s) {}
+            }
+            """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val doc = module.dfs { it.name == "doc" && it is DFunction } as DFunction
+                val description = doc.documentation.values.single().children
+                    .filterIsInstance<Description>().single()
+
+                val allLinks = mutableListOf<DocumentationLink>()
+                fun collect(node: DocTag) {
+                    if (node is DocumentationLink) allLinks += node
+                    node.children.forEach { collect(it) }
+                }
+                description.children.forEach { collect(it) }
+
+                // A paren-less reference carries no signature to pick a specific overload. Since Dokka
+                // links to a single declaration, it must still resolve to one of the existing overloads.
+                val link = allLinks.single { it.text().trim() == "n" }
+                val overloadDris = listOf(
+                    DRI("sample", "Overloads", Callable("foo", null, listOf(JavaClassReference("int")))),
+                    DRI("sample", "Overloads", Callable("foo", null, listOf(JavaClassReference("java.lang.String")))),
+                )
+                assertTrue(link.dri in overloadDris, "Expected ${link.dri} to be one of $overloadDris")
+
+                assertEquals(
+                    0,
+                    logger.warningsCount,
                     "There should be no unresolved JavaDoc link warnings"
                 )
             }
