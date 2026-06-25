@@ -20,7 +20,6 @@ import utils.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 class JavadocParserTest : BaseAbstractTest() {
 
@@ -125,10 +124,9 @@ class JavadocParserTest : BaseAbstractTest() {
                 val withClassLink = allLinks.single { it.text().trim() == "b" }
                 val parentLink = allLinks.single { it.text().trim() == "c" }
 
-                assertEquals("sample", noClassLink.dri.packageName)
-                assertEquals("StringList", noClassLink.dri.classNames)
-                assertEquals("StringList", withClassLink.dri.classNames)
-                assertEquals("LinkedList", parentLink.dri.classNames)
+                assertEquals(DRI("sample", "StringList", Callable("getFirst", null, emptyList())), noClassLink.dri)
+                assertEquals(DRI("sample", "StringList", Callable("getFirst", null, emptyList())), withClassLink.dri)
+                assertEquals(DRI("java.util", "LinkedList", Callable("getFirst", null, emptyList())), parentLink.dri)
 
                 assertEquals(
                     0,
@@ -181,11 +179,7 @@ class JavadocParserTest : BaseAbstractTest() {
                 // A paren-less reference carries no signature to pick a specific overload. Since Dokka
                 // links to a single declaration, it must still resolve to one of the existing overloads.
                 val link = allLinks.single { it.text().trim() == "n" }
-                val overloadDris = listOf(
-                    DRI("sample", "Overloads", Callable("foo", null, listOf(JavaClassReference("int")))),
-                    DRI("sample", "Overloads", Callable("foo", null, listOf(JavaClassReference("java.lang.String")))),
-                )
-                assertTrue(link.dri in overloadDris, "Expected ${link.dri} to be one of $overloadDris")
+                assertEquals(DRI("sample", "Overloads", Callable("foo", null, listOf(JavaClassReference("int")))), link.dri)
 
                 assertEquals(
                     0,
