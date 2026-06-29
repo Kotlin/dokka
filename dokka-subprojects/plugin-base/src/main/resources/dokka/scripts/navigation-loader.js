@@ -124,13 +124,33 @@ const TOC_SKIP_LINK_CLASS = 'toc--skip-link';
     }
   }
 
+  function scrollActiveItemToCenter(container) {
+    const activeItem = container.querySelector('[data-active="true"]');
+    if (!activeItem) return;
+    activeItem.scrollIntoView({ block: 'center' });
+    saveTocScrollTop();
+  }
+
+  function isInternalNavigation() {
+    if (!document.referrer) {
+      return false;
+    }
+    try {
+      return new URL(document.referrer).origin === window.location.origin;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function restoreTocScrollTop() {
     const container = document.getElementById(TOC_SCROLL_CONTAINER_ID);
-    if (container) {
-      const storedScrollTop = safeSessionStorage.getItem(`${TOC_STATE_KEY_PREFIX}SCROLL_TOP`);
-      if (storedScrollTop) {
-        container.scrollTop = Number(storedScrollTop);
-      }
+    if (!container) return;
+
+    const storedScrollTop = safeSessionStorage.getItem(`${TOC_STATE_KEY_PREFIX}SCROLL_TOP`);
+    if (isInternalNavigation() && storedScrollTop) {
+      container.scrollTop = Number(storedScrollTop);
+    } else {
+      scrollActiveItemToCenter(container);
     }
   }
 
