@@ -60,8 +60,6 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
     } finally {
         report("Cleaning up")
         cleanUp()
-
-        reportAfterRendering()
     }
 
     override val generationName: String = "documentation for ${context.configuration.moduleName}"
