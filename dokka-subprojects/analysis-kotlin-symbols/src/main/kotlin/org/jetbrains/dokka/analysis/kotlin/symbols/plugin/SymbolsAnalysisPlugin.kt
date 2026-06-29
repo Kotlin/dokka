@@ -42,7 +42,7 @@ public class SymbolsAnalysisPlugin : DokkaPlugin() {
     }
 
     internal val disposeKotlinAnalysisPostAction by extending {
-        CoreExtensions.cleanUp providing { context ->
+        CoreExtensions.cleanUpActions providing { context ->
             CleanUpAction {
                 querySingle { kotlinAnalysis }.close()
                 if (context.configuration.finalizeCoroutines) {

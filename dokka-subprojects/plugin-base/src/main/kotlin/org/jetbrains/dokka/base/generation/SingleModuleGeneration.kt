@@ -55,6 +55,8 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
 
         report("Running post-actions")
         runPostActions()
+
+        reportAfterRendering()
     } finally {
         report("Cleaning up")
         cleanUp()
@@ -104,7 +106,7 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
 
     public fun cleanUp() {
         // Don't allow errors to block other clean up steps from running.
-        context[CoreExtensions.cleanUp].forEach {
+        context[CoreExtensions.cleanUpActions].forEach {
             try {
                 it()
             } catch (e: Exception) {

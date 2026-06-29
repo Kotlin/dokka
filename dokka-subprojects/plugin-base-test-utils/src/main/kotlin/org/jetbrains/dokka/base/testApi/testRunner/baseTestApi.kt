@@ -67,11 +67,11 @@ public class BaseDokkaTestGenerator(
                 renderingStage(transformedPages, context)
 
                 singleModuleGeneration.runPostActions()
+
+                singleModuleGenerationForCleanUp.reportAfterRendering()
             }
         } finally {
             singleModuleGenerationForCleanUp?.cleanUp()
-
-            singleModuleGenerationForCleanUp?.reportAfterRendering()
         }
     }
 }

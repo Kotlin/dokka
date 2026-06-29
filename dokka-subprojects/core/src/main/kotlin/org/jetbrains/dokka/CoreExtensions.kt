@@ -37,7 +37,7 @@ public object CoreExtensions {
 
     public val postActions: ExtensionPoint<PostAction> by coreExtensionPoint<PostAction>()
 
-    public val cleanUp: ExtensionPoint<CleanUpAction> by coreExtensionPoint<CleanUpAction>()
+    public val cleanUpActions: ExtensionPoint<CleanUpAction> by coreExtensionPoint<CleanUpAction>()
 
     private fun <T : Any> coreExtensionPoint() = object {
         operator fun provideDelegate(thisRef: CoreExtensions, property: KProperty<*>): Lazy<ExtensionPoint<T>> =
