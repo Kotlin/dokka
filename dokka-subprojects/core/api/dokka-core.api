@@ -20,7 +20,7 @@ public final class org/jetbrains/dokka/ConfigurationKt {
 
 public final class org/jetbrains/dokka/CoreExtensions {
 	public static final field INSTANCE Lorg/jetbrains/dokka/CoreExtensions;
-	public final fun getCleanUp ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+	public final fun getCleanUpActions ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getDocumentableMerger ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getDocumentableToPageTranslator ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getDocumentableTransformer ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
