@@ -68,7 +68,7 @@ public class BaseDokkaTestGenerator(
 
                 singleModuleGeneration.runPostActions()
 
-                singleModuleGenerationForCleanUp.reportAfterRendering()
+                singleModuleGeneration.reportAfterRendering()
             }
         } finally {
             singleModuleGenerationForCleanUp?.cleanUp()
