@@ -450,6 +450,7 @@ public class KotlinSignatureProvider(
     private fun signature(t: DTypeParameter) =
         t.sourceSets.map {
             contentBuilder.contentFor(t, sourceSets = setOf(it)) {
+                processExtraModifiers(t)
                 group(styles = mainStyles + t.stylesIfDeprecated(it)) {
                     signatureForProjection(t.variantTypeParameter.withDri(t.dri.withTargetToDeclaration()))
                 }
