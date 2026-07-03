@@ -56,7 +56,7 @@ dependencies {
     // copy-pasted from Analysis API https://github.com/JetBrains/kotlin/blob/a10042f9099e20a656dec3ecf1665eea340a3633/analysis/low-level-api-fir/build.gradle.kts#L37
     runtimeOnly("com.github.ben-manes.caffeine:caffeine:2.9.3")
 
-    runtimeOnly(libs.kotlinx.collections.immutable)
+    //runtimeOnly(libs.kotlinx.collections.immutable)
     implementation(libs.kotlin.compiler.k2) {
         isTransitive = false
     }
