@@ -21,7 +21,7 @@ ktor = "2.3.11"
 javaDiffUtils = "4.12"
 
 ## Analysis
-kotlin-compiler-k2 = "2.4.20-dev-5364"
+kotlin-compiler-k2 = "2.4.20-dev-8332"
 
 # MUST match the version of the intellij platform used in the kotlin compiler,
 # otherwise this will lead to different versions of psi API and implementations
