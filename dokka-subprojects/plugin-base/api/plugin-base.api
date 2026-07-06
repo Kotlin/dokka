@@ -104,6 +104,7 @@ public final class org/jetbrains/dokka/base/DokkaBaseConfiguration$Companion {
 
 public final class org/jetbrains/dokka/base/generation/SingleModuleGeneration : org/jetbrains/dokka/generation/Generation {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public final fun cleanUp ()V
 	public final fun createDocumentationModels ()Ljava/util/List;
 	public final fun createPages (Lorg/jetbrains/dokka/model/DModule;)Lorg/jetbrains/dokka/pages/RootPageNode;
 	public fun generate (Lorg/jetbrains/dokka/Timer;)V

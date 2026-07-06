@@ -20,6 +20,7 @@ public final class org/jetbrains/dokka/ConfigurationKt {
 
 public final class org/jetbrains/dokka/CoreExtensions {
 	public static final field INSTANCE Lorg/jetbrains/dokka/CoreExtensions;
+	public final fun getCleanUpActions ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getDocumentableMerger ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getDocumentableToPageTranslator ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getDocumentableTransformer ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
@@ -461,6 +462,9 @@ public final class org/jetbrains/dokka/Timer {
 	public final fun dump (Ljava/lang/String;)V
 	public static synthetic fun dump$default (Lorg/jetbrains/dokka/Timer;Ljava/lang/String;ILjava/lang/Object;)V
 	public final fun report (Ljava/lang/String;)V
+}
+
+public abstract interface class org/jetbrains/dokka/generation/CleanUpAction : kotlin/jvm/functions/Function0 {
 }
 
 public abstract interface class org/jetbrains/dokka/generation/Generation {
