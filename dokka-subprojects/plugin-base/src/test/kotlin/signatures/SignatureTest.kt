@@ -276,6 +276,25 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `inline fun with reified generic param`() {
+        val source = source("inline fun <reified T> simpleFun(): T = TODO()")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
+                    "inline fun <reified ", A("T"), "> ", A("simpleFun"), "(): ", A("T"),
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
     fun `extension function`() {
         val source = source("fun String.capitalizeAll(): String = toUpperCase()")
         val writerPlugin = TestOutputWriterPlugin()
