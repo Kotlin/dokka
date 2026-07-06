@@ -1,5 +1,6 @@
 public final class org/jetbrains/dokka/allModulesPage/AllModulesPageGeneration : org/jetbrains/dokka/generation/Generation {
 	public fun <init> (Lorg/jetbrains/dokka/plugability/DokkaContext;)V
+	public final fun cleanUp ()V
 	public final fun createAllModulesPage (Lorg/jetbrains/dokka/allModulesPage/AllModulesPageGeneration$DefaultAllModulesContext;)Lorg/jetbrains/dokka/pages/RootPageNode;
 	public final fun finishProcessingSubmodules ()V
 	public fun generate (Lorg/jetbrains/dokka/Timer;)V
