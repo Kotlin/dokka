@@ -27,6 +27,11 @@ dependencies {
         // a stripped one is already presented in `kotlin-compiler`
         // also, it prevents using `aalto-xml` in `jackson` by excluding Stax API services files
        exclude("com.fasterxml", "aalto-xml")
+        // `kotlinx-collections-immutable` is embedded (shaded under its original package) in `kotlin-compiler`.
+        // The IntelliJ platform pulls in a separate, older external artifact transitively, which shadows the
+        // embedded one on the classpath and lacks `PersistentList.adding` (renamed from `add` in 0.5.0),
+        // causing a NoSuchMethodError in KaBaseLifetimeTracker. Exclude it so the embedded copy is used.
+       exclude("org.jetbrains.kotlinx", "kotlinx-collections-immutable-jvm")
     }
 
     // ----------- Analysis dependencies ----------------------------------------------------------------------------
@@ -56,7 +61,6 @@ dependencies {
     // copy-pasted from Analysis API https://github.com/JetBrains/kotlin/blob/a10042f9099e20a656dec3ecf1665eea340a3633/analysis/low-level-api-fir/build.gradle.kts#L37
     runtimeOnly("com.github.ben-manes.caffeine:caffeine:2.9.3")
 
-    runtimeOnly(libs.kotlinx.collections.immutable)
     implementation(libs.kotlin.compiler.k2) {
         isTransitive = false
     }
