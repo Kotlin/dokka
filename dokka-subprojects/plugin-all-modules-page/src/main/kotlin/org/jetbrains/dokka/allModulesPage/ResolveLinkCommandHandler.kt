@@ -15,7 +15,7 @@ import org.jsoup.nodes.Element
 import org.jsoup.parser.Tag
 import java.io.File
 
-public class ResolveLinkCommandHandler(context: DokkaContext) : CommandHandler {
+public class ResolveLinkCommandHandler(private val context: DokkaContext) : CommandHandler {
 
     private val externalModuleLinkResolver =
         context.plugin<AllModulesPagePlugin>().querySingle { externalModuleLinkResolver }
@@ -24,6 +24,10 @@ public class ResolveLinkCommandHandler(context: DokkaContext) : CommandHandler {
         command as ResolveLinkCommand
         val link = externalModuleLinkResolver.resolve(command.dri, output)
         if (link == null) {
+            context.logger.warn(
+                "Couldn't resolve link to `${command.dri}`: the target is not part of the documentation " +
+                    "(it may be suppressed, internal, deprecated, or an undocumented external symbol)"
+            )
             val children = body.childNodes().toList()
             val attributes = Attributes().apply {
                 put("data-unresolved-link", command.dri.toString())
