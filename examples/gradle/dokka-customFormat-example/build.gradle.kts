@@ -7,7 +7,7 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 
 plugins {
-    kotlin("jvm") version "2.4.10-RC"
+    kotlin("jvm") version "2.4.10-RC2"
     id("org.jetbrains.dokka") version "2.2.0"
 }
 
