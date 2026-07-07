@@ -65,7 +65,7 @@ public class KotlinToJavaConverter(
                                     .flatMap { it.javaAccessors(relocateToClass = syntheticClassName.name) } +
                                         nodes
                                             .filterIsInstance<DFunction>()
-                                            .flatMap { it.asJava(syntheticClassName.name, true) })
+                                            .flatMap { it.asJava(syntheticClassName.name, isTopLevel = true) })
                             .filterNot { it.hasJvmSynthetic() },
                         classlikes = emptyList(),
                         typealiases = emptyList(),
@@ -202,15 +202,21 @@ public class KotlinToJavaConverter(
         containingClassName: String,
         newName: String,
         parameters: List<DParameter>,
-        isTopLevel: Boolean = false
+        isTopLevel: Boolean = false,
+        isInterface: Boolean = false,
     ): DFunction {
+        val isAbstract = modifier.values.all { it is KotlinModifier.Abstract }
         return copy(
             dri = dri.copy(classNames = containingClassName, callable = dri.callable?.copy(name = newName)),
             name = newName,
             type = type.asJava(),
-            modifier = if (modifier.all { (_, v) -> v is KotlinModifier.Final } && isConstructor)
+            modifier = if (modifier.all { (_, v) -> v is KotlinModifier.Final } && isConstructor) {
                 sourceSets.associateWith { JavaModifier.Empty }
-            else sourceSets.associateWith { modifier.values.first() },
+            } else if (isAbstract && isInterface) {
+                sourceSets.associateWith { JavaModifier.Empty }
+            } else {
+                sourceSets.associateWith { modifier.values.first() }
+            },
             parameters = listOfNotNull(receiver?.asJava()) + parameters.map { it.asJava() },
             visibility = visibility.map { (sourceSet, visibility) -> Pair(sourceSet, visibility.asJava()) }.toMap(),
             receiver = null,
@@ -218,6 +224,12 @@ public class KotlinToJavaConverter(
                 extra + extra.mergeAdditionalModifiers(
                     sourceSets.associateWith {
                         setOf(ExtraModifiers.JavaOnlyModifiers.Static)
+                    }
+                )
+            } else if (isInterface && !isAbstract) {
+                extra + extra.mergeAdditionalModifiers(
+                    sourceSets.associateWith {
+                        setOf(ExtraModifiers.JavaOnlyModifiers.Default)
                     }
                 )
             } else {
@@ -229,7 +241,8 @@ public class KotlinToJavaConverter(
     private fun DFunction.withJvmOverloads(
         containingClassName: String,
         newName: String,
-        isTopLevel: Boolean = false
+        isTopLevel: Boolean = false,
+        isInterface: Boolean = false
     ): List<DFunction>? {
         val (paramsWithDefaults, paramsWithoutDefaults) = parameters
             .withIndex()
@@ -243,21 +256,22 @@ public class KotlinToJavaConverter(
                     params
                         .sortedBy(IndexedValue<DParameter>::index)
                         .map { it.value },
-                    isTopLevel
+                    isTopLevel,
+                    isInterface
                 )
             }
             .reversed()
             .takeIf { it.isNotEmpty() }
     }
 
-    internal fun DFunction.asJava(containingClassName: String, isTopLevel: Boolean = false): List<DFunction> {
+    internal fun DFunction.asJava(containingClassName: String, isTopLevel: Boolean = false, isInterface: Boolean = false): List<DFunction> {
         val newName = when {
             isConstructor -> containingClassName
             else -> name
         }
-        val baseFunction = asJava(containingClassName, newName, parameters, isTopLevel)
+        val baseFunction = asJava(containingClassName, newName, parameters, isTopLevel, isInterface)
         return if (hasJvmOverloads()) {
-            withJvmOverloads(containingClassName, newName, isTopLevel) ?: listOf(baseFunction)
+            withJvmOverloads(containingClassName, newName, isTopLevel, isInterface) ?: listOf(baseFunction)
         } else {
             listOf(baseFunction)
         }
@@ -441,7 +455,7 @@ public class KotlinToJavaConverter(
             )
             .filterNotNull()
             .filterNot { it.hasJvmSynthetic() }
-            .flatMap { it.asJava(dri.classNames ?: name) },
+            .flatMap { it.asJava(dri.classNames ?: name, isInterface = true) },
         properties = emptyList(),
         classlikes = classlikes.map { it.asJava() }, // TODO: public static final class DefaultImpls with impls for methods
         generics = generics.map { it.asJava() },
