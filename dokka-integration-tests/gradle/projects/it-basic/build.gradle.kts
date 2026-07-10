@@ -20,7 +20,7 @@ buildscript {
     }
 }
 
-version = "2.3.0-SNAPSHOT"
+version = "2.3.0-Beta"
 
 dependencies {
     testImplementation(kotlin("test-junit"))
