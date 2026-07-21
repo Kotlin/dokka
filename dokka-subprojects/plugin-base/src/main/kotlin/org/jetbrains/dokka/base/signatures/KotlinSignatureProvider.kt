@@ -236,6 +236,7 @@ public class KotlinSignatureProvider(
                         punctuation("(")
                         parametersBlock(pConstructor) { param ->
                             annotationsInline(param)
+                            processExtraModifiers(param)
                             parameterPropertiesByName[param.name]?.let { property ->
                                 property.setter?.let { keyword("var ") } ?: keyword("val ")
                             }
