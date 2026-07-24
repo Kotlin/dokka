@@ -26,7 +26,8 @@ import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.KaSession
+import org.jetbrains.kotlin.analysis.api.session.analyze
 import org.jetbrains.kotlin.analysis.api.symbols.sourcePsiSafe
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.*
@@ -106,7 +107,7 @@ private class SymbolSampleAnalysisEnvironment(
     private fun KotlinAnalysis.findPsiElement(sourceSet: DokkaSourceSet, fqLink: String): PsiElement? {
         val ktSourceModule = this.getModuleOrNull(sourceSet) ?: return null
         return analyze(ktSourceModule) {
-            resolveKDocTextLinkToSymbol(fqLink)
+            contextOf<KaSession>().resolveKDocTextLinkToSymbol(fqLink)
                 ?.sourcePsiSafe()
         }
     }

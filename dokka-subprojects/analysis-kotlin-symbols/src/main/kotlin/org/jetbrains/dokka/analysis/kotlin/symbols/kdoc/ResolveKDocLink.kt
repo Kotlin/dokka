@@ -11,7 +11,7 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaSession
-import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.session.analyze
 import org.jetbrains.kotlin.analysis.api.projectStructure.KaSourceModule
 import org.jetbrains.kotlin.analysis.api.projectStructure.contextModule
 import org.jetbrains.kotlin.analysis.api.symbols.*
@@ -97,7 +97,7 @@ internal fun KaSession.resolveKDocTextLinkToSymbol(link: String): KaSymbol? {
         /**
          *  Get [KaSession] is associated with [a dangling module][org.jetbrains.kotlin.analysis.api.projectStructure.KaDanglingFileModule]
          */
-        analyze(kDocLink) { resolveToSymbol(it) }
+        analyze(kDocLink) { contextOf<KaSession>().resolveToSymbol(it) }
     }
 }
 
@@ -154,9 +154,9 @@ private fun resolveKDocLinkToDRI(kDocLink: KDocLink): DRI? {
      * [analyze] should be called to get a corresponding instance of [KaSession]
      */
     analyze(kDocLink) {
-        val linkedSymbol = resolveToSymbol(kDocLink)
+        val linkedSymbol = contextOf<KaSession>().resolveToSymbol(kDocLink)
         return if (linkedSymbol == null) null
-        else getDRIFromSymbol(linkedSymbol)
+        else contextOf<KaSession>().getDRIFromSymbol(linkedSymbol)
     }
 }
 
