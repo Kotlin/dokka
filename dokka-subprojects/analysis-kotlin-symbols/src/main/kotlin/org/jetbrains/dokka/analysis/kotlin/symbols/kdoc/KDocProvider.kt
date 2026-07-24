@@ -11,7 +11,7 @@ import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.analysis.api.KaNonPublicApi
 import org.jetbrains.kotlin.analysis.api.KaSession
-import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.session.analyze
 import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KaNamedSymbol
 import org.jetbrains.kotlin.psi.KtDeclaration
@@ -69,4 +69,4 @@ internal fun KaSession.getKDocDocumentationFrom(
 }
 
 @OptIn(KtNonPublicApi::class, KaNonPublicApi::class)
-internal fun KtDeclaration.findKDoc() = analyze(this) { this@findKDoc.findKDoc() }
+internal fun KtDeclaration.findKDoc() = analyze(this) { with(contextOf<KaSession>()) { this@findKDoc.findKDoc() } }
