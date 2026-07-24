@@ -41,6 +41,7 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.transformers.sources.AsyncSourceToDocumentableTranslator
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.KtNodeTypes
+import org.jetbrains.kotlin.analysis.api.session.analyze
 import org.jetbrains.kotlin.analysis.api.*
 import org.jetbrains.kotlin.analysis.api.annotations.KaAnnotated
 import org.jetbrains.kotlin.analysis.api.symbols.*
@@ -130,7 +131,7 @@ internal class DokkaSymbolVisitor(
                     }
                     processedPackages.add(packageFqName)
                     findPackage(packageFqName)?.let { packageSymbol ->
-                        visitPackageSymbol(packageSymbol, ktFiles, javaFiles)
+                        contextOf<KaSession>().visitPackageSymbol(packageSymbol, ktFiles, javaFiles)
                     }
                 }
 
@@ -569,7 +570,7 @@ internal class DokkaSymbolVisitor(
                     propertySymbol.getDefaultValue()?.let { DefaultValue(it.toSourceSetDependent()) },
                     inheritedFrom?.let { InheritedMember(it.toSourceSetDependent()) },
                     takeUnless { propertySymbol.isVal }?.let { IsVar },
-                    takeIf { propertySymbol.isFromPrimaryConstructor &&
+                    takeIf { (propertySymbol as? KaKotlinPropertySymbol)?.primaryConstructorParameter != null &&
                             // a property can be from a constructor of a super class
                             inheritedFrom == null }?.let {
 
