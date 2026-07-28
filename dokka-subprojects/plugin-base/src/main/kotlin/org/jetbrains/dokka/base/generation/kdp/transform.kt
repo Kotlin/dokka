@@ -273,7 +273,7 @@ private fun DClasslike.toKdClass(
     }
 
     return KdClass(
-        name = requireNotNull(name) ?: error("Class name cannot be null: $this"),
+        name = requireNotNull(name),
         classKind = when (this) {
             is DClass -> KdClassKind.CLASS
             is DEnum -> KdClassKind.ENUM_CLASS
