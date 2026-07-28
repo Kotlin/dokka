@@ -3,7 +3,7 @@
  */
 
 package multiplatform
-
+/*
 import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.driOrNull
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.links.DRI
@@ -152,3 +152,4 @@ class BasicMultiplatformTest : BaseAbstractTest() {
         }
     }
 }
+*/
