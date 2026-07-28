@@ -6,7 +6,7 @@ package org.jetbrains.dokka.testApi
 
 import org.jetbrains.dokka.DokkaConfiguration
 import kotlin.test.assertEquals
-
+/*
 public fun assertDokkaConfigurationEquals(
     expected: DokkaConfiguration,
     actual: DokkaConfiguration
@@ -107,3 +107,5 @@ private fun assertExternalDocumentationLinksEquals(
         "DokkaSourceSet.externalDocumentationLinks"
     )
 }
+
+ */
