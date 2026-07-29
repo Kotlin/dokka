@@ -12,7 +12,7 @@ import org.jetbrains.dokka.base.templating.toJsonString
 
 public typealias TemplateBlock = TemplateCommand.() -> Unit
 
-@HtmlTagMarker
+//@HtmlTagMarker
 public fun FlowOrPhrasingContent.wbr(classes: String? = null, block: WBR.() -> Unit = {}): Unit =
     WBR(attributesMapOf("class", classes), consumer).visit(block)
 
@@ -24,13 +24,13 @@ public open class WBR(initialAttributes: Map<String, String>, consumer: TagConsu
 /**
  * Work-around until next version of kotlinx.html doesn't come out
  */
-@HtmlTagMarker
+//@HtmlTagMarker
 public inline fun FlowOrPhrasingContent.strike(classes : String? = null, crossinline block : STRIKE.() -> Unit = {}) : Unit = STRIKE(attributesMapOf("class", classes), consumer).visit(block)
 
 public open class STRIKE(initialAttributes: Map<String, String>, override val consumer: TagConsumer<*>) :
     HTMLTag("strike", consumer, initialAttributes, null, false, false), HtmlBlockInlineTag
 
-@HtmlTagMarker
+//@HtmlTagMarker
 public inline fun FlowOrPhrasingContent.underline(classes : String? = null, crossinline block : UNDERLINE.() -> Unit = {}) : Unit = UNDERLINE(attributesMapOf("class", classes), consumer).visit(block)
 
 public open class UNDERLINE(initialAttributes: Map<String, String>, override val consumer: TagConsumer<*>) :

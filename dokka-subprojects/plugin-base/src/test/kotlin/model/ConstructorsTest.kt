@@ -39,7 +39,7 @@ class ConstructorsTest : AbstractModelTest("/src/main/kotlin/constructors/Test.k
                 name = MARKDOWN_ELEMENT_FILE_NAME
             ),
             name = "T",
-            address = DRI("constructors", "Foo",  target = PointingToGenericParameters(0))
+            address = DRI("constructors", "Foo", target = PointingToGenericParameters(0))
         )
         inlineModelTest(
             """
@@ -51,7 +51,12 @@ class ConstructorsTest : AbstractModelTest("/src/main/kotlin/constructors/Test.k
         ) {
             val classlike = packages.flatMap { it.classlikes }.first() as DClass
             classlike.name equals "Foo"
-            classlike.documentation.values.single() equals DocumentationNode(listOf(expectedRootDescription, expectedParamTag))
+            classlike.documentation.values.single() equals DocumentationNode(
+                listOf(
+                    expectedRootDescription,
+                    expectedParamTag
+                )
+            )
             val constructor = classlike.constructors.single()
             constructor.documentation.values.single() equals DocumentationNode(listOf(expectedParamTag))
         }
@@ -103,7 +108,12 @@ class ConstructorsTest : AbstractModelTest("/src/main/kotlin/constructors/Test.k
         ) {
             val classlike = packages.flatMap { it.classlikes }.first() as DClass
             classlike.name equals "A"
-            classlike.documentation.values.single() equals DocumentationNode(listOf(expectedRootDescription, expectedConstructorTag))
+            classlike.documentation.values.single() equals DocumentationNode(
+                listOf(
+                    expectedRootDescription,
+                    expectedConstructorTag
+                )
+            )
             val constructor = classlike.constructors.single()
             constructor.documentation.values.single() equals DocumentationNode(listOf(expectedDescriptionTag))
         }
@@ -156,7 +166,12 @@ class ConstructorsTest : AbstractModelTest("/src/main/kotlin/constructors/Test.k
         ) {
             val classlike = packages.flatMap { it.classlikes }.first() as DClass
             classlike.name equals "A"
-            classlike.documentation.values.single() equals DocumentationNode(listOf(expectedRootDescription, expectedConstructorTag))
+            classlike.documentation.values.single() equals DocumentationNode(
+                listOf(
+                    expectedRootDescription,
+                    expectedConstructorTag
+                )
+            )
             val constructor = classlike.constructors.single()
             constructor.documentation.values.single() equals DocumentationNode(listOf(expectedDescriptionTag))
         }
@@ -198,7 +213,12 @@ class ConstructorsTest : AbstractModelTest("/src/main/kotlin/constructors/Test.k
         ) {
             val classlike = packages.flatMap { it.classlikes }.first() as DClass
             classlike.name equals "A"
-            classlike.documentation.values.single() equals DocumentationNode(listOf(expectedRootDescription, expectedConstructorTag))
+            classlike.documentation.values.single() equals DocumentationNode(
+                listOf(
+                    expectedRootDescription,
+                    expectedConstructorTag
+                )
+            )
             val constructor = classlike.constructors.single()
             constructor.documentation.isEmpty() equals true
         }
@@ -254,6 +274,9 @@ class ConstructorsTest : AbstractModelTest("/src/main/kotlin/constructors/Test.k
         """.trimMargin(),
             configuration
         ) {
+            documentablesTransformationStage = {
+                println(it)
+            }
             documentablesMergingStage = {
                 val classlike = it.packages.flatMap { it.classlikes }.first() as DClass
                 classlike.name equals "A"
@@ -304,14 +327,20 @@ class ConstructorsTest : AbstractModelTest("/src/main/kotlin/constructors/Test.k
             configuration
         ) {
             preMergeDocumentablesTransformationStage = {
-                val actualClasslike = it.first { it.sourceSets.single().displayName == "common" }.packages.flatMap { it.classlikes }.first() as DClass
+                val actualClasslike =
+                    it.first { it.sourceSets.single().displayName == "common" }.packages.flatMap { it.classlikes }
+                        .first() as DClass
                 actualClasslike.name equals "A"
-                val actualConstructor = actualClasslike.constructors.first { it.sourceSets.single().displayName == "common" }
+                val actualConstructor =
+                    actualClasslike.constructors.first { it.sourceSets.single().displayName == "common" }
                 actualConstructor.isExpectActual equals true
 
-                val expectClasslike = it.first { it.sourceSets.single().displayName == "jvm" }.packages.flatMap { it.classlikes }.first() as DClass
+                val expectClasslike =
+                    it.first { it.sourceSets.single().displayName == "jvm" }.packages.flatMap { it.classlikes }
+                        .first() as DClass
                 expectClasslike.name equals "A"
-                val expectConstructor = expectClasslike.constructors.first { it.sourceSets.single().displayName == "jvm" }
+                val expectConstructor =
+                    expectClasslike.constructors.first { it.sourceSets.single().displayName == "jvm" }
                 expectConstructor.isExpectActual equals true
             }
             documentablesMergingStage = {

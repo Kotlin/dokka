@@ -169,7 +169,7 @@ class PageTransformerBuilderTest : BaseAbstractTest() {
                     .filterIsInstance<ContentGroup>()
                     .single { it.dci.kind == ContentKind.Main }.children
 
-                val contentWithConstructorsHeader = content.find { tabContent -> tabContent.dfs {  it is ContentText && (it as? ContentText)?.text == "Constructors"} != null }
+                val contentWithConstructorsHeader = content.find { tabContent -> tabContent.dfs {  it is ContentText && it.text == "Constructors"} != null }
 
                 contentWithConstructorsHeader.assertNotNull("contentWithConstructorsHeader")
 

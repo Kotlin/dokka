@@ -180,7 +180,7 @@ class DRITest : BaseAbstractTest() {
                 val driCount = module
                     .withDescendants()
                     .filterIsInstance<ContentPage>()
-                    .sumBy { it.dri.count { dri -> dri == expectedDRI } }
+                    .sumOf { it.dri.count { dri -> dri == expectedDRI } }
 
                 assertEquals(1, driCount)
             }

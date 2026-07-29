@@ -67,7 +67,7 @@ public class NavigationPage(
                             // and it stretches to two or more lines, make sure the icon
                             // is always on the left in the grid and is not wrapped with text
                             span("toc--link-grid") {
-                                span(node.icon?.style())
+                                span(node.icon.style())
                                 span {
                                     nodeText(node)
                                 }

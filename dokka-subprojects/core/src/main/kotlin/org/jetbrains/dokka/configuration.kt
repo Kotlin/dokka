@@ -67,12 +67,12 @@ public enum class Platform(
 
         public fun fromString(key: String): Platform {
 
-            return when (key.toLowerCase()) {
+            return when (key.lowercase()) {
                 jvm.key -> jvm
                 js.key -> js
                 @Suppress("DEPRECATION") wasm.key -> @Suppress("DEPRECATION") wasm
-                wasmWasi.key.toLowerCase() -> wasmWasi
-                wasmJs.key.toLowerCase() -> wasmJs
+                wasmWasi.key.lowercase() -> wasmWasi
+                wasmJs.key.lowercase() -> wasmJs
                 native.key -> native
                 common.key -> common
                 "androidjvm", "android" -> jvm
@@ -255,7 +255,7 @@ public interface DokkaConfiguration : Serializable {
         PACKAGE;
 
         public companion object {
-            public fun fromString(value: String): Visibility = valueOf(value.toUpperCase())
+            public fun fromString(value: String): Visibility = valueOf(value.uppercase())
         }
     }
 
