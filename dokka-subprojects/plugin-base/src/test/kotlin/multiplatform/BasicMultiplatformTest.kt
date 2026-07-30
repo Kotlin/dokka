@@ -151,4 +151,73 @@ class BasicMultiplatformTest : BaseAbstractTest() {
             }
         }
     }
+
+
+    @Test
+    fun `test kdp`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                val commonId = sourceSet {
+                    sourceRoots = listOf("src/common/")
+                    analysisPlatform = "common"
+                    name = "common"
+                }.value.sourceSetID
+                sourceSet {
+                    sourceRoots = listOf("src/jvm/")
+                    analysisPlatform = "jvm"
+                    name = "jvm"
+                    dependentSourceSets = setOf(commonId)
+                }
+                sourceSet {
+                    sourceRoots = listOf("src/native/")
+                    analysisPlatform = "native"
+                    name = "native"
+                    dependentSourceSets = setOf(commonId)
+                }
+            }
+        }
+
+        testInline(
+            """
+            |/src/common/A.kt
+            |package multiplatform
+            |
+            |expect interface A {
+            |  fun commonA()
+            |}
+            |
+            |abstract class B: A {
+            |  abstract fun commonB()
+            |}
+            |
+            |/src/jvm/Ajvm.kt
+            |package multiplatform
+            |
+            |actual interface A {
+            |  actual fun commonA()
+            |  fun jvmA()
+            |}
+            |
+            |/src/jvm/jvm/Ajvm.kt
+            |package jvm
+            |
+            |interface X
+            |
+            |/src/native/Anative.kt
+            |package multiplatform
+            |
+            |actual interface A {
+            |  actual fun commonA()
+            |}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesCreationStage = {
+                println(it)
+            }
+            documentablesTransformationStage = {
+                println(it)
+            }
+        }
+    }
 }
