@@ -64,6 +64,11 @@ private class CoverageCounter(private val name: String) {
     }
 
     fun print() {
-        println("$name: $hasDocumentation/$total = ${hasDocumentation * 100 / total}%")
+        if (total == 0) {
+            println("$name: NO DOCUMENTATION")
+        } else {
+            println("$name: $hasDocumentation/$total = ${hasDocumentation * 100 / total}%")
+        }
+
     }
 }

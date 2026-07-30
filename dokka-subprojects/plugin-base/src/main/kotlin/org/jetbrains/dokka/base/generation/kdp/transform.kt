@@ -30,15 +30,17 @@ internal fun saveModule(
 
     measured("coverage") { kdModule.calculateCoverage() }.getOrThrow()
 
-    with(outputDirectory.resolve("kdp")) {
-        mkdirs()
-        measured("json") { resolve("${kdModule.name}.json").writeText(kdModule.encodeToJson(prettyPrint = false)) }
-        measured("pretty-json") { resolve("${kdModule.name}-pretty.json").writeText(kdModule.encodeToJson(prettyPrint = true)) }
-        // json is small enough when zipped
+    outputDirectory.mkdirs()
+    measured("json") {
+        outputDirectory.resolve("${kdModule.name}.json").writeText(kdModule.encodeToJson(prettyPrint = false))
+    }
+    measured("pretty-json") {
+        outputDirectory.resolve("${kdModule.name}-pretty.json").writeText(kdModule.encodeToJson(prettyPrint = true))
+    }
+    // json is small enough when zipped
 //        measured("cbor") { resolve("${kdModule.name}.cbor").writeBytes(kdModule.encodeToCbor()) }
 //        measured("pb-schema") { resolve("${kdModule.name}.schema").writeText(protoSchema()) }
 //        measured("pb") { resolve("${kdModule.name}.pb").writeBytes(kdModule.encodeToProtoBuf()) }
-    }
 }
 
 // TODO: sorting
@@ -273,7 +275,7 @@ private fun DClasslike.toKdClass(
     }
 
     return KdClass(
-        name = requireNotNull(name) ?: error("Class name cannot be null: $this"),
+        name = requireNotNull(name) { "Class name cannot be null: $this" },
         classKind = when (this) {
             is DClass -> KdClassKind.CLASS
             is DEnum -> KdClassKind.ENUM_CLASS
