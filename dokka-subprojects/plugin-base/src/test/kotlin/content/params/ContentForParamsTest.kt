@@ -701,7 +701,6 @@ class ContentForParamsTest : BaseAbstractTest() {
     }
 
 
-
     @Test
     fun `documentation splitted in 2 using enters`() {
         testInline(
@@ -1543,7 +1542,7 @@ class ContentForParamsTest : BaseAbstractTest() {
     }
 
     @Test
-    fun`context parameter in param tag`() {
+    fun `context parameter in param tag of a function`() {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -1607,7 +1606,7 @@ class ContentForParamsTest : BaseAbstractTest() {
     }
 
     @Test
-    fun`context parameter in param tag with brackets`() {
+    fun `context parameter in param tag with brackets of a function`() {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
@@ -1660,6 +1659,110 @@ class ContentForParamsTest : BaseAbstractTest() {
                                     group {
                                         +"arg"
                                         group2 { +"parameter" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `context parameter in param tag of a property`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            | /**
+            |  * @param scope context parameter
+            |  */
+            |context(scope: String)
+            |val foo: String = ""
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("test", "foo")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"foo" }
+                    }
+
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"context("
+                                group2 {
+                                    +"scope: "
+                                    groupedLink { +"String" }
+                                }
+                                +")"
+                                br()
+                                +"val "
+                                link { +"foo" }
+                                +": "
+                                groupedLink { +"String" }
+                            }
+
+                            group {
+                                header(4) { +"Context Parameters" }
+                                table {
+                                    group {
+                                        +"scope"
+                                        group2 { +"context parameter" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `context parameter in param tag with brackets of a property`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/source.kt
+            |package test
+            | /**
+            |  * @param[scope] context parameter
+            |  */
+            |context(scope: String)
+            |val foo: String = ""
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val page = module.findTestType("test", "foo")
+                page.content.assertNode {
+                    group {
+                        header(1) { +"foo" }
+                    }
+
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"context("
+                                group2 {
+                                    +"scope: "
+                                    groupedLink { +"String" }
+                                }
+                                +")"
+                                br()
+                                +"val "
+                                link { +"foo" }
+                                +": "
+                                groupedLink { +"String" }
+                            }
+
+                            group {
+                                header(4) { +"Context Parameters" }
+                                table {
+                                    group {
+                                        +"scope"
+                                        group2 { +"context parameter" }
                                     }
                                 }
                             }
@@ -1788,7 +1891,7 @@ class ContentForParamsTest : BaseAbstractTest() {
 
 
     @Test
-    fun`context parameter and type parameter in param tag`() {
+    fun `context parameter and type parameter in param tag`() {
         testInline(
             """
             |/src/main/kotlin/test/source.kt
