@@ -24,13 +24,13 @@ import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransf
 public class KotlinAsJavaPlugin : DokkaPlugin() {
     private val dokkaBasePlugin: DokkaBase by lazy { plugin<DokkaBase>() }
 
-    public val suppressJvmMappedMethodsFilter: Extension<PreMergeDocumentableTransformer, *, *> by extending {
-        dokkaBasePlugin.preMergeDocumentableTransformer providing {
-            object : PreMergeDocumentableTransformer {
-                override fun invoke(modules: List<DModule>) = modules
-            }
-        } override dokkaBasePlugin.jvmMappedMethodsFilter
-    }
+//    public val suppressJvmMappedMethodsFilter: Extension<PreMergeDocumentableTransformer, *, *> by extending {
+//        dokkaBasePlugin.preMergeDocumentableTransformer providing {
+//            object : PreMergeDocumentableTransformer {
+//                override fun invoke(modules: List<DModule>) = modules
+//            }
+//        } override dokkaBasePlugin.jvmMappedMethodsFilter
+//    }
 
     public val kotlinAsJavaDocumentableTransformer: Extension<DocumentableTransformer, *, *> by extending {
         CoreExtensions.documentableTransformer with KotlinAsJavaDocumentableTransformer()
