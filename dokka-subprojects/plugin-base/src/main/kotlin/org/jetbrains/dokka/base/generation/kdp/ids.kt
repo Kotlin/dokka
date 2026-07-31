@@ -8,9 +8,9 @@ import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.DRIExtraContainer
 import org.jetbrains.dokka.links.EnumEntryDRIExtra
 import org.jetbrains.kotlin.documentation.KdCallableId
-import org.jetbrains.kotlin.documentation.KdClassifierId
+import org.jetbrains.kotlin.documentation.KdClassLikeId
 
-internal fun DRI.toKdClassifierId(): KdClassifierId = KdClassifierId(
+internal fun DRI.toKdClassLikeId(): KdClassLikeId = KdClassLikeId(
     packageName = requireNotNull(packageName) { "packageName is null for $this" },
     classNames = requireNotNull(classNames) { "classNames is null for $this" },
 )

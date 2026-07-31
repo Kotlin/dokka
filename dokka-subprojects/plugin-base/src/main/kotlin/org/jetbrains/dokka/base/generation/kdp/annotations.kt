@@ -19,7 +19,7 @@ internal fun Annotations.Annotation.toKdAnnotation(
         return when (this) {
             is AnnotationValue -> KdAnnotationArgumentValue.Annotation(annotation.toKdAnnotation(mustBeDocumented = true)!!)
             is ArrayValue -> KdAnnotationArgumentValue.Array(value.map { it.toKdAnnotationArgumentValue() })
-            is ClassValue -> KdAnnotationArgumentValue.Class(classDRI.toKdClassifierId())
+            is ClassValue -> KdAnnotationArgumentValue.Class(classDRI.toKdClassLikeId())
             is EnumValue -> KdAnnotationArgumentValue.Enum(enumDri.toKdCallableId())
             // TODO
             is LiteralValue -> KdAnnotationArgumentValue.Const(KdConstValue(text()))
@@ -27,7 +27,7 @@ internal fun Annotations.Annotation.toKdAnnotation(
     }
 
     return KdAnnotation(
-        classifierId = dri.toKdClassifierId(),
+        classLikeId = dri.toKdClassLikeId(),
         useSiteTargets = emptyList(), // TODO
         arguments = params.map { (key, value) ->
             KdAnnotationArgument(

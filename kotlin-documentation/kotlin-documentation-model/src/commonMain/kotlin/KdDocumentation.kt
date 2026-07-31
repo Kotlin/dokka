@@ -170,7 +170,7 @@ public sealed class KdLinkReference {
     @Serializable
     public data class Callable(val callableId: KdCallableId) : KdLinkReference()
 
-    @SerialName("classifier")
+    @SerialName("classlike")
     @Serializable
-    public data class Classifier(val classifierId: KdClassifierId) : KdLinkReference()
+    public data class ClassLike(val classLikeId: KdClassLikeId) : KdLinkReference()
 }

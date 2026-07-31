@@ -1,13 +1,11 @@
 /*
- * Copyright 2014-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2014-2026 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.kotlin.documentation
 
-import kotlinx.serialization.Serializable
-
 // links for external libraries
-// TODO: id is not enough, as we could have section references
+// TODO: id is not enough, as we could have section references in future
 // there should be shortcut if default linking form is used:
 // - modules/[module]/api/[package]/[class]/[callable]/index.html
 // - modules/[module]/api/[package]/[callable]/index.html

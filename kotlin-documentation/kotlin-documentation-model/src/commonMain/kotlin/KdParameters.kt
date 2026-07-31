@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 // both kdoc/javadoc @throws tag and java `throws` keyword
 @Serializable
 public data class KdThrows(
-    public val classifierId: KdClassifierId,
+    public val classLikeId: KdClassLikeId,
     override val documentation: List<KdDocumentationNode> = emptyList()
 ) : KdDocumented
 

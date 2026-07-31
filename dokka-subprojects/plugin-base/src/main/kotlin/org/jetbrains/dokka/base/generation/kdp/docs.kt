@@ -209,7 +209,7 @@ private fun DRI.toKdLinkReference(): KdLinkReference {
         is PointingToGenericParameters -> KdLinkReference.TypeParameter(target.parameterIndex)
         PointingToDeclaration -> when (callable) {
             null if classNames == null -> KdLinkReference.Package(packageName ?: "UNKNOWN_PACKAGE_NAME")
-            null -> KdLinkReference.Classifier(toKdClassifierId())
+            null -> KdLinkReference.ClassLike(toKdClassLikeId())
             else -> KdLinkReference.Callable(toKdCallableId())
         }
     }

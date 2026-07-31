@@ -26,16 +26,16 @@ internal fun saveModule(
         return result
     }
 
-    val kdModule = measured("transform") { dModule.toKdModule() }.getOrThrow()
+    val kdModule = measured("transform") { dModule.toKdFragments() }.getOrThrow()
 
     measured("coverage") { kdModule.calculateCoverage() }.getOrThrow()
 
     outputDirectory.mkdirs()
     measured("json") {
-        outputDirectory.resolve("${kdModule.name}.json").writeText(kdModule.encodeToJson(prettyPrint = false))
+        outputDirectory.resolve("fragments.json").writeText(kdModule.encodeToJson(prettyPrint = false))
     }
     measured("pretty-json") {
-        outputDirectory.resolve("${kdModule.name}-pretty.json").writeText(kdModule.encodeToJson(prettyPrint = true))
+        outputDirectory.resolve("fragments-pretty.json").writeText(kdModule.encodeToJson(prettyPrint = true))
     }
     // json is small enough when zipped
 //        measured("cbor") { resolve("${kdModule.name}.cbor").writeBytes(kdModule.encodeToCbor()) }
@@ -44,39 +44,59 @@ internal fun saveModule(
 }
 
 // TODO: sorting
-private fun DModule.toKdModule(): KdModule = KdModule(
-    name = name,
+private fun DModule.toKdFragments(): KdFragments = KdFragments(
     fragments = sourceSets.map { sourceSet ->
         val tagWrappers = tagWrappers(sourceSet) { it is Description }
+
+        val elements = mutableListOf<KdElement>()
+        val collectElement: (KdElement) -> Unit = elements::add
+
+        collectElement(
+            KdModule(
+                id = KdModuleId(name),
+                name = name,
+                packages = packages.mapNotNull {
+                    it.toKdPackage(sourceSet, collectElement)?.apply(collectElement)?.id
+                },
+                documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
+            )
+        )
         KdFragment(
             name = sourceSet.sourceSetID.sourceSetName, // TODO: name vs displayName
             dependsOn = sourceSet.dependentSourceSets.map { it.sourceSetName },
-            targets = emptyList(), // TODO: targets/platforms
-            packages = packages.mapNotNull { it.toKdPackage(sourceSet) },
-            documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
+            elements = elements,
         )
     }
 )
 
 private fun DPackage.toKdPackage(
-    sourceSet: DokkaConfiguration.DokkaSourceSet
+    sourceSet: DokkaConfiguration.DokkaSourceSet,
+    collectElement: (KdElement) -> Unit
 ): KdPackage? {
     if (!sourceSets.contains(sourceSet)) return null
-
-    val declarations = buildList {
-        functions.mapNotNullTo(this) { it.toKdFunction(sourceSet) }
-        properties.mapNotNullTo(this) { it.toKdVariable(sourceSet) }
-        classlikes.mapNotNullTo(this) { it.toKdClass(sourceSet) }
-        typealiases.mapNotNullTo(this) { it.toKdTypealias(sourceSet) }
-    }
-
-    if (declarations.isEmpty()) return null
 
     val tagWrappers = tagWrappers(sourceSet) { it is Description }
 
     return KdPackage(
-        name = name,
-        declarations = declarations,
+        id = KdPackageId(packageName),
+        name = packageName,
+        classlikes = buildList {
+            classlikes.mapNotNullTo(this) {
+                it.toKdClass(sourceSet, collectElement)?.apply(collectElement)?.id
+            }
+            typealiases.mapNotNullTo(this) {
+                it.toKdTypealias(sourceSet)?.apply(collectElement)?.id
+            }
+        },
+        callables = buildList {
+            functions.mapNotNullTo(this) {
+                it.toKdFunction(sourceSet)?.apply(collectElement)?.id
+            }
+            properties.mapNotNullTo(this) {
+                it.toKdVariable(sourceSet)?.apply(collectElement)?.id
+            }
+
+        },
         documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
     )
 }
@@ -94,6 +114,7 @@ private fun DProperty.toKdVariable(
     }
 
     return KdVariable(
+        id = dri.toKdCallableId(),
         name = name,
         returns = KdReturns(
             type = type.toKdType(),
@@ -113,11 +134,11 @@ private fun DProperty.toKdVariable(
         throws = tagWrappers.filterIsInstance<Throws>().map {
             KdThrows(
                 // null means unresolved type - TBD what to do here
-                classifierId = it.exceptionAddress?.toKdClassifierId() ?: error("should not happen: $it"),
+                classLikeId = it.exceptionAddress?.toKdClassLikeId() ?: error("should not happen: $it"),
                 documentation = it.toKdDocumentation()
             )
         },
-        source = KdSource.Kotlin, // TODO: not enought information right now
+        source = KdSource.KOTLIN, // TODO: not enought information right now
         visibility = kdVisibility(sourceSet),
         modality = kdModality(sourceSet),
         actuality = kdActuality(sourceSet),
@@ -138,10 +159,11 @@ private fun DEnumEntry.toKdVariable(
     val tagWrappers = tagWrappers(sourceSet) { it is Description }
 
     return KdVariable(
+        id = dri.toKdCallableId(),
         name = name,
         // TODO: recheck type
         returns = KdReturns(
-            type = KdClassifierType(enum.dri.toKdClassifierId()),
+            type = KdClassLikeType(enum.dri.toKdClassLikeId()),
             documentation = tagWrappers.filterIsInstance<Return>().singleOrNullIfEmpty().toKdDocumentation()
         ),
         variableKind = KdVariableKind.ENUM_ENTRY,
@@ -157,11 +179,11 @@ private fun DEnumEntry.toKdVariable(
         throws = tagWrappers.filterIsInstance<Throws>().map {
             KdThrows(
                 // null means unresolved type - TBD what to do here
-                classifierId = it.exceptionAddress?.toKdClassifierId() ?: error("should not happen: $it"),
+                classLikeId = it.exceptionAddress?.toKdClassLikeId() ?: error("should not happen: $it"),
                 documentation = it.toKdDocumentation()
             )
         },
-        source = KdSource.Kotlin, // TODO: not enought information right now
+        source = KdSource.KOTLIN, // TODO: not enought information right now
         visibility = enum.kdVisibility(sourceSet),
         modality = KdModality.FINAL,
         actuality = enum.kdActuality(sourceSet),
@@ -184,6 +206,7 @@ private fun DFunction.toKdFunction(
     }
 
     return KdFunction(
+        id = dri.toKdCallableId(),
         name = name,
         returns = KdReturns(
             type = type.toKdType(),
@@ -205,14 +228,14 @@ private fun DFunction.toKdFunction(
         throws = tagWrappers.filterIsInstance<Throws>().map {
             KdThrows(
                 // null means unresolved type - TBD what to do here
-                classifierId = it.exceptionAddress?.toKdClassifierId() ?: KdClassifierId(
+                classLikeId = it.exceptionAddress?.toKdClassLikeId() ?: KdClassLikeId(
                     packageName = "UNKNOWN",
                     classNames = it.name
                 ),
                 documentation = it.toKdDocumentation()
             )
         },
-        source = KdSource.Kotlin, // TODO: not enought information right now
+        source = KdSource.KOTLIN, // TODO: not enought information right now
         visibility = kdVisibility(sourceSet),
         modality = kdModality(sourceSet),
         actuality = kdActuality(sourceSet),
@@ -235,6 +258,7 @@ private fun DFunction.toKdConstructor(
     }
 
     return KdConstructor(
+        id = dri.toKdCallableId(),
         name = name,
         returns = KdReturns(
             type = type.toKdType(),
@@ -247,11 +271,11 @@ private fun DFunction.toKdConstructor(
         throws = tagWrappers.filterIsInstance<Throws>().map {
             KdThrows(
                 // null means unresolved type - TBD what to do here
-                classifierId = it.exceptionAddress?.toKdClassifierId() ?: error("should not happen: $it"),
+                classLikeId = it.exceptionAddress?.toKdClassLikeId() ?: error("should not happen: $it"),
                 documentation = it.toKdDocumentation()
             )
         },
-        source = KdSource.Kotlin, // TODO: not enought information right now
+        source = KdSource.KOTLIN, // TODO: not enought information right now
         visibility = kdVisibility(sourceSet),
         modality = kdModality(sourceSet),
         actuality = kdActuality(sourceSet),
@@ -264,6 +288,7 @@ private fun DFunction.toKdConstructor(
 @OptIn(ExperimentalDokkaApi::class)
 private fun DClasslike.toKdClass(
     sourceSet: DokkaConfiguration.DokkaSourceSet,
+    collectElement: (KdElement) -> Unit
 ): KdClass? {
     if (!sourceSets.contains(sourceSet)) return null
 
@@ -275,6 +300,7 @@ private fun DClasslike.toKdClass(
     }
 
     return KdClass(
+        id = dri.toKdClassLikeId(),
         name = requireNotNull(name) { "Class name cannot be null: $this" },
         classKind = when (this) {
             is DClass -> KdClassKind.CLASS
@@ -294,20 +320,34 @@ private fun DClasslike.toKdClass(
             is WithSupertypes -> supertypes[sourceSet].orEmpty().map { it.typeConstructor.toKdType() }
             else -> emptyList()
         },
-        declarations = buildList {
-            if (this@toKdClass is WithConstructors) constructors.mapNotNullTo(this) { it.toKdConstructor(sourceSet) }
-            functions.mapNotNullTo(this) { it.toKdFunction(sourceSet) }
-            properties.mapNotNullTo(this) { it.toKdVariable(sourceSet) }
-            if (this@toKdClass is DEnum) entries.mapNotNullTo(this) { it.toKdVariable(sourceSet, this@toKdClass) }
-            classlikes.mapNotNullTo(this) { it.toKdClass(sourceSet) }
-            if (this@toKdClass is WithTypealiases) typealiases.mapNotNullTo(this) { it.toKdTypealias(sourceSet) }
+        constructors = if (this@toKdClass is WithConstructors) constructors.mapNotNull {
+            it.toKdConstructor(sourceSet)?.apply(collectElement)?.id
+        } else emptyList(),
+        callables = buildList {
+            functions.mapNotNullTo(this) {
+                it.toKdFunction(sourceSet)?.apply(collectElement)?.id
+            }
+            properties.mapNotNullTo(this) {
+                it.toKdVariable(sourceSet)?.apply(collectElement)?.id
+            }
+            if (this@toKdClass is DEnum) entries.mapNotNullTo(this) {
+                it.toKdVariable(sourceSet, this@toKdClass)?.apply(collectElement)?.id
+            }
+        },
+        classlikes = buildList {
+            classlikes.mapNotNullTo(this) {
+                it.toKdClass(sourceSet, collectElement)?.apply(collectElement)?.id
+            }
+            if (this@toKdClass is WithTypealiases) typealiases.mapNotNullTo(this) {
+                it.toKdTypealias(sourceSet)?.apply(collectElement)?.id
+            }
         },
         typeParameters = when (this) {
             is WithGenerics -> generics.map { it.toKdTypeParameter(sourceSet) }
             else -> emptyList()
         },
 
-        source = KdSource.Kotlin, // TODO: not enought information right now
+        source = KdSource.KOTLIN, // TODO: not enought information right now
         visibility = kdVisibility(sourceSet),
         modality = when (this) {
             is WithAbstraction -> kdModality(sourceSet)
@@ -320,7 +360,6 @@ private fun DClasslike.toKdClass(
     )
 }
 
-@OptIn(ExperimentalDokkaApi::class)
 private fun DTypeAlias.toKdTypealias(
     sourceSet: DokkaConfiguration.DokkaSourceSet,
 ): KdTypealias? {
@@ -332,6 +371,7 @@ private fun DTypeAlias.toKdTypealias(
     }
 
     return KdTypealias(
+        id = dri.toKdClassLikeId(),
         name = name,
         underlyingType = underlyingType.getValue(sourceSet).toKdType(),
         typeParameters = generics.map { it.toKdTypeParameter(sourceSet) },

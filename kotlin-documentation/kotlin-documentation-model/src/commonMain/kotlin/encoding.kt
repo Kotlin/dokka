@@ -17,22 +17,22 @@ private val prettyJson = Json {
     classDiscriminator = "kind"
 }
 
-public fun KdModule.encodeToJson(prettyPrint: Boolean): String {
+public fun KdFragments.encodeToJson(prettyPrint: Boolean): String {
     val json = if (prettyPrint) prettyJson else Json.Default
-    return json.encodeToString(KdModule.serializer(), this)
+    return json.encodeToString(KdFragments.serializer(), this)
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-public fun KdModule.encodeToProtoBuf(): ByteArray {
-    return ProtoBuf.encodeToByteArray(KdModule.serializer(), this)
+public fun KdFragments.encodeToProtoBuf(): ByteArray {
+    return ProtoBuf.encodeToByteArray(KdFragments.serializer(), this)
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-public fun KdModule.encodeToCbor(): ByteArray {
-    return Cbor.encodeToByteArray(KdModule.serializer(), this)
+public fun KdFragments.encodeToCbor(): ByteArray {
+    return Cbor.encodeToByteArray(KdFragments.serializer(), this)
 }
 
 @OptIn(ExperimentalSerializationApi::class)
 public fun protoSchema(): String {
-    return ProtoBufSchemaGenerator.generateSchemaText(KdModule.serializer().descriptor)
+    return ProtoBufSchemaGenerator.generateSchemaText(KdFragments.serializer().descriptor)
 }

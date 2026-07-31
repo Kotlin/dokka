@@ -22,10 +22,10 @@ public sealed class KdType {
     public abstract val nullability: KdNullability
 }
 
-@SerialName("classifier")
+@SerialName("classlike")
 @Serializable
-public data class KdClassifierType(
-    val classifierId: KdClassifierId,
+public data class KdClassLikeType(
+    val classLikeId: KdClassLikeId,
     val typeArguments: List<KdTypeProjection> = emptyList(),
     override val nullability: KdNullability = KdNullability.NOT_NULLABLE
 ) : KdType()

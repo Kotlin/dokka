@@ -14,8 +14,9 @@ public sealed interface KdAnnotated {
 // we should have access only to `MustBeDocumented` annotations
 @Serializable
 public data class KdAnnotation(
-    val classifierId: KdClassifierId,
-    val useSiteTargets: List<KdAnnotationUseSiteTarget>, // TODO: non-empty-list?
+    val classLikeId: KdClassLikeId,
+    // TODO: do we need to store use site target?
+    val useSiteTargets: List<KdAnnotationUseSiteTarget>,
     val arguments: List<KdAnnotationArgument> = emptyList(),
 )
 
@@ -52,7 +53,7 @@ public sealed class KdAnnotationArgumentValue {
 
     @SerialName("class")
     @Serializable
-    public data class Class(public val classifierId: KdClassifierId) : KdAnnotationArgumentValue()
+    public data class Class(public val classLikeId: KdClassLikeId) : KdAnnotationArgumentValue()
 
     @SerialName("annotation")
     @Serializable
@@ -61,9 +62,4 @@ public sealed class KdAnnotationArgumentValue {
     @SerialName("array")
     @Serializable
     public data class Array(public val elements: List<KdAnnotationArgumentValue>) : KdAnnotationArgumentValue()
-
-    //value
-    //class
-    //array
-    //etc
 }

@@ -11,8 +11,8 @@ import org.jetbrains.kotlin.documentation.*
 @OptIn(ExperimentalDokkaApi::class)
 internal fun Bound.toKdType(nullability: KdNullability = KdNullability.NOT_NULLABLE): KdType = when (this) {
     is GenericTypeConstructor -> {
-        KdClassifierType(
-            classifierId = dri.toKdClassifierId(),
+        KdClassLikeType(
+            classLikeId = dri.toKdClassLikeId(),
             typeArguments = projections.map(Projection::toKdTypeArgument),
             nullability = nullability
         )
@@ -54,21 +54,21 @@ internal fun Bound.toKdType(nullability: KdNullability = KdNullability.NOT_NULLA
     Dynamic -> KdDynamicType
 
     // TODO: create constants for java types?
-    Void -> KdClassifierType(
-        classifierId = KdClassifierId("kotlin", "Unit"),
+    Void -> KdClassLikeType(
+        classLikeId = KdClassLikeId("kotlin", "Unit"),
         typeArguments = emptyList(),
         nullability = nullability
     )
 
-    is JavaObject -> KdClassifierType(
-        classifierId = KdClassifierId("kotlin", "Any"),
+    is JavaObject -> KdClassLikeType(
+        classLikeId = KdClassLikeId("kotlin", "Any"),
         typeArguments = emptyList(),
         nullability = nullability
     )
 
-    is PrimitiveJavaType -> KdClassifierType(
+    is PrimitiveJavaType -> KdClassLikeType(
         // TODO: recheck conversion
-        classifierId = KdClassifierId("kotlin", name.replaceFirstChar(Char::uppercase)),
+        classLikeId = KdClassLikeId("kotlin", name.replaceFirstChar(Char::uppercase)),
         typeArguments = emptyList(),
         nullability = nullability
     )

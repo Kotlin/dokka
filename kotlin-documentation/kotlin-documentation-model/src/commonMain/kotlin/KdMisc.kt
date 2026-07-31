@@ -4,6 +4,8 @@
 
 package org.jetbrains.kotlin.documentation
 
+// TODO: we should think about how to expose enum-like things in Kotlin in respect to backward compatibility - we need open enums
+
 public enum class KdVisibility {
     PUBLIC, PROTECTED, INTERNAL, PRIVATE,
 
@@ -33,6 +35,7 @@ public enum class KdNullability {
 }
 
 // TODO: kind vs separate class vs flags - take a look on kotlin spec
+// TODO: probably replace those `kinds` with separate classes, so that for the json consumer, all entities will be represented as single `type` field in json
 
 public enum class KdClassKind {
     CLASS, ENUM_CLASS, ANNOTATION_CLASS, OBJECT, INTERFACE,
@@ -46,23 +49,4 @@ public enum class KdFunctionKind {
 
 public enum class KdVariableKind {
     PROPERTY, FIELD/*JVM?*/, ENUM_ENTRY
-}
-
-// all kotlin targets (or platforms/families TBD) - should not be a enum really
-public enum class KdTarget {
-    JVM,
-    JS,
-    WASM_JS,
-    WASM_WASI,
-    MACOS_ARM64,
-    MACOS_X64,
-    IOS_ARM64,
-    IOS_X64,
-    IOS_SIMULATOR_ARM64,
-    LINUX_ARM64,
-    LINUX_X64,
-    MINGW_X64,
-    ANDROID_NATIVE_ARM32,
-    ANDROID_NATIVE_ARM64,
-    // and other targets ...
 }

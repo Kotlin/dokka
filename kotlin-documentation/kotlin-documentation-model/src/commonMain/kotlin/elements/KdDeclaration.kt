@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 
 //@Serializable(KdDeclarationSerializer::class)
 @Serializable
-public sealed class KdDeclaration : KdSymbol() {
+public sealed class KdDeclaration : KdElement() {
     public abstract val isExternal: Boolean
     public abstract val source: KdSource
     public abstract val visibility: KdVisibility

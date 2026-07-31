@@ -7,11 +7,7 @@ package org.jetbrains.kotlin.documentation
 import kotlinx.serialization.Serializable
 
 @Serializable
-public sealed class KdSymbolId
-
-// package or classifier or callable
-@Serializable
-public sealed class KdSymbol : KdDocumented {
+public sealed class KdElement : KdDocumented {
     public abstract val name: String
-    public abstract val id: KdSymbolId
+    public abstract val id: KdElementId
 }

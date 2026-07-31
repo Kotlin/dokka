@@ -4,16 +4,9 @@
 
 package org.jetbrains.dokka.base.generation.kdp
 
-import org.jetbrains.kotlin.documentation.KdClass
-import org.jetbrains.kotlin.documentation.KdConstructor
-import org.jetbrains.kotlin.documentation.KdDeclaration
-import org.jetbrains.kotlin.documentation.KdDocumented
-import org.jetbrains.kotlin.documentation.KdFunction
-import org.jetbrains.kotlin.documentation.KdModule
-import org.jetbrains.kotlin.documentation.KdTypealias
-import org.jetbrains.kotlin.documentation.KdVariable
+import org.jetbrains.kotlin.documentation.*
 
-internal fun KdModule.calculateCoverage() {
+internal fun KdFragments.calculateCoverage() {
     val TOTAL = CoverageCounter("total")
     val PACKAGES = CoverageCounter("packages")
     val CLASSES = CoverageCounter("classes")
@@ -21,28 +14,25 @@ internal fun KdModule.calculateCoverage() {
     val FUNCTIONS = CoverageCounter("functions")
     val PROPERTIES = CoverageCounter("properties")
 
-    fun processDeclaration(declaration: KdDeclaration) {
-        TOTAL.count(declaration)
+    fun processDeclaration(element: KdElement) {
+        if (element is KdModule) return
 
-        when (declaration) {
-            is KdConstructor -> CONSTRUCTORS.count(declaration)
-            is KdFunction -> FUNCTIONS.count(declaration)
-            is KdVariable -> PROPERTIES.count(declaration)
-            is KdTypealias -> CLASSES.count(declaration)
-            is KdClass -> {
-                CLASSES.count(declaration)
-                declaration.declarations.forEach(::processDeclaration)
-            }
+        TOTAL.count(element)
+
+        when (element) {
+            is KdConstructor -> CONSTRUCTORS.count(element)
+            is KdFunction -> FUNCTIONS.count(element)
+            is KdVariable -> PROPERTIES.count(element)
+            is KdTypealias -> CLASSES.count(element)
+            is KdClass -> CLASSES.count(element)
+            is KdPackage -> PACKAGES.count(element)
         }
     }
 
-    fragments.forEach { fragment ->
-        fragment.packages.forEach { pkg ->
-            PACKAGES.count(pkg)
-            TOTAL.count(pkg)
-            pkg.declarations.forEach(::processDeclaration)
-        }
+    fragments.forEach {
+        it.elements.forEach(::processDeclaration)
     }
+
     println("COVERAGE:")
     TOTAL.print()
     PACKAGES.print()

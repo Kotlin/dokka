@@ -90,44 +90,30 @@ Workflow:
 // should contain info about package, class, function, parameters
 
 
-// links to declarations/symbols - or KdDeclarationId?
-//
-//  package:PACKAGE_NAME
-//    class:PACKAGE_NAME/CLASS_NAME
-// constructor:PACKAGE_NAME/          /PROPERTY_NAME/HASH
-// property:PACKAGE_NAME/          /PROPERTY_NAME/HASH
-// function:PACKAGE_NAME/          /FUNCTION_NAME/HASH
-// function:PACKAGE_NAME/CLASS_NAME/FUNCTION_NAME
-// function:PACKAGE_NAME/CLASS_NAME/FUNCTION_NAME/HASH
-// function:PACKAGE_NAME/CLASS_NAME/FUNCTION_NAME#HASH
-
-// variable:PACKAGE_NAME/CLASS_NAME/PROPERTY_NAME/0
-// variable:PACKAGE_NAME/CLASS_NAME/PROPERTY_NAME/1
-// variable:PACKAGE_NAME/CLASS_NAME/ENUM_ENTRY_NAME/0
-// function:PACKAGE_NAME/CLASS_NAME//0
-// function:PACKAGE_NAME/CLASS_NAME//1
-// function:PACKAGE_NAME/CLASS_NAME//2
-// function:PACKAGE_NAME/CLASS_NAME/FUNCTION_NAME/0
-// function:PACKAGE_NAME/CLASS_NAME/FUNCTION_NAME/1
-// function:PACKAGE_NAME/CLASS_NAME/ENUM_ENTRY_NAME/XXX
-
 // topic:...
 
 private fun test() {
     KdFragment(
         name = "common",
-        documentation = listOf(KdDocumentationNode.Text("Module docs")),
-        symbols = listOf(
+        elements = listOf(
+            KdModule(
+                id = KdModuleId("example"),
+                name = "example",
+                documentation = listOf(KdDocumentationNode.Text("Module docs")),
+                packages = listOf(
+                    KdPackageId("org.example.test"),
+                )
+            ),
             KdPackage(
                 id = KdPackageId("org.example.test"),
                 name = "org.example.test",
                 documentation = listOf(KdDocumentationNode.Text("Package docs")),
-                classifiers = listOf(
-                    KdClassifierId("org.example.test", "TestClass")
+                classlikes = listOf(
+                    KdClassLikeId("org.example.test", "TestClass")
                 )
             ),
             KdClass(
-                id = KdClassifierId("org.example.test", "TestClass"),
+                id = KdClassLikeId("org.example.test", "TestClass"),
                 name = "TestClass",
                 classKind = KdClassKind.CLASS,
                 documentation = listOf(KdDocumentationNode.Text("Class docs")),
@@ -139,7 +125,7 @@ private fun test() {
                 id = KdCallableId("org.example.test", "TestClass", "test"),
                 name = "test",
                 variableKind = KdVariableKind.PROPERTY,
-                returns = KdReturns(KdClassifierType(KdClassifierId("kotlin", "String"))),
+                returns = KdReturns(KdClassLikeType(KdClassLikeId("kotlin", "String"))),
                 documentation = listOf(KdDocumentationNode.Text("Property docs"))
             )
         )
