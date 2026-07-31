@@ -414,6 +414,77 @@ class CompanionSectionsTest : BaseAbstractTest() {
         }
     }
 
+    /**
+     * The companion scope of a supertype is not accessible through the name of a subtype
+     * (see KEEP-0449 §2.5), so companion extensions must not be listed on subclass pages.
+     *
+     * See https://github.com/Kotlin/dokka/issues/4562
+     */
+    @Test
+    fun `companion extension of a parent does not appear on a child page`() {
+        testInline(
+            """
+            |/src/main/kotlin/example/Util.kt
+            |package example
+            |open class Parent
+            |class Child : Parent()
+            |
+            |companion val Parent.companionExtProperty: String get() = ""
+            |companion fun Parent.companionExtFunction(): String = ""
+            |
+            |val Parent.instanceExtProperty: String get() = ""
+            |fun Parent.instanceExtFunction(): String = ""
+            """.trimIndent(),
+            configuration
+        ) {
+            pagesTransformationStage = { root ->
+                val parentPage = root.dfs { it.name == "Parent" } as? ClasslikePageNode
+                    ?: error("Parent page not found")
+                assertEquals(listOf("companionExtProperty"), parentPage.sectionTexts("Companion properties"))
+                assertEquals(listOf("companionExtFunction"), parentPage.sectionTexts("Companion functions"))
+                assertEquals(listOf("instanceExtProperty"), parentPage.sectionTexts("Properties"))
+                assertEquals(listOf("instanceExtFunction"), parentPage.sectionTexts("Functions"))
+
+                val childPage = root.dfs { it.name == "Child" } as? ClasslikePageNode
+                    ?: error("Child page not found")
+                // the parent's companion scope is not reachable through the child's name
+                assertNull(childPage.sectionTexts("Companion properties"))
+                assertNull(childPage.sectionTexts("Companion functions"))
+                // while plain extensions of the parent are applicable to the child and must be kept
+                assertEquals(listOf("instanceExtProperty"), childPage.sectionTexts("Properties"))
+                assertEquals(listOf("instanceExtFunction"), childPage.sectionTexts("Functions"))
+            }
+        }
+    }
+
+    @Test
+    fun `companion extension of an interface does not appear on an implementor page`() {
+        testInline(
+            """
+            |/src/main/kotlin/example/Util.kt
+            |package example
+            |interface Marker
+            |class Impl : Marker
+            |
+            |companion fun Marker.create(): String = ""
+            |fun Marker.describe(): String = ""
+            """.trimIndent(),
+            configuration
+        ) {
+            pagesTransformationStage = { root ->
+                val markerPage = root.dfs { it.name == "Marker" } as? ClasslikePageNode
+                    ?: error("Marker page not found")
+                assertEquals(listOf("create"), markerPage.sectionTexts("Companion functions"))
+                assertEquals(listOf("describe"), markerPage.sectionTexts("Functions"))
+
+                val implPage = root.dfs { it.name == "Impl" } as? ClasslikePageNode
+                    ?: error("Impl page not found")
+                assertNull(implPage.sectionTexts("Companion functions"))
+                assertEquals(listOf("describe"), implPage.sectionTexts("Functions"))
+            }
+        }
+    }
+
     @Test
     fun `plain top-level extension stays in regular Functions section`() {
         testInline(
