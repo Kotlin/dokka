@@ -118,11 +118,11 @@ private fun test() {
                 classKind = KdClassKind.CLASS,
                 documentation = listOf(KdDocumentationNode.Text("Class docs")),
                 callables = listOf(
-                    KdCallableId("org.example.test", "TestClass", "test")
+                    KdCallableId("org.example.test", "TestClass", "test", "0")
                 )
             ),
             KdVariable(
-                id = KdCallableId("org.example.test", "TestClass", "test"),
+                id = KdCallableId("org.example.test", "TestClass", "test", "0"),
                 name = "test",
                 variableKind = KdVariableKind.PROPERTY,
                 returns = KdReturns(KdClassLikeType(KdClassLikeId("kotlin", "String"))),

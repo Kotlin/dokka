@@ -81,6 +81,7 @@ public data class KdCallableId(
     // TODO: how to distinguish between: constructor vs function, property vs function
     public val callableName: String?, // if null -> constructor, `classNames` should be not null
 //    public val isProperty: Boolean // if false -> function - TODO: should we?
+    public val hash: String
 ) : KdDeclarationId()
 
 // serializers
@@ -154,12 +155,12 @@ internal object KdCallableIdSerializer : KSerializer<KdCallableId> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("KdCallableId", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: KdCallableId) {
-        encoder.encodeString(value.packageName + "/" + value.classNames.orEmpty() + "/" + value.callableName.orEmpty())
+        encoder.encodeString(value.packageName + "/" + value.classNames.orEmpty() + "/" + value.callableName.orEmpty() + "/" + value.hash)
     }
 
     override fun deserialize(decoder: Decoder): KdCallableId {
         val parts = decoder.decodeString().split('/')
-        require(parts.size == 3) { "classLikeId should be a pair of package and class names" }
-        return KdCallableId(parts[0], parts[1], parts[2])
+        require(parts.size == 4) { "classLikeId should be a pair of package and class names" }
+        return KdCallableId(parts[0], parts[1], parts[2], parts[3])
     }
 }

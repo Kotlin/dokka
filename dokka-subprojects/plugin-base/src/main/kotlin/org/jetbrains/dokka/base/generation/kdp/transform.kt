@@ -114,6 +114,8 @@ private fun DProperty.toKdVariable(
     }
 
     return KdVariable(
+        // TODO: it's incorrect, because it will use inheritor DRI if there is no override...
+        //  or, we just need to add it id, but not add the declaration to the module?
         id = dri.toKdCallableId(),
         name = name,
         returns = KdReturns(
@@ -138,6 +140,9 @@ private fun DProperty.toKdVariable(
                 documentation = it.toKdDocumentation()
             )
         },
+        inheritedFrom = listOfNotNull(
+            extra[InheritedMember]?.inheritedFrom?.get(sourceSet)?.toKdClassLikeId()?.toKdCallableId(name)
+        ),
         source = KdSource.KOTLIN, // TODO: not enought information right now
         visibility = kdVisibility(sourceSet),
         modality = kdModality(sourceSet),
@@ -183,6 +188,9 @@ private fun DEnumEntry.toKdVariable(
                 documentation = it.toKdDocumentation()
             )
         },
+        inheritedFrom = listOfNotNull(
+            extra[InheritedMember]?.inheritedFrom?.get(sourceSet)?.toKdClassLikeId()?.toKdCallableId(name)
+        ),
         source = KdSource.KOTLIN, // TODO: not enought information right now
         visibility = enum.kdVisibility(sourceSet),
         modality = KdModality.FINAL,
@@ -235,6 +243,9 @@ private fun DFunction.toKdFunction(
                 documentation = it.toKdDocumentation()
             )
         },
+        inheritedFrom = listOfNotNull(
+            extra[InheritedMember]?.inheritedFrom?.get(sourceSet)?.toKdClassLikeId()?.toKdCallableId(name)
+        ),
         source = KdSource.KOTLIN, // TODO: not enought information right now
         visibility = kdVisibility(sourceSet),
         modality = kdModality(sourceSet),

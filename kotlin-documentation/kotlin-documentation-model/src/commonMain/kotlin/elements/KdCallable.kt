@@ -21,6 +21,7 @@ public sealed class KdCallable : KdDeclaration() {
     public abstract val throws: List<KdThrows>
 
     // there could be multiple overrides - not really "override" more - "inherits from"?
+    // TODO: it really should be a KdClassLikeId probably?
     public abstract val inheritedFrom: List<KdCallableId>
 }
 

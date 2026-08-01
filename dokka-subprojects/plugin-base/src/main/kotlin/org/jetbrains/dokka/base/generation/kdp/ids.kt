@@ -7,6 +7,7 @@ package org.jetbrains.dokka.base.generation.kdp
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.DRIExtraContainer
 import org.jetbrains.dokka.links.EnumEntryDRIExtra
+import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.kotlin.documentation.KdCallableId
 import org.jetbrains.kotlin.documentation.KdClassLikeId
 
@@ -17,6 +18,7 @@ internal fun DRI.toKdClassLikeId(): KdClassLikeId = KdClassLikeId(
 
 internal fun DRI.toKdCallableId(): KdCallableId {
     val packageName = requireNotNull(packageName) { "packageName is null for $this" }
+    require(target is PointingToDeclaration) { "target is not PointingToDeclaration for $this" }
 
     // enum entry
     return if (extra != null && DRIExtraContainer(extra)[EnumEntryDRIExtra] != null) {
@@ -29,14 +31,25 @@ internal fun DRI.toKdCallableId(): KdCallableId {
         KdCallableId(
             packageName = packageName,
             classNames = classNames,
-            callableName = callableName
+            callableName = callableName,
+            hash = "0"
         )
     } else {
         val callable = requireNotNull(callable) { "callable is null for $this" }
         KdCallableId(
             packageName = packageName,
             classNames = classNames,
-            callableName = callable.name
+            callableName = callable.name,
+            hash = callable.signature().hashCode().toString()
         )
     }
 }
+
+internal fun KdClassLikeId.toKdCallableId(
+    name: String,
+): KdCallableId = KdCallableId(
+    packageName = packageName,
+    classNames = classNames,
+    callableName = name,
+    hash = "0"
+)

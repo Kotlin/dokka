@@ -153,6 +153,24 @@ internal class DokkaSymbolVisitor(
     ): DPackage {
         val dri = getDRIFromPackage(packageSymbol)
         val scope = packageSymbol.packageScope
+        // TODO: for some reason it contains both expect and actual declarations for leaf targets (jvm/iosArm64)
+        //  as well as two expect, actual, and declaration without PSI in case of "nativeMain" and similar - empty source-set
+        //  or just two expect and actual in "nativeAndWasmWasiMain" - contains `actual`
+        //  or just two expects in "nonJvmMain" - one with psi, the other without it
+        //  might be an issue in AA?
+
+        // commonMain - expect
+        // jvmMain - expect + actual (source-set introduces actual)
+        //   nonJvmMain - expect + expect (without psi)
+        //     nativeAndWasmWasiMain - expect + expect (without psi) + actual (source-set introduces actual)
+        //       nativeMain - expect + expect (without psi) + actual + non-expect-non-actual (wihthout psi)
+        //         appleMain - expect + expect (without psi) + actual + non-expect-non-actual (wihthout psi)
+        //           iosMain - expect + expect (without psi) + actual + non-expect-non-actual (wihthout psi)
+        //             iosArm64Main - expect + actual
+        //   webMain - expect + expect (without psi) + actual (source-set introduces actual)
+        //     jsMain - expect + actual
+
+
         val callables = scope.callables.toList()
         val classifiers = scope.classifiers.toList()
 
@@ -526,6 +544,7 @@ internal class DokkaSymbolVisitor(
     context(_: KaSession)
     private fun visitPropertySymbol(propertySymbol: KaPropertySymbol, parent: DRI, isJavaContext: Boolean): DProperty =
         withExceptionCatcher(propertySymbol) {
+            // TODO: this will return DRI from supertype
             val dri = createDRIWithOverridden(propertySymbol).origin
             val inheritedFrom = dri.getInheritedFromDRI(parent)
             val (isExpect, isActual) = when (propertySymbol) {
@@ -766,6 +785,7 @@ internal class DokkaSymbolVisitor(
             val inheritedFrom = dri.getInheritedFromDRI(parent)
             val isExpect = functionSymbol.isExpect
             val isActual = functionSymbol.isActual
+            logger.warn("COLLECTED in ${sourceSet.sourceSetID.sourceSetName}: ${getDRIFromSymbol(functionSymbol)} | ${isExpect} | ${isActual} | ${functionSymbol.psi}")
             val generics =
                 functionSymbol.typeParameters.mapIndexed { index, symbol ->
                     visitVariantTypeParameter(
