@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 
 // TODO: simplify for now
 @Serializable
-public class KdConstValue(
+public data class KdConstValue(
     public val value: String,
 )
 

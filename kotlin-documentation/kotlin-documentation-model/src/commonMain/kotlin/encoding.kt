@@ -21,6 +21,10 @@ public fun KdFragments.encodeToJson(prettyPrint: Boolean): String {
     val json = if (prettyPrint) prettyJson else Json.Default
     return json.encodeToString(KdFragments.serializer(), this)
 }
+public fun KdFragment.encodeToJson(prettyPrint: Boolean): String {
+    val json = if (prettyPrint) prettyJson else Json.Default
+    return json.encodeToString(KdFragment.serializer(), this)
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 public fun KdFragments.encodeToProtoBuf(): ByteArray {

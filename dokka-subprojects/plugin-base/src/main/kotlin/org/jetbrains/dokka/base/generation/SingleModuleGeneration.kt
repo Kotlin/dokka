@@ -36,10 +36,6 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
         report("Transforming documentation model before merging")
         val transformedDocumentationBeforeMerge = transformDocumentationModelBeforeMerge(modulesFromPlatforms)
 
-        transformedDocumentationBeforeMerge.forEach {
-            saveModule(it, context.configuration.outputDir.resolve("kdp-split/${it.sourceSets.single().sourceSetID.sourceSetName}"))
-        }
-
         report("Merging documentation models")
         val transformedDocumentationAfterMerge = mergeDocumentationModels(transformedDocumentationBeforeMerge)
             ?: exitGenerationGracefully("Nothing to document")
@@ -47,7 +43,11 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
         report("Transforming documentation model after merging")
         val transformedDocumentation = transformDocumentationModelAfterMerge(transformedDocumentationAfterMerge)
 
-        saveModule(transformedDocumentation, context.configuration.outputDir.resolve("kdp-merged"))
+        saveModule(
+            transformedDocumentation,
+            transformedDocumentationBeforeMerge,
+            context.configuration.outputDir.resolve("kdp")
+        )
 
         // Step 2: Generate pages & transform them (change internally)
         report("Creating pages")

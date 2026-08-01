@@ -785,7 +785,7 @@ internal class DokkaSymbolVisitor(
             val inheritedFrom = dri.getInheritedFromDRI(parent)
             val isExpect = functionSymbol.isExpect
             val isActual = functionSymbol.isActual
-            logger.warn("COLLECTED in ${sourceSet.sourceSetID.sourceSetName}: ${getDRIFromSymbol(functionSymbol)} | ${isExpect} | ${isActual} | ${functionSymbol.psi}")
+            // logger.warn("COLLECTED in ${sourceSet.sourceSetID.sourceSetName}: ${getDRIFromSymbol(functionSymbol)} | ${isExpect} | ${isActual} | ${functionSymbol.psi}")
             val generics =
                 functionSymbol.typeParameters.mapIndexed { index, symbol ->
                     visitVariantTypeParameter(

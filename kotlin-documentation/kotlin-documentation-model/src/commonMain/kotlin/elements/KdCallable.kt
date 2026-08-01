@@ -22,6 +22,7 @@ public sealed class KdCallable : KdDeclaration() {
 
     // there could be multiple overrides - not really "override" more - "inherits from"?
     // TODO: it really should be a KdClassLikeId probably?
+    //  TBD should we list all override declarations, or something else
     public abstract val inheritedFrom: List<KdCallableId>
 }
 

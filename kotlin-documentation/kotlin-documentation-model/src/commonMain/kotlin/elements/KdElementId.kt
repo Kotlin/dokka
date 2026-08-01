@@ -17,10 +17,10 @@ import kotlinx.serialization.encoding.Encoder
 public enum class KdElementKind {
     MODULE, // impossible in Kotlin, but possible in Java
     PACKAGE,
-    CLASS_LIKE, // object, class, typealias, etc
-    CONSTRUCTOR,
-    FUNCTION,
-    PROPERTY
+    CLASS, // object, class, typealias, etc
+    CALLABLE,
+    // PROPERTY,
+    // CONSTRUCTOR,
     // TODO: statics and companion things?
 }
 
@@ -90,11 +90,35 @@ internal object KdElementIdSerializer : KSerializer<KdElementId> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("KdElementId", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: KdElementId) {
-        TODO("Not yet implemented")
+        when (value) {
+            is KdCallableId -> KdCallableIdSerializer.serialize(encoder, value)
+            is KdClassLikeId -> KdClassLikeIdSerializer.serialize(encoder, value)
+            is KdPackageId -> KdPackageIdSerializer.serialize(encoder, value)
+            is KdModuleId -> KdModuleIdSerializer.serialize(encoder, value)
+        }
     }
 
     override fun deserialize(decoder: Decoder): KdElementId {
-        TODO("Not yet implemented")
+        val id = decoder.decodeString()
+        val firstParts = id.split(':')
+        require(firstParts.size == 2) { "wrong format: $id" }
+
+        val name = firstParts[1]
+        return when (KdElementKind.valueOf(firstParts[0])) {
+            KdElementKind.MODULE -> KdModuleId(name)
+            KdElementKind.PACKAGE -> KdPackageId(name)
+            KdElementKind.CLASS -> {
+                val parts = name.split('/')
+                require(parts.size == 2) { "classLikeId should be a pair of package and class names" }
+                KdClassLikeId(parts[0], parts[1])
+            }
+
+            KdElementKind.CALLABLE -> {
+                val parts = name.split('/')
+                require(parts.size == 4) { "classLikeId should be a pair of package and class names" }
+                KdCallableId(parts[0], parts[1], parts[2], parts[3])
+            }
+        }
     }
 }
 
@@ -109,7 +133,8 @@ internal object KdDeclarationIdSerializer : KSerializer<KdDeclarationId> {
     }
 
     override fun deserialize(decoder: Decoder): KdDeclarationId {
-        TODO("Not yet implemented")
+        val id = KdElementIdSerializer.deserialize(decoder)
+        return id as? KdDeclarationId ?: error("Not a declaration id: $id")
     }
 }
 
@@ -117,11 +142,14 @@ internal object KdModuleIdSerializer : KSerializer<KdModuleId> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("KdModuleId", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: KdModuleId) {
-        encoder.encodeString(value.moduleName)
+        encoder.encodeString(
+            "${KdElementKind.MODULE.name}:${value.moduleName}"
+        )
     }
 
     override fun deserialize(decoder: Decoder): KdModuleId {
-        return KdModuleId(decoder.decodeString())
+        val id = KdElementIdSerializer.deserialize(decoder)
+        return id as? KdModuleId ?: error("Not a module id: $id")
     }
 }
 
@@ -129,11 +157,14 @@ internal object KdPackageIdSerializer : KSerializer<KdPackageId> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("KdPackageId", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: KdPackageId) {
-        encoder.encodeString(value.packageName)
+        encoder.encodeString(
+            "${KdElementKind.PACKAGE.name}:${value.packageName}"
+        )
     }
 
     override fun deserialize(decoder: Decoder): KdPackageId {
-        return KdPackageId(decoder.decodeString())
+        val id = KdElementIdSerializer.deserialize(decoder)
+        return id as? KdPackageId ?: error("Not a package id: $id")
     }
 }
 
@@ -141,13 +172,14 @@ internal object KdClassLikeIdSerializer : KSerializer<KdClassLikeId> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("KdclassLikeId", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: KdClassLikeId) {
-        encoder.encodeString(value.packageName + "/" + value.classNames)
+        encoder.encodeString(
+            "${KdElementKind.CLASS.name}:${value.packageName}/${value.classNames}"
+        )
     }
 
     override fun deserialize(decoder: Decoder): KdClassLikeId {
-        val parts = decoder.decodeString().split('/')
-        require(parts.size == 2) { "classLikeId should be a pair of package and class names" }
-        return KdClassLikeId(parts[0], parts[1])
+        val id = KdElementIdSerializer.deserialize(decoder)
+        return id as? KdClassLikeId ?: error("Not a classlike id: $id")
     }
 }
 
@@ -155,12 +187,13 @@ internal object KdCallableIdSerializer : KSerializer<KdCallableId> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("KdCallableId", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: KdCallableId) {
-        encoder.encodeString(value.packageName + "/" + value.classNames.orEmpty() + "/" + value.callableName.orEmpty() + "/" + value.hash)
+        encoder.encodeString(
+            "${KdElementKind.CALLABLE.name}:${value.packageName}/${value.classNames.orEmpty()}/${value.callableName.orEmpty()}/${value.hash}"
+        )
     }
 
     override fun deserialize(decoder: Decoder): KdCallableId {
-        val parts = decoder.decodeString().split('/')
-        require(parts.size == 4) { "classLikeId should be a pair of package and class names" }
-        return KdCallableId(parts[0], parts[1], parts[2], parts[3])
+        val id = KdElementIdSerializer.deserialize(decoder)
+        return id as? KdCallableId ?: error("Not a callable id: $id")
     }
 }

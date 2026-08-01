@@ -13,7 +13,8 @@ import java.io.File
 import kotlin.time.measureTimedValue
 
 internal fun saveModule(
-    dModule: DModule,
+    mergedModule: DModule, // after merging
+    unmergedModules: List<DModule>, // before merging
     outputDirectory: File
 ) {
     fun <T> measured(tag: String, block: () -> T): Result<T> {
@@ -26,48 +27,89 @@ internal fun saveModule(
         return result
     }
 
-    val kdModule = measured("transform") { dModule.toKdFragments() }.getOrThrow()
+    fun saveFragments(tag: String, fragments: KdFragments) {
+        measured("coverage.$tag") { fragments.calculateCoverage() }.getOrThrow()
 
-    measured("coverage") { kdModule.calculateCoverage() }.getOrThrow()
+        outputDirectory.mkdirs()
+        measured("json.$tag") {
+            outputDirectory.resolve("$tag._.json").writeText(fragments.encodeToJson(prettyPrint = false))
+        }
+        outputDirectory.resolve("$tag._.pretty.json").writeText(fragments.encodeToJson(prettyPrint = true))
+        fragments.fragments.forEach {
+            outputDirectory.resolve("$tag.${it.name}.pretty.json").writeText(it.encodeToJson(prettyPrint = true))
+        }
+    }
 
-    outputDirectory.mkdirs()
-    measured("json") {
-        outputDirectory.resolve("fragments.json").writeText(kdModule.encodeToJson(prettyPrint = false))
-    }
-    measured("pretty-json") {
-        outputDirectory.resolve("fragments-pretty.json").writeText(kdModule.encodeToJson(prettyPrint = true))
-    }
-    // json is small enough when zipped
-//        measured("cbor") { resolve("${kdModule.name}.cbor").writeBytes(kdModule.encodeToCbor()) }
-//        measured("pb-schema") { resolve("${kdModule.name}.schema").writeText(protoSchema()) }
-//        measured("pb") { resolve("${kdModule.name}.pb").writeBytes(kdModule.encodeToProtoBuf()) }
+//    saveFragments("merged", measured("transform.merged") { mergedModule.toKdFragments() }.getOrThrow())
+    saveFragments("unmerged", measured("transform.merged") { unmergedModules.toKdFragments() }.getOrThrow())
 }
 
-// TODO: sorting
-private fun DModule.toKdFragments(): KdFragments = KdFragments(
-    fragments = sourceSets.map { sourceSet ->
+private fun List<DModule>.toKdFragments(): KdFragments = buildKdFragments(associateBy { it.sourceSets.single() })
+
+private fun DModule.toKdFragments(): KdFragments = buildKdFragments(sourceSets.associateWith { this })
+
+private fun buildKdFragments(
+    modules: Map<DokkaConfiguration.DokkaSourceSet, DModule>
+): KdFragments {
+    val fragments = mutableMapOf<String, KdFragment>()
+
+    fun calculateFragmentDependency(
+        elements: List<KdElement>,
+        dependsOnFragment: KdFragment
+    ): KdFragmentDependency {
+        val fragmentElementsById = dependsOnFragment.elements.associateBy { it.id }
+
+        return KdFragmentDependency(
+            name = dependsOnFragment.name,
+            elements = elements.mapNotNull { element ->
+                element.id.takeIf { element == fragmentElementsById[it] }
+            }
+        )
+    }
+
+    fun DModule.toKdFragment(sourceSet: DokkaConfiguration.DokkaSourceSet): KdFragment {
+        val fragmentName = sourceSet.sourceSetID.sourceSetName
+        println("${fragmentName}: ${sourceSet.dependentSourceSets.map { it.sourceSetName }}")
+        fragments[fragmentName]?.let { return it }
+
         val tagWrappers = tagWrappers(sourceSet) { it is Description }
 
         val elements = mutableListOf<KdElement>()
         val collectElement: (KdElement) -> Unit = elements::add
 
-        collectElement(
-            KdModule(
-                id = KdModuleId(name),
-                name = name,
-                packages = packages.mapNotNull {
-                    it.toKdPackage(sourceSet, collectElement)?.apply(collectElement)?.id
-                },
-                documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
-            )
-        )
-        KdFragment(
-            name = sourceSet.sourceSetID.sourceSetName, // TODO: name vs displayName
-            dependsOn = sourceSet.dependentSourceSets.map { it.sourceSetName },
-            elements = elements,
-        )
+        KdModule(
+            id = KdModuleId(name),
+            name = name,
+            packages = packages.mapNotNull {
+                it.toKdPackage(sourceSet, collectElement)?.apply(collectElement)?.id
+            },
+            documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
+        ).apply(collectElement)
+
+        return KdFragment(
+            name = fragmentName,
+            fragmentDependencies = sourceSet.dependentSourceSets.map { dssId ->
+                val dss = modules.entries.single { it.key.sourceSetID == dssId }
+                calculateFragmentDependency(
+                    elements = elements,
+                    dependsOnFragment = dss.value.toKdFragment(dss.key)
+                )
+            },
+            elements = elements
+        ).also {
+            check(fragments.put(fragmentName, it) == null) { "fragment already there: ${it.name}" }
+        }
     }
-)
+
+    modules.forEach { it.value.toKdFragment(it.key) }
+
+    check(modules.size == fragments.size) { "wrong number of fragments: ${fragments.size} vs ${modules.size}" }
+
+    return KdFragments(fragments.values.toList().map {
+        val elementsFromDependencies = it.fragmentDependencies.flatMapTo(mutableSetOf(), KdFragmentDependency::elements)
+        it.copy(elements = it.elements.filterNot { it.id in elementsFromDependencies })
+    })
+}
 
 private fun DPackage.toKdPackage(
     sourceSet: DokkaConfiguration.DokkaSourceSet,
@@ -146,7 +188,8 @@ private fun DProperty.toKdVariable(
         source = KdSource.KOTLIN, // TODO: not enought information right now
         visibility = kdVisibility(sourceSet),
         modality = kdModality(sourceSet),
-        actuality = kdActuality(sourceSet),
+        // TODO: ignored for now to have nice `equals` check
+        //  actuality = kdActuality(sourceSet),
         isExternal = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.External),
         annotations = annotations.mapNotNull(Annotations.Annotation::toKdAnnotation),
         documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
@@ -194,7 +237,8 @@ private fun DEnumEntry.toKdVariable(
         source = KdSource.KOTLIN, // TODO: not enought information right now
         visibility = enum.kdVisibility(sourceSet),
         modality = KdModality.FINAL,
-        actuality = enum.kdActuality(sourceSet),
+        // TODO: ignored for now to have nice `equals` check
+        //  actuality = enum.kdActuality(sourceSet),
         isExternal = false,
         annotations = annotations.mapNotNull(Annotations.Annotation::toKdAnnotation),
         documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
@@ -249,7 +293,8 @@ private fun DFunction.toKdFunction(
         source = KdSource.KOTLIN, // TODO: not enought information right now
         visibility = kdVisibility(sourceSet),
         modality = kdModality(sourceSet),
-        actuality = kdActuality(sourceSet),
+        // TODO: ignored for now to have nice `equals` check
+        //  actuality = kdActuality(sourceSet),
         isExternal = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.External),
         annotations = annotations.mapNotNull(Annotations.Annotation::toKdAnnotation),
         documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
@@ -289,7 +334,8 @@ private fun DFunction.toKdConstructor(
         source = KdSource.KOTLIN, // TODO: not enought information right now
         visibility = kdVisibility(sourceSet),
         modality = kdModality(sourceSet),
-        actuality = kdActuality(sourceSet),
+        // TODO: ignored for now to have nice `equals` check
+        //  actuality = kdActuality(sourceSet),
         isExternal = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.External),
         annotations = annotations.mapNotNull(Annotations.Annotation::toKdAnnotation),
         documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
@@ -364,7 +410,8 @@ private fun DClasslike.toKdClass(
             is WithAbstraction -> kdModality(sourceSet)
             else -> KdModality.FINAL
         },
-        actuality = kdActuality(sourceSet),
+        // TODO: ignored for now to have nice `equals` check
+        //  actuality = kdActuality(sourceSet),
         isExternal = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.External),
         annotations = annotations.mapNotNull(Annotations.Annotation::toKdAnnotation),
         documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
@@ -387,7 +434,8 @@ private fun DTypeAlias.toKdTypealias(
         underlyingType = underlyingType.getValue(sourceSet).toKdType(),
         typeParameters = generics.map { it.toKdTypeParameter(sourceSet) },
         visibility = kdVisibility(sourceSet),
-        actuality = null, // kdActuality(sourceSet), // TODO: there is a complex logic for this in Dokka...
+        // TODO: ignored for now to have nice `equals` check
+        //  actuality = null, // kdActuality(sourceSet), // TODO: there is a complex logic for this in Dokka...
         annotations = annotations.mapNotNull(Annotations.Annotation::toKdAnnotation),
         documentation = tagWrappers.filterIsInstance<Description>().singleOrNullIfEmpty().toKdDocumentation(),
     )

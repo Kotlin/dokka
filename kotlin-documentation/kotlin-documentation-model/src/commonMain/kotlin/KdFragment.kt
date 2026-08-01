@@ -37,9 +37,15 @@ import kotlinx.serialization.Serializable
 @Serializable
 public data class KdFragment(
     val name: String,
-    // TODO: do we need it here, or we should embed psm as a separate file?
-    val dependsOn: List<String> = emptyList(),
     val elements: List<KdElement> = emptyList(),
+    val fragmentDependencies: List<KdFragmentDependency> = emptyList(),
+)
+
+@Serializable
+public data class KdFragmentDependency(
+    val name: String,
+    // list of declarations, which are the same as in specified `dependsOn` fragment
+    val elements: List<KdElementId>
 )
 
 // TODO: we might want to also represent android flavors in a similar way, so maybe `fragment` is not the best name
