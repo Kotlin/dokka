@@ -962,6 +962,22 @@ class SignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `annotation class with vararg parameter`() = testRender(
+        """
+            |/src/main/kotlin/test/Test.kt
+            |package example
+            |
+            |annotation class Throws(vararg val exceptionClasses: kotlin.reflect.KClass<out Throwable>)
+        """.trimMargin(),
+    ) {
+        renderedContent("root/example/-throws/index.html").firstSignature().matchIgnoringSpans(
+            "annotation class ", A("Throws"), "(", Parameters(
+                Parameter("vararg val exceptionClasses: ", A("KClass"), "<out ", A("Throwable"), ">")
+            ), ")"
+        )
+    }
+
+    @Test
     fun `actual fun`() {
         val writerPlugin = TestOutputWriterPlugin()
 
