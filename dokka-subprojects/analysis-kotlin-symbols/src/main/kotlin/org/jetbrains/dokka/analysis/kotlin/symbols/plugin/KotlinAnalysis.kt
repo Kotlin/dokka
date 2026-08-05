@@ -39,11 +39,6 @@ internal fun Platform.toTargetPlatform() = when (this) {
     Platform.jvm -> JvmPlatforms.defaultJvmPlatform
 }
 
-/**
- * foo.
- * <br>
- * baz
- */
 private fun getJdkHomeFromSystemProperty(logger: DokkaLogger): File? {
     val javaHome = File(System.getProperty("java.home"))
     if (!javaHome.exists()) {
