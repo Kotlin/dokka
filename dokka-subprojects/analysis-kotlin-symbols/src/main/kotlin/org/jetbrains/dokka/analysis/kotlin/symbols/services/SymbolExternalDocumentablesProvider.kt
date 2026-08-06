@@ -50,7 +50,7 @@ internal class SymbolExternalDocumentablesProvider(val context: DokkaContext) : 
             )
 
 
-            val parentDRI = with(contextOf<KaSession>()) { (symbol.containingSymbol as? KaDeclarationSymbol) }?.let { contextOf<KaSession>().getDRIFromSymbol(it) } ?: /* top level */ DRI(dri.packageName)
+            val parentDRI = with(contextOf<KaSession>()) { (symbol.containingSymbol as? KaDeclarationSymbol)?.let { getDRIFromSymbol(it) } ?: /* top level */ DRI(dri.packageName) }
             with(translator) {
                 return@analyze contextOf<KaSession>().visitClassSymbol(symbol, parentDRI)
             }
