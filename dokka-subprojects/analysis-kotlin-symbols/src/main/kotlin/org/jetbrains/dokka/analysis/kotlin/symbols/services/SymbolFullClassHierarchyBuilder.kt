@@ -26,6 +26,9 @@ import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.kotlin.analysis.api.symbols.namedClassSymbol
 import org.jetbrains.kotlin.analysis.api.types.KaType
 import org.jetbrains.kotlin.analysis.api.types.defaultType
+import org.jetbrains.kotlin.analysis.api.types.directSupertypes
+import org.jetbrains.kotlin.analysis.api.types.expandedSymbol
+import org.jetbrains.kotlin.analysis.api.types.isAnyType
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import java.util.concurrent.ConcurrentHashMap
 
@@ -40,7 +43,8 @@ internal class SymbolFullClassHierarchyBuilder(context: DokkaContext) : FullClas
         return map
     }
 
-    private fun KaSession.collectSupertypesFromKotlinType(
+    context(_: KaSession)
+    private fun collectSupertypesFromKotlinType(
         driWithKType: Pair<DRI, KaType>,
         supersMap: MutableMap<DRI, Supertypes>
     ) {
@@ -87,7 +91,7 @@ internal class SymbolFullClassHierarchyBuilder(context: DokkaContext) : FullClas
                     (source.psi as? KtClassOrObject)?.let { psi ->
                         analyze(kotlinAnalysis.getModule(sourceSet)) {
                             val type = psi.namedClassSymbol?.defaultType ?: return@analyze
-                            hierarchy[sourceSet]?.let { contextOf<KaSession>().collectSupertypesFromKotlinType(documentable.dri to type, it) }
+                            hierarchy[sourceSet]?.let { collectSupertypesFromKotlinType(documentable.dri to type, it) }
                         }
                     }
                 } else if (source is PsiDocumentableSource) {
@@ -121,8 +125,8 @@ internal class SymbolFullClassHierarchyBuilder(context: DokkaContext) : FullClas
                         val namedClassSymbol = psi.namedClassSymbol?: return@analyze
                         val location = Location(namedClassSymbol)
                         val type = namedClassSymbol.defaultType
-                        contextOf<KaSession>().collectSupertypesWithKindFromKotlinType(typeTranslator, with(typeTranslator) {
-                            contextOf<KaSession>().toTypeConstructorWithKindFrom(type, location)
+                        collectSupertypesWithKindFromKotlinType(typeTranslator, with(typeTranslator) {
+                            toTypeConstructorWithKindFrom(type, location)
                         } to type, hierarchy, location)
                     }
                 }  // else if (source is PsiDocumentableSource)  TODO val psi = source.psi as? PsiClass
@@ -131,7 +135,8 @@ internal class SymbolFullClassHierarchyBuilder(context: DokkaContext) : FullClas
         return hierarchy
     }
 
-    private fun KaSession.collectSupertypesWithKindFromKotlinType(
+    context(_: KaSession)
+    private fun collectSupertypesWithKindFromKotlinType(
         typeTranslator: TypeTranslator,
         typeConstructorWithKindWithKType: Pair<TypeConstructorWithKind, KaType>,
         supersMap: MutableMap<DRI, SuperclassesWithKind>,

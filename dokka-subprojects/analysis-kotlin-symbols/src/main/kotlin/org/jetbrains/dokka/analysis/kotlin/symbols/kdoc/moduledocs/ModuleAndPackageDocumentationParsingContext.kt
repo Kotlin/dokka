@@ -12,7 +12,6 @@ import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.KotlinAnalysis
 import org.jetbrains.dokka.analysis.markdown.jb.MarkdownParser
 import org.jetbrains.dokka.model.doc.DocumentationNode
 import org.jetbrains.dokka.utilities.DokkaLogger
-import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.session.analyze
 
 internal fun interface ModuleAndPackageDocumentationParsingContext {
@@ -46,7 +45,7 @@ internal fun ModuleAndPackageDocumentationParsingContext(
         MarkdownParser(
             externalDri = { link ->
                 analyze(sourceModule) {
-                    contextOf<KaSession>().resolveKDocTextLink(link, contextPackageFQN, locationInformation, logger, sourceSet)
+                    resolveKDocTextLink(link, contextPackageFQN, locationInformation, logger, sourceSet)
                 }
             },
             sourceLocation
