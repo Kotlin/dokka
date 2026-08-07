@@ -11,18 +11,59 @@ import kotlinx.serialization.Serializable
 @Serializable
 public sealed class KdCallable : KdDeclaration() {
     abstract override val id: KdCallableId
-    public abstract val returns: KdReturns
 
-    // means, it's explicitly marked as `override`, and not just an inherited callable
-    public abstract val isOverride: Boolean
-    public abstract val isStatic: Boolean // do nothing until static KEEP?
+    // TODO: `isCompanion` + `isCompanionExtension`? - TBD
+    //  think also about Java here
+    public abstract val isStatic: Boolean
+
+    public abstract val returns: KdReturns
     public abstract val receiverParameter: KdReceiverParameter?
     public abstract val contextParameters: List<KdContextParameter>
     public abstract val throws: List<KdThrows>
 
-    // there could be multiple overrides - not really "override" more - "inherits from"?
-    // TODO: it really should be a KdClassLikeId probably?
-    //  TBD should we list all override declarations, or something else
-    public abstract val inheritedFrom: List<KdCallableId>
+    // TODO: should we list all override declarations, or something else
+    public abstract val overrides: List<KdCallableOverride>
+
 }
 
+@Serializable
+public data class KdCallableOverride(
+    val overrides: KdCallableId,
+    val kind: KdCallableOverrideKind
+)
+
+public enum class KdCallableOverrideKind {
+    DIRECT_OVERRIDE,
+    INHERITED // just inherited, not mentioned in class
+}
+
+private interface A {
+    fun foo()
+}
+
+private interface B {
+    fun foo()
+}
+
+// overrides = [A.foo=direct, B.foo=direct]
+private class C : A, B {
+    override fun foo() {
+        TODO("Not yet implemented")
+    }
+}
+
+private abstract class B2 {
+    fun foo() {}
+}
+
+// overrides = [B2.foo=implicit?, A.foo=implicit]
+private class C2 : B2(), A
+
+private abstract class B3 : B {
+    override fun foo() {
+        TODO("Not yet implemented")
+    }
+}
+
+// overrides = [B3.foo=implicit?, A.foo=implicit]
+private class C3 : B3(), A

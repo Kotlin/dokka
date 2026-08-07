@@ -7,6 +7,11 @@ package org.jetbrains.kotlin.documentation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+// TODO: do the same as for class
+public enum class KdVariableKind {
+    PROPERTY, FIELD/*JVM?*/, ENUM_ENTRY
+}
+
 // TODO: we should have a `KdProperty` with getter/setter and potentially `field`
 //  `field` is present only in case `private` declarations are included - TBD
 //  TBD what to do with synthetic properties

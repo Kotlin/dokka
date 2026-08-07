@@ -13,9 +13,29 @@ public sealed class KdDeclaration : KdElement() {
     public abstract val source: KdSource
     public abstract val visibility: KdVisibility
     public abstract val modality: KdModality
+
+    // TODO: wait, but do we really need `expect`/`actual` present in the model at all???
     public abstract val actuality: KdActuality?
+
     public abstract val annotations: List<KdAnnotation>
     public abstract val typeParameters: List<KdTypeParameter>
+}
+
+public enum class KdVisibility {
+    PUBLIC, PROTECTED, INTERNAL, PRIVATE,
+
+    // java specific visibilities
+    // should we prefix them with `JAVA_*`
+    PACKAGE_PROTECTED, PACKAGE_PRIVATE
+}
+
+public enum class KdModality {
+    FINAL, SEALED, OPEN, ABSTRACT;
+    // non-sealed in java?
+}
+
+public enum class KdActuality {
+    ACTUAL, EXPECT
 }
 
 // WIP: protobuf experiments

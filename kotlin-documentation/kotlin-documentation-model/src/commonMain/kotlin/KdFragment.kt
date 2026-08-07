@@ -39,13 +39,27 @@ public data class KdFragment(
     val name: String,
     val elements: List<KdElement> = emptyList(),
     val fragmentDependencies: List<KdFragmentDependency> = emptyList(),
+    // TODO: or, should it be more on level of the KdFragments
+    val embeddedDependencies: List<KdEmbeddedDependency> = emptyList()
 )
 
 @Serializable
 public data class KdFragmentDependency(
     val name: String,
     // list of declarations, which are the same as in specified `dependsOn` fragment
-    val elements: List<KdElementId>
+    val elements: List<KdElementId> = emptyList()
+)
+
+// this is in case the declaration is coming from some dependency, which doesn't have KDM available
+//  like, for example, a dependency with only Java sources, JDK, Java libraries, or Kotlin libraries not published somewhere (internal)
+// while in most cases, we do really need just supertypes and typealiases, it makes sense to have flexibility
+//  e.g we could embed even functions, which are refenced in kdoc to show a preview, or return types, again, to show some preview, on what types this is
+@Serializable
+public data class KdEmbeddedDependency(
+    // TODO: what this means - some unique identifier? not unique?
+    //  or we just `embeddedElements` in fragment?
+    val name: String,
+    val elements: List<KdElement>
 )
 
 // TODO: we might want to also represent android flavors in a similar way, so maybe `fragment` is not the best name

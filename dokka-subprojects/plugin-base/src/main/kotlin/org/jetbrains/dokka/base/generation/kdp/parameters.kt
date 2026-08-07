@@ -59,8 +59,8 @@ internal fun DTypeParameter.toKdTypeParameter(sourceSet: DokkaConfiguration.Dokk
         upperBounds = bounds.map { it.toKdType() },
         variance = when (variantTypeParameter) {
             is Invariance<*> -> null
-            is Contravariance<*> -> KdVariance.IN
-            is Covariance<*> -> KdVariance.OUT
+            is Contravariance<*> -> KdTypeVariance.IN
+            is Covariance<*> -> KdTypeVariance.OUT
         },
         isReified = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.Reified),
         documentation = parameterDocumentation(sourceSet)

@@ -7,6 +7,19 @@ package org.jetbrains.kotlin.documentation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+
+// TODO: kind vs separate class vs flags - take a look on kotlin spec
+// TODO: probably replace those `kinds` with separate classes, so that for the json consumer, all entities will be represented as single `type` field in json
+
+public enum class KdClassKind {
+    CLASS, ENUM_CLASS, ANNOTATION_CLASS, OBJECT, INTERFACE,
+
+    JAVA_RECORD // ???
+}
+
+
+// TODO: decide on what to do with `expect class`/`actual typealias` in regard to declarations available in `class`
+
 // TODO: split into: KdObject, KdEnumClass, KdAnnotationClass, KdRecord, KdInterface ???
 // inner class, // separate thing, only for classes
 @SerialName("class")
@@ -23,6 +36,7 @@ public data class KdClass(
     val isCompanion: Boolean = false,
     val isData: Boolean = false,
     val isValue: Boolean = false,
+    val isFun: Boolean = false,
 
     val isInner: Boolean = false,
     val superTypes: List<KdType> = emptyList(),
@@ -31,6 +45,7 @@ public data class KdClass(
     val classlikes: List<KdClassLikeId> = emptyList(),
 
     // TODO: do we need to show both inherited and overridden callables? - yes
+    // TODO: what should happen if we had override, but then removed it, or vice-versa, added it - it should continue to work
     // it looks like we need separate lists for them
     // those are callables, which are coming from parent classes, but not overridden
     // TODO: it could be coming from java class...

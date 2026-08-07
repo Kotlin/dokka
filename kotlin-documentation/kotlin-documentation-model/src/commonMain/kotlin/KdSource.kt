@@ -13,10 +13,15 @@ import kotlinx.serialization.Serializable
 @Serializable
 public data class KdSource(
     val language: KdSourceLanguage,
+    // overall, if we provide URL, we don't really need fileName/line/column - so, it's TBD what should be here
     val fileName: String? = null,
     val line: Int = -1,
     val column: Int = -1,
+    // TODO: TBD if we need to embed URL here, or in some `external`/`extension` json
     val url: String? = null
+    // TODO: at some point in future, we might also embed here path to the file in `sources.jar`
+    //  e.g. in jvm it could be: `com/example/MyClass.kt`
+    //       in kmp, in flat hierarchy, it could be just: `MyClass.kt` or `commonMain/MyClass.kt` - strictly following what's inside of `sources.jar`
 ) {
     public companion object {
         // kotlin language, no source information

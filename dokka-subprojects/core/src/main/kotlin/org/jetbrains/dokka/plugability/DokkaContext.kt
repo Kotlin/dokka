@@ -12,6 +12,11 @@ import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
+/**
+ * asdas
+ * -
+ *  -   asd
+ */
 public interface DokkaContext {
     public fun <T : DokkaPlugin> plugin(kclass: KClass<T>): T?
 
@@ -131,7 +136,8 @@ private class DokkaContextConfigurationImpl(
         // Let's filter out all suppressedExtensions that are not only overrides.
         // suppressedExtensions can be polluted by suppressions that completely disables the extension, and would break dokka behaviour
         // if not filtered out
-        val suppressedExtensionsByOverrides = suppressedExtensions.filterNot { it.value.any { it !is Suppression.ByExtension } }
+        val suppressedExtensionsByOverrides =
+            suppressedExtensions.filterNot { it.value.any { it !is Suppression.ByExtension } }
         val filtered = bucket.filterNot { it in suppressedExtensionsByOverrides }
         return filtered.singleOrNull()
             ?: throw IllegalStateException("Conflicting overrides: $filtered")
@@ -197,7 +203,8 @@ private class DokkaContextConfigurationImpl(
         }
 
         if (extension.override is OverrideKind.Present) {
-            fun root(ext: Extension<*, *, *>): List<Extension<*, *, *>> = if (ext.override is OverrideKind.Present) ext.override.overriden.flatMap(::root) else listOf(ext)
+            fun root(ext: Extension<*, *, *>): List<Extension<*, *, *>> =
+                if (ext.override is OverrideKind.Present) ext.override.overriden.flatMap(::root) else listOf(ext)
             if (extension.override.overriden.size > 1 && root(extension).distinct().size > 1)
                 throw IllegalStateException("Extension $extension overrides extensions without common root")
             extension.override.overriden.forEach { overriden ->

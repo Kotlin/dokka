@@ -7,6 +7,11 @@ package org.jetbrains.kotlin.documentation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+// TODO: do the same as for class
+public enum class KdFunctionKind {
+    PRIMARY_CONSTRUCTOR, CONSTRUCTOR, FUNCTION
+}
+
 /*
 // common
 expect abstract class A {
@@ -50,13 +55,12 @@ public data class KdFunction(
     val isInfix: Boolean = false,
     val isInline: Boolean = false,
     val isTailRec: Boolean = false,
-    override val isOverride: Boolean = false,
     override val isStatic: Boolean = false,
     override val receiverParameter: KdReceiverParameter? = null,
     val valueParameters: List<KdValueParameter> = emptyList(),
     override val contextParameters: List<KdContextParameter> = emptyList(),
     override val throws: List<KdThrows> = emptyList(),
-    override val inheritedFrom: List<KdCallableId> = emptyList(),
+    override val overrides: List<KdCallableOverride>,
     override val source: KdSource = KdSource.KOTLIN,
     override val visibility: KdVisibility = KdVisibility.PUBLIC,
     override val modality: KdModality = KdModality.FINAL,

@@ -18,8 +18,6 @@ public sealed class KdDocumentationNode {
     @SerialName("text")
     @Serializable
     public data class Text(
-        // TODO: should we split in lines?
-        //  or each text is one line?
         public val value: String,
         public val styles: Set<Style> = emptySet()
     ) : KdDocumentationNode() {
@@ -32,6 +30,8 @@ public sealed class KdDocumentationNode {
     @Serializable
     public data class Html(public val value: String) : KdDocumentationNode()
 
+    // TODO: sample/snippet is really similar to code block, but also allows to add highlighting or links into it
+    //  + it's possible to run it
     @SerialName("codeBlock")
     @Serializable
     public data class CodeBlock(
@@ -140,6 +140,41 @@ public sealed class KdDocumentationNode {
         val reference: KdLinkReference? = null, // TODO: what type should be here?
         val children: List<KdDocumentationNode> = emptyList(),
     ) : KdDocumentationNode()
+
+    /**
+     * javadoc tags
+     *
+     * block tags:
+     * - author name
+     * - deprecated text
+     * - exception/throws name
+     * - hidden = suppress
+     * - param = param
+     * - provides = for service loaders
+     * - uses = for service loaders
+     * - return = return
+     * - see = like Kotlin see, but more
+     * - serial = for serialization
+     * - serialData = for serialization
+     * - serialField = for serialization
+     * - since = since
+     * - spec URL title = (JDK 20) similar to `see` but specific?
+     * - version xxx =
+     *
+     * inline tags:
+     * - code = `code`
+     * - docRoot = ref to root for images/etc
+     * - index "phrase" description =
+     * - inheritDoc [supertype] = inlines inherited documentation from optional supertype
+     * - link = `[link]`/`[name][link]`
+     * - linkplain = same as `link`, but displays as plain text
+     * - literal text = "raw strings"
+     * - return = shortcut for main doc + block tag: `Returns xxx`
+     * - snippet = you know, snippets
+     * - summary text = used in place of `first sentence` for summary
+     * - systemProperty name = ref to system property?
+     * - value = inlines value of constant
+     */
 
 }
 

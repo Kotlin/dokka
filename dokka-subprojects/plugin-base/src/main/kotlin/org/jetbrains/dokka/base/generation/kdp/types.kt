@@ -9,7 +9,7 @@ import org.jetbrains.dokka.model.*
 import org.jetbrains.kotlin.documentation.*
 
 @OptIn(ExperimentalDokkaApi::class)
-internal fun Bound.toKdType(nullability: KdNullability = KdNullability.NOT_NULLABLE): KdType = when (this) {
+internal fun Bound.toKdType(nullability: KdTypeNullability = KdTypeNullability.NOT_NULLABLE): KdType = when (this) {
     is GenericTypeConstructor -> {
         KdClassLikeType(
             classLikeId = dri.toKdClassLikeId(),
@@ -73,8 +73,8 @@ internal fun Bound.toKdType(nullability: KdNullability = KdNullability.NOT_NULLA
         nullability = nullability
     )
 
-    is DefinitelyNonNullable -> inner.toKdType(KdNullability.DEFINITELY_NOT_NULLABLE)
-    is Nullable -> inner.toKdType(KdNullability.NULLABLE)
+    is DefinitelyNonNullable -> inner.toKdType(KdTypeNullability.DEFINITELY_NOT_NULLABLE)
+    is Nullable -> inner.toKdType(KdTypeNullability.NULLABLE)
 
     // TODO: K2 impl is a bit strange here for typeAliased
     is TypeAliased -> typeAlias.toKdType(nullability)
@@ -88,8 +88,8 @@ private fun Projection.toKdTypeArgument(): KdTypeProjection {
             type = inner.toKdType(),
             variance = when (this) {
                 is Invariance<*> -> null
-                is Contravariance<*> -> KdVariance.IN
-                is Covariance<*> -> KdVariance.OUT
+                is Contravariance<*> -> KdTypeVariance.IN
+                is Covariance<*> -> KdTypeVariance.OUT
             }
         )
 

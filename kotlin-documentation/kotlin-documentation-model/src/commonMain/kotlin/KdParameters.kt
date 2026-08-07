@@ -26,7 +26,7 @@ public data class KdReturns(
 public data class KdTypeParameter(
     public val name: String,
     public val upperBounds: List<KdType>,
-    public val variance: KdVariance? = null,
+    public val variance: KdTypeVariance? = null,
     public val isReified: Boolean = false,
     override val documentation: List<KdDocumentationNode> = emptyList()
 ) : KdDocumented
