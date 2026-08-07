@@ -194,7 +194,7 @@ class JavaDeprecatedTest : BaseAbstractTest() {
                                     p {
                                         comment {
                                             p {
-                                                +"Thismethod is no longer acceptable to compute time between versions. "
+                                                +"This method is no longer acceptable to compute time between versions. "
                                             }
                                             p {
                                                 +"Use "

@@ -1,6 +1,25 @@
+public final class com/intellij/java/syntax/parser/JavaDocParser {
+	public static final field Companion Lcom/intellij/java/syntax/parser/JavaDocParser$Companion;
+	public fun <init> (Lcom/intellij/platform/syntax/parser/SyntaxTreeBuilder;Lcom/intellij/pom/java/LanguageLevel;)V
+	public final fun getBuilder ()Lcom/intellij/platform/syntax/parser/SyntaxTreeBuilder;
+	public final fun getLanguageLevel ()Lcom/intellij/pom/java/LanguageLevel;
+	public final fun parseDocCommentText ()V
+	public final fun parseJavadocReference (Lcom/intellij/java/syntax/parser/JavaParser;)V
+	public final fun parseJavadocType (Lcom/intellij/java/syntax/parser/JavaParser;)V
+}
+
+public final class com/intellij/java/syntax/parser/JavaDocParser$Companion {
+}
+
 public final class com/intellij/openapi/fileTypes/BinaryFileTypeDecompilers : com/intellij/openapi/fileTypes/FileTypeExtension {
 	public static fun getInstance ()Lcom/intellij/openapi/fileTypes/BinaryFileTypeDecompilers;
 	public fun notifyDecompilerSetChange ()V
+}
+
+public final class com/intellij/psi/impl/search/MethodSuperSearcher : com/intellij/openapi/application/QueryExecutorBase {
+	public fun <init> ()V
+	public fun processQuery (Lcom/intellij/psi/search/searches/SuperMethodsSearch$SearchParameters;Lcom/intellij/util/Processor;)V
+	public synthetic fun processQuery (Ljava/lang/Object;Lcom/intellij/util/Processor;)V
 }
 
 public final class org/jetbrains/dokka/analysis/java/AuthorJavadocTag : org/jetbrains/dokka/analysis/java/JavadocTag {
@@ -39,6 +58,10 @@ public final class org/jetbrains/dokka/analysis/java/JavaAnalysisPlugin : org/je
 	public final fun getProjectProvider ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getPsiToDocumentableTranslator ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getSourceRootsExtractor ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
+}
+
+public final class org/jetbrains/dokka/analysis/java/JavaPsiSearchExecutorsKt {
+	public static final fun registerJavaPsiSearchExecutors (Lcom/intellij/openapi/Disposable;)V
 }
 
 public abstract class org/jetbrains/dokka/analysis/java/JavadocTag {

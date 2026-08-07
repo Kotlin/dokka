@@ -16,6 +16,10 @@ dependencies {
     implementation(libs.intellij.java.psi.impl) {
         exclude("org.jetbrains.intellij.deps", "log4j")
     }
+    // Since intellij-platform 261, core PSI API classes such as `com.intellij.psi.PsiElement` are no longer
+    // on the `java-psi(-impl)` classpath. They're needed only at compile time here — at runtime they're
+    // provided by `kotlin-compiler` (which bundles the IntelliJ core).
+    compileOnly(libs.intellij.platform.core)
     implementation(libs.intellij.util)
     implementation(projects.dokkaSubprojects.analysisMarkdownJb)
     implementation(libs.jetbrains.markdown)
