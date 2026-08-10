@@ -10,42 +10,65 @@ import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.dfs
 import org.jsoup.nodes.Element
+import signatures.firstSignature
+import signatures.lastSignature
+import signatures.renderedContent
+import signatures.signature
+import signatures.tab
 import utils.*
+import utils.assertNotNull
+import utils.match
+import kotlin.collections.forEach
+import kotlin.collections.single
+import kotlin.collections.toList
+import kotlin.collections.zip
+import kotlin.let
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.text.trimIndent
+import kotlin.text.trimMargin
 
-class SignatureTest : BaseAbstractTest() {
-    private val configuration = dokkaConfiguration {
-        sourceSets {
-            sourceSet {
-                sourceRoots = listOf("src/")
-                classpath = listOf(
-                    commonStdlibPath ?: throw IllegalStateException("Common stdlib is not found"),
-                    jvmStdlibPath ?: throw IllegalStateException("JVM stdlib is not found")
+class SignatureTest : org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest() {
+    private val configuration = org.jetbrains.dokka.testApi.testRunner.AbstractTest.dokkaConfiguration {
+        testApi.testRunner.TestDokkaConfigurationBuilder.sourceSets {
+            testApi.testRunner.SourceSetsBuilder.sourceSet {
+                sourceRoots = kotlin.collections.listOf("src/")
+                classpath = kotlin.collections.listOf(
+                    org.jetbrains.dokka.testApi.testRunner.AbstractTest.commonStdlibPath
+                        ?: throw kotlin.IllegalStateException("Common stdlib is not found"),
+                    org.jetbrains.dokka.testApi.testRunner.AbstractTest.jvmStdlibPath
+                        ?: throw kotlin.IllegalStateException("JVM stdlib is not found")
                 )
-                externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
+                externalDocumentationLinks =
+                    kotlin.collections.listOf(org.jetbrains.dokka.testApi.testRunner.AbstractTest.stdlibExternalDocumentationLink)
             }
         }
     }
 
-    private val mppConfiguration = dokkaConfiguration {
-        moduleName = "test"
-        sourceSets {
-            sourceSet {
+    private val mppConfiguration = org.jetbrains.dokka.testApi.testRunner.AbstractTest.dokkaConfiguration {
+        testApi.testRunner.TestDokkaConfigurationBuilder.moduleName = "test"
+        testApi.testRunner.TestDokkaConfigurationBuilder.sourceSets {
+            testApi.testRunner.SourceSetsBuilder.sourceSet {
                 name = "common"
-                sourceRoots = listOf("src/main/kotlin/common/Test.kt")
-                classpath = listOf(commonStdlibPath!!)
-                externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
+                sourceRoots = kotlin.collections.listOf("src/main/kotlin/common/Test.kt")
+                classpath =
+                    kotlin.collections.listOf(org.jetbrains.dokka.testApi.testRunner.AbstractTest.commonStdlibPath!!)
+                externalDocumentationLinks =
+                    kotlin.collections.listOf(org.jetbrains.dokka.testApi.testRunner.AbstractTest.stdlibExternalDocumentationLink)
             }
-            sourceSet {
+            testApi.testRunner.SourceSetsBuilder.sourceSet {
                 name = "jvm"
-                dependentSourceSets = setOf(DokkaSourceSetID("test", "common"))
-                sourceRoots = listOf("src/main/kotlin/jvm/Test.kt")
-                classpath = listOf(
-                    commonStdlibPath ?: throw IllegalStateException("Common stdlib is not found"),)
-                externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
+                dependentSourceSets = kotlin.collections.setOf(org.jetbrains.dokka.DokkaSourceSetID("test", "common"))
+                sourceRoots = kotlin.collections.listOf("src/main/kotlin/jvm/Test.kt")
+                classpath = kotlin.collections.listOf(
+                    org.jetbrains.dokka.testApi.testRunner.AbstractTest.commonStdlibPath
+                        ?: throw kotlin.IllegalStateException("Common stdlib is not found"),
+                )
+                externalDocumentationLinks =
+                    kotlin.collections.listOf(org.jetbrains.dokka.testApi.testRunner.AbstractTest.stdlibExternalDocumentationLink)
             }
         }
     }
@@ -58,161 +81,161 @@ class SignatureTest : BaseAbstractTest() {
             | $signature
             """.trimIndent()
 
-    @Test
+    @kotlin.test.Test
     fun `fun`() {
         val source = source("fun simpleFun(): String = \"Celebrimbor\"")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun ", A("simpleFun"), "(): ", A("String"),
-                        ignoreSpanWithTokenStyle = true
+                    "fun ", utils.A("simpleFun"), "(): ", utils.A("String"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `open fun`() {
         val source = source("open fun simpleFun(): String = \"Celebrimbor\"")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "open fun ", A("simpleFun"), "(): ", A("String"),
-                        ignoreSpanWithTokenStyle = true
+                    "open fun ", utils.A("simpleFun"), "(): ", utils.A("String"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `open suspend fun`() {
         val source = source("open suspend fun simpleFun(): String = \"Celebrimbor\"")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "open suspend fun ", A("simpleFun"), "(): ", A("String"),
-                        ignoreSpanWithTokenStyle = true
+                    "open suspend fun ", utils.A("simpleFun"), "(): ", utils.A("String"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `fun with params`() {
         val source = source("fun simpleFun(a: Int, b: Boolean, c: Any): String = \"Celebrimbor\"")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun ", A("simpleFun"), "(", Parameters(
-                        Parameter("a: ", A("Int"), ","),
-                        Parameter("b: ", A("Boolean"), ","),
-                        Parameter("c: ", A("Any")),
-                    ), "): ", A("String"),
+                    "fun ", utils.A("simpleFun"), "(", signatures.Parameters(
+                        signatures.Parameter("a: ", utils.A("Int"), ","),
+                        signatures.Parameter("b: ", utils.A("Boolean"), ","),
+                        signatures.Parameter("c: ", utils.A("Any")),
+                    ), "): ", utils.A("String"),
                     ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `fun with function param`() {
         val source = source("fun simpleFun(a: (Int) -> String): String = \"Celebrimbor\"")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun ", A("simpleFun"), "(", Parameters(
-                        Parameter("a: (", A("Int"), ") -> ", A("String")),
-                    ),"): ", A("String"),
+                    "fun ", utils.A("simpleFun"), "(", signatures.Parameters(
+                        signatures.Parameter("a: (", utils.A("Int"), ") -> ", utils.A("String")),
+                    ), "): ", utils.A("String"),
                     ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `fun with generic param`() {
         val source = source("fun <T> simpleFun(): T = \"Celebrimbor\" as T")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun <", A("T"), "> ", A("simpleFun"), "(): ",
-                    A("T"),
-                        ignoreSpanWithTokenStyle = true
+                    "fun <", utils.A("T"), "> ", utils.A("simpleFun"), "(): ",
+                    utils.A("T"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `fun with generic bounded param`() {
         val source = source("fun <T : String> simpleFun(): T = \"Celebrimbor\" as T")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun <", A("T"), " : ", A("String"), "> ", A("simpleFun"),
-                    "(): ", A("T"),
-                        ignoreSpanWithTokenStyle = true
+                    "fun <", utils.A("T"), " : ", utils.A("String"), "> ", utils.A("simpleFun"),
+                    "(): ", utils.A("T"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `fun with use site variance modifier in`() {
         val source = source("fun simpleFun(params: Array<in String>): Unit")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun ", A("simpleFun"), "(", Parameters(
-                        Parameter("params: ", A("Array"), "<in ", A("String"), ">"),
+                    "fun ", utils.A("simpleFun"), "(", signatures.Parameters(
+                        signatures.Parameter("params: ", utils.A("Array"), "<in ", utils.A("String"), ">"),
                     ), ")",
                     ignoreSpanWithTokenStyle = true
                 )
@@ -220,273 +243,281 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `fun with definitely non-nullable types`() {
         val source = source("fun <T> elvisLike(x: T, y: T & Any): T & Any = x ?: y")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
-            documentablesTransformationStage = {
-                val fn = (it.dfs { it.name == "elvisLike" } as? DFunction).assertNotNull("Function elvisLike")
+            org.jetbrains.dokka.base.testApi.testRunner.BaseTestBuilder.documentablesTransformationStage = {
+                val fn =
+                    (it.dfs { it.name == "elvisLike" } as? org.jetbrains.dokka.model.DFunction).assertNotNull("Function elvisLike")
 
-                assertTrue(fn.type is DefinitelyNonNullable)
-                assertTrue(fn.parameters[1].type is DefinitelyNonNullable)
+                kotlin.test.assertTrue(fn.type is org.jetbrains.dokka.model.DefinitelyNonNullable)
+                kotlin.test.assertTrue(fn.parameters[1].type is org.jetbrains.dokka.model.DefinitelyNonNullable)
             }
             renderingStage = { _, _ ->
                 val signature = writerPlugin.writer.renderedContent("root/example/elvis-like.html")
-                assertEquals(2, signature.select("a[href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html\"]").size)
+                kotlin.test.assertEquals(
+                    2,
+                    signature.select("a[href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html\"]").size
+                )
                 signature.firstSignature().match(
-                    "fun <", A("T"), "> ", A("elvisLike"),
+                    "fun <", utils.A("T"), "> ", utils.A("elvisLike"),
                     "(",
-                    Span(
-                        Span("x: ", A("T"), ", "),
-                        Span("y: ", A("T"), " & ", A("Any"))
+                    utils.Span(
+                        utils.Span("x: ", utils.A("T"), ", "),
+                        utils.Span("y: ", utils.A("T"), " & ", utils.A("Any"))
                     ),
-                    "): ", A("T"), " & ", A("Any"),
+                    "): ", utils.A("T"), " & ", utils.A("Any"),
                     ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `fun with keywords, params and generic bound`() {
         val source = source("inline suspend fun <T : String> simpleFun(a: Int, b: String): T = \"Celebrimbor\" as T")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "inline suspend fun <", A("T"), " : ", A("String"), "> ", A("simpleFun"), "(", Parameters(
-                        Parameter("a: ", A("Int"), ","),
-                        Parameter("b: ", A("String")),
-                    ), "): ", A("T"),
+                    "inline suspend fun <",
+                    utils.A("T"),
+                    " : ",
+                    utils.A("String"),
+                    "> ",
+                    utils.A("simpleFun"),
+                    "(",
+                    signatures.Parameters(
+                        signatures.Parameter("a: ", utils.A("Int"), ","),
+                        signatures.Parameter("b: ", utils.A("String")),
+                    ),
+                    "): ",
+                    utils.A("T"),
                     ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
-    fun `inline fun with reified generic param`() {
-        val source = source("inline fun <reified T> simpleFun(): T = TODO()")
-        val writerPlugin = TestOutputWriterPlugin()
-
-        testInline(
-            source,
-            configuration,
-            pluginOverrides = listOf(writerPlugin)
-        ) {
-            renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "inline fun <reified ", A("T"), "> ", A("simpleFun"), "(): ", A("T"),
-                    ignoreSpanWithTokenStyle = true
-                )
-            }
-        }
-    }
-
-    @Test
+    @kotlin.test.Test
     fun `extension function`() {
         val source = source("fun String.capitalizeAll(): String = toUpperCase()")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/capitalize-all.html").firstSignature().matchIgnoringSpans(
-                    "fun", A("String"), ".", A("capitalizeAll"), "():",
-                    A("String")
-                )
+                writerPlugin.writer.renderedContent("root/example/capitalize-all.html").firstSignature()
+                    .matchIgnoringSpans(
+                        "fun", utils.A("String"), ".", utils.A("capitalizeAll"), "():",
+                        utils.A("String")
+                    )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `extension function with a param`() {
         val source = source("fun Int.addOneInt(a: Int): Int = this + a")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/add-one-int.html").firstSignature().matchIgnoringSpans(
-                    "fun ", A("Int"), ".", A("addOneInt"), "(", Parameters(
-                        Parameter("a: ", A("Int")),
-                    ), "): ", A("Int")
-                )
+                writerPlugin.writer.renderedContent("root/example/add-one-int.html").firstSignature()
+                    .matchIgnoringSpans(
+                        "fun ", utils.A("Int"), ".", utils.A("addOneInt"), "(", signatures.Parameters(
+                            signatures.Parameter("a: ", utils.A("Int")),
+                        ), "): ", utils.A("Int")
+                    )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `extension function with vararg`() {
         val source = source("fun Int.addAll(vararg ts: Int): Int = this + ts.sum()")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/add-all.html").firstSignature().matchIgnoringSpans(
-                    "fun ", A("Int"), ".", A("addAll"), "(", Parameters(
-                        Parameter("vararg ts: ", A("Int"))
-                    ), "): ", A("Int")
+                    "fun ", utils.A("Int"), ".", utils.A("addAll"), "(", signatures.Parameters(
+                        signatures.Parameter("vararg ts: ", utils.A("Int"))
+                    ), "): ", utils.A("Int")
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `extension function with generics`() {
         val source = source("fun <T> T.toList(vararg ts: T): List<T> = ts.asList()")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/to-list.html").firstSignature().matchIgnoringSpans(
-                    "fun <", A("T"), "> ", A("T"), ".", A("toList"), "(",
-                    Parameters(
-                        Parameter("vararg ts: ", A("T"))
-                    ), "): ", A("List"), "<", A("T"), ">"
+                    "fun <", utils.A("T"), "> ", utils.A("T"), ".", utils.A("toList"), "(",
+                    signatures.Parameters(
+                        signatures.Parameter("vararg ts: ", utils.A("T"))
+                    ), "): ", utils.A("List"), "<", utils.A("T"), ">"
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `infix function`() {
         val source = source("infix fun Int.eq(a: Int): Boolean = this==a")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/eq.html").firstSignature().matchIgnoringSpans(
-                    "infix fun ", A("Int"), ".", A("eq"), "(", Parameters(
-                        Parameter("a: ", A("Int"))
-                    ), "): ", A("Boolean")
+                    "infix fun ", utils.A("Int"), ".", utils.A("eq"), "(", signatures.Parameters(
+                        signatures.Parameter("a: ", utils.A("Int"))
+                    ), "): ", utils.A("Boolean")
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `extension function with nullables`() {
         val source = source("fun String?.onDefault(default: String): String = this ?: default")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/on-default.html").firstSignature().matchIgnoringSpans(
-                    "fun ", A("String"), "?.", A("onDefault"), "(", Parameters(
-                        Parameter("default: ", A("String"))
-                    ), "): ", A("String")
+                    "fun ", utils.A("String"), "?.", utils.A("onDefault"), "(", signatures.Parameters(
+                        signatures.Parameter("default: ", utils.A("String"))
+                    ), "): ", utils.A("String")
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `extension function with default args`() {
         val source = source("fun String.truncate(length: Int = 10): String = if (this.length > length) this.substring(0, length) else this")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/truncate.html").firstSignature().matchIgnoringSpans(
-                    "fun ", A("String"), ".", A("truncate"), "(", Parameters(
-                        Parameter("length: ", A("Int"), " = 10")
-                    ), "): ", A("String")
+                    "fun ", utils.A("String"), ".", utils.A("truncate"), "(", signatures.Parameters(
+                        signatures.Parameter("length: ", utils.A("Int"), " = 10")
+                    ), "): ", utils.A("String")
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `extension function with lambda param`() {
         val source = source("fun <T> Iterable<T>.customForEach(action: (T) -> Unit) {for (element in this) action(element)}")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/custom-for-each.html").firstSignature().matchIgnoringSpans(
-                    "fun <", A("T"), ">", A("Iterable"), "<", A("T"), ">.", A("customForEach"),
-                    "(", Parameters(
-                        Parameter("action: (", A("T"), ") -> ", A("Unit"))
-                    ), ")"
-                )
+                writerPlugin.writer.renderedContent("root/example/custom-for-each.html").firstSignature()
+                    .matchIgnoringSpans(
+                        "fun <",
+                        utils.A("T"),
+                        ">",
+                        utils.A("Iterable"),
+                        "<",
+                        utils.A("T"),
+                        ">.",
+                        utils.A("customForEach"),
+                        "(",
+                        signatures.Parameters(
+                            signatures.Parameter("action: (", utils.A("T"), ") -> ", utils.A("Unit"))
+                        ),
+                        ")"
+                    )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `property extension with nullables`() {
         val source = source("val String?.customLength: Int get() = this?.length ?: 0")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/custom-length.html").firstSignature().matchIgnoringSpans(
-                    "val ", A("String"), "?.", A("customLength"), ": ", A("Int")
-                )
+                writerPlugin.writer.renderedContent("root/example/custom-length.html").firstSignature()
+                    .matchIgnoringSpans(
+                        "val ", utils.A("String"), "?.", utils.A("customLength"), ": ", utils.A("Int")
+                    )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
+    @utils.OnlySymbols
     fun `fun with unresolved parameter`() {
         val source = source("fun simpleFun(param: UnresolvedType): Unit")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun ", A("simpleFun"), "(", Parameters(
-                        Parameter("param: UnresolvedType"),
+                    "fun ", utils.A("simpleFun"), "(", signatures.Parameters(
+                        signatures.Parameter("param: UnresolvedType"),
                     ), ")",
                     ignoreSpanWithTokenStyle = true
                 )
@@ -494,20 +525,20 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `fun with vararg`() {
         val source = source("fun simpleFun(vararg params: Int): Unit")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun ", A("simpleFun"), "(", Parameters(
-                        Parameter("vararg params: ", A("Int")),
+                    "fun ", utils.A("simpleFun"), "(", signatures.Parameters(
+                        signatures.Parameter("vararg params: ", utils.A("Int")),
                     ), ")",
                     ignoreSpanWithTokenStyle = true
                 )
@@ -515,50 +546,68 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `class with no supertype`() {
         val source = source("class SimpleClass")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-simple-class/index.html").firstSignature().match(
-                    "class ", A("SimpleClass"),
-                        ignoreSpanWithTokenStyle = true
+                    "class ", utils.A("SimpleClass"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `class with generic supertype`() {
         val source = source("class InheritingClassFromGenericType<T : Number, R : CharSequence> : Comparable<T>, Collection<R>")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/-inheriting-class-from-generic-type/index.html").firstSignature().match(
-                    "class ", A("InheritingClassFromGenericType"), " <", A("T"), " : ", A("Number"), ", ", A("R"), " : ", A("CharSequence"),
-                    "> : ", A("Comparable"), "<", A("T"), "> , ", A("Collection"), "<", A("R"), ">",
-                        ignoreSpanWithTokenStyle = true
+                writerPlugin.writer.renderedContent("root/example/-inheriting-class-from-generic-type/index.html")
+                    .firstSignature().match(
+                    "class ",
+                    utils.A("InheritingClassFromGenericType"),
+                    " <",
+                    utils.A("T"),
+                    " : ",
+                    utils.A("Number"),
+                    ", ",
+                    utils.A("R"),
+                    " : ",
+                    utils.A("CharSequence"),
+                    "> : ",
+                    utils.A("Comparable"),
+                    "<",
+                    utils.A("T"),
+                    "> , ",
+                    utils.A("Collection"),
+                    "<",
+                    utils.A("R"),
+                    ">",
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `class with declaration site variance modifier`() {
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
                 |/src/main/kotlin/common/Test.kt
                 |package example
@@ -566,17 +615,23 @@ class SignatureTest : BaseAbstractTest() {
                 |class PrimaryConstructorClass<out T> { }
             """.trimMargin(),
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/-primary-constructor-class/index.html").firstSignature().match(
-                    Span("class "), A("PrimaryConstructorClass"), Span("<"), Span("out "), A("T"), Span(">"),
+                writerPlugin.writer.renderedContent("root/example/-primary-constructor-class/index.html")
+                    .firstSignature().match(
+                    utils.Span("class "),
+                    utils.A("PrimaryConstructorClass"),
+                    utils.Span("<"),
+                    utils.Span("out "),
+                    utils.A("T"),
+                    utils.Span(">"),
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `kotlin sealed class should render sealed`() = testRender(
         """
             |/src/main/kotlin/common/Test.kt
@@ -585,11 +640,11 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin(),
     ) {
         renderedContent("root/example/-class/index.html").firstSignature().matchIgnoringSpans(
-            "sealed class", A("Class"),
+            "sealed class", utils.A("Class"),
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `kotlin abstract class should render abstract`() = testRender(
         """
             |/src/main/kotlin/common/Test.kt
@@ -598,11 +653,11 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-class/index.html").firstSignature().matchIgnoringSpans(
-            "abstract class", A("Class"),
+            "abstract class", utils.A("Class"),
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `kotlin open class should render open`() = testRender(
         """
             |/src/main/kotlin/common/Test.kt
@@ -611,11 +666,11 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-class/index.html").firstSignature().matchIgnoringSpans(
-            "open class", A("Class"),
+            "open class", utils.A("Class"),
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `kotlin final class should render just class`() = testRender(
         """
             |/src/main/kotlin/common/Test.kt
@@ -624,11 +679,11 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-class/index.html").firstSignature().matchIgnoringSpans(
-            "class ", A("Class"),
+            "class ", utils.A("Class"),
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `kotlin sealed interface should render sealed`() = testRender(
         """
             |/src/main/kotlin/common/Test.kt
@@ -637,11 +692,11 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-interface/index.html").firstSignature().matchIgnoringSpans(
-            "sealed interface", A("Interface"),
+            "sealed interface", utils.A("Interface"),
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `kotlin interface should render just interface`() = testRender(
         """
             |/src/main/kotlin/common/Test.kt
@@ -650,11 +705,11 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-interface/index.html").firstSignature().matchIgnoringSpans(
-            "interface", A("Interface"),
+            "interface", utils.A("Interface"),
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `kotlin abstract interface should render just interface`() = testRender(
         """
             |/src/main/kotlin/common/Test.kt
@@ -663,12 +718,12 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-interface/index.html").firstSignature().matchIgnoringSpans(
-            "interface", A("Interface"),
+            "interface", utils.A("Interface"),
         )
     }
 
-    @Test
-    fun `kotlin enum should render enum class`() = testRender(
+    @kotlin.test.Test
+    fun `kotlin enum should render just enum`() = testRender(
         """
             |/src/main/kotlin/common/Test.kt
             |package example
@@ -676,11 +731,11 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-enum-class/index.html").firstSignature().matchIgnoringSpans(
-            "enum class", A("EnumClass"), ":", A("Enum"), "<", A("EnumClass"), ">"
+            "enum", utils.A("EnumClass"), ":", utils.A("Enum"), "<", utils.A("EnumClass"), ">"
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `kotlin object should render just object`() = testRender(
         """
             |/src/main/kotlin/common/Test.kt
@@ -689,11 +744,11 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-obj/index.html").firstSignature().matchIgnoringSpans(
-            "object", A("Obj"),
+            "object", utils.A("Obj"),
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `java class should render open`() = testRender(
         """
             |/src/example/Class.java
@@ -702,11 +757,11 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-class/index.html").firstSignature().matchIgnoringSpans(
-            "open class", A("Class"),
+            "open class", utils.A("Class"),
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `java final class should render just class`() = testRender(
         """
             |/src/example/Class.java
@@ -715,11 +770,11 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-class/index.html").firstSignature().matchIgnoringSpans(
-            "class", A("Class"),
+            "class", utils.A("Class"),
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `java abstract class should render abstract`() = testRender(
         """
             |/src/example/Class.java
@@ -728,11 +783,11 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-class/index.html").firstSignature().matchIgnoringSpans(
-            "abstract class", A("Class"),
+            "abstract class", utils.A("Class"),
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `java interface should render just interface`() = testRender(
         """
             |/src/example/Interface.java
@@ -741,11 +796,11 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-interface/index.html").firstSignature().matchIgnoringSpans(
-            "interface ", A("Interface"),
+            "interface ", utils.A("Interface"),
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `java abstract interface should render just interface`() = testRender(
         """
             |/src/example/Interface.java
@@ -754,12 +809,12 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-interface/index.html").firstSignature().matchIgnoringSpans(
-            "interface", A("Interface"),
+            "interface", utils.A("Interface"),
         )
     }
 
-    @OnlyJavaSymbols("PSI doesn't add super type - AA does, same for Kotlin enum above")
-    @Test
+    @utils.OnlyJavaPsi
+    @kotlin.test.Test
     fun `java enum should render just enum`() = testRender(
         """
             |/src/example/EnumClass.java
@@ -768,22 +823,22 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-enum-class/index.html").firstSignature().matchIgnoringSpans(
-            "enum class", A("EnumClass"), ":", A("Enum"), "<", A("EnumClass"), ">"
+            "enum", utils.A("EnumClass"),
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `constructor property on class page`() {
         val source = source("data class DataClass(val arg: String)")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                assertEquals(
+                kotlin.test.assertEquals(
                     writerPlugin.writer.renderedContent("root/example/-data-class/index.html").lastSignature().html(),
                     "<span class=\"token keyword\">val </span><a href=\"arg.html\">arg</a><span class=\"token operator\">: </span><a href=\"https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html\">String</a>"
 
@@ -792,26 +847,26 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `functional interface`() {
         val source = source("fun interface KRunnable { fun f(): Int }")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-k-runnable/index.html").firstSignature().match(
-                    "fun interface ", A("KRunnable"),
-                        ignoreSpanWithTokenStyle = true
+                    "fun interface ", utils.A("KRunnable"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `fun with annotation`() {
         val source = """
             |/src/main/kotlin/test/Test.kt
@@ -824,27 +879,27 @@ class SignatureTest : BaseAbstractTest() {
             | @Marking()
             | fun simpleFun(): String = "Celebrimbor"
             """.trimIndent()
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    Div(
-                        Div("@", A("Marking"))
+                    utils.Div(
+                        utils.Div("@", utils.A("Marking"))
                     ),
-                    "fun ", A("simpleFun"),
-                    "(): ", A("String"),
+                    "fun ", utils.A("simpleFun"),
+                    "(): ", utils.A("String"),
                     ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `property with annotation`() {
         val source = """
             |/src/main/kotlin/test/Test.kt
@@ -858,28 +913,28 @@ class SignatureTest : BaseAbstractTest() {
             | @set:Marking()
             | var str: String
             """.trimIndent()
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/str.html").firstSignature().match(
-                    Div(
-                        Div("@get:", A("Marking")),
-                        Div("@set:", A("Marking"))
+                    utils.Div(
+                        utils.Div("@get:", utils.A("Marking")),
+                        utils.Div("@set:", utils.A("Marking"))
                     ),
-                    "var ", A("str"),
-                    ": ", A("String"),
+                    "var ", utils.A("str"),
+                    ": ", utils.A("String"),
                     ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `fun with two annotations`() {
         val source = """
             |/src/main/kotlin/test/Test.kt
@@ -897,30 +952,44 @@ class SignatureTest : BaseAbstractTest() {
             | @Marking2(1)
             | fun simpleFun(): String = "Celebrimbor"
             """.trimIndent()
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html")
                     .firstSignature()
                     .match(
-                        Div(
-                           Div("@", A("Marking"), "(", Span("msg = ", Span("\"Nenya\"")), Wbr, ")"),
-                           Div("@", A("Marking2"), "(", Span("int = ", Span("1")), Wbr, ")")
+                        utils.Div(
+                            utils.Div(
+                                "@",
+                                utils.A("Marking"),
+                                "(",
+                                utils.Span("msg = ", utils.Span("\"Nenya\"")),
+                                utils.Wbr,
+                                ")"
+                            ),
+                            utils.Div(
+                                "@",
+                                utils.A("Marking2"),
+                                "(",
+                                utils.Span("int = ", utils.Span("1")),
+                                utils.Wbr,
+                                ")"
+                            )
                         ),
-                        "fun ", A("simpleFun"),
-                        "(): ", A("String"),
+                        "fun ", utils.A("simpleFun"),
+                        "(): ", utils.A("String"),
                         ignoreSpanWithTokenStyle = true
                     )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `fun with annotation with array`() {
         val source = """
             |/src/main/kotlin/test/Test.kt
@@ -934,54 +1003,38 @@ class SignatureTest : BaseAbstractTest() {
             | @Marking2(1)
             | fun simpleFun(): String = "Celebrimbor"
             """.trimIndent()
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    Div(
-                        Div(
-                            "@", A("Marking"), "(", Span(
+                    utils.Div(
+                        utils.Div(
+                            "@", utils.A("Marking"), "(", utils.Span(
                                 "msg = [",
-                                Span(Span("\"Nenya\""), ", "), Wbr,
-                                Span(Span("\"Vilya\""), ", "), Wbr,
-                                Span(Span("\"Narya\"")), Wbr, "]"
-                            ), Wbr, ")"
+                                utils.Span(utils.Span("\"Nenya\""), ", "), utils.Wbr,
+                                utils.Span(utils.Span("\"Vilya\""), ", "), utils.Wbr,
+                                utils.Span(utils.Span("\"Narya\"")), utils.Wbr, "]"
+                            ), utils.Wbr, ")"
                         )
                     ),
-                    "fun ", A("simpleFun"),
-                    "(): ", A("String"),
-                        ignoreSpanWithTokenStyle = true
+                    "fun ", utils.A("simpleFun"),
+                    "(): ", utils.A("String"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
-    fun `annotation class with vararg parameter`() = testRender(
-        """
-            |/src/main/kotlin/test/Test.kt
-            |package example
-            |
-            |annotation class Throws(vararg val exceptionClasses: kotlin.reflect.KClass<out Throwable>)
-        """.trimMargin(),
-    ) {
-        renderedContent("root/example/-throws/index.html").firstSignature().matchIgnoringSpans(
-            "annotation class ", A("Throws"), "(", Parameters(
-                Parameter("vararg val exceptionClasses: ", A("KClass"), "<out ", A("Throwable"), ">")
-            ), ")"
-        )
-    }
-
-    @Test
+    @kotlin.test.Test
     fun `actual fun`() {
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
                 |/src/main/kotlin/common/Test.kt
                 |package example
@@ -995,30 +1048,31 @@ class SignatureTest : BaseAbstractTest() {
                 |
             """.trimMargin(),
             mppConfiguration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val signatures = writerPlugin.writer.renderedContent("test/example/simple-fun.html").signature().toList()
+                val signatures =
+                    writerPlugin.writer.renderedContent("test/example/simple-fun.html").signature().toList()
 
                 signatures[0].match(
-                    "expect fun ", A("simpleFun"),
-                    "(): ", A("String"),
+                    "expect fun ", utils.A("simpleFun"),
+                    "(): ", utils.A("String"),
                     ignoreSpanWithTokenStyle = true
                 )
                 signatures[1].match(
-                    "actual fun ", A("simpleFun"),
-                    "(): ", A("String"),
+                    "actual fun ", utils.A("simpleFun"),
+                    "(): ", utils.A("String"),
                     ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `actual property with a default value`() {
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
                 |/src/main/kotlin/common/Test.kt
                 |package example
@@ -1032,30 +1086,30 @@ class SignatureTest : BaseAbstractTest() {
                 |
             """.trimMargin(),
             mppConfiguration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 val signatures = writerPlugin.writer.renderedContent("test/example/prop.html").signature().toList()
 
                 signatures[0].match(
-                    "expect val ", A("prop"),
-                    ": ", A("Int"),
+                    "expect val ", utils.A("prop"),
+                    ": ", utils.A("Int"),
                     ignoreSpanWithTokenStyle = true
                 )
                 signatures[1].match(
-                    "actual val ", A("prop"),
-                    ": ", A("Int"),
+                    "actual val ", utils.A("prop"),
+                    ": ", utils.A("Int"),
                     " = 2",
                     ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
-    @Test
+    @kotlin.test.Test
     fun `actual typealias should have generic parameters and fully qualified name of the expansion type`() {
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
                 |/src/main/kotlin/common/Test.kt
                 |package example
@@ -1068,28 +1122,37 @@ class SignatureTest : BaseAbstractTest() {
                 |actual typealias Array<T> = kotlin.Array<T>
             """.trimMargin(),
             mppConfiguration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val signatures = writerPlugin.writer.renderedContent("test/example/-array/index.html").signature().toList()
+                val signatures =
+                    writerPlugin.writer.renderedContent("test/example/-array/index.html").signature().toList()
 
                 signatures[0].match(
-                    "expect class ", A("Array"), "<", A("T"), ">",
+                    "expect class ", utils.A("Array"), "<", utils.A("T"), ">",
                     ignoreSpanWithTokenStyle = true
                 )
                 signatures[1].match(
-                    "actual typealias ", A("Array"), "<", A("T"), "> = ", A("kotlin.Array"), "<", A("T"), ">",
+                    "actual typealias ",
+                    utils.A("Array"),
+                    "<",
+                    utils.A("T"),
+                    "> = ",
+                    utils.A("kotlin.Array"),
+                    "<",
+                    utils.A("T"),
+                    ">",
                     ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `type with an actual typealias`() {
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
                 |/src/main/kotlin/common/Test.kt
                 |package example
@@ -1104,29 +1167,30 @@ class SignatureTest : BaseAbstractTest() {
                 |
             """.trimMargin(),
             mppConfiguration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val signatures = writerPlugin.writer.renderedContent("test/example/-foo/index.html").signature().toList()
+                val signatures =
+                    writerPlugin.writer.renderedContent("test/example/-foo/index.html").signature().toList()
 
                 signatures[0].match(
-                    "expect class ", A("Foo"),
+                    "expect class ", utils.A("Foo"),
                     ignoreSpanWithTokenStyle = true
                 )
                 signatures[1].match(
-                    "actual typealias ", A("Foo"), " = ", A("Bar"),
-                        ignoreSpanWithTokenStyle = true
+                    "actual typealias ", utils.A("Foo"), " = ", utils.A("Bar"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `plain typealias of plain class`() {
 
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
                 |/src/main/kotlin/common/Test.kt
                 |package example
@@ -1135,23 +1199,23 @@ class SignatureTest : BaseAbstractTest() {
                 |
             """.trimMargin(),
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "typealias ", A("PlainTypealias"), " = ", A("Int"),
-                        ignoreSpanWithTokenStyle = true
+                    "typealias ", utils.A("PlainTypealias"), " = ", utils.A("Int"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `plain typealias of plain class with annotation`() {
 
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
                 |/src/main/kotlin/common/Test.kt
                 |package example
@@ -1165,28 +1229,28 @@ class SignatureTest : BaseAbstractTest() {
                 |
             """.trimMargin(),
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    Div(
-                        Div(
-                            "@", A("SomeAnnotation")
+                    utils.Div(
+                        utils.Div(
+                            "@", utils.A("SomeAnnotation")
                         )
                     ),
-                    "typealias ", A("PlainTypealias"), " = ", A("Int"),
-                        ignoreSpanWithTokenStyle = true
+                    "typealias ", utils.A("PlainTypealias"), " = ", utils.A("Int"),
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `plain typealias of generic class`() {
 
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
                 |/src/main/kotlin/common/Test.kt
                 |package example
@@ -1195,25 +1259,25 @@ class SignatureTest : BaseAbstractTest() {
                 |
             """.trimMargin(),
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "typealias ", A("PlainTypealias"), " = ", A("Comparable"),
-                    "<", A("Int"), ">",
-                        ignoreSpanWithTokenStyle = true
+                    "typealias ", utils.A("PlainTypealias"), " = ", utils.A("Comparable"),
+                    "<", utils.A("Int"), ">",
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `typealias with generics params`() {
 
 
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
                 |/src/main/kotlin/common/Test.kt
                 |package example
@@ -1222,24 +1286,24 @@ class SignatureTest : BaseAbstractTest() {
                 |
             """.trimMargin(),
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "typealias ", A("GenericTypealias"), "<", A("T"), "> = ", A("Comparable"),
-                    "<", A("T"), ">",
-                        ignoreSpanWithTokenStyle = true
+                    "typealias ", utils.A("GenericTypealias"), "<", utils.A("T"), "> = ", utils.A("Comparable"),
+                    "<", utils.A("T"), ">",
+                    ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `typealias with generic params swapped`() {
 
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
             |/src/main/kotlin/kotlinAsJavaPlugin/Test.kt
             |package kotlinAsJavaPlugin
@@ -1251,25 +1315,34 @@ class SignatureTest : BaseAbstractTest() {
             |}
         """.trimMargin(),
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-a-b-c/some-fun.html").firstSignature()
                     .match(
-                        "fun ", A("someFun"), "(", Parameters(
-                            Parameter("xd: ", A("XD"), "<", A("Int"), ", ", A("String"), ">"),
-                        ), "):", A("Int"),
+                        "fun ", utils.A("someFun"), "(", signatures.Parameters(
+                            signatures.Parameter(
+                                "xd: ",
+                                utils.A("XD"),
+                                "<",
+                                utils.A("Int"),
+                                ", ",
+                                utils.A("String"),
+                                ">"
+                            ),
+                        ), "):", utils.A("Int"),
                         ignoreSpanWithTokenStyle = true
-                )
+                    )
             }
         }
     }
 
-    @Test
+    @utils.OnlyDescriptors("Order of constructors is different in K2")
+    @kotlin.test.Test
     fun `generic constructor params`() {
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
                 |/src/main/kotlin/common/Test.kt
                 |package example
@@ -1288,58 +1361,67 @@ class SignatureTest : BaseAbstractTest() {
                 |
             """.trimMargin(),
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/-generic-class/-generic-class.html").signature().zip(
-                    listOf(
-                        arrayOf(
+                    kotlin.collections.listOf(
+                        kotlin.arrayOf(
                             "constructor(",
-                            Parameters(
-                                Parameter("x: ", A("Int"))
+                            signatures.Parameters(
+                                signatures.Parameter("x: ", utils.A("T"))
                             ),
                             ")",
                         ),
-                        arrayOf(
+                        kotlin.arrayOf(
                             "constructor(",
-                            Parameters(
-                                Parameter("x: ", A("T"))
+                            signatures.Parameters(
+                                signatures.Parameter("x: ", utils.A("Int"), ", "),
+                                signatures.Parameter("y: ", utils.A("String"))
                             ),
                             ")",
                         ),
-                        arrayOf(
+                        kotlin.arrayOf(
                             "constructor(",
-                            Parameters(
-                                Parameter("x: ", A("Int"), ", "),
-                                Parameter("y: ", A("String"))
+                            signatures.Parameters(
+                                signatures.Parameter("x: ", utils.A("Int"), ", "),
+                                signatures.Parameter("y: ", utils.A("List"), "<", utils.A("T"), ">")
                             ),
                             ")",
                         ),
-                        arrayOf(
+                        kotlin.arrayOf(
                             "constructor(",
-                            Parameters(
-                                Parameter("x: ", A("Int"), ", "),
-                                Parameter("y: ", A("List"), "<", A("T"), ">")
+                            signatures.Parameters(
+                                signatures.Parameter("x: ", utils.A("Boolean"), ", "),
+                                signatures.Parameter("y: ", utils.A("Int"), ", "),
+                                signatures.Parameter("z:", utils.A("String"))
                             ),
                             ")",
                         ),
-                        arrayOf(
+                        kotlin.arrayOf(
                             "constructor(",
-                            Parameters(
-                                Parameter("x: ", A("Boolean"), ", "),
-                                Parameter("y: ", A("Int"), ", "),
-                                Parameter("z:", A("String"))
+                            signatures.Parameters(
+                                signatures.Parameter(
+                                    "x: ",
+                                    utils.A("List"),
+                                    "<",
+                                    utils.A("Comparable"),
+                                    "<",
+                                    utils.A("Lazy"),
+                                    "<",
+                                    utils.A("T"),
+                                    ">>>?"
+                                )
                             ),
                             ")",
                         ),
-                        arrayOf(
+                        kotlin.arrayOf(
                             "constructor(",
-                            Parameters(
-                                Parameter("x: ", A("List"), "<", A("Comparable"), "<", A("Lazy"), "<", A("T"), ">>>?")
+                            signatures.Parameters(
+                                signatures.Parameter("x: ", utils.A("Int"))
                             ),
                             ")",
                         ),
-
                     )
                 ).forEach {
                     it.first.match(*it.second, ignoreSpanWithTokenStyle = true)
@@ -1348,11 +1430,11 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `constructor has its own custom signature keyword in Constructor tab`() {
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
                 |/src/main/kotlin/common/Test.kt
                 |package example
@@ -1360,27 +1442,27 @@ class SignatureTest : BaseAbstractTest() {
                 |class PrimaryConstructorClass(x: String) { }
             """.trimMargin(),
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 val constructorTabFirstElement =
                     writerPlugin.writer.renderedContent("root/example/-primary-constructor-class/index.html")
                         .tab("CONSTRUCTOR")
-                        .first() ?: throw NoSuchElementException("No Constructors tab found or it is empty")
+                        .first() ?: throw kotlin.NoSuchElementException("No Constructors tab found or it is empty")
 
                 constructorTabFirstElement.firstSignature().match(
-                    "constructor(", Parameters(Parameter("x: ", A("String"))), ")",
+                    "constructor(", signatures.Parameters(signatures.Parameter("x: ", utils.A("String"))), ")",
                     ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `primary constructor with properties check for all tokens`() {
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
                 |/src/main/kotlin/common/Test.kt
                 |package example
@@ -1388,118 +1470,134 @@ class SignatureTest : BaseAbstractTest() {
                 |class PrimaryConstructorClass<T>(val x: Int, var s: String) { }
             """.trimMargin(),
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/-primary-constructor-class/index.html").firstSignature().match(
-                    Span("class "), A("PrimaryConstructorClass"), Span("<"), A("T"), Span(">"), Span("("), Parameters(
-                        Parameter(Span("val "), "x", Span(": "), A("Int"), Span(",")),
-                        Parameter(Span("var "), "s", Span(": "), A("String"))
-                    ), Span(")"),
+                writerPlugin.writer.renderedContent("root/example/-primary-constructor-class/index.html")
+                    .firstSignature().match(
+                    utils.Span("class "),
+                    utils.A("PrimaryConstructorClass"),
+                    utils.Span("<"),
+                    utils.A("T"),
+                    utils.Span(">"),
+                    utils.Span("("),
+                    signatures.Parameters(
+                        signatures.Parameter(
+                            utils.Span("val "),
+                            "x",
+                            utils.Span(": "),
+                            utils.A("Int"),
+                            utils.Span(",")
+                        ),
+                        signatures.Parameter(utils.Span("var "), "s", utils.Span(": "), utils.A("String"))
+                    ),
+                    utils.Span(")"),
                 )
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `fun with default values`() {
         val source = source("fun simpleFun(int: Int = 1, string: String = \"string\"): String = \"\"")
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "fun", A("simpleFun"), "(", Parameters(
-                        Parameter("int: ", A("Int"), " = 1,"),
-                        Parameter("string: ", A("String"), " = \"string\"")
-                    ), "): ", A("String"),
-                        ignoreSpanWithTokenStyle = true
-                )
-            }
-        }
-    }
-
-    @Test
-    @OptIn(ExperimentalDokkaApi::class)
-    fun `fun with context parameters`() {
-        val source = source("""
-            context(s: String, _:Int)
-            fun Int.simpleFun(a: Int): String = \"\""
-        """.trimIndent())
-        val writerPlugin = TestOutputWriterPlugin()
-
-        testInline(
-            source,
-            configuration,
-            pluginOverrides = listOf(writerPlugin)
-        ) {
-            renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
-                    "context(", ContextParameters(
-                        Parameter("s: ", A("String"), ", "),
-                        Parameter("_: ", A("Int")),
-                    ), ")", Br, "fun ", A("Int"), ".", A("simpleFun"), "(", Parameters(
-                        Parameter("a: ", A("Int")),
-                    ), "): ", A("String"), ignoreSpanWithTokenStyle = true
-                )
-            }
-        }
-    }
-
-
-    @Test
-    @OptIn(ExperimentalDokkaApi::class)
-    fun `property with context parameters`() {
-        val source = source("""
-            context(s: String, _:Int) val Int.simpleProp : Int
-        """.trimIndent())
-        val writerPlugin = TestOutputWriterPlugin()
-
-        testInline(
-            source,
-            configuration,
-            pluginOverrides = listOf(writerPlugin)
-        ) {
-            renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/simple-prop.html").firstSignature().match(
-                    "context(", ContextParameters(
-                        Parameter("s: ", A("String"), ", "),
-                        Parameter("_: ", A("Int")),
-                    ), ")", Br, "val ", A("Int"), ".", A("simpleProp"), ": ", A("Int"),
+                    "fun", utils.A("simpleFun"), "(", signatures.Parameters(
+                        signatures.Parameter("int: ", utils.A("Int"), " = 1,"),
+                        signatures.Parameter("string: ", utils.A("String"), " = \"string\"")
+                    ), "): ", utils.A("String"),
                     ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
-    fun `const val with default values`() {
-        val source = source("const val simpleVal = 1")
-        val writerPlugin = TestOutputWriterPlugin()
+    @kotlin.test.Test
+    @utils.OnlySymbols("context parameters")
+    @OptIn(org.jetbrains.dokka.ExperimentalDokkaApi::class)
+    fun `fun with context parameters`() {
+        val source = source("""
+            context(s: String, _:Int)
+            fun Int.simpleFun(a: Int): String = \"\""
+        """.trimIndent())
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             source,
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
-                    "const val ", A("simpleVal"), ": ", A("Int"), " = 1",
-                        ignoreSpanWithTokenStyle = true
+                writerPlugin.writer.renderedContent("root/example/simple-fun.html").firstSignature().match(
+                    "context(", signatures.ContextParameters(
+                        signatures.Parameter("s: ", utils.A("String"), ", "),
+                        signatures.Parameter("_: ", utils.A("Int")),
+                    ), ")", utils.Br, "fun ", utils.A("Int"), ".", utils.A("simpleFun"), "(", signatures.Parameters(
+                        signatures.Parameter("a: ", utils.A("Int")),
+                    ), "): ", utils.A("String"), ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
-    fun `should not expose enum constructor entry arguments`() {
-        val writerPlugin = TestOutputWriterPlugin()
 
-        testInline(
+    @kotlin.test.Test
+    @utils.OnlySymbols("context parameters")
+    @OptIn(org.jetbrains.dokka.ExperimentalDokkaApi::class)
+    fun `property with context parameters`() {
+        val source = source("""
+            context(s: String, _:Int) val Int.simpleProp : Int
+        """.trimIndent())
+        val writerPlugin = utils.TestOutputWriterPlugin()
+
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
+            source,
+            configuration,
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/simple-prop.html").firstSignature().match(
+                    "context(", signatures.ContextParameters(
+                        signatures.Parameter("s: ", utils.A("String"), ", "),
+                        signatures.Parameter("_: ", utils.A("Int")),
+                    ), ")", utils.Br, "val ", utils.A("Int"), ".", utils.A("simpleProp"), ": ", utils.A("Int"),
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @kotlin.test.Test
+    fun `const val with default values`() {
+        val source = source("const val simpleVal = 1")
+        val writerPlugin = utils.TestOutputWriterPlugin()
+
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
+            source,
+            configuration,
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                writerPlugin.writer.renderedContent("root/example/index.html").firstSignature().match(
+                    "const val ", utils.A("simpleVal"), ": ", utils.A("Int"), " = 1",
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @kotlin.test.Test
+    fun `should not expose enum constructor entry arguments`() {
+        val writerPlugin = utils.TestOutputWriterPlugin()
+
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
                 |/src/main/kotlin/common/EnumClass.kt
                 |package example
@@ -1510,7 +1608,7 @@ class SignatureTest : BaseAbstractTest() {
                 |}
             """.trimMargin(),
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 val enumEntrySignatures = writerPlugin.writer.renderedContent("root/example/-enum-class/index.html")
@@ -1520,23 +1618,23 @@ class SignatureTest : BaseAbstractTest() {
                     .select("div.block")
 
                 enumEntrySignatures[0].match(
-                    A("EMPTY"),
+                    utils.A("EMPTY"),
                     ignoreSpanWithTokenStyle = true
                 )
 
                 enumEntrySignatures[1].match(
-                    A("WITH_ARG"),
+                    utils.A("WITH_ARG"),
                     ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    @Test
-    @OnlyJavaPsi("\"open var \" expected but found: var")
+    @utils.OnlyDescriptors("'var' expected but found: 'open var'")
+    @kotlin.test.Test
     fun `java property without accessors should be var`() {
-        val writerPlugin = TestOutputWriterPlugin()
-        testInline(
+        val writerPlugin = utils.TestOutputWriterPlugin()
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
             |/src/test/JavaClass.java
             |package test;
@@ -1549,23 +1647,27 @@ class SignatureTest : BaseAbstractTest() {
             |open class KotlinClass : JavaClass() { }
         """.trimIndent(),
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 writerPlugin.writer.renderedContent("root/test/-kotlin-class/index.html").let { kotlinClassContent ->
                     val signatures = kotlinClassContent.signature().toList()
-                    assertEquals(3, signatures.size, "Expected 2 signatures: class signature, constructor and property")
+                    kotlin.test.assertEquals(
+                        3,
+                        signatures.size,
+                        "Expected 2 signatures: class signature, constructor and property"
+                    )
 
                     val property = signatures[2]
                     property.match(
-                        "var ", A("property"), ":", A("Int"),
+                        "var ", utils.A("property"), ":", utils.A("Int"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
 
                 writerPlugin.writer.renderedContent("root/test/-java-class/index.html").let { kotlinClassContent ->
                     val signatures = kotlinClassContent.signature().toList()
-                    assertEquals(
+                    kotlin.test.assertEquals(
                         3,
                         signatures.size,
                         "Expected 3 signatures: class signature, default constructor and property"
@@ -1573,7 +1675,7 @@ class SignatureTest : BaseAbstractTest() {
 
                     val property = signatures[2]
                     property.match(
-                        "open var ", A("property"), ":", A("Int"),
+                        "open var ", utils.A("property"), ":", utils.A("Int"),
                         ignoreSpanWithTokenStyle = true
                     )
                 }
@@ -1581,23 +1683,22 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
-
-    @Test
+    @kotlin.test.Test
     fun `should not add an empty span with java default visibility`() {
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
-                    sourceRoots = listOf("src/")
-                    documentedVisibilities = setOf(
-                        DokkaConfiguration.Visibility.PUBLIC,
-                        DokkaConfiguration.Visibility.PACKAGE
+        val configuration = org.jetbrains.dokka.testApi.testRunner.AbstractTest.dokkaConfiguration {
+            testApi.testRunner.TestDokkaConfigurationBuilder.sourceSets {
+                testApi.testRunner.SourceSetsBuilder.sourceSet {
+                    sourceRoots = kotlin.collections.listOf("src/")
+                    documentedVisibilities = kotlin.collections.setOf(
+                        org.jetbrains.dokka.DokkaConfiguration.Visibility.PUBLIC,
+                        org.jetbrains.dokka.DokkaConfiguration.Visibility.PACKAGE
                     )
                 }
             }
         }
 
-        val writerPlugin = TestOutputWriterPlugin()
-        testInline(
+        val writerPlugin = utils.TestOutputWriterPlugin()
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
             |/src/test/JavaAnnotationWithSpace.java
             |package test;
@@ -1605,21 +1706,23 @@ class SignatureTest : BaseAbstractTest() {
             |@interface JavaAnnotationWithSpace {}
         """.trimIndent(),
             configuration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
-                val signatureHtml = writerPlugin.writer.renderedContent("root/test/-java-annotation-with-space/index.html")
-                    .firstSignature()
-                    .html()
+                val signatureHtml =
+                    writerPlugin.writer.renderedContent("root/test/-java-annotation-with-space/index.html")
+                        .firstSignature()
+                        .html()
 
-                val expectedSignature = "<span class=\"token keyword\">annotation class </span><a href=\"index.html\">JavaAnnotationWithSpace</a>"
+                val expectedSignature =
+                    "<span class=\"token keyword\">annotation class </span><a href=\"index.html\">JavaAnnotationWithSpace</a>"
 
-                assertEquals(expectedSignature, signatureHtml)
+                kotlin.test.assertEquals(expectedSignature, signatureHtml)
             }
         }
     }
 
-    @Test
+    @kotlin.test.Test
     fun `primary constructor parameter should not be marked as property for derived generic class`() = testRender(
         """
             |/src/main/kotlin/SomeClass.kt
@@ -1628,13 +1731,20 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin(),
     ) {
         renderedContent("root/[root]/-child/index.html").firstSignature().matchIgnoringSpans(
-            "abstract class", A("Child"), "<out", A("RowType"), " : ", A("Any"), ">(", Parameters(
-                Parameter("name: (", A("String"), ") -> ", A("RowType"))
-            ), ") : ", A("Parent"), "<", A("RowType"), "> "
+            "abstract class",
+            utils.A("Child"), "<out",
+            utils.A("RowType"), " : ",
+            utils.A("Any"), ">(",
+            signatures.Parameters(
+                signatures.Parameter("name: (", utils.A("String"), ") -> ", utils.A("RowType"))
+            ), ") : ",
+            utils.A("Parent"), "<",
+            utils.A("RowType"), "> "
         )
     }
 
-    @Test
+    @kotlin.test.Test
+    @utils.OnlySymbols("#4056")
     fun `primary constructor parameter should not be marked as property for derived non-generic class`() = testRender(
         """
             |/src/main/kotlin/SomeClass.kt
@@ -1643,13 +1753,13 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin(),
     ) {
         renderedContent("root/[root]/-child/index.html").firstSignature().matchIgnoringSpans(
-            "abstract class", A("Child"), "(", Parameters(
-                Parameter("name: (", A("String"), ") -> ", A("Int"))
-            ), ") : ", A("Parent")
+            "abstract class", utils.A("Child"), "(", signatures.Parameters(
+                signatures.Parameter("name: (", utils.A("String"), ") -> ", utils.A("Int"))
+            ), ") : ", utils.A("Parent")
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `primary constructor parameter should not be marked as property`() = testRender(
         """
             |/src/main/kotlin/SomeClass.kt
@@ -1660,17 +1770,17 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin(),
     ) {
         renderedContent("root/[root]/-child/index.html").firstSignature().matchIgnoringSpans(
-            "abstract class", A("Child"), "(", Parameters(
-                Parameter("name: (", A("String"), ") -> ", A("Int"))
-            ), ") : ", A("Parent")
+            "abstract class", utils.A("Child"), "(", signatures.Parameters(
+                signatures.Parameter("name: (", utils.A("String"), ") -> ", utils.A("Int"))
+            ), ") : ", utils.A("Parent")
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `should render actual keyword for constructor`() {
-        val writerPlugin = TestOutputWriterPlugin()
+        val writerPlugin = utils.TestOutputWriterPlugin()
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
                 |/src/main/kotlin/common/Test.kt
                 |package example
@@ -1685,7 +1795,7 @@ class SignatureTest : BaseAbstractTest() {
                 |}
             """.trimMargin(),
             mppConfiguration,
-            pluginOverrides = listOf(writerPlugin)
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 val signatures = writerPlugin.writer.renderedContent("test/example/-a/-a.html").signature().toList()
@@ -1702,23 +1812,22 @@ class SignatureTest : BaseAbstractTest() {
         }
     }
 
-    @Test
-    fun `should not render parameterless constructor with annotation without mustBeDocumented annotation - for kotlin Any `() = withAllowKotlinPackage {
-        testRender(
-            """
+    @utils.OnlyDescriptors("#3354")
+    @kotlin.test.Test
+    fun `should not render parameterless constructor with annotation without mustBeDocumented annotation - for kotlin Any `() = testRender(
+        """
             |/src/main/kotlin/Any.kt
             |package kotlin
             |annotation class WasmPrimitiveConstructor
             |open class Any @WasmPrimitiveConstructor constructor()
         """.trimMargin(),
-        ) {
-            renderedContent("root/kotlin/-any/index.html").firstSignature().matchIgnoringSpans(
-                "open class", A("Any")
-            )
-        }
+    ) {
+        renderedContent("root/kotlin/-any/index.html").firstSignature().matchIgnoringSpans(
+            "open class", utils.A("Any")
+        )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `should not render parameterless constructor with annotation without mustBeDocumented annotation`() = testRender(
         """
             |/src/main/kotlin/SomeClass.kt
@@ -1728,11 +1837,11 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin(),
     ) {
         renderedContent("root/example/-some-class/index.html").firstSignature().matchIgnoringSpans(
-            "class", A("SomeClass")
+            "class", utils.A("SomeClass")
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `should not render parameterless constructor with ignored annotation`() = testRender(
         """
             |/src/main/kotlin/SomeClass.kt
@@ -1741,11 +1850,11 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin(),
     ) {
         renderedContent("root/example/-some-class/index.html").firstSignature().matchIgnoringSpans(
-            "class", A("SomeClass")
+            "class", utils.A("SomeClass")
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `should render parameterless constructor with annotation with mustBeDocumented annotation`() = testRender(
         """
             |/src/main/kotlin/SomeClass.kt
@@ -1756,210 +1865,68 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin(),
     ) {
         renderedContent("root/example/-some-class/index.html").firstSignature().matchIgnoringSpans(
-            "class", A("SomeClass"), Span("@", A("SomeAnnotation")), "constructor"
+            "class", utils.A("SomeClass"), utils.Span("@", utils.A("SomeAnnotation")), "constructor"
         )
     }
 
-    @Test
+    @kotlin.test.Test
     fun `fun and prop should have external modifier`() {
-        val writerPlugin = TestOutputWriterPlugin()
-        val configuration = dokkaConfiguration {
-            sourceSets {
-                sourceSet {
+        val writerPlugin = utils.TestOutputWriterPlugin()
+        val configuration = org.jetbrains.dokka.testApi.testRunner.AbstractTest.dokkaConfiguration {
+            testApi.testRunner.TestDokkaConfigurationBuilder.sourceSets {
+                testApi.testRunner.SourceSetsBuilder.sourceSet {
                     name = "js"
                     displayName = "js"
                     analysisPlatform = "js"
-                    classpath = listOf(commonStdlibPath ?: throw IllegalStateException("Common stdlib is not found"))
-                    sourceRoots = listOf("src/main/kotlin/js/Test.kt")
-                    externalDocumentationLinks = listOf(stdlibExternalDocumentationLink)
+                    classpath = kotlin.collections.listOf(
+                        org.jetbrains.dokka.testApi.testRunner.AbstractTest.commonStdlibPath
+                            ?: throw kotlin.IllegalStateException("Common stdlib is not found")
+                    )
+                    sourceRoots = kotlin.collections.listOf("src/main/kotlin/js/Test.kt")
+                    externalDocumentationLinks =
+                        kotlin.collections.listOf(org.jetbrains.dokka.testApi.testRunner.AbstractTest.stdlibExternalDocumentationLink)
                 }
             }
         }
 
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             """
             |/src/main/kotlin/js/Test.kt
             |package multiplatform
             |
             |external fun fn(): Unit
             |external val x: String
-        """.trimMargin(), configuration = configuration, pluginOverrides = listOf(writerPlugin)
+        """.trimMargin(), configuration = configuration, pluginOverrides = kotlin.collections.listOf(writerPlugin)
         ) {
             renderingStage = { _, _ ->
                 val signatures =
                     writerPlugin.writer.renderedContent("root/multiplatform/index.html").signature().toList()
                 signatures[0].match(
-                    "external val ", A("x"), ": ", A("String"), ignoreSpanWithTokenStyle = true
+                    "external val ", utils.A("x"), ": ", utils.A("String"), ignoreSpanWithTokenStyle = true
                 )
                 signatures[1].match(
-                    "external fun", A("fn"), "()", ignoreSpanWithTokenStyle = true
+                    "external fun", utils.A("fn"), "()", ignoreSpanWithTokenStyle = true
                 )
             }
         }
     }
 
-    // ----------------------------------------------------------------------
-    // Kotlin signatures: KEEP-0449 companion modifier.
-    //
-    // The `companion` keyword is rendered in the Kotlin signature ONLY for
-    // companion extensions — top-level extension functions/properties declared
-    // with the `companion` modifier (e.g. `companion fun Vector.unit()`).
-    //
-    // Companion-block members (`companion { fun foo() }`), Java statics, and
-    // enum synthetic declarations are also represented as companion-block scope
-    // in the model, but they don't carry a `companion` keyword in source and
-    // therefore must NOT render one in the Kotlin signature either.
-    // ----------------------------------------------------------------------
-
-    @Test
-    fun `kotlin companion extension function renders companion keyword`() = testRender(
-        """
-            |/src/main/kotlin/example/Util.kt
-            |package example
-            |class Vector(val x: Double, val y: Double)
-            |
-            |companion fun Vector.unit(): Vector = Vector(1.0, 1.0)
-        """.trimMargin()
-    ) {
-        renderedContent("root/example/unit.html").firstSignature().matchIgnoringSpans(
-            "companion fun ", A("Vector"), ".", A("unit"), "(): ", A("Vector"),
-        )
-    }
-
-    @Test
-    fun `kotlin companion extension property renders companion keyword`() = testRender(
-        """
-            |/src/main/kotlin/example/Util.kt
-            |package example
-            |class Vector(val x: Double, val y: Double)
-            |
-            |companion val Vector.UnitX: Vector get() = Vector(1.0, 0.0)
-        """.trimMargin()
-    ) {
-        renderedContent("root/example/-unit-x.html").firstSignature().matchIgnoringSpans(
-            "companion val ", A("Vector"), ".", A("UnitX"), ": ", A("Vector"),
-        )
-    }
-
-    @Test
-    fun `plain top-level extension does not render companion keyword`() = testRender(
-        """
-            |/src/main/kotlin/example/Util.kt
-            |package example
-            |class Vector(val x: Double, val y: Double)
-            |
-            |fun Vector.length(): Double = 0.0
-        """.trimMargin()
-    ) {
-        renderedContent("root/example/length.html").firstSignature().matchIgnoringSpans(
-            "fun ", A("Vector"), ".", A("length"), "(): ", A("Double"),
-        )
-    }
-
-    @Test
-    fun `kotlin companion-block function does not render companion keyword`() = testRender(
-        """
-            |/src/main/kotlin/example/Vector.kt
-            |package example
-            |class Vector(val x: Double, val y: Double) {
-            |    companion {
-            |        fun unit(): Vector = Vector(1.0, 1.0)
-            |    }
-            |}
-        """.trimMargin()
-    ) {
-        renderedContent("root/example/-vector/unit.html").firstSignature().matchIgnoringSpans(
-            "fun ", A("unit"), "(): ", A("Vector"),
-        )
-    }
-
-    @Test
-    fun `kotlin companion-block property does not render companion keyword`() = testRender(
-        """
-            |/src/main/kotlin/example/Vector.kt
-            |package example
-            |class Vector(val x: Double, val y: Double) {
-            |    companion {
-            |        val Zero: Vector = Vector(0.0, 0.0)
-            |    }
-            |}
-        """.trimMargin()
-    ) {
-        renderedContent("root/example/-vector/-zero.html").firstSignature().matchIgnoringSpans(
-            "val ", A("Zero"), ": ", A("Vector"),
-        )
-    }
-
-    @Test
-    fun `java static method does not render companion keyword in kotlin signature`() = testRender(
-        """
-            |/src/example/Util.java
-            |package example;
-            |public class Util {
-            |  public static int doStuff() { return 0; }
-            |}
-        """.trimMargin()
-    ) {
-        renderedContent("root/example/-util/do-stuff.html").firstSignature().matchIgnoringSpans(
-            "open fun ", A("doStuff"), "(): ", A("Int"),
-        )
-    }
-
-    @Test
-    fun `java static field does not render companion keyword in kotlin signature`() = testRender(
-        """
-            |/src/example/Util.java
-            |package example;
-            |public class Util {
-            |  public static final String NAME = "x";
-            |}
-        """.trimMargin()
-    ) {
-        renderedContent("root/example/-util/-n-a-m-e.html").firstSignature().matchIgnoringSpans(
-            "val ", A("NAME"), ": ", Span("String"), " = \"x\"",
-        )
-    }
-
-    @Test
-    fun `kotlin enum synthetic values method does not render companion keyword`() = testRender(
-        """
-            |/src/main/kotlin/example/E.kt
-            |package example
-            |enum class E { A, B }
-        """.trimMargin()
-    ) {
-        renderedContent("root/example/-e/values.html").firstSignature().matchIgnoringSpans(
-            "fun ", A("values"), "(): ", A("Array"), "<", A("E"), ">",
-        )
-    }
-
-    @Test
-    fun `kotlin instance extension function does not render companion keyword`() = testRender(
-        """
-            |/src/main/kotlin/example/Util.kt
-            |package example
-            |class Vector(val x: Double, val y: Double)
-            |
-            |fun Vector.length(): Double = 0.0
-        """.trimMargin()
-    ) {
-        renderedContent("root/example/length.html").firstSignature().matchIgnoringSpans(
-            "fun ", A("Vector"), ".", A("length"), "(): ", A("Double"),
-        )
-    }
-
     private fun testRender(
         query: String,
-        configuration: DokkaConfigurationImpl = this.configuration,
-        block: TestOutputWriter.() -> Unit
+        configuration: org.jetbrains.dokka.DokkaConfigurationImpl = this.configuration,
+        block: utils.TestOutputWriter.() -> Unit
     ) {
-        val writerPlugin = TestOutputWriterPlugin()
-        testInline(query, configuration, pluginOverrides = listOf(writerPlugin)) {
+        val writerPlugin = utils.TestOutputWriterPlugin()
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
+            query,
+            configuration,
+            pluginOverrides = kotlin.collections.listOf(writerPlugin)
+        ) {
             renderingStage = { _, _ -> writerPlugin.writer.block() }
         }
     }
 
-    private fun Element.matchIgnoringSpans(vararg matchers: Any) {
+    private fun org.jsoup.nodes.Element.matchIgnoringSpans(vararg matchers: Any) {
         return match(*matchers, ignoreSpanWithTokenStyle = true)
     }
 }

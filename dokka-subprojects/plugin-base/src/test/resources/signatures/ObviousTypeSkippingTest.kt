@@ -14,10 +14,15 @@ import org.jetbrains.dokka.utilities.DokkaConsoleLogger
 import org.jetbrains.dokka.utilities.LoggingLevel
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import kotlin.collections.asIterable
+import kotlin.collections.forEach
 import kotlin.reflect.KClass
+import kotlin.text.contains
+import kotlin.text.isNullOrBlank
+import kotlin.text.trimIndent
 
-class ObviousTypeSkippingTest : BaseAbstractTest(
-    logger = TestLogger(DokkaConsoleLogger(LoggingLevel.WARN))
+class ObviousTypeSkippingTest : org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest(
+    logger = org.jetbrains.dokka.testApi.logger.TestLogger(org.jetbrains.dokka.utilities.DokkaConsoleLogger(org.jetbrains.dokka.utilities.LoggingLevel.WARN))
 ) {
 
     private fun source(signature: String) =
@@ -28,18 +33,19 @@ class ObviousTypeSkippingTest : BaseAbstractTest(
             | $signature
             """.trimIndent()
 
-    private val configuration = dokkaConfiguration {
-        sourceSets {
-            sourceSet {
-                sourceRoots = listOf("src")
-                classpath = listOfNotNull(jvmStdlibPath)
+    private val configuration = org.jetbrains.dokka.testApi.testRunner.AbstractTest.dokkaConfiguration {
+        testApi.testRunner.TestDokkaConfigurationBuilder.sourceSets {
+            testApi.testRunner.SourceSetsBuilder.sourceSet {
+                sourceRoots = kotlin.collections.listOf("src")
+                classpath =
+                    kotlin.collections.listOfNotNull(org.jetbrains.dokka.testApi.testRunner.AbstractTest.jvmStdlibPath)
             }
         }
     }
 
     companion object TestDataSources {
-        @JvmStatic
-        fun `run tests for obvious types omitting`() = listOf(
+        @kotlin.jvm.JvmStatic
+        fun `run tests for obvious types omitting`() = kotlin.collections.listOf(
             forFunction("fun underTest(): Int = 5", "fun underTest(): Int"),
             forFunction("fun underTest() = 5", "fun underTest(): Int"),
             forFunction("fun underTest() {}", "fun underTest()"),
@@ -104,11 +110,11 @@ class ObviousTypeSkippingTest : BaseAbstractTest(
         )
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource
+    @org.junit.jupiter.params.ParameterizedTest(name = "{0}")
+    @org.junit.jupiter.params.provider.MethodSource
     fun `run tests for obvious types omitting`(testData: TestData) {
         val (codeFragment, expectedSignature, placesToTest) = testData
-        testInline(
+        org.jetbrains.dokka.testApi.testRunner.AbstractTest.testInline(
             query = source(codeFragment),
             configuration = configuration
         ) {
@@ -117,19 +123,20 @@ class ObviousTypeSkippingTest : BaseAbstractTest(
                     try {
                         when (place) {
                             is OnOwnPage ->
-                                root.firstMemberOfType<ContentPage> { it.name == place.name }.content
-                                    .firstMemberOfType<ContentGroup> { it.dci.kind == ContentKind.Symbol }
+                                root.firstMemberOfType<org.jetbrains.dokka.pages.ContentPage> { it.name == place.name }.content
+                                    .firstMemberOfType<org.jetbrains.dokka.pages.ContentGroup> { it.dci.kind == org.jetbrains.dokka.pages.ContentKind.Symbol }
                                     .assertNode { hasExactText(expectedSignature) }
+
                             is OnParentPage ->
-                                root.firstMemberOfType<ContentPage> {
+                                root.firstMemberOfType<org.jetbrains.dokka.pages.ContentPage> {
                                     place.pageType.isInstance(it) && (place.parentName.isNullOrBlank() || place.parentName == it.name)
                                 }
                                     .content
-                                    .firstMemberOfType<ContentGroup> {
+                                    .firstMemberOfType<org.jetbrains.dokka.pages.ContentGroup> {
                                         it.dci.kind == place.section && (place.selfName.isNullOrBlank() ||
                                                 it.dci.dri.toString().contains(place.selfName))
                                     }
-                                    .firstMemberOfType<ContentGroup> { it.dci.kind == ContentKind.Symbol }
+                                    .firstMemberOfType<org.jetbrains.dokka.pages.ContentGroup> { it.dci.kind == org.jetbrains.dokka.pages.ContentKind.Symbol }
                                     .assertNode { hasExactText(expectedSignature) }
                         }
                     } catch (e: Throwable) {
@@ -146,8 +153,8 @@ class ObviousTypeSkippingTest : BaseAbstractTest(
 sealed class Place
 data class OnOwnPage(val name: String) : Place()
 data class OnParentPage(
-    val pageType: KClass<out ContentPage>,
-    val section: Kind,
+    val pageType: KClass<out org.jetbrains.dokka.pages.ContentPage>,
+    val section: org.jetbrains.dokka.pages.Kind,
     val parentName: String? = null,
     val selfName: String? = null
 ) : Place()
@@ -167,7 +174,7 @@ private fun forFunction(codeFragment: String, expectedSignature: String, functio
     TestData(
         codeFragment,
         expectedSignature,
-        OnParentPage(PackagePageNode::class, ContentKind.Functions),
+        OnParentPage(org.jetbrains.dokka.pages.PackagePageNode::class, org.jetbrains.dokka.pages.ContentKind.Functions),
         OnOwnPage(functionName)
     )
 
@@ -175,7 +182,7 @@ private fun forExtension(codeFragment: String, expectedSignature: String, functi
     TestData(
         codeFragment,
         expectedSignature,
-        OnParentPage(PackagePageNode::class, ContentKind.Extensions),
+        OnParentPage(org.jetbrains.dokka.pages.PackagePageNode::class, org.jetbrains.dokka.pages.ContentKind.Extensions),
         OnOwnPage(functionName)
     )
 private fun forMethod(
@@ -187,20 +194,20 @@ private fun forMethod(
     TestData(
         codeFragment,
         expectedSignature,
-        OnParentPage(ClasslikePageNode::class, ContentKind.Functions, className, functionName),
+        OnParentPage(org.jetbrains.dokka.pages.ClasslikePageNode::class, org.jetbrains.dokka.pages.ContentKind.Functions, className, functionName),
         OnOwnPage(functionName)
     )
 
 private fun forProperty(codeFragment: String, expectedSignature: String) =
-    TestData(codeFragment, expectedSignature, OnParentPage(PackagePageNode::class, ContentKind.Properties))
+    TestData(codeFragment, expectedSignature, OnParentPage(org.jetbrains.dokka.pages.PackagePageNode::class, org.jetbrains.dokka.pages.ContentKind.Properties))
 
 private fun forClassProperty(codeFragment: String, expectedSignature: String, className: String = "Testable") =
-    TestData(codeFragment, expectedSignature, OnParentPage(ClasslikePageNode::class, ContentKind.Properties, className))
+    TestData(codeFragment, expectedSignature, OnParentPage(org.jetbrains.dokka.pages.ClasslikePageNode::class, org.jetbrains.dokka.pages.ContentKind.Properties, className))
 
 private fun forClass(codeFragment: String, expectedSignature: String, className: String = "Testable") =
     TestData(
         codeFragment,
         expectedSignature,
-        OnParentPage(PackagePageNode::class, ContentKind.Classlikes),
+        OnParentPage(org.jetbrains.dokka.pages.PackagePageNode::class, org.jetbrains.dokka.pages.ContentKind.Classlikes),
         OnOwnPage(className)
     )
