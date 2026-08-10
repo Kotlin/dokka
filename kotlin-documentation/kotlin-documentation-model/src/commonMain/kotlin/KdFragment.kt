@@ -4,6 +4,7 @@
 
 package org.jetbrains.kotlin.documentation
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 // those are ROOT types
@@ -41,6 +42,19 @@ public data class KdFragment(
     val fragmentDependencies: List<KdFragmentDependency> = emptyList(),
     // TODO: or, should it be more on level of the KdFragments
     val embeddedDependencies: List<KdEmbeddedDependency> = emptyList()
+)
+
+// source-set or android variant/flavour name
+public typealias KdVariantName = String
+
+// { "ID": { "common": {...}, "jvm": {...} }
+// { "ID": { "android": {...}, "androidFree": {...}, "androidPaid": {...} }
+// { "ID": { "jvm": {...} }
+
+public data class KdElements(
+    val elements: Map<KdElementId, Map<KdVariantName, KdElement>>,
+    // vs
+    val elements2: Map<KdVariantName, Map<KdElementId, KdElement>>,
 )
 
 @Serializable

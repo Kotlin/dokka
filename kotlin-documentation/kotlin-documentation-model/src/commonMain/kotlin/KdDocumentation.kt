@@ -179,6 +179,7 @@ public sealed class KdDocumentationNode {
 }
 
 // TODO: naming, values
+// TODO: could be serialized into a single `string`
 @Serializable
 public sealed class KdLinkReference {
     @SerialName("receiver")
@@ -201,11 +202,13 @@ public sealed class KdLinkReference {
     @Serializable
     public data class Package(val packageName: String) : KdLinkReference()
 
-    @SerialName("callable")
+    // save for other things like topic
+    @SerialName("module") // at least for java
     @Serializable
-    public data class Callable(val callableId: KdCallableId) : KdLinkReference()
+    public data class Module(val moduleName: String) : KdLinkReference()
 
-    @SerialName("classlike")
+    @SerialName("declaration")
     @Serializable
-    public data class ClassLike(val classLikeId: KdClassLikeId) : KdLinkReference()
+    public data class Declaration(val declarationId: KdDeclarationId) : KdLinkReference()
+
 }
