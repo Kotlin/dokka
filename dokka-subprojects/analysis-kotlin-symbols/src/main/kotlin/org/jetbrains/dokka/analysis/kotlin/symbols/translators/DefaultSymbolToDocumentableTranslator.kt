@@ -49,9 +49,11 @@ import org.jetbrains.kotlin.analysis.api.components.javaGetterName
 import org.jetbrains.kotlin.analysis.api.components.javaSetterName
 import org.jetbrains.kotlin.analysis.api.scopes.*
 import org.jetbrains.kotlin.analysis.api.symbols.*
+import org.jetbrains.kotlin.analysis.api.types.KaClassType
 import org.jetbrains.kotlin.analysis.api.types.*
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.JvmStandardClassIds
+import org.jetbrains.kotlin.name.StandardClassIds
 import org.jetbrains.kotlin.name.SpecialNames.UNDERSCORE_FOR_UNUSED_VAR
 import org.jetbrains.kotlin.psi.*
 
@@ -256,7 +258,7 @@ internal class DokkaSymbolVisitor(
         val ancestryInfo =
             with(typeTranslator) { buildAncestryInformationFrom(namedClassSymbol.defaultType, Location(namedClassSymbol)) }
         val supertypes =
-            namedClassSymbol.superTypes.filterNot { it.isAnyType }
+            namedClassSymbol.superTypes.filterNot { (it as? KaClassType)?.classId == StandardClassIds.Any }
                 .map { with(typeTranslator) { toTypeConstructorWithKindFrom(it, Location(namedClassSymbol)) } }
                 .toSourceSetDependent()
         return@withExceptionCatcher when (namedClassSymbol.classKind) {
@@ -646,7 +648,8 @@ internal class DokkaSymbolVisitor(
     ): DFunction = withExceptionCatcher(propertyAccessorSymbol) {
         val isGetter = propertyAccessorSymbol is KaPropertyGetterSymbol
         // it also covers @JvmName annotation
-        @OptIn(KaExperimentalApi::class) // due to javaGetterName/javaSetterName
+        @OptIn(KaExperimentalApi::class)
+        @Suppress("DEPRECATION")
         val name = (if (isGetter) propertySymbol.javaGetterName else propertySymbol.javaSetterName)?.asString() ?: ""
 
         // SyntheticJavaProperty has callableId, propertyAccessorSymbol.origin = JAVA_SYNTHETIC_PROPERTY

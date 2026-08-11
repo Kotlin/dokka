@@ -17,7 +17,9 @@ import org.jetbrains.kotlin.analysis.api.KaNonPublicApi
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.annotations.*
 import org.jetbrains.kotlin.analysis.api.symbols.*
+import org.jetbrains.kotlin.analysis.api.types.KaClassType
 import org.jetbrains.kotlin.analysis.api.types.*
+import org.jetbrains.kotlin.name.StandardClassIds
 
 internal const val ERROR_CLASS_NAME = "<ERROR CLASS>"
 
@@ -163,7 +165,7 @@ internal class TypeTranslator(
         type: KaType,
         location: Location
     ): AncestryNode {
-        val (interfaces, superclass) = type.directSupertypes(true).filterNot { it.isAnyType }
+        val (interfaces, superclass) = type.directSupertypes(true).filterNot { (it as? KaClassType)?.classId == StandardClassIds.Any }
             .partition {
                 val typeConstructorWithKind = toTypeConstructorWithKindFrom(it, location)
                 typeConstructorWithKind.kind == KotlinClassKindTypes.INTERFACE ||
