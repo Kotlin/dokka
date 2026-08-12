@@ -7,6 +7,7 @@ package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 import com.intellij.psi.PsiElement
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.analysis.kotlin.symbols.translators.AnnotationTranslator.Companion.getPresentableName
+import org.jetbrains.dokka.analysis.kotlin.symbols.utils.filterOutAny
 import org.jetbrains.dokka.analysis.kotlin.symbols.utils.getLocation
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
@@ -17,9 +18,7 @@ import org.jetbrains.kotlin.analysis.api.KaNonPublicApi
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.annotations.*
 import org.jetbrains.kotlin.analysis.api.symbols.*
-import org.jetbrains.kotlin.analysis.api.types.KaClassType
 import org.jetbrains.kotlin.analysis.api.types.*
-import org.jetbrains.kotlin.name.StandardClassIds
 
 internal const val ERROR_CLASS_NAME = "<ERROR CLASS>"
 
@@ -165,7 +164,7 @@ internal class TypeTranslator(
         type: KaType,
         location: Location
     ): AncestryNode {
-        val (interfaces, superclass) = type.directSupertypes(true).filterNot { (it as? KaClassType)?.classId == StandardClassIds.Any }
+        val (interfaces, superclass) = type.directSupertypes(true).filterOutAny()
             .partition {
                 val typeConstructorWithKind = toTypeConstructorWithKindFrom(it, location)
                 typeConstructorWithKind.kind == KotlinClassKindTypes.INTERFACE ||

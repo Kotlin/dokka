@@ -29,6 +29,7 @@ import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getJavaDocDocumentationF
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.getKDocDocumentationFrom
 import org.jetbrains.dokka.analysis.kotlin.symbols.kdoc.hasGeneratedKDocDocumentation
 import org.jetbrains.dokka.analysis.kotlin.symbols.translators.AnnotationTranslator.Companion.getPresentableName
+import org.jetbrains.dokka.analysis.kotlin.symbols.utils.filterOutAny
 import org.jetbrains.dokka.analysis.kotlin.symbols.utils.typeConstructorsBeingExceptions
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
@@ -45,15 +46,13 @@ import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.analysis.api.session.analyze
 import org.jetbrains.kotlin.analysis.api.*
 import org.jetbrains.kotlin.analysis.api.annotations.KaAnnotated
-import org.jetbrains.kotlin.analysis.api.components.javaGetterName
-import org.jetbrains.kotlin.analysis.api.components.javaSetterName
+import org.jetbrains.kotlin.analysis.api.javaInterop.javaMethodName
 import org.jetbrains.kotlin.analysis.api.scopes.*
 import org.jetbrains.kotlin.analysis.api.symbols.*
-import org.jetbrains.kotlin.analysis.api.types.KaClassType
 import org.jetbrains.kotlin.analysis.api.types.*
+import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.JvmStandardClassIds
-import org.jetbrains.kotlin.name.StandardClassIds
 import org.jetbrains.kotlin.name.SpecialNames.UNDERSCORE_FOR_UNUSED_VAR
 import org.jetbrains.kotlin.psi.*
 
@@ -258,8 +257,9 @@ internal class DokkaSymbolVisitor(
         val ancestryInfo =
             with(typeTranslator) { buildAncestryInformationFrom(namedClassSymbol.defaultType, Location(namedClassSymbol)) }
         val supertypes =
-            namedClassSymbol.superTypes.filterNot { (it as? KaClassType)?.classId == StandardClassIds.Any }
+            namedClassSymbol.superTypes.asSequence().filterOutAny()
                 .map { with(typeTranslator) { toTypeConstructorWithKindFrom(it, Location(namedClassSymbol)) } }
+                .toList()
                 .toSourceSetDependent()
         return@withExceptionCatcher when (namedClassSymbol.classKind) {
             KaClassKind.OBJECT, KaClassKind.COMPANION_OBJECT ->
@@ -649,8 +649,10 @@ internal class DokkaSymbolVisitor(
         val isGetter = propertyAccessorSymbol is KaPropertyGetterSymbol
         // it also covers @JvmName annotation
         @OptIn(KaExperimentalApi::class)
-        @Suppress("DEPRECATION")
-        val name = (if (isGetter) propertySymbol.javaGetterName else propertySymbol.javaSetterName)?.asString() ?: ""
+        // `javaMethodName` is null when there is no addressable JVM method (e.g. accessors of `const` or `@JvmField` properties),
+        val name = propertyAccessorSymbol.javaMethodName
+            ?: propertySymbol.name.asString()
+                .let { if (isGetter) JvmAbi.getterName(it) else JvmAbi.setterName(it) }
 
         // SyntheticJavaProperty has callableId, propertyAccessorSymbol.origin = JAVA_SYNTHETIC_PROPERTY
         // For Kotlin properties callableId=null
