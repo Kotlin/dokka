@@ -46,7 +46,6 @@ public class DocumentableVisibilityFilterTransformer(
             }
 
             val documentedVisibilities =
-                @Suppress("DEPRECATION") // for includeNonPublic, preserve backwards compatibility
                 when {
                     packageOpts != null -> packageOpts.documentedVisibilities
                     else -> globalOptions.documentedVisibilities

@@ -204,9 +204,6 @@ public open class CoreTestMethods(
     public open val documentablesCreationStage: (List<DModule>) -> Unit,
     public open val documentablesMergingStage: (DModule) -> Unit,
     public open val documentablesTransformationStage: (DModule) -> Unit,
-    //public open val pagesGenerationStage: (RootPageNode) -> Unit,
-    //public open val pagesTransformationStage: (RootPageNode) -> Unit,
-    ///public open val renderingStage: (RootPageNode, DokkaContext) -> Unit,
 ) : TestMethods
 
 public abstract class TestBuilder<M : TestMethods> {

@@ -30,7 +30,6 @@ public object DokkaDefaults {
 
     public const val jdkVersion: Int = 8
 
-    public const val includeNonPublic: Boolean = false
     public val documentedVisibilities: Set<DokkaConfiguration.Visibility> = setOf(DokkaConfiguration.Visibility.PUBLIC)
 
     public val pluginsConfiguration: List<PluginConfigurationImpl> = mutableListOf()
@@ -40,7 +39,6 @@ public object DokkaDefaults {
      */
     public val suppressAnnotatedWith: Set<String> = emptySet()
 
-    public val cacheRoot: File? = null
 }
 
 public enum class Platform(
@@ -99,25 +97,6 @@ public data class DokkaSourceSetID(
 ) : Serializable {
     override fun toString(): String {
         return "$scopeId/$sourceSetName"
-    }
-}
-
-/**
- * Global options can be configured and applied to all packages and modules at once, overwriting package configuration.
- *
- * These are handy if we have multiple source sets sharing the same global options as it reduces the size of the
- * boilerplate. Otherwise, the user would be forced to repeat all these options for each source set.
- *
- * @see [apply] to learn how to apply global configuration
- */
-public data class GlobalDokkaConfiguration(
-    val perPackageOptions: List<PackageOptionsImpl>?,
-)
-
-public fun DokkaConfiguration.apply(globals: GlobalDokkaConfiguration): DokkaConfiguration = this.apply {
-    sourceSets.forEach {
-        it.perPackageOptions.cast<MutableList<DokkaConfiguration.PackageOptions>>()
-            .addAll(globals.perPackageOptions ?: emptyList())
     }
 }
 
