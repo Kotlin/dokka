@@ -1,9 +1,0 @@
-$dokka.format:kotlin-website-html
-$dokka.linkExtension:html
-$dokka.location:kotlin.text.StringBuilderkotlin.relocated.text/-string-builder/index.html
-$dokka.location:kotlin$minus(java.math.BigDecimal, java.math.BigDecimal)kotlin/java.math.-big-decimal/minus.html
-$dokka.location:kotlin.Int$MAX_VALUE()kotlin/-int/max-value.html
-kotlin
-kotlin.text
-kotlin.reflect
-

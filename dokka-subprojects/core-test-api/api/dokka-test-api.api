@@ -41,7 +41,6 @@ public abstract class org/jetbrains/dokka/testApi/testRunner/AbstractTest {
 	protected final fun getJsStdlibPath ()Ljava/lang/String;
 	protected final fun getJvmStdlibPath ()Ljava/lang/String;
 	protected final fun getLogger ()Lorg/jetbrains/dokka/testApi/logger/TestLogger;
-	protected final fun getStdlibExternalDocumentationLink ()Lorg/jetbrains/dokka/ExternalDocumentationLinkImpl;
 	protected final fun getTestBuilder ()Lkotlin/jvm/functions/Function0;
 	protected final fun getTestDataDir (Ljava/lang/String;)Ljava/nio/file/Path;
 	protected final fun testFromData (Lorg/jetbrains/dokka/DokkaConfigurationImpl;ZZLjava/util/List;Lkotlin/jvm/functions/Function1;)V
@@ -54,14 +53,11 @@ public final class org/jetbrains/dokka/testApi/testRunner/AbstractTest$Companion
 }
 
 public class org/jetbrains/dokka/testApi/testRunner/CoreTestMethods : org/jetbrains/dokka/testApi/testRunner/TestMethods {
-	public fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)V
+	public fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
 	public fun getDocumentablesCreationStage ()Lkotlin/jvm/functions/Function1;
 	public fun getDocumentablesMergingStage ()Lkotlin/jvm/functions/Function1;
 	public fun getDocumentablesTransformationStage ()Lkotlin/jvm/functions/Function1;
-	public fun getPagesGenerationStage ()Lkotlin/jvm/functions/Function1;
-	public fun getPagesTransformationStage ()Lkotlin/jvm/functions/Function1;
 	public fun getPluginsSetupStage ()Lkotlin/jvm/functions/Function1;
-	public fun getRenderingStage ()Lkotlin/jvm/functions/Function2;
 	public fun getVerificationStage ()Lkotlin/jvm/functions/Function1;
 }
 
@@ -87,8 +83,8 @@ public abstract interface annotation class testApi/testRunner/DokkaConfiguration
 }
 
 public final class testApi/testRunner/DokkaSourceSetBuilder {
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/Set;Ljava/util/List;Ljava/util/List;ZLjava/util/Set;ZZZILjava/lang/String;Ljava/lang/String;ZZLjava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Set;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/Set;Ljava/util/List;Ljava/util/List;ZLjava/util/Set;ZZZILjava/lang/String;Ljava/lang/String;ZZLjava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/Set;Ljava/util/List;Ljava/util/List;Ljava/util/Set;ZZZILjava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/Set;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/Set;Ljava/util/List;Ljava/util/List;Ljava/util/Set;ZZZILjava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun build ()Lorg/jetbrains/dokka/DokkaSourceSetImpl;
 	public final fun getAnalysisPlatform ()Ljava/lang/String;
 	public final fun getApiVersion ()Ljava/lang/String;
@@ -96,20 +92,15 @@ public final class testApi/testRunner/DokkaSourceSetBuilder {
 	public final fun getDependentSourceSets ()Ljava/util/Set;
 	public final fun getDisplayName ()Ljava/lang/String;
 	public final fun getDocumentedVisibilities ()Ljava/util/Set;
-	public final fun getExternalDocumentationLinks ()Ljava/util/List;
-	public final fun getIncludeNonPublic ()Z
 	public final fun getIncludes ()Ljava/util/List;
 	public final fun getJdkVersion ()I
 	public final fun getLanguageVersion ()Ljava/lang/String;
 	public final fun getName ()Ljava/lang/String;
-	public final fun getNoJdkLink ()Z
-	public final fun getNoStdlibLink ()Z
 	public final fun getPerPackageOptions ()Ljava/util/List;
 	public final fun getReportUndocumented ()Z
 	public final fun getSamples ()Ljava/util/List;
 	public final fun getSkipDeprecated ()Z
 	public final fun getSkipEmptyPackages ()Z
-	public final fun getSourceLinks ()Ljava/util/List;
 	public final fun getSourceRoots ()Ljava/util/List;
 	public final fun getSuppressAnnotatedWith ()Ljava/util/Set;
 	public final fun getSuppressedFiles ()Ljava/util/List;
@@ -119,20 +110,15 @@ public final class testApi/testRunner/DokkaSourceSetBuilder {
 	public final fun setDependentSourceSets (Ljava/util/Set;)V
 	public final fun setDisplayName (Ljava/lang/String;)V
 	public final fun setDocumentedVisibilities (Ljava/util/Set;)V
-	public final fun setExternalDocumentationLinks (Ljava/util/List;)V
-	public final fun setIncludeNonPublic (Z)V
 	public final fun setIncludes (Ljava/util/List;)V
 	public final fun setJdkVersion (I)V
 	public final fun setLanguageVersion (Ljava/lang/String;)V
 	public final fun setName (Ljava/lang/String;)V
-	public final fun setNoJdkLink (Z)V
-	public final fun setNoStdlibLink (Z)V
 	public final fun setPerPackageOptions (Ljava/util/List;)V
 	public final fun setReportUndocumented (Z)V
 	public final fun setSamples (Ljava/util/List;)V
 	public final fun setSkipDeprecated (Z)V
 	public final fun setSkipEmptyPackages (Z)V
-	public final fun setSourceLinks (Ljava/util/List;)V
 	public final fun setSourceRoots (Ljava/util/List;)V
 	public final fun setSuppressAnnotatedWith (Ljava/util/Set;)V
 	public final fun setSuppressedFiles (Ljava/util/List;)V
@@ -160,28 +146,24 @@ public final class testApi/testRunner/TestDokkaConfigurationBuilder {
 	public fun <init> ()V
 	public final fun build ()Lorg/jetbrains/dokka/DokkaConfigurationImpl;
 	public final fun getCacheRoot ()Ljava/lang/String;
-	public final fun getDelayTemplateSubstitution ()Z
 	public final fun getFailOnWarning ()Z
 	public final fun getFormat ()Ljava/lang/String;
 	public final fun getIncludes ()Ljava/util/List;
 	public final fun getModuleName ()Ljava/lang/String;
 	public final fun getModuleVersion ()Ljava/lang/String;
 	public final fun getModules ()Ljava/util/List;
-	public final fun getOfflineMode ()Z
 	public final fun getOutputDir ()Ljava/io/File;
 	public final fun getPluginsClasspath ()Ljava/util/List;
 	public final fun getPluginsConfigurations ()Ljava/util/List;
 	public final fun getSuppressInheritedMembers ()Z
 	public final fun getSuppressObviousFunctions ()Z
 	public final fun setCacheRoot (Ljava/lang/String;)V
-	public final fun setDelayTemplateSubstitution (Z)V
 	public final fun setFailOnWarning (Z)V
 	public final fun setFormat (Ljava/lang/String;)V
 	public final fun setIncludes (Ljava/util/List;)V
 	public final fun setModuleName (Ljava/lang/String;)V
 	public final fun setModuleVersion (Ljava/lang/String;)V
 	public final fun setModules (Ljava/util/List;)V
-	public final fun setOfflineMode (Z)V
 	public final fun setOutputDir (Ljava/io/File;)V
 	public final fun setPluginsClasspath (Ljava/util/List;)V
 	public final fun setPluginsConfigurations (Ljava/util/List;)V
