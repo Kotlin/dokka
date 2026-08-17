@@ -38,13 +38,9 @@ dependencies {
 
     symbolsTestImplementation(project(path = ":dokka-subprojects:analysis-kotlin-symbols", configuration = "shadow"))
     testImplementation(projects.dokkaSubprojects.pluginBaseTestUtils)
-    testImplementation(projects.dokkaSubprojects.coreContentMatcherTestUtils)
     testImplementation(projects.dokkaSubprojects.dokkaTestApi)
     testImplementation(projects.dokkaSubprojects.analysisKotlinApi)
 
-    dokkaHtmlFrontendFiles(projects.dokkaSubprojects.pluginBaseFrontend) {
-        because("fetch frontend files from subproject :plugin-base-frontend")
-    }
 }
 
 // access the frontend files via the dependency on :plugins:base:frontend
