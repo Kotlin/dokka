@@ -1,4 +1,0 @@
-{% extends "components/base.korte" %}
-{% block content %}
-{% include "components/indexPage.korte" %}
-{% end %}
