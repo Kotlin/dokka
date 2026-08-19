@@ -1,1 +1,0 @@
-sourceset_dependencies = '{":childProjectA/main":[],":childProjectB/main":[]}'

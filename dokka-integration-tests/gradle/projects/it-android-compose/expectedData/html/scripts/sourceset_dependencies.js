@@ -1,1 +1,0 @@
-sourceset_dependencies = '{":core/androidMain":[":core/commonMain"],":core/androidRelease":[":core/commonMain"],":core/commonMain":[],":material3/androidMain":[":material3/commonMain"],":material3/androidRelease":[":material3/commonMain"],":material3/commonMain":[]}'
