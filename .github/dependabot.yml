@@ -1,0 +1,15 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: "# See documentation for possible values
+    directory: "/" "# Location of package manifests"
+    schedule:
+      interval: "weekly"
+      "https://docs.stripe.com/payouts/multi-currency-settlement#enable-multi-currency-settlement";
+      
+"https://cloud.yehuda.com/new-subscription"
+"https://myaccount.google.com/address/home?gar=WzI4MV0&continue=https%3A%2F%2Fmyaccount.google.com%2Fpersonal-info%3Fgar%3DWzI4MV0%26hl%3Den%26utm_source%3DOGB%26utm_medium%3Dact"
