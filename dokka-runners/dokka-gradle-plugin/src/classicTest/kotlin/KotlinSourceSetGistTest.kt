@@ -172,7 +172,7 @@ class KotlinSourceSetGistTest {
         project.plugins.apply("org.jetbrains.kotlin.multiplatform")
         val kotlin = project.kotlin as KotlinMultiplatformExtension
         kotlin.jvm()
-        kotlin.macosX64("macos")
+        kotlin.macosArm64("macos")
 
         (project as DefaultProject).evaluate()
         val commonMainSourceSet = kotlin.sourceSets.getByName("commonMain")
