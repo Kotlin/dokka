@@ -141,11 +141,7 @@ internal class TypeTranslator(
                 toBoundFrom(type.original, location)
             )
 
-            // Flexible types represent Java platform types (e.g., `String` in Java becomes `String..String?`).
-            // Ideally, we'd use the upper bound (nullable) since Java types have no nullability guarantees,
-            // but the PSI module doesn't wrap Java types in Nullable, and changing that would be too invasive.
-            // Using the lower bound (non-nullable) for consistency with the PSI implementation.
-            is KaFlexibleType -> toBoundFrom(type.lowerBound, location)
+            is KaFlexibleType -> toBoundFrom(type.upperBound, location)
             // can occur in the return type of Kotlin getters
             is KaIntersectionType -> toBoundFromNoAbbreviation(@OptIn(KaExperimentalApi::class) type.approximateToDenotableSupertypeOrSelf(false), location)
             is KaCapturedType -> throw NotImplementedError("`KaCapturedType` is not supported")
