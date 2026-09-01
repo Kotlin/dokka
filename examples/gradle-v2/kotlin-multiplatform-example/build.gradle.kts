@@ -1,5 +1,5 @@
 plugins {
-    kotlin("multiplatform") version "2.4.20-RC2-343"
+    kotlin("multiplatform") version "2.4.20-RC3-367"
     id("org.jetbrains.dokka") version "2.2.0"
 }
 
