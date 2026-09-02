@@ -768,7 +768,7 @@ class SignatureTest : BaseAbstractTest() {
         """.trimMargin()
     ) {
         renderedContent("root/example/-enum-class/index.html").firstSignature().matchIgnoringSpans(
-            "enum class", A("EnumClass"), ":", A("Enum"), "<", A("EnumClass"), ">"
+            "enum class", A("EnumClass"), ":", A("Enum"), "<", A("EnumClass"), "?>"
         )
     }
 

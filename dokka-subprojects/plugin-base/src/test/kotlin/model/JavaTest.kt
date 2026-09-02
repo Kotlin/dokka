@@ -835,13 +835,13 @@ class JavaTest : BaseAbstractTest() {
                     .parameters
                     .single()
 
-                with(parameter.type.assertIsInstance<GenericTypeConstructor>()) {
-                    driOrNull equals DRI("java.util", "Collection")
+                with(parameter.type.assertIsInstance<Nullable>().inner.assertIsInstance<GenericTypeConstructor>()) {
+                    driOrNull equals DRI("kotlin.collections", "Collection")
                     val callable = projections.single().assertIsInstance<Covariance<*>>().inner
-                        .assertIsInstance<GenericTypeConstructor>()
+                        .assertIsInstance<Nullable>().inner.assertIsInstance<GenericTypeConstructor>()
                     callable.driOrNull equals DRI("java.util.concurrent", "Callable")
                     callable.projections.single().assertIsInstance<Invariance<*>>().inner
-                        .assertIsInstance<TypeParameter>().name equals "T"
+                        .assertIsInstance<Nullable>().inner.assertIsInstance<TypeParameter>().name equals "T"
                 }
             }
         }
