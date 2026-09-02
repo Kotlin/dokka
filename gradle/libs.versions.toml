@@ -29,7 +29,7 @@ kotlin-compiler-k2 = "2.5.0-dev-3229"
 intellij-platform = "261.24374.151"
 
 ## HTML
-jsoup = "1.16.1"
+jsoup = "1.23.2"
 freemarker = "2.3.32"
 korlibs-template = "4.0.10"
 kotlinx-html = "0.9.1"
