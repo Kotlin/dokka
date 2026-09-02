@@ -15,6 +15,8 @@ import org.jetbrains.dokka.model.doc.*
 import org.jetbrains.dokka.pages.ClasslikePageNode
 import org.jetbrains.dokka.pages.ContentDRILink
 import org.jetbrains.dokka.pages.MemberPageNode
+import utils.OnlyJavaPsi
+import utils.OnlyJavaSymbols
 import utils.text
 import java.io.File
 import kotlin.test.Test
@@ -429,6 +431,7 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlyJavaSymbols("Experimental Java analysis intentionally uses unmapped Java parameter types")
     fun `link should lead to a function with a nullable parameter`() {
         testInline(
             """
@@ -1096,6 +1099,7 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlyJavaSymbols("Experimental Java analysis intentionally uses unmapped Java parameter types")
     fun `KDoc link should lead to java synthetic properties`() {
         testInline(
             """
@@ -1183,6 +1187,46 @@ class LinkTest : BaseAbstractTest() {
                 val docLink = doc.firstMemberOfType<DocumentationLink>()
                 assertEquals("some declaration", docLink.children.first().text())
                 assertEquals(Callable("usage", null, emptyList()), docLink.dri.callable)
+            }
+        }
+    }
+
+    @Test
+    @OnlyJavaPsi("Non-experimental Java analysis should use Kotlin-mapped parameter types, see #4570")
+    fun `link from Kotlin source to Java source uses Kotlin mapped parameter types #4570`() {
+        testInline(
+            """
+            |/src/com/sample/JavaClass.java
+            |package com.sample;
+            |public class JavaClass {
+            |    public void javaMethod(String s) {}
+            |}
+            |
+            |/src/com/sample/KotlinClass.kt
+            |package com.sample
+            |/**
+            | * Link to [JavaClass.javaMethod]
+            | */
+            |class KotlinClass
+            """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val documentation = module.dfs { it.name == "KotlinClass" }
+                    ?.documentation?.values?.single()
+                    ?: error("Can't find documentation for KotlinClass")
+
+                assertEquals(
+                    DRI(
+                        packageName = "com.sample",
+                        classNames = "JavaClass",
+                        callable = Callable(
+                            name = "javaMethod",
+                            params = listOf(TypeConstructor("kotlin.String", emptyList()))
+                        )
+                    ),
+                    documentation.firstMemberOfType<DocumentationLink>().dri
+                )
             }
         }
     }

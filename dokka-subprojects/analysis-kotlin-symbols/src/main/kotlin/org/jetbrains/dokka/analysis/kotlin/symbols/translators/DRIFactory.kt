@@ -6,8 +6,7 @@ package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 import com.intellij.psi.PsiMethod
 import org.jetbrains.dokka.ExperimentalDokkaApi
-import org.jetbrains.dokka.analysis.kotlin.symbols.translators.getDRIFromFunction
-import org.jetbrains.dokka.analysis.kotlin.symbols.translators.getDRIFromVariable
+import org.jetbrains.dokka.analysis.kotlin.symbols.plugin.InternalConfiguration
 import org.jetbrains.dokka.links.*
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaSession
@@ -17,7 +16,6 @@ import org.jetbrains.kotlin.analysis.api.types.*
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
-import kotlin.NotImplementedError
 
 internal fun ClassId.createDRI(): DRI = DRI(
     packageName = this.packageFqName.asString(), classNames = this.relativeClassName.asString()
@@ -90,7 +88,9 @@ context(_: KaSession)
 internal fun getDRIFromFunction(symbol: KaFunctionSymbol): DRI {
     val psi = symbol.psi
     val params =
-        if (psi is PsiMethod) psi.parameterList.parameters.map { param -> JavaClassReference(param.type.canonicalText) }
+        if (psi is PsiMethod && InternalConfiguration.enableExperimentalSymbolsJavaAnalysis) {
+            psi.parameterList.parameters.map { param -> JavaClassReference(param.type.canonicalText) }
+        }
         else symbol.valueParameters.map { getTypeReferenceFrom(it.returnType, isVararg = it.isVararg) }
 
     val contextParams =
@@ -220,4 +220,3 @@ internal fun getClassIdFromDRI(dri: DRI) = ClassId(
     FqName(dri.classNames ?: throw IllegalStateException("DRI must have `classNames` to get ClassID")),
     false
 )
-
