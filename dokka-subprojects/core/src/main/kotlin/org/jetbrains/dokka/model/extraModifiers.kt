@@ -34,6 +34,7 @@ public sealed class ExtraModifiers(public val name: String) {
         public object Transient : JavaOnlyModifiers("transient")
         public object Volatile : JavaOnlyModifiers("volatile")
         public object Transitive : JavaOnlyModifiers("transitive")
+        public object Default : JavaOnlyModifiers("default")
     }
 
     public companion object {
