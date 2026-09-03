@@ -5,12 +5,15 @@
 package model
 
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.pages.MemberPageNode
 import utils.AbstractModelTest
 import utils.assertNotNull
 import utils.name
 import utils.text
 import kotlin.test.Test
 import org.jetbrains.dokka.ExperimentalDokkaApi
+import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.driOrNull
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.Nullable
 import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.links.TypeParam
@@ -241,6 +244,105 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                         callable equals null
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * A nested classlike should inherit a clashing property in the same way as a top-level one,
+     * see https://github.com/Kotlin/dokka/issues/4588
+     */
+    @Test
+    fun `property inherited from clashing parents should be inherited in a nested classlike too`() {
+        inlineModelTest(
+            """
+            |interface Schema
+            |interface NarrowedSchema : Schema
+            |
+            |interface Base {
+            |    /**
+            |     * base property docs
+            |     */
+            |    val schema: Schema
+            |}
+            |
+            |interface NarrowedBase : Base {
+            |    override val schema: NarrowedSchema
+            |}
+            |
+            |interface Container {
+            |    interface Nested : Base, NarrowedBase
+            |}
+            |
+            |interface TopLevel : Base, NarrowedBase
+            """
+        ) {
+            with((this / "property").cast<DPackage>()) {
+                fun DProperty.assertInheritedFromBase() {
+                    dri.classNames equals "Base"
+                    dri.callable?.name equals "schema"
+                    type.driOrNull equals DRI("property", "NarrowedSchema")
+
+                    val inheritedFrom = extra[InheritedMember]?.inheritedFrom?.values?.single()
+                        .assertNotNull("inheritedFrom")
+                    inheritedFrom.classNames equals "Base"
+                    inheritedFrom.callable equals null
+
+                    documentation.values.single().children.single().text().trim() equals "base property docs"
+                }
+
+                (this / "Container" / "Nested" / "schema").cast<DProperty>().assertInheritedFromBase()
+                (this / "TopLevel" / "schema").cast<DProperty>().assertInheritedFromBase()
+            }
+        }
+    }
+
+    /**
+     * An inherited property should not get its own page, see https://github.com/Kotlin/dokka/issues/4588
+     */
+    @Test
+    fun `no page should be created for a property inherited by a nested classlike from clashing parents`() {
+        testInline(
+            """
+            |/src/main/kotlin/property/Test.kt
+            |package property
+            |interface Schema
+            |interface NarrowedSchema : Schema
+            |
+            |interface Base {
+            |    val schema: Schema
+            |}
+            |
+            |interface NarrowedBase : Base {
+            |    override val schema: NarrowedSchema
+            |}
+            |
+            |interface Container {
+            |    interface Nested : Base, NarrowedBase
+            |}
+            """.trimMargin(),
+            dokkaConfiguration {
+                sourceSets {
+                    sourceSet {
+                        sourceRoots = listOf("src/")
+                        classpath = listOfNotNull(jvmStdlibPath)
+                    }
+                }
+            }
+        ) {
+            pagesGenerationStage = { root ->
+                val nestedPage = root.dfs { it.name == "Nested" }.assertNotNull("Nested page")
+                nestedPage.children.map { it.name } equals emptyList<String>()
+
+                val schemaPages = root.withDescendants().filterIsInstance<MemberPageNode>()
+                    .filter { it.name == "schema" }
+                    .flatMap { it.dri }
+                    .map { it.toString() }
+                    .toList()
+                schemaPages equals listOf(
+                    "property/Base/schema/#/PointingToDeclaration/",
+                    "property/NarrowedBase/schema/#/PointingToDeclaration/"
+                )
             }
         }
     }
