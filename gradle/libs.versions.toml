@@ -35,7 +35,7 @@ korlibs-template = "4.0.10"
 kotlinx-html = "0.9.1"
 
 ## Markdown
-jetbrains-markdown = "0.7.3"
+jetbrains-markdown = "0.7.10"
 
 ## JSON
 # jackson 2.15.3 is the latest version, which works correctly with Kotlin API/Language 1.4 and Gradle 7.6.3+

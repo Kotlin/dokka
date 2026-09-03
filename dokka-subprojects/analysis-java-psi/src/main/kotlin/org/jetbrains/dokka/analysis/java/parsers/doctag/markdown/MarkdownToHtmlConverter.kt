@@ -6,6 +6,7 @@ package org.jetbrains.dokka.analysis.java.parsers.doctag.markdown
 
 import org.intellij.markdown.flavours.MarkdownFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
+import org.intellij.markdown.parser.CancellationToken
 import org.intellij.markdown.parser.LinkMap
 import org.intellij.markdown.parser.MarkdownParser
 import java.net.URI
@@ -24,7 +25,10 @@ internal class MarkdownToHtmlConverter(
      * @return The HTML representation of the provided Markdown content.
      */
     fun convertMarkdownToHtml(markdownText: String, server: String? = null): String {
-        val parsedTree = MarkdownParser(flavourDescriptor).buildMarkdownTreeFromString(markdownText)
+        val parsedTree = MarkdownParser(
+            flavour = flavourDescriptor,
+            cancellationToken = CancellationToken.NonCancellable
+        ).buildMarkdownTreeFromString(markdownText as CharSequence)
         val providers = flavourDescriptor.createHtmlGeneratingProviders(
             linkMap = LinkMap.buildLinkMap(parsedTree, markdownText),
             baseURI = server?.let { URI(it) }
