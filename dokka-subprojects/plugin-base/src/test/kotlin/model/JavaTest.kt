@@ -12,12 +12,14 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.base.transformers.documentables.InheritorsInfo
 import org.jetbrains.dokka.links.*
 import org.jetbrains.dokka.model.*
+import org.jetbrains.dokka.model.Nullable
 import org.jetbrains.dokka.model.doc.Param
 import org.jetbrains.dokka.model.doc.See
 import org.jetbrains.dokka.model.doc.Text
 import utils.OnlyJavaPsi
 import utils.OnlyJavaSymbols
 import utils.assertContains
+import utils.assertIsInstance
 import utils.assertNotNull
 import utils.name
 import kotlin.test.Test
@@ -112,6 +114,7 @@ class JavaTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlyJavaPsi("https://github.com/Kotlin/dokka/issues/4503")
     fun allImplementedInterfacesWithGenericsInJava() {
         testInline(
             """
@@ -178,6 +181,7 @@ class JavaTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlyJavaPsi("https://github.com/Kotlin/dokka/issues/4503")
     fun interfaceWithGeneric() {
         testInline(
             """
@@ -223,6 +227,7 @@ class JavaTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlyJavaPsi("https://github.com/Kotlin/dokka/issues/4503")
     fun superclassWithGeneric() {
         testInline(
             """
@@ -805,6 +810,44 @@ class JavaTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlyJavaPsi("Experimental Java analysis by symbols does not preserve Java generic parameter types")
+    fun `inherited Java method should have the correct generic parameter type`() {
+        testInline(
+            """
+            |/src/test/Parent.java
+            |package test;
+            |import java.util.Collection;
+            |import java.util.concurrent.Callable;
+            |public class Parent<T> {
+            |    public Collection<? extends Callable<T>> invokeAll(Collection<? extends Callable<T>> tasks) {
+            |        throw new UnsupportedOperationException();
+            |    }
+            |}
+            |
+            |/src/test/Child.kt
+            |package test
+            |class Child<T> : Parent<T>()
+            """.trimIndent(), configuration
+        ) {
+            documentablesTransformationStage = { module ->
+                val parameter = (module / "test" / "Child" / "invokeAll")
+                    .cast<DFunction>()
+                    .parameters
+                    .single()
+
+                with(parameter.type.assertIsInstance<Nullable>().inner.assertIsInstance<GenericTypeConstructor>()) {
+                    driOrNull equals DRI("kotlin.collections", "Collection")
+                    val callable = projections.single().assertIsInstance<Covariance<*>>().inner
+                        .assertIsInstance<Nullable>().inner.assertIsInstance<GenericTypeConstructor>()
+                    callable.driOrNull equals DRI("java.util.concurrent", "Callable")
+                    callable.projections.single().assertIsInstance<Invariance<*>>().inner
+                        .assertIsInstance<Nullable>().inner.assertIsInstance<TypeParameter>().name equals "T"
+                }
+            }
+        }
+    }
+
+    @Test
     fun `should have a link to a package in see doctag`() {
         testInline(
             """
@@ -876,9 +919,18 @@ class JavaTest : BaseAbstractTest() {
             documentablesTransformationStage = { module ->
                 val child = module / "test" / "Child"
 
-                (child / "s").cast<DProperty>().type.driOrNull equals DRI("kotlin", "String")
-                (child / "i").cast<DProperty>().type.driOrNull equals DRI("kotlin", "Int")
-                (child / "integer").cast<DProperty>().type.driOrNull equals DRI("kotlin", "Int")
+                with((child / "s").cast<DProperty>().type) {
+                    assertTrue(this is Nullable)
+                    driOrNull equals DRI("kotlin", "String")
+                }
+                with((child / "i").cast<DProperty>().type) {
+                    assertTrue(this !is Nullable)
+                    driOrNull equals DRI("kotlin", "Int")
+                }
+                with((child / "integer").cast<DProperty>().type) {
+                    assertTrue(this is Nullable)
+                    driOrNull equals DRI("kotlin", "Int")
+                }
                 (child / "method").cast<DFunction>().type.driOrNull equals DRI("kotlin", "Int")
             }
         }
