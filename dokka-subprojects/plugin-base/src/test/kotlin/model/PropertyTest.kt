@@ -12,6 +12,8 @@ import utils.name
 import utils.text
 import kotlin.test.Test
 import org.jetbrains.dokka.ExperimentalDokkaApi
+import org.jetbrains.dokka.base.signatures.KotlinSignatureUtils.driOrNull
+import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.Nullable
 import org.jetbrains.dokka.links.TypeConstructor
 import org.jetbrains.dokka.links.TypeParam
@@ -279,6 +281,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                 fun DProperty.assertInheritedFromBase() {
                     dri.classNames equals "Base"
                     dri.callable?.name equals "schema"
+                    type.driOrNull equals DRI("property", "NarrowedSchema")
 
                     val inheritedFrom = extra[InheritedMember]?.inheritedFrom?.values?.single()
                         .assertNotNull("inheritedFrom")
