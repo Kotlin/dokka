@@ -954,6 +954,329 @@ class ParserTest : KDocTest() {
     }
 
     @Test
+    fun `Blockquote with formatting should merge text around inline elements`() {
+        val kdoc = """
+        | > text **bold** text
+        | > more text
+        """.trimMargin()
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    P(
+                                        listOf(
+                                            Text("text "),
+                                            Strong(listOf(Text("bold"))),
+                                            Text(" text more text")
+                                        )
+                                    )
+                                )
+                            )
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test
+    fun `Blockquote with three lines should merge all text`() {
+        val kdoc = """
+        | > line 1
+        | > line 2
+        | > line 3
+        """.trimMargin()
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    P(listOf(Text("line 1 line 2 line 3")))
+                                )
+                            )
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test
+    fun `Blockquote triple nested`() {
+        val kdoc = """
+        | > level 1
+        | >> level 2
+        | >>> level 3
+        """.trimMargin()
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    P(listOf(Text("level 1"))),
+                                    BlockQuote(
+                                        listOf(
+                                            P(listOf(Text("level 2"))),
+                                            BlockQuote(
+                                                listOf(
+                                                    P(listOf(Text("level 3")))
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test
+    fun `Blockquote with code span should not merge across it`() {
+        val kdoc = """
+        | > before `code` after
+        | > more text
+        """.trimMargin()
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    P(
+                                        listOf(
+                                            Text("before "),
+                                            CodeInline(listOf(Text("code"))),
+                                            Text(" after more text")
+                                        )
+                                    )
+                                )
+                            )
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test
+    fun `Blockquote with link should merge text around it`() {
+        val kdoc = """
+        | > before [link](http://example.com) after
+        | > more text
+        """.trimMargin()
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    P(
+                                        listOf(
+                                            Text("before "),
+                                            A(
+                                                listOf(Text("link")),
+                                                mapOf("href" to "http://example.com")
+                                            ),
+                                            Text(" after more text")
+                                        )
+                                    )
+                                )
+                            )
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test
+    fun `Blockquote with fenced code block`() {
+        val kdoc = """
+        | > Before code
+        | >
+        | > ```kotlin
+        | > val x = 1
+        | > val y = 2
+        | > ```
+        | >
+        | > After code
+         """.trimMargin()
+
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    P(listOf(Text("Before code"))),
+                                    CodeBlock(
+                                        listOf(
+                                            Text("val x = 1"), Br,
+                                            Text("val y = 2")
+                                        ),
+                                        params = mapOf("lang" to "kotlin")
+                                    ),
+                                    P(listOf(Text("After code")))
+                                )
+                            )
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test
+    fun `Blockquote with unordered list`() {
+        val kdoc = """
+        | > Shopping list:
+        | >
+        | > * Apples
+        | > * Oranges
+        | >     * Blood oranges
+        | >     * Mandarins
+        | > * Bananas
+         """.trimMargin()
+
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    P(listOf(Text("Shopping list:"))),
+                                    Ul(
+                                        listOf(
+                                            Li(listOf(P(listOf(Text("Apples"))))),
+                                            Li(listOf(P(listOf(Text("Oranges"))))),
+                                            Ul(
+                                                listOf(
+                                                    Li(listOf(P(listOf(Text("Blood oranges"))))),
+                                                    Li(listOf(P(listOf(Text("Mandarins")))))
+                                                )
+                                            ),
+                                            Li(listOf(P(listOf(Text("Bananas")))))
+                                        )
+                                    )
+                                )
+                            )
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test
+    fun `Blockquote with ordered list`() {
+        val kdoc = """
+        | > Steps:
+        | >
+        | > 3. Prepare
+        | > 4. Run
+        | >     1. Build
+        | >     2. Test
+        | > 5. Publish
+         """.trimMargin()
+
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    P(listOf(Text("Steps:"))),
+                                    Ol(
+                                        listOf(
+                                            Li(listOf(P(listOf(Text("Prepare"))))),
+                                            Li(listOf(P(listOf(Text("Run"))))),
+                                            Ol(
+                                                listOf(
+                                                    Li(listOf(P(listOf(Text("Build"))))),
+                                                    Li(listOf(P(listOf(Text("Test")))))
+                                                ),
+                                                mapOf("start" to "1")
+                                            ),
+                                            Li(listOf(P(listOf(Text("Publish")))))
+                                        ),
+                                        mapOf("start" to "3")
+                                    )
+                                )
+                            )
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test
+    fun `Blockquote with list containing code block`() {
+        val kdoc = """
+        | > * Item with code:
+        | >
+        | >     ```kotlin
+        | >     println("quoted")
+        | >     ```
+        | >
+        | > * Next item
+         """.trimMargin()
+
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            BlockQuote(
+                                listOf(
+                                    Ul(
+                                        listOf(
+                                            Li(
+                                                listOf(
+                                                    P(listOf(Text("Item with code:"))),
+                                                    CodeBlock(
+                                                        listOf(Text("  println(\"quoted\")")),
+                                                        params = mapOf("lang" to "kotlin")
+                                                    ),
+                                                )
+                                            ),
+                                            Li(listOf(P(listOf(Text("Next item")))))
+                                        )
+                                    )
+                                )
+                            )
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test
     fun `Blockquote nested with fancy text enhancement`() {
         val kdoc = """
         | > text **1**
@@ -1004,6 +1327,45 @@ class ParserTest : KDocTest() {
                             BlockQuote(
                                 listOf(
                                     P(listOf(Text("Quote")))
+                                )
+                            )
+                        ), name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+            )
+        )
+        executeTest(kdoc, expectedDocumentationNode)
+    }
+
+    @Test
+    fun `List containing code block`() {
+        val kdoc = """
+        | * Item with code:
+        |
+        |     ```kotlin
+        |     println("quoted")
+        |     ```
+        |
+        | * Next item
+         """.trimMargin()
+
+        val expectedDocumentationNode = DocumentationNode(
+            listOf(
+                Description(
+                    CustomDocTag(
+                        listOf(
+                            Ul(
+                                listOf(
+                                    Li(
+                                        listOf(
+                                            P(listOf(Text("Item with code:"))),
+                                            CodeBlock(
+                                                listOf(Text("  println(\"quoted\")")),
+                                                params = mapOf("lang" to "kotlin")
+                                            ),
+                                        )
+                                    ),
+                                    Li(listOf(P(listOf(Text("Next item")))))
                                 )
                             )
                         ), name = MARKDOWN_ELEMENT_FILE_NAME
