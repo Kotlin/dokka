@@ -84,9 +84,9 @@ internal class JavadocAccessorNamingTest : AbstractJavadocTemplateMapTest() {
                 ), descriptionLinks.toSet())
 
                 // Make sure that the ids from above actually exist
-                assertEquals(1, html.select("[id = isFoo()]").size)
+                assertEquals(1, html.select("[id=isFoo()]").size)
                 // Bug! Nothing in the doc has the right id
-                assertEquals(0, html.select("[id = issuesFetched]").size)
+                assertEquals(0, html.select("[id=issuesFetched]").size)
             }
         }
     }

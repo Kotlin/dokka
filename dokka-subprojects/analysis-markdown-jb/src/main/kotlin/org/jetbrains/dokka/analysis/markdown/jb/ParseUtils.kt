@@ -10,7 +10,7 @@ import org.jetbrains.dokka.InternalDokkaApi
 import org.jetbrains.dokka.model.doc.DocTag
 import org.jetbrains.dokka.model.doc.Text
 import org.jsoup.internal.StringUtil
-import org.jsoup.nodes.Entities
+import org.jsoup.nodes.TextNode
 
 @InternalDokkaApi
 public fun String.parseHtmlEncodedWithNormalisedSpaces(
@@ -21,12 +21,16 @@ public fun String.parseHtmlEncodedWithNormalisedSpaces(
     var lastWasWhite = false
 
     forEachCodePoint { c ->
-        if (renderWhiteCharactersAsSpaces && StringUtil.isWhitespace(c)) {
-            if (!lastWasWhite) {
-                accum.append(' ')
-                lastWasWhite = true
+        if (StringUtil.isWhitespace(c)) {
+            if (renderWhiteCharactersAsSpaces) {
+                if (!lastWasWhite) {
+                    accum.append(' ')
+                    lastWasWhite = true
+                }
+            } else {
+                accum.appendCodePoint(c)
             }
-        } else if (Compat.codePointToString(c).let { it != Entities.escape(it) }) {
+        } else if (Compat.codePointToString(c).let { it != TextNode(it).toString() }) {
             accum.toString().takeIf { it.isNotBlank() }?.let { tags.add(Text(it)) }
             accum.delete(0, accum.length)
 
