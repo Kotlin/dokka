@@ -38,8 +38,12 @@ kotlinx-html = "0.9.1"
 jetbrains-markdown = "0.7.10"
 
 ## JSON
-# jackson 2.15.3 is the latest version, which works correctly with Kotlin API/Language 1.4 and Gradle 7.6.3+
-jackson = "2.15.3"
+# When updating jackson, make sure that it's working correctly with different Gradle versions.
+# https://github.com/FasterXML/jackson-module-kotlin wasn't really specified a minimum Kotlin version it supports until recently.
+# E.g., in 2.15.0 it dropped support for Kotlin 1.4, but it was still working with Gradle 7.6, which uses Kotlin API/Language 1.4.
+# Since 2.21.2 it explicitly specifies, API/language version 1.9 (https://github.com/FasterXML/jackson-module-kotlin/issues/1129).
+# Though, as it doesn't really use any newer APIs/language features, it's still compatible with older versions, used in Gradle 7.6.
+jackson = "2.22.2"
 
 ## Maven
 apacheMaven-core = "3.5.0"

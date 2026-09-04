@@ -23,7 +23,7 @@ object TestedVersions {
      */
     val ALL_SUPPORTED =
         BuildVersions.permutations(
-            gradleVersions = listOf("7.6.3"),
+            gradleVersions = listOf("7.6.6"),
             kotlinVersions = listOf("2.2.21", "2.1.21", "2.0.21", "1.9.25"),
         ) + LATEST
 
