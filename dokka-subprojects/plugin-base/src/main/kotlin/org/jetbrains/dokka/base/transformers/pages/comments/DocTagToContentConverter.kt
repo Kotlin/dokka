@@ -210,7 +210,8 @@ public open class DocTagToContentConverter : CommentsToContentConverter {
                 } else {
                     listOf(
                         ContentTable(
-                            header = buildTableRows(docTag.children.filterIsInstance<Tr>(), CommentTable),
+                            // Markdown tables use a Th node for the header row
+                            header = buildTableRows(docTag.children.filterIsInstance<Th>(), CommentTable),
                             caption = null,
                             buildTableRows(docTag.children.filterIsInstance<Tr>(), CommentTable),
                             dci,

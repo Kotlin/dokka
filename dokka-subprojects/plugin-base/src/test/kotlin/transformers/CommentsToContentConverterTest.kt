@@ -38,6 +38,31 @@ class CommentsToContentConverterTest {
     }
 
     @Test
+    fun `markdown table keeps its header row`() {
+        val table = Table(
+            children = listOf(
+                Th(children = listOf(Td(children = listOf(Text("header"))))),
+                Tr(children = listOf(Td(children = listOf(Text("value")))))
+            )
+        )
+
+        val contentTable = converter.buildContent(
+            table,
+            DCI(setOf(DRI("kotlin", "Any")), ContentKind.Comment),
+            emptySet()
+        ).single() as ContentTable
+
+        assertEquals(
+            "header",
+            ((contentTable.header.single().children.single() as ContentGroup).children.single() as ContentText).text
+        )
+        assertEquals(
+            "value",
+            ((contentTable.children.single().children.single() as ContentGroup).children.single() as ContentText).text
+        )
+    }
+
+    @Test
     fun `simple text`() {
         val docTag = P(listOf(Text("This is simple test of string Next line")))
         executeTest(docTag) {
