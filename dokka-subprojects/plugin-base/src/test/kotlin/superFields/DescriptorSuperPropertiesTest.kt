@@ -220,7 +220,7 @@ class DescriptorSuperPropertiesTest : BaseAbstractTest() {
                 assertEquals("setA", property.setter?.name)
 
 
-                assertEquals(0, testedClass.functions.size)
+                assertEquals(2, testedClass.functions.size)
 
                 val inheritedFrom = property.extra[InheritedMember]?.inheritedFrom?.values?.single()
                 assertEquals(DRI(packageName = "test", classNames = "A"), inheritedFrom)
@@ -230,6 +230,7 @@ class DescriptorSuperPropertiesTest : BaseAbstractTest() {
         }
     }
 
+    @OnlySymbols("do not filter out accessors of Java synthetic properties")
     @Test
     fun `should inherit property visibility from getter`() {
         val configuration = dokkaConfiguration {
@@ -264,7 +265,7 @@ class DescriptorSuperPropertiesTest : BaseAbstractTest() {
         ) {
             documentablesMergingStage = { module ->
                 val testedClass = module.packages.single().classlikes.single { it.name == "B" }
-                assertEquals(0, testedClass.functions.size)
+                assertEquals(2, testedClass.functions.size)
 
                 val property = testedClass.properties.single { it.name == "a" }
 

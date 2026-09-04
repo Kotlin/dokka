@@ -412,8 +412,9 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
         }
     }
 
+    @OnlyJavaPsi("do not filter out accessors of Java synthetic properties")
     @Test
-    fun `should ignore additional non-accessor setters`() {
+    fun `javaPSI - should ignore additional non-accessor setters`() {
         testInline(
             """
             |/src/main/java/test/A.java
@@ -450,6 +451,49 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
 
                 val regularSetterFunctions = testClass.functions.filter { it.name == "setA" }
                 assertEquals(4, regularSetterFunctions.size)
+            }
+        }
+    }
+
+    @Test
+    @OnlyJavaSymbols("do not filter out accessors of Java synthetic properties")
+    fun `should ignore additional non-accessor setters`() {
+        testInline(
+            """
+            |/src/main/java/test/A.java
+            |package test;
+            |public class A {
+            |   private int a = 1;
+            |
+            |   public int getA() { return a; }
+            |
+            |   public void setA(long a) { }
+            |   public void setA(Number a) {}
+            |
+            |   // the qualifying setter is intentionally in the middle
+            |   // to rule out the order making a difference
+            |   public void setA(int a) { }
+            |
+            |   public void setA(String a) {}
+            |   public void setA() {}
+            |
+            |}
+        """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val testClass = module.packages.single().classlikes.single { it.name == "A" }
+
+                val property = testClass.properties.single { it.name == "a" }
+                assertNotNull(property.getter)
+
+                val setter = property.setter
+                assertNotNull(setter)
+                assertEquals(1, setter.parameters.size)
+                assertEquals(PrimitiveJavaType("int"), setter.parameters[0].type)
+
+                val regularSetterFunctions = testClass.functions.filter { it.name == "setA" }
+                assertEquals(5, regularSetterFunctions.size)
             }
         }
     }
@@ -531,6 +575,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
     }
 
     @Test
+    @OnlyJavaSymbols("do not filter out accessors of Java synthetic properties")
     fun `should not mark a multi-param setter overload as an accessor`() {
         testInline(
             """
@@ -554,7 +599,7 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
 
 
                 // the setField function should not qualify to be an accessor due to the second param
-                assertEquals(1, testClass.functions.size)
+                assertEquals(2, testClass.functions.size)
                 assertEquals("setField", testClass.functions[0].name)
             }
         }
