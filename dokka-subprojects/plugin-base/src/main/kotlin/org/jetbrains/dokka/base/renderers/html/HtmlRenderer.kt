@@ -823,10 +823,16 @@ public open class HtmlRenderer(
                 buildText(node.children, pageContext, sourceSetRestriction)
             }
         } ?: if (isPartial) {
+            // The link may still be resolved against another module during multi-module
+            // assembly, so defer the decision (and any warning) to ResolveLinkCommandHandler.
             templateCommand(ResolveLinkCommand(node.address)) {
                 buildText(node.children, pageContext, sourceSetRestriction)
             }
         } else {
+            context.logger.warn(
+                "Couldn't resolve link to `${node.address}`: the target is not part of the documentation " +
+                    "(it may be suppressed, internal, deprecated, or an undocumented external symbol)"
+            )
             span {
                 attributes["data-unresolved-link"] = node.address.toString().htmlEscape()
                 buildText(node.children, pageContext, sourceSetRestriction)

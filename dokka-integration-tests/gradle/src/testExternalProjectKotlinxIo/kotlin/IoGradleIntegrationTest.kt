@@ -68,7 +68,7 @@ class IoGradleIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCopie
         projectOutputLocation.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
             assertNoUnresolvedLinks(file)
-            // assertNoHrefToMissingLocalFileOrDirectory(file)
+            assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoEmptyLinks(file)
             assertNoEmptySpans(file)
         }
