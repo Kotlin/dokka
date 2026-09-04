@@ -14,6 +14,7 @@ import org.intellij.markdown.flavours.gfm.GFMElementTypes
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes
 import org.intellij.markdown.html.HtmlGenerator
+import org.intellij.markdown.parser.CancellationToken
 import org.jetbrains.dokka.InternalDokkaApi
 import org.jetbrains.dokka.analysis.markdown.jb.factories.DocTagsFromIElementFactory
 import org.jetbrains.dokka.links.DRI
@@ -34,7 +35,10 @@ public open class MarkdownParser(
 
     override fun parseStringToDocNode(extractedString: String): DocTag {
         val gfmFlavourDescriptor = GFMFlavourDescriptor()
-        val markdownAstRoot = IntellijMarkdownParser(gfmFlavourDescriptor).buildMarkdownTreeFromString(extractedString)
+        val markdownAstRoot = IntellijMarkdownParser(
+            flavour = gfmFlavourDescriptor,
+            cancellationToken = CancellationToken.NonCancellable
+        ).buildMarkdownTreeFromString(extractedString as CharSequence)
         destinationLinksMap = getAllDestinationLinks(extractedString, markdownAstRoot).toMap()
         text = extractedString
 

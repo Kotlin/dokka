@@ -1548,6 +1548,145 @@ class LinkTest : BaseAbstractTest() {
         }
     }
 
+    // https://github.com/Kotlin/dokka/issues/4234
+    // https://youtrack.jetbrains.com/issue/KTIJ-35552
+    @Test
+    fun `should resolve KDoc link back to back with other links and elements`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |/**
+            | * `a`[Int]`b`[Long]`c`
+            | */
+            |fun protocol(text: String) {}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val doc = module.packages.single()
+                    .functions.single { it.name == "protocol" }
+                    .documentation.values.single()
+
+                val expectedDocumentationNode = DocumentationNode(
+                    listOf(
+                        Description(
+                            CustomDocTag(
+                                listOf(
+                                    P(
+                                        listOf(
+                                            CodeInline(listOf(Text("a"))),
+                                            DocumentationLink(
+                                                dri = DRI("kotlin", "Int"),
+                                                children = listOf(Text("Int")),
+                                                params = mapOf("href" to "[Int]")
+                                            ),
+                                            CodeInline(listOf(Text("b"))),
+                                            DocumentationLink(
+                                                dri = DRI("kotlin", "Long"),
+                                                children = listOf(Text("Long")),
+                                                params = mapOf("href" to "[Long]")
+                                            ),
+                                            CodeInline(listOf(Text("c"))),
+                                        )
+                                    )
+                                ), name = MARKDOWN_ELEMENT_FILE_NAME
+                            )
+                        )
+                    )
+                )
+                assertEquals(expectedDocumentationNode, doc)
+            }
+        }
+    }
+
+    // https://youtrack.jetbrains.com/issue/KTIJ-35278
+    @Test
+    fun `should resolve KDoc link followed by other link`() {
+        testInline(
+            """
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |/**
+            | * A [Int] [Long] works!
+            | *
+            | * A [Int] [label][Long] works!
+            | *
+            | * A [label][Int] [Long] works!
+            | *
+            | * A [labelA][Int] [labelB][Long] works!
+            | */
+            |fun protocol(text: String) {}
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val doc = module.packages.single()
+                    .functions.single { it.name == "protocol" }
+                    .documentation.values.single()
+
+                val intLink = DocumentationLink(
+                    dri = DRI("kotlin", "Int"),
+                    children = listOf(Text("Int")),
+                    params = mapOf("href" to "[Int]")
+                )
+                val longLink = DocumentationLink(
+                    dri = DRI("kotlin", "Long"),
+                    children = listOf(Text("Long")),
+                    params = mapOf("href" to "[Long]")
+                )
+
+                val expectedDocumentationNode = DocumentationNode(
+                    listOf(
+                        Description(
+                            CustomDocTag(
+                                listOf(
+                                    P(
+                                        listOf(
+                                            Text("A "),
+                                            intLink,
+                                            Text(" "),
+                                            longLink,
+                                            Text(" works!"),
+                                        )
+                                    ),
+                                    P(
+                                        listOf(
+                                            Text("A "),
+                                            intLink,
+                                            Text(" "),
+                                            longLink.copy(children = listOf(Text("label"))),
+                                            Text(" works!"),
+                                        )
+                                    ),
+                                    P(
+                                        listOf(
+                                            Text("A "),
+                                            intLink.copy(children = listOf(Text("label"))),
+                                            Text(" "),
+                                            longLink,
+                                            Text(" works!"),
+                                        )
+                                    ),
+                                    P(
+                                        listOf(
+                                            Text("A "),
+                                            intLink.copy(children = listOf(Text("labelA"))),
+                                            Text(" "),
+                                            longLink.copy(children = listOf(Text("labelB"))),
+                                            Text(" works!"),
+                                        )
+                                    ),
+                                ), name = MARKDOWN_ELEMENT_FILE_NAME
+                            )
+                        )
+                    )
+                )
+                assertEquals(expectedDocumentationNode, doc)
+            }
+        }
+    }
+
     @Test
     fun `should warn about unresolved links`() {
         testInline(
