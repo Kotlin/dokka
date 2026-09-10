@@ -36,13 +36,11 @@ import kotlin.reflect.jvm.jvmName
  * isCanBeDeclared = true
  * ```
  */
-internal fun Configuration.declarable(
-    visible: Boolean = false,
-) {
+internal fun Configuration.declarable() {
     isCanBeResolved = false
     isCanBeConsumed = false
     canBeDeclared(true)
-    isVisible = visible
+    setInvisibleIfSupported()
 }
 
 
@@ -55,13 +53,11 @@ internal fun Configuration.declarable(
  * isCanBeDeclared = false
  * ```
  */
-internal fun Configuration.consumable(
-    visible: Boolean = false,
-) {
+internal fun Configuration.consumable() {
     isCanBeResolved = false
     isCanBeConsumed = true
     canBeDeclared(false)
-    isVisible = visible
+    setInvisibleIfSupported()
 }
 
 
@@ -74,13 +70,11 @@ internal fun Configuration.consumable(
  * isCanBeDeclared = false
  * ```
  */
-internal fun Configuration.resolvable(
-    visible: Boolean = false,
-) {
+internal fun Configuration.resolvable() {
     isCanBeResolved = true
     isCanBeConsumed = false
     canBeDeclared(false)
-    isVisible = visible
+    setInvisibleIfSupported()
 }
 
 
@@ -97,6 +91,13 @@ private fun Configuration.canBeDeclared(value: Boolean) {
     }
 }
 
+private val gradle9 = GradleVersion.version("9.0.0")
+
+internal fun Configuration.setInvisibleIfSupported() {
+    if (GradleVersion.current() < gradle9) {
+        isVisible = false
+    }
+}
 
 /** Shortcut for [GradleVersion.current] */
 internal val CurrentGradleVersion: GradleVersion
