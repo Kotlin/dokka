@@ -65,9 +65,111 @@ class SerializationGradleIntegrationTest : AbstractGradleIntegrationTest(), Test
         projectOutputLocation.allHtmlFiles().forEach { file ->
             assertContainsNoErrorClass(file)
             assertNoUnresolvedLinks(file)
-//            assertNoHrefToMissingLocalFileOrDirectory(file)
             assertNoEmptyLinks(file)
             assertNoEmptySpans(file)
         }
+
+        // skipped deprecated declarations - https://github.com/Kotlin/dokka/issues/4448
+        // protected declarations are not included, like in JsonTransformingSerializer.transformDeserialize
+        // constructor parameters (--root--.html) - https://github.com/Kotlin/dokka/issues/4328
+        // internal declarations in annotations - https://github.com/Kotlin/dokka/issues/4448
+        assertHrefMissing(
+            output = projectOutputLocation,
+            expected = mapOf(
+                "kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/index.html" to setOf(
+                    "../../kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-buf/--root--.html" to "kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-buf/--root--.html",
+                ),
+                "kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-buf/index.html" to setOf(
+                    "../../../kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-buf/--root--.html" to "kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-buf/--root--.html",
+                ),
+                "kotlinx-serialization-json/kotlinx.serialization.json/-json-array/index.html" to setOf(
+                    "../../../kotlinx-serialization-json/kotlinx.serialization.json/-json-array-serializer/index.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-array-serializer/index.html",
+                ),
+                "kotlinx-serialization-json/kotlinx.serialization.json/-json-content-polymorphic-serializer/index.html" to setOf(
+                    "../../../kotlinx-serialization-json/kotlinx.serialization.json/-json-content-polymorphic-serializer/select-deserializer.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-content-polymorphic-serializer/select-deserializer.html",
+                    "../../../kotlinx-serialization-json/kotlinx.serialization.json/-json-content-polymorphic-serializer/base-class.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-content-polymorphic-serializer/base-class.html",
+                ),
+                "kotlinx-serialization-json/kotlinx.serialization.json/-json-content-polymorphic-serializer/descriptor.html" to setOf(
+                    "../../../kotlinx-serialization-json/kotlinx.serialization.json/-json-content-polymorphic-serializer/base-class.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-content-polymorphic-serializer/base-class.html",
+                ),
+                "kotlinx-serialization-json/kotlinx.serialization.json/index.html" to setOf(
+                    "../../kotlinx-serialization-json/kotlinx.serialization.json/-json-array-serializer/index.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-array-serializer/index.html",
+                    "../../kotlinx-serialization-json/kotlinx.serialization.json/-json-element-serializer/index.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-element-serializer/index.html",
+                    "../../kotlinx-serialization-json/kotlinx.serialization.json/-json-null-serializer/index.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-null-serializer/index.html",
+                    "../../kotlinx-serialization-json/kotlinx.serialization.json/-json-object-serializer/index.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-object-serializer/index.html",
+                    "../../kotlinx-serialization-json/kotlinx.serialization.json/-json-primitive-serializer/index.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-primitive-serializer/index.html",
+                ),
+                "kotlinx-serialization-json/kotlinx.serialization.json/-json-object/index.html" to setOf(
+                    "../../../kotlinx-serialization-json/kotlinx.serialization.json/-json-object-serializer/index.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-object-serializer/index.html",
+                ),
+                "kotlinx-serialization-json/kotlinx.serialization.json/-json-decoder/index.html" to setOf(
+                    "../../../kotlinx-serialization-core/kotlinx.serialization/-k-serializer/serialize.html" to "kotlinx-serialization-core/kotlinx.serialization/-k-serializer/serialize.html",
+                ),
+                "kotlinx-serialization-json/kotlinx.serialization.json/-json-decoder/decode-json-element.html" to setOf(
+                    "../../../kotlinx-serialization-core/kotlinx.serialization/-k-serializer/serialize.html" to "kotlinx-serialization-core/kotlinx.serialization/-k-serializer/serialize.html",
+                ),
+                "kotlinx-serialization-json/kotlinx.serialization.json/-json-element/index.html" to setOf(
+                    "../../../kotlinx-serialization-json/kotlinx.serialization.json/-json-element-serializer/index.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-element-serializer/index.html",
+                ),
+                "kotlinx-serialization-json/kotlinx.serialization.json/-json-null/index.html" to setOf(
+                    "../../../kotlinx-serialization-json/kotlinx.serialization.json/-json-null-serializer/index.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-null-serializer/index.html",
+                ),
+                "kotlinx-serialization-json/kotlinx.serialization.json/-json-primitive/index.html" to setOf(
+                    "../../../kotlinx-serialization-json/kotlinx.serialization.json/-json-primitive-serializer/index.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-primitive-serializer/index.html",
+                ),
+                "kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/index.html" to setOf(
+                    "../../../kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/transform-serialize.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/transform-serialize.html",
+                    "../../../kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/transform-deserialize.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/transform-deserialize.html",
+                    "../../../kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/t-serializer.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/t-serializer.html",
+                ),
+                "kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/descriptor.html" to setOf(
+                    "../../../kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/t-serializer.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/t-serializer.html",
+                ),
+                "kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/-json-transforming-serializer.html" to setOf(
+                    "../../../kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/transform-serialize.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/transform-serialize.html",
+                    "../../../kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/transform-deserialize.html" to "kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/transform-deserialize.html",
+                ),
+                "kotlinx-serialization-cbor/kotlinx.serialization.cbor/index.html" to setOf(
+                    "../../kotlinx-serialization-core/kotlinx.serialization/-k-serializer/deserialize.html" to "kotlinx-serialization-core/kotlinx.serialization/-k-serializer/deserialize.html",
+                    "../../kotlinx-serialization-core/kotlinx.serialization/-k-serializer/serialize.html" to "kotlinx-serialization-core/kotlinx.serialization/-k-serializer/serialize.html",
+                ),
+                "kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-encoder/index.html" to setOf(
+                    "../../../kotlinx-serialization-core/kotlinx.serialization/-k-serializer/serialize.html" to "kotlinx-serialization-core/kotlinx.serialization/-k-serializer/serialize.html",
+                ),
+                "kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-decoder/index.html" to setOf(
+                    "../../../kotlinx-serialization-core/kotlinx.serialization/-k-serializer/deserialize.html" to "kotlinx-serialization-core/kotlinx.serialization/-k-serializer/deserialize.html",
+                ),
+                "kotlinx-serialization-core/kotlinx.serialization.modules/index.html" to setOf(
+                    "../../kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/base-class.html" to "kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/base-class.html",
+                    "../../kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/base-serializer.html" to "kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/base-serializer.html",
+                ),
+                "kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/default-deserializer.html" to setOf(
+                    "../../../kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/base-class.html" to "kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/base-class.html",
+                ),
+                "kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/index.html" to setOf(
+                    "../../../kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/base-class.html" to "kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/base-class.html",
+                    "../../../kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/base-serializer.html" to "kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/base-serializer.html",
+                ),
+                "kotlinx-serialization-core/kotlinx.serialization.modules/plus.html" to setOf(
+                    "../../kotlinx-serialization-core/kotlinx.serialization.modules/-serializer-already-registered-exception/index.html" to "kotlinx-serialization-core/kotlinx.serialization.modules/-serializer-already-registered-exception/index.html",
+                ),
+                "kotlinx-serialization-core/kotlinx.serialization/-serialization-exception/index.html" to setOf(
+                    "../../../kotlinx-serialization-core/kotlinx.serialization/-serialization-exception/--root--.html" to "kotlinx-serialization-core/kotlinx.serialization/-serialization-exception/--root--.html",
+                ),
+                "kotlinx-serialization-core/kotlinx.serialization/-serialization-exception/-serialization-exception.html" to setOf(
+                    "../../../kotlinx-serialization-core/kotlinx.serialization/-serialization-exception/--root--.html" to "kotlinx-serialization-core/kotlinx.serialization/-serialization-exception/--root--.html",
+                ),
+                "kotlinx-serialization-core/kotlinx.serialization/-k-serializer/index.html" to setOf(
+                    "../../../kotlinx-serialization-core/kotlinx.serialization/-k-serializer/serialize.html" to "kotlinx-serialization-core/kotlinx.serialization/-k-serializer/serialize.html",
+                    "../../../kotlinx-serialization-core/kotlinx.serialization/-k-serializer/deserialize.html" to "kotlinx-serialization-core/kotlinx.serialization/-k-serializer/deserialize.html",
+                ),
+                "kotlinx-serialization-core/kotlinx.serialization/-missing-field-exception/index.html" to setOf(
+                    "../../../kotlinx-serialization-core/kotlinx.serialization/-missing-field-exception/--root--.html" to "kotlinx-serialization-core/kotlinx.serialization/-missing-field-exception/--root--.html",
+                ),
+                "kotlinx-serialization-core/kotlinx.serialization/-missing-field-exception/-missing-field-exception.html" to setOf(
+                    "../../../kotlinx-serialization-core/kotlinx.serialization/-missing-field-exception/--root--.html" to "kotlinx-serialization-core/kotlinx.serialization/-missing-field-exception/--root--.html",
+                ),
+            )
+        )
     }
 }
