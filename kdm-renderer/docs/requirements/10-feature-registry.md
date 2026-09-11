@@ -97,3 +97,20 @@ highest-risk group for a per-declaration serialized model.
 | F-122 | Version switcher / older versions | `plugin-versioning` | renderer | kotlinx, JetBrains | TODO | — | todo | Q-003 |
 | F-123 | Android-specific documentation | `plugin-android-documentation` | renderer | Android | TODO | Android variants — see `KDM spec.md § Variants of declarations` | todo | |
 | F-124 | Kotlin-as-Java view | `plugin-kotlin-as-java` | model | Google/Dackka | TODO | Java projection — major open question (spec § Java) | todo | Q-004 |
+
+## Output surface (from the page inventory)
+
+Rows that show up only from the outside — see `40-page-anatomy.md § 6`. Entity and
+page-kind IDs (`E-###`, `P-##`, `S-##`) are defined there.
+
+| ID | Feature | Implemented in | Layer | Consumer | Parity | Requires from KDM | Status | Refs |
+|---|---|---|---|---|---|---|---|---|
+| F-200 | Declaration-kind icons in the TOC and member lists | `images/*.svg`, `NavigationDataProvider` | renderer, model | all | TODO | A declaration-kind enum incl. Kotlin/Java origin — not a rendered label | todo | Q-021, E-030 |
+| F-201 | Camel-case word-break hints (`<wbr>`) in names and packages | `renderers/html` | renderer | all | TODO | — | todo | E-002 |
+| F-202 | Degenerate flat page for a package with no visible members | `renderers/html` | renderer | all | TODO | — | todo | Q-019, P-04 |
+| F-203 | Platform-prefixed file names for clashing DRIs (`[jvm]shared.html`) | `ClashingDriIdentifier`, `resolvers/local` | renderer, model | all users' bookmarks | TODO | Identity + collision rules; the escape hatch is baked into public URLs | todo | Q-013, P-12 |
+| F-204 | ARIA roles, skip links, keyboard affordances | `ui-kit`, `renderers/html` | renderer | all | TODO | — | todo | C-11 |
+| F-205 | Per-page `<title>`, favicon and `pathToRoot` | `renderers/html` | renderer | all | TODO | Display name per page | todo | C-12 |
+| F-206 | Intermediate source sets in the dependency graph but absent from the UI | `sourceset_dependencies.js` | model | MPP | TODO | Fragment dependency edges incl. intermediate fragments | todo | Q-022, E-045 |
+| F-207 | Blocking inline theme script (no flash of light theme) | `renderers/html` head template | renderer | all | TODO | — | todo | C-07 |
+| F-208 | `package-list` as a consumable input for other projects' external links | `resolvers/external` | model | other libraries | TODO | A DRI-to-URL mapping in a format already consumed as input elsewhere | todo | Q-016, S-01 |
