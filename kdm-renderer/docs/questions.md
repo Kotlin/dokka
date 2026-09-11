@@ -31,6 +31,15 @@ Status: `open` · `assumed` (proceeding on an assumption, recorded below) ·
 | Q-017 | Fragment deduplication scheme; analyse leaf source sets only? (G-12) | | yes | open |
 | Q-018 | Search index: derived at build time, or a published artifact? (G-15) | | no | open |
 
+## Output surface (from the page inventory, `40-page-anatomy.md`)
+
+| ID | Question | Owner | Blocking | Status |
+|---|---|---|---|---|
+| Q-019 | A package whose only member is invisible renders as a flat `<package>.html` with an empty body (O-01). Intended output, or should the package be filtered out? | | no | open |
+| Q-020 | Enum entries get their own directory and full classlike page (O-06). Does KDM model an enum entry as a declaration with members? | | no | open |
+| Q-021 | Declaration-kind icons (30 SVGs keyed by kind + Kotlin/Java origin, F-200): is the kind enum part of KDM, or a renderer-side classification? | | no | open |
+| Q-022 | Intermediate source sets appear in `sourceset_dependencies.js` but have no page-level presence (F-206). Must KDM carry intermediate fragments? | | no | open |
+
 ## Assumptions currently in force
 
 None yet. When a question is set to `assumed`, record here what we are assuming and
