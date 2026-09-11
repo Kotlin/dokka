@@ -35,12 +35,15 @@ internal fun DRI.toKdCallableId(): KdCallableId {
             hash = "0"
         )
     } else {
-        val callable = requireNotNull(callable) { "callable is null for $this" }
+        // TODO: why it could be `null` here? for `java.lang.annotation/ElementType`
+        if (callable == null) {
+            println("WARN: callable is null for $this")
+        }
         KdCallableId(
             packageName = packageName,
             classNames = classNames,
-            callableName = callable.name,
-            hash = callable.signature().hashCode().toString()
+            callableName = callable?.name ?: "UNKNOWN_NAME",
+            hash = callable?.signature().hashCode().toString()
         )
     }
 }

@@ -46,7 +46,7 @@ public class SingleModuleGeneration(private val context: DokkaContext) : Generat
         saveModule(
             transformedDocumentation,
             transformedDocumentationBeforeMerge,
-            context.configuration.outputDir.resolve("kdp")
+            context.configuration.outputDir.resolve("kdm")
         )
 
         // Step 2: Generate pages & transform them (change internally)

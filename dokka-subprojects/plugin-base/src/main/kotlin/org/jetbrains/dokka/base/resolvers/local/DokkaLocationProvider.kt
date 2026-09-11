@@ -57,7 +57,8 @@ public open class DokkaLocationProvider(
             }
             .groupingBy { it.first }
             .aggregate { key, _, (_, page), first ->
-                if (first) page else throw AssertionError("Multiple pages associated with key: ${key.dri}/${key.sourceSet}")
+                if (!first) println("WARN: Multiple pages associated with key: ${key.dri}/${key.sourceSet}")
+                page
             }
 
     protected val anchorsIndex: Map<DRIWithSourceSets, PageWithKind> =

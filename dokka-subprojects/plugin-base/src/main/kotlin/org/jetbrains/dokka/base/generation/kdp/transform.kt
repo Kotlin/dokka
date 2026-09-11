@@ -32,16 +32,16 @@ internal fun saveModule(
 
         outputDirectory.mkdirs()
         measured("json.$tag") {
-            outputDirectory.resolve("$tag._.json").writeText(fragments.encodeToJson(prettyPrint = false))
+            outputDirectory.resolve("$tag.json").writeText(fragments.encodeToJson(prettyPrint = false))
         }
-        outputDirectory.resolve("$tag._.pretty.json").writeText(fragments.encodeToJson(prettyPrint = true))
+        outputDirectory.resolve("$tag-pretty.json").writeText(fragments.encodeToJson(prettyPrint = true))
         fragments.fragments.forEach {
-            outputDirectory.resolve("$tag.${it.name}.pretty.json").writeText(it.encodeToJson(prettyPrint = true))
+            outputDirectory.resolve("$tag-pretty.${it.name}.json").writeText(it.encodeToJson(prettyPrint = true))
         }
     }
 
 //    saveFragments("merged", measured("transform.merged") { mergedModule.toKdFragments() }.getOrThrow())
-    saveFragments("unmerged", measured("transform.merged") { unmergedModules.toKdFragments() }.getOrThrow())
+    saveFragments("model", measured("transform.merged") { unmergedModules.toKdFragments() }.getOrThrow())
 }
 
 private fun List<DModule>.toKdFragments(): KdFragments = buildKdFragments(associateBy { it.sourceSets.single() })
@@ -105,10 +105,11 @@ private fun buildKdFragments(
 
     check(modules.size == fragments.size) { "wrong number of fragments: ${fragments.size} vs ${modules.size}" }
 
-    return KdFragments(fragments.values.toList().map {
-        val elementsFromDependencies = it.fragmentDependencies.flatMapTo(mutableSetOf(), KdFragmentDependency::elements)
-        it.copy(elements = it.elements.filterNot { it.id in elementsFromDependencies })
-    })
+//    return KdFragments(fragments.values.toList().map {
+//        val elementsFromDependencies = it.fragmentDependencies.flatMapTo(mutableSetOf(), KdFragmentDependency::elements)
+//        it.copy(elements = it.elements.filterNot { it.id in elementsFromDependencies })
+//    })
+    return KdFragments(fragments.values.toList())
 }
 
 private fun DPackage.toKdPackage(

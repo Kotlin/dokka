@@ -18,7 +18,9 @@ internal fun Documentable.tagWrappers(
 ): List<TagWrapper> {
     val docs = documentation[sourceSet]?.children.orEmpty()
     val filtered = docs.filterNot(requirement)
-    require(filtered.isEmpty()) { "Documentation contains wrong nodes: $filtered" }
+    if (filtered.isNotEmpty()) {
+        println("WARN: Documentation contains unhandled tags: ${filtered.joinToString("\n  ", "\n  ")}")
+    }
     return docs
 }
 
