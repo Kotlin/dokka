@@ -167,4 +167,48 @@ class JvmFieldTest : BaseAbstractTest() {
             }
         }
     }
+
+    @Test
+    fun `top level extension property should be a function`() {
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |val String.extProperty: String
+            |    get() = this
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val classLike = module.packages.flatMap { it.classlikes }.first()
+                assertNull(classLike.properties.firstOrNull { it.name == "extProperty" })
+                assertEquals(
+                    listOf("getExtProperty"),
+                    classLike.functions.map { it.name })
+            }
+        }
+    }
+
+    @Test
+    fun `in-class extension property should be a function`() {
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |class MyClass {
+            |    val String.extProperty: String
+            |        get() = this
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val classLike = module.packages.flatMap { it.classlikes }.first()
+                assertNull(classLike.properties.firstOrNull { it.name == "extProperty" })
+                assertEquals(
+                    listOf("getExtProperty"),
+                    classLike.functions.map { it.name })
+            }
+        }
+    }
 }
