@@ -14,7 +14,7 @@ public sealed class KdCallable : KdDeclaration() {
 
     // TODO: `isCompanion` + `isCompanionExtension`? - TBD
     //  think also about Java here
-    public abstract val isStatic: Boolean
+    public abstract val isCompanion: Boolean
 
     public abstract val returns: KdReturns
     public abstract val receiverParameter: KdReceiverParameter?
@@ -22,7 +22,7 @@ public sealed class KdCallable : KdDeclaration() {
     public abstract val throws: List<KdThrows>
 
     // TODO: should we list all override declarations, or something else
-    public abstract val overrides: List<KdCallableOverride>
+    //public abstract val overrides: List<KdCallableOverride>
 
 }
 

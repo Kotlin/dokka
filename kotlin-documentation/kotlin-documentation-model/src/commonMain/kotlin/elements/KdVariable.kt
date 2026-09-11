@@ -30,12 +30,12 @@ public data class KdVariable(
     val isMutable: Boolean = false, // isVar or isVal
     val constValue: KdConstValue? = null,
     // TODO: getter and setter? do we need them?
-    override val isOverride: Boolean = false,
-    override val isStatic: Boolean = false,
+//    override val isOverride: Boolean = false,
+    override val isCompanion: Boolean = false,
     override val receiverParameter: KdReceiverParameter? = null,
     override val contextParameters: List<KdContextParameter> = emptyList(),
     override val throws: List<KdThrows> = emptyList(),
-    override val inheritedFrom: List<KdCallableId> = emptyList(),
+//    override val inheritedFrom: List<KdCallableId> = emptyList(),
     override val source: KdSource = KdSource.KOTLIN,
     override val visibility: KdVisibility = KdVisibility.PUBLIC,
     override val modality: KdModality = KdModality.FINAL,

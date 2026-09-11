@@ -25,10 +25,8 @@ public data class KdConstructor(
     override val documentation: List<KdDocumentationNode>,
     override val annotations: List<KdAnnotation> = emptyList(),
 ) : KdCallable() {
-    override val isOverride: Boolean get() = false
-    override val isStatic: Boolean get() = false
+    override val isCompanion: Boolean get() = false
     override val typeParameters: List<KdTypeParameter> get() = emptyList()
     override val receiverParameter: KdReceiverParameter? get() = null
     override val contextParameters: List<KdContextParameter> get() = emptyList()
-    override val inheritedFrom: List<KdCallableId> get() = emptyList()
 }

@@ -24,18 +24,18 @@ import kotlinx.serialization.Serializable
 @SerialName("sample")
 @Serializable
 public data class KdSample(
-    override val id: KdElementId,
-    override val name: String,
+    val id: KdElementId,
+    val name: String,
     public val code: String,
     public val language: String = "kotlin",
     override val documentation: List<KdDocumentationNode> = emptyList()
-) : KdElement()
+) : KdDocumented
 
 // or article
 @SerialName("topic")
 @Serializable
 public data class KdTopic(
-    override val id: KdElementId,
-    override val name: String,
+    val id: KdElementId,
+    val name: String,
     override val documentation: List<KdDocumentationNode> = emptyList()
-) : KdElement()
+) : KdDocumented

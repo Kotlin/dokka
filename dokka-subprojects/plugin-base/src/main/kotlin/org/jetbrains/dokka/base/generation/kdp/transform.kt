@@ -169,7 +169,7 @@ private fun DProperty.toKdVariable(
         isMutable = extra[IsVar] != null || setter != null,
         // TODO: same as in annotations
         constValue = extra[DefaultValue]?.expression?.get(sourceSet)?.toString()?.let(::KdConstValue),
-        isStatic = extraModifiers.contains(ExtraModifiers.JavaOnlyModifiers.Static), // TODO? is it enough?
+        isCompanion = extra[IsCompanion] != null,
 
         receiverParameter = receiver?.toKdReceiverParameter(sourceSet),
         contextParameters = contextParameters.map { it.toKdContextParameter(sourceSet) },
@@ -182,9 +182,9 @@ private fun DProperty.toKdVariable(
                 documentation = it.toKdDocumentation()
             )
         },
-        inheritedFrom = listOfNotNull(
-            extra[InheritedMember]?.inheritedFrom?.get(sourceSet)?.toKdClassLikeId()?.toKdCallableId(name)
-        ),
+//        inheritedFrom = listOfNotNull(
+//            extra[InheritedMember]?.inheritedFrom?.get(sourceSet)?.toKdClassLikeId()?.toKdCallableId(name)
+//        ),
         source = KdSource.KOTLIN, // TODO: not enought information right now
         visibility = kdVisibility(sourceSet),
         modality = kdModality(sourceSet),
@@ -218,7 +218,7 @@ private fun DEnumEntry.toKdVariable(
 
         isMutable = false,
         constValue = null,
-        isStatic = true,
+        isCompanion = true,
 
         receiverParameter = null,
         contextParameters = emptyList(),
@@ -231,9 +231,9 @@ private fun DEnumEntry.toKdVariable(
                 documentation = it.toKdDocumentation()
             )
         },
-        inheritedFrom = listOfNotNull(
-            extra[InheritedMember]?.inheritedFrom?.get(sourceSet)?.toKdClassLikeId()?.toKdCallableId(name)
-        ),
+//        inheritedFrom = listOfNotNull(
+//            extra[InheritedMember]?.inheritedFrom?.get(sourceSet)?.toKdClassLikeId()?.toKdCallableId(name)
+//        ),
         source = KdSource.KOTLIN, // TODO: not enought information right now
         visibility = enum.kdVisibility(sourceSet),
         modality = KdModality.FINAL,
@@ -270,7 +270,7 @@ private fun DFunction.toKdFunction(
         isInfix = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.Infix),
         isInline = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.Inline),
         isTailRec = extraModifiers.contains(ExtraModifiers.KotlinOnlyModifiers.TailRec),
-        isStatic = extraModifiers.contains(ExtraModifiers.JavaOnlyModifiers.Static), // TODO? is it enough?
+        isCompanion = extra[IsCompanion] != null,
 
         receiverParameter = receiver?.toKdReceiverParameter(sourceSet),
         valueParameters = parameters.map { it.toKdValueParameter(sourceSet) },
@@ -287,9 +287,9 @@ private fun DFunction.toKdFunction(
                 documentation = it.toKdDocumentation()
             )
         },
-        inheritedFrom = listOfNotNull(
-            extra[InheritedMember]?.inheritedFrom?.get(sourceSet)?.toKdClassLikeId()?.toKdCallableId(name)
-        ),
+//        inheritedFrom = listOfNotNull(
+//            extra[InheritedMember]?.inheritedFrom?.get(sourceSet)?.toKdClassLikeId()?.toKdCallableId(name)
+//        ),
         source = KdSource.KOTLIN, // TODO: not enought information right now
         visibility = kdVisibility(sourceSet),
         modality = kdModality(sourceSet),

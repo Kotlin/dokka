@@ -41,7 +41,7 @@ public data class KdFragment(
     val elements: List<KdElement> = emptyList(),
     val fragmentDependencies: List<KdFragmentDependency> = emptyList(),
     // TODO: or, should it be more on level of the KdFragments
-    val embeddedDependencies: List<KdEmbeddedDependency> = emptyList()
+//    val embeddedDependencies: List<KdEmbeddedDependency> = emptyList()
 )
 
 // source-set or android variant/flavour name
