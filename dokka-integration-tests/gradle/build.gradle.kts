@@ -58,6 +58,8 @@ dependencies {
     devPublication("org.jetbrains.dokka:plugin-versioning:$dokkaVersion")
     devPublication("org.jetbrains.dokka:plugin-kotlin-playground-samples:$dokkaVersion")
 
+    devPublication("org.jetbrains.dokka:kotlin-documentation-model:$dokkaVersion")
+
     devPublication("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
 }
 
@@ -185,7 +187,7 @@ registerTestProjectSuite(
         }
     }
 }
-registerTestProjectSuite("testUiShowcaseProject", "ui-showcase")
+registerTestProjectSuite("testUiShowcaseProject", "ui-showcase", jvm = JavaLanguageVersion.of(17))
 
 /**
  * Create a new [JvmTestSuite] for a Gradle project.

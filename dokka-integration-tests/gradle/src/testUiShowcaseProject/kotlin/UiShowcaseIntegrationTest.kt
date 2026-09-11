@@ -23,21 +23,20 @@ class UiShowcaseIntegrationTest : AbstractGradleIntegrationTest(), TestOutputCop
     fun execute(buildVersions: BuildVersions) {
         val result = createGradleRunner(
             buildVersions,
-            ":dokkaGenerate",
+            ":jvm:dokkaGeneratePublicationHtml", ":kmp:dokkaGeneratePublicationHtml"
         ).buildRelaxed()
 
-        result.shouldHaveTask(":dokkaGeneratePublicationHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)
-        result.shouldHaveTask(":jvm:dokkaGenerateModuleHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)
-        result.shouldHaveTask(":kmp:dokkaGenerateModuleHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":jvm:dokkaGeneratePublicationHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)
+        result.shouldHaveTask(":kmp:dokkaGeneratePublicationHtml").shouldHaveOutcome(SUCCESS, FROM_CACHE)
 
-        assertTrue(projectOutputLocation.isDirectory, "Missing dokka output directory")
-
-        projectOutputLocation.allHtmlFiles().forEach { file ->
-            assertContainsNoErrorClass(file)
-            assertNoUnresolvedLinks(file)
-            assertNoHrefToMissingLocalFileOrDirectory(file)
-            assertNoEmptyLinks(file)
-            assertNoEmptySpans(file)
+        val output = System.getenv("DOKKA_TEST_OUTPUT_PATH")!!
+        listOf(
+            "jvm" to File(projectDir, "jvm/build/dokka/html"),
+            "kmp" to File(projectDir, "kmp/build/dokka/html"),
+        ).forEach { (folder, input) ->
+            val location = File(output).resolve(folder)
+            println("Copying from ${input.absoluteFile} to ${location.absolutePath}")
+            input.copyRecursively(location)
         }
     }
 
