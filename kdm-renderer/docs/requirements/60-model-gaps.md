@@ -27,24 +27,47 @@ link that exists today — bookmarks, blog posts, StackOverflow answers, IDE lin
 Whether the new renderer must reproduce the current URL scheme exactly is a product
 decision, not a technical one. See Q-013.
 
-## G-02 — Cross-declaration indices ❌
+Since ADR-0001 this gap also **gates the renderer's cross-declaration indices**: those
+maps join declarations on classifier ids, and ids are measurably not unique within a
+single fragment (`jvm/main`: 132 unique ids for 238 elements, 3 collisions between
+structurally different declarations; every native kmp fragment: 27 such collisions).
+G-01 is no longer only a URL-compatibility question.
 
-**Need.** Three reverse indices that today are computed by transformers over the
-whole module: receiver → extensions, supertype → inheritors, supertype → inherited
-members.
+## G-02 — Forward edges for cross-declaration indices ✅ (decided: ADR-0001)
 
-**Depends:** F-020, F-021, F-022.
+**Decided by ADR-0001:** the reverse indices are the *renderer's* concern, not the
+model's. Both relations are cross-module by nature — a module's artifact cannot know
+that a downstream module extends its types or subclasses its classes — so a
+precomputed index in a per-module artifact is structurally unable to answer the
+question users ask. The renderer builds the maps in one pass over its whole input
+artifact set.
 
-**Spec:** partially — `§ Inheritance in the absence of a KDM artifact` acknowledges
-the cross-artifact case.
+**What remains a requirement on KDM** is only the *forward* edges, and they must be
+normative rather than incidental:
 
-**Undecided.** Three options, each with different costs: (a) KDM stores the indices,
-(b) the renderer computes them by loading the whole model, (c) a separate derived
-index artifact. Option (b) fails for supertypes outside the module, which is the
-common case (`Any`, collections, third-party base classes). See Q-012.
+| Edge | Field | Present today |
+|---|---|---|
+| callable → receiver type | `receiverParameter.type.classLikeId` | yes — 4 in `jvm/main`, 3–5 per kmp fragment |
+| classlike → supertypes | `superTypes[].classLikeId` (+ `typeArguments`) | yes — 6 in `jvm/main`; **never** in any kmp fragment, because the kmp test project has no inheritance (coverage hole, not data loss) |
 
-**This is the highest-risk gap** — it is the one place where a per-declaration
-serialized model is structurally at odds with what the pages show.
+Inherited members are no longer part of this gap: the artifact **materializes** them
+(`kotlin/Any/equals` and friends listed in `class.callables`; 31 foreign elements in
+`jvm/main`, 0 dangling refs of 229), so the renderer needs no index to show them.
+Whether that materialization should stay is Q-023.
+
+**Depends:** F-020, F-021 (now `renderer` layer), F-022 (`model`, via materialization).
+
+**Spec:** `§ Inheritance in the absence of a KDM artifact` — consistent with the
+decision, but the spec must be amended to state the two fields as normative.
+
+**Still undecided:** Q-023 (materialization: keep or expand at render time), Q-024
+(member extensions on receiver pages), Q-025 (no provenance field distinguishing an
+own declaration from a materialized external one).
+
+**The residual risk moved to G-01.** The renderer's pass joins on classifier ids, so
+every identity collision corrupts both maps silently: `jvm/main` carries 238 elements
+for 132 unique ids, 22 duplicated and 3 structurally different; every native kmp
+fragment has 27 duplicated ids, all structurally different. G-01 now gates ADR-0001.
 
 ## G-03 — Filter predicate inputs 🟡
 
@@ -82,6 +105,11 @@ preserved, unknown tags surviving round-trip, and inherited documentation resolv
 stored — i.e. whether `sourceLinks` config is applied by the producer or the renderer.
 
 ## G-06 — External references 🟡
+
+**Decided by ADR-0003:** keep Dokka's existing `package-list` format unchanged.
+Note the consequence: the file may embed DRI strings plus an explicit relative
+path, so it is a *compatibility surface* — if G-01 changes declaration identity,
+the emitted file must still carry the old DRI strings for inbound links.
 
 **Need.** A way to reference declarations outside the module — stdlib, JDK, other
 libraries — resolvable without the target's KDM being available, since most targets

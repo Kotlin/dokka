@@ -29,8 +29,9 @@ The second half can be iterated on freely.
 | `requirements/40-page-anatomy.md` | Inventory: real generated pages, by page kind and by the entities on each — first pass done against `ui-showcase` |
 | `requirements/50-extension-points.md` | Inventory: who builds on top of the HTML output and what they need |
 | `requirements/60-model-gaps.md` | **Output** — requirements on KDM, derived from the registry |
-| `decisions/` | One ADR per decision |
+| `decisions/` | One ADR per decision — ADR-0001 cross-declaration indices belong to the renderer · ADR-0002 multi-module architecture from day one · ADR-0003 keep Dokka's `package-list` |
 | `questions.md` | Open questions with owner and blocking status |
+| `stack-criteria.md` | Criteria for choosing the renderer's frontend stack — gates, weighted criteria, spike protocol |
 
 ## Reading order for a newcomer
 

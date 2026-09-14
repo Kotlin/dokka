@@ -139,9 +139,9 @@ column is the gap that must cover it.
 | E-030 | Section header | `h2.tableheader` / `h4.tableheader`. Observed vocabulary and counts: Functions 46, Constructors 23, Types 12, Properties 9, Type Parameters 2, Companion functions 2, Companion properties 1, Inheritors 1, Entries 1 | The classification that produces each bucket: callable kind, companion-ness, enum-entry-ness, inheritor-ness | G-02, G-07 |
 | E-031 | Member row | `div.table-row.table-row_content` → `div.main-subrow.keyValue` = name + anchor + signature + brief | Per-member: name, signature, brief, fragment set, URL | G-01 |
 | E-032 | Tab strip | `div.tabs-section` with `button.section-tab[data-togglable]`. Observed tab sets: `CONSTRUCTOR,TYPE,PROPERTY,FUNCTION` (38 pages), plus `EXTENSION_FUNCTION` / `EXTENSION_PROPERTY` variants, i.e. the "Members" vs "Members & Extensions" split | Declaration kind, and an extension flag on each member | G-07 |
-| E-033 | Inheritors list | one page only: `-simple-kotlin-interface/index.html` | Reverse index over supertypes — the cross-artifact case is unsolved | G-02 |
-| E-034 | Extensions listed on the receiver's page | `EXTENSION_FUNCTION` tabs (10) | Receiver type + reverse index | G-02 |
-| E-035 | Inherited members | `equals`/`hashCode`/`toString` appear in the Functions bucket | "inherited from X" provenance, and an obvious/synthetic marker | G-02, G-03 |
+| E-033 | Inheritors list | one page only: `-simple-kotlin-interface/index.html` | Forward `superTypes[].classLikeId`; the reverse index is the renderer's, over its whole input set | G-02, ADR-0001 |
+| E-034 | Extensions listed on the receiver's page | `EXTENSION_FUNCTION` tabs (10) | Forward `receiverParameter.type.classLikeId`; the reverse index is the renderer's | G-02, ADR-0001, Q-024 |
+| E-035 | Inherited members | `equals`/`hashCode`/`toString` appear in the Functions bucket | Already materialized in `class.callables`; still needs "inherited from X" provenance and an obvious/synthetic marker | G-03, ADR-0001, Q-023, Q-025 |
 | E-036 | Package rows on a module page | `div.table-row.table-row_platform-tagged` (12) | Package list per module + fragment set per package | G-13 |
 | E-037 | Module rows on the aggregate page | `div.table-row.table-row_multimodule` | Module list + module documentation | G-13 |
 
@@ -218,6 +218,16 @@ colliding with the code-survey block.
 - A dead-URL / broken-anchor case.
 - `older/` snapshots were treated as opaque copies; the versioning plugin's rewriting
   behaviour was not inspected.
+- **KMP inheritance and extensions are unverified.** The `kmp` variant of
+  `ui-showcase` contains no inheritance at all: `superTypes` appears in none of its
+  12 fragments. So the multiplatform behaviour of E-033 (inheritors) and of fragment
+  deduplication for E-034 (extensions) rests on no observation. Acceptance needs a
+  KMP project with an `expect`/`actual` hierarchy and extensions declared in an
+  intermediate source set. This matters more since ADR-0001, which puts both indices
+  in the renderer.
+- **Whether a page is even owed** was not settled for materialized external
+  declarations: `jvm/main` lists 31 `kotlin/Any/*` and `kotlin/Enum/*` declarations as
+  real elements inside `class.callables`, and no field marks them foreign (Q-025).
 
 ## Output
 

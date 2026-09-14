@@ -1,0 +1,852 @@
+{
+  "name": "kdm-sample",
+  "fragments": [
+    {
+      "name": "main",
+      "packages": [
+        {
+          "name": "example",
+          "declarations": [
+            {
+              "kind": "function",
+              "name": "isName",
+              "returns": {
+                "type": {
+                  "kind": "classifier",
+                  "classifierId": "kotlin/Boolean"
+                },
+                "documentation": [
+                  {
+                    "kind": "paragraph",
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "true if the string looks like a name"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "receiverParameter": {
+                "type": {
+                  "kind": "classifier",
+                  "classifierId": "kotlin/String"
+                }
+              },
+              "documentation": [
+                {
+                  "kind": "paragraph",
+                  "children": [
+                    {
+                      "kind": "text",
+                      "value": "An extension function."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "function",
+              "name": "checkName",
+              "returns": {
+                "type": {
+                  "kind": "classifier",
+                  "classifierId": "kotlin/Boolean"
+                }
+              },
+              "receiverParameter": {
+                "type": {
+                  "kind": "classifier",
+                  "classifierId": "kotlin/String"
+                }
+              },
+              "annotations": [
+                {
+                  "classifierId": "kotlin/Deprecated",
+                  "useSiteTargets": [],
+                  "arguments": [
+                    {
+                      "name": "message",
+                      "value": {
+                        "kind": "const",
+                        "value": {
+                          "value": "Use isName() instead"
+                        }
+                      }
+                    },
+                    {
+                      "name": "replaceWith",
+                      "value": {
+                        "kind": "annotation",
+                        "annotation": {
+                          "classifierId": "kotlin/ReplaceWith",
+                          "useSiteTargets": [],
+                          "arguments": [
+                            {
+                              "name": "expression",
+                              "value": {
+                                "kind": "const",
+                                "value": {
+                                  "value": "isName()"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              ],
+              "documentation": [
+                {
+                  "kind": "paragraph",
+                  "children": [
+                    {
+                      "kind": "text",
+                      "value": "Deprecated on purpose."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "variable",
+              "name": "version",
+              "returns": {
+                "type": {
+                  "kind": "classifier",
+                  "classifierId": "kotlin/String"
+                }
+              },
+              "variableKind": "PROPERTY",
+              "documentation": [
+                {
+                  "kind": "paragraph",
+                  "children": [
+                    {
+                      "kind": "text",
+                      "value": "A top-level property."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "class",
+              "name": "Sample",
+              "classKind": "CLASS",
+              "declarations": [
+                {
+                  "kind": "constructor",
+                  "name": "Sample",
+                  "returns": {
+                    "type": {
+                      "kind": "classifier",
+                      "classifierId": "example/Sample"
+                    }
+                  },
+                  "isPrimary": true,
+                  "valueParameters": [
+                    {
+                      "name": "answer",
+                      "type": {
+                        "kind": "classifier",
+                        "classifierId": "kotlin/Int"
+                      },
+                      "defaultValue": {
+                        "kind": "const",
+                        "value": {
+                          "value": "42"
+                        }
+                      }
+                    }
+                  ],
+                  "documentation": []
+                },
+                {
+                  "kind": "function",
+                  "name": "doIt",
+                  "returns": {
+                    "type": {
+                      "kind": "classifier",
+                      "classifierId": "kotlin/String"
+                    },
+                    "documentation": [
+                      {
+                        "kind": "paragraph",
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "the formatted result"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "valueParameters": [
+                    {
+                      "name": "input",
+                      "type": {
+                        "kind": "classifier",
+                        "classifierId": "kotlin/Int"
+                      },
+                      "documentation": [
+                        {
+                          "kind": "paragraph",
+                          "children": [
+                            {
+                              "kind": "text",
+                              "value": "the input value"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "throws": [
+                    {
+                      "classifierId": "java.lang/IllegalArgumentException",
+                      "documentation": [
+                        {
+                          "kind": "paragraph",
+                          "children": [
+                            {
+                              "kind": "text",
+                              "value": "if "
+                            },
+                            {
+                              "kind": "link",
+                              "label": [
+                                {
+                                  "kind": "text",
+                                  "value": "input"
+                                }
+                              ],
+                              "reference": {
+                                "kind": "valueParameter",
+                                "index": 0
+                              }
+                            },
+                            {
+                              "kind": "text",
+                              "value": " is negative"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "documentation": [
+                    {
+                      "kind": "paragraph",
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "Does something useful."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "variable",
+                  "name": "answer",
+                  "returns": {
+                    "type": {
+                      "kind": "classifier",
+                      "classifierId": "kotlin/Int"
+                    }
+                  },
+                  "variableKind": "PROPERTY"
+                },
+                {
+                  "kind": "class",
+                  "name": "Nested",
+                  "classKind": "CLASS",
+                  "declarations": [
+                    {
+                      "kind": "constructor",
+                      "name": "Nested",
+                      "returns": {
+                        "type": {
+                          "kind": "classifier",
+                          "classifierId": "example/Sample.Nested"
+                        }
+                      },
+                      "isPrimary": true,
+                      "documentation": []
+                    }
+                  ],
+                  "documentation": [
+                    {
+                      "kind": "paragraph",
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "A nested class."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "class",
+                  "name": "Companion",
+                  "classKind": "OBJECT",
+                  "declarations": [
+                    {
+                      "kind": "variable",
+                      "name": "DEFAULT",
+                      "returns": {
+                        "type": {
+                          "kind": "classifier",
+                          "classifierId": "kotlin/Int"
+                        }
+                      },
+                      "variableKind": "PROPERTY",
+                      "constValue": {
+                        "value": "IntegerConstant(value=42)"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "documentation": [
+                {
+                  "kind": "paragraph",
+                  "children": [
+                    {
+                      "kind": "text",
+                      "value": "A sample class."
+                    }
+                  ]
+                },
+                {
+                  "kind": "paragraph",
+                  "children": [
+                    {
+                      "kind": "text",
+                      "value": "Second paragraph with "
+                    },
+                    {
+                      "kind": "codeInline",
+                      "text": "code",
+                      "language": "kotlin"
+                    },
+                    {
+                      "kind": "text",
+                      "value": ", "
+                    },
+                    {
+                      "kind": "text",
+                      "value": "UNKNOWN: Strong(children=[Text(body=bold, children=[], params={})], params={})"
+                    },
+                    {
+                      "kind": "text",
+                      "value": " and a "
+                    },
+                    {
+                      "kind": "link",
+                      "label": [
+                        {
+                          "kind": "text",
+                          "value": "link"
+                        }
+                      ],
+                      "reference": {
+                        "kind": "classifier",
+                        "classifierId": "example/Container"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "value": "."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "class",
+              "name": "Container",
+              "classKind": "INTERFACE",
+              "declarations": [
+                {
+                  "kind": "function",
+                  "name": "transform",
+                  "returns": {
+                    "type": {
+                      "kind": "classifier",
+                      "classifierId": "example/Container",
+                      "typeArguments": [
+                        {
+                          "type": {
+                            "kind": "typeParameter",
+                            "name": "R"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "valueParameters": [
+                    {
+                      "name": "block",
+                      "type": {
+                        "kind": "functional",
+                        "returnType": {
+                          "type": {
+                            "kind": "typeParameter",
+                            "name": "R"
+                          }
+                        },
+                        "valueParameterTypes": [
+                          {
+                            "type": {
+                              "kind": "typeParameter",
+                              "name": "T"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "modality": "ABSTRACT",
+                  "typeParameters": [
+                    {
+                      "name": "R",
+                      "upperBounds": [
+                        {
+                          "kind": "classifier",
+                          "classifierId": "kotlin/Any",
+                          "nullability": "NULLABLE"
+                        }
+                      ]
+                    }
+                  ],
+                  "documentation": [
+                    {
+                      "kind": "paragraph",
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "Transforms the value."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "variable",
+                  "name": "value",
+                  "returns": {
+                    "type": {
+                      "kind": "typeParameter",
+                      "name": "T"
+                    }
+                  },
+                  "variableKind": "PROPERTY",
+                  "modality": "ABSTRACT",
+                  "documentation": [
+                    {
+                      "kind": "paragraph",
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "The stored value."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "typeParameters": [
+                {
+                  "name": "T",
+                  "upperBounds": [
+                    {
+                      "kind": "classifier",
+                      "classifierId": "kotlin/Any",
+                      "nullability": "NULLABLE"
+                    }
+                  ],
+                  "variance": "OUT",
+                  "documentation": [
+                    {
+                      "kind": "paragraph",
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "the element type"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "documentation": [
+                {
+                  "kind": "paragraph",
+                  "children": [
+                    {
+                      "kind": "text",
+                      "value": "A generic container."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "class",
+              "name": "State",
+              "classKind": "ENUM_CLASS",
+              "superTypes": [
+                {
+                  "kind": "classifier",
+                  "classifierId": "kotlin/Enum",
+                  "typeArguments": [
+                    {
+                      "type": {
+                        "kind": "classifier",
+                        "classifierId": "example/State"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "declarations": [
+                {
+                  "kind": "function",
+                  "name": "values",
+                  "returns": {
+                    "type": {
+                      "kind": "classifier",
+                      "classifierId": "kotlin/Array",
+                      "typeArguments": [
+                        {
+                          "type": {
+                            "kind": "classifier",
+                            "classifierId": "example/State"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "documentation": [
+                    {
+                      "kind": "paragraph",
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "Returns an array containing the constants of this enum type, in the order they're declared."
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "paragraph",
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "This method may be used to iterate over the constants."
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "paragraph",
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "The function returns a new instance of the array on every call. The array could be mutated, so working with it may also require defensive copying. Consider using "
+                        },
+                        {
+                          "kind": "codeInline",
+                          "text": "entries",
+                          "language": "kotlin"
+                        },
+                        {
+                          "kind": "text",
+                          "value": " property as a more efficient alternative returning an immutable list of enum entries."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "function",
+                  "name": "valueOf",
+                  "returns": {
+                    "type": {
+                      "kind": "classifier",
+                      "classifierId": "example/State"
+                    }
+                  },
+                  "valueParameters": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "classifier",
+                        "classifierId": "kotlin/String"
+                      }
+                    }
+                  ],
+                  "throws": [
+                    {
+                      "classifierId": "UNKNOWN/kotlin.IllegalArgumentException",
+                      "documentation": [
+                        {
+                          "kind": "paragraph",
+                          "children": [
+                            {
+                              "kind": "text",
+                              "value": "if this enum type has no constant with the specified name"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "documentation": [
+                    {
+                      "kind": "paragraph",
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "variable",
+                  "name": "name",
+                  "returns": {
+                    "type": {
+                      "kind": "classifier",
+                      "classifierId": "kotlin/String"
+                    }
+                  },
+                  "variableKind": "PROPERTY"
+                },
+                {
+                  "kind": "variable",
+                  "name": "ordinal",
+                  "returns": {
+                    "type": {
+                      "kind": "classifier",
+                      "classifierId": "kotlin/Int"
+                    }
+                  },
+                  "variableKind": "PROPERTY"
+                },
+                {
+                  "kind": "variable",
+                  "name": "IDLE",
+                  "returns": {
+                    "type": {
+                      "kind": "classifier",
+                      "classifierId": "example/State"
+                    }
+                  },
+                  "variableKind": "ENUM_ENTRY",
+                  "isStatic": true,
+                  "documentation": [
+                    {
+                      "kind": "paragraph",
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "Not started yet."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "variable",
+                  "name": "RUNNING",
+                  "returns": {
+                    "type": {
+                      "kind": "classifier",
+                      "classifierId": "example/State"
+                    }
+                  },
+                  "variableKind": "ENUM_ENTRY",
+                  "isStatic": true,
+                  "documentation": [
+                    {
+                      "kind": "paragraph",
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "In progress."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "documentation": [
+                {
+                  "kind": "paragraph",
+                  "children": [
+                    {
+                      "kind": "text",
+                      "value": "Sample states."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "class",
+              "name": "Registry",
+              "classKind": "OBJECT",
+              "declarations": [
+                {
+                  "kind": "variable",
+                  "name": "names",
+                  "returns": {
+                    "type": {
+                      "kind": "classifier",
+                      "classifierId": "kotlin.collections/List",
+                      "typeArguments": [
+                        {
+                          "type": {
+                            "kind": "classifier",
+                            "classifierId": "kotlin/String"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "variableKind": "PROPERTY",
+                  "isMutable": true,
+                  "documentation": [
+                    {
+                      "kind": "paragraph",
+                      "children": [
+                        {
+                          "kind": "text",
+                          "value": "Registered names."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "documentation": [
+                {
+                  "kind": "paragraph",
+                  "children": [
+                    {
+                      "kind": "text",
+                      "value": "A singleton."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "class",
+              "name": "Marker",
+              "classKind": "ANNOTATION_CLASS",
+              "declarations": [
+                {
+                  "kind": "constructor",
+                  "name": "Marker",
+                  "returns": {
+                    "type": {
+                      "kind": "classifier",
+                      "classifierId": "example/Marker"
+                    }
+                  },
+                  "isPrimary": true,
+                  "valueParameters": [
+                    {
+                      "name": "name",
+                      "type": {
+                        "kind": "classifier",
+                        "classifierId": "kotlin/String"
+                      }
+                    }
+                  ],
+                  "documentation": []
+                },
+                {
+                  "kind": "variable",
+                  "name": "name",
+                  "returns": {
+                    "type": {
+                      "kind": "classifier",
+                      "classifierId": "kotlin/String"
+                    }
+                  },
+                  "variableKind": "PROPERTY"
+                }
+              ],
+              "annotations": [
+                {
+                  "classifierId": "kotlin.annotation/Target",
+                  "useSiteTargets": [],
+                  "arguments": [
+                    {
+                      "name": "allowedTargets",
+                      "value": {
+                        "kind": "array",
+                        "elements": [
+                          {
+                            "kind": "enum",
+                            "callableId": "kotlin.annotation/AnnotationTarget/CLASS"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ],
+              "documentation": [
+                {
+                  "kind": "paragraph",
+                  "children": [
+                    {
+                      "kind": "text",
+                      "value": "An annotation."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "typealias",
+              "name": "Names",
+              "underlyingType": {
+                "kind": "classifier",
+                "classifierId": "kotlin.collections/List",
+                "typeArguments": [
+                  {
+                    "type": {
+                      "kind": "classifier",
+                      "classifierId": "kotlin/String"
+                    }
+                  }
+                ]
+              },
+              "documentation": [
+                {
+                  "kind": "paragraph",
+                  "children": [
+                    {
+                      "kind": "text",
+                      "value": "A type alias."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

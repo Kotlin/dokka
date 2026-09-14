@@ -80,12 +80,23 @@ matters for documentation: a property is one declaration to a Kotlin reader but 
 three to a Java reader. Contrast **field**, which is plain storage with no accessors
 — Kotlin exposes fields only via Java interop.
 
+**Member.** A declaration that belongs to a classifier: a property, function,
+constructor, nested classifier or enum entry declared inside it. Contrast a **top-level
+declaration**, which belongs to a package directly. The distinction is structural, not
+about visibility — an `internal` top-level function is still top-level. It has two
+consequences for documentation: a member is addressed *through* its owner (the DRI and
+the page URL both nest it under the classifier), and the members are what a classlike
+page can list on its own, since they are reachable from the classifier itself.
+An **inherited member** is one a type gets from a supertype without redeclaring it;
+Dokka lists those too, which is why a class page can show declarations it does not own.
+
 **Extension function.** A function declared outside a class but callable as if it
 were a member of it: `fun String.shout() = uppercase() + "!"` is called as
 `"hi".shout()`. Crucially, it is *declared* in some package but *belongs*, from the
 reader's point of view, to `String`. This mismatch is the origin of feature F-020 and
 of gap G-02 — the renderer must show it on the `String` page, which requires an index
-built across the whole module.
+built across every artifact it was given, not just the one declaring the function
+(ADR-0001).
 
 **Receiver.** The thing an extension is declared on — `String` in the example above.
 An extension has an *extension receiver*; a member declared inside a class has an
@@ -274,6 +285,19 @@ libraries' documentation, including Javadoc-format targets.
 documentation, listing which packages it contains, so that *other* projects can link
 into it without having its sources. The existing mechanism for cross-library links
 (F-062, G-06).
+
+**`Members` / `Members & Extensions` (tabs).** The tab strip on a classlike page in the
+HTML output, built in `HtmlRenderer.createTabsForClasslikes` (`HtmlRenderer.kt:78`). They are not two different lists: the first
+tab admits the row kinds `CONSTRUCTOR, TYPE, PROPERTY, FUNCTION`, the second admits those
+four *plus* `EXTENSION_PROPERTY, EXTENSION_FUNCTION` — a superset. The split is achieved by
+overriding the row's `contentType` for extension rows (`DefaultPageCreator.kt:822`), so
+"Members & Extensions" is the same table with two more row kinds allowed through the filter.
+Each tab is emitted only if it would be non-empty — the first requires
+`containsRenderableMembers`, the second a non-empty `CallableExtensions` extra — so a page
+may carry both tabs, only one, or none. Reproducing this needs two different inputs: the
+member list, which comes from the classifier itself, and the extension index, which does
+not — since ADR-0001 the renderer builds that index itself from each callable's
+`receiverParameter` (G-02).
 
 **Anchor.** The `#fragment` part of a URL, addressing a specific member within a page.
 Derived from the DRI. Looks purely presentational, but is in fact part of the public
@@ -464,6 +488,7 @@ checking against this list before assuming.
 | Term | Senses |
 |---|---|
 | **Module** | (a) a Gradle subproject; (b) a Dokka documentation unit, `DModule`, one per generated site section; (c) `KdModule`, the KDM root; (d) a Kotlin *compilation module*, the scope of `internal` visibility. Usually (b)/(c), which mostly coincide. |
+| **Member** | (a) a declaration inside a classifier, § 2; (b) Dokka's `MemberPageNode`, which is also what a *top-level* function or property gets (`DefaultPageCreator.kt:85`) — so "member page" in `40-page-anatomy.md` (P-10, P-11) is broader than sense (a). |
 | **Fragment** | (a) `KdFragment`, i.e. a source set as a KDM container; (b) the `#anchor` part of a URL. § 5 vs § 4. |
 | **Documentable** | Dokka's model type (`Documentable`/`D*`). *Not* a synonym for "declaration" and not related to KDM's `KdDocumented`. |
 | **Documentation** | (a) the generated site; (b) the doc-comment content attached to a declaration (`KdDocumentationNode`). |
@@ -533,6 +558,8 @@ checking against this list before assuming.
 | Location provider | 4 |
 | Mapped annotation | 3 |
 | Mapped type | 3 |
+| Member | 2 |
+| `Members` / `Members & Extensions` (tabs) | 4 |
 | Multi-module generation | 4 |
 | Multiplatform (MPP) | 2 |
 | Nullability | 2 |

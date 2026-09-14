@@ -35,9 +35,9 @@ highest-risk group for a per-declaration serialized model.
 
 | ID | Feature | Implemented in | Layer | Consumer | Parity | Requires from KDM | Status | Refs |
 |---|---|---|---|---|---|---|---|---|
-| F-020 | Extensions listed on the receiver type's page | `ExtensionExtractorTransformer` | model | all | TODO | Receiver type on extensions + a reverse index, or renderer-side computation over the whole model | todo | Q-012 |
-| F-021 | "Inheritors" section on a classlike page | `InheritorsExtractorTransformer` | model | all | TODO | Supertype links + reverse index; cross-artifact inheritors are a known open problem (`KDM spec.md § Inheritance in the absence of a KDM artifact`) | todo | Q-012 |
-| F-022 | Inherited members shown on the subclass page | `InheritedEntriesDocumentableFilterTransformer`, `separateInheritedMembers` | model, config | all | TODO | Full supertype resolution, incl. types from outside the module | todo | Q-012 |
+| F-020 | Extensions listed on the receiver type's page | `ExtensionExtractorTransformer` | renderer | all | TODO | Forward edge only: `receiverParameter.type.classLikeId`. Reverse index built by the renderer over its whole input set | todo | ADR-0001, Q-024 |
+| F-021 | "Inheritors" section on a classlike page | `InheritorsExtractorTransformer` | renderer | all | TODO | Forward edge only: `superTypes[].classLikeId`. Reverse index built by the renderer over its whole input set; multi-module inheritors become possible | todo | ADR-0001 |
+| F-022 | Inherited members shown on the subclass page | `InheritedEntriesDocumentableFilterTransformer`, `separateInheritedMembers` | model, config | all | TODO | Already materialized into the artifact (`class.callables` lists `kotlin/Any/*`); needs a provenance marker to render "inherited from X" and to exclude foreign declarations from page generation | todo | ADR-0001, Q-023, Q-025 |
 | F-023 | Actual typealias handling | `ActualTypealiasAdder` | model | MPP | TODO | Typealias model (spec § Typealias) + expect/actual links | todo | |
 | F-024 | Same-name page merging (overloads) | `SameMethodNamePageMergerStrategy` | renderer | all | TODO | Stable declaration IDs that survive overload sets | todo | |
 | F-025 | DRI clash disambiguation | `ClashingDriIdentifier` | model | all | TODO | ID scheme + collision rules — directly a KDM concern | todo | Q-013 |
