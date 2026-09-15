@@ -1,0 +1,1655 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Dokka is an API documentation engine for Kotlin, performing the same function as the Javadoc tool for Java">
+      
+      
+        <meta name="author" content="JetBrains">
+      
+      
+        <link rel="canonical" href="https://github.com/Kotlin/dokka/developer_guide/plugin-development/sample-plugin-tutorial/">
+      
+      
+        <link rel="prev" href="../introduction/">
+      
+      
+        <link rel="next" href="../../community/slack/">
+      
+      
+      <link rel="icon" href="../../../favicon.svg">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.10">
+    
+    
+      
+        <title>Sample plugin tutorial - Dokka</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.7e359304.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../dokka_colors.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sample-plugin-tutorial" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Dokka" class="md-header__button md-logo" aria-label="Dokka" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Dokka
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Sample plugin tutorial
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9h-1.9M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69m-9.15 3.96h2.3L12 9l-1.15 3.65Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Kotlin/dokka" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    dokka
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../.." class="md-tabs__link">
+          
+  
+    
+  
+  Home
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="https://kotlinlang.org/docs/dokka-introduction.html" class="md-tabs__link">
+          
+  
+    
+  
+  User guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../introduction/" class="md-tabs__link">
+          
+  
+    
+  
+  Developer guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../community/slack/" class="md-tabs__link">
+          
+  
+    
+  
+  Community
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Dokka" class="md-nav__button md-logo" aria-label="Dokka" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Dokka
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Kotlin/dokka" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    dokka
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../.." class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Home
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://kotlinlang.org/docs/dokka-introduction.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    User guides
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Developer guides
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../community/slack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Community
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    User guides
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            User guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://kotlinlang.org/docs/dokka-introduction.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    None
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Developer guides
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Developer guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Developer guides
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Workflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Internals
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Internals
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/architecture_overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_2" id="__nav_3_3_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Data model
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Data model
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/data_model/documentable_model/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Documentables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/data_model/page_content/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Page & Content
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/data_model/extra/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Extra properties
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_3" id="__nav_3_3_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Extensions
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Extensions
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/extension_points/extension_points/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Extension points
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/extension_points/core_extension_points/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Core extension points
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/extension_points/base_plugin/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Base extensions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/extension_points/generation_implementations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Generation implementations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Plugin development
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            Plugin development
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Plugin development
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Sample plugin tutorial
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Sample plugin tutorial
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#preparing-the-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      Preparing the project
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extending-dokka" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extending Dokka
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debugging
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementing-plugin-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementing plugin logic
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#manual-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manual testing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unit-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unit testing
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Community
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Community
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../community/slack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Slack
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#preparing-the-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      Preparing the project
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extending-dokka" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extending Dokka
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debugging
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementing-plugin-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementing plugin logic
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#manual-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manual testing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unit-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unit testing
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="sample-plugin-tutorial">Sample plugin tutorial<a class="headerlink" href="#sample-plugin-tutorial" title="Permanent link">&para;</a></h1>
+<p>We'll go over creating a simple plugin that covers a very common use case: generate documentation for everything except 
+for members annotated with a custom <code>@Internal</code> annotation - they should be hidden.</p>
+<p>The plugin will be tested with the following code:</p>
+<div class="highlight"><pre><span></span><code><span class="k">package</span><span class="w"> </span><span class="nn">org.jetbrains.dokka.internal.test</span>
+
+<span class="kd">annotation</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">Internal</span>
+
+<span class="kd">fun</span><span class="w"> </span><span class="nf">shouldBeVisible</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
+
+<span class="nd">@Internal</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">shouldBeExcludedFromDocumentation</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
+</code></pre></div>
+<p>Expected behavior: function <code>shouldBeExcludedFromDocumentation</code> should not be visible in generated documentation.</p>
+<p>Full source code of this tutorial can be found in Dokka's examples under 
+<a href="https://github.com/Kotlin/dokka/examples/plugin/hide-internal-api">hide-internal-api</a>.</p>
+<h2 id="preparing-the-project">Preparing the project<a class="headerlink" href="#preparing-the-project" title="Permanent link">&para;</a></h2>
+<p>We'll begin by using <a href="https://github.com/Kotlin/dokka-plugin-template">Dokka plugin template</a>. Press the 
+<code>Use this template</code> button and 
+<a href="https://www.jetbrains.com/idea/guide/tutorials/working-with-gradle/opening-a-gradle-project/">open this project in IntelliJ IDEA</a>.</p>
+<p>First, let's rename the pre-made <code>template</code> package and <code>MyAwesomeDokkaPlugin</code> class to something of our own.</p>
+<p>For instance, package can be renamed to <code>org.example.dokka.plugin</code> and the class to <code>HideInternalApiPlugin</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">package</span><span class="w"> </span><span class="nn">org.example.dokka.plugin</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">org.jetbrains.dokka.plugability.DokkaPlugin</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">HideInternalApiPlugin</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DokkaPlugin</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="p">}</span>
+</code></pre></div>
+<p>After you do that, make sure to update the path to this class in
+<code>resources/META-INF/services/org.jetbrains.dokka.plugability.DokkaPlugin</code>:
+<div class="highlight"><pre><span></span><code><span class="n">org</span><span class="p">.</span><span class="na">example</span><span class="p">.</span><span class="na">dokka</span><span class="p">.</span><span class="na">plugin</span><span class="p">.</span><span class="na">HideInternalApiPlugin</span>
+</code></pre></div></p>
+<p>At this point you can also change project name in <code>settings.gradle.kts</code> (to <code>hide-internal-api</code> in our case)
+and <code>groupId</code> in <code>build.gradle.kts</code>. </p>
+<h2 id="extending-dokka">Extending Dokka<a class="headerlink" href="#extending-dokka" title="Permanent link">&para;</a></h2>
+<p>After preparing the project we can begin extending Dokka with our own extension.</p>
+<p>Having read through <a href="../../architecture/extension_points/core_extension_points/">Core extensions</a>, it's clear that we need
+a <code>PreMergeDocumentableTransformer</code> extension in order to filter out undesired documentables. </p>
+<p>Moreover, the article mentioned a convenient abstract transformer <code>SuppressedByConditionDocumentableFilterTransformer</code>
+which is perfect for our use case, so we can try to implement it.</p>
+<p>Create a new class, place it next to your plugin and implement the abstract method. You should end up with this:</p>
+<div class="highlight"><pre><span></span><code><span class="k">package</span><span class="w"> </span><span class="nn">org.example.dokka.plugin</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">org.jetbrains.dokka.base.transformers.documentables.SuppressedByConditionDocumentableFilterTransformer</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.jetbrains.dokka.model.Documentable</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.jetbrains.dokka.plugability.DokkaContext</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.jetbrains.dokka.plugability.DokkaPlugin</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">HideInternalApiPlugin</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DokkaPlugin</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">HideInternalApiTransformer</span><span class="p">(</span><span class="n">context</span><span class="p">:</span><span class="w"> </span><span class="n">DokkaContext</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">SuppressedByConditionDocumentableFilterTransformer</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">shouldBeSuppressed</span><span class="p">(</span><span class="n">d</span><span class="p">:</span><span class="w"> </span><span class="n">Documentable</span><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Now we somehow need to find all annotations applied to <code>d: Documentable</code> and see if our <code>@Internal</code> annotation is present.
+However, it's not very clear how to do that. What usually helps is stopping in debugger and having a look at what fields
+and values a given <code>Documentable</code> has.</p>
+<p>To do that, we'll need to register our extension point first, then we can publish our plugin and set the breakpoint.</p>
+<p>Having read through <a href="../../architecture/extension_points/extension_points/">Introduction to extensions</a>, we now know
+how to register our extensions:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">HideInternalApiPlugin</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DokkaPlugin</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">myFilterExtension</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">extending</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">plugin</span><span class="o">&lt;</span><span class="n">DokkaBase</span><span class="o">&gt;</span><span class="p">().</span><span class="na">preMergeDocumentableTransformer</span><span class="w"> </span><span class="n">providing</span><span class="w"> </span><span class="o">::</span><span class="n">HideInternalApiTransformer</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>At this point we're ready to debug our plugin locally, it should already work, but do nothing.</p>
+<h2 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">&para;</a></h2>
+<p>Please read through <a href="../../workflow/#debugging-dokka">Debugging Dokka</a>, it goes over the same steps in more detail
+and with examples. Below you will find rough instructions.</p>
+<p>First, let's begin by publishing our plugin to <code>mavenLocal()</code>. </p>
+<div class="highlight"><pre><span></span><code>./gradlew<span class="w"> </span>publishToMavenLocal
+</code></pre></div>
+<p>This will publish your plugin under the <code>groupId</code>, <code>artifactId</code> and <code>version</code> that you've specified in your
+<code>build.gradle.kts</code>. In our case it's <code>org.example:hide-internal-api:1.0-SNAPSHOT</code>.</p>
+<p>Open a debug project of your choosing that has Dokka configured, and add our plugin to dependencies:</p>
+<div class="highlight"><pre><span></span><code><span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">dokkaPlugin</span><span class="p">(</span><span class="s">&quot;org.example:hide-internal-api:1.0-SNAPSHOT&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Next, in that project let's run <code>dokkaHtml</code> with debug enabled:</p>
+<div class="highlight"><pre><span></span><code>./gradlew<span class="w"> </span>clean<span class="w"> </span>dokkaHtml<span class="w"> </span>-Dorg.gradle.debug<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--no-daemon
+</code></pre></div>
+<p>Switch to the plugin project, set a breakpoint inside <code>shouldBeSuppressed</code> and run jvm remote debug.</p>
+<p>If you've done everything correctly, it should stop in debugger and you should be able to observe the values contained
+inside <code>d: Documentable</code>.</p>
+<h2 id="implementing-plugin-logic">Implementing plugin logic<a class="headerlink" href="#implementing-plugin-logic" title="Permanent link">&para;</a></h2>
+<p>Now that we've stopped at our breakpoint, let's skip until we see <code>shouldBeExcludedFromDocumentation</code> function in the
+place of <code>d: Documentable</code> (observe the changing <code>name</code> property).</p>
+<p>Looking at what's inside the object, you might notice it has 3 values in <code>extra</code>, one of which is <code>Annotations</code>.
+Sounds like something we need!</p>
+<p>Having poked around, we come up with the following monstrosity of a code for determining if a given documentable has
+<code>@Internal</code> annotation (it can of course be refactored.. later):</p>
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">shouldBeSuppressed</span><span class="p">(</span><span class="n">d</span><span class="p">:</span><span class="w"> </span><span class="n">Documentable</span><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">annotations</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Annotations</span><span class="p">.</span><span class="na">Annotation</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="p">(</span><span class="n">d</span><span class="w"> </span><span class="k">as?</span><span class="w"> </span><span class="n">WithExtraProperties</span><span class="o">&lt;*&gt;</span><span class="p">)</span>
+<span class="w">            </span><span class="o">?.</span><span class="na">extra</span>
+<span class="w">            </span><span class="o">?.</span><span class="na">allOfType</span><span class="o">&lt;</span><span class="n">Annotations</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="w">            </span><span class="o">?.</span><span class="na">flatMap</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">directAnnotations</span><span class="p">.</span><span class="na">values</span><span class="p">.</span><span class="na">flatten</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
+<span class="w">            </span><span class="o">?:</span><span class="w"> </span><span class="n">emptyList</span><span class="p">()</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">annotations</span><span class="p">.</span><span class="na">any</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">isInternalAnnotation</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">isInternalAnnotation</span><span class="p">(</span><span class="n">annotation</span><span class="p">:</span><span class="w"> </span><span class="n">Annotations</span><span class="p">.</span><span class="na">Annotation</span><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">annotation</span><span class="p">.</span><span class="na">dri</span><span class="p">.</span><span class="na">packageName</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;org.jetbrains.dokka.internal.test&quot;</span>
+<span class="w">           </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">annotation</span><span class="p">.</span><span class="na">dri</span><span class="p">.</span><span class="na">classNames</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;Internal&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Seems like we're done with writing our plugin and can begin testing it manually.</p>
+<h2 id="manual-testing">Manual testing<a class="headerlink" href="#manual-testing" title="Permanent link">&para;</a></h2>
+<p>At this point, the implementation of your plugin should look roughly like this:</p>
+<div class="highlight"><pre><span></span><code><span class="k">package</span><span class="w"> </span><span class="nn">org.example.dokka.plugin</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">org.jetbrains.dokka.base.DokkaBase</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.jetbrains.dokka.base.transformers.documentables.SuppressedByConditionDocumentableFilterTransformer</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.jetbrains.dokka.model.Annotations</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.jetbrains.dokka.model.Documentable</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.jetbrains.dokka.model.properties.WithExtraProperties</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.jetbrains.dokka.plugability.DokkaContext</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.jetbrains.dokka.plugability.DokkaPlugin</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">HideInternalApiPlugin</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DokkaPlugin</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">myFilterExtension</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">extending</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">plugin</span><span class="o">&lt;</span><span class="n">DokkaBase</span><span class="o">&gt;</span><span class="p">().</span><span class="na">preMergeDocumentableTransformer</span><span class="w"> </span><span class="n">providing</span><span class="w"> </span><span class="o">::</span><span class="n">HideInternalApiTransformer</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">HideInternalApiTransformer</span><span class="p">(</span><span class="n">context</span><span class="p">:</span><span class="w"> </span><span class="n">DokkaContext</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">SuppressedByConditionDocumentableFilterTransformer</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">shouldBeSuppressed</span><span class="p">(</span><span class="n">d</span><span class="p">:</span><span class="w"> </span><span class="n">Documentable</span><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">annotations</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Annotations</span><span class="p">.</span><span class="na">Annotation</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span>
+<span class="w">            </span><span class="p">(</span><span class="n">d</span><span class="w"> </span><span class="k">as?</span><span class="w"> </span><span class="n">WithExtraProperties</span><span class="o">&lt;*&gt;</span><span class="p">)</span>
+<span class="w">                </span><span class="o">?.</span><span class="na">extra</span>
+<span class="w">                </span><span class="o">?.</span><span class="na">allOfType</span><span class="o">&lt;</span><span class="n">Annotations</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="w">                </span><span class="o">?.</span><span class="na">flatMap</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">directAnnotations</span><span class="p">.</span><span class="na">values</span><span class="p">.</span><span class="na">flatten</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
+<span class="w">                </span><span class="o">?:</span><span class="w"> </span><span class="n">emptyList</span><span class="p">()</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">annotations</span><span class="p">.</span><span class="na">any</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">isInternalAnnotation</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">isInternalAnnotation</span><span class="p">(</span><span class="n">annotation</span><span class="p">:</span><span class="w"> </span><span class="n">Annotations</span><span class="p">.</span><span class="na">Annotation</span><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">annotation</span><span class="p">.</span><span class="na">dri</span><span class="p">.</span><span class="na">packageName</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;org.jetbrains.dokka.internal.test&quot;</span>
+<span class="w">                </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">annotation</span><span class="p">.</span><span class="na">dri</span><span class="p">.</span><span class="na">classNames</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;Internal&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Bump plugin version in <code>gradle.build.kts</code>, publish it to maven local, open the debug project and run <code>dokkaHtml</code> 
+(without debug this time). It should work, you should <strong>not</strong> be able to see <code>shouldBeExcludedFromDocumentation</code>
+function in generated documentation.</p>
+<p>Manual testing is cool and all, but wouldn't it be better if we could somehow write unit tests for it? Indeed!</p>
+<h2 id="unit-testing">Unit testing<a class="headerlink" href="#unit-testing" title="Permanent link">&para;</a></h2>
+<p>You might've noticed that plugin template comes with a pre-made test class. Feel free to move it to another package
+and rename it.</p>
+<p>We are mostly interested in a single test case - functions annotated with <code>@Internal</code> should be hidden, while all other
+public functions should be visible.</p>
+<p>Plugin API comes with a set of convenient test utilities that are used to test Dokka itself, so it covers a wide range
+of use cases. When in doubt, see Dokka's tests for reference.</p>
+<p>Below you will find a complete unit test that passes, and the main takeaways below that.</p>
+<div class="highlight"><pre><span></span><code><span class="k">package</span><span class="w"> </span><span class="nn">org.example.dokka.plugin</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">kotlin.test.Test</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">kotlin.test.assertEquals</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">HideInternalApiPluginTest</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BaseAbstractTest</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">`should hide annotated functions`</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">configuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dokkaConfiguration</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">sourceSets</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">sourceSet</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">sourceRoots</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span><span class="s">&quot;src/main/kotlin/basic/Test.kt&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">hideInternalPlugin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HideInternalApiPlugin</span><span class="p">()</span>
+
+<span class="w">        </span><span class="n">testInline</span><span class="p">(</span>
+<span class="w">            </span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">            |/src/main/kotlin/basic/Test.kt</span>
+<span class="s">            |package org.jetbrains.dokka.internal.test</span>
+<span class="s">            |</span>
+<span class="s">            |annotation class Internal</span>
+<span class="s">            |</span>
+<span class="s">            |fun shouldBeVisible() {}</span>
+<span class="s">            |</span>
+<span class="s">            |@Internal</span>
+<span class="s">            |fun shouldBeExcludedFromDocumentation() {}</span>
+<span class="s">        &quot;&quot;&quot;</span><span class="p">.</span><span class="na">trimMargin</span><span class="p">(),</span>
+<span class="w">            </span><span class="n">configuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">configuration</span><span class="p">,</span>
+<span class="w">            </span><span class="n">pluginOverrides</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span><span class="n">hideInternalPlugin</span><span class="p">)</span>
+<span class="w">        </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">preMergeDocumentablesTransformationStage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">modules</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">testModule</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">modules</span><span class="p">.</span><span class="na">single</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;root&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">testPackage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">testModule</span><span class="p">.</span><span class="na">packages</span><span class="p">.</span><span class="na">single</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;org.jetbrains.dokka.internal.test&quot;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">packageFunctions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">testPackage</span><span class="p">.</span><span class="na">functions</span>
+<span class="w">                </span><span class="n">assertEquals</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">packageFunctions</span><span class="p">.</span><span class="na">size</span><span class="p">)</span>
+<span class="w">                </span><span class="n">assertEquals</span><span class="p">(</span><span class="s">&quot;shouldBeVisible&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">packageFunctions</span><span class="o">[</span><span class="m">0</span><span class="o">]</span><span class="p">.</span><span class="na">name</span><span class="p">)</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Note that the package of the tested code (inside <code>testInline</code> function) is the same as the package that we have
+hardcoded in our plugin. Make sure to change that to your own if you are following along, otherwise it will fail.</p>
+<p>Things to note and remember:</p>
+<ol>
+<li>Your test class should extend <code>BaseAbstractTest</code>, which contains base utility methods for testing.</li>
+<li>You can configure Dokka to your liking, enable some specific settings, configure 
+   <a href="https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets">source sets</a>, etc. All done via
+   <code>dokkaConfiguration</code> DSL.</li>
+<li><code>testInline</code> function is the main entry point for unit tests</li>
+<li>You can pass plugins to be used in a test, notice <code>pluginOverrides</code> parameter</li>
+<li>You can write asserts for different stages of generating documentation, the main ones being <code>Documentables</code> model
+   generation, <code>Pages</code> generation and <code>Output</code> generation. Since we implemented our plugin to work during
+   <code>PreMergeDocumentableTransformer</code> stage, we can test it on the same level (that is
+   <code>preMergeDocumentablesTransformationStage</code>).</li>
+<li>You will need to write asserts using the model of whatever stage you choose. For <code>Documentable</code> transformation stage 
+   it's <code>Documentable</code>, for <code>Page</code> generation stage you would have <code>Page</code> model, and for <code>Output</code> you can have <code>.html</code>
+   files that you will need to parse with <code>JSoup</code> (there are also utilities for that).</li>
+</ol>
+<hr />
+<p>Full source code of this tutorial can be found in Dokka's examples under
+<a href="https://github.com/Kotlin/dokka/tree/master/examples/plugin/hide-internal-api">hide-internal-api</a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023 JetBrains
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.expand", "navigation.tabs", "navigation.instant", "navigation.indexes", "navigation.top"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.8fd75fb4.min.js"></script>
+      
+    
+  </body>
+</html>
