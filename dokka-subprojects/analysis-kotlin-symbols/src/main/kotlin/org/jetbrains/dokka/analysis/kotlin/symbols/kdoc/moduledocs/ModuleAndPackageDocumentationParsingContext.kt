@@ -85,7 +85,7 @@ private fun resolveModuleDocumentationTextLink(
     }
 }
 
-private fun DRI.isPackageLink(): Boolean = classNames == null && callable == null
+private fun DRI.isPackageLink(): Boolean = packageName != null && classNames == null && callable == null
 
 context(_: KaSession)
 private fun resolveTopLevelCallableLink(link: String, contextPackageFQN: String?): DRI? {
