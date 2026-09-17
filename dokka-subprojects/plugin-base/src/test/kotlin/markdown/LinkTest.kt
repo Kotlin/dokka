@@ -1333,13 +1333,23 @@ class LinkTest : BaseAbstractTest() {
             |
             |Link to [example.Foo], [Bar], [topLevelFunction], and [topLevelProperty]
             |
-            |/src/main/kotlin/Testing.kt
+            |/src/main/kotlin/Declarations.kt
             |package example
             |
             |fun topLevelFunction() {}
             |val topLevelProperty = 0
             |class Foo
             |class Bar
+            |
+            |/src/main/kotlin/FunctionPackage.kt
+            |package example.topLevelFunction
+            |
+            |class FunctionPackage
+            |
+            |/src/main/kotlin/PropertyPackage.kt
+            |package example.topLevelProperty
+            |
+            |class PropertyPackage
         """.trimMargin(),
             configuration
         ) {
