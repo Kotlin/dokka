@@ -1382,6 +1382,55 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `should keep package link when module doc top-level function link is ambiguous`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    name = "moduleA"
+                    sourceRoots = listOf("src/")
+                    classpath = listOfNotNull(jvmStdlibPath)
+                    includes = listOf("module.md")
+                }
+            }
+        }
+        testInline(
+            """
+            |/module.md
+            |# Module root
+            |
+            |Link to [example.overloaded]
+            |
+            |# Package example
+            |
+            |Link to [overloaded]
+            |
+            |/src/main/kotlin/Overloads.kt
+            |package example
+            |
+            |fun overloaded(value: Int) {}
+            |fun overloaded(value: String) {}
+            |
+            |/src/main/kotlin/OverloadedPackage.kt
+            |package example.overloaded
+            |
+            |class OverloadedPackage
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                assertEquals(
+                    listOf("example.overloaded" to DRI("example.overloaded")),
+                    module.getAllLinkDRIFrom("root")
+                )
+                assertEquals(
+                    listOf("overloaded" to DRI("example.overloaded")),
+                    module.getAllLinkDRIFrom("example")
+                )
+            }
+        }
+    }
+
+    @Test
     fun `should resolve KDoc links in module and package documentation in source set without sources`() {
         val configuration = dokkaConfiguration {
             sourceSets {

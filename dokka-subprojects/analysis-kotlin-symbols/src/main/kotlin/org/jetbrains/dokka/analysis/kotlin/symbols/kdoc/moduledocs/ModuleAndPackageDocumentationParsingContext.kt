@@ -95,19 +95,11 @@ private fun resolveTopLevelCallableLink(link: String, contextPackageFQN: String?
             ?.resolveSymbols()
             ?.asSequence()
             ?.filter { it is KaFunctionSymbol || it is KaVariableSymbol }
-            ?.minWithOrNull(
-                compareBy<KaSymbol>(
-                    { candidate ->
-                        when (candidate) {
-                            is KaFunctionSymbol -> 1
-                            is KaVariableSymbol -> 2
-                            else -> 3
-                        }
-                    },
-                    { candidate -> getDRIFromSymbol(candidate).toString() }
-                )
-            )
-            ?.let(::getDRIFromSymbol)
+            ?.map(::getDRIFromSymbol)
+            ?.distinct()
+            ?.take(2)
+            ?.toList()
+            ?.singleOrNull()
     }
 }
 
