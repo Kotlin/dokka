@@ -79,6 +79,22 @@ class DefaultExternalLocationProviderTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `package level property link`() {
+        val locationProvider = getTestLocationProvider()
+        val dri = DRI(
+            "kotlin.coroutines",
+            null,
+            Callable(
+                name = "coroutineContext",
+                params = emptyList(),
+                isProperty = true
+            )
+        )
+
+        assertEquals("$kotlinLang/kotlin.coroutines/coroutine-context.html", locationProvider.resolve(dri))
+    }
+
+    @Test
     fun `should return null for class not in list`() {
         val locationProvider = getTestLocationProvider()
         val dri = DRI(
