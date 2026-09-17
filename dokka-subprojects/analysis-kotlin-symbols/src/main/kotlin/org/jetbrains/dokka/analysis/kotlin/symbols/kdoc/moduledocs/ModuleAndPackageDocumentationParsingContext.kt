@@ -95,8 +95,7 @@ private fun resolveTopLevelCallableLink(link: String, contextPackageFQN: String?
             ?.resolveSymbols()
             ?.asSequence()
             ?.filter { it is KaFunctionSymbol || it is KaVariableSymbol }
-            ?.sortedWith(moduleDocumentationCallableCandidatesComparator)
-            ?.firstOrNull()
+            ?.minWithOrNull(moduleDocumentationCallableCandidatesComparator)
             ?.let(::getDRIFromSymbol)
     }
 }
