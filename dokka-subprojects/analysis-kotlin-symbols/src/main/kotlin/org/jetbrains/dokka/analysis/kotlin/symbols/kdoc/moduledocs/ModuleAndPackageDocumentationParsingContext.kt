@@ -58,10 +58,13 @@ internal fun ModuleAndPackageDocumentationParsingContext(
             Module -> "module documentation"
             Package -> "'${fragment.name}' package documentation"
         }
+        val resolvedLinks = mutableMapOf<String, DRI?>()
         MarkdownParser(
             externalDri = { link ->
-                analyze(sourceModule) {
-                    resolveModuleDocumentationTextLink(link, contextPackageFQN, locationInformation, logger, sourceSet)
+                resolvedLinks.getOrPut(link) {
+                    analyze(sourceModule) {
+                        resolveModuleDocumentationTextLink(link, contextPackageFQN, locationInformation, logger, sourceSet)
+                    }
                 }
             },
             sourceLocation
