@@ -95,7 +95,18 @@ private fun resolveTopLevelCallableLink(link: String, contextPackageFQN: String?
             ?.resolveSymbols()
             ?.asSequence()
             ?.filter { it is KaFunctionSymbol || it is KaVariableSymbol }
-            ?.minWithOrNull(moduleDocumentationCallableCandidatesComparator)
+            ?.minWithOrNull(
+                compareBy<KaSymbol>(
+                    { candidate ->
+                        when (candidate) {
+                            is KaFunctionSymbol -> 1
+                            is KaVariableSymbol -> 2
+                            else -> 3
+                        }
+                    },
+                    { candidate -> getDRIFromSymbol(candidate).toString() }
+                )
+            )
             ?.let(::getDRIFromSymbol)
     }
 }
@@ -124,12 +135,4 @@ private fun createKDocLink(link: String, contextPackageFQN: String?): KDocLink? 
 
     val kDoc = dummyFile.children.filterIsInstance<KDoc>().single()
     return kDoc.getDefaultSection().children.filterIsInstance<KDocLink>().singleOrNull()
-}
-
-private val moduleDocumentationCallableCandidatesComparator: Comparator<KaSymbol> = compareBy {
-    when (it) {
-        is KaFunctionSymbol -> 1
-        is KaVariableSymbol -> 2
-        else -> 3
-    }
 }
