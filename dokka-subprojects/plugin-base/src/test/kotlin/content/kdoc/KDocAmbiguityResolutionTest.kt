@@ -202,57 +202,57 @@ class KDocAmbiguityResolutionTest : BaseAbstractTest() {
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
 
-                        @Test
-                        fun `ambiguous link to top-level function should prefer callable over package`() {
-                            testInline(
-                                """
-                                |/src/main/kotlin/test/Usage.kt
-                                |package test
-                                |/**
-                                | * [other]
-                                | */
-                                |fun usage() {}
-                                |
-                                |/src/main/kotlin/test/Other.kt
-                                |package test
-                                |fun other() {}
-                                |
-                                |/src/main/kotlin/test/other/Marker.kt
-                                |package test.other
-                                |class Marker
-                            """.trimIndent(), testConfiguration
-                            ) {
-                                pagesTransformationStage = { module ->
-                                    val usagePage = module.findTestType("test", "usage") {
-                                        it.dri.toString() == "[test//usage/#/PointingToDeclaration/]"
-                                    }
-                                    usagePage.content.assertNode {
-                                        group {
-                                            header(1) { +"usage" }
-                                        }
+    @Test
+    fun `ambiguous link to top-level function should prefer callable over package`() {
+        testInline(
+            """
+            |/src/main/kotlin/test/Usage.kt
+            |package test
+            |/**
+            | * [other]
+            | */
+            |fun usage() {}
+            |
+            |/src/main/kotlin/test/Other.kt
+            |package test
+            |fun other() {}
+            |
+            |/src/main/kotlin/test/other/Marker.kt
+            |package test.other
+            |class Marker
+        """.trimIndent(), testConfiguration
+        ) {
+            pagesTransformationStage = { module ->
+                val usagePage = module.findTestType("test", "usage") {
+                    it.dri.toString() == "[test//usage/#/PointingToDeclaration/]"
+                }
+                usagePage.content.assertNode {
+                    group {
+                        header(1) { +"usage" }
+                    }
 
-                                        divergentGroup {
-                                            divergentInstance {
-                                                group2 {
-                                                    +"fun "
-                                                    link { +"usage" }
-                                                    +"()"
-                                                }
-                                                group4 {
-                                                    link {
-                                                        check {
-                                                            assertEquals(
-                                                                DRI("test", null, Callable("other", null, emptyList())),
-                                                                (this as ContentDRILink).address
-                                                            )
-                                                        }
-                                                        +"other"
-                                                    }
-                                                }
-                                            }
-                                        }
+                    divergentGroup {
+                        divergentInstance {
+                            group2 {
+                                +"fun "
+                                link { +"usage" }
+                                +"()"
+                            }
+                            group4 {
+                                link {
+                                    check {
+                                        assertEquals(
+                                            DRI("test", null, Callable("other", null, emptyList())),
+                                            (this as ContentDRILink).address
+                                        )
                                     }
+                                    +"other"
                                 }
                             }
                         }
