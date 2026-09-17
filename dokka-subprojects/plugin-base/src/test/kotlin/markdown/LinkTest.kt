@@ -1327,17 +1327,29 @@ class LinkTest : BaseAbstractTest() {
             |/module.md
             |# Module root
             |
-            |Link to [example.Foo]
+            |Link to [example.Foo], [example.topLevelFunction], and [example.topLevelProperty]
             |
             |# Package example
             |
-            |Link to [example.Foo] and [Bar]
+            |Link to [example.Foo], [Bar], [topLevelFunction], and [topLevelProperty]
             |
-            |/src/main/kotlin/Testing.kt
+            |/src/main/kotlin/Declarations.kt
             |package example
             |
+            |fun topLevelFunction() {}
+            |val topLevelProperty = 0
             |class Foo
             |class Bar
+            |
+            |/src/main/kotlin/FunctionPackage.kt
+            |package example.topLevelFunction
+            |
+            |class FunctionPackage
+            |
+            |/src/main/kotlin/PropertyPackage.kt
+            |package example.topLevelProperty
+            |
+            |class PropertyPackage
         """.trimMargin(),
             configuration
         ) {
@@ -1345,6 +1357,11 @@ class LinkTest : BaseAbstractTest() {
                 assertEquals(
                     listOf(
                         "example.Foo" to DRI("example", "Foo"),
+                        "example.topLevelFunction" to DRI("example", callable = Callable("topLevelFunction", params = emptyList())),
+                        "example.topLevelProperty" to DRI(
+                            "example",
+                            callable = Callable("topLevelProperty", params = emptyList(), isProperty = true)
+                        ),
                     ),
                     module.getAllLinkDRIFrom("root")
                 )
@@ -1352,7 +1369,61 @@ class LinkTest : BaseAbstractTest() {
                     listOf(
                         "example.Foo" to DRI("example", "Foo"),
                         "Bar" to DRI("example", "Bar"),
+                        "topLevelFunction" to DRI("example", callable = Callable("topLevelFunction", params = emptyList())),
+                        "topLevelProperty" to DRI(
+                            "example",
+                            callable = Callable("topLevelProperty", params = emptyList(), isProperty = true)
+                        ),
                     ),
+                    module.getAllLinkDRIFrom("example")
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should keep package link when module doc top-level function link is ambiguous`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    name = "moduleA"
+                    sourceRoots = listOf("src/")
+                    classpath = listOfNotNull(jvmStdlibPath)
+                    includes = listOf("module.md")
+                }
+            }
+        }
+        testInline(
+            """
+            |/module.md
+            |# Module root
+            |
+            |Link to [example.overloaded]
+            |
+            |# Package example
+            |
+            |Link to [overloaded]
+            |
+            |/src/main/kotlin/Overloads.kt
+            |package example
+            |
+            |fun overloaded(value: Int) {}
+            |fun overloaded(value: String) {}
+            |
+            |/src/main/kotlin/OverloadedPackage.kt
+            |package example.overloaded
+            |
+            |class OverloadedPackage
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                assertEquals(
+                    listOf("example.overloaded" to DRI("example.overloaded")),
+                    module.getAllLinkDRIFrom("root")
+                )
+                assertEquals(
+                    listOf("overloaded" to DRI("example.overloaded")),
                     module.getAllLinkDRIFrom("example")
                 )
             }

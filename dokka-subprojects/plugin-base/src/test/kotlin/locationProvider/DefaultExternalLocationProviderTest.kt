@@ -65,6 +65,19 @@ class DefaultExternalLocationProviderTest : BaseAbstractTest() {
         assertEquals("$kotlinLang/kotlin-stdlib/[JS root]/long-array.html", locationProvider.resolve(dri))
     }
 
+    // KT-89467
+    @Test
+    fun `package level function link`() {
+        val locationProvider = getTestLocationProvider()
+        val dri = DRI(
+            "kotlin.coroutines",
+            null,
+            Callable("suspendCoroutine", null, emptyList())
+        )
+
+        assertEquals("$kotlinLang/kotlin.coroutines/suspend-coroutine.html", locationProvider.resolve(dri))
+    }
+
     @Test
     fun `should return null for class not in list`() {
         val locationProvider = getTestLocationProvider()
