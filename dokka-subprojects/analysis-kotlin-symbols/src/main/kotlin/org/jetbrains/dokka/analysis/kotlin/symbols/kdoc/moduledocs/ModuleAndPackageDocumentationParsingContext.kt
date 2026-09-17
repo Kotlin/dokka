@@ -103,8 +103,7 @@ private fun resolveTopLevelCallableLink(link: String, contextPackageFQN: String?
 
 context(_: KaSession)
 private fun createKDocLink(link: String, contextPackageFQN: String?): KDocLink? {
-    val currentModule: KaSourceModule = useSiteModule as? KaSourceModule
-        ?: throw IllegalStateException("Resolving KDoc links can be done only in a source module, not $useSiteModule")
+    val currentModule: KaSourceModule = useSiteModule as? KaSourceModule ?: return null
 
     val dummyFileText = if (!contextPackageFQN.isNullOrBlank()) """
     package $contextPackageFQN
