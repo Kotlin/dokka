@@ -1327,15 +1327,17 @@ class LinkTest : BaseAbstractTest() {
             |/module.md
             |# Module root
             |
-            |Link to [example.Foo]
+            |Link to [example.Foo], [example.topLevelFunction], and [example.topLevelProperty]
             |
             |# Package example
             |
-            |Link to [example.Foo] and [Bar]
+            |Link to [example.Foo], [Bar], [topLevelFunction], and [topLevelProperty]
             |
             |/src/main/kotlin/Testing.kt
             |package example
             |
+            |fun topLevelFunction() {}
+            |val topLevelProperty = 0
             |class Foo
             |class Bar
         """.trimMargin(),
@@ -1345,6 +1347,11 @@ class LinkTest : BaseAbstractTest() {
                 assertEquals(
                     listOf(
                         "example.Foo" to DRI("example", "Foo"),
+                        "example.topLevelFunction" to DRI("example", callable = Callable("topLevelFunction", params = emptyList())),
+                        "example.topLevelProperty" to DRI(
+                            "example",
+                            callable = Callable("topLevelProperty", params = emptyList(), isProperty = true)
+                        ),
                     ),
                     module.getAllLinkDRIFrom("root")
                 )
@@ -1352,6 +1359,11 @@ class LinkTest : BaseAbstractTest() {
                     listOf(
                         "example.Foo" to DRI("example", "Foo"),
                         "Bar" to DRI("example", "Bar"),
+                        "topLevelFunction" to DRI("example", callable = Callable("topLevelFunction", params = emptyList())),
+                        "topLevelProperty" to DRI(
+                            "example",
+                            callable = Callable("topLevelProperty", params = emptyList(), isProperty = true)
+                        ),
                     ),
                     module.getAllLinkDRIFrom("example")
                 )

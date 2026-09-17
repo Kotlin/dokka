@@ -181,9 +181,9 @@ private fun resolveToSymbol(kDocLink: KDocLink): KaSymbol? {
 private var linkCandidatesComparator: Comparator<KaSymbol> = compareBy {
     when (it) {
         is KaClassifierSymbol -> 1
-        is KaPackageSymbol -> 2
-        is KaFunctionSymbol -> 3
-        is KaVariableSymbol -> 4
+        is KaFunctionSymbol -> 2
+        is KaVariableSymbol -> 3
+        is KaPackageSymbol -> 4
         else -> 5
     }
 }
