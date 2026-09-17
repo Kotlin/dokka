@@ -84,7 +84,7 @@ private fun logUnresolvedLink(
 context(_: KaSession)
 internal fun resolveKDocTextLinkToDRI(link: String, contextPackageFQN: String? = null): DRI? {
     val kDocLink = createKDocLink(link, contextPackageFQN)
-    return kDocLink?.let { resolveKDocLinkToDRI(it, textLinkCandidatesComparator) }
+    return kDocLink?.let { resolveKDocLinkToDRI(it) }
 }
 
 /**
@@ -102,7 +102,7 @@ internal fun resolveKDocTextLinkToSymbol(link: String): KaSymbol? {
         /**
          *  Get [KaSession] is associated with [a dangling module][org.jetbrains.kotlin.analysis.api.projectStructure.KaDanglingFileModule]
          */
-        analyze(kDocLink) { resolveToSymbol(it, textLinkCandidatesComparator) }
+        analyze(kDocLink) { resolveToSymbol(it) }
     }
 }
 
@@ -151,10 +151,7 @@ private fun createKDocLink(link: String, contextPackageFQN: String?): KDocLink? 
  *
  * @return [DRI] or null if the [kDocLink] is unresolved
  */
-private fun resolveKDocLinkToDRI(
-    kDocLink: KDocLink,
-    candidatesComparator: Comparator<KaSymbol> = linkCandidatesComparator
-): DRI? {
+private fun resolveKDocLinkToDRI(kDocLink: KDocLink): DRI? {
     /**
      * [kDocLink] can belong to [a dangling module][org.jetbrains.kotlin.analysis.api.projectStructure.KaDanglingFileModule]
      * or [a source module][org.jetbrains.kotlin.analysis.api.projectStructure.KaSourceModule]
@@ -163,20 +160,17 @@ private fun resolveKDocLinkToDRI(
      * [analyze] should be called to get a corresponding instance of [KaSession]
      */
     analyze(kDocLink) {
-        val linkedSymbol = resolveToSymbol(kDocLink, candidatesComparator)
+        val linkedSymbol = resolveToSymbol(kDocLink)
         return if (linkedSymbol == null) null
         else getDRIFromSymbol(linkedSymbol)
     }
 }
 
 context(_: KaSession)
-private fun resolveToSymbol(
-    kDocLink: KDocLink,
-    candidatesComparator: Comparator<KaSymbol> = linkCandidatesComparator
-): KaSymbol? {
+private fun resolveToSymbol(kDocLink: KDocLink): KaSymbol? {
     val lastNameSegment = kDocLink.children.filterIsInstance<KDocName>().lastOrNull()
     @OptIn(KaExperimentalApi::class, KtExperimentalApi::class)
-    return lastNameSegment?.resolveSymbols()?.sortedWith(candidatesComparator)?.firstOrNull()
+    return lastNameSegment?.resolveSymbols()?.sortedWith(linkCandidatesComparator)?.firstOrNull()
 }
 
 /**
@@ -190,16 +184,6 @@ private var linkCandidatesComparator: Comparator<KaSymbol> = compareBy {
         is KaPackageSymbol -> 2
         is KaFunctionSymbol -> 3
         is KaVariableSymbol -> 4
-        else -> 5
-    }
-}
-
-private val textLinkCandidatesComparator: Comparator<KaSymbol> = compareBy {
-    when (it) {
-        is KaClassifierSymbol -> 1
-        is KaFunctionSymbol -> 2
-        is KaVariableSymbol -> 3
-        is KaPackageSymbol -> 4
         else -> 5
     }
 }
