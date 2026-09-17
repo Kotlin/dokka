@@ -328,6 +328,48 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `link to constructor parameter`() {
+        testInline(
+            """
+            |/src/main/kotlin/Test.kt
+            |package example
+            |
+            |class Test {
+            |    /**
+            |     * Link to [data]
+            |     */
+            |    constructor(data: String)
+            |}
+            |
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val constructorDocs = (module.packages.flatMap { it.classlikes }.first() as DClass)
+                    .constructors
+                    .first()
+                    .documentation
+                    .values
+                    .first()
+                val link = constructorDocs.dfs { it is DocumentationLink } as DocumentationLink
+
+                assertEquals(
+                    DRI(
+                        packageName = "example",
+                        classNames = "Test",
+                        callable = Callable(
+                            "Test",
+                            params = listOf(TypeConstructor("kotlin.String", emptyList()))
+                        ),
+                        target = PointingToCallableParameters(0)
+                    ),
+                    link.dri
+                )
+            }
+        }
+    }
+
+    @Test
     fun `link should be resolved in @constructor section`() {
         testInline(
             """
