@@ -36,7 +36,9 @@ public open class DefaultExternalLocationProvider(
         }.orEmpty()
 
         val docWithModule = docURL + modulePart
-        val classNamesChecked = classNames ?: return "$docWithModule${packageName ?: ""}/index$extension"
+        val classNamesChecked = classNames ?: return callable?.let {
+            "$docWithModule${packageName ?: ""}/${identifierToFilename(it.name)}$extension"
+        } ?: "$docWithModule${packageName ?: ""}/index$extension"
         val classLink = (listOfNotNull(packageName) + classNamesChecked.split('.'))
             .joinToString("/", transform = ::identifierToFilename)
 
