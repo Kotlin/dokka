@@ -41,6 +41,44 @@ class ResolveLinkCommandResolutionTest : MultiModuleAbstractTest() {
         }
 
         val contentFile = setup(outputDirectory, link)
+        // The page the link points to must actually exist, otherwise it is treated as a
+        // broken link to a symbol excluded from the documentation (see #4448).
+        outputDirectory.resolve("module2/package2/-sample/index.html")
+            .also { assertTrue(it.parentFile.mkdirs()) }
+            .writeText("<html></html>")
+        val configuration = createConfiguration(outputDirectory)
+
+        testFromData(configuration, useOutputLocationFromConfig = true) {
+            finishProcessingSubmodules = {
+                assertHtmlEqualsIgnoringWhitespace(expected, contentFile.readText())
+            }
+        }
+    }
+
+    @Test
+    fun `should not resolve link to a symbol excluded from the documentation`(@TempDir outputDirectory: File) {
+        // The package is documented (present in the package-list), but the symbol itself is
+        // excluded, so its page is never generated. The link must not be rendered as a broken
+        // link to a non-existent page (#4448).
+        val testedDri = DRI(
+            packageName = "package2",
+            classNames = "Excluded",
+        )
+        val link = createHTML().templateCommand(ResolveLinkCommand(testedDri)) {
+            span {
+                +"Excluded"
+            }
+        }
+
+        val expected = createHTML().span {
+            attributes["data-unresolved-link"] = testedDri.toString()
+            span {
+                +"Excluded"
+            }
+        }
+
+        val contentFile = setup(outputDirectory, link)
+        // Note: no page file is created for `package2/-excluded`, mimicking an excluded symbol.
         val configuration = createConfiguration(outputDirectory)
 
         testFromData(configuration, useOutputLocationFromConfig = true) {

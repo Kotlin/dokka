@@ -61,6 +61,11 @@ class ResolveLinkGfmCommandResolutionTest : MultiModuleAbstractTest() {
 
         indexMd.writeText(indexMdContent)
         packageList.writeText(mockedPackageListForPackages(RecognizedLinkFormat.DokkaGFM, "package2"))
+        // The page the link points to must actually exist, otherwise it is treated as a
+        // broken link to a symbol excluded from the documentation (see #4448).
+        innerModule2.resolve("package2/-sample/index.md")
+            .also { assertTrue(it.parentFile.mkdirs()) }
+            .writeText("")
 
         testFromData(
             configuration,
