@@ -225,6 +225,29 @@ class CompanionAsJavaTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `interface companion should not be rendered when companion is not rendered`() {
+        testInline(
+            """
+            |/src/main/kotlin/kotlinAsJavaPlugin/sample.kt
+            |package kotlinAsJavaPlugin
+            |interface MyInterface {
+            |    companion object $COMPANION_NAME {
+            |       @JvmStatic fun staticFun(): String = ""
+            |    }
+            |}
+        """.trimMargin(),
+            configuration,
+        ) {
+            documentablesTransformationStage = { module ->
+                val parentInterface = module.packages.flatMap { it.classlikes }
+                    .firstOrNull { it.name == "MyInterface" } as DInterface
+
+                assertCompanionNotRendered(parentInterface)
+            }
+        }
+    }
+
+    @Test
     fun `companion object with nested classes is rendered`() {
         testInline(
             """
@@ -521,7 +544,7 @@ private fun assertCompanionRendered(parentClass: DClass) {
     )
 }
 
-private fun assertCompanionNotRendered(parentClass: DClass) {
+private fun <T> assertCompanionNotRendered(parentClass: T) where T : DClasslike, T : WithCompanion {
     assertNull(parentClass.companion, "Companion should be null")
     assertTrue(
         parentClass.classlikes.none { it.name == COMPANION_NAME },
