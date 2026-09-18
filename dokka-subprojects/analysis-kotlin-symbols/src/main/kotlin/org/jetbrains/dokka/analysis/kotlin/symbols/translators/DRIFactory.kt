@@ -109,11 +109,11 @@ internal fun getDRIFromPackage(symbol: KaPackageSymbol): DRI =
 
 context(_: KaSession)
 internal fun getDRIFromValueParameter(symbol: KaValueParameterSymbol): DRI {
-    val function = (symbol.containingSymbol as? KaFunctionSymbol)
+    val callable = (symbol.containingSymbol as? KaFunctionSymbol)
         ?: throw IllegalStateException("Containing symbol is null for value parameter")
-    val index = function.valueParameters.indexOfFirst { it.name == symbol.name }
-    val funDRI = getDRIFromFunction(function)
-    return funDRI.copy(target = PointingToCallableParameters(index))
+    val index = callable.valueParameters.indexOfFirst { it.name == symbol.name }
+    val callableDri = getDRIFromSymbol(callable)
+    return callableDri.copy(target = PointingToCallableParameters(index))
 }
 
 @OptIn(KaExperimentalApi::class)
