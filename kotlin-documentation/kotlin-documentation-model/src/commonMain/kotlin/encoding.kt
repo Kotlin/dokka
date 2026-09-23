@@ -10,6 +10,11 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.protobuf.ProtoBuf
 import kotlinx.serialization.protobuf.schema.ProtoBufSchemaGenerator
 
+// The canonical class discriminator is `kind`, for both the compact and the pretty form.
+private val compactJson = Json {
+    classDiscriminator = "kind"
+}
+
 @OptIn(ExperimentalSerializationApi::class)
 private val prettyJson = Json {
     prettyPrint = true
@@ -18,11 +23,11 @@ private val prettyJson = Json {
 }
 
 public fun KdFragments.encodeToJson(prettyPrint: Boolean): String {
-    val json = if (prettyPrint) prettyJson else Json.Default
+    val json = if (prettyPrint) prettyJson else compactJson
     return json.encodeToString(KdFragments.serializer(), this)
 }
 public fun KdFragment.encodeToJson(prettyPrint: Boolean): String {
-    val json = if (prettyPrint) prettyJson else Json.Default
+    val json = if (prettyPrint) prettyJson else compactJson
     return json.encodeToString(KdFragment.serializer(), this)
 }
 

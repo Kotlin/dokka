@@ -66,9 +66,21 @@ for the language itself see `https://kotlinlang.org/docs/`.
 declarations. Unlike a directory, it is declared in the source file, so package
 structure and file structure need not agree.
 
+**Fully qualified name (FQN).** The path to a declaration through its namespaces: the
+package, then the chain of enclosing classifiers, then the name itself —
+`kotlinx.coroutines.Job.cancel`. It is the only form of addressing that every tool and
+every ecosystem understands the same way — the JDK, Android, Apple, any library
+registry — which is why cross-library links are built on it (F-062, G-06). But it is
+strictly weaker than a signature: it does not separate overloads (`cancel(Int)` and
+`cancel(String)` share one fully qualified name), does not separate a property from its
+accessors, says nothing about an extension receiver, and cannot point *inside* a
+declaration — at a type parameter, say. Anything needing that precision is addressed by
+an identifier (DRI in Dokka, `KdCallableId` in KDM) rather than by a name; see
+*addressing levels* in § 4.
+
 **Classifier.** Umbrella term for declarations that introduce a type: class,
-interface, object, enum class, annotation class, type alias. KDM uses this term
-directly (`KdClassifier`).
+interface, object, enum class, annotation class, type alias. KDM covers exactly this
+set, but calls it `KdClassLike` — see *classlike* below.
 
 **Object.** In Kotlin, `object` declares a singleton — a class with exactly one
 instance, declared and named in one step. A **companion object** is a singleton tied
@@ -111,6 +123,27 @@ declaration, as the aliased type, or both. See F-023.
 
 **Enum entry.** One of the fixed named instances of an `enum class`. Structurally
 between a declaration and a value, which is why it gets its own handling.
+
+**Classlike.** A classifier that can *have a body*, and therefore members: class,
+interface, object, enum class, annotation class (and Java's record). Dokka's word —
+`DClasslike`, `ClasslikePageNode`, and the page kind P-05 in `40-page-anatomy.md`.
+Not exactly interchangeable with *classifier*: Dokka's `DClasslike` excludes type
+aliases, KDM's `KdClassLike` includes `KdTypealias`, so in KDM the two words mean the
+same set and in Dokka they do not — see § 8.
+
+**Callable.** A declaration you call or read, as opposed to one that introduces a
+type: a function, a constructor, a property, a Java field, an enum entry. Classlike
+and callable are the two halves of the declaration split KDM is built on
+(`KdDeclaration` → `KdClassLike` | `KdCallable`). What makes callables one family is
+a shared shape rather than a shared syntax — value parameters, an optional receiver,
+context parameters, a return type, thrown exceptions — which is exactly the field set
+`KdCallable` declares, so the renderer can produce a signature without knowing which
+kind it has. Dokka has no such common supertype (`DFunction` and `DProperty` are
+siblings under `Documentable`); it uses the word only for `DRI.callable`, the
+`Callable(name, receiver, params, isProperty, …)` part of an identifier whose job is
+to tell overloads apart — KDM's counterpart is `KdCallableId`, with a `hash` field for
+the same purpose. Treating an enum entry as a callable is a modelling choice, not a
+fact about Kotlin — see Q-020.
 
 **Value class.** A class that the compiler erases to its single underlying value
 where possible. Relevant because its representation differs between Kotlin and JVM
@@ -277,6 +310,19 @@ generated site. Two consequences: DRIs can *clash* (hence `ClashingDriIdentifier
 and changing the scheme breaks every existing inbound link to the documentation. KDM
 needs an equivalent — gap G-01, question Q-013.
 
+**`DRI.extra`.** The last DRI field: an optional string holding a JSON key-to-value map
+(`DRIExtraContainer`) whose keys are the qualified names of `DRIExtraProperty` objects.
+An open bag for what the other five fields cannot express. In practice Dokka defines
+exactly one such key, `EnumEntryDRIExtra`: an enum entry is encoded into `classNames` as
+`TestEnum.E1`, which the other fields cannot tell apart from a nested classifier, so the
+marker in `extra` is what says the last segment is an entry and not a class. Its readers
+are the ones building URLs — it is why `JavadocExternalLocationProvider` emits
+`TestEnum.html#E1` rather than `TestEnum.E1.html`
+(`JavadocExternalLocationProvider.kt:37`). The lesson for KDM: `extra` is not model
+extensibility but a sign that the identifier's fields do not cover one special case —
+`generation/kdp/ids.kt` handles it by hand, splitting `classNames` back into a class and
+an entry name (G-01).
+
 **Location provider / resolver.** Turns a DRI into a URL. Internal resolvers handle
 declarations in the current build; *external* resolvers handle links into other
 libraries' documentation, including Javadoc-format targets.
@@ -302,6 +348,21 @@ not — since ADR-0001 the renderer builds that index itself from each callable'
 **Anchor.** The `#fragment` part of a URL, addressing a specific member within a page.
 Derived from the DRI. Looks purely presentational, but is in fact part of the public
 URL contract — see the warning at the end of the feature registry.
+
+**Addressing levels (FQN → DRI → URL).** Three different things that are easy to
+conflate, because all three look like "the path to a declaration".
+A *fully qualified name* (§ 2) carries names only: portable across ecosystems, but blind
+to overloads. A *DRI* is names plus disambiguation — parameter types and receiver inside
+`callable`, plus `target` and `extra`; the full identity of a declaration within the
+model. A *URL* is already a renderer decision: name mangling (`Job` → `-job`), grouping
+(overloads collapse onto one page, which is why an anchor is needed at all), file
+layout — the same DRI yields different URLs in the HTML, GFM and Javadoc outputs.
+Hence two mechanisms for external links rather than one: when the target has KDM, a link
+is *resolved* by identifier — exactly, overloads included; when it does not (the JDK, an
+old jar), all there is is a fully qualified name plus a `package-list`-shaped index, and
+the URL has to be *constructed* from the format's known convention — which works for
+classes and uniquely named methods and breaks exactly where a fully qualified name is
+weaker than a DRI, that is, on overloads (G-06).
 
 **Preprocessor (`htmlPreprocessors`).** An HTML-stage extension point used to inject
 or rewrite output — how `plugin-mathjax` and `plugin-versioning` attach themselves.
@@ -371,10 +432,10 @@ multiplatform and `kotlinx.serialization`-annotated. The main families:
 | Family | Members |
 |---|---|
 | Containers | `KdModule`, `KdFragment`, `KdPackage` |
-| Declarations | `KdDeclaration` (sealed) → `KdClassifier` (`KdClass`, `KdTypealias`), `KdCallable` (`KdFunction`, `KdConstructor`, `KdVariable`) |
+| Declarations | `KdDeclaration` (sealed) → `KdClassLike` (`KdClass`, `KdTypealias`), `KdCallable` (`KdFunction`, `KdConstructor`, `KdVariable`) |
 | Parameters | `KdParameter` (sealed) → `KdValueParameter`, `KdReceiverParameter`, `KdContextParameter`; plus `KdTypeParameter` |
-| Types | `KdType` (sealed) → `KdClassifierType`, `KdFunctionalType`, `KdTypeParameterType`, `KdUnresolvedType`; `KdTypeProjection` |
-| Identity | `KdClassifierId`, `KdCallableId` |
+| Types | `KdType` (sealed) → `KdClassLikeType`, `KdFunctionalType`, `KdTypeParameterType`, `KdUnresolvedType`; `KdTypeProjection` |
+| Identity | `KdClassLikeId`, `KdCallableId` |
 | Documentation | `KdDocumentationNode` (sealed), `KdLinkReference`, `KdReturns`, `KdThrows` |
 | Annotations & constants | `KdAnnotation`, `KdAnnotationArgument`, `KdAnnotationArgumentValue`, `KdConstValue` |
 | External | `KdExternalModule`, `KdExternalFragment`, `KdExternalLink` (work in progress) |
@@ -489,6 +550,8 @@ checking against this list before assuming.
 |---|---|
 | **Module** | (a) a Gradle subproject; (b) a Dokka documentation unit, `DModule`, one per generated site section; (c) `KdModule`, the KDM root; (d) a Kotlin *compilation module*, the scope of `internal` visibility. Usually (b)/(c), which mostly coincide. |
 | **Member** | (a) a declaration inside a classifier, § 2; (b) Dokka's `MemberPageNode`, which is also what a *top-level* function or property gets (`DefaultPageCreator.kt:85`) — so "member page" in `40-page-anatomy.md` (P-10, P-11) is broader than sense (a). |
+| **Classlike** | (a) Dokka's `DClasslike` — class, interface, object, enum, annotation; a type alias is *not* one; (b) KDM's `KdClassLike`, which *does* include `KdTypealias` and is therefore a synonym of "classifier"; (c) "classlike page", the page kind P-05. |
+| **Callable** | (a) KDM's `KdCallable` — function, constructor, property/field, enum entry: every declaration that is not a classlike; (b) Dokka's `Callable` and the `DRI.callable` field, which are the overload-distinguishing part of an *identifier*, not a model of the declaration. |
 | **Fragment** | (a) `KdFragment`, i.e. a source set as a KDM container; (b) the `#anchor` part of a URL. § 5 vs § 4. |
 | **Documentable** | Dokka's model type (`Documentable`/`D*`). *Not* a synonym for "declaration" and not related to KDM's `KdDocumented`. |
 | **Documentation** | (a) the generated site; (b) the doc-comment content attached to a declaration (`KdDocumentationNode`). |
@@ -509,6 +572,7 @@ checking against this list before assuming.
 | Term | Section |
 |---|---|
 | ABI | 3 |
+| Addressing levels (FQN / DRI / URL) | 4 |
 | Analysis API (AA) | 6 |
 | Anchor | 4 |
 | Android flavor | 2 |
@@ -517,7 +581,9 @@ checking against this list before assuming.
 | `apiDump` | 6 |
 | Artifact (KDM) | 5 |
 | Boxing | 3 |
+| Callable | 2 |
 | Classifier | 2 |
+| Classlike | 2 |
 | Classpath | 3 |
 | Companion object | 2 |
 | Composite build | 6 |
@@ -534,6 +600,7 @@ checking against this list before assuming.
 | Documentable transformer | 4 |
 | Dokka | 1 |
 | DRI | 4 |
+| `DRI.extra` | 4 |
 | Encoding (KDM) | 5 |
 | Enum entry | 2 |
 | expect / actual | 2 |
@@ -543,6 +610,7 @@ checking against this list before assuming.
 | `explicitApi()` | 6 |
 | Field | 2 |
 | Fragment (`KdFragment`) | 5 |
+| Fully qualified name (FQN) | 2 |
 | Index builder (vs filter) | 4 |
 | `@InternalDokkaApi` | 6 |
 | Issue trackers (`KTL-`, `KT-`, `OSIP-`) | 7 |
