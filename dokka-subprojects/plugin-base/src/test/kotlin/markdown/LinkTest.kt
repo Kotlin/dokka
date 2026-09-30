@@ -1402,6 +1402,60 @@ class LinkTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `should resolve KDoc links to top-level callables in module and package documentation`() {
+        val configuration = dokkaConfiguration {
+            sourceSets {
+                sourceSet {
+                    name = "moduleA"
+                    sourceRoots = listOf("src/")
+                    classpath = listOfNotNull(jvmStdlibPath)
+                    includes = listOf("module.md")
+                }
+            }
+        }
+        testInline(
+            """
+            |/module.md
+            |# Module root
+            |
+            |Link to [example.foo] and [example.bar]
+            |
+            |# Package example
+            |
+            |Link to [example.foo], [foo], [example.bar] and [bar]
+            |
+            |/src/main/kotlin/Testing.kt
+            |package example
+            |
+            |fun foo() {}
+            |val bar: String = "bar"
+        """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val foo = DRI("example", callable = Callable("foo", null, emptyList()))
+                val bar = DRI("example", callable = Callable("bar", null, emptyList(), isProperty = true))
+                assertEquals(
+                    listOf(
+                        "example.foo" to foo,
+                        "example.bar" to bar,
+                    ),
+                    module.getAllLinkDRIFrom("root")
+                )
+                assertEquals(
+                    listOf(
+                        "example.foo" to foo,
+                        "foo" to foo,
+                        "example.bar" to bar,
+                        "bar" to bar,
+                    ),
+                    module.getAllLinkDRIFrom("example")
+                )
+            }
+        }
+    }
+
+    @Test
     fun `should resolve KDoc links in module and package documentation in source set without sources`() {
         val configuration = dokkaConfiguration {
             sourceSets {
