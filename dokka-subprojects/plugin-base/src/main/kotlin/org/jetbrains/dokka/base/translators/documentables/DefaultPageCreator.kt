@@ -844,7 +844,7 @@ public open class DefaultPageCreator(
                     ) {
                         link(
                             text = elementName.orEmpty(),
-                            address = sortedElements.first().dri,
+                            address = driForRowTitle(sortedElements, rowKind),
                             kind = rowKind,
                             styles = setOf(ContentStyle.RowTitle),
                             sourceSets = sortedElements.sourceSets.toSet(),
@@ -879,6 +879,28 @@ public open class DefaultPageCreator(
                 }
             }
         }
+    }
+
+    /**
+     * Prefer a function/property that is declared in at least one source set so mixed
+     * inherited/declared multiplatform rows link to an existing member page.
+     *
+     * A member is fully inherited only when every source set marks it inherited
+     * (see [isInherited]). Extension and other row kinds keep the original first-element DRI.
+     */
+    private fun driForRowTitle(sortedElements: List<Documentable>, rowKind: ContentKind): DRI {
+        val declared = when (rowKind) {
+            ContentKind.Functions, ContentKind.Properties ->
+                sortedElements.firstOrNull { it.isDeclaredInAtLeastOneSourceSet() }
+            else -> null
+        }
+        return (declared ?: sortedElements.first()).dri
+    }
+
+    private fun Documentable.isDeclaredInAtLeastOneSourceSet(): Boolean = when (this) {
+        is DFunction -> !isInherited()
+        is DProperty -> !isInherited()
+        else -> false
     }
 
     /**
