@@ -12,7 +12,23 @@ private const val DEFAULT_COMPANION_NAME = "Companion"
 
 internal fun DObject?.staticFunctionsForJava(): List<DFunction> {
     if (this == null) return emptyList()
-    return functions.filter { it.isJvmStatic }
+    val propFunctions = properties.flatMap { listOfNotNull(it.getter, it.setter) }
+    return (functions + propFunctions).filter { it.isJvmStatic }
+}
+
+internal fun DObject?.staticPropertyAccessorsForJava(): List<DFunction> {
+    if (this == null) return emptyList()
+    val staticProps = properties.filter { it.isThisOrAccessorsStatic }
+        .flatMap { listOfNotNull(it.getter, it.setter) }
+        .map {
+            it.copy(
+                extra = PropertyContainer.withAll(sourceSets.map {
+                    mapOf(it to setOf(ExtraModifiers.JavaOnlyModifiers.Static)).toAdditionalModifiers()
+                })
+            )
+        }
+    val propFunctions = properties.flatMap { listOfNotNull(it.getter, it.setter) }.filter { it.isJvmStatic }
+    return (staticProps + propFunctions).distinctBy { it.dri }
 }
 
 /**
@@ -21,7 +37,9 @@ internal fun DObject?.staticFunctionsForJava(): List<DFunction> {
  */
 internal fun DObject?.staticPropertiesForJava(): List<DProperty> {
     if (this == null) return emptyList()
-    return properties.filter { it.isJvmField || it.isConst || it.isLateInit }
+    return properties.filter {
+        it.isJvmField || it.isConst || it.isLateInit || it.isThisOrAccessorsStatic
+    }
 }
 
 internal fun DObject.companionInstancePropertyForJava(): DProperty? {
