@@ -671,8 +671,7 @@ class KotlinAsJavaPluginTest : BaseAbstractTest() {
         divergentGroup {
             divergentInstance {
                 group3 {
-                    +"public final "
-                    group { link { +"Unit" } }
+                    +"public final void"
                     link { +name }
                     +"("
                     group2 {

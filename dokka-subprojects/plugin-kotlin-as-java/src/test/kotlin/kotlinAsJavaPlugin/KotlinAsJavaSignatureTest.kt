@@ -64,6 +64,26 @@ class KotlinAsJavaSignatureTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `unit displayed as void`() {
+        val source = source("fun returnsUnit(): Unit {}")
+        val writerPlugin = TestOutputWriterPlugin()
+
+        testInline(
+            source,
+            configuration,
+            pluginOverrides = listOf(writerPlugin)
+        ) {
+            renderingStage = { _, _ ->
+                val signature = writerPlugin.writer.renderedContent("root/kotlinAsJavaPlugin/-test-kt/returns-unit.html").firstSignature()
+                signature.match(
+                    "public final static void ", A("returnsUnit"), "()",
+                    ignoreSpanWithTokenStyle = true
+                )
+            }
+        }
+    }
+
+    @Test
     fun `should display annotations`() {
         val writerPlugin = TestOutputWriterPlugin()
 
