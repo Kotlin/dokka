@@ -1,8 +1,9 @@
 public class org/jetbrains/dokka/analysis/markdown/jb/MarkdownParser : org/jetbrains/dokka/analysis/markdown/jb/Parser {
 	public static final field Companion Lorg/jetbrains/dokka/analysis/markdown/jb/MarkdownParser$Companion;
 	public fun <init> (Lkotlin/jvm/functions/Function1;Ljava/lang/String;)V
+	protected fun createTagWrapper (Ljava/lang/String;Ljava/lang/String;Lorg/jetbrains/dokka/model/doc/DocTag;)Lorg/jetbrains/dokka/model/doc/TagWrapper;
+	protected fun parseKDocComment (Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
 	public fun parseStringToDocNode (Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/DocTag;
-	protected fun parseTagWithBody (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/TagWrapper;
 	protected fun preparse (Ljava/lang/String;)Ljava/lang/String;
 }
 
@@ -16,9 +17,10 @@ public final class org/jetbrains/dokka/analysis/markdown/jb/ParseUtilsKt {
 
 public abstract class org/jetbrains/dokka/analysis/markdown/jb/Parser {
 	public fun <init> ()V
+	protected fun createTagWrapper (Ljava/lang/String;Ljava/lang/String;Lorg/jetbrains/dokka/model/doc/DocTag;)Lorg/jetbrains/dokka/model/doc/TagWrapper;
 	public fun parse (Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
+	protected abstract fun parseKDocComment (Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/DocumentationNode;
 	public abstract fun parseStringToDocNode (Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/DocTag;
-	protected fun parseTagWithBody (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/model/doc/TagWrapper;
 	protected abstract fun preparse (Ljava/lang/String;)Ljava/lang/String;
 }
 

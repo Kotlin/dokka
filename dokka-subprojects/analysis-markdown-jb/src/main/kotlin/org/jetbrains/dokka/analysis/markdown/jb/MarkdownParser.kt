@@ -17,6 +17,8 @@ import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.CancellationToken
 import org.jetbrains.dokka.InternalDokkaApi
 import org.jetbrains.dokka.analysis.markdown.jb.factories.DocTagsFromIElementFactory
+import org.jetbrains.dokka.analysis.markdown.jb.kdoc.KDocFlavourDescriptor
+import org.jetbrains.dokka.analysis.markdown.jb.kdoc.KDocTagMarkerBlockProvider
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.links.PointingToDeclaration
 import org.jetbrains.dokka.model.doc.*
@@ -51,26 +53,116 @@ public open class MarkdownParser(
 
     override fun preparse(text: String): String = text.replace("\r\n", "\n").replace("\r", "\n")
 
-    override fun parseTagWithBody(tagName: String, content: String): TagWrapper =
+    override fun parseKDocComment(text: String): DocumentationNode {
+        val markdownAstRoot = IntellijMarkdownParser(
+            flavour = KDocFlavourDescriptor(),
+            cancellationToken = CancellationToken.NonCancellable
+        ).buildMarkdownTreeFromString(text as CharSequence)
+        destinationLinksMap = getAllDestinationLinks(text, markdownAstRoot).toMap()
+        this.text = text
+
+        return DocumentationNode(
+            splitIntoKDocSections(markdownAstRoot).map { section ->
+                createTagWrapper(section.tagName ?: "description", section.subject, childrenToDocTag(section.bodyNodes))
+            }
+        )
+    }
+
+    override fun createTagWrapper(tagName: String, subject: String?, body: DocTag): TagWrapper =
         when (tagName) {
-            "see" -> {
-                val referencedName = content.substringBefore(' ')
-                See(
-                    parseStringToDocNode(content.substringAfter(' ')),
-                    referencedName,
-                    externalDri(referencedName)
-                )
-            }
-            "throws", "exception" -> {
-                val referencedName = content.substringBefore(' ')
-                Throws(
-                    parseStringToDocNode(content.substringAfter(' ')),
-                    referencedName,
-                    externalDri(referencedName)
-                )
-            }
-            else -> super.parseTagWithBody(tagName, content)
+            "see" -> See(body, subject.orEmpty(), subject?.let(externalDri))
+            "throws", "exception" -> Throws(body, subject.orEmpty(), subject?.let(externalDri))
+            "param" -> Param(body, subject.orEmpty(), subject?.let(externalDri))
+            else -> super.createTagWrapper(tagName, subject, body)
         }
+
+    private class KDocRawSection(val tagName: String?, val subject: String?, val bodyNodes: List<ASTNode>)
+
+    /**
+     * Groups the top-level children of a whole-comment [KDocFlavourDescriptor] parse into one section per
+     * `@tag` (plus a leading section, with `tagName == null`, for the untagged description), in document order.
+     *
+     * [KDocTagMarkerBlockProvider][org.jetbrains.dokka.analysis.markdown.jb.kdoc.KDocTagMarkerBlockProvider] makes
+     * sure every `@tag` starts a brand new top-level sibling node (never continuing a preceding paragraph) but
+     * otherwise leaves it to be parsed as perfectly ordinary content - multi-line text, lists, code blocks and
+     * all - so a tag's own `@tagName subject` prefix is still literally sitting at the front of that node's text.
+     * This re-detects it from [text] directly (the same way [org.jetbrains.dokka.analysis.markdown.jb.kdoc
+     * .KDocTagMarkerBlockProvider.parseTagStart] detected it the first time, during parsing) and strips it from
+     * the AST before converting that first node to a [DocTag], rather than from the [DocTag] tree itself.
+     */
+    private fun splitIntoKDocSections(markdownFileRoot: ASTNode): List<KDocRawSection> {
+        val sections = mutableListOf<KDocRawSection>()
+        var currentTagName: String? = null
+        var currentSubject: String? = null
+        var currentBody = mutableListOf<ASTNode>()
+
+        for (child in markdownFileRoot.children.filterSpacesAndEOL()) {
+            val match = matchTagStartAt(child.startOffset)
+            if (match != null) {
+                sections += KDocRawSection(currentTagName, currentSubject, currentBody)
+                currentTagName = match.tagName
+                currentSubject = match.subject
+                // If the tag name/subject consumed this whole node (a bare tag with nothing else on its
+                // line, e.g. `@see abc`), there's nothing left to strip a prefix from - leave the body empty
+                // instead of adding a now-zero-width leaf that would render as a stray empty paragraph.
+                currentBody = child.withFirstLeafStartAdvancedTo(match.contentStart)
+                    ?.let { mutableListOf(it) }
+                    ?: mutableListOf()
+            } else {
+                currentBody.add(child)
+            }
+        }
+        sections += KDocRawSection(currentTagName, currentSubject, currentBody)
+
+        return sections
+    }
+
+    private class KDocTagStartMatch(val tagName: String, val subject: String?, val contentStart: Int)
+
+    private fun matchTagStartAt(offset: Int): KDocTagStartMatch? {
+        if (offset >= text.length || text[offset] != '@') return null
+        val lineEnd = text.indexOf('\n', offset).let { if (it == -1) text.length else it }
+        val match = KDocTagMarkerBlockProvider.parseTagStart(text.subSequence(offset, lineEnd)) ?: return null
+        var contentStart = offset + match.contentStart
+        // Nothing left on the tag's own line (body continues on the next one): also skip that line break
+        // itself, or it ends up preserved as a leading node that later gets flattened into a literal space.
+        if (contentStart >= lineEnd && lineEnd < text.length) {
+            contentStart = lineEnd + 1
+        }
+        return KDocTagStartMatch(
+            tagName = text.substring(offset + 1, offset + match.tagNameRange.last + 1),
+            subject = match.subjectRange?.let { text.substring(offset + it.first, offset + it.last + 1) },
+            contentStart = contentStart
+        )
+    }
+
+    /**
+     * Returns a copy of this node with everything before [newStart] removed, so inline/body rendering sees only
+     * the text from [newStart] onward - used to strip a `@tagName subject ` prefix. `null` means this whole node
+     * falls before [newStart] and should be dropped entirely.
+     *
+     * A bracketed subject (`@param[name]`) gets inline-parsed as its own sibling node (a markdown link
+     * candidate), not merged into one leaf with the tag name - so this has to be able to drop/trim whole
+     * *sibling* nodes, not just descend into the first child.
+     */
+    private fun ASTNode.withFirstLeafStartAdvancedTo(newStart: Int): ASTNode? {
+        if (endOffset <= newStart) return null
+        if (startOffset >= newStart) return this
+        val kids = children
+        if (kids.isEmpty()) {
+            return LeafASTNode(type, newStart.coerceAtMost(endOffset), endOffset)
+        }
+        return CompositeASTNode(type, kids.mapNotNull { it.withFirstLeafStartAdvancedTo(newStart) })
+    }
+
+    /** Mirrors how [parseStringToDocNode] wraps a whole parsed document, but for an already-sliced node list. */
+    private fun childrenToDocTag(nodes: List<ASTNode>): DocTag {
+        val parsed = visitNode(CompositeASTNode(MarkdownElementTypes.MARKDOWN_FILE, nodes))
+        if (parsed.size == 1) {
+            return parsed.first()
+        }
+        return CustomDocTag(children = parsed, params = emptyMap(), name = "")
+    }
 
     private fun headersHandler(node: ASTNode) =
         DocTagsFromIElementFactory.getInstance(
@@ -322,6 +414,7 @@ public open class MarkdownParser(
             .filter { it.type == GFMTokenTypes.CELL }
             .evaluateChildren()
     )
+
 
     private fun cellHandler(node: ASTNode) = DocTagsFromIElementFactory.getInstance(
         GFMTokenTypes.CELL,

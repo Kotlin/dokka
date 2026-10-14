@@ -17,4 +17,7 @@ dependencies {
 
     implementation(libs.jsoup)
     implementation(libs.jetbrains.markdown)
+
+    testImplementation(projects.dokkaSubprojects.dokkaCore)
+    testImplementation(libs.kotlin.test)
 }
