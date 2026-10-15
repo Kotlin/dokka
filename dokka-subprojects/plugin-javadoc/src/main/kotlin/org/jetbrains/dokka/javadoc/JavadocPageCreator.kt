@@ -172,7 +172,8 @@ public open class JavadocPageCreator(context: DokkaContext) {
             },
             returnTagContent = returnToContentNodes(jvm),
             sinceTagContent = sinceToContentNodes(jvm),
-            extra = extra + indexesInDocumentation()
+            extra = extra + indexesInDocumentation(),
+            throwsTags = throwsToJavadocTags(jvm)
         )
     }
 
@@ -257,5 +258,50 @@ public open class JavadocPageCreator(context: DokkaContext) {
 
     private fun Documentable.returnToContentNodes(sourceSet: DokkaSourceSet? = highestJvmSourceSet) =
         contentNodesFromType<Return>(sourceSet)
+
+    private fun Documentable.throwsToJavadocTags(sourceSet: DokkaSourceSet? = highestJvmSourceSet): List<JavadocTagWrapper> =
+        findAllNodesInDocumentation<Throws>(sourceSet).map { throws ->
+            val typeNode: ContentNode = throws.exceptionAddress?.let { address ->
+                ContentDRILink(
+                    children = listOf(
+                        ContentText(
+                            text = throws.name,
+                            dci = DCI(setOf(dri), JavadocContentKind.OverviewSummary),
+                            sourceSets = sourceSets.toDisplaySourceSets()
+                        )
+                    ),
+                    address = address,
+                    dci = DCI(setOf(dri), JavadocContentKind.OverviewSummary),
+                    sourceSets = sourceSets.toDisplaySourceSets()
+                )
+            } ?: ContentText(
+                text = throws.name,
+                dci = DCI(setOf(dri), JavadocContentKind.OverviewSummary),
+                sourceSets = sourceSets.toDisplaySourceSets()
+            )
+
+            val rawDescription = DocTagToContentConverter().buildContent(
+                throws.root,
+                DCI(setOf(dri), JavadocContentKind.OverviewSummary),
+                sourceSets.toSet()
+            )
+
+            JavadocTagWrapper(
+                name = throws.name,
+                type = typeNode,
+                description = rawDescription.stripParagraph(),
+                address = throws.exceptionAddress
+            )
+        }
+
+    private fun List<ContentNode>.stripParagraph(): List<ContentNode> = map { node ->
+        when (node) {
+            is ContentGroup -> node.copy(
+                children = node.children.stripParagraph(),
+                style = node.style - TextStyle.Paragraph
+            )
+            else -> node
+        }
+    }
 }
 

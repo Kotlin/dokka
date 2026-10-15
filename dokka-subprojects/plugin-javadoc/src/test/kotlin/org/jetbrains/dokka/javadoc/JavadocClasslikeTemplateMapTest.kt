@@ -470,6 +470,67 @@ internal class JavadocClasslikeTemplateMapTest : AbstractJavadocTemplateMapTest(
         }
     }
 
+    @Test
+    fun `@throws method tags`() {
+        dualTestTemplateMapInline(
+            kotlin =
+            """
+            /src/source0.kt
+            package com.test.package0
+            class TestClass {
+                /**
+                 * Testing @throws method tag
+                 * @throws IllegalArgumentException if the parameter is negative
+                 * @throws java.lang.IllegalStateException if the object is closed
+                 */
+                fun testFunction(testParam: Int): String {
+                    return ""
+                }
+            }
+            """,
+            java =
+            """
+            /src/com/test/package0/TestClass.java
+            package com.test.package0;
+            public final class TestClass {
+                /**
+                 * Testing @throws method tag
+                 * @throws IllegalArgumentException if the parameter is negative
+                 * @throws java.lang.IllegalStateException if the object is closed
+                 */
+                public final String testFunction(int testParam) {
+                    return "";
+                }
+            }
+            """
+        ) {
+            val map = singlePageOfType<JavadocClasslikePageNode>().templateMap
+            assertEquals("TestClass", map["name"])
+
+            val methods = assertIsInstance<Map<String, Any?>>(map["methods"])
+            val testFunction = assertIsInstance<List<Map<String, Any?>>>(methods["own"]).single()
+            assertEquals("Testing @throws method tag", testFunction["brief"])
+
+            val throwsTags = assertIsInstance<List<Map<String, Any?>>>(testFunction["throwsTags"])
+            assertEquals(2, throwsTags.size)
+
+            val (first, second) = throwsTags
+            kotlin.test.assertTrue(first["name"].toString().endsWith("IllegalArgumentException"))
+            kotlin.test.assertTrue(first["type"].toString().contains("IllegalArgumentException"))
+            assertEquals("if the parameter is negative", first["description"])
+
+            kotlin.test.assertTrue(second["name"].toString().endsWith("IllegalStateException"))
+            kotlin.test.assertTrue(second["type"].toString().contains("IllegalStateException"))
+            assertEquals("if the object is closed", second["description"])
+        }
+    }
+
+    private fun assertThrowsNode(node: Map<String, Any?>, expectedName: String, expectedType: String, expectedDescription: String){
+        assertEquals(expectedName, node["name"])
+        assertEquals(expectedType, node["type"])
+        assertEquals(expectedDescription, node["description"])
+    }
+
     private fun assertParameterNode(node: Map<String, Any?>, expectedName: String, expectedType: String, expectedDescription: String){
         assertEquals(expectedName, node["name"])
         assertEquals(expectedType, node["type"])

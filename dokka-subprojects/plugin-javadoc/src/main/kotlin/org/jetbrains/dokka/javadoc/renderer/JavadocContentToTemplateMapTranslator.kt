@@ -129,6 +129,7 @@ internal class JavadocContentToTemplateMapTranslator(
             "inlineParameters" to node.parameters.joinToString { renderInlineParameter(it) },
             "returnTagContent" to htmlForContentNodes(node.returnTagContent, contextNode),
             "sinceTagContent" to node.sinceTagContent.map { htmlForContentNodes(it, contextNode) },
+            "throwsTags" to node.throwsTags.map { templateMapForThrowsNode(it) },
             "anchorLink" to node.getAnchor(),
             "signature" to templateMapForSignatureNode(node.signature),
             "name" to node.name
@@ -210,6 +211,13 @@ internal class JavadocContentToTemplateMapTranslator(
         private fun templateMapForParameterNode(node: JavadocParameterNode): TemplateMap =
             mapOf(
                 "description" to htmlForContentNodes(node.description, contextNode),
+                "name" to node.name,
+                "type" to htmlForContentNode(node.type, contextNode)
+            )
+
+        private fun templateMapForThrowsNode(node: JavadocTagWrapper): TemplateMap =
+            mapOf(
+                "description" to htmlForContentNodes(node.description, contextNode).trim(),
                 "name" to node.name,
                 "type" to htmlForContentNode(node.type, contextNode)
             )
