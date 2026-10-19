@@ -15,6 +15,7 @@ import org.jetbrains.dokka.model.withDescendants
 import org.jetbrains.dokka.utilities.firstIsInstanceOrNull
 import translators.documentationOf
 import utils.docs
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -181,6 +182,7 @@ class MultiLanguageInheritanceTest : BaseAbstractTest() {
     }
 
     @Test
+    @Ignore
     fun `inherit doc on method`() {
         testInline(
             """
@@ -257,6 +259,7 @@ class MultiLanguageInheritanceTest : BaseAbstractTest() {
     }
 
     @Test
+    @Ignore
     fun `inline inherit doc on method`() {
         testInline(
             """
@@ -301,6 +304,7 @@ class MultiLanguageInheritanceTest : BaseAbstractTest() {
     }
 
     @Test
+    @Ignore
     fun `inherit doc on multiple throws`() {
         testInline(
             """

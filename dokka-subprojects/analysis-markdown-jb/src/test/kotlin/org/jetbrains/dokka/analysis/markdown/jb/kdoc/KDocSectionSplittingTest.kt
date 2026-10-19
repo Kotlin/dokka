@@ -157,6 +157,34 @@ class KDocSectionSplittingTest {
     }
 
     @Test
+    fun `tag body keeps paragraph continuation and nests a following list`() {
+        val doc = parse(
+            """
+            |@param foo line one
+            |line two continuing the same paragraph
+            |
+            |- a list item
+            |- another list item
+            """.trimMargin()
+        )
+
+        assertEquals(2, doc.children.size)
+        val param = (doc.children[1] as Param)
+        assertEquals("foo", param.name)
+
+        val root = param.root
+        assertEquals(2, root.children.size)
+
+        val paragraph = root.children[0]
+        assertTrue(plainText(paragraph).contains("line one"))
+        assertTrue(plainText(paragraph).contains("line two continuing the same paragraph"))
+
+        val list = root.children[1]
+        assertTrue(plainText(list).contains("a list item"))
+        assertTrue(plainText(list).contains("another list item"))
+    }
+
+    @Test
     fun `see and throws resolve subject via externalDri`() {
         val resolved = mutableListOf<String>()
         val doc = parse(

@@ -12,16 +12,13 @@ import org.intellij.markdown.parser.markerblocks.MarkerBlock
 import org.intellij.markdown.parser.markerblocks.MarkerBlockProvider
 
 /**
- * Recognizes a line starting with `@tagName` as the beginning of a new KDoc tag section, purely to make it
- * [interruptsParagraph] a preceding one - no block or dedicated AST node is created here. Letting the ordinary
- * [org.intellij.markdown.parser.markerblocks.impl.ParagraphMarkerBlock] (and other stock providers) own `@tag`
- * content means a tag's body keeps CommonMark's normal multi-line paragraph continuation (a single line break
- * doesn't start a new paragraph) all the way up to the next tag - splitting into one AST node per tag line, the
- * way an earlier version of this provider did, would sever that continuation at each line boundary.
- *
- * Tag/subject extraction for an already-parsed tree happens separately, in [org.jetbrains.dokka.analysis.markdown
- * .jb.MarkdownParser], by re-applying [parseTagStart] (text-offset based, not AST-based) to each top-level
- * sibling node's own starting text.
+ * Recognizes a line starting with `@tagName` as the beginning of a new KDoc tag section. Block/AST-node creation
+ * for it (a [KDocTagSectionMarkerBlock] plus the [KDOC_TAG_NAME][KDocTokenTypes.KDOC_TAG_NAME]/
+ * [KDOC_TAG_SUBJECT][KDocTokenTypes.KDOC_TAG_SUBJECT] leaves carved out of its own opening line) happens in
+ * [KDocMarkerProcessor.createNewMarkerBlocks] instead of here - see that function's own doc comment for why. This
+ * provider only owns the tag-matching regex itself ([matchTagStart]/[parseTagStart]), shared between
+ * [interruptsParagraph] (used to end the *preceding* paragraph and, with a narrower composed predicate, the
+ * preceding *section*) and [KDocMarkerProcessor] (used to recognize where a *new* section begins).
  *
  * Only triggers at the comment's top level (`constraints.indent == 0`, i.e. not inside a list or blockquote) and
  * only when `@` is the very first character of the line (no leading indentation at all), matching the syntax real
@@ -40,7 +37,7 @@ internal class KDocTagMarkerBlockProvider : MarkerBlockProvider<MarkerProcessor.
     override fun interruptsParagraph(pos: LookaheadText.Position, constraints: MarkdownConstraints): Boolean =
         matchTagStart(pos, constraints) != null
 
-    private fun matchTagStart(pos: LookaheadText.Position, constraints: MarkdownConstraints): TagStartMatch? {
+    internal fun matchTagStart(pos: LookaheadText.Position, constraints: MarkdownConstraints): TagStartMatch? {
         if (constraints.indent != 0) return null
         if (pos.offsetInCurrentLine != 0) return null
         return parseTagStart(pos.currentLineFromPosition)
