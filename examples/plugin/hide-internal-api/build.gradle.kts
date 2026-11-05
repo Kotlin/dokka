@@ -1,13 +1,10 @@
 /*
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 plugins {
-    kotlin("jvm") version "2.3.21"
+    kotlin("jvm") version "2.4.0"
     id("org.jetbrains.dokka") version "2.3.0"
     `maven-publish`
     signing
@@ -20,6 +17,10 @@ repositories {
     mavenCentral()
 }
 
+kotlin {
+    jvmToolchain(8)
+}
+
 val dokkaVersion: String by project
 dependencies {
 
@@ -30,10 +31,6 @@ dependencies {
     testImplementation("org.jetbrains.dokka:dokka-test-api:$dokkaVersion")
     testImplementation("org.jetbrains.dokka:dokka-base-test-utils:$dokkaVersion")
     testImplementation("org.jetbrains.dokka:analysis-kotlin-symbols:$dokkaVersion")
-}
-
-kotlin {
-    compilerOptions.jvmTarget.set(JvmTarget.JVM_1_8)
 }
 
 val dokkaOutputDir = "$buildDir/dokka"
