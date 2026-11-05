@@ -109,7 +109,6 @@ gradlePlugin {
             "kotlin",
             "kdoc",
             "android",
-            "api reference",
             "documentation",
         )
         compatibility {
