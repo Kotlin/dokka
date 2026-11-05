@@ -31,7 +31,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: 17
+          java-version: 27
       - uses: gradle/actions/setup-gradle@v4
         with:
           develocity-access-key: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
@@ -66,7 +66,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: 17
+          java-version: 27
           cache: 'maven'
       - uses: gradle/actions/setup-gradle@v4
         with:
