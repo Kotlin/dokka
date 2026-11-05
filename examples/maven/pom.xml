@@ -13,7 +13,7 @@
     <version>1.0-SNAPSHOT</version>
     <properties>
         <kotlin.version>2.3.21</kotlin.version>
-        <dokka.version>2.2.0</dokka.version>
+        <dokka.version>2.3.0</dokka.version>
     </properties>
 
     <dependencies>

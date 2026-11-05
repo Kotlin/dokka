@@ -8,12 +8,12 @@ import org.jetbrains.dokka.base.DokkaBaseConfiguration
 
 plugins {
     kotlin("jvm") version "2.3.21"
-    id("org.jetbrains.dokka") version "2.2.0"
+    id("org.jetbrains.dokka") version "2.3.0"
 }
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.dokka:dokka-base:2.2.0")
+        classpath("org.jetbrains.dokka:dokka-base:2.3.0")
     }
 }
 
