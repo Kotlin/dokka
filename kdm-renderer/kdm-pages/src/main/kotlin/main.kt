@@ -39,51 +39,11 @@ fun main(args: Array<String>) {
         println("  ${fragment.name}: ${fragment.elements.size} elements, $packages packages")
     }
 
-
     bundle.fragments.first().let { fragment ->
-        val modules = fragment.elements.entries
-            .mapNotNull { (id, element) -> (element as? KdModule)?.let { id to it } }
-            .ifEmpty { error("no modules in ${fragment.name}") }
-//        modules.forEach { (id, module) -> println("  module: $module (id = $id)") }
+        val pageSet = PageSetBuilder().buildPageSet(fragment)
 
-        val pageSet = PageSet(
-            modules.map { (id, module) ->
-                Page(
-                    kind = PageKind.MODULE,
-                    segments = listOf(module.name),
-                    represents = listOf(ElementRef(fragment = fragment.name, id = id)),
-                    children = module.packages.map { packageId ->
-                        val packageElement = fragment.elements[packageId] as? KdPackage
-                            ?: error("no package element for $packageId in ${fragment.name}")
-                        Page(
-                            kind = PageKind.PACKAGE,
-                            segments = listOf(module.name, packageElement.name),
-                            represents = listOf(ElementRef(fragment = fragment.name, id = packageId)),
-                            children = packageElement.declarations.mapNotNull { declarationId ->
-                                val declarationElement = fragment.elements[declarationId] as? KdElement
-                                    ?: error("no declaration element for $declarationId in ${fragment.name}")
-                                when (val decision = declarationElement.pageDecision()) {
-                                  is PageDecision.Create -> Page(
-                                    kind = decision.pageKind,
-                                    segments = listOf(module.name, packageElement.name, declarationElement.nameForUrl(packageElement)),
-                                    represents = listOf(ElementRef(fragment = fragment.name, id = declarationId)),
-                                    children = buildChildPages(declarationElement, fragment, module, packageElement)
-                                  )
-                                    is PageDecision.Skip -> null
-                                }
-                            }
-                        )
-                    }
-                )
-            }
-        )
         println("  page set urls:")
         pageSet.urls().forEach { println("    $it") }
-    }
-
-
-    fun buildPage() {
-
     }
 
 }

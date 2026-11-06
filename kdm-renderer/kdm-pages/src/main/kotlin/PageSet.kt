@@ -69,7 +69,7 @@ private fun Page.render(): String {
 
 sealed interface PageDecision {
     data class Create(val pageKind: PageKind) : PageDecision
-    data class Skip(val reason: String): PageDecision
+    data class Skip(val reason: String) : PageDecision
 }
 
 fun KdElement.pageDecision(): PageDecision = when (this) {
