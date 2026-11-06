@@ -30,6 +30,9 @@ The second half can be iterated on freely.
 | `requirements/50-extension-points.md` | Inventory: who builds on top of the HTML output and what they need |
 | `requirements/60-model-gaps.md` | **Output** — requirements on KDM, derived from the registry |
 | `requirements/70-klibs-io.md` | Inventory: klibs.io as a KDM consumer — hosting API reference, API/MCP; what it needs from the model (Q-040…Q-047) |
+| `requirements/80-open-issues.md` | Inventory: open KTL YouTrack issues on the current API reference (query + snapshot date) and what they imply for the renderer and KDM |
+| `requirements/81-dokka-github-issues.md` | Inventory: open Kotlin/dokka GitHub issues on the HTML format and UX (query + snapshot date) and what they imply for the renderer and KDM |
+| `requirements/82-spike.md` | Findings of the navigation spike dokka#3434 (#2150, #3133, #1795): how navigation works today, browser constraints, implications for F-100/F-101/F-120 |
 | `decisions/` | One ADR per decision — ADR-0001 cross-declaration indices belong to the renderer · ADR-0002 multi-module architecture from day one · ADR-0003 keep Dokka's `package-list` |
 | `questions.md` | Open questions with owner and blocking status |
 | `stack-criteria.md` | Criteria for choosing the renderer's frontend stack — gates, weighted criteria, spike protocol |
