@@ -51,7 +51,7 @@ class DefaultExternalLocationProviderTest : BaseAbstractTest() {
         val locationProvider = getTestLocationProvider()
         val dri = DRI(
             "",
-            "",
+            null,
             Callable(
                 "longArray",
                 null,

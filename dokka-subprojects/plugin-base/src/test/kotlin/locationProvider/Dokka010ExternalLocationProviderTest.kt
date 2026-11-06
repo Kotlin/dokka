@@ -59,7 +59,7 @@ class Dokka010ExternalLocationProviderTest : BaseAbstractTest() {
         val locationProvider = getTestLocationProvider()
         val dri = DRI(
             "kotlin",
-            "",
+            null,
             Callable(
                 "minus",
                 null,
