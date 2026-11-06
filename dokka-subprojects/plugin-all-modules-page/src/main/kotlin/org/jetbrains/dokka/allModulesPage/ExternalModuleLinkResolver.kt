@@ -72,21 +72,14 @@ public class DefaultExternalModuleLinkResolver(
         val resolvedLinks = elps.mapNotNull { locProviderWithMdl ->
             locProviderWithMdl.locationProvider.resolve(dri)?.let { it to locProviderWithMdl.moduleDescription }
         }
-        val validLink = resolvedLinks.firstOrNull {
-            // this is a temporary hack for the first case (short-term solution) of #3368:
-            // a situation where 2 (or more) local modules have the same package name.
-            // TODO #3368 currently, it does not work for external modules with the same package name
-            if (resolvedLinks.size > 1) {
-                val moduleDescription = it.second
-                val resolvedLinkWithoutRelativePath = it.first.removePrefix(
-                   "file:/" + moduleDescription.relativePathToOutputDirectory.toRelativeOutputDir()
-                        .toString()
-                )
-
-                val partialModuleOutput = moduleDescription.sourceOutputDirectory
-                val absolutePath = File(partialModuleOutput.absolutePath + resolvedLinkWithoutRelativePath)
-                absolutePath.isFile
-            } else true
+        // A link is resolvable from a module's package-list as long as the package is documented,
+        // but the symbol itself might be excluded from the documentation (suppressed, internal,
+        // deprecated when `skipDeprecated` is on, a private constructor, etc.), so the target page
+        // is never generated. Verifying that the page actually exists prevents rendering broken
+        // links to non-existent pages (#4448). It also disambiguates between local modules that
+        // share a package name (#3368).
+        val validLink = resolvedLinks.firstOrNull { (link, moduleDescription) ->
+            pointsToExistingPage(link, moduleDescription)
         }?.first ?: return null
 
         // relativization [fileContext] path over output path (or `fileContext.relativeTo(outputPath)`)
@@ -103,6 +96,22 @@ public class DefaultExternalModuleLinkResolver(
 
         return (List(contextPathParts.size - commonPathElements - 1) { ".." } + outputPathParts.drop(commonPathElements))
             .joinToString("/") + validLink.removePrefix("file:")
+    }
+
+    /**
+     * Checks that the file backing a [resolvedLink] (produced by an [ExternalLocationProvider]
+     * from a module's package-list) actually exists in the module's partial output.
+     *
+     * The anchor (`#...`) is dropped first because member links resolve to `index.html#anchor`,
+     * and only the `.html` page on disk should be checked for existence.
+     */
+    private fun pointsToExistingPage(resolvedLink: String, moduleDescription: DokkaModuleDescription): Boolean {
+        val relativePathPrefix = "file:/" + moduleDescription.relativePathToOutputDirectory.toRelativeOutputDir().toString()
+        val resolvedLinkWithoutRelativePath = resolvedLink
+            .substringBefore('#')
+            .removePrefix(relativePathPrefix)
+        val absolutePath = File(moduleDescription.sourceOutputDirectory.absolutePath + resolvedLinkWithoutRelativePath)
+        return absolutePath.isFile
     }
 
     override fun resolveLinkToModuleIndex(moduleName: String): String? =
