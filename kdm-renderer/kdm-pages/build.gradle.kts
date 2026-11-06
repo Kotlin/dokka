@@ -5,6 +5,7 @@
 // kdp start
 plugins {
     kotlin("jvm")
+    alias(libs.plugins.kotlinxSerialization)
     application
 }
 
