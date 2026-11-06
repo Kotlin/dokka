@@ -87,6 +87,7 @@ highest-risk group for a per-declaration serialized model.
 | F-107 | Custom page templates (FreeMarker) | `templatesDir`, `renderers/html/innerTemplating` | config, ep | JetBrains sites, Google | TODO | — | todo | Q-004 |
 | F-108 | Kotlin Playground samples | `plugin-kotlin-playground-samples` | renderer | kotlinx | TODO | Sample bodies (see F-043) | todo | |
 | F-109 | MathJax | `plugin-mathjax` | renderer | few | TODO | — | todo | |
+| F-110 | Search state synced to the URL — the query lives in query parameters, so a search survives reload and back/forward, and a results URL is shareable | — (new requirement; today's search is a modal with no URL state) | renderer | all | should | — (renderer-local) | todo | KTL-1771 |
 
 ## Multi-module and versioning
 

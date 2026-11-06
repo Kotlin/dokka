@@ -30,6 +30,7 @@ Status: `open` · `assumed` (proceeding on an assumption, recorded below) ·
 | Q-016 | External references: keep Dokka's `package-list` format, or something new? (G-06) | | no | **answered** → ADR-0003 |
 | Q-017 | Fragment deduplication scheme; analyse leaf source sets only? (G-12) | | yes | open |
 | Q-018 | Search index: derived at build time, or a published artifact? (G-15) | | no | open |
+| Q-048 | How to make search useful for AI tooling (agents, MCP tools, LLM crawlers): a machine-consumable search-index artifact, a query surface over KDM, or nothing beyond no-JS-readable pages? Adjacent to Q-018 (index location) and Q-047 (klibs.io MCP) | | no | open |
 
 ## Output surface (from the page inventory, `40-page-anatomy.md`)
 
