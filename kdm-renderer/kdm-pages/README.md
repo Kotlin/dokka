@@ -17,10 +17,14 @@ ever needs it.
 
 ## Running
 
-One entry point: `src/main/kotlin/main.kt` prints the top-level keys of a KDM json.
-From the IDE — the gutter icon next to `main`, no run configuration needed; with no
-arguments it reads `dokka-integration-tests/gradle/build/ui-showcase-result/jvm/kdm/model.json`,
-and a path can be passed as the first argument.
+One entry point: `src/main/kotlin/main.kt`: a raw-JSON inventory print, then a typed read into
+the real `KdBundle` model — vendored under `src/main/kotlin/org/jetbrains/kotlin/documentation`,
+copied verbatim from the `kotlin-documentation-model` prototype (KEEP #484). From the IDE —
+the gutter icon next to `main`, no run configuration needed; with no arguments it reads
+`models/kmp/model.json` (the richer of the two showcase modules — every page-set rule meets
+there), and a path can be passed as the first argument. The raw print still tolerates the
+older shapes on disk (the branch `saveModule` output, the old `Kd*` serialization in
+`samples/kdp/`); the typed read only accepts the real `KdBundle` shape.
 
 From the command line (Gradle needs a JDK 11+ launcher, so `JAVA_HOME` is set explicitly —
 a shell pointing at JDK 8 fails with `Error resolving plugin [id: 'dokkasettings']`):
@@ -31,8 +35,9 @@ JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew -q :kdm-renderer:kdm-pages:r
   --args="$PWD/kdm-renderer/samples/kdp/kdm-sample.json"
 ```
 
-The default input does not exist yet: it is written only by a Dokka run from this branch,
-and the site currently in `ui-showcase-result` was generated from `master`.
+The default input is migrated from the branch `saveModule` output, which only a Dokka run
+from this branch writes — a site generated from `master` has no `kdm/` directory. Regenerate
+as below, then run `./migrate-model.py`, before running without arguments.
 
 Regenerating the reference site, which also destroys whatever is there (the integration
 test copies with `copyRecursively` and fails on an existing directory):
@@ -42,6 +47,33 @@ rm -rf dokka-integration-tests/gradle/build/ui-showcase-result
 DOKKA_TEST_OUTPUT_PATH="build/ui-showcase-result" JAVA_HOME=$(/usr/libexec/java_home -v 21) \
   ./gradlew :dokka-integration-tests:gradle:testUiShowcaseProject
 ```
+
+## Models in the real model shape
+
+`models/{jvm,kmp}/model.json` are the two `ui-showcase-result/*/kdm/model.json` files rewritten
+into the shape of the real `KdBundle` model — the same types the prototype itself compiles
+against — so the page-set work runs on the real model before Dokka emits it natively.
+`samples/simpleKmp.kdm.json` holds one genuine analyzer-produced bundle, copied from the
+Kotlin repo, as a cross-check. Rebuild with `./migrate-model.py [path to ui-showcase-result]`;
+the list of what it changes is at the top of the script.
+
+Some of it is inferred, because the branch output does not carry the information:
+
+- expect/actual — there is no `actuality` in the input; a declaration that differs from the one
+  in its `dependsOn` fragment is taken as an actual of it. On the showcase this finds exactly
+  `KmpClass`, `asyncWithDelay` and `getCurrentDate`, actual in js/jvm/linux/macos.
+- the kmp input repeats declarations of `dependsOn` fragments without their documentation
+  (108 copies, the same analyzer artifact as below); those copies are dropped.
+- inherited members with a substituted signature (`Enum.compareTo(other: E)` in each enum) can't
+  share one original, so they stay full elements under the owner's id — 6 in jvm.
+- the originals of inherited members (`kotlin/Any`, `kotlin/Enum`, `kotlin/Throwable` — 19 in jvm)
+  go to `embeddedElements`, because no stdlib KDM exists yet to reference them in.
+- `@since` KDoc tags are not in the input at all; `since` comes only from `@SinceKotlin`.
+- `documentation` is dropped: `KdDocumentation` is an empty placeholder in the model. For some
+  expect/actual pairs the docs are the only difference, so the comparisons inside
+  `migrate-model.py` keep them and only the written output strips them.
+- the input carries no visibility and no flags like `isError`, `isLateinit`, `getter`/`setter`
+  or `overridens`; the output writes `PUBLIC` / `FINAL` / `false` / empty defaults.
 
 ## Baseline
 

@@ -4,28 +4,108 @@
 
 package org.jetbrains.kotlin.documentation.pages
 
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import org.jetbrains.kotlin.documentation.KdBundle
+import org.jetbrains.kotlin.documentation.KdElement
+import org.jetbrains.kotlin.documentation.KdElementId
+import org.jetbrains.kotlin.documentation.KdJson
+import org.jetbrains.kotlin.documentation.KdModule
+import org.jetbrains.kotlin.documentation.KdPackage
 import java.io.File
 
-/**
- * Prints the top-level keys of a KDM json.
- *
- * Run it from the IDE with the gutter icon next to [main] — with no arguments it reads
- * [DEFAULT_MODEL] from the reference output. Pass a path to read another file.
- */
 private const val DEFAULT_MODEL =
-    "dokka-integration-tests/gradle/build/ui-showcase-result/jvm/kdm/model.json"
+    "kdm-renderer/kdm-pages/models/jvm/model.json"
 
 fun main(args: Array<String>) {
     val file = args.firstOrNull()?.let(::File) ?: File(repoRoot(), DEFAULT_MODEL)
     println(file.absolutePath)
     if (!file.isFile) {
-        println("  no such file")
+        println("no such file")
         return
     }
-    Json.parseToJsonElement(file.readText()).jsonObject.keys.forEach { println("  $it") }
+
+    val bundle = KdJson.decodeFromString<KdBundle>(file.readText())
+
+    println("typed model: schema v${bundle.schemaVersion}, ${bundle.fragments.size} fragments")
+    bundle.fragments.first().let { fragment ->
+        val packages = fragment.elements.values.count { it is KdPackage }
+        println("  ${fragment.name}: ${fragment.elements.size} elements, $packages packages")
+    }
+
+
+    bundle.fragments.first().let { fragment ->
+        val modules = fragment.elements.entries
+            .mapNotNull { (id, element) -> (element as? KdModule)?.let { id to it } }
+            .ifEmpty { error("no modules in ${fragment.name}") }
+//        modules.forEach { (id, module) -> println("  module: $module (id = $id)") }
+
+        val pageSet = PageSet(
+            modules.map { (id, module) ->
+                Page(
+                    kind = PageKind.MODULE,
+                    segments = listOf(module.name),
+                    represents = listOf(ElementRef(fragment = fragment.name, id = id)),
+                    children = module.packages.map { packageId ->
+                        val packageElement = fragment.elements[packageId] as? KdPackage
+                            ?: error("no package element for $packageId in ${fragment.name}")
+                        Page(
+                            kind = PageKind.PACKAGE,
+                            segments = listOf(module.name, packageElement.name),
+                            represents = listOf(ElementRef(fragment = fragment.name, id = packageId)),
+                            children = packageElement.declarations.mapNotNull { declarationId ->
+                                val declarationElement = fragment.elements[declarationId] as? KdElement
+                                    ?: error("no declaration element for $declarationId in ${fragment.name}")
+                                when (val decision = declarationElement.pageDecision()) {
+                                  is PageDecision.Create -> Page(
+                                    kind = decision.pageKind,
+                                    segments = listOf(module.name, packageElement.name, declarationElement.nameForUrl(packageElement)),
+                                    represents = listOf(ElementRef(fragment = fragment.name, id = declarationId)),
+                                    children = buildChildPages(declarationElement, fragment, module, packageElement)
+                                  )
+                                    is PageDecision.Skip -> null
+                                }
+                            }
+                        )
+                    }
+                )
+            }
+        )
+        println("  page set urls:")
+        pageSet.urls().forEach { println("    $it") }
+    }
+
+
+    fun buildPage() {
+
+    }
+
 }
+
+private fun JsonObject.name(): String =
+    (this["name"] ?: this["fragmentName"])?.jsonPrimitive?.contentOrNull ?: "?"
+
+/**
+ * Packages of a fragment. Three shapes are on disk, all read here:
+ *  - branch `saveModule` output — `elements` is a list, packages are elements of kind "package";
+ *  - new spec shape (`../models`) — `elements` is a map keyed by id, name in `fragmentName`;
+ *  - old `Kd*` serialization (`../samples/kdp`) — packages sit in `packages` directly.
+ */
+private fun packagesOf(fragment: JsonObject): List<String> = when (val elements = fragment["elements"]) {
+    is JsonArray -> elements.map { it.jsonObject }
+    is JsonObject -> elements.values.map { it.jsonObject }
+    else -> (fragment["packages"] as? JsonArray)?.map { it.jsonObject } ?: emptyList()
+}
+    .filter { it.stringOrNull("kind") == null || it.stringOrNull("kind") == "package" }
+    .mapNotNull { it.stringOrNull("name") }
+
+private fun JsonObject.stringOrNull(key: String): String? = this[key]?.jsonPrimitive?.contentOrNull
 
 private fun repoRoot(): File = generateSequence(File("").absoluteFile) { it.parentFile }
     .firstOrNull { File(it, "settings.gradle.kts").isFile }
