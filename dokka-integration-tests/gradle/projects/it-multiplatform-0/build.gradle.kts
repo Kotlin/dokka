@@ -13,7 +13,7 @@ plugins {
 kotlin {
     jvm()
     linuxX64("linux")
-    macosX64("macos")
+    macosArm64("macos")
     js()
 
     sourceSets {

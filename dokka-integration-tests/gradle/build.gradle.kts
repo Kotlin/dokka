@@ -196,7 +196,7 @@ registerTestProjectSuite("testUiShowcaseProject", "ui-showcase")
 fun registerTestProjectSuite(
     name: String,
     projectPath: String,
-    jvm: JavaLanguageVersion? = null,
+    jvm: JavaLanguageVersion = JavaLanguageVersion.of(17),
     configure: JvmTestSuite.() -> Unit = {},
 ) {
     val templateProjectDir = templateProjectsDir.dir(projectPath)
@@ -213,9 +213,7 @@ fun registerTestProjectSuite(
                     .inputFile("templateSettingsGradleKts", templateSettingsGradleKts)
                     .withPathSensitivity(NAME_ONLY)
 
-                if (jvm != null) {
-                    javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
-                }
+                javaLauncher = javaToolchains.launcherFor { languageVersion = jvm }
             }
         }
         configure()

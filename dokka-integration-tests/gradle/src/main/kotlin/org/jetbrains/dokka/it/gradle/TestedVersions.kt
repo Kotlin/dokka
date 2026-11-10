@@ -37,7 +37,7 @@ object TestedVersions {
      */
     val ANDROID =
         BuildVersions.permutations(
-            gradleVersions = listOf("8.7"),
+            gradleVersions = listOf("8.14.5"),
             kotlinVersions = listOf("2.5.0-RC-351", "2.2.21", "2.1.21", "2.0.21"),
             androidGradlePluginVersions = listOf("8.5.2")
         )
