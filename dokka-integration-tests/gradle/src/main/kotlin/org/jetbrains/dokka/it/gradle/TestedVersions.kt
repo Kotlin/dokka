@@ -39,7 +39,7 @@ object TestedVersions {
         BuildVersions.permutations(
             gradleVersions = listOf("8.14.5"),
             kotlinVersions = listOf("2.5.0-RC-351", "2.2.21", "2.1.21", "2.0.21"),
-            androidGradlePluginVersions = listOf("8.5.2")
+            androidGradlePluginVersions = listOf("8.8.2")
         )
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin-wrappers/kotlin-react

@@ -22,7 +22,7 @@ version = "1.0-SNAPSHOT"
 kotlin {
     jvm() // Creates a JVM target with the default name "jvm"
     linuxX64("linux")
-    macosX64("macos")
+    macosArm64("macos")
     js()
     sourceSets {
         val commonMain by getting {

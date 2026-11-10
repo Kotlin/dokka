@@ -18,7 +18,6 @@ kotlin {
         browser()
     }
 
-    macosX64()
     macosArm64()
 
     iosX64()
