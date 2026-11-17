@@ -37,22 +37,19 @@ dependencies {
     // ----------- Analysis dependencies ----------------------------------------------------------------------------
 
     listOf(
-        libs.kotlin.analysis.api.api,
-        libs.kotlin.analysis.api.standalone,
+        libs.kotlin.analysis.api.surface,
+        libs.kotlin.analysis.api.standalone.surface,
+
+        libs.kotlin.analysis.api.impl, // should be runtimeOnly, but it's needed
+        // for kotlinLightMethodChecker (`org.jetbrains.kotlin.asJava.*` classes)
     ).forEach {
         implementation(it) {
             isTransitive = false // see KTIJ-19820
         }
     }
     listOf(
-        libs.kotlin.analysis.api.impl,
-        libs.kotlin.analysis.api.fir,
-        libs.kotlin.low.level.api.fir,
+        libs.kotlin.analysis.api.standalone.implementation,
         libs.kotlin.analysis.api.platform,
-        libs.kotlin.symbol.light.classes,
-        // provides `org.jetbrains.kotlin.analysis.decompiler.*` classes (e.g. ClsKotlinBinaryClassCache),
-        // which since 2.4.20-dev-5364 are no longer bundled in `kotlin-compiler`
-        libs.kotlin.compiler.k2.common,
     ).forEach {
         runtimeOnly(it) {
             isTransitive = false // see KTIJ-19820
