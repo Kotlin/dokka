@@ -47,7 +47,7 @@ private fun buildPage(
             Page(
                 kind = decision.pageKind,
                 segments = segments,
-                represents = listOf(ElementRef(fragment = fragment.name, id = id)),
+                  listOf(ElementRef(fragment = fragment.name, id = id)),
                 children = element.childIds().mapNotNull { childId ->
                     val child = fragment.elements[childId]
                         ?: error("no element for $childId (child of $id) in ${fragment.name}")
@@ -57,7 +57,7 @@ private fun buildPage(
         }
     }
 
-/** Ось контейнеров — единственное, по чему спускаемся. Никогда по fragment.elements.values. */
+/** The container axis — the only thing we descend by. Never by fragment.elements.values. */
 private fun KdElement.childIds(): List<KdElementId> = when (this) {
     is KdModule -> packages
     is KdPackage -> declarations

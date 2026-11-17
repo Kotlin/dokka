@@ -44,6 +44,8 @@ data class Page(
     val segments: List<String>,
     val represents: List<ElementRef>,
     val children: List<Page> = emptyList(),
+    val url: String = segments.joinToString("/", prefix = "/")
+        .let { path -> if (kind == PageKind.CALLABLE) path else "$path/" },
 )
 
 /** The whole site: one root page per module. The aggregate root (step 7) comes later. */
@@ -55,17 +57,12 @@ data class PageSet(
  * Flat, sorted URL list, in the shape of `expected.txt`: pages rendered as `index.html`
  * become a trailing slash, member pages lose their extension.
  *
- * Rendering lives here only until `Urls.kt` takes it over with the real
- * `identifierToFilename` port and percent-encoding.
+ * The trailing-slash rule lives in [Page.url]; this function only walks the tree.
+ * Percent-encoding still comes later, with the `identifierToFilename` port (step 3).
  */
 fun PageSet.urls(): List<String> = modules.flatMap { it.urls() }.sorted()
 
-private fun Page.urls(): List<String> = listOf(render()) + children.flatMap { it.urls() }
-
-private fun Page.render(): String {
-    val path = "/" + segments.joinToString("/")
-    return if (kind == PageKind.CALLABLE) path else "$path/"
-}
+private fun Page.urls(): List<String> = listOf(url) + children.flatMap { it.urls() }
 
 sealed interface PageDecision {
     data class Create(val pageKind: PageKind) : PageDecision
@@ -76,7 +73,7 @@ fun KdElement.pageDecision(): PageDecision = when (this) {
     is KdModule -> PageDecision.Create(PageKind.MODULE)
     is KdPackage -> PageDecision.Create(PageKind.PACKAGE)
     is KdClass -> PageDecision.Create(PageKind.CLASSLIKE)
-    is KdTypealias -> PageDecision.Create(PageKind.CLASSLIKE)   // как в Dokka v1
+    is KdTypealias -> PageDecision.Create(PageKind.CLASSLIKE)   // as in Dokka v1
     is KdFunction -> PageDecision.Create(PageKind.CALLABLE)
     is KdProperty -> PageDecision.Create(PageKind.CALLABLE)
     is KdConstructor -> PageDecision.Create(PageKind.CALLABLE)

@@ -5,6 +5,7 @@
 package org.jetbrains.kotlin.documentation.pages
 
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -44,6 +45,12 @@ fun main(args: Array<String>) {
 
         println("  page set urls:")
         pageSet.urls().forEach { println("    $it") }
+
+        println("  presentation model (module pages):")
+        pageSet.modules.forEach { modulePage ->
+            val content = buildContent(fragment, modulePage)
+            println(PJson.encodeToString(content))
+        }
     }
 
 }
