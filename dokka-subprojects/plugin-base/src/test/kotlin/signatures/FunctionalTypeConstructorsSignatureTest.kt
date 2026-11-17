@@ -302,7 +302,6 @@ class FunctionalTypeConstructorsSignatureTest : BaseAbstractTest() {
         }
     }
 
-    @Ignore("#4516")
     @OnlyJavaSymbols("#3611 - do not show open for Java fields")
     @Test
     fun `java with kotlin function`() {
