@@ -1031,6 +1031,39 @@ class DefaultPsiToDocumentableTranslatorTest : BaseAbstractTest() {
             }
         }
     }
+
+    /**
+     * Reproduces https://github.com/Kotlin/dokka/issues/4621
+     */
+    @Test
+    fun `constant field initialized with a nested method call is documented`() {
+        testInline(
+            """
+            |/src/main/java/sample/Store.java
+            |package sample;
+            |
+            |public class Store {
+            |    /** The value. */
+            |    public static final String VALUE = String.valueOf(Integer.parseInt("1"));
+            |
+            |    /** The home. */
+            |    public static final String HOME = Paths.get(System.getProperty("user.home")).toString();
+            |}
+            """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val properties = module.packages.single().classlikes.single { it.name == "Store" }
+                    .properties.associateBy { it.name }
+                assertEquals(setOf("VALUE", "HOME"), properties.keys.toSet())
+                assertEquals(
+                    "The value.",
+                    properties.getValue("VALUE").documentation.values.single()
+                        .firstChildOfTypeOrNull<Description>()?.firstMemberOfType<Text>()?.body
+                )
+            }
+        }
+    }
 }
 
 private fun DFunction.visibility() = visibility.values.first()
