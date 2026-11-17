@@ -23,7 +23,7 @@ plugins {
 **Document multi-project builds**
 
 When documenting [multi-project builds](https://docs.gradle.org/current/userguide/multi_project_builds.html),
-apply the plugin to every subproject you want to document. Share Dokka configuration across subprojects 
+you need to apply the plugin to every subproject you want to document. Share Dokka configuration across subprojects 
 by using one of the following approaches:
 
 * Convention plugin
@@ -71,7 +71,7 @@ You can use different tasks to generate output in [HTML](dokka-html.md),
 
 **Apply the Gradle Dokka plugin**
 
-Apply the Gradle plugin for Dokka in the root build script of your project:
+Apply the Dokka Gradle plugin (DGP) in the root build script of your project:
 
 ```groovy
 plugins {
@@ -101,7 +101,7 @@ To generate documentation, run the following Gradle task:
 
 This task works for both single and multi-project builds.
 
-Run the `dokkaGenerate` task from the aggregating project by prefixing the task with its project path. For example:
+Run the `dokkaGenerate` task from the aggregating project by prefixing the task with its project path (`:`). For example:
 
 ```bash
 ./gradlew :dokkaGenerate

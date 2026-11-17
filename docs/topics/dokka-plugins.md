@@ -65,7 +65,7 @@ dependencies {
 ```
 
 > When documenting [multi-project](dokka-gradle.md#multi-project-configuration) builds, 
-> you need to [share Dokka configuration across subprojects](dokka-gradle.md#multi-project-configuration).
+> you need to [share Dokka configuration and plugins across subprojects](dokka-gradle.md#multi-project-configuration).
 >
 {style="note"}
 

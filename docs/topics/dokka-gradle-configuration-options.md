@@ -289,6 +289,7 @@ dokka {
     // General configuration section
     // ..
 
+    // Source sets configuration
     dokkaSourceSets {
         // Example: Configuration exclusive to the 'linux' source set
         named("linux") {
