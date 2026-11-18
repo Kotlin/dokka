@@ -9,7 +9,7 @@ import com.intellij.openapi.util.Disposer
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
-import org.jetbrains.dokka.analysis.java.registerJavaPsiSearchExecutors
+import org.jetbrains.dokka.analysis.java.registerJavaPsiExtensionPoints
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.analysis.api.projectStructure.KaSourceModule
 import org.jetbrains.kotlin.analysis.api.standalone.buildStandaloneAnalysisAPISession
@@ -153,7 +153,7 @@ internal fun createAnalysisSession(
     }
 
     // the application environment exists only once the session has been built
-    registerJavaPsiSearchExecutors(projectDisposable)
+    registerJavaPsiExtensionPoints(projectDisposable)
 
     return KotlinAnalysis(sourcesModule, analysisSession, projectDisposable)
 }
