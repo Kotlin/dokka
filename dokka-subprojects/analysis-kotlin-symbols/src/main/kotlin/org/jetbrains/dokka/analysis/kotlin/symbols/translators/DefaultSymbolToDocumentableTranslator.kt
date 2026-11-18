@@ -962,7 +962,7 @@ internal class DokkaSymbolVisitor(
 
     @OptIn(KaExperimentalApi::class)
     context(_: KaSession)
-    private fun toBoundFrom(type: KaType, containingSymbol: KaSymbol): Bound {
+    private fun toBoundFrom(type: KaType, containingSymbol: KaDeclarationSymbol): Bound {
         return with(typeTranslator) { toBoundFrom(type, Location(containingSymbol)) }
     }
 

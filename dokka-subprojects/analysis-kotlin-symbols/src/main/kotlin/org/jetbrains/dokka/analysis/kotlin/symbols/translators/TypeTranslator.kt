@@ -9,6 +9,7 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.analysis.kotlin.symbols.translators.AnnotationTranslator.Companion.getPresentableName
 import org.jetbrains.dokka.analysis.kotlin.symbols.utils.filterOutAny
 import org.jetbrains.dokka.analysis.kotlin.symbols.utils.getLocation
+import org.jetbrains.dokka.analysis.kotlin.symbols.utils.toDokkaVisibility
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -22,7 +23,10 @@ import org.jetbrains.kotlin.analysis.api.types.*
 
 internal const val ERROR_CLASS_NAME = "<ERROR CLASS>"
 
-internal class Location(private val symbol: KaSymbol) {
+internal class Location(
+    private val symbol: KaDeclarationSymbol,
+) {
+    private val visibility: DokkaConfiguration.Visibility = symbol.visibility.toDokkaVisibility()
     context(_: KaSession)
     fun computePath(): String {
         val psi: PsiElement? = symbol.sourcePsiSafe<PsiElement>()
@@ -30,6 +34,8 @@ internal class Location(private val symbol: KaSymbol) {
             getLocation(psi) ?: getDRIFromSymbol(symbol).toString()
         else getDRIFromSymbol(symbol).toString()
     }
+
+    fun isAccessible(visibilities: Set<DokkaConfiguration.Visibility>,): Boolean = visibility in visibilities
 }
 
 /**
@@ -232,6 +238,10 @@ internal class TypeTranslator(
 
     context(_: KaSession)
     private fun logErrorType(errorType: KaErrorType, location: Location) {
+        // Do not report unresolved types for declarations that are not documented
+        // (e.g. private members) - https://github.com/Kotlin/dokka/issues/4620
+        if (!location.isAccessible(sourceSet.documentedVisibilities)) return
+
         @OptIn(KaNonPublicApi::class)
         logger.warn(buildString {
             append(if (errorType.presentableText != null) "`${errorType.presentableText}` is unresolved" else errorType.errorMessage)
