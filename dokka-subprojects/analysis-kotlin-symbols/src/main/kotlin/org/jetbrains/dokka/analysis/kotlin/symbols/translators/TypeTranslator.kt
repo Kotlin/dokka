@@ -6,6 +6,7 @@ package org.jetbrains.dokka.analysis.kotlin.symbols.translators
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.isAllowedInPackage
 import org.jetbrains.dokka.analysis.kotlin.symbols.translators.AnnotationTranslator.Companion.getPresentableName
 import org.jetbrains.dokka.analysis.kotlin.symbols.utils.filterOutAny
 import org.jetbrains.dokka.analysis.kotlin.symbols.utils.getLocation
@@ -33,8 +34,6 @@ internal class Location(
         KaSymbolVisibility.PACKAGE_PRIVATE -> DokkaConfiguration.Visibility.PACKAGE
         KaSymbolVisibility.UNKNOWN, KaSymbolVisibility.LOCAL -> DokkaConfiguration.Visibility.PUBLIC
     }
-    private val visibility: DokkaConfiguration.Visibility = symbol.visibility.toDokkaVisibility()
-
     context(_: KaSession)
     fun computePath(): String {
         val psi: PsiElement? = symbol.sourcePsiSafe<PsiElement>()
@@ -43,7 +42,9 @@ internal class Location(
         else getDRIFromSymbol(symbol).toString()
     }
 
-    fun isAccessible(visibilities: Set<DokkaConfiguration.Visibility>,): Boolean = visibility in visibilities
+    context(_: KaSession)
+    fun isAccessible(sourceSet: DokkaConfiguration.DokkaSourceSet): Boolean =
+        symbol.visibility.toDokkaVisibility().isAllowedInPackage(getDRIFromSymbol(symbol).packageName, sourceSet)
 }
 
 /**
@@ -248,7 +249,7 @@ internal class TypeTranslator(
     private fun logErrorType(errorType: KaErrorType, location: Location) {
         // Do not report unresolved types for declarations that are not documented
         // (e.g. private members) - https://github.com/Kotlin/dokka/issues/4620
-        if (!location.isAccessible(sourceSet.documentedVisibilities)) return
+        if (!location.isAccessible(sourceSet)) return
 
         @OptIn(KaNonPublicApi::class)
         logger.warn(buildString {
