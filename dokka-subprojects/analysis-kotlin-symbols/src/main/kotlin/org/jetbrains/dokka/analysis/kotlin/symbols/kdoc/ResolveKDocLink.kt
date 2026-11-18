@@ -16,6 +16,7 @@ import org.jetbrains.kotlin.analysis.api.session.analyze
 import org.jetbrains.kotlin.analysis.api.session.useSiteModule
 import org.jetbrains.kotlin.analysis.api.projectStructure.KaSourceModule
 import org.jetbrains.kotlin.analysis.api.projectStructure.contextModule
+import org.jetbrains.kotlin.analysis.api.resolution.resolveSuccessfulSymbols
 import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocLink
@@ -169,8 +170,8 @@ private fun resolveKDocLinkToDRI(kDocLink: KDocLink): DRI? {
 context(_: KaSession)
 private fun resolveToSymbol(kDocLink: KDocLink): KaSymbol? {
     val lastNameSegment = kDocLink.children.filterIsInstance<KDocName>().lastOrNull()
-    @OptIn(KaExperimentalApi::class, KtExperimentalApi::class)
-    return lastNameSegment?.resolveSymbols()?.sortedWith(linkCandidatesComparator)?.firstOrNull()
+    @OptIn(KaExperimentalApi::class)
+    return lastNameSegment?.resolveSuccessfulSymbols()?.sortedWith(linkCandidatesComparator)?.firstOrNull()
 }
 
 /**

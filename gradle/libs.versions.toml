@@ -20,12 +20,12 @@ ktor = "2.3.11"
 javaDiffUtils = "4.12"
 
 ## Analysis
-kotlin-compiler-k2 = "2.5.0-dev-3229"
+kotlin-compiler-k2 = "2.5.0-RC"
 
 # MUST match the version of the intellij platform used in the kotlin compiler,
 # otherwise this will lead to different versions of psi API and implementations
 # on the classpath and will fail with hard to debug problems in runtime.
-# See: https://github.com/JetBrains/kotlin/blob/build-2.5.0-dev-3229/gradle/versions.properties#L1
+# See: https://github.com/JetBrains/kotlin/blob/v2.5.0-RC/gradle/versions.properties#L1
 intellij-platform = "261.24374.151"
 
 ## HTML
@@ -108,16 +108,8 @@ gradlePlugin-androidApi = { module = "com.android.tools.build:gradle-api", versi
 
 ###### K2 analysis ######
 kotlin-compiler-k2 = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin-compiler-k2" }
-# Since 2.4.20-dev-5364 the `org.jetbrains.kotlin.analysis.decompiler.*` classes (e.g. ClsKotlinBinaryClassCache,
-# required by StandaloneProjectFactory) were moved out of `kotlin-compiler` into this artifact.
-kotlin-compiler-k2-common = { module = "org.jetbrains.kotlin:kotlin-compiler-common-for-ide", version.ref = "kotlin-compiler-k2" }
-kotlin-analysis-api-api = { module = "org.jetbrains.kotlin:analysis-api-for-ide", version.ref = "kotlin-compiler-k2" }
-kotlin-analysis-api-impl = { module = "org.jetbrains.kotlin:analysis-api-impl-base-for-ide", version.ref = "kotlin-compiler-k2" }
-kotlin-analysis-api-fir = { module = "org.jetbrains.kotlin:analysis-api-k2-for-ide", version.ref = "kotlin-compiler-k2" }
-kotlin-low-level-api-fir = { module = "org.jetbrains.kotlin:low-level-api-fir-for-ide", version.ref = "kotlin-compiler-k2" }
-kotlin-analysis-api-standalone = { module = "org.jetbrains.kotlin:analysis-api-standalone-for-ide", version.ref = "kotlin-compiler-k2" }
-kotlin-analysis-api-platform = { module = "org.jetbrains.kotlin:analysis-api-platform-interface-for-ide", version.ref = "kotlin-compiler-k2" }
-kotlin-symbol-light-classes = { module = "org.jetbrains.kotlin:symbol-light-classes-for-ide", version.ref = "kotlin-compiler-k2" }
+kotlin-analysis-api = { module = "org.jetbrains.kotlin:kotlin-analysis-api", version.ref = "kotlin-compiler-k2" }
+kotlin-analysis-api-impl = { module = "org.jetbrains.kotlin:kotlin-analysis-api-implementation", version.ref = "kotlin-compiler-k2" }
 
 #### Java analysis ####
 intellij-java-psi-api = { module = "com.jetbrains.intellij.java:java-psi", version.ref = "intellij-platform" }
