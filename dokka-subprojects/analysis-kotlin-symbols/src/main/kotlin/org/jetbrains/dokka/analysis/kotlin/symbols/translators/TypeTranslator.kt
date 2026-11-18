@@ -9,7 +9,6 @@ import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.analysis.kotlin.symbols.translators.AnnotationTranslator.Companion.getPresentableName
 import org.jetbrains.dokka.analysis.kotlin.symbols.utils.filterOutAny
 import org.jetbrains.dokka.analysis.kotlin.symbols.utils.getLocation
-import org.jetbrains.dokka.analysis.kotlin.symbols.utils.toDokkaVisibility
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -26,7 +25,16 @@ internal const val ERROR_CLASS_NAME = "<ERROR CLASS>"
 internal class Location(
     private val symbol: KaDeclarationSymbol,
 ) {
+    internal fun KaSymbolVisibility.toDokkaVisibility(): DokkaConfiguration.Visibility = when (this) {
+        KaSymbolVisibility.PUBLIC -> DokkaConfiguration.Visibility.PUBLIC
+        KaSymbolVisibility.PROTECTED, KaSymbolVisibility.PACKAGE_PROTECTED -> DokkaConfiguration.Visibility.PROTECTED
+        KaSymbolVisibility.INTERNAL -> DokkaConfiguration.Visibility.INTERNAL
+        KaSymbolVisibility.PRIVATE -> DokkaConfiguration.Visibility.PRIVATE
+        KaSymbolVisibility.PACKAGE_PRIVATE -> DokkaConfiguration.Visibility.PACKAGE
+        KaSymbolVisibility.UNKNOWN, KaSymbolVisibility.LOCAL -> DokkaConfiguration.Visibility.PUBLIC
+    }
     private val visibility: DokkaConfiguration.Visibility = symbol.visibility.toDokkaVisibility()
+
     context(_: KaSession)
     fun computePath(): String {
         val psi: PsiElement? = symbol.sourcePsiSafe<PsiElement>()
