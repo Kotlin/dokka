@@ -108,11 +108,8 @@ gradlePlugin-androidApi = { module = "com.android.tools.build:gradle-api", versi
 
 ###### K2 analysis ######
 kotlin-compiler-k2 = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin-compiler-k2" }
-kotlin-analysis-api-surface = { module = "org.jetbrains.kotlin:kotlin-analysis-api-surface", version.ref = "kotlin-compiler-k2" }
+kotlin-analysis-api = { module = "org.jetbrains.kotlin:kotlin-analysis-api", version.ref = "kotlin-compiler-k2" }
 kotlin-analysis-api-impl = { module = "org.jetbrains.kotlin:kotlin-analysis-api-implementation", version.ref = "kotlin-compiler-k2" }
-kotlin-analysis-api-platform = { module = "org.jetbrains.kotlin:kotlin-analysis-api-platform-interface", version.ref = "kotlin-compiler-k2" }
-kotlin-analysis-api-standalone-surface = { module = "org.jetbrains.kotlin:kotlin-analysis-api-standalone-surface", version.ref = "kotlin-compiler-k2" }
-kotlin-analysis-api-standalone-implementation = { module = "org.jetbrains.kotlin:kotlin-analysis-api-standalone-implementation", version.ref = "kotlin-compiler-k2" }
 
 #### Java analysis ####
 intellij-java-psi-api = { module = "com.jetbrains.intellij.java:java-psi", version.ref = "intellij-platform" }
