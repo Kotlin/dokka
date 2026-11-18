@@ -383,6 +383,10 @@ public final class org/jetbrains/dokka/GlobalDokkaConfiguration {
 public abstract interface annotation class org/jetbrains/dokka/InternalDokkaApi : java/lang/annotation/Annotation {
 }
 
+public final class org/jetbrains/dokka/IsAllowedInPackageKt {
+	public static final fun isAllowedInPackage (Lorg/jetbrains/dokka/DokkaConfiguration$Visibility;Ljava/lang/String;Lorg/jetbrains/dokka/DokkaConfiguration$DokkaSourceSet;)Z
+}
+
 public final class org/jetbrains/dokka/PackageOptionsImpl : org/jetbrains/dokka/DokkaConfiguration$PackageOptions {
 	public fun <init> (Ljava/lang/String;ZLjava/lang/Boolean;ZZLjava/util/Set;)V
 	public final fun component1 ()Ljava/lang/String;
