@@ -107,7 +107,6 @@ gradlePlugin-gradle-foojayToolchains = { module = "org.gradle.toolchains:foojay-
 gradlePlugin-androidApi = { module = "com.android.tools.build:gradle-api", version.ref = "gradlePlugin-android" }
 
 ###### K2 analysis ######
-kotlin-compiler-k2 = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin-compiler-k2" }
 kotlin-analysis-api = { module = "org.jetbrains.kotlin:kotlin-analysis-api", version.ref = "kotlin-compiler-k2" }
 kotlin-analysis-api-impl = { module = "org.jetbrains.kotlin:kotlin-analysis-api-implementation", version.ref = "kotlin-compiler-k2" }
 
@@ -118,8 +117,7 @@ intellij-java-psi-impl = { module = "com.jetbrains.intellij.java:java-psi-impl",
 # on the `java-psi(-impl)` classpath; they now live in the platform `core` module.
 intellij-platform-core = { module = "com.jetbrains.intellij.platform:core", version.ref = "intellij-platform" }
 intellij-util= { module = "com.jetbrains.intellij.platform:util", version.ref = "intellij-platform" }
-intellij-util-base= { module = "com.jetbrains.intellij.platform:util-base", version.ref = "intellij-platform" }
-
+intellij-util-base = { module = "com.jetbrains.intellij.platform:util-base", version.ref = "intellij-platform" }
 #### HTML ####
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 freemarker = { module = "org.freemarker:freemarker", version.ref = "freemarker" }

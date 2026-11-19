@@ -38,19 +38,15 @@ dependencies {
 
     implementation(libs.kotlin.analysis.api)
     // should be runtimeOnly, but it's needed for kotlinLightMethodChecker (`org.jetbrains.kotlin.asJava.*` classes)
-    implementation(libs.kotlin.analysis.api.impl)
-
-    // copy-pasted from Analysis API https://github.com/JetBrains/kotlin/blob/a10042f9099e20a656dec3ecf1665eea340a3633/analysis/low-level-api-fir/build.gradle.kts#L37
-    runtimeOnly("com.github.ben-manes.caffeine:caffeine:2.9.3")
-
-    implementation(libs.kotlin.compiler.k2) {
-        isTransitive = false
-    }
+    // and the other platform classes (org.jetbrains.kotlin.platform.*)
+    // also, see KT-91823
+    compileOnly(libs.kotlin.analysis.api.impl)
 
     // TODO [beresnev] get rid of it
     compileOnly(libs.kotlinx.coroutines.core)
 
-    // to gain access to com.intellij.diagnostic.LoadingState in the compile time
+    // to gain access to `com.intellij.openapi.util.NlsSafe` (and other annotation classes referenced
+    // by the inferred types of the Analysis API) at compile time in KtExpression.text
     compileOnly(libs.intellij.util.base)
 }
 
