@@ -38,10 +38,16 @@ dependencies {
 
     implementation(libs.kotlin.analysis.api)
     // should be runtimeOnly, but it's needed for kotlinLightMethodChecker (`org.jetbrains.kotlin.asJava.*` classes)
-    implementation(libs.kotlin.analysis.api.impl)
+    // and the other platform classes (org.jetbrains.kotlin.platform.*)
+    // also, see KT-91823
+    compileOnly(libs.kotlin.analysis.api.impl)
 
     // TODO [beresnev] get rid of it
     compileOnly(libs.kotlinx.coroutines.core)
+
+    // to gain access to `com.intellij.openapi.util.NlsSafe` (and other annotation classes referenced
+    // by the inferred types of the Analysis API) at compile time in KtExpression.text
+    compileOnly(libs.intellij.util.base)
 }
 
 tasks.shadowJar {

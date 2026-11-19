@@ -117,6 +117,7 @@ intellij-java-psi-impl = { module = "com.jetbrains.intellij.java:java-psi-impl",
 # on the `java-psi(-impl)` classpath; they now live in the platform `core` module.
 intellij-platform-core = { module = "com.jetbrains.intellij.platform:core", version.ref = "intellij-platform" }
 intellij-util= { module = "com.jetbrains.intellij.platform:util", version.ref = "intellij-platform" }
+intellij-util-base = { module = "com.jetbrains.intellij.platform:util-base", version.ref = "intellij-platform" }
 #### HTML ####
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 freemarker = { module = "org.freemarker:freemarker", version.ref = "freemarker" }
