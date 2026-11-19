@@ -2204,6 +2204,27 @@ public final class org/jetbrains/dokka/model/UnresolvedBound : org/jetbrains/dok
 	public fun withNewExtras (Lorg/jetbrains/dokka/model/properties/PropertyContainer;)Lorg/jetbrains/dokka/model/UnresolvedBound;
 }
 
+public final class org/jetbrains/dokka/model/UnresolvedTypeExtra : org/jetbrains/dokka/model/properties/ExtraProperty {
+	public static final field Key Lorg/jetbrains/dokka/model/UnresolvedTypeExtra$Key;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/dokka/model/UnresolvedTypeExtra;
+	public static synthetic fun copy$default (Lorg/jetbrains/dokka/model/UnresolvedTypeExtra;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/jetbrains/dokka/model/UnresolvedTypeExtra;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getKey ()Lorg/jetbrains/dokka/model/UnresolvedTypeExtra$Key;
+	public synthetic fun getKey ()Lorg/jetbrains/dokka/model/properties/ExtraProperty$Key;
+	public final fun getLocation ()Ljava/lang/String;
+	public final fun getMessage ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/jetbrains/dokka/model/UnresolvedTypeExtra$Key : org/jetbrains/dokka/model/properties/ExtraProperty$Key {
+	public synthetic fun mergeStrategyFor (Ljava/lang/Object;Ljava/lang/Object;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+	public fun mergeStrategyFor (Lorg/jetbrains/dokka/model/UnresolvedTypeExtra;Lorg/jetbrains/dokka/model/UnresolvedTypeExtra;)Lorg/jetbrains/dokka/model/properties/MergeStrategy;
+}
+
 public abstract class org/jetbrains/dokka/model/Variance : org/jetbrains/dokka/model/Projection {
 	public abstract fun getInner ()Lorg/jetbrains/dokka/model/Bound;
 }

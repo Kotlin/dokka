@@ -62,33 +62,7 @@ internal class ReportUndocumentedTransformer : DocumentableTransformer {
         sourceSet: DokkaSourceSet
     ) {
         if (isUndocumented(documentable, sourceSet)) {
-            val documentableDescription = with(documentable) {
-                buildString {
-                    dri.packageName?.run {
-                        append(this)
-                        append("/")
-                    }
-
-                    dri.classNames?.run {
-                        append(this)
-                        append("/")
-                    }
-
-                    dri.callable?.run {
-                        append(name)
-                        append("/")
-                        append(signature())
-                        append("/")
-                    }
-
-                    val sourceSetName = sourceSet.displayName
-                    if (sourceSetName != null.toString()) {
-                        append(" ($sourceSetName)")
-                    }
-                }
-            }
-
-            context.logger.warn("Undocumented: $documentableDescription")
+            context.logger.warn("Undocumented: ${documentable.sourceSetAwareDescription(setOf(sourceSet))}")
         }
     }
 

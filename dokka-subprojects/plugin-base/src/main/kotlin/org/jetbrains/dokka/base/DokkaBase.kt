@@ -121,6 +121,25 @@ public class DokkaBase : DokkaPlugin() {
                 suppressedBySuppressTagDocumentableFilter,
                 obviousFunctionsVisbilityFilter,
                 inheritedEntriesVisbilityFilter,
+                unresolvedTypesReporter,
+            )
+        }
+    }
+
+    /**
+     * Reports unresolved types after the documentation filters, so declarations
+     * that are not documented (e.g. private ones) do not produce warnings
+     */
+    public val unresolvedTypesReporter: Extension<PreMergeDocumentableTransformer, *, *> by extending {
+        preMergeDocumentableTransformer providing ::ReportUnresolvedTypesTransformer order {
+            after(
+                deprecatedDocumentableFilter,
+                suppressedDocumentableFilter,
+                suppressedByAnnotationsFilter,
+                documentableVisibilityFilter,
+                suppressedBySuppressTagDocumentableFilter,
+                obviousFunctionsVisbilityFilter,
+                inheritedEntriesVisbilityFilter,
             )
         }
     }

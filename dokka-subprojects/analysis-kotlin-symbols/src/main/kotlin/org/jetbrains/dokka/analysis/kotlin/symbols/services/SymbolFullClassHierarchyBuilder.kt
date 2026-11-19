@@ -114,7 +114,7 @@ internal class SymbolFullClassHierarchyBuilder(context: DokkaContext) : FullClas
         documentable: Iterable<Documentable>,
         sourceSet: DokkaConfiguration.DokkaSourceSet
     ): Map<DRI, SuperclassesWithKind> {
-        val typeTranslator = TypeTranslator(sourceSet, AnnotationTranslator(logger), logger)
+        val typeTranslator = TypeTranslator(sourceSet, AnnotationTranslator(logger))
         val hierarchy = mutableMapOf<DRI, SuperclassesWithKind>()
 
         analyze(kotlinAnalysis.getModule(sourceSet)) {

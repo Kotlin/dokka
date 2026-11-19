@@ -34,10 +34,6 @@ class SymbolsTranslatorTest : BaseAbstractTest() {
                     "`UnresolvedSymbols` is unresolved in file:///PATH/Test.kt:1:7",
                     warn.replace(path, "PATH")
                 )
-                assertEquals(
-                    1,
-                    logger.debugMessages.size
-                )
             }
         }
     }

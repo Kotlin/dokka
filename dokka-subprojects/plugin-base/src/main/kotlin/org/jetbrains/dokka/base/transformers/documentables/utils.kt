@@ -4,10 +4,38 @@
 
 package org.jetbrains.dokka.base.transformers.documentables
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.model.Annotations
 import org.jetbrains.dokka.model.Documentable
 import org.jetbrains.dokka.model.ExceptionInSupertypes
 import org.jetbrains.dokka.model.properties.WithExtraProperties
+
+/**
+ * Human-readable description of a [Documentable] built from its [org.jetbrains.dokka.links.DRI],
+ * e.g. `com.example/SomeClass/someFunction/()/` optionally followed by source set display names.
+ */
+internal fun Documentable.sourceSetAwareDescription(
+    sourceSets: Set<DokkaConfiguration.DokkaSourceSet>,
+): String = buildString {
+    dri.packageName?.run {
+        append(this)
+        append("/")
+    }
+    dri.classNames?.run {
+        append(this)
+        append("/")
+    }
+    dri.callable?.run {
+        append(name)
+        append("/")
+        append(signature())
+        append("/")
+    }
+    val sourceSetName = sourceSets.joinToString { it.displayName }
+    if (sourceSetName.isNotEmpty() && sourceSetName != "null") {
+        append(" ($sourceSetName)")
+    }
+}
 
 public val <T : Documentable> WithExtraProperties<T>.isException: Boolean
     get() = extra[ExceptionInSupertypes] != null

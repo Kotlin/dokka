@@ -58,6 +58,7 @@ public final class org/jetbrains/dokka/base/DokkaBase : org/jetbrains/dokka/plug
 	public final fun getSuppressedDocumentableFilter ()Lorg/jetbrains/dokka/plugability/Extension;
 	public final fun getTabSortingStrategy ()Lorg/jetbrains/dokka/plugability/ExtensionPoint;
 	public final fun getUndocumentedCodeReporter ()Lorg/jetbrains/dokka/plugability/Extension;
+	public final fun getUnresolvedTypesReporter ()Lorg/jetbrains/dokka/plugability/Extension;
 }
 
 public final class org/jetbrains/dokka/base/DokkaBaseConfiguration : org/jetbrains/dokka/plugability/ConfigurableBlock {
