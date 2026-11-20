@@ -8,6 +8,7 @@ import org.gradle.api.logging.LogLevel
 import org.gradle.api.logging.LogLevel.*
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.tooling.BuildException
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.util.GradleVersion
 import org.jetbrains.dokka.it.AbstractIntegrationTest
@@ -124,16 +125,45 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                     "-XX:SoftRefLRUPolicyMSPerMB=10")
     }
 
+    /**
+     * Number of attempts [buildRelaxed] makes when the Gradle Tooling API fails to
+     * execute the build (e.g. `Could not execute build using connection to Gradle distribution ...`),
+     * which is usually a flaky network error when downloading the distribution or dependencies.
+     *
+     * Any [BuildException] or [GradleConnectionException] is considered retryable
+     * (`GradleConnectionException` does not extend `BuildException` in the tooling API
+     * used on the test classpath, so both are checked explicitly).
+     */
+    private val BUILD_ATTEMPTS = 3
+
+    /** Delay between [buildRelaxed] attempts, grows per attempt. */
+    private val BUILD_RETRY_DELAY = 10.seconds
+
     fun GradleRunner.buildRelaxed(): BuildResult {
-        return try {
-            build()
-        } catch (e: Throwable) {
-            val gradleConnectionException = e.withAllCauses().find { it is GradleConnectionException }
-            if (gradleConnectionException != null) {
-                gradleConnectionException.printStackTrace()
-                throw IllegalStateException("Assumed Gradle connection", gradleConnectionException)
+        var attempt = 1
+        while (true) {
+            try {
+                return build()
+            } catch (e: Throwable) {
+                val buildException = e.withAllCauses()
+                    .find { it is BuildException || it is GradleConnectionException }
+                // Only Tooling API failures are considered retryable infra flakiness,
+                // everything else is a deterministic failure.
+                if (buildException == null || attempt >= BUILD_ATTEMPTS) {
+                    buildException?.printStackTrace()
+                    if (buildException != null) {
+                        throw IllegalStateException("Assumed Gradle connection", buildException)
+                    }
+                    println(e)
+                    throw e
+                }
+                println(
+                    "Gradle connection failure (attempt $attempt/$BUILD_ATTEMPTS), " +
+                            "retrying in ${BUILD_RETRY_DELAY.inWholeSeconds}s: ${buildException.message}"
+                )
+                Thread.sleep(BUILD_RETRY_DELAY.inWholeMilliseconds * attempt)
+                attempt++
             }
-            throw e
         }
     }
 
