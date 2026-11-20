@@ -258,7 +258,22 @@
                                             <dd><code>{{ parameter.name }}</code> - {{ parameter.description|raw }}</dd>
                                             {% endif %}
                                             {% endfor %}
+                                            {% if constructor.throwsTags.size() != 0 %}
+                                            <dt><span class="throwsLabel">Throws:</span></dt>
+                                            {% for throws in constructor.throwsTags %}
+                                            <dd><code>{{ throws.type|raw }}</code>{% if throws.description != "" %} - {{ throws.description|raw }}{% endif %}</dd>
+                                            {% endfor %}
+                                            {% endif %}
                                         </dl>
+                                        {% else %}
+                                            {% if constructor.throwsTags.size() != 0 %}
+                                            <dl>
+                                                <dt><span class="throwsLabel">Throws:</span></dt>
+                                                {% for throws in constructor.throwsTags %}
+                                                <dd><code>{{ throws.type|raw }}</code>{% if throws.description != "" %} - {{ throws.description|raw }}{% endif %}</dd>
+                                                {% endfor %}
+                                            </dl>
+                                            {% endif %}
                                         {% endif %}
                                     </li>
                                 </ul>
@@ -303,6 +318,13 @@
                                         {% if method.returnTagContent != "" %}
                                             <dt><span class="returnLabel">Returns:</span></dt>
                                             <dd>{{ method.returnTagContent|raw }}</dd>
+                                        {% endif %}
+
+                                        {% if method.throwsTags.size() != 0 %}
+                                            <dt><span class="throwsLabel">Throws:</span></dt>
+                                            {% for throws in method.throwsTags %}
+                                            <dd><code>{{ throws.type|raw }}</code>{% if throws.description != "" %} - {{ throws.description|raw }}{% endif %}</dd>
+                                            {% endfor %}
                                         {% endif %}
 
                                         {% if method.sinceTagContent.size() != 0 %}

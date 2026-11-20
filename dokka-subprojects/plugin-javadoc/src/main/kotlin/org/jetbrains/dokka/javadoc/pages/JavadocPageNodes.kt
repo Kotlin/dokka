@@ -155,6 +155,13 @@ public data class JavadocPropertyNode(
     override val extra: PropertyContainer<DProperty> = PropertyContainer.empty()
 ) : AnchorableJavadocNode(name, dri), WithJavadocExtra<DProperty>, WithBrief
 
+public data class JavadocTagWrapper(
+    val name: String,
+    val type: ContentNode,
+    val description: List<ContentNode>,
+    val address: DRI? = null
+)
+
 public data class JavadocFunctionNode(
     val signature: JavadocSignatureContentNode,
     override val brief: List<ContentNode>,
@@ -166,8 +173,57 @@ public data class JavadocFunctionNode(
 
     override val name: String,
     override val dri: DRI,
-    override val extra: PropertyContainer<DFunction> = PropertyContainer.empty()
+    override val extra: PropertyContainer<DFunction> = PropertyContainer.empty(),
+    val throwsTags: List<JavadocTagWrapper> = emptyList()
 ) : AnchorableJavadocNode(name, dri), WithJavadocExtra<DFunction>, WithBrief {
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public constructor(
+        signature: JavadocSignatureContentNode,
+        brief: List<ContentNode>,
+        description: List<ContentNode>,
+        parameters: List<JavadocParameterNode>,
+        returnTagContent: List<ContentNode>,
+        sinceTagContent: List<List<ContentNode>>,
+        name: String,
+        dri: DRI,
+        extra: PropertyContainer<DFunction> = PropertyContainer.empty()
+    ) : this(
+        signature = signature,
+        brief = brief,
+        description = description,
+        parameters = parameters,
+        returnTagContent = returnTagContent,
+        sinceTagContent = sinceTagContent,
+        name = name,
+        dri = dri,
+        extra = extra,
+        throwsTags = emptyList()
+    )
+
+    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
+    public fun copy(
+        signature: JavadocSignatureContentNode = this.signature,
+        brief: List<ContentNode> = this.brief,
+        description: List<ContentNode> = this.description,
+        parameters: List<JavadocParameterNode> = this.parameters,
+        returnTagContent: List<ContentNode> = this.returnTagContent,
+        sinceTagContent: List<List<ContentNode>> = this.sinceTagContent,
+        name: String = this.name,
+        dri: DRI = this.dri,
+        extra: PropertyContainer<DFunction> = this.extra
+    ): JavadocFunctionNode = copy(
+        signature = signature,
+        brief = brief,
+        description = description,
+        parameters = parameters,
+        returnTagContent = returnTagContent,
+        sinceTagContent = sinceTagContent,
+        name = name,
+        dri = dri,
+        extra = extra,
+        throwsTags = this.throwsTags
+    )
+
     val isInherited: Boolean
         get() {
             val extra = extra[InheritedMember]
