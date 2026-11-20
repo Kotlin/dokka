@@ -17,9 +17,10 @@ public class JavadocExternalLocationProviderFactory(
 ) : ExternalLocationProviderFactory by ExternalLocationProviderFactoryWithCache(
     { doc ->
         when (doc.packageList.url) {
-            DokkaConfiguration.ExternalDocumentationLink.androidX().packageListUrl,
-            DokkaConfiguration.ExternalDocumentationLink.androidSdk().packageListUrl,
-            ->
+            DokkaConfiguration.ExternalDocumentationLink.androidX().packageListUrl ->
+                AndroidXExternalLocationProvider(doc, context)
+
+            DokkaConfiguration.ExternalDocumentationLink.androidSdk().packageListUrl ->
                 AndroidExternalLocationProvider(doc, context)
 
             else ->
