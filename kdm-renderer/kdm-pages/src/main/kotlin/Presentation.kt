@@ -7,8 +7,17 @@ package org.jetbrains.kotlin.documentation.pages
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.jetbrains.kotlin.documentation.KdClass
+import org.jetbrains.kotlin.documentation.KdConstructor
+import org.jetbrains.kotlin.documentation.KdElement
 import org.jetbrains.kotlin.documentation.KdFragment
+import org.jetbrains.kotlin.documentation.KdFunction
+import org.jetbrains.kotlin.documentation.KdInheritedMember
+import org.jetbrains.kotlin.documentation.KdModule
 import org.jetbrains.kotlin.documentation.KdPackage
+import org.jetbrains.kotlin.documentation.KdProperty
+import org.jetbrains.kotlin.documentation.KdRefinedElement
+import org.jetbrains.kotlin.documentation.KdTypealias
 
 /**
  * Presentation model: page content ready to be handed to the React renderer.
@@ -54,6 +63,58 @@ data class PackageEntry(
 )
 
 /**
+ * Step 2 finding: the package page (P-03) carries member groups — Types, Functions,
+ * Properties. Only non-empty groups are built; how they are presented (tabs,
+ * sections, otherwise) is a UI decision.
+ *
+ * Data: the package's top-level declarations — child pages of the package page.
+ * The group comes from the element kind, the name from the KDM element,
+ * the address from the child page url.
+ *
+ * Notes:
+ *  - constructors cannot appear at the package level, so no group for them;
+ *  - a typealias goes into Types, as in Dokka v1;
+ *  - the row signature (`fun foo(): Bar`) comes later, with signature tokens;
+ *  - the enum order of [MemberGroupKind] is the group order on the page (K-07).
+ */
+@Serializable
+@SerialName("memberGroup")
+data class MemberGroup(
+    val group: MemberGroupKind,
+    val members: List<MemberEntry>,
+) : ContentNode
+
+/** Group kinds of a package page. The declaration order is the display order. */
+enum class MemberGroupKind {
+    TYPES,
+    FUNCTIONS,
+    PROPERTIES,
+}
+
+/** One row of a member group on the package page. */
+@Serializable
+data class MemberEntry(
+    /** Simple declaration name: "Foo", "printHello". */
+    val name: String,
+    /** Ready url of the member page: "/jvm/org.jetbrains.dokka.uitest/Foo/". */
+    val url: String,
+)
+
+/** Group and display name of a package-level declaration; null when it owes no row. */
+private fun memberGroupEntry(element: KdElement): Pair<MemberGroupKind, String>? = when (element) {
+    is KdClass -> MemberGroupKind.TYPES to element.name
+    is KdTypealias -> MemberGroupKind.TYPES to element.name
+    is KdFunction -> MemberGroupKind.FUNCTIONS to element.name
+    is KdProperty -> MemberGroupKind.PROPERTIES to element.name
+    is KdConstructor,
+    is KdModule,
+    is KdPackage,
+    is KdRefinedElement,
+    is KdInheritedMember,
+    -> null
+}
+
+/**
  * JSON format for the presentation model. The same `kind` discriminator as KDM,
  * so the React side reads both formats with one rule.
  */
@@ -68,7 +129,7 @@ val PJson: Json = Json {
  *
  * Data comes from KDM through `represents`: id from the ref -> element in [fragment].
  * Addresses come from the tree: a child page already has its url computed.
- * Only MODULE is filled for now; other page kinds return an empty list.
+ * MODULE and PACKAGE are filled for now; other page kinds return an empty list.
  */
 fun buildContent(fragment: KdFragment, page: Page): List<ContentNode> = when (page.kind) {
     PageKind.MODULE -> {
@@ -78,5 +139,18 @@ fun buildContent(fragment: KdFragment, page: Page): List<ContentNode> = when (pa
         }
         listOf(PackageList(entries))
     }
-    PageKind.PACKAGE, PageKind.CLASSLIKE, PageKind.CALLABLE -> emptyList()
+    PageKind.PACKAGE -> {
+        val members = page.children.mapNotNull { child ->
+            val element = child.represents.singleOrNull()?.let { fragment.elements[it.id] }
+            element?.let(::memberGroupEntry)?.let { (kind, name) ->
+                kind to MemberEntry(name = name, url = child.url)
+            }
+        }
+        MemberGroupKind.entries.mapNotNull { kind ->
+            members.filter { it.first == kind }.map { it.second }
+                .takeIf { it.isNotEmpty() }
+                ?.let { MemberGroup(group = kind, it) }
+        }
+    }
+    PageKind.CLASSLIKE, PageKind.CALLABLE -> emptyList()
 }

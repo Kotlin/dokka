@@ -171,14 +171,59 @@ links into it, which makes cross-library linking a first-order concern — see F
 
 ### Multiplatform
 
-**Target.** A platform a Kotlin project compiles for: `jvm`, `js`, `iosArm64`,
-`linuxX64`, and so on. KDM: the `KdTarget` enum.
+**Target.** A build goal of a Kotlin project: one configuration the project can be
+compiled for — `jvm`, `iosArm64`, `macosX64`, and so on. KGP's word (`KotlinTarget`);
+a target is created by calling a *preset* (below) in the `kotlin { }` block of the
+build script. The catalog is open — presets are added as new platforms appear, and a
+project can invent targets (`jvm("backend")` for a second JVM target), so a
+documentation model must not freeze target names into an enum. Two facts about a
+target are stable and matter to KDM: its *name*, which flows into every source set
+and fragment name below it, and its *platform type* (below). What KDM actually
+stores per fragment — target name, platform type, or nothing — is an open question:
+`KDM spec.md` asks whether this belongs in the model at all. No `KdTarget` enum
+exists in the code today, though earlier documents refer to one.
+
+**Preset.** The function that creates a target: `jvm()`, `iosArm64()`, `linuxX64()`,
+called inside `kotlin { }`. KGP maintains the catalog (~26 functions at the time of
+writing). Native presets are named platform + architecture: `iosArm64` (iOS devices),
+`iosSimulatorArm64` (iOS simulator on Apple Silicon), `mingwX64` (Windows). The
+default target name equals the function name; an overload with a string argument
+overrides it (`jvm("backend")` → target `backend`). Everything downstream —
+compilation, source set, KDM fragment, selector label — inherits that name.
+
+**Platform type.** What KGP attaches to every target: a value of the fixed enum
+`KotlinPlatformType` — `common`, `jvm`, `js`, `androidJvm`, `native`, `wasm` —
+saying which *kind* of platform the target is. Two JVM targets have different names
+and the same platform type; an Android SDK target is `androidJvm` while an Android
+NDK target is `native`. The split matters because Dokka's own `Platform` enum
+(`configuration.kt`) folds Android into `jvm` — precisely the conflation that Dokka
+issue #2779 asks to fix. KDM should adopt KGP's two-level vocabulary, not Dokka's
+one-level one.
+
+**Compilation.** One compile run of one target: by default `main` (production code)
+and `test`. Each compilation owns one default source set, named
+target + compilation.
 
 **Source set.** A group of source files compiled together for one or more targets,
-with a declared dependency structure between groups. A typical multiplatform library
-has `commonMain` (compiled for every target) plus `jvmMain`, `iosArm64Main`, …
-(compiled for one each), where the platform-specific sets *depend on* the common one.
-Source sets, not targets, are the unit Dokka configures and documents.
+with a declared dependency structure (`dependsOn`) between groups. Names are not
+free-form: a target-owned source set is named *target + compilation*
+(`iosArm64` + `Main` = `iosArm64Main`) — which is why fragment names in a KDM
+artifact look the way they do. On top of those, KGP auto-creates *intermediate*
+source sets from the default target hierarchy (`nativeMain`, `appleMain`, `iosMain`)
+with fixed template names, so code shared by a platform family has a place to live.
+A typical multiplatform library therefore has `commonMain` (compiled for every
+target) plus per-target sets, each depending on the ones above it. Source sets, not
+targets, are the unit Dokka configures and documents; in KDM they are the fragments
+(§ 5).
+
+**Naming chain.** How a name travels from the build script to the documentation UI:
+preset → target → compilation → source set → KDM fragment → selector label in the
+rendered site; concretely `iosArm64()` → target `iosArm64` → compilation `Main` →
+source set `iosArm64Main` → fragment `iosArm64Main` → the platform button in the
+site's selector. Renaming a target renames everything downstream. The renderer needs
+this chain in reverse: given a fragment name, it must work out which targets see
+that fragment — exactly the `dependsOn` information the migrated JSON artifacts lost
+when it was replaced by `KdRefinedElement` (G-12).
 
 **Multiplatform (MPP).** Kotlin's mechanism for compiling one codebase to several
 targets. The reason the documentation model needs a container level above declarations
@@ -585,6 +630,7 @@ checking against this list before assuming.
 | Classifier | 2 |
 | Classlike | 2 |
 | Classpath | 3 |
+| Compilation | 2 |
 | Companion object | 2 |
 | Composite build | 6 |
 | Content model / `ContentNode` | 4 |
@@ -630,15 +676,18 @@ checking against this list before assuming.
 | `Members` / `Members & Extensions` (tabs) | 4 |
 | Multi-module generation | 4 |
 | Multiplatform (MPP) | 2 |
+| Naming chain | 2 |
 | Nullability | 2 |
 | Object | 2 |
 | Package | 2 |
 | `package-list` | 4 |
 | Page (`PageNode`) | 4 |
 | Page transformer | 4 |
+| Platform type | 2 |
 | Plugin | 4 |
 | Post action | 4 |
 | Preprocessor | 4 |
+| Preset | 2 |
 | Projection | 2 |
 | Property | 2 |
 | PSI | 6 |

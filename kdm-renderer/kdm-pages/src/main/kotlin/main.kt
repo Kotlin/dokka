@@ -46,10 +46,13 @@ fun main(args: Array<String>) {
         println("  page set urls:")
         pageSet.urls().forEach { println("    $it") }
 
-        println("  presentation model (module pages):")
-        pageSet.modules.forEach { modulePage ->
-            val content = buildContent(fragment, modulePage)
-            println(PJson.encodeToString(content))
+        println("  presentation model (pages with content):")
+        pageSet.modules.flatMap { it.allPages() }.forEach { page ->
+            val content = buildContent(fragment, page)
+            if (content.isNotEmpty()) {
+                println("    ${page.url}")
+                println(PJson.encodeToString(content))
+            }
         }
     }
 
@@ -77,3 +80,6 @@ private fun JsonObject.stringOrNull(key: String): String? = this[key]?.jsonPrimi
 private fun repoRoot(): File = generateSequence(File("").absoluteFile) { it.parentFile }
     .firstOrNull { File(it, "settings.gradle.kts").isFile }
     ?: File("").absoluteFile
+
+/** The page and all its descendants, depth-first. */
+private fun Page.allPages(): List<Page> = listOf(this) + children.flatMap { it.allPages() }

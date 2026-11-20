@@ -1,6 +1,23 @@
 KDM model proposal
 KEEP: https://github.com/Kotlin/KEEP/discussions/484
+OSIP: https://youtrack.jetbrains.com/issue/OSIP-672
 
+Note for review: sections highlighted in RED (with ⚠️emoji) require additional input to finalize their design; everything else can be considered done, except for a few mostly minor open questions.
+Main changes from the initial proposal (KDM spec)
+Removed KdReturns:
+doesn’t work well model-wise for constructors and properties. @return tag should be represented directly in the docs
+Replaced fragmentDependencies with KdRefinedElement, elements: List<KdElement> -> elements: Map<KdElementId, KdElement>:
+This way, there is always a single KdElement for every KdElementId in the fragment present in the model, ensuring that KdElementId is unique.
+Removed id: KdElementId from models
+Those are needed only for lookup, and so no need to repeat them.
+Introduced de-duplication of inherited members via KdInheritedMember
+Since we always need to materialize inherited and aliased members for expect-actual matching, there will be many duplicate declarations that differ only in ID.
+Introduced expect-actual mapping as a top-level concept, which supports mapping of declarations, even if their IDs are unique
+Replaced List<KdAnnotationArgument> with Map<String, KdAnnotationArgumentValue>
+To better emphasize that it’s not all parameters of the annotation constructor invocation, but rather explicitly provided arguments from the user, since default values aren’t always available there.
+KdSource concept refined to support the Google use case.
+Property design changed
+⚠️Serialization format
 All of those code samples are currently mostly in pseudo-Kotlin-code. Real spec should be described in terms of the final serialization format.
 
 There are two candidates: JSON and ProtoBuf.
@@ -80,7 +97,7 @@ typealias KdFragmentName = String
 class KdFragment(
 val name: KdFragmentName,
 val elements: Map<KdElementId, KdElement>,
-val embeddedElements: Map<KdElementId, KdElement>
+val embeddedElements: Map<KdElementId, KdElementIdXXX>
 )
 
 Open questions:
@@ -727,7 +744,7 @@ There are three ways to mark something as available starting from some “versio
 @IntroducedAt annotation (for parameters), which says that some parameter was introduced in version X, and so during compilation overloads will be generated to preserve ABI - for “documentation” purposes, it’s the same as @since
 All of those concepts should be mapped to a single since: String? property on declarations and parameters.
 Additionally, with published KDM artifacts, it will be possible to obtain historical information about every declaration by comparing the produced artifacts. We could also embed or validate the since value when building the next version of the KDM artifact based on this information.
-⚠️Files & Source information
+⚠️Filesm & Source information
 There are three potential use cases for file information to be included in the KDM:
 Source links (currently supported by Dokka)
 For this, we only need to store a URL like this: https://github.com/JetBrains/kotlin/tree/2.4.20/libraries/stdlib/src/kotlin/Annotations.kt#L79
@@ -769,6 +786,8 @@ KOTLIN, JAVA
 }
 Elements models
 Class/interface/object/enum/annotation/record
+// List: Collection, Comparable <- e1 = superTypes = [Collection(EXTERNAL), Comparable]
+// Collection: Iterable <- e2 = superTypes = [Iterable]
 class KdClass(
 val name: String,
 
@@ -847,6 +866,22 @@ val isExternal: Boolean,
 ): KdElement
 Function
 The same model will also represent getter and setter, when they are present. The getter/setter model will never contain overridens.
+// MyList: List<String>
+//   fun add(String) = MyList.add(String)
+
+// option 1
+//   - overridens = []
+//   - originalId = List.add(T)
+
+// option 2
+//   - overridens = [List.add(T)]
+
+// option 3 = option 2 + flag
+//   - isExplicitOveride = false (inherited member)
+
+// option 4
+//   - overridens = [List.add(T)=fake|explicit]
+
 class KdFunction(
 val name: String,
 
@@ -1032,107 +1067,3 @@ Think about future features, like rich errors, and how they will affect the mode
 Feel free to share your thoughts and ideas as comments here
 
 
-
-
-----------
-
-
-KDM unique declaration identifier
-TODO: KT-88237 KDM: Introduce a unique declaration identifier
-
-Definitions
-Class ID
-A structure containing the package name, all outer class names in case of nested classes, and the own class name.
-
-Implemented in the compiler by https://github.com/JetBrains/kotlin/blob/62581399bd5b1287f34b89f8bdb402eb3ba922c0/core/names/src/org/jetbrains/kotlin/name/ClassId.kt#L28.
-
-Its string serialization uses a dot . to separate package parts, a slash to separate the package name from the class name(s) and a dot . to separate outer class names.
-
-Example:
-
-foo.bar/Baz.Qux
-corresponds to
-package foo.bar
-
-class Baz {
-class Qux // <- this class
-}
-Type
-Implemented in the Analysis API by KaType and its subtypes like KaFlexibleType.
-
-Serialization to String is implemented by KaTypeRenderer using the following properties:
-
-functionalTypeRenderer = KaFunctionalTypeRenderer.AS_FUNCTIONAL_TYPE
-No parameter names
-Alternatively AS_CLASS_TYPE
-annotationsRenderer = … with KaRendererAnnotationsFilter.NONE
-No annotations
-
-The remaining properties are TBD.
-Spec
-Classes, Interfaces and Type Aliases
-Class ID
-it contains the package name, all outer class names in case of nested classes, and the own class name
-Callables
-Kind
-Function
-Constructor
-Property (synthetic?)
-Getter
-Setter
-Field
-Enum Entry
-Containing Class ID or Package for top-level
-Name
-Signature
-Type Parameters and their Bounds
-Names should be ignored
-Bounds should be sorted by some stable ordering because bound order doesn't matter
-Context Parameter Types
-Extension Receiver Type
-Value Parameter Types
-Vararg Flag
-Flags
-suspend
-companion/static
-Extensions
-Parameter Names for ObjC import and their overrides
-
-Serialization to String
-Requirements
-Backward Compatible
-Reasonably short
-Human readable if possible
-Deserialization is not a requirement
-It's to be used as an ID in a database
-Class ID, Package Names and Names need escaping for special characters to prevent collisions with separator characters
-Classifiers
-Class ID, possibly with a prefix of the kind, though it's not necessary for disambiguation.
-Callables
-[KIND]:[Containing Class ID or Package for top-level]#[NAME]#[HASH]
-
-The hash is calculated from Signature, Flags and Extensions and needs to be stable.
-
-Open Questions
-Should signatures (from Java) contain flexible types and should nullability annotations make them non-flexible?
-If either answer is yes, adding nullability/mutability annotations would change the ID
-Solution 1: approximate
-Seems not enough
-If we approximate String? to lower bound and later it's annotated with @NotNull, the ID changes. Same the other way round.
-Same with flexible collection (Mutable)List, it can be approximated to either MutableList or List. Either choice could lead to a changing ID if the type is annotated with @ReadOnly or @Mutable.
-Solution 2: keep flexible types flexible, even if they're annotated
-Need to check if AA supports turning off type enhancement
-Should type aliases by fully expanded in signatures
-If not, expect and actual declarations could have different IDs
-Do we ever care about local classes? They can be return types of private members, but it looks like we are not documenting them anyway?
-Should annotations on the declaration or argument, or types affect the ID?
-They can anyway. You can do this
-
-
-expect class A
-expect fun foo(x: A)
-actual typealias A = B
-actual fun foo(x: B)
-
-
-Which hash algorithm to use?
