@@ -23,16 +23,7 @@ class AndroidExternalLocationProviderTest : BaseAbstractTest() {
         URL("https://developer.android.com/reference/kotlin"),
         PackageList(
             RecognizedLinkFormat.DokkaHtml,
-            mapOf("" to setOf("android.content", "android.net")),
-            emptyMap(),
-            URL("file://not-used")
-        )
-    )
-    private val androidx = ExternalDocumentation(
-        URL("https://developer.android.com/reference/kotlin"),
-        PackageList(
-            RecognizedLinkFormat.DokkaHtml,
-            mapOf("" to setOf("androidx.appcompat.app")),
+            mapOf("" to setOf("android.content", "android.net", "android.os", "java.lang")),
             emptyMap(),
             URL("file://not-used")
         )
@@ -46,32 +37,16 @@ class AndroidExternalLocationProviderTest : BaseAbstractTest() {
         }
     }
 
-    private fun getTestLocationProvider(
-        externalDocumentation: ExternalDocumentation,
+    private fun getLocationProvider(
         context: DokkaContext? = null
     ): DefaultExternalLocationProvider {
         val dokkaContext = context ?: DokkaContext.create(configuration, logger, emptyList())
-        return AndroidExternalLocationProvider(externalDocumentation, dokkaContext)
+        return AndroidExternalLocationProvider(android, dokkaContext)
     }
 
     @Test
-    fun `#1230 anchor to a method from AndroidX`() {
-        val locationProvider = getTestLocationProvider(androidx)
-        val dri = DRI(
-            "androidx.appcompat.app",
-            "AppCompatActivity",
-            Callable("findViewById", null, listOf(TypeConstructor("kotlin.Int", emptyList())))
-        )
-
-        assertEquals(
-            "${androidx.documentationURL}/androidx/appcompat/app/AppCompatActivity.html#findviewbyid",
-            locationProvider.resolve(dri)
-        )
-    }
-
-    @Test
-    fun `anchor to a method from Android`() {
-        val locationProvider = getTestLocationProvider(android)
+    fun `anchor to a method is lowercase`() {
+        val locationProvider = getLocationProvider()
         val dri = DRI(
             "android.content",
             "ContextWrapper",
@@ -92,8 +67,46 @@ class AndroidExternalLocationProviderTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `anchor to a property from Android`() {
+        val locationProvider = getLocationProvider()
+        val dri = DRI(
+            "android.os",
+            "Build",
+            Callable(
+                name = "DEVICE",
+                params = emptyList(),
+                isProperty = true
+            )
+        )
+
+        assertEquals(
+            "${android.documentationURL}/android/os/Build.html#device",
+            locationProvider.resolve(dri)
+        )
+    }
+
+    @Test
+    fun `anchor to a Java property from Android documentation`() {
+        val locationProvider = getLocationProvider()
+        val dri = DRI(
+            "java.lang",
+            "Integer",
+            Callable(
+                name = "MAX_VALUE",
+                params = emptyList(),
+                isProperty = true
+            )
+        )
+
+        assertEquals(
+            "${android.documentationURL}/java/lang/Integer.html#max_value",
+            locationProvider.resolve(dri)
+        )
+    }
+
+    @Test
     fun `should return null for method not in list`() {
-        val locationProvider = getTestLocationProvider(android)
+        val locationProvider = getLocationProvider()
         val dri = DRI(
             "foo",
             "Bar",
