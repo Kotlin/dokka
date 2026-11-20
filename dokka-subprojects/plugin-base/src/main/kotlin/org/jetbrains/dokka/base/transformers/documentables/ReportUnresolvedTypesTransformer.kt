@@ -32,7 +32,7 @@ internal class ReportUnresolvedTypesTransformer(
             val reported = mutableSetOf<String>()
 
             module.withDescendants().forEach { documentable ->
-                documentable.typePositions().forEach { bound ->
+                typePositions(documentable).forEach { bound ->
                     bound.forEachUnresolved { unresolved ->
                         val warning = unresolved.warningFor(documentable)
                         if (reported.add(warning)) {
@@ -58,27 +58,26 @@ internal class ReportUnresolvedTypesTransformer(
         }
     }
 
-    private fun Documentable.typePositions(): Sequence<Bound> = sequence {
-        when (this@typePositions) {
-            is WithSupertypes -> yieldAll(supertypes.values.flatten().map { it.typeConstructor })
+    private fun typePositions(documentable: Documentable): Sequence<Bound> = sequence {
+        if (documentable is WithSupertypes) {
+            yieldAll(documentable.supertypes.values.flatten().map { it.typeConstructor })
         }
-        when (this@typePositions) {
-            is WithType -> yield(type)
+        if (documentable is WithType) {
+            yield(documentable.type)
         }
-        when (this@typePositions) {
-            is DTypeAlias -> yieldAll(underlyingType.values)
+        if (documentable is DTypeAlias) {
+            yieldAll(documentable.underlyingType.values)
         }
-        when (this@typePositions) {
-            is Callable -> receiver?.let { yield(it.type) }
+        if (documentable is Callable) {
+            documentable.receiver?.let { yield(it.type) }
         }
-        when (this@typePositions) {
-            is DProperty -> {
-                getter?.let { yield(it.type) }
-                setter?.let { yield(it.type) }
-            }
+        if (documentable is DProperty) {
+            // [DProperty.chidlren] returns an empty list
+            documentable.getter?.let { yieldAll(typePositions(it)) }
+            documentable.setter?.let { yieldAll(typePositions(it)) }
         }
-        when (this@typePositions) {
-            is WithGenerics -> generics.forEach { yieldAll(it.bounds) }
+        if (documentable is WithGenerics) {
+            documentable.generics.forEach { yieldAll(it.bounds) }
         }
     }
 
