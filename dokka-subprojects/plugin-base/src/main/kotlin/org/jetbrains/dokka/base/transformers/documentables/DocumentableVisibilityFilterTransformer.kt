@@ -6,7 +6,7 @@ package org.jetbrains.dokka.base.transformers.documentables
 
 import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.isAllowedInPackage
+import org.jetbrains.dokka.DokkaDefaults
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
@@ -41,8 +41,23 @@ public class DocumentableVisibilityFilterTransformer(
             is JavaVisibility.Default -> isAllowedInPackage(packageName, DokkaConfiguration.Visibility.PACKAGE)
         }
 
-        private fun isAllowedInPackage(packageName: String?, visibility: DokkaConfiguration.Visibility): Boolean =
-            visibility.isAllowedInPackage(packageName, globalOptions)
+        private fun isAllowedInPackage(packageName: String?, visibility: DokkaConfiguration.Visibility): Boolean {
+            val packageOpts = packageName.takeIf { it != null }?.let { name ->
+                packageOptions.firstOrNull { Regex(it.matchingRegex).matches(name) }
+            }
+
+            val (documentedVisibilities, includeNonPublic) =
+                @Suppress("DEPRECATION") // for includeNonPublic, preserve backwards compatibility
+                when {
+                    packageOpts != null -> packageOpts.documentedVisibilities to packageOpts.includeNonPublic
+                    else -> globalOptions.documentedVisibilities to globalOptions.includeNonPublic
+                }
+
+            // if `documentedVisibilities` is explicitly overridden by the user (i.e. not default value by reference),
+            // deprecated `includeNonPublic` should not be taken into account, so that only one setting prevails
+            val isDocumentedVisibilitiesOverridden = documentedVisibilities !== DokkaDefaults.documentedVisibilities
+            return documentedVisibilities.contains(visibility) || (!isDocumentedVisibilitiesOverridden && includeNonPublic)
+        }
 
         fun processModule(original: DModule) =
             filterPackages(original.packages).let { (modified, packages) ->
