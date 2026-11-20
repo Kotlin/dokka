@@ -22,7 +22,11 @@ public data class UnresolvedTypeExtra(
 ) : ExtraProperty<Bound> {
     public companion object Key : ExtraProperty.Key<Bound, UnresolvedTypeExtra> {
         override fun mergeStrategyFor(left: UnresolvedTypeExtra, right: UnresolvedTypeExtra): MergeStrategy<Bound> =
-            MergeStrategy.Replace(left)
+            MergeStrategy.Fail {
+                throw IllegalStateException(
+                    "Merging different unresolved type extras is not supported: $left and $right"
+                )
+            }
     }
 
     override val key: Key = Key
