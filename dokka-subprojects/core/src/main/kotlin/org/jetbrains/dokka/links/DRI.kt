@@ -21,6 +21,11 @@ public data class DRI(
     val target: DriTarget = PointingToDeclaration,
     val extra: String? = null
 ) {
+    init {
+        fun CharSequence.isBlank(): Boolean = all { it.isWhitespace() }
+        require(classNames == null || !classNames.isBlank(), {"classNames should not be empty. For top-level declarations, null should be used" })
+        require((packageName == null && classNames == null) || packageName != null, {"packageName can be null only for the top-level DRI of a module, see [DRI.topLevel]. For the default package, an empty string should be used" })
+    }
     override fun toString(): String =
         "${packageName.orEmpty()}/${classNames.orEmpty()}/${callable?.name.orEmpty()}/${callable?.signature()
             .orEmpty()}/$target/${extra.orEmpty()}"
