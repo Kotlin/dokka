@@ -5,8 +5,11 @@
 package translators
 
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.model.UnresolvedBound
+import org.jetbrains.dokka.model.UnresolvedTypeExtra
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class SymbolsTranslatorTest : BaseAbstractTest() {
     val configuration = dokkaConfiguration {
@@ -33,6 +36,35 @@ class SymbolsTranslatorTest : BaseAbstractTest() {
                 assertEquals(
                     "`UnresolvedSymbols` is unresolved in file:///PATH/Test.kt:1:7",
                     warn.replace(path, "PATH")
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should add UnresolvedTypeExtra to unresolved type`() {
+        testInline(
+            """
+            |/src/main/kotlin/Test.kt
+            |fun f(a: UnresolvedSymbols)
+            """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val path = module.sourceSets.single().sourceRoots.first().invariantSeparatorsPath
+                val parameterType = module.packages.single()
+                    .functions.single()
+                    .parameters.single()
+                    .type as? UnresolvedBound
+
+                assertNotNull(parameterType)
+                val extra = parameterType.extra[UnresolvedTypeExtra]
+
+                assertNotNull(extra)
+                assertEquals("`UnresolvedSymbols` is unresolved", extra.message)
+                assertEquals(
+                    "file:///PATH/Test.kt:1:7",
+                    extra.location.replace(path, "PATH"),
                 )
             }
         }
