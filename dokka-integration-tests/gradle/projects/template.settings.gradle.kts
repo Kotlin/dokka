@@ -50,13 +50,6 @@ dependencyResolutionManagement {
         /* %{DOKKA_IT_MAVEN_REPO}% */
         mavenCentral()
         google()
-        maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
-            content {
-                includeGroup("org.jetbrains.kotlinx")
-            }
-        }
-        // Remove when Kotlin/Wasm is published into public Maven repository
-        maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
 
         // Declare the Node.js & Yarn download repositories - workaround for https://youtrack.jetbrains.com/issue/KT-51379
         exclusiveContent {
