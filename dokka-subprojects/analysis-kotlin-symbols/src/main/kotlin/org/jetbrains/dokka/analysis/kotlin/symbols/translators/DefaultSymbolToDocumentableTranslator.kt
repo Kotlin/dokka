@@ -103,7 +103,7 @@ internal class DokkaSymbolVisitor(
 ) {
     private val psiHelper = PsiHelper(sourceSet, logger, lightMethodChecker)
     private val annotationTranslator = AnnotationTranslator(logger)
-    private val typeTranslator = TypeTranslator(sourceSet, annotationTranslator, logger)
+    private val typeTranslator = TypeTranslator(sourceSet, annotationTranslator)
 
     private val syntheticJavaDocProvider = javadocParser?.let {
         SyntheticElementDocumentationProvider(it, analysisContext.getModule(sourceSet).project)
@@ -962,7 +962,7 @@ internal class DokkaSymbolVisitor(
 
     @OptIn(KaExperimentalApi::class)
     context(_: KaSession)
-    private fun toBoundFrom(type: KaType, containingSymbol: KaSymbol): Bound {
+    private fun toBoundFrom(type: KaType, containingSymbol: KaDeclarationSymbol): Bound {
         return with(typeTranslator) { toBoundFrom(type, Location(containingSymbol)) }
     }
 

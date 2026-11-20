@@ -12,7 +12,6 @@ import org.jetbrains.dokka.analysis.kotlin.symbols.utils.getLocation
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.model.properties.PropertyContainer
-import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaNonPublicApi
 import org.jetbrains.kotlin.analysis.api.KaSession
@@ -22,7 +21,9 @@ import org.jetbrains.kotlin.analysis.api.types.*
 
 internal const val ERROR_CLASS_NAME = "<ERROR CLASS>"
 
-internal class Location(private val symbol: KaSymbol) {
+internal class Location(
+    private val symbol: KaDeclarationSymbol,
+) {
     context(_: KaSession)
     fun computePath(): String {
         val psi: PsiElement? = symbol.sourcePsiSafe<PsiElement>()
@@ -40,7 +41,6 @@ internal class Location(private val symbol: KaSymbol) {
 internal class TypeTranslator(
     private val sourceSet: DokkaConfiguration.DokkaSourceSet,
     private val annotationTranslator: AnnotationTranslator,
-    private val logger: DokkaLogger
 ) {
 
     private fun <T> T.toSourceSetDependent() = if (this != null) mapOf(sourceSet to this) else emptyMap()
@@ -131,9 +131,9 @@ internal class TypeTranslator(
                 )
             )
             is KaErrorType -> {
-                logErrorType(type, location)
+                val extra = unresolvedTypeExtraFrom(type, location)
                 @OptIn(KaNonPublicApi::class)
-                UnresolvedBound(type.presentableText ?: type.toString())
+                UnresolvedBound(type.presentableText ?: type.toString(), PropertyContainer.withAll(extra))
             }
             is KaFunctionType -> toFunctionalTypeConstructorFrom(type, location)
             is KaDynamicType -> Dynamic
@@ -189,14 +189,14 @@ internal class TypeTranslator(
                 is KaTypeAliasSymbol -> toTypeConstructorWithKindFrom(classSymbol.expandedType, location)
             }
         is KaErrorType -> {
-            logErrorType(type, location)
+            val extra = unresolvedTypeExtraFrom(type, location)
             @OptIn(KaNonPublicApi::class)
             TypeConstructorWithKind(
                 GenericTypeConstructor(
                     dri = DRI(packageName = "", classNames = type.presentableText ?: "$ERROR_CLASS_NAME $type"),
                     projections = emptyList(),
-
-                    ),
+                    extra = PropertyContainer.withAll(extra),
+                ),
                 KotlinClassKindTypes.CLASS
             )
         }
@@ -231,19 +231,18 @@ internal class TypeTranslator(
     }
 
     context(_: KaSession)
-    private fun logErrorType(errorType: KaErrorType, location: Location) {
+    private fun unresolvedTypeExtraFrom(
+        errorType: KaErrorType,
+        location: Location,
+    ): UnresolvedTypeExtra {
         @OptIn(KaNonPublicApi::class)
-        logger.warn(buildString {
-            append(if (errorType.presentableText != null) "`${errorType.presentableText}` is unresolved" else errorType.errorMessage)
-            append(" in ")
-            append(
-                with(location) {
-                    computePath()
-                })
-        }
-        )
+        val message = errorType.presentableText
+            ?.let { "`$it` is unresolved" }
+            ?: errorType.errorMessage
 
-        @OptIn(KaNonPublicApi::class)
-        logger.debug("${errorType.errorMessage}\n" + Thread.currentThread().stackTrace.drop(1).joinToString("\n"))
+        return UnresolvedTypeExtra(
+            location = with(location) { computePath() },
+            message = message,
+        )
     }
 }
