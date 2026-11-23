@@ -6,9 +6,13 @@ package translators
 
 import org.jetbrains.dokka.analysis.kotlin.markdown.MARKDOWN_ELEMENT_FILE_NAME
 import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
+import org.jetbrains.dokka.links.DRI
+import org.jetbrains.dokka.model.doc.CodeInline
 import org.jetbrains.dokka.model.doc.CustomDocTag
 import org.jetbrains.dokka.model.doc.Description
+import org.jetbrains.dokka.model.doc.DocumentationLink
 import org.jetbrains.dokka.model.doc.P
+import org.jetbrains.dokka.model.doc.Since
 import org.jetbrains.dokka.model.doc.Text
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -301,6 +305,140 @@ class JavadocInheritDocsTest : BaseAbstractTest() {
                             P(
                                 children = listOf(Text("Sample sub method. Sample super method"))
                             )
+                        ),
+                        name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+
+                assertEquals(expectedDescription, descriptionGot)
+            }
+        }
+    }
+
+    @Test
+    fun `works for inline dogtags`() {
+        testInline(
+            """
+            |/src/main/java/sample/Superclass.java
+            |package sample;
+            |/**
+            |* {@link Superclass} docs with {@code code}
+            |*/
+            |public class Superclass { }
+            |
+            |/src/main/java/sample/Subclass.java
+            |package sample;
+            |/**
+            |* {@inheritDoc}
+            |*/
+            |public class Subclass extends Superclass { }
+            """.trimIndent(), configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val subclass = module.findClasslike("sample", "Subclass")
+                val descriptionGot = subclass.documentation.values.first().children.first()
+                val expectedDescription = Description(
+                    CustomDocTag(
+                        children = listOf(
+                            P(
+                                children = listOf(
+                                    DocumentationLink(
+                                        dri = DRI(packageName = "sample", classNames = "Superclass"),
+                                        children = listOf(Text("Superclass")),
+                                    ),
+                                    Text(" docs with "),
+                                    CodeInline(
+                                        children = listOf(Text("code")),
+                                        params = mapOf("lang" to "java"),
+                                    )
+                                )
+                            )
+                        ),
+                        name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+
+                assertEquals(expectedDescription, descriptionGot)
+            }
+        }
+    }
+
+    @Test
+    fun `works for recursive inherited docs`() {
+        testInline(
+            """
+            |/src/main/java/sample/GrandparentClass.java
+            |package sample;
+            |/**
+            |* Grandparent docs
+            |*/
+            |public class GrandparentClass { }
+            |
+            |/src/main/java/sample/ParentClass.java
+            |package sample;
+            |/**
+            |* Parent docs
+            |* <p>
+            |* {@inheritDoc}
+            |*/
+            |public class ParentClass extends GrandparentClass { }
+            |
+            |/src/main/java/sample/ChildClass.java
+            |package sample;
+            |/**
+            |* Child docs
+            |* <p>
+            |* {@inheritDoc}
+            |*/
+            |public class ChildClass extends ParentClass { }
+            """.trimIndent(), configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val childClass = module.findClasslike("sample", "ChildClass")
+                val descriptionGot = childClass.documentation.values.first().children.first()
+                val expectedDescription = Description(
+                    CustomDocTag(
+                        children = listOf(
+                            P(children = listOf(Text("Child docs "))),
+                            P(children = listOf(Text(" Parent docs "))),
+                            P(children = listOf(Text(" Grandparent docs"))),
+                        ),
+                        name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+
+                assertEquals(expectedDescription, descriptionGot)
+            }
+        }
+    }
+
+    @Test
+    fun `should inherit @since tag via inheritDoc on methods and classes`() {
+        testInline(
+            """
+            |/src/main/java/sample/Superclass.java
+            |package sample;
+            |/**
+            | * @since 1.0
+            | */
+            |public class Superclass { }
+            |
+            |/src/main/java/sample/Subclass.java
+            |package sample;
+            |/**
+            | * @since {@inheritDoc}
+            | */
+            |public class Subclass extends Superclass { }
+            """.trimMargin(),
+            configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val subclass = module.findClasslike("sample", "Subclass")
+                val descriptionGot = subclass.documentation.values.first().children.first()
+                val expectedDescription = Since(
+                    CustomDocTag(
+                        children = listOf(
+                            P(children = listOf(Text("1.0")))
                         ),
                         name = MARKDOWN_ELEMENT_FILE_NAME
                     )

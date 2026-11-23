@@ -137,7 +137,11 @@ internal class PsiElementToHtmlConverter(
                 "literal" -> "<literal>${dataElementsAsText(this)}</literal>"
                 "index" -> "<index>${this.children.filterIsInstance<PsiDocTagValue>().joinToString { it.text }}</index>"
                 "inheritDoc" -> {
-                    val inheritDocContent = inheritDocTagResolver.resolveContent(commentResolutionContext)
+                    val inheritDocContent =
+                        inheritDocTagResolver.resolveContent(
+                            //  Update the context so that recursive `inheritDoc`s uses the new comment each time
+                            commentResolutionContext.copy(comment = this.containingComment)
+                        )
                     val html = inheritDocContent?.fold(HtmlParsingResult(javadocTag)) { result, content ->
                             result + content.toInheritDocHtml(result.newState, docTagParserContext)
                         }?.parsedLine.orEmpty()

@@ -183,7 +183,7 @@ internal class JavaPsiDocCommentParser(
     ): Since {
         val docTags = psiDocTagParser.parseAsParagraph(
             psiElements = tag.contentElementsWithSiblingIfNeeded(),
-            commentResolutionContext = CommentResolutionContext(comment = docComment, tag = ReturnJavadocTag),
+            commentResolutionContext = CommentResolutionContext(comment = docComment, tag = SinceJavadocTag),
             sourceSet = sourceSet
         )
         return Since(root = wrapTagIfNecessary(docTags))
