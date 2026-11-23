@@ -15,8 +15,23 @@ kotlin {
     sourceSets {
         val wasmJsMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-wasm-js:1.7.2-wasm3")
-                implementation("org.jetbrains.kotlinx:atomicfu-wasm-js:0.22.0-wasm2")            }
+                // Use the newest kotlinx library versions that are compatible with the
+                // tested Kotlin Gradle Plugin version (libraries are built with newer
+                // Kotlin versions, and old compilers cannot read newer metadata).
+                val kotlinVersion = properties["dokka_it_kotlin_version"].toString()
+                val coroutinesVersion = when {
+                    kotlinVersion >= "2.1.0" -> "1.11.0" // built with Kotlin 2.2.20
+                    kotlinVersion >= "2.0.0" -> "1.9.0"   // built with Kotlin 2.0.0
+                    else -> "1.8.0"                      // built with Kotlin 1.9.x
+                }
+                val atomicfuVersion = when {
+                    kotlinVersion >= "2.1.0" -> "0.33.0"  // built with Kotlin 2.2.21
+                    kotlinVersion >= "2.0.0" -> "0.28.0"  // built with Kotlin 2.1.0
+                    else -> "0.23.0"                     // built with Kotlin 1.9.x
+                }
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-wasm-js:$coroutinesVersion")
+                implementation("org.jetbrains.kotlinx:atomicfu-wasm-js:$atomicfuVersion")
+            }
         }
     }
     wasmWasi()

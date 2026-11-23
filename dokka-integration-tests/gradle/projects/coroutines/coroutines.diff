@@ -97,11 +97,11 @@ diff --git a/settings.gradle.kts b/settings.gradle.kts
 index 423c613f3..c51ec4237 100644
 --- a/settings.gradle.kts
 +++ b/settings.gradle.kts
-@@ -6,6 +6,7 @@ pluginManagement {
+@@ -6,6 +6,6 @@ pluginManagement {
      }
 
      repositories {
 +        /* %{DOKKA_IT_MAVEN_REPO}% */
-         maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/")
+-        maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/")
          gradlePluginPortal()
      }
