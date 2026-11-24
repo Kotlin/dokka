@@ -9,6 +9,7 @@ import org.jetbrains.dokka.base.testApi.testRunner.BaseAbstractTest
 import org.jetbrains.dokka.model.doc.CustomDocTag
 import org.jetbrains.dokka.model.doc.Description
 import org.jetbrains.dokka.model.doc.P
+import org.jetbrains.dokka.model.doc.Return
 import org.jetbrains.dokka.model.doc.Text
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -307,6 +308,54 @@ class JavadocInheritDocsTest : BaseAbstractTest() {
                 )
 
                 assertEquals(expectedDescription, descriptionGot)
+            }
+        }
+    }
+
+    @Test
+    fun `work with transitive inheritDoc in return tag`() {
+        testInline(
+            """
+            |/src/main/java/sample/Base.java
+            |package sample;
+            |public class Base {
+            |    /**
+            |     * @return base description
+            |     */
+            |    public int value() { return 0; }
+            |}
+            |
+            |/src/main/java/sample/Child.java
+            |package sample;
+            |public class Child extends Base {
+            |    /**
+            |     * @return {@inheritDoc}
+            |     */
+            |    @Override
+            |    public int value() { return 1; }
+            |}
+            |
+            |/src/main/java/sample/GrandChild.java
+            |package sample;
+            |public class GrandChild extends Child {
+            |    /**
+            |     * @return {@inheritDoc}
+            |     */
+            |    @Override
+            |    public int value() { return 2; }
+            |}
+            """.trimIndent(), configuration
+        ) {
+            documentablesMergingStage = { module ->
+                val function = module.findFunction("sample", "GrandChild", "value")
+                val returnTag = function.documentation.values.first().children.filterIsInstance<Return>().single()
+                val expected = Return(
+                    CustomDocTag(
+                        children = listOf(P(children = listOf(Text("base description")))),
+                        name = MARKDOWN_ELEMENT_FILE_NAME
+                    )
+                )
+                assertEquals(expected, returnTag)
             }
         }
     }

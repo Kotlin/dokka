@@ -8,12 +8,14 @@ import com.intellij.lexer.JavaDocTokenTypes
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.javadoc.PsiDocParamRef
 import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.javadoc.PsiDocToken
 import com.intellij.psi.javadoc.PsiInlineDocTag
 import com.intellij.psi.javadoc.PsiMarkdownCodeBlock
 import com.intellij.psi.javadoc.PsiMarkdownReferenceLink
 import com.intellij.psi.javadoc.PsiSnippetDocTag
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.analysis.java.doccomment.DocumentationContent
 import org.jetbrains.dokka.analysis.java.JavadocTag
@@ -154,7 +156,14 @@ internal class PsiElementToHtmlConverter(
         ): HtmlParsingResult {
             // TODO [beresnev] comment
             return if (this is PsiDocumentationContent) {
-                parseHtml(this.psiElement, parserState)
+                val inheritedComment = PsiTreeUtil.getParentOfType(psiElement, PsiDocComment::class.java, false)
+                // resolve nested tags (e.g. a transitive {@inheritDoc}) relative to the comment they belong to
+                val converter = if (inheritedComment != null && inheritedComment != commentResolutionContext.comment) {
+                    WithContext(docTagParserContext, CommentResolutionContext(inheritedComment, tag))
+                } else {
+                    this@WithContext
+                }
+                converter.parseHtml(this.psiElement, parserState)
             } else {
                 HtmlParsingResult(parserState, inheritDocTagResolver.convertToHtml(this, docTagParserContext))
             }
