@@ -172,14 +172,6 @@
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
     </build>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>Space</id>
-            <name>Space</name>
-            <url>https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven/</url>
-        </pluginRepository>
-    </pluginRepositories>
-
     <dependencies>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>

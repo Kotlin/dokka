@@ -189,8 +189,8 @@ abstract class AbstractGradleIntegrationTest : AbstractIntegrationTest() {
                 // if `DOKKA_VERSION_OVERRIDE` environment variable is provided,
                 //  we allow running tests on a custom Dokka version from specific repositories
                 """
-                maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/test"),
-                maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev"),
+                maven("https://redirector.kotlinlang.org/maven/dokka-test"),
+                maven("https://redirector.kotlinlang.org/maven/dokka-dev"),
                 mavenCentral(),
                 mavenLocal()
                 """.trimIndent()
