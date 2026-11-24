@@ -565,6 +565,65 @@ class JavadocParserTest : BaseAbstractTest() {
         }
     }
 
+    @Test
+    fun `multiline description followed by many block tags preserves spacing and scales linearly`() {
+        val descLines = (1..250).joinToString("\n") { i -> " * Line $i with {@code item$i} text" }
+        val attrTags = (1..250).joinToString("\n") { i -> " * @customAttr ref android.R.styleable#View_attr$i" }
+        val source = """
+            |/src/main/java/example/LargeDoc.java
+            |package example;
+            |
+            |/**
+            |$descLines
+            |$attrTags
+            | * @since 1.0
+            | * @return plain single line return
+            | */
+            |public class LargeDoc {
+            |    /**
+            |     * Plain single line method description.
+            |     * @param count plain parameter description
+            |     * @param escaped parameter with &amp; entity and  double spaces
+            |     * @return true if count &gt; 0
+            |     */
+            |    public boolean check(int count, String escaped) { return true; }
+            |}
+            """.trimIndent()
+
+        testInline(source, configuration) {
+            documentablesCreationStage = { modules ->
+                val cls = modules.filterNot { it.packages.isEmpty() }.single().packages.single().classlikes.single()
+                val clsDocs = cls.documentation.values.single()
+                val descriptionText = clsDocs.children.first().root.text().trimEnd()
+                assertEquals(true, descriptionText.startsWith("Line 1 with item1 text Line 2 with item2 text"))
+                assertEquals(true, descriptionText.endsWith("Line 250 with item250 text"))
+
+                val customTags = clsDocs.children.filterIsInstance<CustomTagWrapper>().filter { it.name == "customAttr" }
+                assertEquals(250, customTags.size)
+                assertEquals(
+                    listOf(P(listOf(Text("ref android.R.styleable#View_attr1")))),
+                    customTags.first().root.children
+                )
+
+                val fn = cls.functions.single { it.name == "check" }
+                val fnDocs = fn.documentation.values.single()
+                assertEquals(
+                    listOf(P(listOf(Text("Plain single line method description.")))),
+                    fnDocs.children.filterIsInstance<Description>().single().root.children
+                )
+                val params = fnDocs.children.filterIsInstance<Param>()
+                assertEquals(
+                    listOf(P(listOf(Text("plain parameter description")))),
+                    params[0].root.children
+                )
+                assertEquals(
+                    listOf(P(listOf(Text("parameter with "), Text("&", params = DocTag.contentTypeParam("html")), Text("entity and double spaces")))),
+                    params[1].root.children
+                )
+            }
+        }
+    }
+
     private fun testHtmlTag(
         tagName: String,
         expectedDocTag: (List<DocTag>) -> DocTag

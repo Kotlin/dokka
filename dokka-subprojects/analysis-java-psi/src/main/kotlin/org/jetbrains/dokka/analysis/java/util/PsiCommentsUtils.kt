@@ -21,14 +21,23 @@ internal fun PsiDocComment.hasTag(tag: JavadocTag): Boolean =
         else -> findTagByName(tag.name) != null
     }
 
-internal fun PsiDocTag.contentElementsWithSiblingIfNeeded(): List<PsiElement> = if (dataElements.isNotEmpty()) {
-    listOfNotNull(
-        dataElements[0],
-        dataElements[0].nextSibling?.takeIf { it.text != dataElements.drop(1).firstOrNull()?.text },
-        *dataElements.drop(1).toTypedArray()
-    )
-} else {
-    emptyList()
+internal fun PsiDocTag.contentElementsWithSiblingIfNeeded(): List<PsiElement> {
+    val elements = dataElements
+    if (elements.isEmpty()) return emptyList()
+    val first = elements[0]
+    val second = elements.getOrNull(1)
+    val nextSibling = first.nextSibling?.takeIf { sibling ->
+        sibling !== second && sibling.text != second?.text
+    }
+    val result = ArrayList<PsiElement>(elements.size + (if (nextSibling != null) 1 else 0))
+    result.add(first)
+    if (nextSibling != null) {
+        result.add(nextSibling)
+    }
+    for (i in 1 until elements.size) {
+        result.add(elements[i])
+    }
+    return result
 }
 
 internal fun PsiDocTag.resolveToElement(): PsiElement? =

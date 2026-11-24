@@ -204,7 +204,7 @@ internal class DokkaPsiParser(
                 }
             }
 
-            val overridden = regularFunctions.flatMap { it.findSuperMethods().toList() }
+            val overridden = regularFunctions.flatMapTo(HashSet()) { it.findSuperMethods().asIterable() }
             val documentation = javadocParser.parseDocumentation(this, sourceSetData).toSourceSetDependent()
             val allFunctions = async {
                 val parsedRegularFunctions = regularFunctions.parallelMapNotNull {
