@@ -12,6 +12,11 @@ import org.jetbrains.dokka.model.doc.Text
 import org.jsoup.internal.StringUtil
 import org.jsoup.nodes.TextNode
 
+private const val AMPERSAND_CODE_POINT = 0x26
+private const val LESS_THAN_CODE_POINT = 0x3C
+private const val GREATER_THAN_CODE_POINT = 0x3E
+private const val NBSP_CODE_POINT = 0xA0
+
 @InternalDokkaApi
 public fun String.parseHtmlEncodedWithNormalisedSpaces(
     renderWhiteCharactersAsSpaces: Boolean
@@ -32,15 +37,15 @@ public fun String.parseHtmlEncodedWithNormalisedSpaces(
                     accum.appendCodePoint(c)
                 }
             }
-            // TextNode(...).outerHtml() produces HTML created from the passed text, so it will perform HTML body escaping.
-            // We do only check here if the symbol needs HTML escaping to split text into separate tags.
-            Compat.codePointToString(c).let { it != TextNode(it).outerHtml() } -> {
-                accum.toString().takeIf { it.isNotBlank() }?.let { tags.add(Text(it)) }
-                accum.delete(0, accum.length)
+            requiresHtmlBodyEscaping(c) -> {
+                if (accum.hasNonWhitespace()) {
+                    tags.add(Text(accum.toString()))
+                }
+                accum.setLength(0)
 
                 accum.appendCodePoint(c)
                 tags.add(Text(accum.toString(), params = DocTag.contentTypeParam("html")))
-                accum.delete(0, accum.length)
+                accum.setLength(0)
             }
             !StringUtil.isInvisibleChar(c) -> {
                 accum.appendCodePoint(c)
@@ -48,6 +53,27 @@ public fun String.parseHtmlEncodedWithNormalisedSpaces(
             }
         }
     }
-    accum.toString().takeIf { it.isNotBlank() }?.let { tags.add(Text(it)) }
+    if (accum.hasNonWhitespace()) {
+        tags.add(Text(accum.toString()))
+    }
     return tags
+}
+
+/**
+ * Equivalent to `Compat.codePointToString(c).let { it != TextNode(it).outerHtml() }` without allocating
+ * a Jsoup [TextNode] and default `Document` on every ASCII / non-breaking-space code point.
+ */
+private fun requiresHtmlBodyEscaping(c: Int): Boolean {
+    if (c < 0x80) {
+        return c == AMPERSAND_CODE_POINT || c == LESS_THAN_CODE_POINT || c == GREATER_THAN_CODE_POINT
+    }
+    if (c == NBSP_CODE_POINT) return true
+    return Compat.codePointToString(c).let { it != TextNode(it).outerHtml() }
+}
+
+private fun StringBuilder.hasNonWhitespace(): Boolean {
+    for (i in 0 until length) {
+        if (!this[i].isWhitespace()) return true
+    }
+    return false
 }

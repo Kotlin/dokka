@@ -57,8 +57,10 @@ internal class JavaPsiDocCommentParser(
     }
 
     private fun PsiDocComment.getDescription(sourceSet: DokkaSourceSet): Description? {
+        val elements = descriptionElements
+        if (elements.isEmpty()) return null
         val docTags = psiDocTagParser.parseAsParagraph(
-            psiElements = descriptionElements.asIterable(),
+            psiElements = elements.asIterable(),
             commentResolutionContext = CommentResolutionContext(this, DescriptionJavadocTag),
             sourceSet = sourceSet
         )

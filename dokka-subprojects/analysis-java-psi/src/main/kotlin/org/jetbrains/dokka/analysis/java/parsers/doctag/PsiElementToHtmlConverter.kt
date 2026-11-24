@@ -5,9 +5,14 @@
 package org.jetbrains.dokka.analysis.java.parsers.doctag
 
 import com.intellij.lexer.JavaDocTokenTypes
-import com.intellij.psi.*
+import com.intellij.psi.JavaDocTokenType
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiParameter
+import com.intellij.psi.PsiReference
+import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.javadoc.PsiDocParamRef
 import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.javadoc.PsiDocToken
 import com.intellij.psi.javadoc.PsiInlineDocTag
@@ -15,35 +20,24 @@ import com.intellij.psi.javadoc.PsiMarkdownCodeBlock
 import com.intellij.psi.javadoc.PsiMarkdownReferenceLink
 import com.intellij.psi.javadoc.PsiSnippetDocTag
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
-import org.jetbrains.dokka.analysis.java.doccomment.DocumentationContent
 import org.jetbrains.dokka.analysis.java.JavadocTag
+import org.jetbrains.dokka.analysis.java.doccomment.DocumentationContent
 import org.jetbrains.dokka.analysis.java.doccomment.PsiDocumentationContent
 import org.jetbrains.dokka.analysis.java.parsers.CommentResolutionContext
-import org.jetbrains.dokka.analysis.java.util.*
 import org.jetbrains.dokka.analysis.java.parsers.doctag.markdown.MarkdownToHtmlConverter
+import org.jetbrains.dokka.analysis.java.util.defaultLabel
+import org.jetbrains.dokka.analysis.java.util.from
+import org.jetbrains.dokka.analysis.java.util.getLocation
+import org.jetbrains.dokka.analysis.java.util.lowercase
+import org.jetbrains.dokka.analysis.java.util.referenceElement
+import org.jetbrains.dokka.analysis.java.util.referenceElementOrSelf
+import org.jetbrains.dokka.analysis.java.util.resolveToDocumentedElement
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.utilities.DokkaLogger
 import org.jetbrains.dokka.utilities.htmlEscape
 
 private const val UNRESOLVED_PSI_ELEMENT = "UNRESOLVED_PSI_ELEMENT"
-
-private data class HtmlParserState(
-    val currentJavadocTag: JavadocTag?,
-    val previousElement: PsiElement? = null,
-    val openPreTags: Int = 0,
-    val closedPreTags: Int = 0
-)
-
-private data class HtmlParsingResult(val newState: HtmlParserState, val parsedLine: String? = null) {
-    constructor(tag: JavadocTag?) : this(HtmlParserState(tag))
-
-    operator fun plus(other: HtmlParsingResult): HtmlParsingResult {
-        return HtmlParsingResult(
-            newState = other.newState,
-            parsedLine = listOfNotNull(parsedLine, other.parsedLine).joinToString(separator = "")
-        )
-    }
-}
+private const val PRE_CLOSING_TAG = "</pre>"
 
 internal class PsiElementToHtmlConverter(
     private val inheritDocTagResolver: InheritDocTagResolver,
@@ -51,9 +45,6 @@ internal class PsiElementToHtmlConverter(
     private val logger: DokkaLogger,
     private val markdownToHtmlConverterProvider: () -> MarkdownToHtmlConverter
 ) {
-    private val preOpeningTagRegex = "<pre(\\s+.*)?>".toRegex()
-    private val preClosingTagRegex = "</pre>".toRegex()
-
     fun convert(
         psiElements: Iterable<PsiElement>,
         docTagParserContext: DocTagParserContext,
@@ -63,11 +54,34 @@ internal class PsiElementToHtmlConverter(
             .convert(psiElements)
     }
 
+    private class ParseState(
+        val currentJavadocTag: JavadocTag?
+    ) {
+        var previousElement: PsiElement? = null
+        var openPreTags: Int = 0
+        var closedPreTags: Int = 0
+        var hasElements: Boolean = false
+        var hasNonNullOutput: Boolean = false
+        val out: StringBuilder = StringBuilder()
+
+        fun append(parsed: String?) {
+            hasElements = true
+            if (parsed != null) {
+                out.append(parsed)
+                hasNonNullOutput = true
+            }
+        }
+
+        fun toParsedLine(): String? {
+            if (!hasElements) return null
+            return if (hasNonNullOutput) out.toString() else ""
+        }
+    }
+
     private inner class WithContext(
         private val docTagParserContext: DocTagParserContext,
         private val commentResolutionContext: CommentResolutionContext
     ) {
-
         private val isMarkdownDocComment = commentResolutionContext.comment.isMarkdownComment
 
         private val snippetToHtmlConverter: SnippetToHtmlConverter by lazy {
@@ -75,28 +89,39 @@ internal class PsiElementToHtmlConverter(
         }
 
         fun convert(psiElements: Iterable<PsiElement>): String? {
-            val parsingResult =
-                psiElements.fold(HtmlParsingResult(commentResolutionContext.tag)) { resultAccumulator, psiElement ->
-                    resultAccumulator + parseHtml(psiElement, resultAccumulator.newState)
-                }
-            return parsingResult.parsedLine?.trim()?.let {
+            val state = ParseState(commentResolutionContext.tag)
+            for (psiElement in psiElements) {
+                parseHtml(psiElement, state)
+            }
+            return state.toParsedLine()?.trim()?.let {
                 if (isMarkdownDocComment) markdownToHtmlConverterProvider().convertMarkdownToHtml(it.trimIndent()) else it
             }
         }
 
-        private fun parseHtml(psiElement: PsiElement, state: HtmlParserState): HtmlParsingResult =
-            when (psiElement) {
-                is PsiReference -> psiElement.children.fold(HtmlParsingResult(state)) { acc, e ->
-                    acc + parseHtml(e, acc.newState)
+        private fun parseHtml(psiElement: PsiElement, state: ParseState) {
+            if (psiElement is PsiReference) {
+                val children = psiElement.children
+                if (children.isEmpty()) {
+                    state.hasElements = true
+                } else {
+                    for (child in children) {
+                        parseHtml(child, state)
+                    }
                 }
-                else -> parseHtmlOfSimpleElement(psiElement, state)
+            } else {
+                parseHtmlOfSimpleElement(psiElement, state)
             }
+        }
 
-        private fun parseHtmlOfSimpleElement(psiElement: PsiElement, state: HtmlParserState): HtmlParsingResult {
+        private fun parseHtmlOfSimpleElement(psiElement: PsiElement, state: ParseState) {
             val text = psiElement.text
 
-            val openPre = state.openPreTags + preOpeningTagRegex.findAll(text).count()
-            val closedPre = state.closedPreTags + preClosingTagRegex.findAll(text).count()
+            var openPre = state.openPreTags
+            var closedPre = state.closedPreTags
+            if (text.indexOf('<') >= 0) {
+                openPre += PRE_OPENING_TAG_REGEX.findAll(text).count()
+                closedPre += countLiteralOccurrences(text, PRE_CLOSING_TAG)
+            }
             val isInsidePre = openPre > closedPre
 
             val parsed = when (psiElement) {
@@ -105,18 +130,16 @@ internal class PsiElementToHtmlConverter(
                 is PsiMarkdownCodeBlock -> psiElement.toHtml()
                 is PsiMarkdownReferenceLink -> psiElement.linkElement?.referenceElementOrSelf()?.toDocumentationLinkString(psiElement.label?.text ?: "")
                 is PsiDocTagValue, is LeafPsiElement -> {
-                    psiElement.stringifyElementAsText(isInsidePre || isMarkdownDocComment, state.previousElement)
+                    psiElement.stringifyElementAsText(isInsidePre || isMarkdownDocComment, state.previousElement, text)
                 }
                 else -> null
             }
-            val previousElement = if (text.trim() == "") state.previousElement else psiElement
-            return HtmlParsingResult(
-                state.copy(
-                    previousElement = previousElement,
-                    closedPreTags = closedPre,
-                    openPreTags = openPre
-                ), parsed
-            )
+            state.append(parsed)
+            if (!text.isBlank()) {
+                state.previousElement = psiElement
+            }
+            state.openPreTags = openPre
+            state.closedPreTags = closedPre
         }
 
         /**
@@ -128,42 +151,86 @@ internal class PsiElementToHtmlConverter(
          */
         private fun PsiInlineDocTag.toHtml(javadocTag: JavadocTag?): String? =
             when (this.name) {
-                "link", "linkplain" -> this.referenceElement()
-                    ?.toDocumentationLinkString(this.dataElements.filterIsInstance<PsiDocToken>().joinToString(" ") {
-                        it.stringifyElementAsText(keepFormatting = false).orEmpty()
-                    })
+                "link", "linkplain" -> this.referenceElement()?.let { ref ->
+                    val labelSb = StringBuilder()
+                    var first = true
+                    for (dataEl in this.dataElements) {
+                        if (dataEl is PsiDocToken) {
+                            if (!first) labelSb.append(' ')
+                            first = false
+                            labelSb.append(dataEl.stringifyElementAsText(keepFormatting = false).orEmpty())
+                        }
+                    }
+                    ref.toDocumentationLinkString(labelSb.toString())
+                }
 
                 "code" -> dataElementsAsText(this).wrapInCodeTag(true)
                 "literal" -> "<literal>${dataElementsAsText(this)}</literal>"
-                "index" -> "<index>${this.children.filterIsInstance<PsiDocTagValue>().joinToString { it.text }}</index>"
+                "index" -> {
+                    val sb = StringBuilder("<index>")
+                    var first = true
+                    for (child in this.children) {
+                        if (child is PsiDocTagValue) {
+                            if (!first) sb.append(", ")
+                            first = false
+                            sb.append(child.text)
+                        }
+                    }
+                    sb.append("</index>").toString()
+                }
                 "inheritDoc" -> {
                     val inheritDocContent = inheritDocTagResolver.resolveContent(commentResolutionContext)
-                    val html = inheritDocContent?.fold(HtmlParsingResult(javadocTag)) { result, content ->
-                            result + content.toInheritDocHtml(result.newState, docTagParserContext)
-                        }?.parsedLine.orEmpty()
-                    html
+                    if (inheritDocContent == null) {
+                        ""
+                    } else {
+                        val subState = ParseState(javadocTag)
+                        for (content in inheritDocContent) {
+                            content.appendInheritDocHtml(subState, docTagParserContext)
+                        }
+                        subState.toParsedLine().orEmpty()
+                    }
                 }
                 "snippet" -> if (this is PsiSnippetDocTag) snippetToHtmlConverter.convertSnippet(this) else this.text
 
                 else -> this.text
             }
 
-        private fun DocumentationContent.toInheritDocHtml(
-            parserState: HtmlParserState,
+        private fun DocumentationContent.appendInheritDocHtml(
+            parserState: ParseState,
             docTagParserContext: DocTagParserContext
-        ): HtmlParsingResult {
-            // TODO [beresnev] comment
-            return if (this is PsiDocumentationContent) {
+        ) {
+            if (this is PsiDocumentationContent) {
                 parseHtml(this.psiElement, parserState)
             } else {
-                HtmlParsingResult(parserState, inheritDocTagResolver.convertToHtml(this, docTagParserContext))
+                parserState.append(inheritDocTagResolver.convertToHtml(this, docTagParserContext))
             }
         }
 
+        /**
+         * Appends the data elements of an inline tag, along with the whitespace tokens between them.
+         *
+         * [PsiInlineDocTag.dataElements] used to include whitespaces, but since IntelliJ platform 261
+         * `WHITE_SPACE` is no longer part of `PsiInlineDocTagImpl.VALUE_BIT_SET`. Whitespaces carry the line
+         * breaks of a multiline tag body (e.g. `{@code}` spanning several lines), so they must be preserved
+         * for tags whose content is rendered with formatting kept.
+         */
         private fun dataElementsAsText(tag: PsiInlineDocTag): String {
-            return tag.dataElementsWithWhitespaces().joinToString("") {
-                it.stringifyElementAsText(keepFormatting = true).orEmpty()
-            }.htmlEscape()
+            val dataElements = tag.dataElements
+            val children = tag.children
+            val sb = StringBuilder()
+            var nextDataElement = 0
+            for (child in children) {
+                val include = if (nextDataElement < dataElements.size && dataElements[nextDataElement] === child) {
+                    nextDataElement++
+                    true
+                } else {
+                    child is PsiWhiteSpace
+                }
+                if (include) {
+                    sb.append(child.stringifyElementAsText(keepFormatting = true).orEmpty())
+                }
+            }
+            return sb.toString().htmlEscape()
         }
 
         private fun PsiElement.toDocumentationLinkString(label: String = ""): String {
@@ -171,14 +238,12 @@ internal class PsiElementToHtmlConverter(
 
             val driId = reference?.resolveToDocumentedElement()?.takeIf { it !is PsiParameter }?.let {
                 val dri = DRI.from(it)
-                val id = docTagParserContext.store(dri)
-                id
+                docTagParserContext.store(dri)
             } ?: run {
                 logger.warn("Couldn't resolve JavaDoc link '$displayLabel' in ${getLocation(this)}")
                 UNRESOLVED_PSI_ELEMENT
             }
 
-            // TODO [beresnev] data-dri into a constant
             return """<a data-dri="${driId.htmlEscape()}">$displayLabel</a>"""
         }
 
@@ -193,53 +258,54 @@ internal class PsiElementToHtmlConverter(
             if (isMarkdownDocComment) "`$this`" // use ` for Markdown comments, further will be converted to <code> by MarkdownToHtmlConverter
             else "<code${if (isDataInline) " data-inline" else ""}>$this</code>"
     }
-}
 
-/**
- * The data elements of an inline tag, with the whitespace tokens between them.
- *
- * [PsiInlineDocTag.dataElements] used to include whitespaces, but since IntelliJ platform 261
- * `WHITE_SPACE` is no longer part of `PsiInlineDocTagImpl.VALUE_BIT_SET`. Whitespaces carry the line
- * breaks of a multiline tag body (e.g. `{@code}` spanning several lines), so they must be preserved
- * for tags whose content is rendered with formatting kept.
- */
-private fun PsiInlineDocTag.dataElementsWithWhitespaces(): List<PsiElement> {
-    val dataElements = dataElements
-    // both `children` and `dataElements` are direct children in document order, so a single pass is enough
-    var nextDataElement = 0
-    return children.filter { child ->
-        if (nextDataElement < dataElements.size && dataElements[nextDataElement] === child) {
-            nextDataElement++
-            true
-        } else {
-            child is PsiWhiteSpace
-        }
+    private companion object {
+        private val PRE_OPENING_TAG_REGEX = "<pre(\\s+.*)?>".toRegex()
     }
 }
 
-private fun PsiElement.stringifyElementAsText(keepFormatting: Boolean, previousElement: PsiElement? = null) =
+private fun countLiteralOccurrences(text: String, needle: String): Int {
+    var count = 0
+    var index = text.indexOf(needle)
+    while (index >= 0) {
+        count++
+        index = text.indexOf(needle, index + needle.length)
+    }
+    return count
+}
+
+private fun PsiElement.stringifyElementAsText(
+    keepFormatting: Boolean,
+    previousElement: PsiElement? = null,
+    rawText: String? = text
+): String? =
     if (keepFormatting) {
         /*
         For values in the <pre> tag we try to keep formatting, so only the leading space is trimmed,
         since it is there because it separates this line from the leading asterisk
          */
-        text.let {
+        rawText?.let {
             if (((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true || (prevSibling as? PsiDocToken)?.isTagName() == true) && it.firstOrNull() == ' ')
                 it.drop(1) else it
-        }.let {
-            if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it.dropLastWhile { it == ' ' } else it
+        }?.let {
+            if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true) it.dropLastWhile { ch -> ch == ' ' } else it
         }
     } else {
         /*
         Outside of the <pre> we would like to trim everything from the start and end of a line since
         javadoc doesn't care about it.
          */
-        text.let {
-            if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text.isNotBlank() && previousElement !is PsiInlineDocTag) it?.trimStart() else it
-        }?.let {
-            if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true && text.isNotBlank()) it.trimEnd() else it
-        }?.let {
-            if (shouldHaveSpaceAtTheEnd()) "$it " else it
+        rawText?.let { nonNullRaw ->
+            val nonBlank = !nonNullRaw.isBlank()
+            var adjusted = if ((prevSibling as? PsiDocToken)?.isLeadingAsterisk() == true && nonBlank && previousElement !is PsiInlineDocTag) {
+                nonNullRaw.trimStart()
+            } else {
+                nonNullRaw
+            }
+            if ((nextSibling as? PsiDocToken)?.isLeadingAsterisk() == true && nonBlank) {
+                adjusted = adjusted.trimEnd()
+            }
+            if (shouldHaveSpaceAtTheEnd(nonNullRaw)) "$adjusted " else adjusted
         }
     }
 
@@ -248,30 +314,67 @@ private fun PsiDocToken.isLeadingAsterisk() = tokenType == JavaDocTokenType.DOC_
 private fun PsiDocToken.isTagName() = tokenType == JavaDocTokenType.DOC_TAG_NAME
 
 /**
- * We would like to know if we need to have a space after a this tag
+ * Checks whether a PSI sibling contains only whitespace without invoking [PsiElement.getText]
+ * on composite [PsiDocTag] / [PsiInlineDocTag] subtrees.
+ */
+private fun PsiElement.isBlankJavadocSibling(): Boolean {
+    if (this is PsiWhiteSpace) return true
+    if (this is PsiDocTag || this is PsiInlineDocTag) return false
+    return text.isBlank()
+}
+
+/**
+ * Determines whether a trailing space should be appended after this element when joining multi-line Javadoc text.
  *
  * The space is required when:
  *  - tag spans multiple lines, between every line we would need a space
  *
- *  We wouldn't like to render a space if:
+ * We wouldn't like to render a space if:
  *  - tag is followed by an end of comment
  *  - after a tag there is another tag (eg. multiple @author tags)
  *  - they end with an html tag like: <a href="...">Something</a> since then the space will be displayed in the following text
  *  - next line starts with a <p> or <pre> token
  */
-private fun PsiElement.shouldHaveSpaceAtTheEnd(): Boolean {
-    val siblings = siblings(withItself = false).toList().filterNot { it.text.trim() == "" }
-    val nextNotEmptySibling = (siblings.firstOrNull() as? PsiDocToken)
-    val furtherNotEmptySibling =
-        (siblings.drop(1).firstOrNull { it is PsiDocToken && !it.isLeadingAsterisk() } as? PsiDocToken)
-    val lastHtmlTag = text.trim().substringAfterLast("<")
-    val endsWithAnUnclosedTag = lastHtmlTag.endsWith(">") && !lastHtmlTag.startsWith("</")
+private fun PsiElement.shouldHaveSpaceAtTheEnd(rawText: String): Boolean {
+    val immediateNext = nextSibling as? PsiWhiteSpace ?: return false
+    if (!immediateNext.text.startsWith("\n ")) return false
 
-    return (nextSibling as? PsiWhiteSpace)?.text?.startsWith("\n ") == true &&
-            (getNextSiblingIgnoringWhitespace() as? PsiDocToken)?.tokenType != JavaDocTokenTypes.INSTANCE.commentEnd() &&
-            nextNotEmptySibling?.isLeadingAsterisk() == true &&
-            furtherNotEmptySibling?.tokenType == JavaDocTokenTypes.INSTANCE.commentData() &&
-            !endsWithAnUnclosedTag
+    var cur = immediateNext.nextSibling
+    var checkedFirstNonWhitespace = false
+    while (cur != null) {
+        if (!checkedFirstNonWhitespace && cur !is PsiWhiteSpace) {
+            checkedFirstNonWhitespace = true
+            if ((cur as? PsiDocToken)?.tokenType == JavaDocTokenTypes.INSTANCE.commentEnd()) {
+                return false
+            }
+        }
+        if (!cur.isBlankJavadocSibling()) break
+        cur = cur.nextSibling
+    }
+
+    val nextNotEmptySibling = cur as? PsiDocToken ?: return false
+    if (!nextNotEmptySibling.isLeadingAsterisk()) return false
+
+    var endIdx = rawText.length - 1
+    while (endIdx >= 0 && rawText[endIdx].isWhitespace()) {
+        endIdx--
+    }
+    if (endIdx >= 0 && rawText[endIdx] == '>') {
+        val lastHtmlTag = rawText.trim().substringAfterLast("<")
+        if (lastHtmlTag.endsWith(">") && !lastHtmlTag.startsWith("</")) {
+            return false
+        }
+    }
+
+    var scan = nextNotEmptySibling.nextSibling
+    while (scan != null) {
+        if (scan is PsiDocToken && !scan.isLeadingAsterisk() && !scan.text.isBlank()) {
+            return scan.tokenType == JavaDocTokenTypes.INSTANCE.commentData()
+        }
+        if (scan is PsiDocTag && scan !is PsiInlineDocTag) {
+            return false
+        }
+        scan = scan.nextSibling
+    }
+    return false
 }
-
-
