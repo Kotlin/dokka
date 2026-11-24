@@ -47,7 +47,7 @@ fun interface TestedVersionsSource<T : TestedVersions> {
             "2.0.21",
             "2.1.21",
             "2.2.21",
-            "2.5.0-RC-351",
+            "2.5.0-RC2-388",
         )
 
         /**
