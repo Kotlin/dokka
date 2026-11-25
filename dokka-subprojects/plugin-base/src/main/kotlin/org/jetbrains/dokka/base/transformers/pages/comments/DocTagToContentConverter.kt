@@ -28,10 +28,10 @@ public open class DocTagToContentConverter : CommentsToContentConverter {
                 buildContent(it, dci, sourceSets, styles + newStyles, newExtras?.let { extras + it } ?: extras)
             }
 
-        fun buildTableRows(rows: List<DocTag>, newStyle: Style): List<ContentGroup> =
+        fun buildTableRows(rows: List<DocTag>): List<ContentGroup> =
             rows.flatMap {
                 @Suppress("UNCHECKED_CAST")
-                buildContent(it, dci, sourceSets, styles + newStyle, extras) as List<ContentGroup>
+                buildContent(it, dci, sourceSets, styles, extras) as List<ContentGroup>
             }
 
         fun buildHeader(level: Int) =
@@ -191,7 +191,7 @@ public open class DocTagToContentConverter : CommentsToContentConverter {
                     val body = docTag.children.filterIsInstance<TBody>().flatMap { it.children }
                     listOf(
                         ContentTable(
-                            header = buildTableRows(head.filterIsInstance<Tr>(), CommentTable),
+                            header = buildTableRows(head.filterIsInstance<Tr>()),
                             caption = docTag.children.firstIsInstanceOrNull<Caption>()?.let {
                                 ContentGroup(
                                     buildContent(it, dci, sourceSets),
@@ -201,7 +201,7 @@ public open class DocTagToContentConverter : CommentsToContentConverter {
                                     extras
                                 )
                             },
-                            buildTableRows(body.filterIsInstance<Tr>(), CommentTable),
+                            buildTableRows(body.filterIsInstance<Tr>()),
                             dci,
                             sourceSets.toDisplaySourceSets(),
                             styles + CommentTable
@@ -211,9 +211,9 @@ public open class DocTagToContentConverter : CommentsToContentConverter {
                     listOf(
                         ContentTable(
                             // Markdown tables use a Th node for the header row
-                            header = buildTableRows(docTag.children.filterIsInstance<Th>(), CommentTable),
+                            header = buildTableRows(docTag.children.filterIsInstance<Th>()),
                             caption = null,
-                            buildTableRows(docTag.children.filterIsInstance<Tr>(), CommentTable),
+                            buildTableRows(docTag.children.filterIsInstance<Tr>()),
                             dci,
                             sourceSets.toDisplaySourceSets(),
                             styles + CommentTable
