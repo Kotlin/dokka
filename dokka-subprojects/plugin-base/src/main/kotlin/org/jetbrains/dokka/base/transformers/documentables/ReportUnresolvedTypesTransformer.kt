@@ -4,7 +4,6 @@
 
 package org.jetbrains.dokka.base.transformers.documentables
 
-import org.jetbrains.dokka.ExperimentalDokkaApi
 import org.jetbrains.dokka.model.*
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.transformers.documentation.PreMergeDocumentableTransformer
@@ -32,13 +31,7 @@ internal class ReportUnresolvedTypesTransformer(
         module.also {
             val reported = mutableSetOf<String>()
 
-            module.withDescendants().flatMap { documentable ->
-                if (documentable is DProperty) {
-                    sequenceOf(documentable) + @OptIn(ExperimentalDokkaApi::class) documentable.contextParameters.asSequence()
-                } else {
-                    sequenceOf(documentable)
-                }
-            }.forEach { documentable ->
+            module.withDescendants().forEach { documentable ->
                 typePositions(documentable).forEach { bound ->
                     bound.forEachUnresolved { unresolved ->
                         val warning = unresolved.warningFor(documentable)
@@ -79,7 +72,7 @@ internal class ReportUnresolvedTypesTransformer(
             documentable.receiver?.let { yield(it.type) }
         }
         if (documentable is DProperty) {
-            // [DProperty.children] returns an empty list
+            // Accessors are not included in [DProperty.children]
             documentable.getter?.let { yieldAll(typePositions(it)) }
             documentable.setter?.let { yieldAll(typePositions(it)) }
         }

@@ -778,8 +778,8 @@ public data class DProperty(
         contextParameters = emptyList()
     )
 
-    override val children: List<Nothing>
-        get() = emptyList()
+    override val children: List<Documentable>
+        get() = @OptIn(ExperimentalDokkaApi::class) contextParameters
 
     override fun withNewExtras(newExtras: PropertyContainer<DProperty>): DProperty = copy(extra = newExtras)
 }
