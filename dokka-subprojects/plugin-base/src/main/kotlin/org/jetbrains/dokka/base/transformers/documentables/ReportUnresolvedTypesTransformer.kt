@@ -72,7 +72,7 @@ internal class ReportUnresolvedTypesTransformer(
             documentable.receiver?.let { yield(it.type) }
         }
         if (documentable is DProperty) {
-            // [DProperty.chidlren] returns an empty list
+            // Accessors are not included in [DProperty.children]
             documentable.getter?.let { yieldAll(typePositions(it)) }
             documentable.setter?.let { yieldAll(typePositions(it)) }
         }

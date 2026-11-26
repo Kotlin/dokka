@@ -42,6 +42,39 @@ class SymbolsTranslatorTest : BaseAbstractTest() {
     }
 
     @Test
+    fun `should warn about unresolved context parameters of documented functions and properties`() {
+        testInline(
+            """
+            |/src/main/kotlin/Test.kt
+            |abstract class Base {
+            |    context(logger: FunctionLogger)
+            |    fun functionWithContext() {}
+            |
+            |    context(logger: PropertyLogger, other: List<NestedLogger>)
+            |    val propertyWithContext: Int get() = 0
+            |
+            |    context(logger: PrivateLogger)
+            |    private val privateProperty: Int get() = 0
+            |
+            |    context(logger: String)
+            |    val resolvedProperty: Int get() = 0
+            |}
+            |
+            |abstract class Derived : Base()
+            """.trimIndent(),
+            configuration
+        ) {
+            documentablesMergingStage = {
+                val warnings = logger.warnMessages
+                assertEquals(3, warnings.size, warnings.joinToString())
+                for (name in listOf("FunctionLogger", "PropertyLogger", "NestedLogger")) {
+                    assertEquals(1, warnings.count { it.startsWith("`$name` is unresolved in ") })
+                }
+            }
+        }
+    }
+
+    @Test
     fun `should add UnresolvedTypeExtra to unresolved type`() {
         testInline(
             """

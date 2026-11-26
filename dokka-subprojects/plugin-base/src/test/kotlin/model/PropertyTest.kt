@@ -546,6 +546,7 @@ class PropertyTest : AbstractModelTest("/src/main/kotlin/property/Test.kt", "pro
                 )
                 documentation.values.single().children.single().text() equals "Some doc\n"
                 contextParameters counts 2
+                children equals contextParameters
                 contextParameters[0].name equals "s"
                 contextParameters[1].name equals "_"
                 with(contextParameters[0].type.assertNotNull("type")) {
