@@ -28,6 +28,17 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           develocity-access-key: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
+      # Ubuntu hosted runners have no swap, so the combined heap of the Gradle daemons,
+      # the test JVM and the Kotlin compile daemon can get the runner itself OOM-killed
+      # ("hosted runner lost communication ... starves it for CPU/Memory").
+      - name: Add 8G swap
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo fallocate -l 8G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
+          free -h
       - name: Run tests
         run: >
           ./gradlew check --stacktrace --continue
