@@ -53,5 +53,15 @@ dependencies {
 tasks.shadowJar {
     // service files are merged to make sure all Dokka plugins
     // from the dependencies are loaded, and not just a single one.
-    mergeServiceFiles()
+    mergeServiceFiles {
+        // `aalto-xml` (shaded alongside the K2 compiler classes) registers itself as the
+        // `javax.xml.stream.*` factory provider via these service files. On the fat Dokka
+        // classpath that would hijack StAX resolution for the whole host application —
+        // keep the aalto classes (the compiler references them directly) but drop the
+        // registrations, so `XMLInputFactory.newInstance()` falls back to the JDK.
+        // NB: the exclusion must be on the transformer (`mergeServiceFiles`) too, not only
+        // on the task — the transformer re-injects service files after content filtering.
+        exclude("javax.xml.stream.*")
+    }
+    exclude("META-INF/services/javax.xml.stream.*")
 }
