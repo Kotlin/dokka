@@ -15,14 +15,14 @@ jobs:
     if: github.repository == 'Kotlin/dokka'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: dokka
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: 'zulu'
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           develocity-access-key: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
       - name: Get current Dokka version
@@ -32,7 +32,7 @@ jobs:
         run: ./gradlew buildMkDocsSite -Pdokka_version=$DOKKA_VERSION --info
         working-directory: ./dokka
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dokka/docs-developer/build/mkdocs

@@ -10,12 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dokka
-        uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+        uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: 'zulu'
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           develocity-access-key: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
       - name: Document coroutines
@@ -23,7 +23,7 @@ jobs:
         env:
           DOKKA_TEST_OUTPUT_PATH: ${{ github.workspace }}/dokka/coroutines
       - name: Copy files to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dokka-coroutines
           path: ${{ github.workspace }}/dokka/coroutines
@@ -33,12 +33,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dokka
-        uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+        uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: 'zulu'
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           develocity-access-key: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
       - name: Document serialization
@@ -46,7 +46,7 @@ jobs:
         env:
           DOKKA_TEST_OUTPUT_PATH: ${{ github.workspace }}/dokka/serialization
       - name: Copy files to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dokka-serialization
           path: ${{ github.workspace }}/dokka/serialization
@@ -56,12 +56,12 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout dokka
-        uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+        uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: 'zulu'
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           develocity-access-key: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
       - name: Generate ui-showcase documentation
@@ -69,7 +69,7 @@ jobs:
         env:
           DOKKA_TEST_OUTPUT_PATH: ${{ github.workspace }}/dokka/ui-showcase
       - name: Copy files to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dokka-ui-showcase
           path: ${{ github.workspace }}/dokka/ui-showcase
@@ -79,12 +79,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dokka
-        uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+        uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: 'zulu'
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           develocity-access-key: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
       - name: Document biojava-core
@@ -92,7 +92,7 @@ jobs:
         env:
           DOKKA_TEST_OUTPUT_PATH: ${{ github.workspace }}/dokka/biojava
       - name: Copy files to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dokka-biojava
           path: ${{ github.workspace }}/dokka/biojava
