@@ -50,8 +50,8 @@ dependencyResolutionManagement {
 
 plugins {
     // versions should be kept in sync with `gradle/libs.versions.toml`
-    id("com.gradle.develocity") version "3.19"
-    id("com.gradle.common-custom-user-data-gradle-plugin") version "2.3" apply false
+    id("com.gradle.develocity") version "4.5.1"
+    id("com.gradle.common-custom-user-data-gradle-plugin") version "2.8.0" apply false
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
 }
 
