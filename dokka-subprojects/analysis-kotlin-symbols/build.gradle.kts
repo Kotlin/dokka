@@ -23,16 +23,7 @@ dependencies {
 
     implementation(projects.dokkaSubprojects.analysisKotlinApi)
     implementation(projects.dokkaSubprojects.analysisMarkdownJb)
-    implementation(projects.dokkaSubprojects.analysisJavaPsi) {
-        // a stripped one is already presented in `kotlin-compiler`
-        // also, it prevents using `aalto-xml` in `jackson` by excluding Stax API services files
-       exclude("com.fasterxml", "aalto-xml")
-        // `kotlinx-collections-immutable` is embedded (shaded under its original package) in `kotlin-compiler`.
-        // The IntelliJ platform pulls in a separate, older external artifact transitively, which shadows the
-        // embedded one on the classpath and lacks `PersistentList.adding` (renamed from `add` in 0.5.0),
-        // causing a NoSuchMethodError in KaBaseLifetimeTracker. Exclude it so the embedded copy is used.
-       exclude("org.jetbrains.kotlinx", "kotlinx-collections-immutable-jvm")
-    }
+    implementation(projects.dokkaSubprojects.analysisJavaPsi)
 
     // ----------- Analysis dependencies ----------------------------------------------------------------------------
 
