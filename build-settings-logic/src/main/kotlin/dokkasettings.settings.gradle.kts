@@ -48,7 +48,7 @@ develocity {
         plugins.apply("com.gradle.common-custom-user-data-gradle-plugin")
     }
 
-    server = "https://ge.jetbrains.com/"
+    server = "https://develocity.jetbrains.com/"
 
     buildScan {
         publishing {
